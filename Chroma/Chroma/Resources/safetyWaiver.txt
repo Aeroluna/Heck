@@ -1,0 +1,41 @@
+<size=6><mspace=4><align="center">SAFETY WAIVER</align></mspace></size>
+
+Certain features of Chroma and its extension mods require you to agree to a safety warning.  Both the reasoning behind this, and the instructions to do so, are below.
+
+If you are planning to enable these features, it is imperative to know you are doing so
+<align="center"><color="red">AT YOUR OWN RISK</color></align>
+
+Below are the features explicitly blocked unless the safety waiver has been signed.  Not all of these features around in Chroma - some are part of an extension plugin.
+
+<b>Rotation Map Events</b>
+-<indent=3>These map events are similar to Insanity mode below.</indent>
+
+<b>Nightmare</b>
+<i>Requires ChromaToggle</i>
+-<indent=3>Nightmare involves flashing lights, and static lights cannot prevent them.</indent>
+-<indent=3>Therefore, this serves as your epilepsy warning.</indent>
+-<indent=3>  There.  You are warned.</indent>
+-<indent=3>Do not play Nightmare if you have epilepsy.</indent>
+-<indent=3>Side note: Nightmare is extremely difficult.</indent>
+
+<b>Insanity</b>
+<i>Requires ChromaToggle</i>
+-<indent=3>This feature name is based on how immensely disorienting and absurd it is.</indent>
+-<indent=3>Even seasoned VR players can experience nausea or dizziness from this mode.</indent>
+-<indent=3>Do not play this mode with a small play space.</indent>
+
+<b>Head Sabers<b>
+<i>Requires ChromaToggle</i>
+-<indent=3>Also known as Unicorn Mode.  This one should be obvious.</indent>
+-<indent=3>YOU MAY BREAK YOUR NECK.  DO NOT BREAK YOUR NECK.</indent>
+-<indent=3>I AM NOT LIABLE FOR NECK INJURIES.  OR ANY OTHER INJURIES!</indent>
+-<indent=3>Seriously, though, head sabers can hurt you - badly.</indent>
+-<indent=3>Stretch well beforehand, and do not play more than a couple</indent>
+-<indent=3>minutes at a time.  Don't be as dumb as I am.</indent>
+
+<align="center">How to Sign</align>
+If you skipped to this point, be aware that Chroma is sentient and will track you down.  Chroma will hurt you.  And it won't be anyone's fault but your own.
+
+To mark the safety waiver as read, open the settings menu and type "SAFETYHAZARD" into the password field.
+
+Good luck.

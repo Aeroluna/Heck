@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6F47BF06-51D9-4349-9B2C-C0F963BE896A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Chroma</RootNamespace>
+    <AssemblyName>Chroma</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="BeatSaberCustomUI">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BeatSaberCustomUI.dll</HintPath>
+    </Reference>
+    <Reference Include="BS_Utils">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BS_Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="IllusionInjector">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\IllusionInjector.dll</HintPath>
+    </Reference>
+    <Reference Include="IllusionPlugin">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\IllusionPlugin.dll</HintPath>
+    </Reference>
+    <Reference Include="SongLoaderPlugin">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\SongLoaderPlugin.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="TextMeshPro-1.0.55.2017.1.0b12, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIElementsModule">
+      <HintPath>J:\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>J:\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAudioModule">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule">
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VRModule">
+      <HintPath>J:\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.VRModule.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Beatmap\ChromaMapModifier.cs" />
+    <Compile Include="Beatmap\CustomBeatmap.cs" />
+    <Compile Include="Beatmap\CustomBeatmapBarrier.cs" />
+    <Compile Include="Beatmap\CustomBeatmapBomb.cs" />
+    <Compile Include="Beatmap\CustomBeatmapNote.cs" />
+    <Compile Include="Beatmap\CustomBeatmapObject.cs" />
+    <Compile Include="Beatmap\Events\ChromaRotateEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaNoteScaleEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaLightEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaHealthEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaColourEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaChanceEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaBarrierColourEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaAmbientLightEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaEvent.cs" />
+    <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingPropagationEvent.cs" />
+    <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingSpeedEvent.cs" />
+    <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingStepEvent.cs" />
+    <Compile Include="ChromaBehaviour.cs" />
+    <Compile Include="HarmonyPatches\ReleaseInfoViewControllerDidActivate.cs" />
+    <Compile Include="HarmonyPatches\ColorManagerColorForNoteType.cs" />
+    <Compile Include="HarmonyPatches\ColorManagerColorForSaberType.cs" />
+    <Compile Include="HarmonyPatches\ColorNoteVisualsHandleNoteControllerDidInitEvent.cs" />
+    <Compile Include="HarmonyPatches\LightRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.cs" />
+    <Compile Include="HarmonyPatches\LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.cs" />
+    <Compile Include="HarmonyPatches\NoteControllerInit.cs" />
+    <Compile Include="HarmonyPatches\NoteCutEffectSpawnerSpawnNoteCutEffect.cs" />
+    <Compile Include="HarmonyPatches\SaberWeaponTrailColor.cs" />
+    <Compile Include="HarmonyPatches\TrackLaneRingsRotationEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.cs" />
+    <Compile Include="HarmonyPatches\VRPointerRefreshLaserPointerAndLaserHit.cs" />
+    <Compile Include="IChromaExtension.cs" />
+    <Compile Include="ChromaPlugin.cs" />
+    <Compile Include="Misc\Greetings.cs" />
+    <Compile Include="Misc\NoteScaling.cs" />
+    <Compile Include="ResourceTextFiles.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ResourceTextFiles.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\NamedColor.cs" />
+    <Compile Include="Utils\BaseGameMode.cs" />
+    <Compile Include="Utils\BaseGameModeType.cs" />
+    <Compile Include="Settings\ChromaConfig.cs" />
+    <Compile Include="Settings\ChromaSettingsUI.cs" />
+    <Compile Include="Utils\AudioUtil.cs" />
+    <Compile Include="Utils\Base64Sprites.cs" />
+    <Compile Include="Plugin.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ChromaLogger.cs" />
+    <Compile Include="ColourManager.cs" />
+    <Compile Include="IChromaBehaviourExtension.cs" />
+    <Compile Include="Utils\ReflectionUtil.cs" />
+    <Compile Include="Utils\SceneUtils.cs" />
+    <Compile Include="Utils\SidePanelUtil.cs" />
+    <Compile Include="Utils\StringUtil.cs" />
+    <Compile Include="VFX\VFXLightning.cs" />
+    <Compile Include="VFX\VFXRainbowBarriers.cs" />
+    <Compile Include="VFX\VFXRainbowSabers.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Beatmap\Events\VFXEvents\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ResourceTextFiles.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ResourceTextFiles.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\safetyWaiver.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\chromaNotes.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\credits.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
