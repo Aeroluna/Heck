@@ -232,11 +232,8 @@ namespace Chroma.Settings {
         private static void OnMainMenuLoaded() {
             ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteA);
             ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteB);
-            
-            string iniName = ModPrefs.GetString("ChromaToggle", "ConfigProfile", "default", true); //TODO get the thing
-            IniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);
 
-            LoadSettingsEvent?.Invoke(IniProfile, LoadSettingsType.MENU_LOADED);
+            LoadSettings(LoadSettingsType.MENU_LOADED);
         }
         private static void OnSongLoaded() {
             ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteA);
@@ -247,7 +244,7 @@ namespace Chroma.Settings {
 
 
         internal static void LoadSettings(LoadSettingsType type) {
-            string iniName = ModPrefs.GetString("ChromaToggle", "ConfigProfile", "default", true); //TODO get the thing
+            string iniName = ModPrefs.GetString("Chroma", "ConfigProfile", "default", true); //TODO get the thing
             IniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);
 
             LoadSettingsEvent?.Invoke(IniProfile, type);

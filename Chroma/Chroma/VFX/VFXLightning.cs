@@ -5,16 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Chroma.VFX {
-    using Chroma.Utils;
+    using global::Chroma.Utils;
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using UnityEngine;
 
-    namespace ChromaToggle.VFX {
+    namespace Chroma.VFX {
 
         public class VFXLightning : MonoBehaviour {
 

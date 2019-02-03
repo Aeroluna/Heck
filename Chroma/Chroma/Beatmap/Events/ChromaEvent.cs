@@ -1,5 +1,5 @@
 ﻿using Chroma.Settings;
-using Chroma.VFX.ChromaToggle.VFX;
+using Chroma.VFX.Chroma.VFX;
 using System;
 using System.Collections.Generic;
 using System.Linq;

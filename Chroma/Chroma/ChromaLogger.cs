@@ -30,7 +30,7 @@ namespace Chroma {
             
             //TODO customize levels
 
-            filePath = Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/ChromaToggle/log.txt";
+            filePath = Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma/log.txt";
 
             using (StreamWriter w = new StreamWriter(filePath, false)) {
                 w.WriteLine("Logger initialized...");
