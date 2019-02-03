@@ -260,7 +260,7 @@ namespace Chroma.Settings {
                 
                 ChromaLogger.Log("Loading settings [" + type.ToString() + "]", ChromaLogger.Level.INFO);
 
-                string iniName = ModPrefs.GetString("ChromaToggle", "ConfigProfile", "default", true); //TODO get the thing
+                string iniName = ModPrefs.GetString("Chroma", "ConfigProfile", "default", true); //TODO get the thing
                 IniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);
 
                 ChromaLogger.Log("--- From file " + iniName);
