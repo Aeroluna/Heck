@@ -115,7 +115,20 @@ namespace Chroma.Settings {
             }
         }
         private static float masterVolume = 1f;
-            
+
+
+        /// <summary>
+        /// Global multiplier for audio sources used by Chroma
+        /// </summary>
+        public static float SaberTrailStrength {
+            get { return saberTrailStrength; }
+            set {
+                saberTrailStrength = value;
+                ChromaConfig.SetFloat("Aesthetics", "saberTrailStrength", saberTrailStrength);
+            }
+        }
+        private static float saberTrailStrength = 1f;
+
 
         /// <summary>
         /// Required for any features that may cause dizziness, disorientation, nausea, seizures, or other forms of discomfort.
@@ -167,6 +180,27 @@ namespace Chroma.Settings {
             }
         }
         private static TechnicolourStyle technicolourLightsStyle = TechnicolourStyle.OFF;
+
+
+        public static bool TechnicolourLightsIndividual {
+            get { return technicolourLightsIndividual; }
+            set {
+                technicolourLightsIndividual = value;
+                ChromaConfig.SetBool("Technicolour", "technicolourLightsIndividual", technicolourLightsIndividual);
+            }
+        }
+        private static bool technicolourLightsIndividual = true;
+
+
+        public static float TechnicolourLightsFrequency {
+            get { return technicolourLightsFrequency; }
+            set {
+                technicolourLightsFrequency = value;
+                ChromaConfig.SetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
+            }
+        }
+        private static float technicolourLightsFrequency = 0.1f;
+
 
         public static TechnicolourStyle TechnicolourSabersStyle {
             get {
@@ -299,6 +333,8 @@ namespace Chroma.Settings {
                     technicolourEnabled = ChromaConfig.GetBool("Technicolour", "technicolourEnabled", false);
 
                     technicolourLightsStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourLightsStyle", 1);
+                    technicolourLightsIndividual = GetBool("Technicolour", "technicolourLightsIndividual", technicolourLightsIndividual);
+                    technicolourLightsFrequency = GetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
                     technicolourSabersStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourSabersStyle", 0);
                     technicolourBlocksStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourBlocksStyle", 0);
                     technicolourWallsStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourWallsStyle", 0);
@@ -358,6 +394,7 @@ namespace Chroma.Settings {
                 ColourManager.Platform = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "platformAccoutrements", "DEFAULT"), ColourManager.DefaultB);
 
                 ColourManager.barrierColourCorrectionScale = ChromaConfig.GetFloat("Aesthetics", "barrierColourCorrectionScale", 1f);
+                ChromaConfig.saberTrailStrength = ChromaConfig.GetFloat("Aesthetics", "saberTrailStrength", 1f);
 
                 /*
                  * OTHER

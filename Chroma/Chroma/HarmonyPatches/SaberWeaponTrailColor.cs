@@ -1,4 +1,5 @@
 ﻿using Chroma;
+using Chroma.Settings;
 using Chroma.VFX;
 using Harmony;
 using System;
@@ -23,6 +24,10 @@ class SaberWeaponTrailColor {
         }
         return true;
     }
+
+    /*public static void Postfix(SaberWeaponTrail __instance, ref Color __result) {
+        __result = __result.ColorWithAlpha(__result.a * ChromaConfig.SaberTrailStrength);
+    }*/
 
 }
 

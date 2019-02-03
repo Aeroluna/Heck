@@ -395,6 +395,21 @@ namespace Chroma.Settings {
                 ChromaConfig.TechnicolourLightsStyle = style;
             };
 
+            MultiSelectOption techniFrequency = GameplaySettingsUI.CreateListOption(GameplaySettingsPanels.PlayerSettingsRight, "Lights Freq", "CTT", "The higher the frequency, the more colour changes.  10% is default.");
+            for (int i = 1; i <= 20; i++) techniFrequency.AddOption(0.05f * i, i == 2 ? "10% (Def)" : (5f * i) + "%");
+            techniFrequency.GetValue += delegate {
+                return ChromaConfig.TechnicolourLightsFrequency;
+            };
+            techniFrequency.OnChange += delegate (float value) {
+                ChromaConfig.TechnicolourLightsFrequency = value;
+            };
+
+            ToggleOption techniIndividualLights = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsRight, "Isolated Lights", "CTT", "If enabled, Technicolour will only affect one light source at a time.  This results in much, much more colour variety being possible, but also can look excessively chaotic.");
+            techniIndividualLights.GetValue = ChromaConfig.TechnicolourLightsIndividual;
+            techniIndividualLights.OnToggle += delegate (bool value) {
+                ChromaConfig.TechnicolourLightsIndividual = value;
+            };
+
             /*MultiSelectOption techniBarriers = GameplaySettingsUI.CreateListOption(GameplaySettingsPanels.PlayerSettingsRight, "Tech. Walls", "CTT", "Technicolour style of the walls/barriers.");
             for (int i = 0; i < technicolourOptions.Count; i++) techniBarriers.AddOption(i, technicolourOptions[i].Item2);
             techniBarriers.GetValue += delegate {

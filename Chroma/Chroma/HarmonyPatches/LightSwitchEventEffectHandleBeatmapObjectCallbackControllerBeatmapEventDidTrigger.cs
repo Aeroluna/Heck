@@ -1,4 +1,5 @@
 ﻿using Chroma.Beatmap.Events;
+using Chroma.Extensions;
 using Chroma.Settings;
 using Harmony;
 using System;
@@ -16,6 +17,7 @@ namespace Chroma.HarmonyPatches {
     class LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger {
 
         public static void ResetRandom() {
+            ChromaLogger.Log("Resetting techniLightRandom Random 408");
             techniLightRandom = new System.Random(408);
         }
 
@@ -26,11 +28,13 @@ namespace Chroma.HarmonyPatches {
             // https://docs.google.com/spreadsheets/d/1vCTlDvx0ZW8NkkZBYW6ecvXaVRxDUKX7QIoah9PCp_c/edit#gid=0
             if (ColourManager.TechnicolourLights && (int)____event <= 4) { //0-4 are actual lighting events, we don't want to bother with anything else like ring spins or custom events
                 //System.Random noteRandom = new System.Random(Mathf.FloorToInt(beatmapEventData.time * 408));
-                if (techniLightRandom.NextDouble() < 0.1f) {
+                if (techniLightRandom.NextDouble() < ChromaConfig.TechnicolourLightsFrequency) {
                     if (beatmapEventData.value <= 3) { //Blue events are 1, 2 and 3
-                        ColourManager.RecolourAllLights(Color.clear, ColourManager.GetTechnicolour(false, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
+                        if (ChromaConfig.TechnicolourLightsIndividual) __instance.SetLightingColourB(ColourManager.GetTechnicolour(false, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
+                        else ColourManager.RecolourAllLights(Color.clear, ColourManager.GetTechnicolour(false, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
                     } else {
-                        ColourManager.RecolourAllLights(ColourManager.GetTechnicolour(true, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle), Color.clear);
+                        if (ChromaConfig.TechnicolourLightsIndividual) __instance.SetLightingColourA(ColourManager.GetTechnicolour(true, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
+                        else ColourManager.RecolourAllLights(ColourManager.GetTechnicolour(true, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle), Color.clear);
                     }
                 }
             }

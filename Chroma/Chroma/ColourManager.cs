@@ -1,4 +1,5 @@
 ﻿using Chroma.Beatmap.Events;
+using Chroma.Extensions;
 using Chroma.Settings;
 using Chroma.Utils;
 using System;
@@ -332,6 +333,10 @@ namespace Chroma {
         }
 
         
+        public static void ResetAllLights() {
+            LightSwitchEventEffect[] lights = GetAllLightSwitches();
+            foreach (LightSwitchEventEffect light in lights) light.Reset();
+        }
 
         public static void RecolourAllLights(Color red, Color blue) {
             LightSwitchEventEffect[] lights = GetAllLightSwitches();
@@ -345,6 +350,10 @@ namespace Chroma {
         }
 
         public static void RecolourLight(ref LightSwitchEventEffect obj, Color red, Color blue) {
+            obj.SetLightingColours(red, blue);
+        }
+
+        /*public static void RecolourLight(ref LightSwitchEventEffect obj, Color red, Color blue) {
             if (obj.name.Contains("nightmare")) return;
             string[] sa = new string[] { "_lightColor0", "_highlightColor0", "_lightColor1", "_highlightColor1" };
 
@@ -356,37 +365,8 @@ namespace Chroma {
                 Color newColour = i < sa.Length / 2 ? blue : red;
                 if (newColour == Color.clear) continue;
 
-                //MultipliedColorSO mColorSO = obj.GetPrivateField<MultipliedColorSO>(s);
-                //SimpleColorSO baseSO = mColorSO.GetPrivateField<SimpleColorSO>("_baseColor");
-
-                //Plugin.Log(s+" baseColor " + baseSO.color.ToString());
-
-                //if (i == 0 && obj.LightsID == 1) Plugin.Log("Recol "+obj.LightsID+": " + newColour.ToString() + " _____ " + Mathf.FloorToInt(newColour.r * 255) + ":" + Mathf.FloorToInt(newColour.g * 255) + ":" + Mathf.FloorToInt(newColour.b * 255));
-
                 baseSO.SetColor(newColour);
             }
-        }
-
-        /*public static void RecolourLaserPointer(Color c) {
-            if (c == Color.clear) return;
-            Renderer[] rends2 = GameObject.FindObjectsOfType<Renderer>();
-
-            foreach (Renderer rend in rends2) {
-
-
-                if (rend.name.Contains("Laser") && ColourManager.LaserPointerColour != Color.clear) {
-                    rend.material.color = ColourManager.LaserPointerColour;
-                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", c);
-                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", c);
-                }
-
-                if (rend.name.Contains("VRCursor") && ColourManager.LaserPointerColour != Color.clear) {
-                    rend.material.color = ColourManager.LaserPointerColour;
-                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", ColourManager.LaserPointerColour);
-                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", ColourManager.LaserPointerColour);
-                }
-            }
-
         }*/
 
         public static void RecolourMenuStuff(Color red, Color blue, Color redLight, Color blueLight, Color platformLight) {
@@ -550,7 +530,8 @@ namespace Chroma {
 
                 if (deny) return;
 
-                ColourManager.RecolourAllLights(ColourManager.LightA, ColourManager.LightB);
+                //ColourManager.RecolourAllLights(ColourManager.LightA, ColourManager.LightB);
+                ResetAllLights();
                 ColourManager.RecolourAmbientLights(ColourManager.LightAmbient);
                 if (!SceneUtils.IsTargetGameScene(SceneManager.GetActiveScene())) {
                     ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
@@ -565,7 +546,7 @@ namespace Chroma {
 
         }
 
-        public static SimpleColorSO SetupNewLightColourSOs(LightSwitchEventEffect light, String s) {
+        /*public static SimpleColorSO SetupNewLightColourSOs(LightSwitchEventEffect light, String s) {
             return SetupNewLightColourSOs(light, s, Color.clear);
         }
 
@@ -593,7 +574,7 @@ namespace Chroma {
                     SetupNewLightColourSOs(light, sa[i]);
                 }
             }
-        }
+        }*/
 
         [XmlRoot("Colour")]
         public class XmlColour {

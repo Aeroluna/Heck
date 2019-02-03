@@ -14,6 +14,27 @@ And of course, all colours can be customized.  We didn't forget those of you who
 
 <size=6><mspace=4><align="center">CHANGE LOGS</align></mspace></size>
 
+<align="center">Version 1.0.2</align>
+-<indent=3>Fixed an issue with RGB and technicolour colours carrying over across songs when lighting set to DEFAULT</indent>
+-<indent=3>Fixed an issue with RGB and technicolour not being able to apply more than two separate colours at a time, technically, if counting left/right lasers at the same time.</indent>
+
+-<indent=3>Recoded the lighting system</indent>
+-<indent=3>Massively reduces performance cost of light colour changes.  Go nuts, mappers!</indent>
+
+-<indent=3>MORE technicolour improvements</indent>
+-<indent=3>Added frequency setting to make lights change colour more or less often</indent>
+-<indent=3>Added individuality setting to make light sources change independently of each other.  This can result in five different lighting colours active at once!  It's a little ridiculous, really.</indent>
+
+<align="center">Version 1.0.1</align>
+-<indent=3>Technicolour Barriers is now a yes/no option</indent>
+-<indent=3>Technicolour Sabers now rainbow more smoothly</indent>
+-<indent=3>True Random style for Sabers now rainbows smoothly</indent>
+-<indent=3>True Random's colours are now always vibrant</indent>
+
+-<indent=3>You can now sign the safety waiver from in-game!</indent>
+
+-<indent=3>Reload sound is now back when reloading manually</indent>
+
 <align="center">Version 1.0.0a</align>
 
 Hello and welcome to the <s>Aperture</s>- wait sorry that's from another game-
@@ -23,8 +44,8 @@ Welcome to the alpha pre-release of Chroma!  You're doing your fellow Saberians 
 <b>Additions</b>
 -<indent=3>Chroma exists now</indent>
 -<indent=3>Technicolour features are built in to Chroma</indent>
-<indent=3>-<indent=3>Technicolour Sabers have a smooth transition</indent></indent>
-<indent=3>-<indent=3>Technicolour Barriers (when set to Either) have a smooth transition</indent></indent>
+-<indent=3>Technicolour Sabers have a smooth transition</indent>
+-<indent=3>Technicolour Barriers (when set to Either) have a smooth transition</indent>
 
 <b>Changes</b>
 -<indent=3>Technicolour now exists solely off lighting events</indent>

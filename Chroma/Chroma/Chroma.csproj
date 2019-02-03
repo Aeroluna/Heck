@@ -115,6 +115,9 @@
     <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingSpeedEvent.cs" />
     <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingStepEvent.cs" />
     <Compile Include="ChromaBehaviour.cs" />
+    <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
+    <Compile Include="HarmonyPatches\LightSwitchEventEffectOnDestroy.cs" />
+    <Compile Include="HarmonyPatches\LightSwitchEventEffectStart.cs" />
     <Compile Include="HarmonyPatches\ReleaseInfoViewControllerDidActivate.cs" />
     <Compile Include="HarmonyPatches\ColorManagerColorForNoteType.cs" />
     <Compile Include="HarmonyPatches\ColorManagerColorForSaberType.cs" />
@@ -151,6 +154,7 @@
     <Compile Include="Utils\SceneUtils.cs" />
     <Compile Include="Utils\SidePanelUtil.cs" />
     <Compile Include="Utils\StringUtil.cs" />
+    <Compile Include="VFX\Lighting\VFXRingLighting.cs" />
     <Compile Include="VFX\VFXLightning.cs" />
     <Compile Include="VFX\VFXRainbowBarriers.cs" />
     <Compile Include="VFX\VFXRainbowSabers.cs" />
