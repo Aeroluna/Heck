@@ -27,10 +27,13 @@ namespace Chroma {
 
         internal static void Init() {
             if (filePath != null) return;
-            
+
             //TODO customize levels
 
             filePath = Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma/log.txt";
+            if (!File.Exists(filePath)) {
+                using (var stream = File.Create(filePath)) { }
+            }
 
             using (StreamWriter w = new StreamWriter(filePath, false)) {
                 w.WriteLine("Logger initialized...");

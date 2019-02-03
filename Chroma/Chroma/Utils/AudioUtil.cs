@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -47,6 +48,12 @@ namespace Chroma.Utils {
         private Dictionary<string, AudioClip> memorizedClips = new Dictionary<string, AudioClip>();
 
         void Init() {
+            try {
+                Directory.CreateDirectory(Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma/Audio");
+            } catch (Exception e) {
+                ChromaLogger.Log("Error " + e.Message + " while trying to create Audio directory", ChromaLogger.Level.WARNING);
+            }
+
             ambianceSource = gameObject.AddComponent<AudioSource>();
             MakeSourceNonDimensional(ambianceSource, true);
 

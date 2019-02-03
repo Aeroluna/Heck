@@ -14,6 +14,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using Chroma.Misc;
+using System.IO;
 
 namespace Chroma {
 
@@ -84,6 +85,14 @@ namespace Chroma {
         private void Initialize() {
 
             try {
+
+                try {
+                    Directory.CreateDirectory(Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma");
+                } catch (Exception e) {
+                    ChromaLogger.Log("Error " + e.Message + " while trying to create Chroma directory", ChromaLogger.Level.WARNING);
+                }
+
+                ChromaLogger.Init();
 
                 ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
                 ChromaLogger.Log("Initializing Chroma [" + plugin.Version + "]", ChromaLogger.Level.INFO);
