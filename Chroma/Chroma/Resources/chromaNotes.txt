@@ -1,4 +1,4 @@
-<size=6><mspace=4><align="center">CHROMA %VER%</align></mspace></size>
+<size=6><align="center"><mspace=4>CHROMA</mspace> %VER%</align></size>
 
 Welcome, %USERNAME%!  
 

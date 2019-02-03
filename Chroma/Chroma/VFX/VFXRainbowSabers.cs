@@ -47,31 +47,39 @@ namespace Chroma.VFX {
         private float mismatchSpeedMult = 1f;
         private float matchOffset;
 
+        Color[] leftPalette;
+        Color[] rightPalette;
+        float secondsPerBeat = 0.5f;
+
         void Init() {
             matchOffset = ColourManager.TechnicolourCombinedPalette.Length / 2f;
             switch (ChromaConfig.TechnicolourSabersStyle) {
                 case ColourManager.TechnicolourStyle.ANY_PALETTE:
-                    StartCoroutine(SmoothRainbowSabers(Either));
+                    SetupEither();
+                    StartCoroutine(SmoothRainbowSabers(PaletteTick));
                     break;
                 case ColourManager.TechnicolourStyle.PURE_RANDOM:
-                    StartCoroutine(SmoothRainbowSabers(PureRandom));
+                    SetupRandom();
+                    StartCoroutine(SmoothRainbowSabers(RandomTick));
                     break;
                 default:
-                    StartCoroutine(SmoothRainbowSabers(WarmCold));
+                    SetupWarmCold();
+                    StartCoroutine(SmoothRainbowSabers(PaletteTick));
                     break;
             }
         }
 
 
-        float secondsPerBeat = 0.5f;
-        private IEnumerator SmoothRainbowSabers(Action<bool> action) {
+
+
+        private IEnumerator SmoothRainbowSabers(Action action) {
+
             secondsPerBeat = (60f / bpm);
-            action(true);
             while (true) {
                 yield return new WaitForSeconds(rainbowSabersUpdate);
                 try {
 
-                    DoTick(action);
+                    action();
 
                     foreach (SaberColourizer saber in saberColourizers) {
                         saber.Colourize(saber.warm ? rainbowSaberColours[0] : rainbowSaberColours[1]);
@@ -83,65 +91,64 @@ namespace Chroma.VFX {
             }
         }
 
-        Color[] colorCycleLeft = new Color[2];
-        Color[] colorCycleRight = new Color[2];
+        /*
+         * PALETTED
+         */
+
+        private void PaletteTick() {
+            rainbowSaberColours[0] = ColourManager.GetLerpedFromArray(leftPalette, (Time.time * mismatchSpeedMult) / secondsPerBeat);
+            rainbowSaberColours[1] = ColourManager.GetLerpedFromArray(leftPalette, (Time.time) / secondsPerBeat);
+        }
+
+        private void SetupWarmCold() {
+            leftPalette = ColourManager.TechnicolourWarmPalette;
+            rightPalette = ColourManager.TechnicolourColdPalette;
+        }
+
+        private void SetupEither() {
+            leftPalette = ColourManager.TechnicolourCombinedPalette;
+            rightPalette = ColourManager.TechnicolourCombinedPalette;
+        }
+
+        /*
+         * TRUE RANDOM
+         */
+         
+        float lastTime = 0;
         float h = 0;
-        float h2 = 0;
-        private void DoTick(Action<bool> action) {
-            h += (Time.time / secondsPerBeat) * 45f;
+        Color[] randomCycleLeft = new Color[2];
+        Color[] randomCycleRight = new Color[2];
+        private void RandomTick() {
+            h += (Time.time - lastTime) / secondsPerBeat;
             if (h > 1) {
                 h = 0;
-                CycleColours(action);
+                RandomCycleNext();
             }
-            rainbowSaberColours[0] = Color.Lerp(colorCycleLeft[0], colorCycleLeft[1], h2);
-            rainbowSaberColours[1] = Color.Lerp(colorCycleLeft[0], colorCycleLeft[1], h);
+            rainbowSaberColours[0] = Color.Lerp(randomCycleLeft[0], randomCycleLeft[1], h);
+            rainbowSaberColours[1] = Color.Lerp(randomCycleRight[0], randomCycleRight[1], h);
+            lastTime = Time.time;
         }
 
-        private void CycleColours(Action<bool> action) {
-            colorCycleLeft[0] = colorCycleLeft[1];
-            colorCycleRight[0] = colorCycleRight[1];
-            action(false);
-        }
-
-        private void WarmCold(bool initial) {
-            if (initial) {
-                colorCycleLeft[0] = ColourManager.A;
-                colorCycleRight[0] = ColourManager.B;
-            }
-            colorCycleLeft[1] = ColourManager.GetTechnicolour(true, (((Time.time * mismatchSpeedMult) / secondsPerBeat) * 45f) + secondsPerBeat, ColourManager.TechnicolourStyle.WARM_COLD);
-            colorCycleRight[1] = ColourManager.GetTechnicolour(false, ((Time.time / secondsPerBeat) * 45f) + secondsPerBeat, ColourManager.TechnicolourStyle.WARM_COLD);
-
-            //rainbowSaberColours[0] = ColourManager.GetLerpedFromArray(ColourManager.TechnicolourWarmPalette, (Time.time / secondsPerBeat) * mismatchSpeedMult);
-            //rainbowSaberColours[1] = ColourManager.GetLerpedFromArray(ColourManager.TechnicolourColdPalette, Time.time / secondsPerBeat);
-        }
-
-        private void Either(bool initial) {
-            if (initial) {
-                colorCycleLeft[0] = ColourManager.A;
-                colorCycleRight[0] = ColourManager.B;
-            }
-            colorCycleLeft[1] = ColourManager.GetTechnicolour(true, (((Time.time * mismatchSpeedMult) / secondsPerBeat) * 45f) + secondsPerBeat, ColourManager.TechnicolourStyle.ANY_PALETTE);
-            colorCycleRight[1] = ColourManager.GetTechnicolour(false, ((Time.time / secondsPerBeat) * 45f) + secondsPerBeat, ColourManager.TechnicolourStyle.ANY_PALETTE);
-
-            //rainbowSaberColours[0] = ColourManager.GetLerpedFromArray(ColourManager.TechnicolourCombinedPalette, (Time.time / secondsPerBeat) * mismatchSpeedMult);
-            //rainbowSaberColours[1] = ColourManager.GetLerpedFromArray(ColourManager.TechnicolourCombinedPalette, (Time.time / secondsPerBeat) + (match ? matchOffset : 0));
-        }
-        
-        private void PureRandom(bool initial) {
-            colorCycleLeft = new Color[] { UnityEngine.Random.ColorHSV(), UnityEngine.Random.ColorHSV() };
+        private void RandomCycleNext() {
+            randomCycleLeft[0] = randomCycleLeft[1];
+            randomCycleRight[0] = randomCycleRight[1];
+            randomCycleLeft[1] = Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f);
             if (match) {
-                colorCycleRight = colorCycleLeft;
+                randomCycleRight = randomCycleLeft;
             } else {
-                colorCycleRight = new Color[] { UnityEngine.Random.ColorHSV(), UnityEngine.Random.ColorHSV() };
+                randomCycleRight[1] = Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f);
             }
-            /*h += (Time.time / secondsPerBeat) * 45f;
-            rainbowSaberColours[0] = Color.HSVToRGB(Mathf.Repeat(h * mismatchSpeedMult, 360f) / 360f, 1f, 1f);
-            rainbowSaberColours[1] = Color.HSVToRGB(Mathf.Repeat(h + (match ? matchOffset : 0), 360f) / 360f, 1f, 1f);*/
         }
 
-        private void NextRandoms() {
-
+        private void SetupRandom() {
+            randomCycleLeft = new Color[] { Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f), Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f) };
+            randomCycleRight = new Color[] { Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f), Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f) };
         }
+
+        //Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f);
+        //UnityEngine.Random.ColorHSV().ColorWithValue(1);
+
+
 
         private class SaberColourizer {
 
@@ -198,50 +205,6 @@ namespace Chroma.VFX {
                     material.SetColor("_Color", color);
                 }
             }
-
-            /*MaterialPropertyBlock block;
-            SetSaberGlowColor.PropertyTintColorPair[] glowTintPairs;
-            MeshRenderer meshRenderer;
-
-            List<Material> customSaberMaterials = new List<Material>();
-
-            public SaberColourizer(Saber saber) {
-
-                warm = saber.saberType == Saber.SaberType.SaberA;
-
-                SetSaberGlowColor[] glowColors = saber.GetComponentsInChildren<SetSaberGlowColor>();
-                foreach (SetSaberGlowColor glowColor in glowColors) {
-                    
-                    meshRenderer = glowColor.GetField<MeshRenderer>("_meshRenderer");
-
-                    block = glowColor.GetField<MaterialPropertyBlock>("_materialPropertyBlock");
-                    if (block == null) {
-                        block = new MaterialPropertyBlock();
-                        glowColor.SetField("_materialPropertyBlock", block);
-                    }
-                    glowTintPairs = glowColor.GetField<SetSaberGlowColor.PropertyTintColorPair[]>("_propertyTintColorPairs");
-                    meshRenderer.SetPropertyBlock(block, 0);
-                }
-
-                //Custom sabers??
-                Renderer[] renderers = saber.GetComponentsInChildren<Renderer>();
-                for (int i = 0; i < renderers.Length; i++) {
-                    foreach (Material material in renderers[i].materials) {
-                        if ((material.HasProperty("_Glow") && material.GetFloat("_Glow") > 0f) || (material.HasProperty("_Bloom") && material.GetFloat("_Bloom") > 0f)) {
-                            customSaberMaterials.Add(material);
-                        }
-                    }
-                }
-
-            }
-
-            public void Colourize(Color color) {
-                foreach (SetSaberGlowColor.PropertyTintColorPair propertyTintColorPair in glowTintPairs) {
-                    block.SetColor(propertyTintColorPair.property, color * propertyTintColorPair.tintColor);
-                }
-                foreach (Material m in customSaberMaterials) m.SetColor("_Color", color);
-                meshRenderer.SetPropertyBlock(block, 0);
-            }*/
 
         }
 

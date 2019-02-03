@@ -406,7 +406,7 @@ namespace Chroma.Settings {
             };*/
 
             //Walls don't need to have other options since they only work nicely with Either
-            ToggleOption techniWalls = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsRight, "Desync Sabers", "CTT", "If true, technicolour sabers will have their \"time\" start and progress differently, resulting in their colours not matching so often.");
+            ToggleOption techniWalls = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsRight, "Tech. Barriers", "CTT", "If enabled, Barriers will rainbowify!");
             techniWalls.GetValue = ChromaConfig.TechnicolourWallsStyle == ColourManager.TechnicolourStyle.ANY_PALETTE;
             techniWalls.OnToggle += delegate (bool value) {
                 ChromaConfig.TechnicolourWallsStyle = value ? ColourManager.TechnicolourStyle.ANY_PALETTE : ColourManager.TechnicolourStyle.OFF;

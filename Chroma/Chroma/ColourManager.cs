@@ -137,7 +137,7 @@ namespace Chroma {
                 case TechnicolourStyle.ANY_PALETTE:
                     return GetEitherTechnicolour(time, transition);
                 case TechnicolourStyle.PURE_RANDOM:
-                    return UnityEngine.Random.ColorHSV().ColorWithAlpha(1f);
+                    return Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f); //UnityEngine.Random.ColorHSV().ColorWithAlpha(1f);
                 case TechnicolourStyle.WARM_COLD:
                     return warm ? GetWarmTechnicolour(time, transition) : GetColdTechnicolour(time, transition);
                 default: return Color.clear;
