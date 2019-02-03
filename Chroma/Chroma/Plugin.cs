@@ -8,7 +8,7 @@ namespace Chroma {
     public class Plugin : IPlugin {
 
         public string Name => "Chroma";
-        public string Version => "1.0.0a";
+        public string Version => "1.0.1";
 
         ChromaPlugin chroma;
 
