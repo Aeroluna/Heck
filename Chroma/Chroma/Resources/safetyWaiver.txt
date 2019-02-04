@@ -7,9 +7,6 @@ If you are planning to enable these features, it is imperative to know you are d
 
 Below are the features explicitly blocked unless the safety waiver has been signed.  Not all of these features around in Chroma - some are part of an extension plugin.
 
-<b>Technicolour Mayhem features</b>
--<indent=3>These maps are visually and chromatically over-intense, and may have epilepsy issues.  Static lights will not prevent them.</indent>
-
 <b>Nightmare</b>
 <i>Requires ChromaToggle</i>
 -<indent=3>Nightmare involves flashing lights, and static lights cannot prevent them.</indent>
@@ -17,6 +14,10 @@ Below are the features explicitly blocked unless the safety waiver has been sign
 -<indent=3>  There.  You are warned.</indent>
 -<indent=3>Do not play Nightmare if you have epilepsy.</indent>
 -<indent=3>Side note: Nightmare is extremely difficult.</indent>
+
+<b>Technicolour Mayhem features</b>
+-<indent=3>These maps are visually and chromatically over-intense, and may have epilepsy issues.</indent>
+-<indent=3>While static lights can prevent these, better to be safe than sorry, right?</indent>
 
 <b>Insanity</b>
 <i>Requires ChromaToggle</i>
