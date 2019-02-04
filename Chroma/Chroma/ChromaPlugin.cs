@@ -15,10 +15,13 @@ using TMPro;
 using UnityEngine.UI;
 using Chroma.Misc;
 using System.IO;
+using SimpleJSON;
 
 namespace Chroma {
 
     public class ChromaPlugin {
+        
+        public static Version Version = new Version(1, 1, 0);
 
         private static ChromaPlugin _instance;
         /// <summary>
@@ -95,7 +98,7 @@ namespace Chroma {
                 ChromaLogger.Init();
 
                 ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
-                ChromaLogger.Log("Initializing Chroma [" + plugin.Version + "]", ChromaLogger.Level.INFO);
+                ChromaLogger.Log("Initializing Chroma [" + ChromaPlugin.Version.ToString() + "]", ChromaLogger.Level.INFO);
                 ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
 
                 //Used for getting gamemode data mostly
@@ -150,7 +153,7 @@ namespace Chroma {
 
                 //Side panel
                 try {
-                    Greetings.RegisterChromaSideMenu();
+                    Greetings.RegisterChromaSideMenu(ChromaPlugin.Version);
                     SidePanelUtil.ReleaseInfoEnabledEvent += ReleaseInfoEnabled;
                 } catch (Exception e) {
                     ChromaLogger.Log("Error handling UI side panel", ChromaLogger.Level.ERROR);
@@ -205,20 +208,9 @@ namespace Chroma {
                 }
             }
         }
-
-        public static string infoKey = "chroma";
+        
         public void ReleaseInfoEnabled() {
-            if (infoKey == "chroma" && (UnityEngine.Random.value < 0.025f || Input.GetKey(KeyCode.Alpha5))) {
-                string[] split = Greetings.GetGreeting(ChromaConfig.UserID, ChromaConfig.Username);
-                string message = "";
-                foreach (string s in split) {
-                    message = message + s + Environment.NewLine;
-                }
-                SidePanelUtil.SetPanelDirectly(message);
-            } else {
-                SidePanelUtil.SetPanel(infoKey);
-                infoKey = "chroma";
-            }
+            SidePanelUtil.SetPanel("chroma");
             //SidePanelUtil.SetPanelDirectly(SafetyWaiver.GetSafetyWaiverUIMessage());
         }
 

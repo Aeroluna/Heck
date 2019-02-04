@@ -15,10 +15,12 @@ namespace Chroma.Utils {
 
         private static TextPageScrollView textPageScrollView;
 
+        private static string currentKey = defaultKey;
+        private static string currentMessage = "";
+
         /*private static ReleaseInfoViewController infoView;
         private static TextMeshProUGUI tmText;
-
-
+        
         private static bool Initialize() {
             try {
                 if (infoView != null) return true;
@@ -60,8 +62,9 @@ namespace Chroma.Utils {
         /// <param name="key">The key used in RegisterTextPanel</param>
         /// <returns>true if the key exists</returns>
         public static bool SetPanel(string key) {
+            if (key == null) return false;
             if (screenText.TryGetValue(key, out string message)) {
-                SetPanelDirectly(message);
+                SetPanelDirectly(message, key);
                 return true;
             }
             return false;
@@ -73,21 +76,38 @@ namespace Chroma.Utils {
         /// <param name="key">key to use for EnablePanel</param>
         /// <param name="message">Message to be shown</param>
         public static void RegisterTextPanel(string key, string message) {
-            screenText.Add(key, message);
+            if (screenText.ContainsKey(key)) {
+                screenText[key] = message;
+            } else {
+                screenText.Add(key, message);
+            }
         }
 
         /// <summary>
         /// Sets the panel directly via message
         /// </summary>
         /// <param name="message">Message to be shown</param>
-        public static void SetPanelDirectly(string message) {
+        public static void SetPanelDirectly(string message, string key = null) {
+            currentKey = key;
+            currentMessage = message;
             textPageScrollView.SetText(message);
+        }
+
+        /// <summary>
+        /// Reapplies the current key
+        /// </summary>
+        public static void Update() {
+            SetPanel(currentKey);
         }
 
 
         internal static void ReleaseInfoEnabled(ReleaseInfoViewController instance, TextPageScrollView textPageScrollView, string message) {
             SidePanelUtil.textPageScrollView = textPageScrollView;
-            if (!screenText.ContainsKey(defaultKey)) screenText.Add(defaultKey, message);
+            if (!screenText.ContainsKey(defaultKey)) {
+                screenText.Add(defaultKey, message);
+                currentKey = defaultKey;
+                currentMessage = message;
+            }
             ReleaseInfoEnabledEvent?.Invoke();
         }
 

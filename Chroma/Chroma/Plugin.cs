@@ -1,5 +1,6 @@
 ﻿using Chroma.Settings;
 using IllusionPlugin;
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,7 +9,8 @@ namespace Chroma {
     public class Plugin : IPlugin {
 
         public string Name => "Chroma";
-        public string Version => "1.0.2";
+        
+        public string Version => ChromaPlugin.Version.ToString();
 
         ChromaPlugin chroma;
 

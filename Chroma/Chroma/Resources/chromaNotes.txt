@@ -1,5 +1,7 @@
 <size=6><align="center"><mspace=4>CHROMA</mspace> %VER%</align></size>
 
+%ONLINE_VER%
+
 Welcome, %USERNAME%!  
 
 Here at the luxurious suite of Chroma™ we value your eye-cone-thingies.

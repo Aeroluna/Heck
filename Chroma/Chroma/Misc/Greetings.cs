@@ -1,10 +1,12 @@
 ﻿using Chroma.Settings;
 using Chroma.Utils;
+using SimpleJSON;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Chroma.Misc {
 
@@ -93,13 +95,91 @@ namespace Chroma.Misc {
 
         }
 
-        public static void RegisterChromaSideMenu() {
+        public static void AcquiredOnlineVersionInfo(Version localVersion, string data, JSONNode node, string errorMessage) {
+
+            string replace = "";
+
+            try {
+
+            } catch (Exception e) {
+                replace = "<color=red>Error parsing Online Version JSON info" + Environment.NewLine + e.Message + "</color>";
+            }
+            
+            ChromaLogger.Log("localVersion = " + localVersion.ToString());
+            int versionsBehind = 0;
+            Version latestApprovedVersion = null; //null
+
+            if (errorMessage != null) {
+                replace = "<color=red>"+errorMessage+"</color>";
+            } else {
+
+                IEnumerable<JSONNode> nodes = node.Children;
+
+                using (IEnumerator<JSONNode> enumerator = nodes.GetEnumerator()) {
+                    while (enumerator.MoveNext()) {
+                        if (enumerator.Current["approval"]["status"] == "approved") {
+                            try {
+                                Version remoteVersion = Version.Parse(enumerator.Current["version"].Value);
+                                ChromaLogger.Log("remoteVersion = " + remoteVersion.ToString());
+                                if (remoteVersion.CompareTo(localVersion) > 0) {
+                                    versionsBehind++;
+                                    if (latestApprovedVersion == null || remoteVersion.CompareTo(latestApprovedVersion) > 0) {
+                                        latestApprovedVersion = remoteVersion;
+                                    }
+                                }
+                            } catch (Exception) {
+                                ChromaLogger.Log("Bad version in history: " + enumerator.Current["version"]);
+                            }
+                        }
+                    }
+                }
+
+                if (versionsBehind == 0) {
+                    replace = "<color=green>You have the most recent version!</color>";
+                } else if (latestApprovedVersion != null) {
+                    replace = "<color=red>You are " + versionsBehind + " versions behind!" + Environment.NewLine +
+                        "Latest version: " + latestApprovedVersion.ToString() + "</color>";
+                } else {
+                    replace = "<color=red>You are " + versionsBehind + " versions behind!</color>";
+                }
+
+                /*IEnumerable<JSONNode> nodes = node.Children;
+
+                using (IEnumerator<JSONNode> enumerator = nodes.GetEnumerator()) {
+                    while (enumerator.MoveNext()) {
+                        if (enumerator.Current["version"] == compareVersion) break;
+                        if (enumerator.Current["approval"]["status"] == "approved") {
+                            versionsBehind++;
+                            if (latestApprovedVersion == null) latestApprovedVersion = enumerator.Current["version"].Value;
+                        }
+                    }
+                }*/
+
+            }
+
+            SidePanelUtil.RegisterTextPanel("chroma",
+                ResourceTextFiles.chromaNotes
+                .Replace("%VER%", (versionsBehind > 0 ? "<color=red>" : "<color=green>") + localVersion.ToString() + "</color>")
+                .Replace("%USERNAME%", ChromaConfig.Username)
+                .Replace("%ONLINE_VER%", replace)
+                );
+            SidePanelUtil.Update();
+
+            ChromaLogger.Log("Updated panel with version info");
+        }
+        
+        public static void RegisterChromaSideMenu(Version compareVersion) {
             SidePanelUtil.RegisterTextPanel("chroma", 
-                ResourceTextFiles.chromaNotes.Replace("%VER%", ChromaPlugin.Instance.plugin.Version).Replace("%USERNAME%", ChromaConfig.Username)
+                ResourceTextFiles.chromaNotes
+                .Replace("%VER%", compareVersion.ToString())
+                .Replace("%USERNAME%", ChromaConfig.Username)
+                .Replace("%ONLINE_VER%", "<color=yellow>ACQUIRING VERSION INFO</color>")
                 );
 
             SidePanelUtil.RegisterTextPanel("chromaWaiver", ResourceTextFiles.safetyWaiver);
             SidePanelUtil.RegisterTextPanel("chromaCredits", ResourceTextFiles.credits);
+
+            VersionUtil.GetOnlineVersionInfo(compareVersion, "https://www.modsaber.org/api/v1.1/mods/versions/song-loader", AcquiredOnlineVersionInfo);
         }
 
     }

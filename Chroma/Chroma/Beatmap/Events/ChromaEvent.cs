@@ -94,6 +94,7 @@ namespace Chroma.Beatmap.Events {
         }
 
         public static bool SimpleEventActivate(TrackLaneRingsRotationEffectSpawner tre, ref BeatmapEventData beatmapEventData, ref BeatmapEventType eventType) {
+            if (!ChromaConfig.LegacyLighting) return false;
             int id = beatmapEventData.value;
             switch (id) {
                 case CHROMA_EVENT_RING_ROTATE_RESET:
@@ -115,6 +116,7 @@ namespace Chroma.Beatmap.Events {
         }
 
         public static bool SimpleEventActivate(LightSwitchEventEffect lse, ref BeatmapEventData beatmapEventData, ref BeatmapEventType eventType) {
+            if (!ChromaConfig.LegacyLighting) return false;
             int id = beatmapEventData.value;
             switch (id) {
                 case CHROMA_EVENT_LASER_RESET_STATE_ON:

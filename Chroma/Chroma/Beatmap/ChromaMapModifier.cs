@@ -263,7 +263,7 @@ namespace Chroma.Beatmap {
         public static bool FillColourEvent(BeatmapEventData bev, ref ChromaColourEvent unfilledColourEvent, params Color[] colors) {
             if (unfilledColourEvent != null) {
                 unfilledColourEvent.Colors = colors;
-                ChromaEvent.SetChromaEvent(bev, unfilledColourEvent);
+                if (ChromaConfig.LegacyLighting) ChromaEvent.SetChromaEvent(bev, unfilledColourEvent);
                 ChromaLogger.Log("Filled " + unfilledColourEvent.GetType().ToString() + " event.");
                 unfilledColourEvent = null;
                 return true;

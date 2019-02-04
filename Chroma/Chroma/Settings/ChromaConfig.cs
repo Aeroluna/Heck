@@ -245,6 +245,11 @@ namespace Chroma.Settings {
         private static bool matchTechnicolourSabers = true;
         #endregion
 
+        #region tempoary
+        public static bool LegacyLighting { get { return legacyLighting; } }
+        private static bool legacyLighting = false;
+        #endregion
+
         /// <summary>
         /// Called when Chroma reloads the config files.
         /// </summary>
@@ -334,7 +339,8 @@ namespace Chroma.Settings {
 
                     technicolourLightsStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourLightsStyle", 1);
                     //technicolourLightsIndividual = GetBool("Technicolour", "technicolourLightsIndividual", technicolourLightsIndividual);
-                    technicolourLightsGrouping = (TechnicolourLightsGrouping)ChromaConfig.GetInt("Technicolour", "technicolourLightsGrouping", 0);
+                    technicolourLightsGrouping = (TechnicolourLightsGrouping)ChromaConfig.GetInt("Technicolour", "technicolourLightsGrouping", 1);
+                    if (technicolourLightsGrouping == TechnicolourLightsGrouping.ISOLATED) TechnicolourLightsGrouping = TechnicolourLightsGrouping.ISOLATED_GROUP;
                     technicolourLightsFrequency = GetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
                     technicolourSabersStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourSabersStyle", 0);
                     technicolourBlocksStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourBlocksStyle", 0);
@@ -400,6 +406,8 @@ namespace Chroma.Settings {
                 /*
                  * OTHER
                  */
+
+                legacyLighting = ChromaConfig.GetBool("Other", "legacyLighting", false);
 
                 debugMode = ChromaConfig.GetBool("Other", "debugMode", false);
 

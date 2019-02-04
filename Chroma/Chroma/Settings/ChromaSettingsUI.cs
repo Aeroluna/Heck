@@ -80,7 +80,6 @@ namespace Chroma.Settings {
                     ChromaConfig.WaiverRead = true;
                     AudioUtil.Instance.PlayOneShotSound("NightmareMode.wav");
                 } else if (value.ToUpper() == "CREDITS") {
-                    ChromaPlugin.infoKey = "chromaCredits";
                     AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");
                 }
             };
@@ -395,10 +394,10 @@ namespace Chroma.Settings {
                 ChromaConfig.TechnicolourLightsStyle = style;
             };
 
-            MultiSelectOption techniLightsGrouping = GameplaySettingsUI.CreateListOption(GameplaySettingsPanels.PlayerSettingsRight, "Lights Grouping", "CTT", "The more isolated, the more intense.\n  <color=red>Mayhem prevents fades and flashes from working properly</color>.");
+            MultiSelectOption techniLightsGrouping = GameplaySettingsUI.CreateListOption(GameplaySettingsPanels.PlayerSettingsRight, "Lights Grouping", "CTT", ChromaConfig.WaiverRead ? "The more isolated, the more intense.  Isolated Event has the best performance.\n  <color=red>Mayhem prevents fades and flashes from working properly</color>." : "Isolated Event for better performance, but more chaotic lighting");
             techniLightsGrouping.AddOption(0f, "Standard");
             techniLightsGrouping.AddOption(1f, "Isolated Event");
-            techniLightsGrouping.AddOption(2f, "Isolated (Mayhem)");
+            if (ChromaConfig.WaiverRead) techniLightsGrouping.AddOption(2f, "Isolated (Mayhem)");
             techniLightsGrouping.GetValue += delegate {
                 return (int)ChromaConfig.TechnicolourLightsGrouping;
             };
