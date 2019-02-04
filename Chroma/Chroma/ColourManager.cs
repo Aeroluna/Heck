@@ -89,11 +89,23 @@ namespace Chroma {
             SMOOTH = 1,
         }
 
+        public enum TechnicolourLightsGrouping {
+            STANDARD = 0,
+            ISOLATED_GROUP = 1,
+            ISOLATED = 2
+        }
+
         public static TechnicolourStyle GetTechnicolourStyleFromFloat(float f) {
             if (f == 1) return TechnicolourStyle.WARM_COLD;
             else if (f == 2) return TechnicolourStyle.ANY_PALETTE;
             else if (f == 3) return TechnicolourStyle.PURE_RANDOM;
             else return TechnicolourStyle.OFF;
+        }
+
+        public static TechnicolourLightsGrouping GetTechnicolourLightsGroupingFromFloat(float f) {
+            if (f == 1) return TechnicolourLightsGrouping.ISOLATED_GROUP;
+            else if (f == 2) return TechnicolourLightsGrouping.ISOLATED;
+            else return TechnicolourLightsGrouping.STANDARD;
         }
 
         private static bool technicolourLightsForceDisabled = false;

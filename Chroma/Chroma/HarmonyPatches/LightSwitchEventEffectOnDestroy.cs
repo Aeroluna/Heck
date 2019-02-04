@@ -16,8 +16,8 @@ namespace Chroma.HarmonyPatches {
     [HarmonyPatch("OnDestroy")]
     class LightSwitchEventEffectOnDestroy {
 
-        static void Postfix(LightSwitchEventEffect __instance) {
-            LightSwitchEventEffectExtensions.LSEDestroy(__instance);
+        static void Postfix(LightSwitchEventEffect __instance, ref BeatmapEventType ____event) {
+            LightSwitchEventEffectExtensions.LSEDestroy(__instance, ____event);
         }
 
     }

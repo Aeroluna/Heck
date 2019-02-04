@@ -96,6 +96,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Beatmap\ChromaEvents\LightsSmoothTransition.cs" />
+    <Compile Include="Beatmap\ChromaEvents\LightsIsolatedTechnicolour.cs" />
+    <Compile Include="Beatmap\ChromaEvents\RingEvents\RingLightsPropagateColour.cs" />
     <Compile Include="Beatmap\ChromaMapModifier.cs" />
     <Compile Include="Beatmap\CustomBeatmap.cs" />
     <Compile Include="Beatmap\CustomBeatmapBarrier.cs" />
@@ -115,6 +118,7 @@
     <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingSpeedEvent.cs" />
     <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingStepEvent.cs" />
     <Compile Include="ChromaBehaviour.cs" />
+    <Compile Include="ChromaTesting.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
     <Compile Include="HarmonyPatches\LightSwitchEventEffectOnDestroy.cs" />
     <Compile Include="HarmonyPatches\LightSwitchEventEffectStart.cs" />
@@ -154,7 +158,7 @@
     <Compile Include="Utils\SceneUtils.cs" />
     <Compile Include="Utils\SidePanelUtil.cs" />
     <Compile Include="Utils\StringUtil.cs" />
-    <Compile Include="VFX\Lighting\VFXRingLighting.cs" />
+    <Compile Include="Utils\VersionUtil.cs" />
     <Compile Include="VFX\VFXLightning.cs" />
     <Compile Include="VFX\VFXRainbowBarriers.cs" />
     <Compile Include="VFX\VFXRainbowSabers.cs" />

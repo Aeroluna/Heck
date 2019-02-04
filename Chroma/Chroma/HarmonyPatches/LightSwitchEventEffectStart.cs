@@ -16,8 +16,8 @@ namespace Chroma.HarmonyPatches {
     [HarmonyPatch("Start")]
     class LightSwitchEventEffectStart {
 
-        static void Postfix(LightSwitchEventEffect __instance) {
-            LightSwitchEventEffectExtensions.LSEStart(__instance);
+        static void Postfix(LightSwitchEventEffect __instance, ref BeatmapEventType ____event) {
+            LightSwitchEventEffectExtensions.LSEStart(__instance, ____event);
         }
 
     }

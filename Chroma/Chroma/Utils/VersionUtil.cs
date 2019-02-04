@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chroma.VFX.Lighting {
+namespace Chroma.Utils {
 
-    public class VFXRingLighting {
+    public static class VersionUtil {
 
 
+        static async Task UpdateNotesWithChromaVersion() {
+
+        }
 
     }
 

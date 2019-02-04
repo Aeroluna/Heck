@@ -11,7 +11,7 @@ namespace Chroma.Extensions {
     public static class LightSwitchEventEffectExtensions {
 
         public static void Reset(this LightSwitchEventEffect lse) {
-            if (knownLSEs.TryGetValue(lse, out LSEHolder holder)) holder.Reset();
+            LSEColourManager.GetLSEColourManager(lse)?.Reset();
         }
 
         public static void SetLightingColourA(this LightSwitchEventEffect lse, Color colour) {
@@ -23,25 +23,57 @@ namespace Chroma.Extensions {
         }
 
         public static void SetLightingColours(this LightSwitchEventEffect lse, Color colourA, Color colourB) {
-            if (knownLSEs.TryGetValue(lse, out LSEHolder holder)) holder.SetLightingColours(colourA, colourB);
+            LSEColourManager.GetLSEColourManager(lse)?.SetLightingColours(colourA, colourB);
         }
 
         /*
          * LSE ColourSO holders
          */
 
-        internal static void LSEStart(LightSwitchEventEffect lse) {
-            knownLSEs.Add(lse, new LSEHolder(lse));
+        internal static void LSEStart(LightSwitchEventEffect lse, BeatmapEventType type) {
+            LSEColourManager lsecm = LSEColourManager.GetOrCreateLSEColourManager(lse, type);
+            if (type == BeatmapEventType.Event1) {
+                ChromaTesting.lse = lse; ChromaTesting.type = type;
+            }
         }
 
-        internal static void LSEDestroy(LightSwitchEventEffect lse) {
-            knownLSEs.Remove(lse);
+        internal static void LSEDestroy(LightSwitchEventEffect lse, BeatmapEventType type) {
+            LSEColourManager.GetLSEColourManager(type)?.LSEDestroyed();
         }
+        
+        private static List<LSEColourManager> LSEColourManagers = new List<LSEColourManager>();
 
-        private static Dictionary<LightSwitchEventEffect, LSEHolder> knownLSEs = new Dictionary<LightSwitchEventEffect, LSEHolder>();
+        private class LSEColourManager {
 
-        private class LSEHolder {
+            public static LSEColourManager GetLSEColourManager(BeatmapEventType type) {
+                for (int i = 0; i < LSEColourManagers.Count; i++) {
+                    if (LSEColourManagers[i].type == type) return LSEColourManagers[i];
+                }
+                return null;
+            }
+
+            public static LSEColourManager GetLSEColourManager(LightSwitchEventEffect lse) {
+                for (int i = 0; i < LSEColourManagers.Count; i++) {
+                    if (LSEColourManagers[i].lse == lse) return LSEColourManagers[i];
+                }
+                return null;
+            }
+
+            public static LSEColourManager GetOrCreateLSEColourManager(LightSwitchEventEffect lse, BeatmapEventType type) {
+                LSEColourManager lsecm = GetLSEColourManager(type);
+                if (lsecm != null) {
+                    lsecm.Initialize(lse, type);
+                    return lsecm;
+                } else {
+                    lsecm = new LSEColourManager(lse, type);
+                    lsecm.Initialize(lse, type);
+                    LSEColourManagers.Add(lsecm);
+                    return lsecm;
+                }
+            }
+
             public LightSwitchEventEffect lse;
+            public BeatmapEventType type;
 
             public Color _lightColor0_Original;
             public Color _highlightColor0_Original;
@@ -53,92 +85,48 @@ namespace Chroma.Extensions {
             public SimpleColorSO _lightColor1;
             public SimpleColorSO _highlightColor1;
 
-            public LSEHolder(LightSwitchEventEffect lse) {
-                this.lse = lse;
+            public MultipliedColorSO m_lightColor0;
+            public MultipliedColorSO m_highlightColor0;
+            public MultipliedColorSO m_lightColor1;
+            public MultipliedColorSO m_highlightColor1;
 
-                /*
-                MultipliedColorSO mColorSO = lse.GetField<MultipliedColorSO>("_lightColor0");
-                _lightColor0 = mColorSO.GetField<SimpleColorSO>("_baseColor");
-                _lightColor0_Original = _lightColor0.color;
-
-                mColorSO = lse.GetField<MultipliedColorSO>("_highlightColor0");
-                _highlightColor0 = mColorSO.GetField<SimpleColorSO>("_baseColor");
-                _highlightColor0_Original = _highlightColor0.color;
-
-                mColorSO = lse.GetField<MultipliedColorSO>("_lightColor1");
-                _lightColor1 = mColorSO.GetField<SimpleColorSO>("_baseColor");
-                _lightColor1_Original = _lightColor1.color;
-
-                mColorSO = lse.GetField<MultipliedColorSO>("_highlightColor1");
-                _highlightColor1 = mColorSO.GetField<SimpleColorSO>("_baseColor");
-                _highlightColor1_Original = _highlightColor1.color;
-                */
-
-                /*
-                //0 is blue
-                MultipliedColorSO mColorSO = lse.GetField<MultipliedColorSO>("_lightColor0");
-                _lightColor0 = mColorSO.GetField<SimpleColorSO>("_baseColor");
-                _lightColor0_Original = _lightColor0.color;
-                mColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
-                lse.SetField("_lightColor0", mColorSO);
-                _lightColor0 = ScriptableObject.CreateInstance<SimpleColorSO>();
-                _lightColor0.SetColor(_lightColor0_Original);
-                mColorSO.SetField("_baseColor", _lightColor0);
-
-                mColorSO = lse.GetField<MultipliedColorSO>("_highlightColor0");
-                _highlightColor0 = mColorSO.GetField<SimpleColorSO>("_baseColor");
-                _highlightColor0_Original = _highlightColor0.color;
-                mColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
-                lse.SetField("_highlightColor0", mColorSO);
-                _highlightColor0 = ScriptableObject.CreateInstance<SimpleColorSO>();
-                _highlightColor0.SetColor(_highlightColor0_Original);
-                mColorSO.SetField("_baseColor", _highlightColor0);
-
-                //1 is red
-                mColorSO = lse.GetField<MultipliedColorSO>("_lightColor1");
-                _lightColor1 = mColorSO.GetField<SimpleColorSO>("_baseColor");
-                _lightColor1_Original = _lightColor1.color;
-                mColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
-                lse.SetField("_lightColor1", mColorSO);
-                _lightColor1 = ScriptableObject.CreateInstance<SimpleColorSO>();
-                _lightColor1.SetColor(_lightColor1_Original);
-                mColorSO.SetField("_baseColor", _lightColor1);
-
-                mColorSO = lse.GetField<MultipliedColorSO>("_highlightColor1");
-                _highlightColor1 = mColorSO.GetField<SimpleColorSO>("_baseColor");
-                _highlightColor1_Original = _highlightColor1.color;
-                mColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
-                lse.SetField("_highlightColor1", mColorSO);
-                _highlightColor1 = ScriptableObject.CreateInstance<SimpleColorSO>();
-                _highlightColor1.SetColor(_highlightColor1_Original);
-                mColorSO.SetField("_baseColor", _highlightColor1);
-                */
-
-                SetupNewSO(lse, "_lightColor0", ref _lightColor0, ref _lightColor0_Original);
-                SetupNewSO(lse, "_highlightColor0", ref _highlightColor0, ref _highlightColor0_Original);
-                SetupNewSO(lse, "_lightColor1", ref _lightColor1, ref _lightColor1_Original);
-                SetupNewSO(lse, "_highlightColor1", ref _highlightColor1, ref _highlightColor1_Original);
-
-                ChromaLogger.Log("Did the thing");
+            private LSEColourManager(LightSwitchEventEffect lse, BeatmapEventType type) {
+                Initialize(lse, type);
             }
 
-            private void SetupNewSO(LightSwitchEventEffect lse, string id, ref SimpleColorSO sColorSO, ref Color originalColour) {
-                MultipliedColorSO mColorSO = lse.GetField<MultipliedColorSO>(id);
-                Color multiplierColour = mColorSO.GetField<Color>("_multiplierColor");
-                SimpleColorSO lightSO = mColorSO.GetField<SimpleColorSO>("_baseColor");
+            private void Initialize(LightSwitchEventEffect lse, BeatmapEventType type) {
+                this.lse = lse;
+                this.type = type;
+                InitializeSOs(lse, "_lightColor0", ref _lightColor0, ref _lightColor0_Original, ref m_lightColor0);
+                InitializeSOs(lse, "_highlightColor0", ref _highlightColor0, ref _highlightColor0_Original, ref m_highlightColor0);
+                InitializeSOs(lse, "_lightColor1", ref _lightColor1, ref _lightColor1_Original, ref m_lightColor1);
+                InitializeSOs(lse, "_highlightColor1", ref _highlightColor1, ref _highlightColor1_Original, ref m_highlightColor1);
+            }
+
+            //We still need to do the first half of this even if the LSECM already exists as custom map colours exist and we need to be able to know the default colour
+            private void InitializeSOs(LightSwitchEventEffect lse, string id, ref SimpleColorSO sColorSO, ref Color originalColour, ref MultipliedColorSO mColorSO) {
+                MultipliedColorSO lightMultSO = lse.GetField<MultipliedColorSO>(id);
+                Color multiplierColour = lightMultSO.GetField<Color>("_multiplierColor");
+                SimpleColorSO lightSO = lightMultSO.GetField<SimpleColorSO>("_baseColor");
                 originalColour = lightSO.color;
 
-                mColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
-                mColorSO.SetField("_multiplierColor", multiplierColour);
+                if (mColorSO == null) {
+                    mColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
+                    mColorSO.SetField("_multiplierColor", multiplierColour);
 
-                sColorSO = ScriptableObject.CreateInstance<SimpleColorSO>();
-                sColorSO.SetColor(originalColour);
-                mColorSO.SetField("_baseColor", sColorSO);
+                    sColorSO = ScriptableObject.CreateInstance<SimpleColorSO>();
+                    sColorSO.SetColor(originalColour);
+                    mColorSO.SetField("_baseColor", sColorSO);
+                }
 
                 lse.SetField(id, mColorSO);
             }
 
-            public void Reset() {
+            internal void LSEDestroyed() {
+                this.lse = null;
+            }
+
+            internal void Reset() {
                 if (ColourManager.LightB == Color.clear) {
                     _lightColor0.SetColor(_lightColor0_Original);
                     _highlightColor0.SetColor(_highlightColor0_Original);
@@ -155,7 +143,7 @@ namespace Chroma.Extensions {
                 }
             }
 
-            public void SetLightingColours(Color colourA, Color colourB) {
+            internal void SetLightingColours(Color colourA, Color colourB) {
                 if (colourA != Color.clear) {
                     _lightColor0.SetColor(colourA);
                     _highlightColor0.SetColor(colourA);
@@ -165,14 +153,6 @@ namespace Chroma.Extensions {
                     _highlightColor1.SetColor(colourB);
                 }
             }
-        }
-
-        internal static void RememberDefaultColours(LightSwitchEventEffect lse) {
-
-        }
-
-        internal static void GetDefaultColours() {
-
         }
 
     }

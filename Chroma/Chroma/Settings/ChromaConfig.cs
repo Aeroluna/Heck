@@ -182,14 +182,14 @@ namespace Chroma.Settings {
         private static TechnicolourStyle technicolourLightsStyle = TechnicolourStyle.OFF;
 
 
-        public static bool TechnicolourLightsIndividual {
-            get { return technicolourLightsIndividual; }
+        public static TechnicolourLightsGrouping TechnicolourLightsGrouping {
+            get { return technicolourLightsGrouping; }
             set {
-                technicolourLightsIndividual = value;
-                ChromaConfig.SetBool("Technicolour", "technicolourLightsIndividual", technicolourLightsIndividual);
+                technicolourLightsGrouping = value;
+                ChromaConfig.SetFloat("Technicolour", "technicolourLightsGrouping", (int)technicolourLightsGrouping);
             }
         }
-        private static bool technicolourLightsIndividual = true;
+        private static TechnicolourLightsGrouping technicolourLightsGrouping = TechnicolourLightsGrouping.STANDARD;
 
 
         public static float TechnicolourLightsFrequency {
@@ -333,7 +333,8 @@ namespace Chroma.Settings {
                     technicolourEnabled = ChromaConfig.GetBool("Technicolour", "technicolourEnabled", false);
 
                     technicolourLightsStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourLightsStyle", 1);
-                    technicolourLightsIndividual = GetBool("Technicolour", "technicolourLightsIndividual", technicolourLightsIndividual);
+                    //technicolourLightsIndividual = GetBool("Technicolour", "technicolourLightsIndividual", technicolourLightsIndividual);
+                    technicolourLightsGrouping = (TechnicolourLightsGrouping)ChromaConfig.GetInt("Technicolour", "technicolourLightsGrouping", 0);
                     technicolourLightsFrequency = GetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
                     technicolourSabersStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourSabersStyle", 0);
                     technicolourBlocksStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourBlocksStyle", 0);
