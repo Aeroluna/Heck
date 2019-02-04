@@ -7,8 +7,8 @@ If you are planning to enable these features, it is imperative to know you are d
 
 Below are the features explicitly blocked unless the safety waiver has been signed.  Not all of these features around in Chroma - some are part of an extension plugin.
 
-<b>Rotation Map Events</b>
--<indent=3>These map events are similar to Insanity mode below.</indent>
+<b>Technicolour Mayhem features</b>
+-<indent=3>These maps are visually and chromatically over-intense, and may have epilepsy issues.  Static lights will not prevent them.</indent>
 
 <b>Nightmare</b>
 <i>Requires ChromaToggle</i>
