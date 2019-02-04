@@ -179,7 +179,7 @@ namespace Chroma.Misc {
             SidePanelUtil.RegisterTextPanel("chromaWaiver", ResourceTextFiles.safetyWaiver);
             SidePanelUtil.RegisterTextPanel("chromaCredits", ResourceTextFiles.credits);
 
-            VersionUtil.GetOnlineVersionInfo(compareVersion, "https://www.modsaber.org/api/v1.1/mods/versions/song-loader", AcquiredOnlineVersionInfo);
+            VersionUtil.GetOnlineVersionInfo(compareVersion, "https://www.modsaber.org/api/v1.1/mods/versions/chroma", AcquiredOnlineVersionInfo);
         }
 
     }
