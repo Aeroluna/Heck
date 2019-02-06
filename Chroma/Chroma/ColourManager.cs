@@ -381,17 +381,17 @@ namespace Chroma {
             }
         }*/
 
-        public static void RecolourMenuStuff(Color red, Color blue, Color redLight, Color blueLight, Color platformLight) {
+        public static void RecolourMenuStuff(Color red, Color blue, Color redLight, Color blueLight, Color platformLight, Color laser) {
 
             Renderer[] rends2 = GameObject.FindObjectsOfType<Renderer>();
 
             foreach (Renderer rend in rends2) {
 
 
-                if (rend.name.Contains("Laser") && ColourManager.LaserPointerColour != Color.clear) {
-                    rend.material.color = ColourManager.LaserPointerColour;
-                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", ColourManager.LaserPointerColour);
-                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", ColourManager.LaserPointerColour);
+                if (rend.name.Contains("Laser") && laser != Color.clear) {
+                    rend.material.color = laser;
+                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", laser);
+                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", laser);
                 }
                 if (rend.name.Contains("Glow") && platformLight != Color.clear) {
                     rend.material.color = platformLight;
@@ -435,7 +435,6 @@ namespace Chroma {
         }
 
         public static void RecolourAmbientLights(Color color) {
-            if (color == Color.clear) return;
             List<TubeBloomPrePassLight> bls = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>().ToList();
             LightSwitchEventEffect[] lights = GetAllLightSwitches();
             foreach (LightSwitchEventEffect light in lights) {
@@ -445,23 +444,8 @@ namespace Chroma {
                 }
             }
             foreach (TubeBloomPrePassLight tb in bls) {
-                //ChromaLogger.Log(tb.name + "_color " + tb.GetField<Color>("_color").ToString());
-                tb.SetField("_color", color);
-                tb.color = color;
-                Renderer[] rends = tb.GetComponentsInChildren<Renderer>();
-                foreach (Renderer rend in rends) {
-                    //if (rend.name.ToUpper().Contains("NEON")) continue;
-                    if (color == Color.black) rend.enabled = false;
-                    else {
-                        if (!rend.gameObject.name.StartsWith("CT_")) rend.enabled = true;
-                        if (rend.materials.Length > 0) {
-                            if (rend.material.shader.name == "Custom/ParametricBox" || rend.material.shader.name == "Custom/ParametricBoxOpaque") {
-                                //ChromaLogger.Log("Amby "+rend.name+" : " + rend.material.GetColor("_Color").ToString());
-                                rend.material.SetColor("_Color", new Color(color.r * 0.5f, color.g * 0.5f, color.b * 0.5f, 1.0f));
-                            }
-                        }
-                    }
-                }
+                if (color == Color.clear) tb.Reset();
+                else tb.ApplyColour(color);
             }
         }
 
@@ -530,26 +514,39 @@ namespace Chroma {
 
         }
 
-        public delegate void RefreshLightsDelegate(ref bool deny);
+        public delegate void RefreshLightsDelegate(ref Color ambientLight, ref Color red, ref Color blue, ref Color redLight, ref Color blueLight, ref Color platform, ref Color signA, ref Color signB, ref Color laser, ref string ambientSound);
         public static event RefreshLightsDelegate RefreshLightsEvent;
 
         public static void RefreshLights() {
 
             try {
-                
-                bool deny = false;
-                RefreshLightsEvent?.Invoke(ref deny);
 
-                if (deny) return;
+                ChromaLogger.Log("Refreshing Lights");
+
+                Color ambientLight = ColourManager.LightAmbient;
+                Color red = ColourManager.LightAmbient;
+                Color blue = ColourManager.LightAmbient;
+                Color redLight = ColourManager.LightAmbient;
+                Color blueLight = ColourManager.LightAmbient;
+                Color platform = ColourManager.LightAmbient;
+                Color signA = ColourManager.LightAmbient;
+                Color signB = ColourManager.LightAmbient;
+                Color laser = ColourManager.LaserPointerColour;
+
+                string ambientSound = null;
+
+                RefreshLightsEvent?.Invoke(ref ambientLight, ref red, ref blue, ref redLight, ref blueLight, ref platform, ref signA, ref signB, ref laser, ref ambientSound);
 
                 //ColourManager.RecolourAllLights(ColourManager.LightA, ColourManager.LightB);
                 ResetAllLights();
-                ColourManager.RecolourAmbientLights(ColourManager.LightAmbient);
+                ColourManager.RecolourAmbientLights(ambientLight);
                 if (!SceneUtils.IsTargetGameScene(SceneManager.GetActiveScene())) {
-                    ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
-                    ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform);
+                    ColourManager.RecolourNeonSign(signA, signB);
+                    ColourManager.RecolourMenuStuff(red, blue, redLight, blueLight, platform, laser);
                 }
-                AudioUtil.Instance.StopAmbianceSound();
+
+                if (ambientSound == null) AudioUtil.Instance.StopAmbianceSound();
+                else AudioUtil.Instance.StartAmbianceSound(ambientSound);
 
             } catch (Exception e) {
                 ChromaLogger.Log("Error refreshing lights!");
@@ -588,6 +585,11 @@ namespace Chroma {
             }
         }*/
 
+
+        //TODO
+        //This shit is messy.  Fix that.
+        #region savedColours
+
         [XmlRoot("Colour")]
         public class XmlColour {
 
@@ -614,6 +616,14 @@ namespace Chroma {
                 this.a = a;
             }
 
+            public XmlColour(string name, Color color) {
+                this.name = name;
+                this.r = Mathf.FloorToInt(color.r);
+                this.r = Mathf.FloorToInt(color.g);
+                this.r = Mathf.FloorToInt(color.b);
+                this.r = Mathf.FloorToInt(color.a);
+            }
+
             public Color Color {
                 get {
                     return new Color(r / 255f, g / 255f, b / 255f, a / 255f);
@@ -631,10 +641,14 @@ namespace Chroma {
             List<XmlColour> xms = new List<XmlColour>();
 
             try {
-                XmlSerializer ser = new XmlSerializer(typeof(List<XmlColour>));
-                using (FileStream fileStream = new FileStream(filePath, FileMode.Open)) {
-                    xms = (List<XmlColour>)ser.Deserialize(fileStream);
+
+                if (File.Exists(filePath)) {
+                    XmlSerializer ser = new XmlSerializer(typeof(List<XmlColour>));
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Open)) {
+                        xms = (List<XmlColour>)ser.Deserialize(fileStream);
+                    }
                 }
+
             } catch (Exception e) {
                 ChromaLogger.Log(e);
             }
@@ -648,6 +662,51 @@ namespace Chroma {
             return colors;
 
         }
+
+        public static void SaveExampleColours() {
+            
+            try {
+
+                string filePath = Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma/Colours.xml";
+                if (!File.Exists(filePath)) {
+
+                    XmlColour[] exampleColours = new XmlColour[] {
+                        new XmlColour("Dark Red", 128, 0, 0, 255),
+                        new XmlColour("Mega Blue", 0, 0, 700, 255),
+                        new XmlColour("Brown(Why?)", 139, 69, 19, 255),
+                    };
+
+                    SaveColours(exampleColours);
+                }
+
+            } catch (Exception e) {
+                ChromaLogger.Log(e);
+            }
+        }
+
+        public static void SaveColours(params XmlColour[] colours) {
+
+            if (colours.Length < 1) return;
+
+            string filePath = Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma/Colours.xml";
+
+            List<NamedColor> namedColors = LoadColoursFromFile();
+            List<XmlColour> xmColours = new List<XmlColour>();
+            foreach (NamedColor nc in namedColors) xmColours.Add(new XmlColour(nc.name, nc.color));
+            foreach (XmlColour xc in colours) xmColours.Add(xc);
+
+            try {
+
+                using (StreamWriter w = File.CreateText(filePath)) {
+                    XmlSerializer ser = new XmlSerializer(xmColours.GetType());
+                    ser.Serialize(w, xmColours);
+                }
+            } catch (Exception e) {
+                ChromaLogger.Log(e);
+            }
+
+        }
+        #endregion
 
     }
 

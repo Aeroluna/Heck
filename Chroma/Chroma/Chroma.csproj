@@ -79,26 +79,20 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.UIElementsModule">
-      <HintPath>J:\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule">
-      <HintPath>J:\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UIModule.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.UnityWebRequestAudioModule">
       <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestModule">
       <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.VRModule">
-      <HintPath>J:\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.VRModule.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Beatmap\ChromaEvents\LightsSmoothTransition.cs" />
-    <Compile Include="Beatmap\ChromaEvents\LightsIsolatedTechnicolour.cs" />
-    <Compile Include="Beatmap\ChromaEvents\RingEvents\RingLightsPropagateColour.cs" />
+    <Compile Include="Beatmap\JSON\ChromaJSONBeatmapObject.cs" />
+    <Compile Include="Beatmap\JSON\ChromaJSONEventData.cs" />
+    <Compile Include="Beatmap\JSON\ChromaJSONNoteData.cs" />
+    <Compile Include="Beatmap\ChromaEvents\Z_Testing\LightsSmoothTransition.cs" />
+    <Compile Include="Beatmap\ChromaEvents\Z_Testing\LightsIsolatedTechnicolour.cs" />
+    <Compile Include="Beatmap\ChromaEvents\Z_Testing\RingEvents\RingLightsPropagateColour.cs" />
     <Compile Include="Beatmap\ChromaMapModifier.cs" />
     <Compile Include="Beatmap\CustomBeatmap.cs" />
     <Compile Include="Beatmap\CustomBeatmapBarrier.cs" />
@@ -120,6 +114,8 @@
     <Compile Include="ChromaBehaviour.cs" />
     <Compile Include="ChromaTesting.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
+    <Compile Include="Extensions\TubeBloomPrePassLightExtensions.cs" />
+    <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromJson.cs" />
     <Compile Include="HarmonyPatches\LightSwitchEventEffectOnDestroy.cs" />
     <Compile Include="HarmonyPatches\LightSwitchEventEffectStart.cs" />
     <Compile Include="HarmonyPatches\ReleaseInfoViewControllerDidActivate.cs" />
@@ -158,12 +154,13 @@
     <Compile Include="Utils\SceneUtils.cs" />
     <Compile Include="Utils\SidePanelUtil.cs" />
     <Compile Include="Utils\StringUtil.cs" />
-    <Compile Include="Utils\VersionUtil.cs" />
+    <Compile Include="Utils\VersionChecker.cs" />
     <Compile Include="VFX\VFXLightning.cs" />
     <Compile Include="VFX\VFXRainbowBarriers.cs" />
     <Compile Include="VFX\VFXRainbowSabers.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Beatmap\ChromaNotes\" />
     <Folder Include="Beatmap\Events\VFXEvents\" />
   </ItemGroup>
   <ItemGroup>

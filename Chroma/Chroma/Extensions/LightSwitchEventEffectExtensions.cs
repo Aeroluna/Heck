@@ -60,14 +60,25 @@ namespace Chroma.Extensions {
             }
 
             public static LSEColourManager GetOrCreateLSEColourManager(LightSwitchEventEffect lse, BeatmapEventType type) {
-                LSEColourManager lsecm = GetLSEColourManager(type);
-                if (lsecm != null) {
-                    lsecm.Initialize(lse, type);
-                    return lsecm;
-                } else {
-                    lsecm = new LSEColourManager(lse, type);
-                    lsecm.Initialize(lse, type);
-                    LSEColourManagers.Add(lsecm);
+                LSEColourManager lsecm;
+                try {
+                    lsecm = GetLSEColourManager(type);
+                } catch (Exception e) {
+                    ChromaLogger.Log(e);
+                    return null;
+                }
+                try {
+                    if (lsecm != null) {
+                        lsecm.Initialize(lse, type);
+                        return lsecm;
+                    } else {
+                        lsecm = new LSEColourManager(lse, type);
+                        lsecm.Initialize(lse, type);
+                        LSEColourManagers.Add(lsecm);
+                        return lsecm;
+                    }
+                } catch (Exception e) {
+                    ChromaLogger.Log(e);
                     return lsecm;
                 }
             }

@@ -21,7 +21,7 @@ namespace Chroma {
 
     public class ChromaPlugin {
         
-        public static Version Version = new Version(1, 1, 0);
+        public static Version Version = new Version(1, 1, 1);
 
         private static ChromaPlugin _instance;
         /// <summary>
@@ -153,7 +153,7 @@ namespace Chroma {
 
                 //Side panel
                 try {
-                    Greetings.RegisterChromaSideMenu(ChromaPlugin.Version);
+                    Greetings.RegisterChromaSideMenu();
                     SidePanelUtil.ReleaseInfoEnabledEvent += ReleaseInfoEnabled;
                 } catch (Exception e) {
                     ChromaLogger.Log("Error handling UI side panel", ChromaLogger.Level.ERROR);

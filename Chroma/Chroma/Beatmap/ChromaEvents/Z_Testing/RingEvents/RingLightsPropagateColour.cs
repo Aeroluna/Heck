@@ -7,8 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Chroma.Beatmap.ChromaEvents.RingEvents {
+namespace Chroma.Beatmap.ChromaEvents.Z_Testing.RingEvents {
 
+    [Obsolete("Science purposes only")]
     public static class RingLightsPropagateColour {
 
         public static void Activate(LightSwitchEventEffect lse, BeatmapEventType type, Color colour, MonoBehaviour lightObject, float delay) {

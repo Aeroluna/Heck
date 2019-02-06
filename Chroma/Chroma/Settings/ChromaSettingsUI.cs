@@ -286,7 +286,7 @@ namespace Chroma.Settings {
                     ColourManager.LaserPointerColour = colourPresets[(int)value].color;
                     ChromaConfig.SetString("Aesthetics", "laserPointerColour", colourPresets[(int)value].name);
                     //ColourManager.RecolourLaserPointer(ColourManager.LaserPointerColour);
-                    ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform);
+                    ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform, ColourManager.LaserPointerColour);
                 };
                 ctLaserColour.FormatValue += delegate (float value) {
                     return colourPresets[(int)value].name;
@@ -304,7 +304,7 @@ namespace Chroma.Settings {
                 ctPlatform.SetValue += delegate (float value) {
                     ColourManager.Platform = colourPresets[(int)value].color;
                     ChromaConfig.SetString("Aesthetics", "platformAccoutrements", colourPresets[(int)value].name);
-                    ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform);
+                    ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform, ColourManager.LaserPointerColour);
                 };
                 ctPlatform.FormatValue += delegate (float value) {
                     return colourPresets[(int)value].name;
@@ -490,6 +490,8 @@ namespace Chroma.Settings {
 
             colourPresets = new List<NamedColor>();// new List<Tuple<string, Color>>();
 
+            ColourManager.SaveExampleColours();
+
             //TODO add custom colours
             List<NamedColor> userColours = ColourManager.LoadColoursFromFile();
             if (userColours != null) {
@@ -522,6 +524,7 @@ namespace Chroma.Settings {
                 new NamedColor( "Barrier Red", ColourManager.DefaultBarrierColour ),
 
                 new NamedColor( "CC Elec. Blue", new Color(0, .98f, 2.157f) ),
+                new NamedColor( "CC Dark Blue", new Color(0f, 0.28000000000000003f, 0.55000000000000004f) ),
                 new NamedColor( "CC Purple", new Color(1.05f, 0, 2.188f) ),
                 new NamedColor( "CC Orange", new Color(2.157f ,.588f, 0) ),
                 new NamedColor( "CC Yellow", new Color(2.157f, 1.76f, 0) ),

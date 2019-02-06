@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Chroma.HarmonyPatches {
 
@@ -15,7 +16,7 @@ namespace Chroma.HarmonyPatches {
     class NoteControllerInit {
 
         static void Postfix(NoteController __instance, NoteData ____noteData) {
-            __instance.noteTransform.localScale = __instance.noteTransform.localScale * NoteScaling.GetNoteScale(____noteData); //ChromaNoteScaleEvent.GetScale(____noteData.time);
+            __instance.noteTransform.localScale = Vector3.one /*__instance.noteTransform.localScale*/ * NoteScaling.GetNoteScale(____noteData); //ChromaNoteScaleEvent.GetScale(____noteData.time);
         }
 
     }

@@ -12,6 +12,7 @@ namespace Chroma.Misc {
 
     internal static class Greetings {
 
+        //Portal quotes, Doki-Doki Literature Club quotes, you know - Skynet type stuff, with the occasional wholesome comment thrown in
         public static string[] GetGreeting(ulong id, string name) {
 
             int i = UnityEngine.Random.Range(0, 17);
@@ -36,7 +37,8 @@ namespace Chroma.Misc {
                 case 4:
                     return new string[] {
                         "NullReferenceException: object reference not set to an instance of an object",
-                        "Human.FindByName(\""+name+"\").GetFriends().Count()"
+                        "at Human.GetFriends()",
+                        "at Human.FindByName(\""+name+"\").GetFriends().Count()"
                     };
                 case 5:
                     return new string[] {
@@ -68,7 +70,7 @@ namespace Chroma.Misc {
                     };
                 case 12:
                     return new string[] {
-                        "You know, I really do think you literally saved my life by being here with me, "+name
+                        "Stay with me forever, "+name
                     };
                 case 13:
                     return new string[] {
@@ -95,71 +97,19 @@ namespace Chroma.Misc {
 
         }
 
-        public static void AcquiredOnlineVersionInfo(Version localVersion, string data, JSONNode node, string errorMessage) {
-
-            string replace = "";
-
-            try {
-
-            } catch (Exception e) {
-                replace = "<color=red>Error parsing Online Version JSON info" + Environment.NewLine + e.Message + "</color>";
-            }
-            
-            ChromaLogger.Log("localVersion = " + localVersion.ToString());
-            int versionsBehind = 0;
-            Version latestApprovedVersion = null; //null
-
+        private static void AcquiredOnlineVersionInfo(bool upToDate, string webVersion, string errorMessage) {
+            string replace;
             if (errorMessage != null) {
-                replace = "<color=red>"+errorMessage+"</color>";
+                replace = "<color=red>" + errorMessage + "</color>";
             } else {
-
-                IEnumerable<JSONNode> nodes = node.Children;
-
-                using (IEnumerator<JSONNode> enumerator = nodes.GetEnumerator()) {
-                    while (enumerator.MoveNext()) {
-                        if (enumerator.Current["approval"]["status"] == "approved") {
-                            try {
-                                Version remoteVersion = Version.Parse(enumerator.Current["version"].Value);
-                                ChromaLogger.Log("remoteVersion = " + remoteVersion.ToString());
-                                if (remoteVersion.CompareTo(localVersion) > 0) {
-                                    versionsBehind++;
-                                    if (latestApprovedVersion == null || remoteVersion.CompareTo(latestApprovedVersion) > 0) {
-                                        latestApprovedVersion = remoteVersion;
-                                    }
-                                }
-                            } catch (Exception) {
-                                ChromaLogger.Log("Bad version in history: " + enumerator.Current["version"]);
-                            }
-                        }
-                    }
-                }
-
-                if (versionsBehind == 0) {
-                    replace = "<color=green>You have the most recent version!</color>";
-                } else if (latestApprovedVersion != null) {
-                    replace = "<color=red>You are " + versionsBehind + " versions behind!" + Environment.NewLine +
-                        "Latest version: " + latestApprovedVersion.ToString() + "</color>";
-                } else {
-                    replace = "<color=red>You are " + versionsBehind + " versions behind!</color>";
-                }
-
-                /*IEnumerable<JSONNode> nodes = node.Children;
-
-                using (IEnumerator<JSONNode> enumerator = nodes.GetEnumerator()) {
-                    while (enumerator.MoveNext()) {
-                        if (enumerator.Current["version"] == compareVersion) break;
-                        if (enumerator.Current["approval"]["status"] == "approved") {
-                            versionsBehind++;
-                            if (latestApprovedVersion == null) latestApprovedVersion = enumerator.Current["version"].Value;
-                        }
-                    }
-                }*/
-
+                if (upToDate) replace = "<color=green>You have the most recent version!</color>";
+                else replace = "<color=red>Chroma is outdated!</color>";
+                if (webVersion != null) replace = replace + Environment.NewLine + "Latest public release: " + webVersion;
             }
 
             SidePanelUtil.RegisterTextPanel("chroma",
                 ResourceTextFiles.chromaNotes
-                .Replace("%VER%", (versionsBehind > 0 ? "<color=red>" : "<color=green>") + localVersion.ToString() + "</color>")
+                .Replace("%VER%", (upToDate ? "<color=green>" : "<color=red>") + ChromaPlugin.Instance.plugin.Version + "</color>")
                 .Replace("%USERNAME%", ChromaConfig.Username)
                 .Replace("%ONLINE_VER%", replace)
                 );
@@ -168,10 +118,10 @@ namespace Chroma.Misc {
             ChromaLogger.Log("Updated panel with version info");
         }
         
-        public static void RegisterChromaSideMenu(Version compareVersion) {
+        public static void RegisterChromaSideMenu() {
             SidePanelUtil.RegisterTextPanel("chroma", 
                 ResourceTextFiles.chromaNotes
-                .Replace("%VER%", compareVersion.ToString())
+                .Replace("%VER%", ChromaPlugin.Instance.plugin.Version)
                 .Replace("%USERNAME%", ChromaConfig.Username)
                 .Replace("%ONLINE_VER%", "<color=yellow>ACQUIRING VERSION INFO</color>")
                 );
@@ -179,7 +129,7 @@ namespace Chroma.Misc {
             SidePanelUtil.RegisterTextPanel("chromaWaiver", ResourceTextFiles.safetyWaiver);
             SidePanelUtil.RegisterTextPanel("chromaCredits", ResourceTextFiles.credits);
 
-            VersionUtil.GetOnlineVersionInfo(compareVersion, "https://www.modsaber.org/api/v1.1/mods/versions/chroma", AcquiredOnlineVersionInfo);
+            VersionChecker.GetOnlineVersion("https://modsaber.org/api/v1.1/mods/versions/chroma", AcquiredOnlineVersionInfo);
         }
 
     }

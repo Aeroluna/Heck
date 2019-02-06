@@ -14,7 +14,7 @@ namespace Chroma.Utils {
 
         public static bool IsTargetGameScene(Scene scene) {
             if (ChromaConfig.DebugMode) {
-                ChromaLogger.Log(scene.name + " : " + scene.buildIndex);
+                ChromaLogger.Log("Checking scene: " + scene.name + " : " + scene.buildIndex);
                 ChromaLogger.Log("gameplayMode string : |" + BaseGameMode.CurrentGameplayModeString + "|");
                 ChromaLogger.Log("Base Game Mode : |" + BaseGameMode.CurrentBaseGameMode + "|");
             }

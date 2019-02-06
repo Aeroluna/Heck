@@ -1,5 +1,5 @@
 ﻿using Chroma.Beatmap.ChromaEvents;
-using Chroma.Beatmap.ChromaEvents.RingEvents;
+using Chroma.Beatmap.Z_Testing.ChromaEvents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Chroma {
-
+    
+    [Obsolete("Science purposes only")]
     public static class ChromaTesting {
 
         public static LightSwitchEventEffect lse;
@@ -16,10 +17,8 @@ namespace Chroma {
 
         public static Color lastColour = Color.black;
 
-        public static bool isTransitioning = false;
-
         public static void Test() {
-            if (lse != null && !isTransitioning) {
+            if (lse != null) {
                 //Propagation testing
                 //Beatmap.ChromaEvents.RingEvents.RingLightsPropagateColour.Activate(lse, type, UnityEngine.Random.ColorHSV().ColorWithValue(1f), lse, UnityEngine.Random.value * 0.5f);
 

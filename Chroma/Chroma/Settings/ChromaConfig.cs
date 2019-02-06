@@ -273,6 +273,8 @@ namespace Chroma.Settings {
             ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteB);
 
             LoadSettings(LoadSettingsType.MENU_LOADED);
+
+            ColourManager.RefreshLights();
         }
         private static void OnSongLoaded() {
             ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteA);
