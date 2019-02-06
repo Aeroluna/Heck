@@ -15,6 +15,18 @@ And of course, all colours can be customized.  We didn't forget those of you who
 
 <size=6><mspace=4><align="center">CHANGE LOGS</align></mspace></size>
 
+<align="center">Version 1.1.1</align>
+-<indent=3>Improved version checking</indent>
+-<indent=3>Ambient lights now properly reset when set to DEFAULT</indent>
+-<indent=3>Custom colours XML file now automatically generates if not found</indent>
+
+<align="center">Version 1.1.0</align>
+-<indent=3>Disabled lighting events that will not be compatible in the future</indent>
+-<indent=6>Only RGB lighting events remain</indent>
+-<indent=6>Can be manually re-enabled via the config files, but these events will eventually permanently stop working</indent>
+
+-<indent=3>Added in-game version check and display!</indent>
+
 <align="center">Version 1.0.2</align>
 -<indent=3>Fixed an issue with RGB and technicolour colours carrying over across songs when lighting set to DEFAULT</indent>
 -<indent=3>Fixed an issue with RGB and technicolour not being able to apply more than two separate colours at a time, technically, if counting left/right lasers at the same time.</indent>
