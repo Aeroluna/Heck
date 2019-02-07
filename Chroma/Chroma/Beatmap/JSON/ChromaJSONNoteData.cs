@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Chroma.Beatmap.JSON {
 
-    public class ChromaJSONNoteData : ChromaJSONBeatmapObject {
+    public abstract class ChromaJSONNoteData : ChromaJSONBeatmapObject {
 
 
         public static BeatmapLineData[] ParseJSONNoteData(JSONNode node, BeatmapLineData[] data) {

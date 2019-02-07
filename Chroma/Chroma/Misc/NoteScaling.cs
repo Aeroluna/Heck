@@ -13,11 +13,9 @@ namespace Chroma.Misc {
         public static event HandleNoteScalingDelegate HandleNoteScalingEvent;
 
         public static float GetNoteScale(NoteData note) {
-            ChromaLogger.Log("GetNoteScale called!");
             try {
                 float s = ChromaNoteScaleEvent.GetScale(note.time);
                 HandleNoteScalingEvent?.Invoke(ref note, ref s);
-                ChromaLogger.Log("Note init : HNSE null? " + (HandleNoteScalingEvent == null).ToString());
                 return s;
             } catch (Exception e) {
                 ChromaLogger.Log(e);

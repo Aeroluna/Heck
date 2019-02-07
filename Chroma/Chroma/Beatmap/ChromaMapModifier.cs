@@ -1,4 +1,5 @@
 ﻿using Chroma.Beatmap.Events;
+using Chroma.Beatmap.JSON;
 using Chroma.Settings;
 using Chroma.Utils;
 using System;
@@ -18,6 +19,9 @@ namespace Chroma.Beatmap {
         public static CustomBeatmap CreateTransformedData(BeatmapData beatmapData, ref ChromaBehaviour chromaBehaviour, ref PlayerSpecificSettings playerSettings, ref BaseGameModeType baseGameMode, ref float bpm) {
 
             ColourManager.TechnicolourLightsForceDisabled = false;
+
+            ChromaLogger.Log("Checking for registered JSONBeatmap for " + beatmapData.ToString() + " (" + ChromaJSONBeatmap.chromaBeatmaps.Count + " registered maps total)");
+            ChromaJSONBeatmap chromaInjectmap = ChromaJSONBeatmap.GetChromaBeatmap(beatmapData);
 
             if (beatmapData == null) ChromaLogger.Log("Null beatmapData", ChromaLogger.Level.ERROR);
             if (playerSettings == null) ChromaLogger.Log("Null playerSettings", ChromaLogger.Level.ERROR);
@@ -130,6 +134,8 @@ namespace Chroma.Beatmap {
             }
 
             beatmapData = new BeatmapData(array3, array4);
+
+            if (chromaInjectmap != null) chromaInjectmap.Inject(beatmapData);
 
             customBeatmap.BeatmapData = beatmapData;
 

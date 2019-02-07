@@ -97,7 +97,7 @@ namespace Chroma.VFX {
 
         private void PaletteTick() {
             rainbowSaberColours[0] = ColourManager.GetLerpedFromArray(leftPalette, (Time.time * mismatchSpeedMult) / secondsPerBeat);
-            rainbowSaberColours[1] = ColourManager.GetLerpedFromArray(leftPalette, (Time.time) / secondsPerBeat);
+            rainbowSaberColours[1] = ColourManager.GetLerpedFromArray(rightPalette, (Time.time) / secondsPerBeat);
         }
 
         private void SetupWarmCold() {

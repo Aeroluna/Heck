@@ -1,5 +1,6 @@
 ﻿using Chroma.Beatmap.ChromaEvents;
 using Chroma.Beatmap.Events;
+using Chroma.Beatmap.JSON;
 using Chroma.Beatmap.Z_Testing.ChromaEvents;
 using Chroma.Extensions;
 using Chroma.Settings;
@@ -26,6 +27,8 @@ namespace Chroma.HarmonyPatches {
         private static System.Random techniLightRandom = new System.Random(408);
 
         static bool Prefix(LightSwitchEventEffect __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____event) {
+
+            if (beatmapEventData.value == ChromaJSONEventData.GLOBAL_DO_NOTHING_VALUE) ChromaLogger.Log("==========================================================");
 
             try {
 
@@ -78,6 +81,11 @@ namespace Chroma.HarmonyPatches {
                         if (customEvent.RequiresSpecialEventsEnabled && !ChromaConfig.CustomSpecialEventsEnabled) return false;
                         customEvent.Activate(ref __instance, ref beatmapEventData, ref ____event);
                         return false;
+                    }
+
+                    ChromaJSONEventData chromaEvent = ChromaJSONEventData.GetChromaEvent(beatmapEventData);
+                    if (chromaEvent != null) {
+                        chromaEvent.Activate(beatmapEventData, __instance, ____event);
                     }
                 }
 

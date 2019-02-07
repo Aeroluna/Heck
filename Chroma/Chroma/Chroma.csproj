@@ -87,6 +87,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Beatmap\ChromaEvents\MayhemEvent.cs" />
+    <Compile Include="Beatmap\JSON\ChromaJSONBeatmap.cs" />
     <Compile Include="Beatmap\JSON\ChromaJSONBeatmapObject.cs" />
     <Compile Include="Beatmap\JSON\ChromaJSONEventData.cs" />
     <Compile Include="Beatmap\JSON\ChromaJSONNoteData.cs" />
@@ -116,6 +118,7 @@
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
     <Compile Include="Extensions\TubeBloomPrePassLightExtensions.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromJson.cs" />
+    <Compile Include="HarmonyPatches\BeatDataTransformHelperCreateTransformedBeatmapData.cs" />
     <Compile Include="HarmonyPatches\LightSwitchEventEffectOnDestroy.cs" />
     <Compile Include="HarmonyPatches\LightSwitchEventEffectStart.cs" />
     <Compile Include="HarmonyPatches\ReleaseInfoViewControllerDidActivate.cs" />

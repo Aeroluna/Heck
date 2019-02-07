@@ -21,7 +21,7 @@ namespace Chroma {
 
     public class ChromaPlugin {
         
-        public static Version Version = new Version(1, 1, 1);
+        public static Version Version = new Version(1, 1, 2);
 
         private static ChromaPlugin _instance;
         /// <summary>

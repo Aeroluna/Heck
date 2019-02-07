@@ -10,7 +10,7 @@ using SimpleJSON;
 using UnityEngine;
 
 namespace Chroma.HarmonyPatches {
-    /*
+    
     [HarmonyPriority(Priority.First)]
     [HarmonyPatch(typeof(BeatmapDataLoader))]
     [HarmonyPatch("GetBeatmapDataFromJson")]
@@ -22,15 +22,16 @@ namespace Chroma.HarmonyPatches {
             try {
                 JSONNode node = JSONNode.Parse(json);
                 JSONNode eventsNode = node["_chromaEvents"];
+                ChromaJSONBeatmap chromaMap = new ChromaJSONBeatmap(__result);
                 if (eventsNode != null) {
-                    BeatmapEventData[] eventData = ChromaJSONEventData.ParseJSONNoteData(eventsNode, __result.beatmapEventData);
-                    __result.SetProperty("beatmapEventData", eventData);
+                    ChromaJSONEventData.ParseJSONNoteData(eventsNode, ref chromaMap.chromaEvents, ref beatsPerMinute, ref shuffle, ref shufflePeriod);
                 }
-                JSONNode notesNode = node["_chromaEvents"];
+                /*JSONNode notesNode = node["_chromaEvents"];
                 if (notesNode != null) {
                     BeatmapLineData[] linesData = ChromaJSONNoteData.ParseJSONNoteData(notesNode, __result.beatmapLinesData);
                     __result.SetProperty("beatmapLinesData", linesData);
-                }
+                }*/
+                chromaMap.Register();
             } catch (Exception e) {
                 ChromaLogger.Log(e);
             }
@@ -40,5 +41,5 @@ namespace Chroma.HarmonyPatches {
         }
 
     }
-    */
+    
 }
