@@ -122,7 +122,8 @@ namespace Chroma {
         public static TechnicolourTransition _technicolourWallsTransition = TechnicolourTransition.SMOOTH;*/
 
         public static bool TechnicolourLights {
-            get { return !ChromaBehaviour.IsLoadingSong && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourEnabled && ChromaConfig.TechnicolourLightsStyle != TechnicolourStyle.OFF; }
+            get {
+                return !ChromaBehaviour.IsLoadingSong && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourEnabled && ChromaConfig.TechnicolourLightsStyle != TechnicolourStyle.OFF; }
         }
 
         public static bool TechnicolourSabers {

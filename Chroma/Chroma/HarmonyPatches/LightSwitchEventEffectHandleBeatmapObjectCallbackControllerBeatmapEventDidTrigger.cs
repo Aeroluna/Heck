@@ -28,7 +28,7 @@ namespace Chroma.HarmonyPatches {
 
         static bool Prefix(LightSwitchEventEffect __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____event) {
 
-            if (beatmapEventData.value == ChromaJSONEventData.GLOBAL_DO_NOTHING_VALUE) ChromaLogger.Log("==========================================================");
+            if (beatmapEventData.value == ChromaJSONEventData.GLOBAL_DO_NOTHING_VALUE) return false;
 
             try {
 
@@ -39,7 +39,8 @@ namespace Chroma.HarmonyPatches {
                         if (beatmapEventData.value <= 3) { //Blue events are 1, 2 and 3
                             switch (ChromaConfig.TechnicolourLightsGrouping) {
                                 case ColourManager.TechnicolourLightsGrouping.ISOLATED:
-                                    LightsIsolatedTechnicolour.Activate(__instance, ____event, ChromaConfig.TechnicolourLightsStyle, false, beatmapEventData.time);
+                                    //LightsIsolatedTechnicolour.Activate(__instance, ____event, ChromaConfig.TechnicolourLightsStyle, false, beatmapEventData.time);
+                                    MayhemEvent.ActivateTechnicolour(beatmapEventData, __instance, ____event);
                                     return false;
                                 case ColourManager.TechnicolourLightsGrouping.ISOLATED_GROUP:
                                     __instance.SetLightingColourB(ColourManager.GetTechnicolour(false, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
@@ -51,7 +52,8 @@ namespace Chroma.HarmonyPatches {
                         } else {
                             switch (ChromaConfig.TechnicolourLightsGrouping) {
                                 case ColourManager.TechnicolourLightsGrouping.ISOLATED:
-                                    LightsIsolatedTechnicolour.Activate(__instance, ____event, ChromaConfig.TechnicolourLightsStyle, true, beatmapEventData.time);
+                                    //LightsIsolatedTechnicolour.Activate(__instance, ____event, ChromaConfig.TechnicolourLightsStyle, true, beatmapEventData.time);
+                                    MayhemEvent.ActivateTechnicolour(beatmapEventData, __instance, ____event);
                                     return false;
                                 case ColourManager.TechnicolourLightsGrouping.ISOLATED_GROUP:
                                     __instance.SetLightingColourA(ColourManager.GetTechnicolour(true, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
