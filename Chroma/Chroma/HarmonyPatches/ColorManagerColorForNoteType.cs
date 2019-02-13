@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Chroma.HarmonyPatches {
 
-    [HarmonyPriority(Priority.High)]
+    [HarmonyPriority(Priority.Low)]
     [HarmonyPatch(typeof(ColorManager))]
     [HarmonyPatch("ColorForNoteType")]
     class ColorManagerColorForNoteType {

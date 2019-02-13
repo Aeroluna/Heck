@@ -343,7 +343,17 @@ namespace Chroma.Settings {
         public static event ExtensionGameplayMenusDelegate ExtensionGameplayMenusEvent;
         
         private static void GameplaySettingsUISetup() {
-            
+
+            /*
+             * MODIFIERS
+             */
+
+            Sprite sprite = Base64Sprites.Base64ToSprite("iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAA3WAAAN1gGQb3mcAAAAB3RJTUUH4wINFyAWrJdsNwAAABl0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC4yMfEgaZUAAAKSSURBVEhL3dbLq05RHMbxEzEhuQ0OBi4DDDAxcSlDE1ISCgMGDAgTt8iACRMlyW0kKSZMKIRcBsQAfwGRiUK5RLm9vs9u/XbrXefZ+30z9KvP6V3Puuxz9nv2Wnug0+n8q4d4UGR9s2GffuBnkfXNhn36fy68Cd+xIcuc9/hQZCWtobU2Zlmlq5GswR/8QtvF5ySuTzRXa2it1SmrdTUyOxAX1y9S9o9FXFify/61iItqrbK/9TuOi99I7WFYj8f4jSh9foR10BiNvYXGi4oNMwswCRNwD1Gf8CTR56i70FjN0Vy3ZsWGhdF4AdUr6PsagegfCX0d6lM9xyjkawxhw8JZqLTgRLgxor74BU/BjanZMDMDela/YVrK2mi8Hh/NmZ4yy4aZPVCdget3zkG1C66/oh/jsRN7k92I5/MyVCvRNbHFKqguQe250Jqxvq41Th0HUFacOneqVqezCLFwLxqr0ly1dYqVtV8d+tc/jKPJEcSjcBWq5YiFe1kB1RWovRBaM9Y/hMFyUukgVMfh+p0TUOlOuv6KDTOzoR1Im8SUlLXRmM/QbjYzZZYNCxehuo984yipL3a3C3BjajYsaAt8CdVJuDESt1hjNceNqdkwo1sdJ9EXqNxppdNI9RXzoDmzUI6r2TCJ8/RaautkUr3GcMQ43eK3UMX5fR2t57kNkR/im1Mmz6BagsiWKqCeIrIt0NzGiw8JoGe26RCP7VC7UuxEel5V5SOXv0wsS1mtq5Fsgx4Hd4gfQ1NpEyrHaw2ttTXLKl2NzBiTyVTorz5fOI1BuDl2rSFBD/vQVNvh5lg2bLEYep+6XbiJ+XBzLBv2oBeCN/iYaMPQQePGNrJhD3rL0It81DtMhhvboDPwF6eIOFNA61CjAAAAAElFTkSuQmCC");
+
+            ToggleOption lightshowModifier = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.ModifiersLeft, "Lightshow Only", hintText: "Disables all notes and sabers, allowing you to view the lightshow!", optionIcon: sprite);
+            lightshowModifier.GetValue = ChromaConfig.LightshowModifier;
+            lightshowModifier.OnToggle += LightshowToggled;
+
             /*
              * COLOURS
              */
@@ -467,6 +477,10 @@ namespace Chroma.Settings {
             GameplaySubMenuCreatedEvent?.Invoke("CTT");
 
             ExtensionGameplayMenusEvent?.Invoke();
+        }
+
+        private static void LightshowToggled(bool b) {
+            ChromaConfig.LightshowModifier = b;
         }
 
         private static void TechnicolourToggled(bool b) {

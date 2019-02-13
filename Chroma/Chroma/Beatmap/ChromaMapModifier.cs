@@ -115,25 +115,29 @@ namespace Chroma.Beatmap {
                 BeatmapObjectData beatmapObjectData2 = customBeatmapData[l].Data;
                 array2[Mathf.Clamp(beatmapObjectData2.lineIndex, 0, 3)]++; //array2[beatmapObjectData2.lineIndex]++;
             }
-            BeatmapLineData[] array3 = new BeatmapLineData[beatmapLinesData.Length];
+            BeatmapLineData[] linesData = new BeatmapLineData[beatmapLinesData.Length];
             for (int m = 0; m < beatmapLinesData.Length; m++) {
-                array3[m] = new BeatmapLineData();
-                array3[m].beatmapObjectsData = new BeatmapObjectData[array2[m]];
+                linesData[m] = new BeatmapLineData();
+                linesData[m].beatmapObjectsData = new BeatmapObjectData[array2[m]];
                 array[m] = 0;
             }
             for (int n = 0; n < customBeatmapData.Count; n++) {
                 BeatmapObjectData beatmapObjectData3 = customBeatmapData[n].Data;
                 int lineIndex = Mathf.Clamp(beatmapObjectData3.lineIndex, 0, 3); //beatmapObjectData3.lineIndex;
-                array3[lineIndex].beatmapObjectsData[array[lineIndex]] = beatmapObjectData3;
+                linesData[lineIndex].beatmapObjectsData[array[lineIndex]] = beatmapObjectData3;
                 array[lineIndex]++;
             }
-            BeatmapEventData[] array4 = new BeatmapEventData[beatmapData.beatmapEventData.Length];
+            BeatmapEventData[] eventsData = new BeatmapEventData[beatmapData.beatmapEventData.Length];
             for (int num5 = 0; num5 < beatmapData.beatmapEventData.Length; num5++) {
                 BeatmapEventData beatmapEventData = beatmapData.beatmapEventData[num5];
-                array4[num5] = beatmapEventData.GetCopy();
+                eventsData[num5] = beatmapEventData.GetCopy();
             }
 
-            beatmapData = new BeatmapData(array3, array4);
+            if (ChromaConfig.LightshowModifier) {
+                linesData = new BeatmapLineData[0];
+            }
+
+            beatmapData = new BeatmapData(linesData, eventsData);
 
             if (chromaInjectmap != null) chromaInjectmap.Inject(beatmapData);
 

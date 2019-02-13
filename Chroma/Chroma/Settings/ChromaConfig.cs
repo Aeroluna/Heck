@@ -153,6 +153,17 @@ namespace Chroma.Settings {
         }
         private static bool hideSubMenus;
 
+        #region modifiers
+        public static bool LightshowModifier {
+            get { return lightshowModifier; }
+            set {
+                lightshowModifier = value;
+                ChromaConfig.SetBool("Modifiers", "lightshowModifier", lightshowModifier);
+            }
+        }
+        private static bool lightshowModifier;
+        #endregion
+
 
 
 
@@ -404,6 +415,11 @@ namespace Chroma.Settings {
 
                 ColourManager.barrierColourCorrectionScale = ChromaConfig.GetFloat("Aesthetics", "barrierColourCorrectionScale", 1f);
                 ChromaConfig.saberTrailStrength = ChromaConfig.GetFloat("Aesthetics", "saberTrailStrength", 1f);
+
+                /*
+                 * MODIFIERS
+                 */
+                lightshowModifier = ChromaConfig.GetBool("Modifiers", "lightshowModifier", false);
 
                 /*
                  * OTHER

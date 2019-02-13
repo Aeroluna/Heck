@@ -220,6 +220,12 @@ namespace Chroma {
 
             ColourManager.RefreshLights();
 
+            if (ChromaConfig.LightshowModifier) {
+                foreach (Saber saber in GameObject.FindObjectsOfType<Saber>()) {
+                    saber.gameObject.SetActive(false);
+                }
+            }
+
         }
 
         private BeatmapData CreateTransformedBeatmapData(BeatmapData beatmapData, PlayerSpecificSettings playerSettings, BaseGameModeType baseGameMode) {
