@@ -388,7 +388,7 @@ namespace Chroma.Settings {
                 ColourManager.AltA = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourAltA", "Notes Magenta"), ColourManager.DefaultAltA);
                 ColourManager.AltB = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourAltB", "Notes Green"), ColourManager.DefaultAltB);
                 ColourManager.NonColoured = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourNonColoured", "Notes White"), ColourManager.DefaultNonColoured);
-                ColourManager.DoubleHit = ColourManager.DoubleHit = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourDoubleHit", "Notes Purple"));
+                ColourManager.DoubleHit = ColourManager.DoubleHit = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourDuochrome", "Notes Purple"));
                 ColourManager.Super = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourSuper", "Notes Gold"), ColourManager.DefaultSuper);
 
                 /*
