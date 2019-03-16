@@ -21,7 +21,7 @@ namespace Chroma {
 
     public class ChromaPlugin {
         
-        public static Version Version = new Version(1, 1, 4);
+        public static Version Version = new Version(1, 1, 5);
 
         private static ChromaPlugin _instance;
         /// <summary>
@@ -169,6 +169,9 @@ namespace Chroma {
 
             try {
                 typeof(SongLoaderPlugin.SongLoader).InvokeMethod("RegisterCapability", new object[] { "Chroma Lighting Events" });
+                typeof(SongLoaderPlugin.SongLoader).InvokeMethod("RegisterCapability", new object[] { "Chroma Special Events" });
+                typeof(SongLoaderPlugin.SongLoader).InvokeMethod("RegisterCapability", new object[] { "Chroma" });
+                typeof(SongLoaderPlugin.SongLoader).InvokeMethod("RegisterCapability", new object[] { "ChromaLite" });
                 //typeof(SongLoaderPlugin.SongLoader).InvokeMethod("RegisterCapability", new object[] { "Chroma Gamemodes" });
             } catch (Exception) {
                 // This version of SongLoader doesn't support capabilities

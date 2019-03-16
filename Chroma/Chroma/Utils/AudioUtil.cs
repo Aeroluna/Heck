@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chroma.Settings;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -148,7 +149,9 @@ namespace Chroma.Utils {
         /// Plays the given file through the ambient sound AudioSource, which loops
         /// </summary>
         /// <param name="filenameWithExtension">The file name with extension, found in the Audio folder</param>
-        public void StartAmbianceSound(string filenameWithExtension) {
+        /// <param name="volume">Optional volume multiplier</param>
+        public void StartAmbianceSound(string filenameWithExtension, float volume = 1f) {
+            ambianceSource.volume = masterVolume * volume;
             StartCoroutine(GenerateAudioClip(ambianceSource, filenameWithExtension, true));
         }
 
