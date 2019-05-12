@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chroma.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace Chroma.Beatmap.Events {
             GameEnergyCounter counter = GameObject.FindObjectOfType<GameEnergyCounter>();
             if (counter != null) {
                 ChromaLogger.Log("Changing health by " + HealthChangeAmount);
-                counter.AddEnergy(HealthChangeAmount);
+                counter.InvokeMethod("AddEnergy", HealthChangeAmount);
                 return true;
             }
             return false;

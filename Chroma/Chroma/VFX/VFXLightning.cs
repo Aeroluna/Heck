@@ -61,7 +61,7 @@ namespace Chroma.VFX {
         public string ThunderSound = "Thunder.wav";
         public string AmbientThunderSound = "Thunder.wav";
 
-        BloomPrePassLight[] lightningLights = null;
+        BSLight[] lightningLights = null;
 
         private void Init() {
 
@@ -72,12 +72,12 @@ namespace Chroma.VFX {
                     if (lightningLights != null) {
                         for (int j = 0; j < lightningLights.Length; j++) Destroy(lightningLights[j].gameObject);
                     }
-                    List<BloomPrePassLight> ll = new List<BloomPrePassLight>();
+                    List<BSLight> ll = new List<BSLight>();
                     for (int j = 0; j < origLights.Length; j++) {
-                        BloomPrePassLight[] origLl = origLights[j].GetField<BloomPrePassLight[]>("_lights");
+                        BSLight[] origLl = origLights[j].GetField<BSLight[]>("_lights");
                         for (int k = 0; k < origLl.Length; k++) {
                             GameObject g = GameObject.Instantiate(origLl[k].gameObject);
-                            BloomPrePassLight nl = g.GetComponent<BloomPrePassLight>();
+                            BSLight nl = g.GetComponent<BSLight>();
                             nl.color = Color.clear;
                             nl.name = "CT_LightningLight_" + k;
                             foreach (Renderer r in nl.GetComponentsInChildren<Renderer>()) r.enabled = false;
@@ -160,7 +160,7 @@ namespace Chroma.VFX {
         }
 
         private void SetLightningFlashLights(Color color) {
-            foreach (BloomPrePassLight l in lightningLights) {
+            foreach (BSLight l in lightningLights) {
                 l.color = color;
             }
         }

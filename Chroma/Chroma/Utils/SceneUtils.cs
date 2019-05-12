@@ -10,7 +10,7 @@ namespace Chroma.Utils {
 
     public static class SceneUtils {
         
-        private static int[] targetGameSceneIndexes = new int[] { 3 };
+        private static int[] targetGameSceneIndexes = new int[] { 4 };
 
         public static bool IsTargetGameScene(Scene scene) {
             if (ChromaConfig.DebugMode) {

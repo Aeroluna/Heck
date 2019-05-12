@@ -41,6 +41,7 @@ People who did stuff.  Yaaaaay!
 <b><color=#9b59b6>PlasmaPower</color></b> - GET A TITLE YOU NERD
 -<indent=3>Developed V2 Controlled Randomization for ChromaToggle pentachrome modes</indent>
 -<indent=3>Indirectly made me start actually using GitHub</indent>
+-<indent=3>Ported Chroma and ChromaToggle to Beat Saber 0.13</indent>
 
 
 <b><color=#9b59b6>squeaksies</color></b> - Pentachrome Provisioner

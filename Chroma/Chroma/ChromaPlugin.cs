@@ -21,7 +21,7 @@ namespace Chroma {
 
     public class ChromaPlugin {
         
-        public static Version Version = new Version(1, 1, 5);
+        public static Version Version = new Version(1, 2, 0);
 
         private static ChromaPlugin _instance;
         /// <summary>
@@ -202,7 +202,7 @@ namespace Chroma {
         }
 
         private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode mode) {
-            if (scene.name == "Menu") {
+            if (scene.name == "MenuCore") {
                 try {
                     ChromaSettingsUI.InitializeMenu();
 
