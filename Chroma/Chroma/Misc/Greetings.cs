@@ -97,39 +97,15 @@ namespace Chroma.Misc {
 
         }
 
-        private static void AcquiredOnlineVersionInfo(bool upToDate, string webVersion, string errorMessage) {
-            string replace;
-            if (errorMessage != null) {
-                replace = "<color=red>" + errorMessage + "</color>";
-            } else {
-                if (upToDate) replace = "<color=green>You have the most recent version!</color>";
-                else replace = "<color=red>Chroma is outdated!</color>";
-                if (webVersion != null) replace = replace + Environment.NewLine + "Latest public release: " + webVersion;
-            }
-
-            SidePanelUtil.RegisterTextPanel("chroma",
-                ResourceTextFiles.chromaNotes
-                .Replace("%VER%", (upToDate ? "<color=green>" : "<color=red>") + ChromaPlugin.Instance.plugin.Version + "</color>")
-                .Replace("%USERNAME%", ChromaConfig.Username)
-                .Replace("%ONLINE_VER%", replace)
-                );
-            SidePanelUtil.Update();
-
-            ChromaLogger.Log("Updated panel with version info");
-        }
-        
         public static void RegisterChromaSideMenu() {
             SidePanelUtil.RegisterTextPanel("chroma", 
                 ResourceTextFiles.chromaNotes
                 .Replace("%VER%", ChromaPlugin.Instance.plugin.Version)
                 .Replace("%USERNAME%", ChromaConfig.Username)
-                .Replace("%ONLINE_VER%", "<color=yellow>ACQUIRING VERSION INFO</color>")
                 );
 
             SidePanelUtil.RegisterTextPanel("chromaWaiver", ResourceTextFiles.safetyWaiver);
             SidePanelUtil.RegisterTextPanel("chromaCredits", ResourceTextFiles.credits);
-
-            VersionChecker.GetOnlineVersion("https://modsaber.org/api/v1.1/mods/versions/chroma", AcquiredOnlineVersionInfo);
         }
 
     }

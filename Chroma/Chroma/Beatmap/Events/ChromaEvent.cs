@@ -1,4 +1,5 @@
 ﻿using Chroma.Settings;
+using Chroma.Utils;
 using Chroma.VFX;
 using System;
 using System.Collections.Generic;
@@ -104,7 +105,7 @@ namespace Chroma.Beatmap.Events {
                     ChromaRingPropagationEvent.ringPropagationMult = 116f;
                     ChromaRingSpeedEvent.ringSpeedMult = 116f;
                     ChromaRingStepEvent.ringStepMult = 0;
-                    tre.HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger(
+                    tre.InvokeMethod("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger",
                         new BeatmapEventData(beatmapEventData.time, BeatmapEventType.Event8, CHROMA_EVENT_RING_ROTATE_RIGHT));
                     ChromaRingPropagationEvent.ringPropagationMult = ringPropWas;
                     ChromaRingSpeedEvent.ringSpeedMult = ringSpeedWas;

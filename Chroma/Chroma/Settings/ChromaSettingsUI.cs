@@ -318,6 +318,8 @@ namespace Chroma.Settings {
 
             GameplaySettingsUISetup();
 
+            SettingsUI.Instance.InitSettings();
+
         }
 
         //private static List<Tuple<string, Color>> colourPresets = null;

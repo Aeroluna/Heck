@@ -1,5 +1,4 @@
 <size=6><align="center"><mspace=4>CHROMA</mspace> %VER%</align></size>
-<align="center">%ONLINE_VER%</align>
 
 Welcome, %USERNAME%!  
 
@@ -14,6 +13,11 @@ If instead of fighting back the neverending onslaught of aggressive cubes, you'r
 And of course, all colours can be customized.  We didn't forget those of you who can't appreciate all sixteen million colours.  It's a rough life you live, and Chroma wants only to make things better.  Chroma is your friend.  Chroma loves you.  Chroma never wants you to le-
 
 <size=6><mspace=4><align="center">CHANGE LOGS</align></mspace></size>
+
+<align="center">Version 1.2.0</align>
+-<indent=3>Update to Beat Saber 0.13.2!</indent>
+-<indent=3>Fix Pentachrome saber colors "sticking" (not reverting to original colors after releasing triggers)</indent>
+-<indent=3>Improve rumble with haptic overrides enabled. It's recommended to change your rumble duration to 0.13s in the chroma haptics settings (the old default was 0.10, but this matches the game's defaults).</indent>
 
 <align="center">Version 1.1.2</align>
 -<indent=3>Fix warm/cold technicolour option for sabers only choosing warm</indent>

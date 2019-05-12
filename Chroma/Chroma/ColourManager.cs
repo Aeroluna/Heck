@@ -38,6 +38,11 @@ namespace Chroma {
                 return (c == Color.clear ? ColourManager.BarrierColour : c);
             }
         }
+        public static Color GetCorrectedBarrierColour(float time) {
+            Color baseColor = GetBarrierColour(time);
+            float cor = ColourManager.barrierColourCorrectionScale * 8;
+            return (baseColor / cor).ColorWithAlpha(0f);
+        }
 
         /*
          * TECHNICOLOUR
@@ -435,18 +440,43 @@ namespace Chroma {
 
         }
 
+        private static Dictionary<BSLight, Color> _originalLightColors = new Dictionary<BSLight, Color>();
         public static void RecolourAmbientLights(Color color) {
-            List<TubeBloomPrePassLight> bls = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>().ToList();
+            HashSet<BSLight> bls = new HashSet<BSLight>(BSLight.lightList);
+
+            // Ignore lights part of a LightSwitchEventEffect
             LightSwitchEventEffect[] lights = GetAllLightSwitches();
             foreach (LightSwitchEventEffect light in lights) {
-                BloomPrePassLight[] blsInLight = light.GetField<BloomPrePassLight[]>("_lights");
-                foreach (BloomPrePassLight b in blsInLight) {
-                    if (b is TubeBloomPrePassLight tb) bls.Remove(tb);
+                BSLight[] blsInLight = light.GetField<BSLight[]>("_lights");
+                foreach (BSLight b in blsInLight) {
+                    bls.Remove(b);
                 }
             }
-            foreach (TubeBloomPrePassLight tb in bls) {
-                if (color == Color.clear) tb.Reset();
-                else tb.ApplyColour(color);
+
+            // Cleanup _originalLightColors
+            List<BSLight> reapLights = new List<BSLight>();
+            foreach (KeyValuePair<BSLight, Color> kv in _originalLightColors) {
+                if (!bls.Contains(kv.Key)) {
+                    reapLights.Add(kv.Key);
+                }
+            }
+            foreach (BSLight b in reapLights) {
+                _originalLightColors.Remove(b);
+            }
+
+            foreach (BSLight b in bls) {
+                if (color == Color.clear) {
+                    // Reset light
+                    if (_originalLightColors.ContainsKey(b)) {
+                        b.color = _originalLightColors[b];
+                    }
+                } else {
+                    // Set light
+                    if (!_originalLightColors.ContainsKey(b)) {
+                        _originalLightColors.Add(b, b.color);
+                    }
+                    b.color = color;
+                }
             }
         }
 

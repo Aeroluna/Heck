@@ -17,9 +17,9 @@ class SaberWeaponTrailColor {
     //Default colours
     //
     
-    public static bool Prefix(SaberWeaponTrail __instance, ref Color __result, ref Color ____multiplierSaberColor, ref SaberTypeObject ____saberType) {
+    public static bool Prefix(SaberWeaponTrail __instance, ref Color __result, ref Color ____multiplierSaberColor, ref SaberTypeObject ____saberTypeObject) {
         if (VFXRainbowSabers.rainbowSaberColours != null) {
-            __result = VFXRainbowSabers.rainbowSaberColours[____saberType.saberType == Saber.SaberType.SaberA ? 0 : 1];
+            __result = VFXRainbowSabers.rainbowSaberColours[____saberTypeObject.saberType == Saber.SaberType.SaberA ? 0 : 1];
             return false;
         }
         return true;

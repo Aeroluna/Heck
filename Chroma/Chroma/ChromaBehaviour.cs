@@ -74,7 +74,7 @@ namespace Chroma {
         public delegate void ChromaHandleNoteWasMissed(BeatmapObjectSpawnController noteSpawnController, NoteController noteController);
 
         public event ChromaHandleBarrierSpawned ChromaHandleBarrierSpawnedEvent;
-        public delegate void ChromaHandleBarrierSpawned(ref StretchableObstacle stretchableObstacle, ref StretchableCube stretchableCoreOutside, ref StretchableCube stretchableCoreInside, ref BeatmapObjectSpawnController obstacleSpawnController, ref ObstacleController obstacleController, ref bool didRecolour);
+        public delegate void ChromaHandleBarrierSpawned(ref StretchableObstacle stretchableObstacle, ref BeatmapObjectSpawnController obstacleSpawnController, ref ObstacleController obstacleController, ref bool didRecolour);
 
         public event ChromaHandleComboChange ChromaHandleComboChangeEvent;
         public delegate void ChromaHandleComboChange(int newCombo);
@@ -179,20 +179,12 @@ namespace Chroma {
             }
 
             //GameplayCoreSetupData mgData = ReflectionUtil.GetPrivateField<MainGameSceneSetupData>(mgs, "_mainGameSceneSetupData");
-            StandardLevelSceneSetup slsSetup = Resources.FindObjectsOfTypeAll<StandardLevelSceneSetup>().FirstOrDefault();
-            if (slsSetup == null) {
-                ChromaLogger.Log("Failed to find StandardLevelSceneSetup", ChromaLogger.Level.WARNING);
+            BS_Utils.Gameplay.LevelData levelData = BS_Utils.Plugin.LevelData;
+            if (!levelData.IsSet) {
+                ChromaLogger.Log("BS_Utils LevelData is not set", ChromaLogger.Level.WARNING);
                 return;
             }
-            StandardLevelSceneSetupDataSO slsData = slsSetup.standardLevelSceneSetupData;
-            if (slsData == null) {
-                ChromaLogger.Log("Failed to obtain StandardLevelSceneSetupDataSO from StandardLevelSceneSetup", ChromaLogger.Level.WARNING);
-                return;
-            }
-
-            PlayerSpecificSettings playerSettings = slsData.gameplayCoreSetupData.playerSpecificSettings;
-
-            ChromaLogger.Log("SLSSetup, SLSData, and PlayerSettings!", ChromaLogger.Level.DEBUG);
+            PlayerSpecificSettings playerSettings = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.playerSpecificSettings;
 
             //Map
 
@@ -256,36 +248,41 @@ namespace Chroma {
 
             try {
                 StretchableObstacle stretchableObstacle = ReflectionUtil.GetField<StretchableObstacle>(obstacleController, "_stretchableObstacle");
-                StretchableCube stretchableCoreOutside = ReflectionUtil.GetField<StretchableCube>(stretchableObstacle, "_stretchableCoreOutside");
-                StretchableCube stretchableCoreInside = ReflectionUtil.GetField<StretchableCube>(stretchableObstacle, "_stretchableCoreInside");
+                StretchableCube stretchableCore = ReflectionUtil.GetField<StretchableCube>(stretchableObstacle, "_stretchableCore");
+                ParametricBoxFrameController frameController = ReflectionUtil.GetField<ParametricBoxFrameController>(stretchableObstacle, "_obstacleFrame");
+                ParametricBoxFakeGlowController fakeGlowController = ReflectionUtil.GetField<ParametricBoxFakeGlowController>(stretchableObstacle, "_obstacleFakeGlow");
+                float time = obstacleController.obstacleData.time;
+                Color color = ColourManager.GetBarrierColour(time);
+                frameController.color = color;
+                fakeGlowController.color = color;
                 bool didRecolour = VFX.VFXRainbowBarriers.IsRainbowWalls();
 
-                ChromaHandleBarrierSpawnedEvent?.Invoke(ref stretchableObstacle, ref stretchableCoreOutside, ref stretchableCoreInside, ref obstacleSpawnController, ref obstacleController, ref didRecolour);
+                ChromaHandleBarrierSpawnedEvent?.Invoke(ref stretchableObstacle, ref obstacleSpawnController, ref obstacleController, ref didRecolour);
 
-                if (!didRecolour) {
-                    RecolourWall(stretchableCoreInside, obstacleController.obstacleData.time);
-                    RecolourWall(stretchableCoreOutside, obstacleController.obstacleData.time);
+                if (!didRecolour && color != ColourManager.DefaultBarrierColour && color != Color.clear) {
+                    RecolourWall(stretchableCore, ColourManager.GetCorrectedBarrierColour(time));
                 }
             } catch (Exception e) {
                 ChromaLogger.Log(e);
             }
         }
 
-        private void RecolourWall(StretchableCube wall, float time) {
-            Color color = ColourManager.GetBarrierColour(time);
-
-            if (color == ColourManager.DefaultBarrierColour || color == Color.clear) return;
-
-            foreach (Transform component in wall.transform.parent.parent) {
+        private void RecolourWall(StretchableCube wall, Color color) {
+            CustomUI.Utilities.UIUtilities.PrintHierarchy(wall.transform.parent);
+            foreach (Transform component in wall.transform.parent) {
                 foreach (Transform child in component.transform) {
-                    MeshRenderer ren = child.GetComponent<MeshRenderer>();
-                    if (ren.material.color != Color.clear) ren.material.color = color;
+                    try {
+                        MeshRenderer ren = child.GetComponent<MeshRenderer>();
+                        if (ren.material.color != Color.clear) ren.material.color = color;
+                    } catch(Exception) {
+                        // This doesn't have a color
+                        // It could be the Collider
+                    }
                 }
             }
 
             MeshRenderer r = wall.GetComponent<MeshRenderer>();
-            float cor = (3f * ColourManager.barrierColourCorrectionScale) + 1;//4f * ColourManager.barrierColourCorrectionScale;
-            r.material.SetColor("_AddColor", (color / (4f * ColourManager.barrierColourCorrectionScale)).ColorWithAlpha(0f));
+            r.material.SetColor("_AddColor", color);
         }
         #endregion
 
