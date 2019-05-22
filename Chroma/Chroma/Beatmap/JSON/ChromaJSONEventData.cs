@@ -1,5 +1,5 @@
 ﻿using Chroma.Beatmap.ChromaEvents;
-using SimpleJSON;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,18 +30,18 @@ namespace Chroma.Beatmap.JSON {
 
 
 
-        public static void ParseJSONNoteData(JSONNode mainNode, ref List<ChromaJSONEventData> dataList, ref float beatsPerMinute, ref float shuffle, ref float shufflePeriod) {
+        public static void ParseJSONNoteData(JObject mainNode, ref List<ChromaJSONEventData> dataList, ref float beatsPerMinute, ref float shuffle, ref float shufflePeriod) {
 
-            foreach (JSONNode node in mainNode) {
+            foreach (JObject node in mainNode.Children<JObject>()) {
 
                 try {
 
-                    switch (node["_cType"].Value) {
+                    switch (node["_cType"].Value<string>()) {
                         case "mayhem":
                             dataList.Add(new MayhemEvent().ParseJSON<MayhemEvent>(node, ref beatsPerMinute, ref shuffle, ref shufflePeriod));
                             break;
                         default:
-                            ChromaLogger.Log("Invalid _chromaEvent type " + node["_cType"].Value, ChromaLogger.Level.WARNING);
+                            ChromaLogger.Log("Invalid _chromaEvent type " + node["_cType"].Value<string>(), ChromaLogger.Level.WARNING);
                             break;
                     }
 

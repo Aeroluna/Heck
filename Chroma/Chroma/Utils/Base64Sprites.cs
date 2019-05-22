@@ -28,7 +28,9 @@ namespace Chroma.Utils {
             Texture2D texture = new Texture2D(0, 0, TextureFormat.ARGB32, false, true);
             texture.hideFlags = HideFlags.HideAndDontSave;
             texture.filterMode = FilterMode.Trilinear;
-            texture.LoadImage(imageData);
+            if (!ImageConversion.LoadImage(texture, imageData)) {
+                ChromaLogger.Log(new Exception("Failed to load image from Base64String ["+encodedData+"]"));
+            }
             return texture;
         }
 

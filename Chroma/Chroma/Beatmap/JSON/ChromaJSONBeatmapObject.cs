@@ -1,4 +1,4 @@
-﻿using SimpleJSON;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,22 +12,22 @@ namespace Chroma.Beatmap.JSON {
         public float time;
         public BeatmapEventType type;
 
-        public T ParseJSON<T>(JSONNode eventNode, ref float beatsPerMinute, ref float shuffle, ref float shufflePeriod) where T : ChromaJSONBeatmapObject {
-
-            JSONNode.Enumerator nodeEnum = eventNode.GetEnumerator();
+        public T ParseJSON<T>(JObject eventNode, ref float beatsPerMinute, ref float shuffle, ref float shufflePeriod) where T : ChromaJSONBeatmapObject {
+            
+            IEnumerator<KeyValuePair<string, JToken>> nodeEnum = eventNode.GetEnumerator();
             while (nodeEnum.MoveNext()) {
                 string key = nodeEnum.Current.Key;
-                JSONNode node = nodeEnum.Current.Value;
+                JToken value = nodeEnum.Current.Value;
 
                 switch (key) {
                     case "_time":
-                        time = GetRealTimeFromBPMTime(node.AsFloat, ref beatsPerMinute, ref shuffle, ref shufflePeriod);
+                        time = GetRealTimeFromBPMTime(value.Value<float>(), ref beatsPerMinute, ref shuffle, ref shufflePeriod);
                         break;
                     case "_type":
-                        type = (BeatmapEventType) node.AsInt;
+                        type = (BeatmapEventType) value.Value<int>();
                         break;
                     default:
-                        ParseNode(key, node);
+                        ParseNode(key, value.Value<JObject>());
                         break;
                 }
             }
@@ -35,7 +35,7 @@ namespace Chroma.Beatmap.JSON {
             return this as T;
         }
 
-        public abstract void ParseNode(string key, JSONNode node);
+        public abstract void ParseNode(string key, JObject node);
 
         private static float GetRealTimeFromBPMTime(float bmpTime, ref float beatsPerMinute, ref float shuffle, ref float shufflePeriod) {
             float num = bmpTime;

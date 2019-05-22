@@ -1,18 +1,12 @@
 ﻿using Chroma.Beatmap.JSON;
-using Chroma.Settings;
 using Chroma.Utils;
-using SimpleJSON;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace Chroma.Beatmap.ChromaEvents {
 
     class MayhemEvent : ChromaJSONEventData {
 
-        public override void ParseNode(string key, JSONNode node) {
+        public override void ParseNode(string key, JObject node) {
             
         }
 

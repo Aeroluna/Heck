@@ -1,6 +1,5 @@
 ﻿using Chroma.Settings;
 using Chroma.Utils;
-using IllusionPlugin;
 using System;
 using System.Collections.Generic;
 using System.IO;

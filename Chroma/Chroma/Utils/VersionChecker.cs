@@ -6,7 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
-using SimpleJSON;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Chroma.Utils {
 
@@ -40,11 +41,11 @@ namespace Chroma.Utils {
                     action?.Invoke(false, null, "Failed to download version info");
                 } else {
                     ChromaLogger.Log("Obtained latest version info!");
-                    JSONNode node = JSON.Parse(www.downloadHandler.text);
-                    foreach (JSONNode child in node.Children) {
+                    JObject node = JObject.Parse(www.downloadHandler.text);
+                    foreach (JObject child in node.Children<JObject>()) {
                         try {
-                            if (child["approval"]["status"] != "approved") continue;
-                            string version = child["version"].Value;
+                            if (child["approval"]["status"].Value<string>() != "approved") continue;
+                            string version = child["version"].Value<string>();
                             upToDate = isLatestVersion(version);
                             webVersion = version;
                             action?.Invoke(upToDate, webVersion, null);

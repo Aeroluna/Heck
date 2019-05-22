@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Chroma.Beatmap.JSON;
 using Chroma.Utils;
 using Harmony;
-using SimpleJSON;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace Chroma.HarmonyPatches {
@@ -20,18 +20,14 @@ namespace Chroma.HarmonyPatches {
 
 
             try {
-                JSONNode node = JSONNode.Parse(json);
-                JSONNode eventsNode = node["_chromaEvents"];
+                //TODO unbreak this
+                /*JObject node = JObject.Parse(json);
+                JObject eventsNode = node["_chromaEvents"].Value<JObject>();
                 ChromaJSONBeatmap chromaMap = new ChromaJSONBeatmap(__result);
                 if (eventsNode != null) {
                     ChromaJSONEventData.ParseJSONNoteData(eventsNode, ref chromaMap.chromaEvents, ref beatsPerMinute, ref shuffle, ref shufflePeriod);
                 }
-                /*JSONNode notesNode = node["_chromaEvents"];
-                if (notesNode != null) {
-                    BeatmapLineData[] linesData = ChromaJSONNoteData.ParseJSONNoteData(notesNode, __result.beatmapLinesData);
-                    __result.SetProperty("beatmapLinesData", linesData);
-                }*/
-                chromaMap.Register();
+                chromaMap.Register();*/
             } catch (Exception e) {
                 ChromaLogger.Log(e);
             }

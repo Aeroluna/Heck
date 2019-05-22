@@ -1,6 +1,5 @@
 ﻿using Chroma.Settings;
 using Chroma.Utils;
-using SimpleJSON;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,12 +1,12 @@
 ﻿using Chroma.Settings;
-using IllusionPlugin;
+using IPA;
 using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Chroma {
 
-    public class Plugin : IPlugin {
+    public class Plugin : IBeatSaberPlugin {
 
         public string Name => "Chroma";
         
@@ -15,6 +15,29 @@ namespace Chroma {
         ChromaPlugin chroma;
 
         public void OnApplicationStart() {
+            chroma = ChromaPlugin.Instantiate(this);
+        }
+
+        public void OnApplicationQuit() {
+        }
+
+        public void OnUpdate() {
+            chroma.OnUpdate();
+        }
+
+        public void OnFixedUpdate() {
+        }
+
+        public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) {
+        }
+
+        public void OnSceneUnloaded(Scene scene) {
+        }
+
+        public void OnActiveSceneChanged(Scene prevScene, Scene nextScene) {
+        }
+
+        /*public void OnApplicationStart() {
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
 
@@ -44,7 +67,7 @@ namespace Chroma {
         }
 
         public void OnFixedUpdate() {
-        }
+        }*/
 
     }
 }

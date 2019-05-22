@@ -1,7 +1,7 @@
 ﻿using Chroma.Beatmap.Events;
 using Chroma.Misc;
 using Chroma.Utils;
-using IllusionPlugin;
+using IPA.Config;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -296,7 +296,8 @@ namespace Chroma.Settings {
 
 
         internal static void LoadSettings(LoadSettingsType type) {
-            string iniName = ModPrefs.GetString("Chroma", "ConfigProfile", "default", true); //TODO get the thing
+            //string iniName = ModPrefs.GetString("Chroma", "ConfigProfile", "default", true); //TODO get the thing
+            string iniName = "settings";
             IniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);
 
             LoadSettingsEvent?.Invoke(IniProfile, type);
@@ -309,7 +310,8 @@ namespace Chroma.Settings {
                 
                 ChromaLogger.Log("Loading settings [" + type.ToString() + "]", ChromaLogger.Level.INFO);
 
-                string iniName = ModPrefs.GetString("Chroma", "ConfigProfile", "default", true); //TODO get the thing
+                //string iniName = ModPrefs.GetString("Chroma", "ConfigProfile", "default", true); //TODO get the thing
+                string iniName = "settings";
                 IniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);
 
                 ChromaLogger.Log("--- From file " + iniName);
@@ -334,6 +336,8 @@ namespace Chroma.Settings {
                 customMapCheckingEnabled = ChromaConfig.GetBool("Map", "customMapCheckingEnabled", true);
                 customColourEventsEnabled = ChromaConfig.GetBool("Map", "customColourEventsEnabled", true);
                 customSpecialEventsEnabled = ChromaConfig.GetBool("Map", "customSpecialEventsEnabled", true);
+                ChromaPlugin.SetRGBCapability(customColourEventsEnabled);
+                ChromaPlugin.SetSpecialEventCapability(CustomSpecialEventsEnabled);
 
                 /*
                  * AUDIO

@@ -5,23 +5,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using IllusionPlugin;
-using IllusionInjector;
 using Harmony;
 using Chroma.Utils;
 using Chroma.Beatmap.Events;
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
 using Chroma.Misc;
 using System.IO;
-using SimpleJSON;
+using IPA.Loader;
+using IPA;
 
 namespace Chroma {
 
     public class ChromaPlugin {
         
-        public static Version Version = new Version(1, 2, 0);
+        public static Version Version = new Version(1, 3, 0);
 
         private static ChromaPlugin _instance;
         /// <summary>
@@ -114,15 +112,15 @@ namespace Chroma {
 
                 //Getting and starting all the extension plugins
                 try {
-                    foreach (IPlugin plugin in PluginManager.Plugins) {
-                        if (plugin is IChromaExtension chromaExtension) {
+                    foreach (PluginLoader.PluginInfo pluginInfo in PluginManager.AllPlugins) {
+                        //We can't get IBeatSaberPlugin references
+                        /*if (plugin is IChromaExtension chromaExtension) {
                             chromaExtension.ChromaApplicationStarted(this);
                             chromaExtensions.Add(chromaExtension);
-                        }
+                        }*/
                     }
-                } catch (Exception e) {
-                    ChromaLogger.Log("Error adding all Extension plugins", ChromaLogger.Level.ERROR);
-                    throw e;
+                } catch (Exception) {
+                    ChromaLogger.Log("Error adding all Extension plugins!  Extension registration interrupted.", ChromaLogger.Level.ERROR);
                 }
 
                 //Harmony & extension Harmony patches
@@ -148,7 +146,7 @@ namespace Chroma {
                     ChromaLogger.Log("Error loading Chroma configuration", ChromaLogger.Level.ERROR);
                     throw e;
                 }
-                
+
                 ColourManager.RefreshLights();
 
                 //Side panel
@@ -168,14 +166,22 @@ namespace Chroma {
             ChromaLogger.Log("Chroma finished initializing.  " + chromaExtensions.Count + " extensions found.", ChromaLogger.Level.INFO);
 
             try {
-                typeof(SongLoaderPlugin.SongLoader).InvokeMethod("RegisterCapability", new object[] { "Chroma Lighting Events" });
-                typeof(SongLoaderPlugin.SongLoader).InvokeMethod("RegisterCapability", new object[] { "Chroma Special Events" });
-                typeof(SongLoaderPlugin.SongLoader).InvokeMethod("RegisterCapability", new object[] { "Chroma" });
-                typeof(SongLoaderPlugin.SongLoader).InvokeMethod("RegisterCapability", new object[] { "ChromaLite" });
-                //typeof(SongLoaderPlugin.SongLoader).InvokeMethod("RegisterCapability", new object[] { "Chroma Gamemodes" });
+                SongCore.Collections.RegisterCapability("Chroma");
+                SongCore.Collections.RegisterCapability("ChromaLite");
             } catch (Exception) {
                 // This version of SongLoader doesn't support capabilities
             }
+        }
+
+        //TODO these two methods somewhere else
+        public static void SetRGBCapability(bool enabled) {
+            if (enabled) SongCore.Collections.RegisterCapability("Chroma Lighting Events");
+            else SongCore.Collections.DeregisterizeCapability("Chroma Lighting Events");
+        }
+
+        public static void SetSpecialEventCapability(bool enabled) {
+            if (enabled) SongCore.Collections.RegisterCapability("Chroma Special Events");
+            else SongCore.Collections.DeregisterizeCapability("Chroma Special Events");
         }
 
         private void SceneManagerOnActiveSceneChanged(Scene current, Scene next) {
@@ -223,7 +229,7 @@ namespace Chroma {
         public bool doRefreshLights = false;
 
         public void OnUpdate() {
-            if (doRefreshLights && SceneManager.GetActiveScene().name == "Menu") {
+            if (doRefreshLights && SceneManager.GetActiveScene() != null && SceneManager.GetActiveScene().name == "Menu") {
                 ColourManager.RefreshLights();
                 doRefreshLights = false;
             }

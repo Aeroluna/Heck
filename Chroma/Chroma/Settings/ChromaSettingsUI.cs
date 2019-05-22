@@ -374,12 +374,10 @@ namespace Chroma.Settings {
             ToggleOption rgbLightsToggle = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsRight, "RGB Lights", "CTE", "Enable/Disable RGB lighting events.");
             rgbLightsToggle.GetValue = ChromaConfig.CustomColourEventsEnabled;
             rgbLightsToggle.OnToggle += RGBEventsToggled;
-            rgbLightsToggle.AddConflict("Darth Maul");
 
             ToggleOption specialEventsToggle = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsRight, "Special Events", "CTE", "Enable/Disable Special Events, such as note size changing, player heal/harm events, and rotation events.");
             specialEventsToggle.GetValue = ChromaConfig.CustomSpecialEventsEnabled;
             specialEventsToggle.OnToggle += SpecialEventsToggled;
-            specialEventsToggle.AddConflict("Darth Maul");
 
 
 
@@ -491,10 +489,12 @@ namespace Chroma.Settings {
 
         private static void RGBEventsToggled(bool b) {
             ChromaConfig.CustomColourEventsEnabled = b;
+            ChromaPlugin.SetRGBCapability(b);
         }
 
         private static void SpecialEventsToggled(bool b) {
             ChromaConfig.CustomSpecialEventsEnabled = b;
+            ChromaPlugin.SetSpecialEventCapability(b);
         }
 
         private static void TechnicolourSaberMismatchToggled(bool b) {
