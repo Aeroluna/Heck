@@ -429,55 +429,70 @@ namespace Chroma {
                     if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", ColourManager.LaserPointerColour);
                     if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", ColourManager.LaserPointerColour);
                 }
+                if (rend.name.Contains("Frame") && platformLight != Color.clear) {
+                    rend.material.color = platformLight;
+                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", platformLight);
+                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", platformLight);
+                }
 
-                /*Plugin.Log(rend.gameObject.name + " ::: " + rend.name.ToString());
+                /*ChromaLogger.Log(rend.gameObject.name + " ::: " + rend.name.ToString());
                 if (rend.materials.Length > 0) {
-                    foreach (Material m in rend.materials) {
-                        Plugin.Log("___" + m.name);
+                    if (Vector3.Distance(rend.transform.position, Vector3.zero) < 4f) {
+                        foreach (Material m in rend.materials) {
+                            ChromaLogger.Log("___" + m.name);
+                        }
                     }
                 }*/
             }
 
+            ChromaLogger.Log("Colourizing menustuff");
         }
 
         private static Dictionary<BSLight, Color> _originalLightColors = new Dictionary<BSLight, Color>();
         public static void RecolourAmbientLights(Color color) {
-            HashSet<BSLight> bls = new HashSet<BSLight>(BSLight.lightList);
 
-            // Ignore lights part of a LightSwitchEventEffect
-            LightSwitchEventEffect[] lights = GetAllLightSwitches();
-            foreach (LightSwitchEventEffect light in lights) {
-                BSLight[] blsInLight = light.GetField<BSLight[]>("_lights");
-                foreach (BSLight b in blsInLight) {
-                    bls.Remove(b);
-                }
-            }
-
-            // Cleanup _originalLightColors
-            List<BSLight> reapLights = new List<BSLight>();
-            foreach (KeyValuePair<BSLight, Color> kv in _originalLightColors) {
-                if (!bls.Contains(kv.Key)) {
-                    reapLights.Add(kv.Key);
-                }
-            }
-            foreach (BSLight b in reapLights) {
-                _originalLightColors.Remove(b);
-            }
-
-            foreach (BSLight b in bls) {
-                if (color == Color.clear) {
-                    // Reset light
-                    if (_originalLightColors.ContainsKey(b)) {
-                        b.color = _originalLightColors[b];
+            try {
+                HashSet<BSLight> bls = new HashSet<BSLight>(BSLight.lightList);
+                
+                // Ignore lights part of a LightSwitchEventEffect
+                LightSwitchEventEffect[] lights = GetAllLightSwitches();
+                foreach (LightSwitchEventEffect light in lights) {
+                    BSLight[] blsInLight = light.GetField<BSLight[]>("_lights");
+                    if (blsInLight == null) continue;
+                    foreach (BSLight b in blsInLight) {
+                        bls.Remove(b);
                     }
-                } else {
-                    // Set light
-                    if (!_originalLightColors.ContainsKey(b)) {
-                        _originalLightColors.Add(b, b.color);
-                    }
-                    b.color = color;
                 }
+
+                // Cleanup _originalLightColors
+                List<BSLight> reapLights = new List<BSLight>();
+                foreach (KeyValuePair<BSLight, Color> kv in _originalLightColors) {
+                    if (!bls.Contains(kv.Key)) {
+                        reapLights.Add(kv.Key);
+                    }
+                }
+                foreach (BSLight b in reapLights) {
+                    _originalLightColors.Remove(b);
+                }
+
+                foreach (BSLight b in bls) {
+                    if (color == Color.clear) {
+                        // Reset light
+                        if (_originalLightColors.ContainsKey(b)) {
+                            b.color = _originalLightColors[b];
+                        }
+                    } else {
+                        // Set light
+                        if (!_originalLightColors.ContainsKey(b)) {
+                            _originalLightColors.Add(b, b.color);
+                        }
+                        b.color = color;
+                    }
+                }
+            } catch (Exception e) {
+                ChromaLogger.Log(e);
             }
+
         }
 
         public static void BreakReality() {
@@ -499,7 +514,7 @@ namespace Chroma {
 
         public static void RecolourNeonSign(Color colorA, Color colorB) {
 
-            TubeBloomPrePassLight[] _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
+            /*TubeBloomPrePassLight[] _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
 
             foreach (var prePassLight in _prePassLights) {
 
@@ -519,7 +534,7 @@ namespace Chroma {
 
                     //    Log($"PrepassLight: {prePassLight.name}");
                 }
-            }
+            }*/
 
             SpriteRenderer[] sprites = Resources.FindObjectsOfTypeAll<SpriteRenderer>();
             foreach (SpriteRenderer sprite in sprites) {
@@ -555,13 +570,13 @@ namespace Chroma {
                 ChromaLogger.Log("Refreshing Lights");
 
                 Color ambientLight = ColourManager.LightAmbient;
-                Color red = ColourManager.LightAmbient;
-                Color blue = ColourManager.LightAmbient;
-                Color redLight = ColourManager.LightAmbient;
-                Color blueLight = ColourManager.LightAmbient;
-                Color platform = ColourManager.LightAmbient;
-                Color signA = ColourManager.LightAmbient;
-                Color signB = ColourManager.LightAmbient;
+                Color red = ColourManager.A;
+                Color blue = ColourManager.B;
+                Color redLight = ColourManager.LightA;
+                Color blueLight = ColourManager.LightB;
+                Color platform = ColourManager.Platform;
+                Color signA = ColourManager.SignA;
+                Color signB = ColourManager.SignB;
                 Color laser = ColourManager.LaserPointerColour;
 
                 string ambientSound = null;
@@ -571,10 +586,10 @@ namespace Chroma {
                 //ColourManager.RecolourAllLights(ColourManager.LightA, ColourManager.LightB);
                 ResetAllLights();
                 ColourManager.RecolourAmbientLights(ambientLight);
-                if (!SceneUtils.IsTargetGameScene(SceneManager.GetActiveScene())) {
+                //if (!SceneUtils.IsTargetGameScene(SceneManager.GetActiveScene())) {
                     ColourManager.RecolourNeonSign(signA, signB);
                     ColourManager.RecolourMenuStuff(red, blue, redLight, blueLight, platform, laser);
-                }
+                //}
 
                 if (ambientSound == null) AudioUtil.Instance.StopAmbianceSound();
                 else AudioUtil.Instance.StartAmbianceSound(ambientSound);

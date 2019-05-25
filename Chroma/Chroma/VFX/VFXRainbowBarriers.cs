@@ -21,7 +21,8 @@ namespace Chroma.VFX {
         private const float rainbowWallUpdateRate = 0.08f;
 
         private static IEnumerable<Material> coreObstacleMaterials;
-        private static IEnumerable<Material> frameObstacleMaterials;
+        private static IEnumerable<ParametricBoxFrameController> wallFrame;
+        //private static IEnumerable<Material> frameObstacleMaterials;
 
         private static Color coreColor;
         private static Color coreAddColor;
@@ -30,19 +31,19 @@ namespace Chroma.VFX {
         private float bpm;
 
         private static void GetWallColours() {
-            //if (coreObstacleMaterials == null) {
             coreObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleCore" || m.name == "ObstacleCoreInside");
             foreach (Material m in coreObstacleMaterials) {
                 coreColor = m.color;
                 coreAddColor = m.GetColor("_AddColor");
             }
-            //}
-            //if (frameObstacleMaterials == null) {
-            frameObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleFrame");
+            /*frameObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleFrame");
             foreach (Material m in frameObstacleMaterials) {
                 frameColor = m.color;
+            }*/
+            wallFrame = Resources.FindObjectsOfTypeAll<ParametricBoxFrameController>().ToList();
+            foreach (ParametricBoxFrameController frame in wallFrame) {
+                frameColor = frame.color;
             }
-            //}
         }
 
         /// <summary>
@@ -51,13 +52,17 @@ namespace Chroma.VFX {
         /// <param name="color">The colour desired.</param>
         public static void ApplyGlobalWallColours(Color color) {
             // From CC
-            if (coreObstacleMaterials != null && frameObstacleMaterials != null) {
+            if (coreObstacleMaterials != null && wallFrame != null) {
                 foreach (Material m in coreObstacleMaterials) {
                     m.color = color;
                     m.SetColor("_AddColor", (color / 4f).ColorWithAlpha(0f));
                 }
-                foreach (Material m in frameObstacleMaterials) {
+                /*foreach (Material m in frameObstacleMaterials) {
                     m.color = color;
+                }*/
+                foreach (ParametricBoxFrameController frame in wallFrame) {
+                    frame.color = color;
+                    frame.Refresh();
                 }
             }
         }
@@ -66,13 +71,17 @@ namespace Chroma.VFX {
         /// Resets global wall colour to default.
         /// </summary>
         public static void ResetGlobalWallColours() {
-            if (coreObstacleMaterials != null && frameObstacleMaterials != null) {
+            if (coreObstacleMaterials != null && wallFrame != null) {
                 foreach (Material m in coreObstacleMaterials) {
                     m.color = coreColor;
                     m.SetColor("_AddColor", coreAddColor);
                 }
-                foreach (Material m in frameObstacleMaterials) {
+                /*foreach (Material m in frameObstacleMaterials) {
                     m.color = frameColor;
+                }*/
+                foreach (ParametricBoxFrameController frame in wallFrame) {
+                    frame.color = frameColor;
+                    frame.Refresh();
                 }
             }
         }

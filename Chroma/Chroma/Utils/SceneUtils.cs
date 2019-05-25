@@ -12,7 +12,7 @@ namespace Chroma.Utils {
         
         private static int[] targetGameSceneIndexes = new int[] { 4 };
 
-        public static bool IsTargetGameScene(Scene scene) {
+        /*public static bool IsTargetGameScene(Scene scene) {
             if (ChromaConfig.DebugMode) {
                 ChromaLogger.Log("Checking scene: " + scene.name + " : " + scene.buildIndex);
                 ChromaLogger.Log("gameplayMode string : |" + BaseGameMode.CurrentGameplayModeString + "|");
@@ -26,7 +26,7 @@ namespace Chroma.Utils {
                 if (targetGameSceneIndexes[i] == a) return true;
             }
             return false;
-        }
+        }*/
 
     }
 

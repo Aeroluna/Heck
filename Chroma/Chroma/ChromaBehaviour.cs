@@ -42,16 +42,16 @@ namespace Chroma {
             ChromaLogger.Log("ChromaBehaviour attempting creation.", ChromaLogger.Level.DEBUG);
             ClearInstance();
 
-            if (SceneUtils.IsTargetGameScene(SceneManager.GetActiveScene().buildIndex)) {
+            //if (SceneUtils.IsTargetGameScene(SceneManager.GetActiveScene().buildIndex)) {
                 GameObject instanceObject = new GameObject("ChromaBehaviour");
                 ChromaBehaviour behaviour = instanceObject.AddComponent<ChromaBehaviour>();
                 _instance = behaviour;
                 ChromaLogger.Log("ChromaBehaviour instantiated.", ChromaLogger.Level.DEBUG);
                 return behaviour;
-            } else {
+            /*} else {
                 ChromaLogger.Log("Invalid scene index.");
                 return null;
-            }
+            }*/
         }
 
         private PlayerController _playerController;
@@ -168,10 +168,10 @@ namespace Chroma {
             _playerController = FindObjectOfType<PlayerController>();
             if (_playerController == null) ChromaLogger.Log("Player Controller not found!", ChromaLogger.Level.WARNING);
 
-            if (!SceneUtils.IsTargetGameScene(scene.buildIndex)) {
+            /*if (!SceneUtils.IsTargetGameScene(scene.buildIndex)) {
                 ChromaLogger.Log("Somehow we got to the point where we override a map, while not playing a map.  How did this happen?", ChromaLogger.Level.WARNING);
                 return;
-            }
+            }*/
 
             if (gcss == null) {
                 ChromaLogger.Log("Failed to obtain MainGameSceneSetup", ChromaLogger.Level.WARNING);

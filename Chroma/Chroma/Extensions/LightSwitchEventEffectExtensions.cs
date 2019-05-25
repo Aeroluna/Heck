@@ -112,6 +112,7 @@ namespace Chroma.Extensions {
                 InitializeSOs(lse, "_highlightColor0", ref _highlightColor0, ref _highlightColor0_Original, ref m_highlightColor0);
                 InitializeSOs(lse, "_lightColor1", ref _lightColor1, ref _lightColor1_Original, ref m_lightColor1);
                 InitializeSOs(lse, "_highlightColor1", ref _highlightColor1, ref _highlightColor1_Original, ref m_highlightColor1);
+                Reset();
             }
 
             //We still need to do the first half of this even if the LSECM already exists as custom map colours exist and we need to be able to know the default colour
@@ -149,19 +150,19 @@ namespace Chroma.Extensions {
                     _lightColor1.SetColor(_lightColor1_Original);
                     _highlightColor1.SetColor(_highlightColor1_Original);
                 } else {
-                    _lightColor1.SetColor(ColourManager.LightB);
-                    _highlightColor1.SetColor(ColourManager.LightB);
+                    _lightColor1.SetColor(ColourManager.LightA);
+                    _highlightColor1.SetColor(ColourManager.LightA);
                 }
             }
 
             internal void SetLightingColours(Color colourA, Color colourB) {
-                if (colourA != Color.clear) {
-                    _lightColor0.SetColor(colourA);
-                    _highlightColor0.SetColor(colourA);
-                }
                 if (colourB != Color.clear) {
-                    _lightColor1.SetColor(colourB);
-                    _highlightColor1.SetColor(colourB);
+                    _lightColor0.SetColor(colourB);
+                    _highlightColor0.SetColor(colourB);
+                }
+                if (colourA != Color.clear) {
+                    _lightColor1.SetColor(colourA);
+                    _highlightColor1.SetColor(colourA);
                 }
             }
         }

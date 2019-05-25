@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,20 +40,32 @@ namespace Chroma {
             }
         }
 
-        public static void Log(Exception e, Level level = Level.ERROR, bool sound = true) {
-            Log(e.ToString(), level, sound);
+        public static void Log(Exception e, Level level = Level.ERROR, bool sound = true,
+            [CallerMemberName] string member = "",
+            [CallerLineNumber] int line = 0) {
+            Log(e.ToString(), level, sound, member, line);
         }
 
-        public static void Log(Object obj, Level level = Level.DEBUG, bool sound = true) {
-            Log(obj.ToString(), level, sound);
+        public static void Log(Object obj, Level level = Level.DEBUG, bool sound = true,
+            [CallerMemberName] string member = "",
+            [CallerLineNumber] int line = 0) {
+            Log(obj.ToString(), level, sound, member, line);
         }
 
-        public static void Log(string[] messages, Level level = Level.DEBUG, bool sound = true) {
-            foreach (String s in messages) Log(s, level, sound);
+        public static void Log(string[] messages, Level level = Level.DEBUG, bool sound = true,
+            [CallerMemberName] string member = "",
+            [CallerLineNumber] int line = 0) {
+            foreach (String s in messages) Log(s, level, sound, member, line);
         }
 
-        public static void Log(string message, Level level = Level.DEBUG, bool sound = true) {
-            if (level >= PrintLevel || ChromaConfig.DebugMode) Console.WriteLine("[Chroma] " + message);
+        public static void Log(string message, Level level = Level.DEBUG, bool sound = true,
+            [CallerMemberName] string member = "",
+            [CallerLineNumber] int line = 0) {
+            if (ChromaConfig.DebugMode) {
+                Console.WriteLine("[Chroma] " + $"{member}({line}): {message}");
+            } else {
+                Console.WriteLine("[Chroma] " + message);
+            }
             if (sound && level >= SoundLevel) AudioUtil.Instance.PlayErrorSound();
             WriteLog(message, level);
         }

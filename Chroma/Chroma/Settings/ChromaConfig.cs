@@ -272,6 +272,7 @@ namespace Chroma.Settings {
             LoadSettingsEvent += OnLoadSettingsEvent;
 
             ChromaPlugin.MainMenuLoadedEvent += OnMainMenuLoaded;
+            ChromaPlugin.SongSceneLoadedEvent += OnSongLoaded;
 
             ChromaPlugin.MainMenuLoadedEvent += ChromaEvent.ClearChromaEvents;
             ChromaPlugin.SongSceneLoadedEvent += ChromaEvent.ClearChromaEvents;
@@ -285,11 +286,13 @@ namespace Chroma.Settings {
 
             LoadSettings(LoadSettingsType.MENU_LOADED);
 
-            ColourManager.RefreshLights();
+            //ColourManager.RefreshLights();
         }
         private static void OnSongLoaded() {
             ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteA);
             ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteB);
+
+            ColourManager.RefreshLights();
 
             //LoadSettingsEvent?.Invoke(LoadSettingsType.MENU_LOADED);
         }

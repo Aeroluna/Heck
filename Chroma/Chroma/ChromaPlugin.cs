@@ -19,7 +19,7 @@ namespace Chroma {
 
     public class ChromaPlugin {
         
-        public static Version Version = new Version(1, 3, 0);
+        public static Version Version = new Version(1, 3, 2);
 
         private static ChromaPlugin _instance;
         /// <summary>
@@ -101,17 +101,20 @@ namespace Chroma {
 
                 //Used for getting gamemode data mostly
                 try {
+                    ChromaLogger.Log("Initializing Coordinators");
                     BaseGameMode.InitializeCoordinators();
                 } catch (Exception e) {
                     ChromaLogger.Log("Error initializing coordinators", ChromaLogger.Level.ERROR);
                     throw e;
                 }
 
+                ChromaLogger.Log("Registering scenechange events");
                 SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
                 SceneManager.sceneLoaded += SceneManager_sceneLoaded;
 
                 //Getting and starting all the extension plugins
                 try {
+                    ChromaLogger.Log("Checking for extensions.");
                     foreach (PluginLoader.PluginInfo pluginInfo in PluginManager.AllPlugins) {
                         //We can't get IBeatSaberPlugin references
                         /*if (plugin is IChromaExtension chromaExtension) {
@@ -124,6 +127,7 @@ namespace Chroma {
                 }
 
                 //Harmony & extension Harmony patches
+                ChromaLogger.Log("Patching with Harmony.");
                 try {
                     coreHarmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
                     harmonyInstances.Add(coreHarmony);
@@ -136,10 +140,12 @@ namespace Chroma {
                     ChromaLogger.Log("This plugin requires Harmony.  Either you do not have it installed, or there was an error.", ChromaLogger.Level.ERROR);
                 }
 
+                ChromaLogger.Log("Creating AudioUtil");
                 AudioUtil ab = AudioUtil.Instance;
 
                 //Configuration Files
                 try {
+                    ChromaLogger.Log("Initializing Configuration");
                     ChromaConfig.Init();
                     ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.INITIAL);
                 } catch (Exception e) {
@@ -147,10 +153,12 @@ namespace Chroma {
                     throw e;
                 }
 
+                ChromaLogger.Log("Refreshing Lights");
                 ColourManager.RefreshLights();
 
                 //Side panel
                 try {
+                    ChromaLogger.Log("Stealing Patch Notes Panel");
                     Greetings.RegisterChromaSideMenu();
                     SidePanelUtil.ReleaseInfoEnabledEvent += ReleaseInfoEnabled;
                 } catch (Exception e) {
@@ -229,7 +237,7 @@ namespace Chroma {
         public bool doRefreshLights = false;
 
         public void OnUpdate() {
-            if (doRefreshLights && SceneManager.GetActiveScene() != null && SceneManager.GetActiveScene().name == "Menu") {
+            if (doRefreshLights && SceneManager.GetActiveScene() != null && SceneManager.GetActiveScene().name == "MenuCore") {
                 ColourManager.RefreshLights();
                 doRefreshLights = false;
             }

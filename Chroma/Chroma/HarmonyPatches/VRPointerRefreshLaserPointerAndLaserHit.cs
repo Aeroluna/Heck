@@ -8,7 +8,7 @@ using VRUIControls;
 
 namespace Chroma.HarmonyPatches {
 
-    [HarmonyPatch(typeof(VRPointer))]
+    /*[HarmonyPatch(typeof(VRPointer))]
     [HarmonyPatch("RefreshLaserPointerAndLaserHit")]
     class VRPointerRefreshLaserPointerAndLaserHit {
 
@@ -17,6 +17,6 @@ namespace Chroma.HarmonyPatches {
             ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform, ColourManager.LaserPointerColour);
         }
 
-    }
+    }*/
 
 }
