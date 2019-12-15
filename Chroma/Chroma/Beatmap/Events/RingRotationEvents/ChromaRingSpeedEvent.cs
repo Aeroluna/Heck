@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Chroma.Beatmap.Events {
 
+    [Obsolete("Now handled with Custom JSON Data", true)]
     public class ChromaRingSpeedEvent : ChromaColourEvent {
 
         public static float ringSpeedMult = 1f;

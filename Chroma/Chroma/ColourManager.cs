@@ -448,47 +448,12 @@ namespace Chroma {
             ChromaLogger.Log("Colourizing menustuff");
         }
 
-        private static Dictionary<BSLight, Color> _originalLightColors = new Dictionary<BSLight, Color>();
+        private static Dictionary<LightWithId, Color> _originalLightColors = new Dictionary<LightWithId, Color>();
         public static void RecolourAmbientLights(Color color) {
 
             try {
-                HashSet<BSLight> bls = new HashSet<BSLight>(BSLight.lightList);
-                
-                // Ignore lights part of a LightSwitchEventEffect
-                LightSwitchEventEffect[] lights = GetAllLightSwitches();
-                foreach (LightSwitchEventEffect light in lights) {
-                    BSLight[] blsInLight = light.GetField<BSLight[]>("_lights");
-                    if (blsInLight == null) continue;
-                    foreach (BSLight b in blsInLight) {
-                        bls.Remove(b);
-                    }
-                }
-
-                // Cleanup _originalLightColors
-                List<BSLight> reapLights = new List<BSLight>();
-                foreach (KeyValuePair<BSLight, Color> kv in _originalLightColors) {
-                    if (!bls.Contains(kv.Key)) {
-                        reapLights.Add(kv.Key);
-                    }
-                }
-                foreach (BSLight b in reapLights) {
-                    _originalLightColors.Remove(b);
-                }
-
-                foreach (BSLight b in bls) {
-                    if (color == Color.clear) {
-                        // Reset light
-                        if (_originalLightColors.ContainsKey(b)) {
-                            b.color = _originalLightColors[b];
-                        }
-                    } else {
-                        // Set light
-                        if (!_originalLightColors.ContainsKey(b)) {
-                            _originalLightColors.Add(b, b.color);
-                        }
-                        b.color = color;
-                    }
-                }
+                HashSet<BloomPrePassBGLight> bls = new HashSet<BloomPrePassBGLight>(BloomPrePassBGLight.bloomBGLightList);
+                foreach (BloomPrePassBGLight light in bls) light.color = color;
             } catch (Exception e) {
                 ChromaLogger.Log(e);
             }

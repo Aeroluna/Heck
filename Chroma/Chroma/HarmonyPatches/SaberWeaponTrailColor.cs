@@ -11,7 +11,7 @@ using UnityEngine;
 
 [HarmonyPriority(Priority.High)]
 [HarmonyPatch(typeof(SaberWeaponTrail))]
-[HarmonyPatch("color", PropertyMethod.Getter)]
+[HarmonyPatch("color", MethodType.Getter)]
 class SaberWeaponTrailColor {
 
     //Default colours

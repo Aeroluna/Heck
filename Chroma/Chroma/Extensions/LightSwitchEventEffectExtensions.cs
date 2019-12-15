@@ -14,6 +14,14 @@ namespace Chroma.Extensions {
             LSEColourManager.GetLSEColourManager(lse)?.Reset();
         }
 
+        public static Color? GetLightingColourA(this LightSwitchEventEffect lse) {
+            return LSEColourManager.GetLSEColourManager(lse)?.GetLightingColourA();
+        }
+
+        public static Color? GetLightingColourB(this LightSwitchEventEffect lse) {
+            return LSEColourManager.GetLSEColourManager(lse)?.GetLightingColourB();
+        }
+
         public static void SetLightingColourA(this LightSwitchEventEffect lse, Color colour) {
             lse.SetLightingColours(colour, Color.clear);
         }
@@ -26,15 +34,23 @@ namespace Chroma.Extensions {
             LSEColourManager.GetLSEColourManager(lse)?.SetLightingColours(colourA, colourB);
         }
 
+        public static LightWithId[] GetLights(this LightSwitchEventEffect lse) {
+            return LSEColourManager.GetLSEColourManager(lse)?.lights.ToArray();
+        }
+
+        public static LightWithId[][] GetLightsPropagationGrouped(this LightSwitchEventEffect lse) {
+            return LSEColourManager.GetLSEColourManager(lse)?.lightsPropagationGrouped;
+        }
+
         /*
          * LSE ColourSO holders
          */
 
         internal static void LSEStart(LightSwitchEventEffect lse, BeatmapEventType type) {
             LSEColourManager lsecm = LSEColourManager.GetOrCreateLSEColourManager(lse, type);
-            if (type == BeatmapEventType.Event1) {
+            /*if (type == BeatmapEventType.Event1) {
                 ChromaTesting.lse = lse; ChromaTesting.type = type;
-            }
+            }*/
         }
 
         internal static void LSEDestroy(LightSwitchEventEffect lse, BeatmapEventType type) {
@@ -101,6 +117,9 @@ namespace Chroma.Extensions {
             public MultipliedColorSO m_lightColor1;
             public MultipliedColorSO m_highlightColor1;
 
+            public List<LightWithId> lights;
+            public LightWithId[][] lightsPropagationGrouped;
+
             private LSEColourManager(LightSwitchEventEffect lse, BeatmapEventType type) {
                 Initialize(lse, type);
             }
@@ -112,11 +131,33 @@ namespace Chroma.Extensions {
                 InitializeSOs(lse, "_highlightColor0", ref _highlightColor0, ref _highlightColor0_Original, ref m_highlightColor0);
                 InitializeSOs(lse, "_lightColor1", ref _lightColor1, ref _lightColor1_Original, ref m_lightColor1);
                 InitializeSOs(lse, "_highlightColor1", ref _highlightColor1, ref _highlightColor1_Original, ref m_highlightColor1);
+
+                lights = lse.GetField<LightWithIdManager>("_lightManager").GetField<List<LightWithId>[]>("_lights")[lse.LightsID];
+                Dictionary<int, List<LightWithId>> lightsPreGroup = new Dictionary<int, List<LightWithId>>();
+                foreach (LightWithId light in lights) {
+                    int z = Mathf.RoundToInt(light.transform.position.z);
+                    if (lightsPreGroup.TryGetValue(z, out List<LightWithId> list)) {
+                        list.Add(light);
+                    } else {
+                        list = new List<LightWithId>();
+                        list.Add(light);
+                        lightsPreGroup.Add(z, list);
+                    }
+                }
+                lightsPropagationGrouped = new LightWithId[lightsPreGroup.Count][];
+                int i = 0;
+                foreach (List<LightWithId> lightList in lightsPreGroup.Values) {
+                    if (lightList is null) continue;
+                    lightsPropagationGrouped[i] = lightList.ToArray();
+                    i++;
+                }
+
                 Reset();
             }
 
             //We still need to do the first half of this even if the LSECM already exists as custom map colours exist and we need to be able to know the default colour
             private void InitializeSOs(LightSwitchEventEffect lse, string id, ref SimpleColorSO sColorSO, ref Color originalColour, ref MultipliedColorSO mColorSO) {
+                //ChromaLogger.Log(lse.GetField<ColorSO>(id).GetType().Name, ChromaLogger.Level.ERROR, false);
                 MultipliedColorSO lightMultSO = lse.GetField<MultipliedColorSO>(id);
                 Color multiplierColour = lightMultSO.GetField<Color>("_multiplierColor");
                 SimpleColorSO lightSO = lightMultSO.GetField<SimpleColorSO>("_baseColor");
@@ -164,6 +205,14 @@ namespace Chroma.Extensions {
                     _lightColor1.SetColor(colourA);
                     _highlightColor1.SetColor(colourA);
                 }
+            }
+
+            internal Color GetLightingColourA() {
+                return _lightColor1;
+            }
+
+            internal Color GetLightingColourB() {
+                return _lightColor0;
             }
         }
 

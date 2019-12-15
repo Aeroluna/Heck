@@ -108,7 +108,7 @@ namespace Chroma.Utils {
         }
 
         private static void _characteristicViewController_didSelectBeatmapCharacteristicEvent(BeatmapCharacteristicSelectionViewController arg1, BeatmapCharacteristicSO arg2) {
-            currentGameplayModeString = arg2.characteristicName;
+            currentGameplayModeString = arg2.serializedName;
             ChromaLogger.Log("Gameplaymode Change : |" + currentGameplayModeString + "|");
         }
         #endregion

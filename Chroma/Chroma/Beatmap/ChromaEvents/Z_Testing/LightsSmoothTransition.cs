@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Chroma.Beatmap.Z_Testing.ChromaEvents {
 
-    [Obsolete("Science purposes only")]
+    [Obsolete("Science purposes only", true)]
     public static class LightsSmoothTransition {
 
         //Fade from COLOURFROM to COLOURTO over DURATION seconds, at a rate of 1/FREQ per second.
@@ -20,15 +20,15 @@ namespace Chroma.Beatmap.Z_Testing.ChromaEvents {
         }
 
         internal static IEnumerator Routine(LightSwitchEventEffect lse, BeatmapEventType type, Color colourFrom, Color colourTo, float duration, float freq) {
-            BloomPrePassLight[] lights = lse.GetField<BloomPrePassLight[]>("_lights");
+            LightWithId[] lights = lse.GetField<LightWithIdManager>("_lightManager").GetField<List<LightWithId>[]>("_lights")[lse.LightsID].ToArray();
             
             float time = 0;
             while (time < duration) {
-                for (int i = 0; i < lights.Length; i++) lights[i].color = Color.Lerp(colourFrom, colourTo, time / duration);
+                for (int i = 0; i < lights.Length; i++) lights[i].ColorWasSet(Color.Lerp(colourFrom, colourTo, time / duration));
                 yield return new WaitForSeconds(freq);
                 time += freq;
             }
-            for (int i = 0; i < lights.Length; i++) lights[i].color = colourTo;
+            for (int i = 0; i < lights.Length; i++) lights[i].ColorWasSet(colourTo);
         }
         
     }

@@ -1,9 +1,10 @@
 ﻿using Chroma.Beatmap.ChromaEvents;
 using Chroma.Beatmap.Events;
-using Chroma.Beatmap.JSON;
 using Chroma.Beatmap.Z_Testing.ChromaEvents;
 using Chroma.Extensions;
 using Chroma.Settings;
+using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
 using Harmony;
 using System;
 using System.Collections.Generic;
@@ -24,11 +25,46 @@ namespace Chroma.HarmonyPatches {
             techniLightRandom = new System.Random(408);
         }
 
+        public static LightWithId[] overrideLightWithIdActivation = null;
+
         private static System.Random techniLightRandom = new System.Random(408);
 
+        //0 = off
+        //1 = blue on, 5 = red on
+        //2 = blue flash, 6 = red flash
+        //3 = blue fade, 7 = red fade
         static bool Prefix(LightSwitchEventEffect __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____event) {
 
-            if (beatmapEventData.value == ChromaJSONEventData.GLOBAL_DO_NOTHING_VALUE) return false;
+            //if (beatmapEventData.value == ChromaJSONEventData.GLOBAL_DO_NOTHING_VALUE) return false;
+
+            try {
+
+                if (beatmapEventData.type == ____event) {
+                    if (beatmapEventData is CustomBeatmapEventData customData) {
+                        dynamic dynData = customData.customData;
+                        if (dynData != null)
+                        {
+                            long? lightID = Trees.at(dynData, "_lightID");
+                            if (lightID != null)
+                            {
+                                LightWithId[] lights = __instance.GetLights();
+                                if (lights.Length > lightID) SetOverrideLightWithIds(lights[(int)lightID]);
+                            }
+
+                            long? propID = Trees.at(dynData, "_propID");
+                            if (propID != null)
+                            {
+                                LightWithId[][] lights = __instance.GetLightsPropagationGrouped();
+                                if (lights.Length > propID) SetOverrideLightWithIds(lights[(int)propID]);
+                            }
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+                ChromaLogger.Log("Exception handling CJD lights!", ChromaLogger.Level.WARNING);
+                ChromaLogger.Log(e);
+            }
 
             try {
 
@@ -71,6 +107,7 @@ namespace Chroma.HarmonyPatches {
                 ChromaLogger.Log(e);
             }
 
+            //TODO check if legacy enabled
             try { 
 
                 if (ChromaEvent.SimpleEventActivate(__instance, ref beatmapEventData, ref ____event)) return false;
@@ -85,10 +122,10 @@ namespace Chroma.HarmonyPatches {
                         return false;
                     }
 
-                    ChromaJSONEventData chromaEvent = ChromaJSONEventData.GetChromaEvent(beatmapEventData);
+                    /*ChromaJSONEventData chromaEvent = ChromaJSONEventData.GetChromaEvent(beatmapEventData);
                     if (chromaEvent != null) {
                         chromaEvent.Activate(beatmapEventData, __instance, ____event);
-                    }
+                    }*/
                 }
 
             } catch (Exception e) {
@@ -97,6 +134,14 @@ namespace Chroma.HarmonyPatches {
             }
 
             return true;
+        }
+
+        private static void SetOverrideLightWithIds(params LightWithId[] lights) {
+            overrideLightWithIdActivation = lights;
+        }
+
+        static void Postfix(LightSwitchEventEffect __instance) {
+            overrideLightWithIdActivation = null;
         }
 
     }

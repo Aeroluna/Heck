@@ -1,5 +1,4 @@
-﻿using Chroma.Beatmap.JSON;
-using Chroma.Settings;
+﻿using Chroma.Settings;
 using Harmony;
 using System;
 using System.Collections.Generic;
@@ -10,7 +9,7 @@ using UnityEngine;
 
 namespace Chroma.HarmonyPatches {
     
-    [HarmonyPatch(typeof(BeatDataTransformHelper))]
+    /*[HarmonyPatch(typeof(BeatDataTransformHelper))]
     [HarmonyPatch("CreateTransformedBeatmapData")]
     class BeatDataTransformHelperCreateTransformedBeatmapData {
 
@@ -19,6 +18,6 @@ namespace Chroma.HarmonyPatches {
             if (cMap != null) ChromaJSONBeatmap.copiedMap = new Tuple<BeatmapData, ChromaJSONBeatmap>(__result, cMap);
         }
 
-    }
+    }*/
 
 }

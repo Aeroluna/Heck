@@ -28,7 +28,7 @@ namespace Chroma {
                 //lastColour = nextColour;
 
                 //Total randomization testing
-                LightsIsolatedTechnicolour.Activate(lse, type, ColourManager.TechnicolourStyle.PURE_RANDOM, true, Time.time);
+                //LightsIsolatedTechnicolour.Activate(lse, type, ColourManager.TechnicolourStyle.PURE_RANDOM, true, Time.time);
             }
         }
 

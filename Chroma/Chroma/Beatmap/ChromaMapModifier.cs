@@ -1,5 +1,4 @@
 ﻿using Chroma.Beatmap.Events;
-using Chroma.Beatmap.JSON;
 using Chroma.Settings;
 using Chroma.Utils;
 using System;
@@ -20,8 +19,8 @@ namespace Chroma.Beatmap {
 
             ColourManager.TechnicolourLightsForceDisabled = false;
 
-            ChromaLogger.Log("Checking for registered JSONBeatmap for " + beatmapData.ToString() + " (" + ChromaJSONBeatmap.chromaBeatmaps.Count + " registered maps total)");
-            ChromaJSONBeatmap chromaInjectmap = ChromaJSONBeatmap.GetChromaBeatmap(beatmapData);
+            //ChromaLogger.Log("Checking for registered JSONBeatmap for " + beatmapData.ToString() + " (" + ChromaJSONBeatmap.chromaBeatmaps.Count + " registered maps total)");
+            //ChromaJSONBeatmap chromaInjectmap = ChromaJSONBeatmap.GetChromaBeatmap(beatmapData);
 
             if (beatmapData == null) ChromaLogger.Log("Null beatmapData", ChromaLogger.Level.ERROR);
             if (playerSettings == null) ChromaLogger.Log("Null playerSettings", ChromaLogger.Level.ERROR);
@@ -139,7 +138,7 @@ namespace Chroma.Beatmap {
 
             beatmapData = new BeatmapData(linesData, eventsData);
 
-            if (chromaInjectmap != null) chromaInjectmap.Inject(beatmapData);
+            //if (chromaInjectmap != null) chromaInjectmap.Inject(beatmapData);
 
             customBeatmap.BeatmapData = beatmapData;
 
@@ -251,7 +250,7 @@ namespace Chroma.Beatmap {
                     case ChromaEvent.CHROMA_EVENT_BARRIER_COLOUR: //1,950,000,005 = 1950000005 = Barrier Colour Event
                         unfilledColourEvent = new ChromaBarrierColourEvent(bev);
                         return null;
-                    case ChromaEvent.CHROMA_EVENT_RING_SPEED_MULT: //1,950,000,006 = 1950000006 = Ring Speed Event
+                    /*case ChromaEvent.CHROMA_EVENT_RING_SPEED_MULT: //1,950,000,006 = 1950000006 = Ring Speed Event
                         unfilledColourEvent = new ChromaRingSpeedEvent(bev);
                         return null;
                     case ChromaEvent.CHROMA_EVENT_RING_PROPAGATION_MULT: //1,950,000,007 = 1950000007 = Ring Prop Event
@@ -259,7 +258,7 @@ namespace Chroma.Beatmap {
                         return null;
                     case ChromaEvent.CHROMA_EVENT_RING_STEP_MULT: //1,950,000,008 = 1950000008 = Ring Step Event
                         unfilledColourEvent = new ChromaRingStepEvent(bev);
-                        return null;
+                        return null;*/
                     default: return null;
                 }
                 if (FillColourEvent(bev, ref unfilledColourEvent, a, b)) return unfilledColourEvent;

@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Chroma.Beatmap.ChromaEvents.Z_Testing.RingEvents {
 
-    [Obsolete("Science purposes only")]
+    [Obsolete("Science purposes only", true)]
     public static class RingLightsPropagateColour {
 
         public static void Activate(LightSwitchEventEffect lse, BeatmapEventType type, Color colour, MonoBehaviour lightObject, float delay) {
@@ -17,13 +17,13 @@ namespace Chroma.Beatmap.ChromaEvents.Z_Testing.RingEvents {
         }
 
         internal static IEnumerator Routine(LightSwitchEventEffect lse, BeatmapEventType type, Color colour, float delay) {
-            BloomPrePassLight[] lights = lse.GetField<BloomPrePassLight[]>("_lights");
-            Dictionary<int, List<BloomPrePassLight>> lightWavesByPosition = new Dictionary<int, List<BloomPrePassLight>>();
+            LightWithId[] lights = lse.GetField<LightWithIdManager>("_lightManager").GetField<List<LightWithId>[]>("_lights")[lse.LightsID].ToArray();
+            Dictionary<int, List<LightWithId>> lightWavesByPosition = new Dictionary<int, List<LightWithId>>();
 
             for (int i = 0; i < lights.Length; i++) {
-                List<BloomPrePassLight> wave;
+                List<LightWithId> wave;
                 if (!lightWavesByPosition.TryGetValue(Mathf.FloorToInt(lights[i].transform.position.z), out wave)) {
-                    wave = new List<BloomPrePassLight>();
+                    wave = new List<LightWithId>();
                     lightWavesByPosition.Add(Mathf.FloorToInt(lights[i].transform.position.z), wave);
                 }
                 wave.Add(lights[i]);
@@ -31,13 +31,13 @@ namespace Chroma.Beatmap.ChromaEvents.Z_Testing.RingEvents {
             
             ChromaLogger.Log("Found " + lightWavesByPosition.Count + " waves!");
 
-            List<List<BloomPrePassLight>> lightWaves = new List<List<BloomPrePassLight>>();
-            foreach (KeyValuePair<int, List<BloomPrePassLight>> kv in lightWavesByPosition) {
+            List<List<LightWithId>> lightWaves = new List<List<LightWithId>>();
+            foreach (KeyValuePair<int, List<LightWithId>> kv in lightWavesByPosition) {
                 lightWaves.Add(kv.Value);
             }
 
             for (int i = 0; i < lightWaves.Count; i++) {
-                for (int j = 0; j < lightWaves[i].Count; j++) lightWaves[i][j].color = colour;
+                for (int j = 0; j < lightWaves[i].Count; j++) lightWaves[i][j].ColorWasSet(colour);
                 yield return new WaitForSeconds(delay);
             }
         }

@@ -37,11 +37,11 @@ namespace Chroma.Beatmap.Events {
         private static Dictionary<BeatmapEventData, ChromaEvent> chromaEvents = new Dictionary<BeatmapEventData, ChromaEvent>();
 
         public static void ClearChromaEvents() {
-            ChromaRingPropagationEvent.ringPropagationMult = 1f;
-            ChromaRingSpeedEvent.ringSpeedMult = 1f;
-            ChromaRingStepEvent.ringStepMult = 1f;
+            //ChromaRingPropagationEvent.ringPropagationMult = 1f;
+            //ChromaRingSpeedEvent.ringSpeedMult = 1f;
+            //ChromaRingStepEvent.ringStepMult = 1f;
 
-            ResetFlags();
+            //ResetFlags();
 
             chromaEvents.Clear();
 
@@ -94,7 +94,7 @@ namespace Chroma.Beatmap.Events {
 
         }
 
-        public static bool SimpleEventActivate(TrackLaneRingsRotationEffectSpawner tre, ref BeatmapEventData beatmapEventData, ref BeatmapEventType eventType) {
+        /*public static bool SimpleEventActivate(TrackLaneRingsRotationEffectSpawner tre, ref BeatmapEventData beatmapEventData, ref BeatmapEventType eventType) {
             if (!ChromaConfig.LegacyLighting) return false;
             int id = beatmapEventData.value;
             switch (id) {
@@ -114,13 +114,13 @@ namespace Chroma.Beatmap.Events {
                     return true;
             }
             return false;
-        }
-
+        }*/
+        
         public static bool SimpleEventActivate(LightSwitchEventEffect lse, ref BeatmapEventData beatmapEventData, ref BeatmapEventType eventType) {
             if (!ChromaConfig.LegacyLighting) return false;
             int id = beatmapEventData.value;
             switch (id) {
-                case CHROMA_EVENT_LASER_RESET_STATE_ON:
+                /*case CHROMA_EVENT_LASER_RESET_STATE_ON:
                     disablePositionReset = false;
                     return true;
                 case CHROMA_EVENT_LASER_RESET_STATE_OFF:
@@ -134,7 +134,7 @@ namespace Chroma.Beatmap.Events {
                     return true;
                 case CHROMA_EVENT_LASER_SPIN_OUTBOARD:
                     laserSpinDirection = -1;
-                    return true;
+                    return true;*/
                 case CHROMA_EVENT_MAIN_LIGHTNING:
                     if (!ChromaConfig.CustomSpecialEventsEnabled) return true;
                     VFXLightning.InstanceOrDefault.TriggerLightning(false);
@@ -151,13 +151,13 @@ namespace Chroma.Beatmap.Events {
          * SIMPLE EVENT FLAGS
          */
 
-        public static bool disablePositionReset = false;
+        /*public static bool disablePositionReset = false;
         public static int laserSpinDirection = 0;
 
         private static void ResetFlags() {
             disablePositionReset = false;
             laserSpinDirection = 0;
-        }
+        }*/
 
     }
 

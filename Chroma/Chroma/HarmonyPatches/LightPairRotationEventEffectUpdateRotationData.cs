@@ -12,13 +12,15 @@ using UnityEngine;
 namespace Chroma.HarmonyPatches {
 
     /*[HarmonyPriority(Priority.High)]
-    [HarmonyPatch(typeof(LightRotationEventEffect))]
-    [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
-    class LightRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger {
+    [HarmonyPatch(typeof(LightPairRotationEventEffect))]
+    [HarmonyPatch("UpdateRotationData")]
+    class LightPairRotationEventEffectUpdateRotationData {
 
         //Laser rotation
-        static bool Prefix(LightRotationEventEffect __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____event, ref Transform ____transform, ref Quaternion ____startRotation, ref Vector3 ____rotationVector, ref float ____rotationSpeed) {
-            
+        static bool Prefix(LightPairRotationEventEffect __instance, ref LightPairRotationEventEffect.RotationData rotationData, ref float ____startRotation, ref Vector3 ____rotationVector) {
+
+            BeatmapEventData beatmapEventData = LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.lastLightPairRotationEventEffectData;
+
             if (beatmapEventData.type == ____event) {
 
                 ChromaLogger.Log("rot event " + ____event.ToString());
