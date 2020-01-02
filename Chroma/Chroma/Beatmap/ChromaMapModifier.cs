@@ -129,7 +129,7 @@ namespace Chroma.Beatmap {
             BeatmapEventData[] eventsData = new BeatmapEventData[beatmapData.beatmapEventData.Length];
             for (int num5 = 0; num5 < beatmapData.beatmapEventData.Length; num5++) {
                 BeatmapEventData beatmapEventData = beatmapData.beatmapEventData[num5];
-                eventsData[num5] = beatmapEventData.GetCopy();
+                eventsData[num5] = beatmapEventData;
             }
 
             if (ChromaConfig.LightshowModifier) {

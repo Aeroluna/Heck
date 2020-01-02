@@ -9,17 +9,17 @@ using Harmony;
 using Chroma.Utils;
 using Chroma.Beatmap.Events;
 using UnityEngine;
-using UnityEngine.UI;
 using Chroma.Misc;
 using System.IO;
 using IPA.Loader;
 using IPA;
+using BeatSaberMarkupLanguage.Settings;
 
 namespace Chroma {
 
     public class ChromaPlugin {
         
-        public static Version Version = new Version(1, 3, 2);
+        public static Version Version = new Version(1, 3, 4);
 
         private static ChromaPlugin _instance;
         /// <summary>
@@ -216,18 +216,25 @@ namespace Chroma {
         }
 
         private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode mode) {
-            if (scene.name == "MenuCore") {
+            /*if (scene.name == "MenuCore") {
                 try {
                     ChromaSettingsUI.InitializeMenu();
 
                 } catch (Exception e) {
                     ChromaLogger.Log(e);
                 }
+            }*/
+            if (scene.name == "MenuViewControllers")
+            {
+                ChromaSettingsUI.InitializeMenu();
+                BSMLSettings.instance.AddSettingsMenu("Chroma", "Chroma.Settings.settings.bsml", ChromaSettingsUI.instance);
             }
         }
         
         public void ReleaseInfoEnabled() {
-            SidePanelUtil.SetPanel("chroma");
+
+            SidePanelUtil.SetPanel(ChromaSettingsUI.floatToPanel((float)ChromaConfig.SidePanel));
+            //SidePanelUtil.SetPanel("chroma");
             //SidePanelUtil.SetPanelDirectly(SafetyWaiver.GetSafetyWaiverUIMessage());
         }
 

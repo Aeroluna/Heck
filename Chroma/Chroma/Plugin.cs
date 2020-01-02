@@ -8,8 +8,6 @@ namespace Chroma {
 
     public class Plugin : IBeatSaberPlugin {
 
-        public string Name => "Chroma";
-        
         public string Version => ChromaPlugin.Version.ToString();
 
         ChromaPlugin chroma;

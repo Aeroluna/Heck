@@ -47,8 +47,8 @@ namespace Chroma.Settings {
         private static int timesLaunched = 0;
 
 
-        private static MainSettingsModel mainSettingsModel;
-        public static MainSettingsModel MainSettingsModel {
+        private static MainSettingsModelSO mainSettingsModel;
+        public static MainSettingsModelSO MainSettingsModel {
             get { return mainSettingsModel; }
         }
 
@@ -71,6 +71,16 @@ namespace Chroma.Settings {
         public static string Username { get; private set; } = "Unknown";
         public static ulong UserID { get; private set; } = 0;
 
+        public static ChromaSettingsUI.SidePanelEnum SidePanel
+        {
+            get { return sidePanel; }
+            set
+            {
+                sidePanel = value;
+                ChromaConfig.SetFloat("Other", "sidePanel", (float)sidePanel);
+            }
+        }
+        private static ChromaSettingsUI.SidePanelEnum sidePanel = ChromaSettingsUI.SidePanelEnum.Default;
 
         /// <summary>
         /// Enables checking for tailored maps.
@@ -327,7 +337,7 @@ namespace Chroma.Settings {
                 if (DebugMode) ChromaLogger.Log("=== YOUR ID : " + UserID.ToString());
 
                 if (type == LoadSettingsType.INITIAL) {
-                    timesLaunched = ChromaConfig.GetInt("Other", "timesLaunched", timesLaunched + 1);
+                    timesLaunched = ChromaConfig.GetInt("Other", "timesLaunched", 0)+1;
                     ChromaConfig.SetInt("Other", "timesLaunched", timesLaunched);
                 }
                 
@@ -432,6 +442,8 @@ namespace Chroma.Settings {
                  * OTHER
                  */
 
+                sidePanel = (ChromaSettingsUI.SidePanelEnum)ChromaConfig.GetFloat("Other", "sidePanel", 1);
+
                 legacyLighting = ChromaConfig.GetBool("Other", "legacyLighting", false);
 
                 debugMode = ChromaConfig.GetBool("Other", "debugMode", false);
@@ -459,7 +471,7 @@ namespace Chroma.Settings {
 
         public static void LoadSettingsModel() {
 
-            mainSettingsModel = UnityEngine.Resources.FindObjectsOfTypeAll<MainSettingsModel>().FirstOrDefault();
+            mainSettingsModel = UnityEngine.Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().FirstOrDefault();
             if (mainSettingsModel) {
                 ChromaLogger.Log("Found settings model", ChromaLogger.Level.DEBUG);
                 oldHaptics = mainSettingsModel.controllersRumbleEnabled;

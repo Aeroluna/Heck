@@ -68,10 +68,10 @@ namespace Chroma {
         public delegate void ChromaBehaviourInstantiatedDelegate(ChromaBehaviour behaviour);
 
         public event ChromaHandleNoteWasCut ChromaHandleNoteWasCutEvent;
-        public delegate void ChromaHandleNoteWasCut(BeatmapObjectSpawnController noteSpawnController, NoteController noteController, NoteCutInfo noteCutInfo);
+        public delegate void ChromaHandleNoteWasCut(BeatmapObjectSpawnController noteSpawnController, INoteController noteController, NoteCutInfo noteCutInfo);
 
         public event ChromaHandleNoteWasMissed ChromaHandleNoteWasMissedEvent;
-        public delegate void ChromaHandleNoteWasMissed(BeatmapObjectSpawnController noteSpawnController, NoteController noteController);
+        public delegate void ChromaHandleNoteWasMissed(BeatmapObjectSpawnController noteSpawnController, INoteController noteController);
 
         public event ChromaHandleBarrierSpawned ChromaHandleBarrierSpawnedEvent;
         public delegate void ChromaHandleBarrierSpawned(ref StretchableObstacle stretchableObstacle, ref BeatmapObjectSpawnController obstacleSpawnController, ref ObstacleController obstacleController, ref bool didRecolour);
@@ -122,7 +122,7 @@ namespace Chroma {
                 songBPM = beatmapObjectSpawnController.GetField<float>("_beatsPerMinute");
                 ChromaLogger.Log("BPM Found : " + songBPM);
             }
-            GameplayCoreSceneSetup coreSetup = GetGameplayCoreSetup();
+            BeatmapObjectCallbackController coreSetup = GetBeatmapObjectCallbackController();
             if (coreSetup != null) {
                 ChromaLogger.Log("Found GCSS properly!", ChromaLogger.Level.DEBUG);
                 try {
@@ -153,15 +153,15 @@ namespace Chroma {
             IsLoadingSong = false;
         }
 
-        private GameplayCoreSceneSetup GetGameplayCoreSetup() {
-            GameplayCoreSceneSetup s = GameObject.FindObjectOfType<GameplayCoreSceneSetup>();
+        private BeatmapObjectCallbackController GetBeatmapObjectCallbackController() {
+            BeatmapObjectCallbackController s = GameObject.FindObjectOfType<BeatmapObjectCallbackController>();
             if (s == null) {
-                s = UnityEngine.Resources.FindObjectsOfTypeAll<GameplayCoreSceneSetup>().FirstOrDefault();
+                s = UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapObjectCallbackController>().FirstOrDefault();
             }
             return s;
         }
 
-        private void GCSSFound(Scene scene, GameplayCoreSceneSetup gcss) {
+        private void GCSSFound(Scene scene, BeatmapObjectCallbackController gcss) {
             ChromaLogger.Log("Found GCSS!", ChromaLogger.Level.DEBUG);
             //Plugin.PlayReloadSound();
 
@@ -188,14 +188,13 @@ namespace Chroma {
 
             //Map
 
-            BeatmapDataModel _beatmapDataModel = ReflectionUtil.GetField<BeatmapDataModel>(gcss, "_beatmapDataModel");
-            if (_beatmapDataModel == null) ChromaLogger.Log("{XXX} : NULL BEATMAP DATA MODEL", ChromaLogger.Level.ERROR);
-            if (_beatmapDataModel.beatmapData == null) ChromaLogger.Log("{XXX} : NULL BEATMAP DATA MODEL BEATMAP DATA", ChromaLogger.Level.ERROR);
+            BeatmapData _beatmapDataModel = ReflectionUtil.GetField<BeatmapData>(gcss, "_beatmapData");
+            if (_beatmapDataModel == null) ChromaLogger.Log("{XXX} : NULL BEATMAP DATA", ChromaLogger.Level.ERROR);
+            //if (_beatmapDataModel.beatmapData == null) ChromaLogger.Log("{XXX} : NULL BEATMAP DATA MODEL BEATMAP DATA", ChromaLogger.Level.ERROR);
             //BeatmapData beatmapData = CreateTransformedBeatmapData(mgData.difficultyLevel.beatmapData, mgData.gameplayOptions, mgData.gameplayMode);
-            BeatmapData beatmapData = CreateTransformedBeatmapData(_beatmapDataModel.beatmapData, playerSettings, BaseGameMode.CurrentBaseGameMode);
+            BeatmapData beatmapData = CreateTransformedBeatmapData(_beatmapDataModel, playerSettings, BaseGameMode.CurrentBaseGameMode);
             if (beatmapData != null) {
-                _beatmapDataModel.beatmapData = beatmapData;
-                ReflectionUtil.SetField(gcss, "_beatmapDataModel", _beatmapDataModel);
+                ReflectionUtil.SetField(gcss, "_beatmapData", beatmapData);
             }
 
             foreach (IChromaBehaviourExtension extension in extensions) extension.PostInitialization(songBPM, beatmapData, playerSettings, scoreController);
@@ -268,7 +267,7 @@ namespace Chroma {
         }
 
         private void RecolourWall(StretchableCube wall, Color color) {
-            CustomUI.Utilities.UIUtilities.PrintHierarchy(wall.transform.parent);
+            //CustomUI.Utilities.UIUtilities.PrintHierarchy(wall.transform.parent);
             foreach (Transform component in wall.transform.parent) {
                 foreach (Transform child in component.transform) {
                     try {
@@ -286,11 +285,11 @@ namespace Chroma {
         }
         #endregion
 
-        private void HandleNoteWasCutEvent(BeatmapObjectSpawnController noteSpawnController, NoteController noteController, NoteCutInfo noteCutInfo) {
+        private void HandleNoteWasCutEvent(BeatmapObjectSpawnController noteSpawnController, INoteController noteController, NoteCutInfo noteCutInfo) {
             ChromaHandleNoteWasCutEvent?.Invoke(noteSpawnController, noteController, noteCutInfo);
         }
 
-        private void HandleNoteWasMissedEvent(BeatmapObjectSpawnController noteSpawnController, NoteController noteController) {
+        private void HandleNoteWasMissedEvent(BeatmapObjectSpawnController noteSpawnController, INoteController noteController) {
             ChromaHandleNoteWasMissedEvent?.Invoke(noteSpawnController, noteController);
         }
 

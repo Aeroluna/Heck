@@ -1,0 +1,55 @@
+﻿<settings-container>
+  <settings-submenu text='Settings'>
+    <scrollable-settings-container>
+      <clickable-text text='Back' click-event='back'></clickable-text>
+      <dropdown-list-setting text='Side Panel' value='sidepanel' formatter='sidepanelform' options='sidepanelchoices'></dropdown-list-setting>
+      <bool-setting text='Enabled Map Checking' value='custommapchecking' hover-hint='If false, Chroma and its extensions will not check for special maps.  Recommended to leave on.'></bool-setting>
+      <list-setting text='Chroma Sounds Volume' value='mastervolume' choices='mastervolumechoices' hover-hint='Master volume control for sounds made by Chroma' formatter='percent'></list-setting>
+      <bool-setting text='Debug Mode' value='debugmode' hover-hint='Very performance heavy - only do this if you are bug chasing.'></bool-setting>
+      <list-setting text='Logging Level' value='loggerlevel' choices='loggerlevelchoices' hover-hint='The further to the left this is, the more will be logged.'></list-setting>
+      <string-setting text='Secrets' value='secrets' hover-hint='What could it mean?!?!'></string-setting>
+    </scrollable-settings-container>
+  </settings-submenu>
+  <settings-submenu text='Notes/Lights'>
+    <settings-container>
+      <clickable-text text='Back' click-event='back'></clickable-text>
+      <dropdown-list-setting text='Left Notes' value='coloura' formatter='colourformat' options='colours'></dropdown-list-setting>
+      <dropdown-list-setting text='Right Notes' value='colourb' formatter='colourformat' options='colours'></dropdown-list-setting>
+      <dropdown-list-setting text='Ambient (bg) Lights' value='lightambient' formatter='colourformat' options='colours'></dropdown-list-setting>
+      <dropdown-list-setting text='Warm (red) Lights' value='lightcoloura' formatter='colourformat' options='colours'></dropdown-list-setting>
+      <dropdown-list-setting text='Cold (blue) Lights' value='lightcolourb' formatter='colourformat' options='colours'></dropdown-list-setting>
+    </settings-container>
+  </settings-submenu>
+  <settings-submenu text='Aesthetics'>
+    <scrollable-settings-container>
+      <clickable-text text='Back' click-event='back'></clickable-text>
+      <dropdown-list-setting text='Barriers' value='barriercolour' formatter='colourformat' options='colours'></dropdown-list-setting>
+      <list-setting text='Barrier Col. Correction' value='barrierccscale' choices='barrierccscalechoices' formatter='percent'></list-setting>
+      <dropdown-list-setting text='Neon Sign Top' value='signcolourb' formatter='colourformat' options='colours'></dropdown-list-setting>
+      <dropdown-list-setting text='Neon Sign Bottom' value='signcoloura' formatter='colourformat' options='colours'></dropdown-list-setting>
+      <dropdown-list-setting text='Laser Pointer' value='laserpointercolour' formatter='colourformat' options='colours'></dropdown-list-setting>
+      <dropdown-list-setting text='Platform Accoutrements' value='platformaccoutrements' formatter='colourformat' options='colours'></dropdown-list-setting>
+    </scrollable-settings-container>
+  </settings-submenu>
+  <settings-submenu text='Events'>
+    <settings-container>
+    <clickable-text text='Back' click-event='back'></clickable-text>
+      <bool-setting text='Lightshow Only' value='lightshowonly' hover-hint='Disables all notes and sabers, allowing you to view the lightshow!'></bool-setting>
+      <bool-setting text='RGB Lights' value='rgbevents' hover-hint='Enable/Disable RGB lighting events.'></bool-setting>
+      <bool-setting text='Special Events' value='specialevents' hover-hint='Enable/Disable Special Events, such as note size changing, player heal/harm events, and rotation events.'></bool-setting>
+    </settings-container>
+  </settings-submenu>
+  <settings-submenu text='Technicolour'>
+    <scrollable-settings-container>
+      <clickable-text text='Back' click-event='back'></clickable-text>
+      <bool-setting text='Technicolour' value='technicolour' hover-hint='Enable/Disable Technicolour.  See Technicolour options below.'></bool-setting>
+      <dropdown-list-setting text='Technicolour Lights' value='techlights' options='techlightschoices' formatter='techlightform' hover-hint='Technicolour style of the lights.'></dropdown-list-setting>
+      <dropdown-list-setting text='Lights Grouping' value='lightsgroup' options='lightsgroupchoices' formatter='techgroupform' hover-hint='Isolated Event for better performance, but more chaotic lighting'></dropdown-list-setting>
+      <list-setting text='Lights Frequency' value='lightsfreq' choices='lightsfreqchoices' hover-hint='Master volume control for sounds made by Chroma' formatter='percentfreq'></list-setting>
+      <bool-setting text='Technicolour Barriers' value='techbarriers' hover-hint='If enabled, Barriers will rainbowify!'></bool-setting>
+      <dropdown-list-setting text='Technicolour Notes' value='technotes' options='techlightschoices' formatter='techlightform' hover-hint='Technicolour style of the blocks.'></dropdown-list-setting>
+      <dropdown-list-setting text='Technicolour Sabers' value='techsabers' options='techlightschoices' formatter='techlightform' hover-hint='Technicolour style of the sabers.'></dropdown-list-setting>
+      <bool-setting text='Desync Sabers' value='matchsabers' hover-hint='If true, technicolour sabers will have their &quot;time&quot; start and progress differently, resulting in their colours not matching so often.'></bool-setting>
+    </scrollable-settings-container>
+  </settings-submenu>
+</settings-container>

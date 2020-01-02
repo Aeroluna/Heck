@@ -1,7 +1,6 @@
 ﻿using Chroma.Utils;
-using CustomUI.GameplaySettings;
-using CustomUI.MenuButton;
-using CustomUI.Settings;
+using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.MenuButtons;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,28 +8,476 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static Chroma.ColourManager;
 
 namespace Chroma.Settings {
 
-    public class ChromaSettingsUI {
+    public class ChromaSettingsUI : PersistentSingleton<ChromaSettingsUI> {
 
-        public delegate void SettingsMenuCreatedDelegate(SubMenu ctSettings);
-        public static event SettingsMenuCreatedDelegate SettingsMenuCreatedEvent;
+        [UIValue("sidepanelchoices")]
+        private List<object> _sidePanelChoices = (new object[] { SidePanelEnum.Default, SidePanelEnum.Chroma, SidePanelEnum.ChromaWaiver }).ToList();
+        public enum SidePanelEnum
+        {
+            Default = 0,
+            Chroma = 1,
+            ChromaWaiver = 2
+        }
 
-        //public delegate void SettingsSubMenuCreatedDelegate(SubMenu subMenu);
-        //public static event SettingsSubMenuCreatedDelegate SettingsSubMenuCreatedEvent;
+        [UIValue("mastervolumechoices")]
+        private List<object> _masterVolumeChoices = new List<object>() { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1f };
 
-        public delegate void SettingsNoteMenuAddedDelegate(SubMenu subMenu, float[] presets, List<NamedColor> colourPresets);
-        public static event SettingsNoteMenuAddedDelegate SettingsNoteMenuAddedEvent;
+        [UIValue("loggerlevelchoices")]
+        private List<object> _loggerLevelChoices = new List<object>() { 0, 1, 2, 3 };
 
-        public delegate void SettingsLightsMenuAddedDelegate(SubMenu subMenu, float[] presets, List<NamedColor> colourPresets);
-        public static event SettingsLightsMenuAddedDelegate SettingsLightsMenuAddedEvent;
+        [UIValue("barrierccscalechoices")]
+        private List<object> _barrierccChoices = new List<object>() { 0, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f, 1.8f, 1.9f, 2f };
 
-        public delegate void SettingsOthersMenuAddedDelegate(SubMenu subMenu, float[] presets, List<NamedColor> colourPresets);
-        public static event SettingsOthersMenuAddedDelegate SettingsOthersMenuAddedEvent;
+        [UIValue("techlightschoices")]
+        private List<object> _techlightsChoices = (new object[] { TechnicolourStyle.OFF, TechnicolourStyle.WARM_COLD, TechnicolourStyle.ANY_PALETTE, TechnicolourStyle.PURE_RANDOM }).ToList();
 
-        public delegate void ExtensionSubMenusDelegate(float[] presets, List<NamedColor> colourPresets);
-        public static event ExtensionSubMenusDelegate ExtensionSubMenusEvent;
+        [UIValue("lightsgroupchoices")]
+        private List<object> _lightsgroupChoices = ChromaConfig.WaiverRead ? new List<object>() { TechnicolourLightsGrouping.STANDARD, TechnicolourLightsGrouping.ISOLATED_GROUP, TechnicolourLightsGrouping.ISOLATED }
+            : new List<object>() { TechnicolourLightsGrouping.STANDARD, TechnicolourLightsGrouping.ISOLATED_GROUP };
+
+        [UIValue("lightsfreqchoices")]
+        private List<object> _lightsfreqChoices = new List<object>() { 0.05f, 0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.55f, 0.6f, 0.65f, 0.7f, 0.75f, 0.8f, 0.85f, 0.9f, 0.95f, 1f };
+
+        [UIValue("colours")]
+        private List<object> _colours = colourToObject();
+
+        [UIAction("colourformat")]
+        public string colourFormat(NamedColor col)
+        {
+            return col.name;
+        }
+
+        [UIAction("sidepanelform")]
+        public string sidePanelFormat(SidePanelEnum f)
+        {
+            switch (f)
+            {
+                case SidePanelEnum.ChromaWaiver:
+                    return "Safety Waiver";
+                case SidePanelEnum.Chroma:
+                    return "Chroma Notes";
+                case SidePanelEnum.Default:
+                default:
+                    return "Release Notes";
+            }
+        }
+
+        [UIAction("techlightform")]
+        public string techlightFormat(TechnicolourStyle t)
+        {
+            switch (t)
+            {
+                case TechnicolourStyle.PURE_RANDOM:
+                    return "TRUE RANDOM";
+                case TechnicolourStyle.ANY_PALETTE:
+                    return "EITHER";
+                case TechnicolourStyle.WARM_COLD:
+                    return "WARM/COLD";
+                case TechnicolourStyle.OFF:
+                default:
+                    return "OFF";
+            }
+        }
+
+        [UIAction("techgroupform")]
+        public string techgroupingFormat(TechnicolourLightsGrouping t)
+        {
+            switch (t)
+            {
+                case TechnicolourLightsGrouping.ISOLATED:
+                    return "Isolated (Mayhem)";
+                case TechnicolourLightsGrouping.ISOLATED_GROUP:
+                    return "Isolated Event";
+                case TechnicolourLightsGrouping.STANDARD:
+                default:
+                    return "Standard";
+            }
+        }
+
+        [UIAction("percent")]
+        public string percentDisplay(float percent)
+        {
+            return $"{percent * 100f}%";
+        }
+
+        [UIAction("percentfreq")]
+        public string percentfreqDisplay(float percent)
+        {
+            return percentDisplay(percent) + (percent==0.1f?" (Def)":"");
+        }
+
+        #region Settings
+        [UIValue("sidepanel")]
+        public SidePanelEnum SidePanel
+        {
+            get => ChromaConfig.SidePanel;
+            set
+            {
+                ChromaConfig.SidePanel = value;
+                SidePanelUtil.SetPanel(floatToPanel((float)value));
+            }
+        }
+
+        [UIValue("custommapchecking")]
+        /// <summary>
+        /// Enables checking for tailored maps.
+        /// This will not disable map checking entirely, it will simply prevent a map from being detected as created for a specific gamemode.
+        /// </summary>
+        public bool CustomMapCheckingEnabled
+        {
+            get => ChromaConfig.CustomMapCheckingEnabled;
+            set
+            {
+                ChromaConfig.CustomMapCheckingEnabled = value;
+            }
+        }
+
+        [UIValue("mastervolume")]
+        /// <summary>
+        /// Global multiplier for audio sources used by Chroma
+        /// </summary>
+        public float MasterVolume
+        {
+            get => ChromaConfig.MasterVolume;
+            set
+            {
+                ChromaConfig.MasterVolume = value;
+            }
+        }
+
+        [UIValue("debugmode")]
+        /// <summary>
+        /// Global multiplier for audio sources used by Chroma
+        /// </summary>
+        public bool DebugMode
+        {
+            get => ChromaConfig.DebugMode;
+            set
+            {
+                ChromaConfig.DebugMode = value;
+            }
+        }
+
+        [UIValue("loggerlevel")]
+        public int LogLevel
+        {
+            get => ChromaConfig.GetInt("Logger", "loggerLevel", 2);
+            set
+            {
+                ChromaConfig.SetInt("Logger", "loggerLevel", value);
+                ChromaLogger.LogLevel = (ChromaLogger.Level)value;
+            }
+        }
+
+        [UIValue("secrets")]
+        /// <summary>
+        /// Required for any features that may cause dizziness, disorientation, nausea, seizures, or other forms of discomfort.
+        /// </summary>
+        public string Secrets
+        {
+            get => secret;
+            set
+            {
+                if (value.ToUpper() == "SAFETYHAZARD")
+                {
+                    ChromaConfig.WaiverRead = true;
+                    AudioUtil.Instance.PlayOneShotSound("NightmareMode.wav");
+                }
+                else if (value.ToUpper() == "CREDITS")
+                {
+                    AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");
+                }
+                secret = value;
+            }
+        }
+        private static string secret = "";
+        #endregion
+
+        #region Lights/Notes
+        [UIValue("coloura")]
+        public NamedColor LeftNotes
+        {
+            get => stringToColour(ChromaConfig.GetString("Notes", "colourA", "DEFAULT"));
+            set
+            {
+                ColourManager.A = value.color;
+                ChromaConfig.SetString("Notes", "colourA", value.name);
+            }
+        }
+
+        [UIValue("colourb")]
+        public NamedColor RightNotes
+        {
+            get => stringToColour(ChromaConfig.GetString("Notes", "colourB", "DEFAULT"));
+            set
+            {
+                ColourManager.B = value.color;
+                ChromaConfig.SetString("Notes", "colourB", value.name);
+            }
+        }
+
+        [UIValue("lightambient")]
+        public NamedColor AmbientLights
+        {
+            get => stringToColour(ChromaConfig.GetString("Lights", "lightAmbient", "DEFAULT"));
+            set
+            {
+                ColourManager.LightAmbient = value.color;
+                ColourManager.RecolourAmbientLights(ColourManager.LightAmbient);
+                ChromaConfig.SetString("Lights", "lightAmbient", value.name);
+            }
+        }
+
+        [UIValue("lightcoloura")]
+        public NamedColor WarmLights
+        {
+            get => stringToColour(ChromaConfig.GetString("Lights", "lightColourA", "DEFAULT"));
+            set
+            {
+                ColourManager.LightA = value.color;
+                ColourManager.RecolourAmbientLights(ColourManager.LightAmbient);
+                ChromaConfig.SetString("Lights", "lightColourA", value.name);
+            }
+        }
+
+        [UIValue("lightcolourb")]
+        public NamedColor ColdLights
+        {
+            get => stringToColour(ChromaConfig.GetString("Lights", "lightColourB", "DEFAULT"));
+            set
+            {
+                ColourManager.LightB = value.color;
+                ColourManager.RecolourAmbientLights(ColourManager.LightAmbient);
+                ChromaConfig.SetString("Lights", "lightColourB", value.name);
+            }
+        }
+        #endregion
+
+        #region Aesthetics
+        [UIValue("barriercolour")]
+        public NamedColor Barriers
+        {
+            get => stringToColour(ChromaConfig.GetString("Aesthetics", "barrierColour", "Barrier Red"));
+            set
+            {
+                ChromaConfig.SetString("Aesthetics", "barrierColour", value.name);
+            }
+        }
+
+        [UIValue("barrierccscale")]
+        public float BarrierColCorrection
+        {
+            get => ChromaConfig.GetFloat("Aesthetics", "barrierColourCorrectionScale", 1f);
+            set
+            {
+                ColourManager.barrierColourCorrectionScale = value;
+                ChromaConfig.SetFloat("Aesthetics", "barrierColourCorrectionScale", value);
+            }
+        }
+
+        [UIValue("signcolourb")]
+        public NamedColor NeonSignTop
+        {
+            get => stringToColour(ChromaConfig.GetString("Aesthetics", "signColourB", "DEFAULT"));
+            set
+            {
+                ColourManager.SignB = value.color;
+                ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
+                ChromaConfig.SetString("Aesthetics", "signcolourB", value.name);
+            }
+        }
+
+        [UIValue("signcoloura")]
+        public NamedColor NeonSignBottom
+        {
+            get => stringToColour(ChromaConfig.GetString("Aesthetics", "signColourA", "DEFAULT"));
+            set
+            {
+                ColourManager.SignB = value.color;
+                ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
+                ChromaConfig.SetString("Aesthetics", "signColourA", value.name);
+            }
+        }
+
+        [UIValue("laserpointercolour")]
+        public NamedColor LaserPointer
+        {
+            get => stringToColour(ChromaConfig.GetString("Aesthetics", "laserPointerColour", "DEFAULT"));
+            set
+            {
+                ColourManager.LaserPointerColour = value.color;
+                ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform, ColourManager.LaserPointerColour);
+                ChromaConfig.SetString("Aesthetics", "laserPointerColour", value.name);
+            }
+        }
+
+        [UIValue("platformaccoutrements")]
+        public NamedColor PlatformAccoutrements
+        {
+            get => stringToColour(ChromaConfig.GetString("Aesthetics", "platformAccoutrements", "DEFAULT"));
+            set
+            {
+                ColourManager.Platform = value.color;
+                ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform, ColourManager.LaserPointerColour);
+                ChromaConfig.SetString("Aesthetics", "platformAccoutrements", value.name);
+            }
+        }
+        #endregion
+
+        #region Events
+        [UIValue("lightshowonly")]
+        public bool LightshowModifier
+        {
+            get => ChromaConfig.LightshowModifier;
+            set
+            {
+                ChromaConfig.LightshowModifier = value;
+            }
+        }
+
+        [UIValue("rgbevents")]
+        public bool CustomColourEventsEnabled
+        {
+            get => ChromaConfig.CustomColourEventsEnabled;
+            set
+            {
+                ChromaConfig.CustomMapCheckingEnabled = true;
+                ChromaPlugin.SetRGBCapability(value);
+            }
+        }
+
+        [UIValue("specialevents")]
+        public bool CustomSpecialEventsEnabled
+        {
+            get => ChromaConfig.CustomSpecialEventsEnabled;
+            set
+            {
+                ChromaConfig.CustomSpecialEventsEnabled = value;
+                ChromaPlugin.SetSpecialEventCapability(value);
+            }
+        }
+        #endregion
+
+        #region Technicolour
+        [UIValue("technicolour")]
+        public bool TechnicolourEnabled
+        {
+            get => ChromaConfig.TechnicolourEnabled;
+            set
+            {
+                ChromaConfig.TechnicolourEnabled = value;
+            }
+        }
+
+        [UIValue("techlights")]
+        public TechnicolourStyle TechnicolourLightsStyle
+        {
+            get => ChromaConfig.TechnicolourLightsStyle;
+            set
+            {
+                ChromaConfig.TechnicolourLightsStyle = value;
+            }
+        }
+
+        [UIValue("lightsgroup")]
+        public TechnicolourLightsGrouping TechnicolourLightsGroup
+        {
+            get => ChromaConfig.TechnicolourLightsGrouping;
+            set
+            {
+                ChromaConfig.TechnicolourLightsGrouping = value;
+            }
+        }
+
+        [UIValue("lightsfreq")]
+        public float TechnicolourLightsFrequency
+        {
+            get => ChromaConfig.TechnicolourLightsFrequency;
+            set
+            {
+                ChromaConfig.TechnicolourLightsFrequency = value;
+            }
+        }
+
+        [UIValue("techbarriers")]
+        public bool TechnicolourWallsStyle
+        {
+            get => ChromaConfig.TechnicolourWallsStyle == TechnicolourStyle.ANY_PALETTE ? true : false;
+            set
+            {
+                ChromaConfig.TechnicolourWallsStyle = value ? TechnicolourStyle.ANY_PALETTE : TechnicolourStyle.OFF;
+            }
+        }
+
+        [UIValue("technotes")]
+        public TechnicolourStyle TechnicolourBlocksStyle
+        {
+            get => ChromaConfig.TechnicolourBlocksStyle;
+            set
+            {
+                ChromaConfig.TechnicolourBlocksStyle = value;
+            }
+        }
+
+        [UIValue("techsabers")]
+        public TechnicolourStyle TechnicolourSabersStyle
+        {
+            get => ChromaConfig.TechnicolourSabersStyle;
+            set
+            {
+                ChromaConfig.TechnicolourSabersStyle = value;
+            }
+        }
+
+        [UIValue("matchsabers")]
+        public bool MatchTechnicolourSabers
+        {
+            get => !ChromaConfig.MatchTechnicolourSabers;
+            set
+            {
+                ChromaConfig.MatchTechnicolourSabers = !value;
+            }
+        }
+        #endregion
+
+        private static NamedColor stringToColour(string str)
+        {
+            if (colourPresets==null) InitializePresetList();
+            foreach (NamedColor t in colourPresets)
+            {
+                if (t.name == str) return t;
+            }
+            return colourPresets[0];
+        }
+
+        private static List<object> colourToObject()
+        {
+            if (colourPresets == null) InitializePresetList();
+            List<object> t = new List<object>();
+            foreach (NamedColor i in colourPresets)
+            {
+                t.Add(i);
+            }
+            return t;
+        }
+
+        public static string floatToPanel(float f)
+        {
+            switch (f)
+            {
+                case 2:
+                    return "chromaWaiver";
+                case 1:
+                    return "chroma";
+                case 0:
+                default:
+                    return "default";
+            }
+        }
 
         public static void OnReloadClick() {
             //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -38,288 +485,14 @@ namespace Chroma.Settings {
         }
 
         public static void InitializeMenu() {
-
             InitializePresetList();
 
-            MenuButtonUI.AddButton("Reload Chroma", OnReloadClick);
-            MenuButtonUI.AddButton("Show Release Notes", "Shows the Release Notes and other info from the Beat Saber developers", delegate { SidePanelUtil.ResetPanel(); });
-            MenuButtonUI.AddButton("Chroma Notes", "Shows the Release Notes and other info for Chroma", delegate { SidePanelUtil.SetPanel("chroma"); });
-            MenuButtonUI.AddButton("Safety Waiver", "Shows the Chroma Safety Waiver", delegate { SidePanelUtil.SetPanel("chromaWaiver"); });
-
-            /*
-             * SETTINGS
-             */
-            SubMenu ctSettings = SettingsUI.CreateSubMenu("Chroma Settings");
-            BoolViewController hideSubMenusController = ctSettings.AddBool("Hide CT Menus", "If true, hides all other Chroma menus.  This has a lot of options, I know.");
-            hideSubMenusController.GetValue += delegate { return ChromaConfig.HideSubMenus; };
-            hideSubMenusController.SetValue += delegate (bool value) { ChromaConfig.HideSubMenus = value; };
-
-            BoolViewController ctSettingsMapCheck = ctSettings.AddBool("Enabled Map Checking", "If false, Chroma and its extensions will not check for special maps.  Recommended to leave on.");
-            ctSettingsMapCheck.GetValue += delegate { return ChromaConfig.CustomMapCheckingEnabled; };
-            ctSettingsMapCheck.SetValue += delegate (bool value) { ChromaConfig.CustomMapCheckingEnabled = value; };
-
-            ListViewController ctSettingsMasterVolume = ctSettings.AddList("Chroma Sounds Volume", new float[] { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1f }, "Master volume control for sounds made by Chroma");
-            ctSettingsMasterVolume.GetValue += delegate { return ChromaConfig.MasterVolume; };
-            ctSettingsMasterVolume.SetValue += delegate (float value) { ChromaConfig.MasterVolume = value; };
-            ctSettingsMasterVolume.FormatValue += delegate (float value) { return value * 100 + "%"; };
-
-            BoolViewController ctSettingsDebugMode = ctSettings.AddBool("Debug Mode", "Very performance heavy - only do this if you are bug chasing.");
-            ctSettingsDebugMode.GetValue += delegate { return ChromaConfig.DebugMode; };
-            ctSettingsDebugMode.SetValue += delegate (bool value) { ChromaConfig.DebugMode = value; };
-
-            ListViewController ctLogSettings = ctSettings.AddList("Logging Level", new float[] { 0, 1, 2, 3 }, "The further to the left this is, the more will be logged.");
-            ctLogSettings.applyImmediately = true;
-            ctLogSettings.GetValue += delegate { return (int)ChromaLogger.LogLevel; };
-            ctLogSettings.SetValue += delegate (float value) { ChromaLogger.LogLevel = (ChromaLogger.Level)(int)value; ChromaConfig.SetInt("Logger", "loggerLevel", (int)value); };
-            ctLogSettings.FormatValue += delegate (float value) { return ((ChromaLogger.Level)(int)value).ToString(); };
-
-            StringViewController ctPassword = ctSettings.AddString("Secrets", "What could it mean?!?!");
-            ctPassword.GetValue += delegate { return ""; };
-            ctPassword.SetValue += delegate (string value) {
-                if (value.ToUpper() == "SAFETYHAZARD") {
-                    ChromaConfig.WaiverRead = true;
-                    AudioUtil.Instance.PlayOneShotSound("NightmareMode.wav");
-                } else if (value.ToUpper() == "CREDITS") {
-                    AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");
-                }
-            };
-
-            SettingsMenuCreatedEvent?.Invoke(ctSettings);
-
-            ChromaLogger.Log("Sub-menus " + (ChromaConfig.HideSubMenus ? "are" : "are not") + " hidden.");
-
-            /*
-             * SUB-MENUS
-             */
-            if (!ChromaConfig.HideSubMenus) {
-
-                float[] presets = new float[colourPresets.Count];
-                for (int i = 0; i < colourPresets.Count; i++) presets[i] = i;
-                
-                /*
-                 * NOTES COLOURS
-                 */
-                SubMenu ctNotes = SettingsUI.CreateSubMenu("Chroma Notes");
-
-                //A
-                ListViewController ctAColour = ctNotes.AddList("Left Notes", presets);
-                ctAColour.applyImmediately = true;
-                ctAColour.GetValue += delegate {
-                    String name = ChromaConfig.GetString("Notes", "colourA", "DEFAULT");
-                    for (int i = 0; i < colourPresets.Count; i++) {
-                        if (colourPresets[i].name == name) return i;
-                    }
-                    return 0;
-                };
-                ctAColour.SetValue += delegate (float value) {
-                    ColourManager.A = colourPresets[(int)value].color;
-                    ChromaConfig.SetString("Notes", "colourA", colourPresets[(int)value].name);
-                };
-                ctAColour.FormatValue += delegate (float value) {
-                    return colourPresets[(int)value].name;
-                };
-
-                //B
-                ListViewController ctBColour = ctNotes.AddList("Right Notes", presets);
-                ctBColour.applyImmediately = true;
-                ctBColour.GetValue += delegate {
-                    String name = ChromaConfig.GetString("Notes", "colourB", "DEFAULT");
-                    for (int i = 0; i < colourPresets.Count; i++) {
-                        if (colourPresets[i].name == name) return i;
-                    }
-                    return 0;
-                };
-                ctBColour.SetValue += delegate (float value) {
-                    ColourManager.B = colourPresets[(int)value].color;
-                    ChromaConfig.SetString("Notes", "colourB", colourPresets[(int)value].name);
-                };
-                ctBColour.FormatValue += delegate (float value) {
-                    return colourPresets[(int)value].name;
-                };
-
-                SettingsNoteMenuAddedEvent?.Invoke(ctNotes, presets, colourPresets);
-
-                /*
-                 * LIGHTS COLOURS
-                 */
-                SubMenu ctLights = SettingsUI.CreateSubMenu("Chroma Lights");
-
-                ListViewController ctLightAmbientColour = ctLights.AddList("Ambient (bg) Lights", presets);
-                ctLightAmbientColour.applyImmediately = true;
-                ctLightAmbientColour.GetValue += delegate {
-                    String name = ChromaConfig.GetString("Lights", "lightAmbient", "DEFAULT");
-                    for (int i = 0; i < colourPresets.Count; i++) {
-                        if (colourPresets[i].name == name) return i;
-                    }
-                    return 0;
-                };
-                ctLightAmbientColour.SetValue += delegate (float value) {
-                    ColourManager.LightAmbient = colourPresets[(int)value].color;
-                    ChromaConfig.SetString("Lights", "lightAmbient", colourPresets[(int)value].name);
-                    ColourManager.RecolourAmbientLights(ColourManager.LightAmbient);
-                };
-                ctLightAmbientColour.FormatValue += delegate (float value) {
-                    return colourPresets[(int)value].name;
-                };
-
-                //LightA
-                ListViewController ctLightAColour = ctLights.AddList("Warm (red) Lights", presets);
-                ctLightAColour.applyImmediately = true;
-                ctLightAColour.GetValue += delegate {
-                    String name = ChromaConfig.GetString("Lights", "lightColourA", "DEFAULT");
-                    for (int i = 0; i < colourPresets.Count; i++) {
-                        if (colourPresets[i].name == name) return i;
-                    }
-                    return 0;
-                };
-                ctLightAColour.SetValue += delegate (float value) {
-                    ColourManager.LightA = colourPresets[(int)value].color;
-                    ChromaConfig.SetString("Lights", "lightColourA", colourPresets[(int)value].name);
-                };
-                ctLightAColour.FormatValue += delegate (float value) {
-                    return colourPresets[(int)value].name;
-                };
-
-                //LightB
-                ListViewController ctLightBColour = ctLights.AddList("Cold (blue) Lights", presets);
-                ctLightBColour.applyImmediately = true;
-                ctLightBColour.GetValue += delegate {
-                    String name = ChromaConfig.GetString("Lights", "lightColourB", "DEFAULT");
-                    for (int i = 0; i < colourPresets.Count; i++) {
-                        if (colourPresets[i].name == name) return i;
-                    }
-                    return 0;
-                };
-                ctLightBColour.SetValue += delegate (float value) {
-                    ColourManager.LightB = colourPresets[(int)value].color;
-                    ChromaConfig.SetString("Lights", "lightColourB", colourPresets[(int)value].name);
-                };
-                ctLightBColour.FormatValue += delegate (float value) {
-                    return colourPresets[(int)value].name;
-                };
-
-                SettingsLightsMenuAddedEvent?.Invoke(ctLights, presets, colourPresets);
-
-                /*
-                 * OTHERS COLOURS
-                 */
-                SubMenu ctOthers = SettingsUI.CreateSubMenu("Chroma Aesthetics");
-
-                //Barriers
-                ListViewController ctBarrier = ctOthers.AddList("Barriers", presets);
-                ctBarrier.applyImmediately = true;
-                ctBarrier.GetValue += delegate {
-                    String name = ChromaConfig.GetString("Aesthetics", "barrierColour", "Barrier Red");
-                    for (int i = 0; i < colourPresets.Count; i++) {
-                        if (colourPresets[i].name == name) return i;
-                    }
-                    return 0;
-                };
-                ctBarrier.SetValue += delegate (float value) {
-                    ColourManager.BarrierColour = colourPresets[(int)value].color;
-                    ChromaConfig.SetString("Aesthetics", "barrierColour", colourPresets[(int)value].name);
-                };
-                ctBarrier.FormatValue += delegate (float value) {
-                    return colourPresets[(int)value].name;
-                };
-
-                //BarrierCorrection
-                ListViewController ctBarrierCorrection = ctOthers.AddList("Barrier Col. Correction", new float[] { 0, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f, 1.8f, 1.9f, 2f });
-                ctBarrierCorrection.GetValue += delegate {
-                    return ColourManager.barrierColourCorrectionScale;
-                };
-                ctBarrierCorrection.SetValue += delegate (float value) {
-                    ColourManager.barrierColourCorrectionScale = value;
-                    ChromaConfig.SetFloat("Aesthetics", "barrierColourCorrectionScale", value);
-                };
-                ctBarrierCorrection.FormatValue += delegate (float value) { return value * 100 + "%"; };
-
-                //SignB
-                ListViewController ctSignB = ctOthers.AddList("Neon Sign Top", presets);
-                ctSignB.applyImmediately = true;
-                ctSignB.GetValue += delegate {
-                    String name = ChromaConfig.GetString("Aesthetics", "signColourB", "Notes Blue");
-                    for (int i = 0; i < colourPresets.Count; i++) {
-                        if (colourPresets[i].name == name) return i;
-                    }
-                    return 0;
-                };
-                ctSignB.SetValue += delegate (float value) {
-                    ColourManager.SignB = colourPresets[(int)value].color;
-                    ChromaConfig.SetString("Aesthetics", "signColourB", colourPresets[(int)value].name);
-                    ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
-                };
-                ctSignB.FormatValue += delegate (float value) {
-                    return colourPresets[(int)value].name;
-                };
-
-                //SignA
-                ListViewController ctSignA = ctOthers.AddList("Neon Sign Bottom", presets);
-                ctSignA.applyImmediately = true;
-                ctSignA.GetValue += delegate {
-                    String name = ChromaConfig.GetString("Aesthetics", "signColourA", "Notes Red");
-                    for (int i = 0; i < colourPresets.Count; i++) {
-                        if (colourPresets[i].name == name) return i;
-                    }
-                    return 0;
-                };
-                ctSignA.SetValue += delegate (float value) {
-                    ColourManager.SignA = colourPresets[(int)value].color;
-                    ChromaConfig.SetString("Aesthetics", "signColourA", colourPresets[(int)value].name);
-                    ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
-                };
-                ctSignA.FormatValue += delegate (float value) {
-                    return colourPresets[(int)value].name;
-                };
-
-                //LaserPointer
-                ListViewController ctLaserColour = ctOthers.AddList("Laser Pointer", presets);
-                ctLaserColour.applyImmediately = true;
-                ctLaserColour.GetValue += delegate {
-                    String name = ChromaConfig.GetString("Aesthetics", "laserPointerColour", "Notes Blue");
-                    for (int i = 0; i < colourPresets.Count; i++) {
-                        if (colourPresets[i].name == name) return i;
-                    }
-                    return 0;
-                };
-                ctLaserColour.SetValue += delegate (float value) {
-                    ColourManager.LaserPointerColour = colourPresets[(int)value].color;
-                    ChromaConfig.SetString("Aesthetics", "laserPointerColour", colourPresets[(int)value].name);
-                    //ColourManager.RecolourLaserPointer(ColourManager.LaserPointerColour);
-                    ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform, ColourManager.LaserPointerColour);
-                };
-                ctLaserColour.FormatValue += delegate (float value) {
-                    return colourPresets[(int)value].name;
-                };
-
-                ListViewController ctPlatform = ctOthers.AddList("Platform Accoutrements", presets);
-                ctPlatform.applyImmediately = true;
-                ctPlatform.GetValue += delegate {
-                    String name = ChromaConfig.GetString("Aesthetics", "platformAccoutrements", "DEFAULT");
-                    for (int i = 0; i < colourPresets.Count; i++) {
-                        if (colourPresets[i].name == name) return i;
-                    }
-                    return 0;
-                };
-                ctPlatform.SetValue += delegate (float value) {
-                    ColourManager.Platform = colourPresets[(int)value].color;
-                    ChromaConfig.SetString("Aesthetics", "platformAccoutrements", colourPresets[(int)value].name);
-                    ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform, ColourManager.LaserPointerColour);
-                };
-                ctPlatform.FormatValue += delegate (float value) {
-                    return colourPresets[(int)value].name;
-                };
-
-                SettingsOthersMenuAddedEvent?.Invoke(ctOthers, presets, colourPresets);
-
-                ExtensionSubMenusEvent?.Invoke(presets, colourPresets);
-
-            }
-
-            GameplaySettingsUISetup();
-
-            SettingsUI.Instance.InitSettings();
-
+            ChromaLogger.Log("Registering buttons");
+            
+            MenuButtons.instance.RegisterButton(new MenuButton("Reload Chroma", "", OnReloadClick, true));
+            //MenuButtons.instance.RegisterButton(new MenuButton("Show Release Notes", "Shows the Release Notes and other info from the Beat Saber developers", delegate { SidePanelUtil.ResetPanel(); }, true));
+            //MenuButtons.instance.RegisterButton(new MenuButton("Chroma Notes", "Shows the Release Notes and other info for Chroma", delegate { SidePanelUtil.SetPanel("chroma"); }, true));
+            //MenuButtons.instance.RegisterButton(new MenuButton("Safety Waiver", "Shows the Chroma Safety Waiver", delegate { SidePanelUtil.SetPanel("chromaWaiver"); }, true));
         }
 
         //private static List<Tuple<string, Color>> colourPresets = null;
@@ -337,63 +510,7 @@ namespace Chroma.Settings {
             }
             return defaultColor;
         }
-
-        public delegate void GameplaySubMenuCreatedDelegate(string subMenuName);
-        public static event GameplaySubMenuCreatedDelegate GameplaySubMenuCreatedEvent;
-
-        public delegate void ExtensionGameplayMenusDelegate();
-        public static event ExtensionGameplayMenusDelegate ExtensionGameplayMenusEvent;
-        
-        private static void GameplaySettingsUISetup() {
-
-            /*
-             * MODIFIERS
-             */
-
-            Sprite sprite = Base64Sprites.Base64ToSprite("iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAA3WAAAN1gGQb3mcAAAAB3RJTUUH4wINFyAWrJdsNwAAABl0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC4yMfEgaZUAAAKSSURBVEhL3dbLq05RHMbxEzEhuQ0OBi4DDDAxcSlDE1ISCgMGDAgTt8iACRMlyW0kKSZMKIRcBsQAfwGRiUK5RLm9vs9u/XbrXefZ+30z9KvP6V3Puuxz9nv2Wnug0+n8q4d4UGR9s2GffuBnkfXNhn36fy68Cd+xIcuc9/hQZCWtobU2Zlmlq5GswR/8QtvF5ySuTzRXa2it1SmrdTUyOxAX1y9S9o9FXFify/61iItqrbK/9TuOi99I7WFYj8f4jSh9foR10BiNvYXGi4oNMwswCRNwD1Gf8CTR56i70FjN0Vy3ZsWGhdF4AdUr6PsagegfCX0d6lM9xyjkawxhw8JZqLTgRLgxor74BU/BjanZMDMDela/YVrK2mi8Hh/NmZ4yy4aZPVCdget3zkG1C66/oh/jsRN7k92I5/MyVCvRNbHFKqguQe250Jqxvq41Th0HUFacOneqVqezCLFwLxqr0ly1dYqVtV8d+tc/jKPJEcSjcBWq5YiFe1kB1RWovRBaM9Y/hMFyUukgVMfh+p0TUOlOuv6KDTOzoR1Im8SUlLXRmM/QbjYzZZYNCxehuo984yipL3a3C3BjajYsaAt8CdVJuDESt1hjNceNqdkwo1sdJ9EXqNxppdNI9RXzoDmzUI6r2TCJ8/RaautkUr3GcMQ43eK3UMX5fR2t57kNkR/im1Mmz6BagsiWKqCeIrIt0NzGiw8JoGe26RCP7VC7UuxEel5V5SOXv0wsS1mtq5Fsgx4Hd4gfQ1NpEyrHaw2ttTXLKl2NzBiTyVTorz5fOI1BuDl2rSFBD/vQVNvh5lg2bLEYep+6XbiJ+XBzLBv2oBeCN/iYaMPQQePGNrJhD3rL0It81DtMhhvboDPwF6eIOFNA61CjAAAAAElFTkSuQmCC");
-
-            ToggleOption lightshowModifier = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.ModifiersLeft, "Lightshow Only", hintText: "Disables all notes and sabers, allowing you to view the lightshow!", optionIcon: sprite);
-            lightshowModifier.GetValue = ChromaConfig.LightshowModifier;
-            lightshowModifier.OnToggle += LightshowToggled;
-
-            /*
-             * COLOURS
-             */
-            GameplaySettingsUI.CreateSubmenuOption(GameplaySettingsPanels.PlayerSettingsRight, "Chroma Colours", "MainMenu", "CTC", "Choose your Colour Scheme and more!");
-
-            ToggleOption technicolourToggle = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsRight, "Technicolour", "CTC", "Enable/Disable Technicolour.  See Technicolour options below.");
-            technicolourToggle.GetValue = ChromaConfig.TechnicolourEnabled;
-            technicolourToggle.OnToggle += TechnicolourToggled;
-            technicolourToggle.AddConflict("RNG PLights");
-            
-            /*
-             * EVENTS
-             */
-            GameplaySettingsUI.CreateSubmenuOption(GameplaySettingsPanels.PlayerSettingsRight, "Chroma Events", "MainMenu", "CTE", "Toggle RGB lighting and special events");
-
-            ToggleOption rgbLightsToggle = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsRight, "RGB Lights", "CTE", "Enable/Disable RGB lighting events.");
-            rgbLightsToggle.GetValue = ChromaConfig.CustomColourEventsEnabled;
-            rgbLightsToggle.OnToggle += RGBEventsToggled;
-
-            ToggleOption specialEventsToggle = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsRight, "Special Events", "CTE", "Enable/Disable Special Events, such as note size changing, player heal/harm events, and rotation events.");
-            specialEventsToggle.GetValue = ChromaConfig.CustomSpecialEventsEnabled;
-            specialEventsToggle.OnToggle += SpecialEventsToggled;
-
-
-
-
-            GameplaySettingsUI.CreateSubmenuOption(GameplaySettingsPanels.PlayerSettingsRight, "Techni. Options", "CTC", "CTT", "Adjust Technicolour Settings.");
-
-            List<Tuple<float, string>> technicolourOptions = new List<Tuple<float, string>> {
-                { 0f, "OFF" },
-                { 1f, "WARM/COLD" },
-                { 2f, "EITHER" },
-                { 3f, "TRUE RANDOM" }
-            };
-
-            //float[] techniOptions = new float[technicolourOptions.Count];
-            //for (int i = 0; i < technicolourOptions.Count; i++) techniOptions[i] = i;
-
+        /*
             MultiSelectOption techniLights = GameplaySettingsUI.CreateListOption(GameplaySettingsPanels.PlayerSettingsRight, "Tech. Lights", "CTT", "Technicolour style of the lights.");
             for (int i = 0; i < technicolourOptions.Count; i++) techniLights.AddOption(i, technicolourOptions[i].Item2);
             techniLights.GetValue += delegate {
@@ -403,42 +520,9 @@ namespace Chroma.Settings {
                 ColourManager.TechnicolourStyle style = ColourManager.GetTechnicolourStyleFromFloat(value);
                 ChromaConfig.TechnicolourLightsStyle = style;
             };
-
-            MultiSelectOption techniLightsGrouping = GameplaySettingsUI.CreateListOption(GameplaySettingsPanels.PlayerSettingsRight, "Lights Grouping", "CTT", ChromaConfig.WaiverRead ? "The more isolated, the more intense.  Isolated Event has the best performance.\n  <color=red>Mayhem prevents fades and flashes from working properly</color>." : "Isolated Event for better performance, but more chaotic lighting");
-            techniLightsGrouping.AddOption(0f, "Standard");
-            techniLightsGrouping.AddOption(1f, "Isolated Event");
-            if (ChromaConfig.WaiverRead) techniLightsGrouping.AddOption(2f, "Isolated (Mayhem)");
-            techniLightsGrouping.GetValue += delegate {
-                return (int)ChromaConfig.TechnicolourLightsGrouping;
-            };
             techniLightsGrouping.OnChange += delegate (float value) {
                 ChromaConfig.TechnicolourLightsGrouping = ColourManager.GetTechnicolourLightsGroupingFromFloat(value);
             };
-
-            MultiSelectOption techniFrequency = GameplaySettingsUI.CreateListOption(GameplaySettingsPanels.PlayerSettingsRight, "Lights Freq", "CTT", "The higher the frequency, the more colour changes.  10% is default.");
-            for (int i = 1; i <= 20; i++) techniFrequency.AddOption(0.05f * i, i == 2 ? "10% (Def)" : (5f * i) + "%");
-            techniFrequency.GetValue += delegate {
-                return ChromaConfig.TechnicolourLightsFrequency;
-            };
-            techniFrequency.OnChange += delegate (float value) {
-                ChromaConfig.TechnicolourLightsFrequency = value;
-            };
-
-            /*ToggleOption techniIndividualLights = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsRight, "Isolated Lights", "CTT", "If enabled, Technicolour will only affect one light source at a time.  This results in much, much more colour variety being possible, but also can look excessively chaotic.");
-            techniIndividualLights.GetValue = ChromaConfig.TechnicolourLightsIndividual;
-            techniIndividualLights.OnToggle += delegate (bool value) {
-                ChromaConfig.TechnicolourLightsIndividual = value;
-            };*/
-
-            /*MultiSelectOption techniBarriers = GameplaySettingsUI.CreateListOption(GameplaySettingsPanels.PlayerSettingsRight, "Tech. Walls", "CTT", "Technicolour style of the walls/barriers.");
-            for (int i = 0; i < technicolourOptions.Count; i++) techniBarriers.AddOption(i, technicolourOptions[i].Item2);
-            techniBarriers.GetValue += delegate {
-                return (int)ChromaConfig.TechnicolourWallsStyle;
-            };
-            techniBarriers.OnChange += delegate (float value) {
-                ColourManager.TechnicolourStyle style = ColourManager.GetTechnicolourStyleFromFloat(value);
-                ChromaConfig.TechnicolourWallsStyle = style;
-            };*/
 
             //Walls don't need to have other options since they only work nicely with Either
             ToggleOption techniWalls = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsRight, "Tech. Barriers", "CTT", "If enabled, Barriers will rainbowify!");
@@ -448,63 +532,12 @@ namespace Chroma.Settings {
             };
 
 
-            MultiSelectOption techniBlocks = GameplaySettingsUI.CreateListOption(GameplaySettingsPanels.PlayerSettingsRight, "Tech. Blocks", "CTT", "Technicolour style of the blocks.");
-            for (int i = 0; i < technicolourOptions.Count; i++) techniBlocks.AddOption(i, technicolourOptions[i].Item2);
-            techniBlocks.GetValue += delegate {
-                return (int)ChromaConfig.TechnicolourBlocksStyle;
-            };
-            techniBlocks.OnChange += delegate (float value) {
-                ColourManager.TechnicolourStyle style = ColourManager.GetTechnicolourStyleFromFloat(value);
-                ChromaConfig.TechnicolourBlocksStyle = style;
-            };
-
-            MultiSelectOption techniSsabers = GameplaySettingsUI.CreateListOption(GameplaySettingsPanels.PlayerSettingsRight, "Tech. Sabers", "CTT", "Technicolour style of the sabers.");
-            for (int i = 0; i < technicolourOptions.Count; i++) techniSsabers.AddOption(i, technicolourOptions[i].Item2);
-            techniSsabers.GetValue += delegate {
-                return (int)ChromaConfig.TechnicolourSabersStyle;
-            };
-            techniSsabers.OnChange += delegate (float value) {
-                ColourManager.TechnicolourStyle style = ColourManager.GetTechnicolourStyleFromFloat(value);
-                ChromaConfig.TechnicolourSabersStyle = style;
-            };
-
-            ToggleOption techniSabersMismatch = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsRight, "Desync Sabers", "CTT", "If true, technicolour sabers will have their \"time\" start and progress differently, resulting in their colours not matching so often.");
-            techniSabersMismatch.GetValue = !ChromaConfig.MatchTechnicolourSabers;
-            techniSabersMismatch.OnToggle += TechnicolourSaberMismatchToggled;
-
-            GameplaySubMenuCreatedEvent?.Invoke("CTC");
-            GameplaySubMenuCreatedEvent?.Invoke("CTE");
-            GameplaySubMenuCreatedEvent?.Invoke("CTT");
-
-            ExtensionGameplayMenusEvent?.Invoke();
-        }
-
-        private static void LightshowToggled(bool b) {
-            ChromaConfig.LightshowModifier = b;
-        }
-
-        private static void TechnicolourToggled(bool b) {
-            ChromaConfig.TechnicolourEnabled = b;
-        }
-
-        private static void RGBEventsToggled(bool b) {
-            ChromaConfig.CustomColourEventsEnabled = b;
-            ChromaPlugin.SetRGBCapability(b);
-        }
-
-        private static void SpecialEventsToggled(bool b) {
-            ChromaConfig.CustomSpecialEventsEnabled = b;
-            ChromaPlugin.SetSpecialEventCapability(b);
-        }
-
-        private static void TechnicolourSaberMismatchToggled(bool b) {
-            ChromaConfig.MatchTechnicolourSabers = !b;
-        }
+        }*/
 
 
         private static void InitializePresetList() {
 
-            colourPresets = new List<NamedColor>();// new List<Tuple<string, Color>>();
+            colourPresets = new List<NamedColor>() { new NamedColor( "DEFAULT", Color.clear ) };// new List<Tuple<string, Color>>();
 
             ColourManager.SaveExampleColours();
 
@@ -519,8 +552,6 @@ namespace Chroma.Settings {
             // CC GitHub to steal colours from
             // https://github.com/Kylemc1413/BeatSaber-CustomColors/blob/master/ColorsUI.cs
             foreach (NamedColor t in new List<NamedColor> {
-                new NamedColor( "DEFAULT", Color.clear ),
-
                 new NamedColor( "Notes Red", ColourManager.DefaultA ),
                 new NamedColor( "Notes Blue", ColourManager.DefaultB ),
                 new NamedColor( "Notes Magenta", ColourManager.DefaultAltA ),
