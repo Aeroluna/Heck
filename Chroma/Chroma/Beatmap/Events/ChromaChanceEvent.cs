@@ -15,7 +15,7 @@ namespace Chroma.Beatmap.Events {
 
         public ChromaChanceEvent(BeatmapEventData data) : base(data, false, false, new Color[] { }) { }
 
-        public override bool Activate(ref LightSwitchEventEffect light, ref BeatmapEventData data, ref BeatmapEventType eventType) {
+        public override bool Activate(ref MonoBehaviour light, ref BeatmapEventData data, ref BeatmapEventType eventType) {
             return false;
         }
 

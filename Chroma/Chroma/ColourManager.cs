@@ -350,25 +350,57 @@ namespace Chroma {
             return Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>();
         }
 
-        
+        public static ParticleSystemEventEffect[] GetAllParticleSystems()
+        {
+            return Resources.FindObjectsOfTypeAll<ParticleSystemEventEffect>();
+        }
+
+
         public static void ResetAllLights() {
             LightSwitchEventEffect[] lights = GetAllLightSwitches();
             foreach (LightSwitchEventEffect light in lights) light.Reset();
+            ParticleSystemEventEffect[] particles = GetAllParticleSystems();
+            foreach (ParticleSystemEventEffect particle in particles) particle.Reset();
         }
 
         public static void RecolourAllLights(Color red, Color blue) {
-            LightSwitchEventEffect[] lights = GetAllLightSwitches();
+            MonoBehaviour[] lights = GetAllLightSwitches();
             RecolourLights(ref lights, red, blue);
         }
 
-        public static void RecolourLights(ref LightSwitchEventEffect[] lights, Color red, Color blue) {
+        public static void RecolourAllParticles(Color red, Color blue)
+        {
+            MonoBehaviour[] particles = GetAllParticleSystems();
+            RecolourLights(ref particles, red, blue);
+        }
+
+        public static void RecolourLights(ref MonoBehaviour[] lights, Color red, Color blue) {
             for (int i = 0; i < lights.Length; i++) {
                 RecolourLight(ref lights[i], red, blue);
             }
         }
 
-        public static void RecolourLight(ref LightSwitchEventEffect obj, Color red, Color blue) {
+        public static void RecolourLight(ref MonoBehaviour obj, Color red, Color blue)
+        {
             obj.SetLightingColours(red, blue);
+        }
+
+        //TODO
+        //replace this function with a manager like LSEColourManager
+        public static SimpleColorSO SetupNewLightColourSOs(MonoBehaviour light, String s)
+        {
+            MultipliedColorSO mColorSO = light.GetField<MultipliedColorSO>(s);
+            SimpleColorSO baseSO = mColorSO.GetField<SimpleColorSO>("_baseColor");
+
+            SimpleColorSO newBaseSO = ScriptableObject.CreateInstance<SimpleColorSO>();// new SimpleColorSO();
+            newBaseSO.SetColor(baseSO.color);
+
+            MultipliedColorSO newMColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
+            newMColorSO.SetField("_multiplierColor", mColorSO.GetField<Color>("_multiplierColor"));
+            newMColorSO.SetField("_baseColor", newBaseSO);
+
+            light.SetField(s, newMColorSO);
+            return newBaseSO;
         }
 
         /*public static void RecolourLight(ref LightSwitchEventEffect obj, Color red, Color blue) {

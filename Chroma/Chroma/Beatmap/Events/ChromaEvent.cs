@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Chroma.Beatmap.Events {
 
@@ -88,7 +89,7 @@ namespace Chroma.Beatmap.Events {
             this.requiresSpecialEventsEnabled = requiresSpecialEventsEnabled;
         }
 
-        public abstract bool Activate(ref LightSwitchEventEffect light, ref BeatmapEventData data, ref BeatmapEventType eventType);
+        public abstract bool Activate(ref MonoBehaviour light, ref BeatmapEventData data, ref BeatmapEventType eventType);
 
         public virtual void OnEventSet(BeatmapEventData lightmapEvent) {
 
@@ -116,7 +117,7 @@ namespace Chroma.Beatmap.Events {
             return false;
         }*/
         
-        public static bool SimpleEventActivate(LightSwitchEventEffect lse, ref BeatmapEventData beatmapEventData, ref BeatmapEventType eventType) {
+        public static bool SimpleEventActivate(MonoBehaviour lse, ref BeatmapEventData beatmapEventData, ref BeatmapEventType eventType) {
             if (!ChromaConfig.LegacyLighting) return false;
             int id = beatmapEventData.value;
             switch (id) {

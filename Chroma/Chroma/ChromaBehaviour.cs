@@ -19,7 +19,11 @@ namespace Chroma {
         public static bool IsLoadingSong {
             get { return isLoadingSong; }
             set {
-                if (value) LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
+                if (value)
+                {
+                    ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
+                    LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
+                }
                 isLoadingSong = value;
             }
         }

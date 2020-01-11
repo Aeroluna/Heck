@@ -62,8 +62,11 @@
     <Compile Include="HarmonyPatches\BeatDataTransformHelperCreateTransformedBeatmapData.cs" />
     <Compile Include="HarmonyPatches\LightPairRotationEventEffectUpdateRotationData.cs" />
     <Compile Include="HarmonyPatches\LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.cs" />
+    <Compile Include="HarmonyPatches\ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.cs" />
+    <Compile Include="HarmonyPatches\ParticleSystemEventEffectOnDestroy.cs" />
     <Compile Include="HarmonyPatches\LightSwitchEventEffectSetColor.cs" />
     <Compile Include="HarmonyPatches\LightSwitchEventEffectOnDestroy.cs" />
+    <Compile Include="HarmonyPatches\ParticleSystemEventEffectStart.cs" />
     <Compile Include="HarmonyPatches\LightSwitchEventEffectStart.cs" />
     <Compile Include="HarmonyPatches\ReleaseInfoViewControllerDidActivate.cs" />
     <Compile Include="HarmonyPatches\ColorManagerColorForNoteType.cs" />

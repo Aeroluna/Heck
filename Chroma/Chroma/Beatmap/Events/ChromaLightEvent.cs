@@ -15,7 +15,7 @@ namespace Chroma.Beatmap.Events {
 
         }
 
-        public override bool Activate(ref LightSwitchEventEffect light, ref BeatmapEventData data, ref BeatmapEventType eventType) {
+        public override bool Activate(ref MonoBehaviour light, ref BeatmapEventData data, ref BeatmapEventType eventType) {
             ColourManager.RecolourLight(ref light, A == Color.clear ? ColourManager.LightA : A, B == Color.clear ? ColourManager.LightB : B);
             return true;
         }
