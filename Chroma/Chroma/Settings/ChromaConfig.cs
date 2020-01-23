@@ -98,8 +98,8 @@ namespace Chroma.Settings {
         public static bool CustomColourEventsEnabled {
             get { return customColourEventsEnabled; }
             set {
-                customMapCheckingEnabled = value;
-                ChromaConfig.SetBool("Map", "customMapCheckingEnabled", customMapCheckingEnabled);
+                customColourEventsEnabled = value;
+                ChromaConfig.SetBool("Map", "customColourEventsEnabled", customColourEventsEnabled);
             }
         }
         private static bool customColourEventsEnabled = true;
@@ -349,7 +349,7 @@ namespace Chroma.Settings {
                 customMapCheckingEnabled = ChromaConfig.GetBool("Map", "customMapCheckingEnabled", true);
                 customColourEventsEnabled = ChromaConfig.GetBool("Map", "customColourEventsEnabled", true);
                 customSpecialEventsEnabled = ChromaConfig.GetBool("Map", "customSpecialEventsEnabled", true);
-                ChromaPlugin.SetRGBCapability(customColourEventsEnabled);
+                ChromaPlugin.SetRGBCapability(CustomColourEventsEnabled);
                 ChromaPlugin.SetSpecialEventCapability(CustomSpecialEventsEnabled);
 
                 /*

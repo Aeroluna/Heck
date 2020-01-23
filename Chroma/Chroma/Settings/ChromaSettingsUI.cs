@@ -345,7 +345,7 @@ namespace Chroma.Settings {
             get => ChromaConfig.CustomColourEventsEnabled;
             set
             {
-                ChromaConfig.CustomMapCheckingEnabled = true;
+                ChromaConfig.CustomColourEventsEnabled = value;
                 ChromaPlugin.SetRGBCapability(value);
             }
         }
