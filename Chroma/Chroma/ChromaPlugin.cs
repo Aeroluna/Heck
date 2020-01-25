@@ -19,7 +19,7 @@ namespace Chroma {
 
     public class ChromaPlugin {
         
-        public static Version Version = new Version(1, 3, 5);
+        public static Version Version = typeof(ChromaPlugin).Assembly.GetName().Version;
 
         private static ChromaPlugin _instance;
         /// <summary>
@@ -93,7 +93,7 @@ namespace Chroma {
                     ChromaLogger.Log("Error " + e.Message + " while trying to create Chroma directory", ChromaLogger.Level.WARNING);
                 }
 
-                ChromaLogger.Init();
+                //ChromaLogger.Init();
 
                 ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
                 ChromaLogger.Log("Initializing Chroma [" + ChromaPlugin.Version.ToString() + "]", ChromaLogger.Level.INFO);

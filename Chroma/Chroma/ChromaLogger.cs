@@ -7,38 +7,24 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using IPALogger = IPA.Logging.Logger;
 
 namespace Chroma {
 
     public static class ChromaLogger {
 
         public enum Level {
-            DEBUG = 0,
-            INFO = 1,
-            WARNING = 2,
-            ERROR = 3,
-            NEVER = 4
+            DEBUG = 1,
+            INFO = 2,
+            WARNING = 4,
+            ERROR = 8,
+            NEVER = 16
         }
 
-        private static string filePath = null;
-        public static Level PrintLevel { get; set; } = Level.INFO;
+        public static IPALogger logger;
+
         public static Level LogLevel { get; set; } = Level.WARNING;
         public static Level SoundLevel { get; set; } = Level.NEVER;
-
-        internal static void Init() {
-            if (filePath != null) return;
-
-            //TODO customize levels
-
-            filePath = Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma/log.txt";
-            if (!File.Exists(filePath)) {
-                using (var stream = File.Create(filePath)) { }
-            }
-
-            using (StreamWriter w = new StreamWriter(filePath, false)) {
-                w.WriteLine("Logger initialized...");
-            }
-        }
 
         public static void Log(Exception e, Level level = Level.ERROR, bool sound = true,
             [CallerMemberName] string member = "",
@@ -62,19 +48,11 @@ namespace Chroma {
             [CallerMemberName] string member = "",
             [CallerLineNumber] int line = 0) {
             if (ChromaConfig.DebugMode) {
-                Console.WriteLine("[Chroma] " + $"{member}({line}): {message}");
+                logger.Log((IPALogger.Level)level, $"{member}({line}): {message}");
             } else {
-                Console.WriteLine("[Chroma] " + message);
+                logger.Log((IPALogger.Level)level, $"{message}");
             }
             if (sound && level >= SoundLevel) AudioUtil.Instance.PlayErrorSound();
-            WriteLog(message, level);
-        }
-
-        private static void WriteLog(String s, Level level = Level.DEBUG) {
-            if (level < LogLevel || ChromaConfig.DebugMode) return;
-            using (StreamWriter w = new StreamWriter(filePath, true)) {
-                w.WriteLine(s);
-            }
         }
 
     }

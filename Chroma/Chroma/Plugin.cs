@@ -3,6 +3,7 @@ using IPA;
 using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using IPALogger = IPA.Logging.Logger;
 
 namespace Chroma {
 
@@ -14,6 +15,10 @@ namespace Chroma {
 
         public void OnApplicationStart() {
             chroma = ChromaPlugin.Instantiate(this);
+        }
+
+        public void Init(object thisIsNull, IPALogger pluginLogger) {
+            ChromaLogger.logger = pluginLogger;
         }
 
         public void OnApplicationQuit() {

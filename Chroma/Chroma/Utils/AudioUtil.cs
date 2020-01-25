@@ -87,7 +87,7 @@ namespace Chroma.Utils {
                         ChromaLogger.Log(www.error, ChromaLogger.Level.ERROR, false);
                         yield break;
                     } else {
-                        ChromaLogger.Log("Found sound " + filenameWithExtension, ChromaLogger.Level.ERROR, false);
+                        ChromaLogger.Log("Found sound " + filenameWithExtension, ChromaLogger.Level.INFO, false);
                         AudioClip downloadedClip = DownloadHandlerAudioClip.GetContent(www);
                         if (downloadedClip == null) {
                             ChromaLogger.Log("Failed to find sound " + filePath, ChromaLogger.Level.WARNING, false);
