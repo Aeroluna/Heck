@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using IPA.Utilities;
 
 namespace Chroma {
 
@@ -123,12 +124,12 @@ namespace Chroma {
             ChromaBehaviourInstantiated?.Invoke(this);
             beatmapObjectSpawnController = UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
             if (beatmapObjectSpawnController != null) {
-                songBPM = beatmapObjectSpawnController.GetField<float>("_beatsPerMinute");
+                songBPM = beatmapObjectSpawnController.GetPrivateField<float>("_beatsPerMinute");
                 ChromaLogger.Log("BPM Found : " + songBPM);
             }
             BeatmapObjectCallbackController coreSetup = GetBeatmapObjectCallbackController();
             if (coreSetup != null) {
-                ChromaLogger.Log("Found GCSS properly!", ChromaLogger.Level.DEBUG);
+                ChromaLogger.Log("Found BOCC properly!", ChromaLogger.Level.DEBUG);
                 try {
                     GCSSFound(SceneManager.GetActiveScene(), coreSetup);
                 } catch (Exception e) {
@@ -166,7 +167,7 @@ namespace Chroma {
         }
 
         private void GCSSFound(Scene scene, BeatmapObjectCallbackController gcss) {
-            ChromaLogger.Log("Found GCSS!", ChromaLogger.Level.DEBUG);
+            ChromaLogger.Log("Found BOCC!", ChromaLogger.Level.DEBUG);
             //Plugin.PlayReloadSound();
 
             _playerController = FindObjectOfType<PlayerController>();
@@ -192,13 +193,13 @@ namespace Chroma {
 
             //Map
 
-            BeatmapData _beatmapDataModel = ReflectionUtil.GetField<BeatmapData>(gcss, "_beatmapData");
+            BeatmapData _beatmapDataModel = gcss.GetPrivateField<BeatmapData>("_beatmapData");
             if (_beatmapDataModel == null) ChromaLogger.Log("{XXX} : NULL BEATMAP DATA", ChromaLogger.Level.ERROR);
             //if (_beatmapDataModel.beatmapData == null) ChromaLogger.Log("{XXX} : NULL BEATMAP DATA MODEL BEATMAP DATA", ChromaLogger.Level.ERROR);
             //BeatmapData beatmapData = CreateTransformedBeatmapData(mgData.difficultyLevel.beatmapData, mgData.gameplayOptions, mgData.gameplayMode);
             BeatmapData beatmapData = CreateTransformedBeatmapData(_beatmapDataModel, playerSettings, BaseGameMode.CurrentBaseGameMode);
             if (beatmapData != null) {
-                ReflectionUtil.SetField(gcss, "_beatmapData", beatmapData);
+                gcss.SetPrivateField("_beatmapData", beatmapData);
             }
 
             foreach (IChromaBehaviourExtension extension in extensions) extension.PostInitialization(songBPM, beatmapData, playerSettings, scoreController);
@@ -250,10 +251,10 @@ namespace Chroma {
         private void HandleObstacleDidStartMovementEvent(BeatmapObjectSpawnController obstacleSpawnController, ObstacleController obstacleController) {
 
             try {
-                StretchableObstacle stretchableObstacle = ReflectionUtil.GetField<StretchableObstacle>(obstacleController, "_stretchableObstacle");
-                StretchableCube stretchableCore = ReflectionUtil.GetField<StretchableCube>(stretchableObstacle, "_stretchableCore");
-                ParametricBoxFrameController frameController = ReflectionUtil.GetField<ParametricBoxFrameController>(stretchableObstacle, "_obstacleFrame");
-                ParametricBoxFakeGlowController fakeGlowController = ReflectionUtil.GetField<ParametricBoxFakeGlowController>(stretchableObstacle, "_obstacleFakeGlow");
+                StretchableObstacle stretchableObstacle = obstacleController.GetPrivateField<StretchableObstacle>("_stretchableObstacle");
+                StretchableCube stretchableCore = stretchableObstacle.GetPrivateField<StretchableCube>("_stretchableCore");
+                ParametricBoxFrameController frameController = stretchableObstacle.GetPrivateField<ParametricBoxFrameController>("_obstacleFrame");
+                ParametricBoxFakeGlowController fakeGlowController = stretchableObstacle.GetPrivateField<ParametricBoxFakeGlowController>("_obstacleFakeGlow");
                 float time = obstacleController.obstacleData.time;
                 Color color = ColourManager.GetBarrierColour(time);
                 frameController.color = color;

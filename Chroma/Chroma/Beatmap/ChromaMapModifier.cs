@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using IPA.Utilities;
 
 namespace Chroma.Beatmap {
 
@@ -156,13 +157,13 @@ namespace Chroma.Beatmap {
                     //Forcing lane change
                     switch (bevData[i].value) {
                         case ChromaEvent.CHROMA_EVENT_RING_ROTATE_LEFT:
-                            bevData[i].SetProperty("type", BeatmapEventType.Event8);
+                            bevData[i].SetPrivateProperty("type", BeatmapEventType.Event8);
                             break;
                         case ChromaEvent.CHROMA_EVENT_RING_ROTATE_RIGHT:
-                            bevData[i].SetProperty("type", BeatmapEventType.Event8);
+                            bevData[i].SetPrivateProperty("type", BeatmapEventType.Event8);
                             break;
                         case ChromaEvent.CHROMA_EVENT_RING_ROTATE_RESET:
-                            bevData[i].SetProperty("type", BeatmapEventType.Event8);
+                            bevData[i].SetPrivateProperty("type", BeatmapEventType.Event8);
                             break;
                     }
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using IPA.Utilities;
 
 namespace Chroma.Extensions {
 
@@ -138,7 +139,7 @@ namespace Chroma.Extensions {
                     return;
                 }
                 LightSwitchEventEffect lse = (LightSwitchEventEffect)mono;
-                lights = lse.GetField<LightWithIdManager>("_lightManager").GetField<List<LightWithId>[]>("_lights")[lse.LightsID];
+                lights = lse.GetPrivateField<LightWithIdManager>("_lightManager").GetPrivateField<List<LightWithId>[]>("_lights")[lse.LightsID];
                 Dictionary<int, List<LightWithId>> lightsPreGroup = new Dictionary<int, List<LightWithId>>();
                 foreach (LightWithId light in lights) {
                     int z = Mathf.RoundToInt(light.transform.position.z);
@@ -164,21 +165,21 @@ namespace Chroma.Extensions {
             //We still need to do the first half of this even if the LSECM already exists as custom map colours exist and we need to be able to know the default colour
             private void InitializeSOs(MonoBehaviour lse, string id, ref SimpleColorSO sColorSO, ref Color originalColour, ref MultipliedColorSO mColorSO) {
                 //ChromaLogger.Log(lse.GetField<ColorSO>(id).GetType().Name, ChromaLogger.Level.ERROR, false);
-                MultipliedColorSO lightMultSO = lse.GetField<MultipliedColorSO>(id);
-                Color multiplierColour = lightMultSO.GetField<Color>("_multiplierColor");
-                SimpleColorSO lightSO = lightMultSO.GetField<SimpleColorSO>("_baseColor");
+                MultipliedColorSO lightMultSO = lse.GetPrivateField<MultipliedColorSO>(id);
+                Color multiplierColour = lightMultSO.GetPrivateField<Color>("_multiplierColor");
+                SimpleColorSO lightSO = lightMultSO.GetPrivateField<SimpleColorSO>("_baseColor");
                 originalColour = lightSO.color;
 
                 if (mColorSO == null) {
                     mColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
-                    mColorSO.SetField("_multiplierColor", multiplierColour);
+                    mColorSO.SetPrivateField("_multiplierColor", multiplierColour);
 
                     sColorSO = ScriptableObject.CreateInstance<SimpleColorSO>();
                     sColorSO.SetColor(originalColour);
-                    mColorSO.SetField("_baseColor", sColorSO);
+                    mColorSO.SetPrivateField("_baseColor", sColorSO);
                 }
 
-                lse.SetField(id, mColorSO);
+                lse.SetPrivateField(id, mColorSO);
             }
 
             internal void LSEDestroyed() {

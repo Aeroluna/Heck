@@ -1,6 +1,7 @@
 ﻿using Chroma.Utils;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using IPA.Utilities;
 
 namespace Chroma.Beatmap.ChromaEvents {
 
@@ -29,7 +30,7 @@ namespace Chroma.Beatmap.ChromaEvents {
     class MayhemEvent {
 
         public static void ActivateTechnicolour(BeatmapEventData baseData, LightSwitchEventEffect lse, BeatmapEventType type) {
-            LightWithId[] lights = lse.GetField<List<LightWithId>[]>("_lights")[lse.LightsID].ToArray();
+            LightWithId[] lights = lse.GetPrivateField<List<LightWithId>[]>("_lights")[lse.LightsID].ToArray();
             for (int i = 0; i < lights.Length; i++) lights[i].ColorWasSet(ColourManager.GetTechnicolour(baseData.value > 3, baseData.time + lights[i].GetInstanceID(), ColourManager.TechnicolourStyle.PURE_RANDOM));
         }
 

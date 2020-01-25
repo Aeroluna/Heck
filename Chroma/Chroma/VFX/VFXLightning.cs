@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using IPA.Utilities;
 
 namespace Chroma.VFX {
 
@@ -74,7 +75,7 @@ namespace Chroma.VFX {
                     }
                     List<LightWithId> ll = new List<LightWithId>();
                     for (int j = 0; j < origLights.Length; j++) {
-                        LightWithId[] origLl = origLights[j].GetField<LightWithIdManager>("_lightManager").GetField<List<LightWithId>[]>("_lights")[origLights[j].LightsID].ToArray();
+                        LightWithId[] origLl = origLights[j].GetPrivateField<LightWithIdManager>("_lightManager").GetPrivateField<List<LightWithId>[]>("_lights")[origLights[j].LightsID].ToArray();
                         for (int k = 0; k < origLl.Length; k++) {
                             GameObject g = GameObject.Instantiate(origLl[k].gameObject);
                             LightWithId nl = g.GetComponent<LightWithId>();

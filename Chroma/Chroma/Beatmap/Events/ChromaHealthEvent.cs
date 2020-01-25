@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using IPA.Utilities;
 
 namespace Chroma.Beatmap.Events {
 
@@ -20,7 +21,7 @@ namespace Chroma.Beatmap.Events {
             GameEnergyCounter counter = GameObject.FindObjectOfType<GameEnergyCounter>();
             if (counter != null) {
                 ChromaLogger.Log("Changing health by " + HealthChangeAmount);
-                counter.InvokeMethod("AddEnergy", HealthChangeAmount);
+                counter.InvokePrivateMethod("AddEnergy", HealthChangeAmount);
                 return true;
             }
             return false;

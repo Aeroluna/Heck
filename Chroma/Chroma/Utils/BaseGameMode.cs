@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using IPA.Utilities;
 
 namespace Chroma.Utils {
 
@@ -75,8 +76,8 @@ namespace Chroma.Utils {
             if (_soloFlowCoordinator == null) {
                 _soloFlowCoordinator = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
                 if (_soloFlowCoordinator == null) return;
-                _soloDetailView = _soloFlowCoordinator.GetField<StandardLevelDetailViewController>("_levelDetailViewController");
-                _practiceViewController = _soloFlowCoordinator.GetField<PracticeViewController>("_practiceViewController");
+                _soloDetailView = _soloFlowCoordinator.GetPrivateField<StandardLevelDetailViewController>("_levelDetailViewController");
+                _practiceViewController = _soloFlowCoordinator.GetPrivateField<PracticeViewController>("_practiceViewController");
                 if (_soloDetailView != null) {
                     _soloDetailView.didPressPlayButtonEvent += _soloDetailView_didPressPlayButtonEvent;
                 } else {

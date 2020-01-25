@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using IPA.Utilities;
 
 namespace Chroma.Extensions {
 
@@ -39,7 +40,7 @@ namespace Chroma.Extensions {
             public AmbientLightColourHolder(TubeBloomPrePassLight light) {
                 this.light = light;
 
-                fieldColour = light.GetField<Color>("_color");
+                fieldColour = light.GetPrivateField<Color>("_color");
                 color = light.color;
 
                 Renderer[] rends = light.GetComponentsInChildren<Renderer>();
@@ -55,7 +56,7 @@ namespace Chroma.Extensions {
             }
 
             public void ResetColour() {
-                light.SetField("_color", fieldColour);
+                light.SetPrivateField("_color", fieldColour);
                 light.color = color;
                 foreach (KeyValuePair<Renderer, Color> kv in rendColors) {
                     kv.Key.material.SetColor("_Color", kv.Value);
@@ -63,7 +64,7 @@ namespace Chroma.Extensions {
             }
 
             public void ApplyColour(Color c) {
-                light.SetField("_color", c);
+                light.SetPrivateField("_color", c);
                 light.color = c;
                 foreach (Renderer rend in rendColors.Keys) {
                     rend.material.SetColor("_Color", c);

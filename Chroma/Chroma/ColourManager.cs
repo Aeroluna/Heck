@@ -12,6 +12,7 @@ using System.Xml.Serialization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using IPA.Utilities;
 
 namespace Chroma {
 
@@ -337,13 +338,13 @@ namespace Chroma {
         }
 
         public static void SetNoteColour(ColorNoteVisuals noteVis, Color c) {
-            SpriteRenderer ____arrowGlowSpriteRenderer = noteVis.GetField<SpriteRenderer>("_arrowGlowSpriteRenderer");
-            SpriteRenderer ____circleGlowSpriteRenderer = noteVis.GetField<SpriteRenderer>("_circleGlowSpriteRenderer");
-            MaterialPropertyBlockController ____materialPropertyBlockController = noteVis.GetField<MaterialPropertyBlockController>("_materialPropertyBlockController");
+            SpriteRenderer ____arrowGlowSpriteRenderer = noteVis.GetPrivateField<SpriteRenderer>("_arrowGlowSpriteRenderer");
+            SpriteRenderer ____circleGlowSpriteRenderer = noteVis.GetPrivateField<SpriteRenderer>("_circleGlowSpriteRenderer");
+            MaterialPropertyBlockController ____materialPropertyBlockController = noteVis.GetPrivateField<MaterialPropertyBlockController>("_materialPropertyBlockController");
             if (____arrowGlowSpriteRenderer != null) ____arrowGlowSpriteRenderer.color = c;
             if (____circleGlowSpriteRenderer != null) ____circleGlowSpriteRenderer.color = c;
             MaterialPropertyBlock block = ____materialPropertyBlockController.materialPropertyBlock;
-            block.SetColor(noteVis.GetField<int>("_colorID"), c);
+            block.SetColor(noteVis.GetPrivateField<int>("_colorID"), c);
         }
 
         public static LightSwitchEventEffect[] GetAllLightSwitches() {
@@ -389,17 +390,17 @@ namespace Chroma {
         //replace this function with a manager like LSEColourManager
         public static SimpleColorSO SetupNewLightColourSOs(MonoBehaviour light, String s)
         {
-            MultipliedColorSO mColorSO = light.GetField<MultipliedColorSO>(s);
-            SimpleColorSO baseSO = mColorSO.GetField<SimpleColorSO>("_baseColor");
+            MultipliedColorSO mColorSO = light.GetPrivateField<MultipliedColorSO>(s);
+            SimpleColorSO baseSO = mColorSO.GetPrivateField<SimpleColorSO>("_baseColor");
 
             SimpleColorSO newBaseSO = ScriptableObject.CreateInstance<SimpleColorSO>();// new SimpleColorSO();
             newBaseSO.SetColor(baseSO.color);
 
             MultipliedColorSO newMColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
-            newMColorSO.SetField("_multiplierColor", mColorSO.GetField<Color>("_multiplierColor"));
-            newMColorSO.SetField("_baseColor", newBaseSO);
+            newMColorSO.SetPrivateField("_multiplierColor", mColorSO.GetPrivateField<Color>("_multiplierColor"));
+            newMColorSO.SetPrivateField("_baseColor", newBaseSO);
 
-            light.SetField(s, newMColorSO);
+            light.SetPrivateField(s, newMColorSO);
             return newBaseSO;
         }
 

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using IPA.Utilities;
 
 namespace Chroma.Beatmap.Z_Testing.ChromaEvents {
 
@@ -20,7 +21,7 @@ namespace Chroma.Beatmap.Z_Testing.ChromaEvents {
         }
 
         internal static IEnumerator Routine(LightSwitchEventEffect lse, BeatmapEventType type, Color colourFrom, Color colourTo, float duration, float freq) {
-            LightWithId[] lights = lse.GetField<LightWithIdManager>("_lightManager").GetField<List<LightWithId>[]>("_lights")[lse.LightsID].ToArray();
+            LightWithId[] lights = lse.GetPrivateField<LightWithIdManager>("_lightManager").GetPrivateField<List<LightWithId>[]>("_lights")[lse.LightsID].ToArray();
             
             float time = 0;
             while (time < duration) {

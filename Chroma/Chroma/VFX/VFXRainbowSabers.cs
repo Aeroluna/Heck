@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using IPA.Utilities;
 
 namespace Chroma.VFX {
 
@@ -169,14 +170,14 @@ namespace Chroma.VFX {
                 blocks = new MaterialPropertyBlock[glowColors.Length];
                 tintPairs = new SetSaberGlowColor.PropertyTintColorPair[glowColors.Length][];
                 for (int i = 0; i < glowColors.Length; i++) {
-                    meshRenderers[i] = glowColors[i].GetField<MeshRenderer>("_meshRenderer");
+                    meshRenderers[i] = glowColors[i].GetPrivateField<MeshRenderer>("_meshRenderer");
 
-                    blocks[i] = glowColors[i].GetField<MaterialPropertyBlock>("_materialPropertyBlock");
+                    blocks[i] = glowColors[i].GetPrivateField<MaterialPropertyBlock>("_materialPropertyBlock");
                     if (blocks[i] == null) {
                         blocks[i] = new MaterialPropertyBlock();
-                        glowColors[i].SetField("_materialPropertyBlock", blocks[i]);
+                        glowColors[i].SetPrivateField("_materialPropertyBlock", blocks[i]);
                     }
-                    tintPairs[i] = glowColors[i].GetField<SetSaberGlowColor.PropertyTintColorPair[]>("_propertyTintColorPairs");
+                    tintPairs[i] = glowColors[i].GetPrivateField<SetSaberGlowColor.PropertyTintColorPair[]>("_propertyTintColorPairs");
                     meshRenderers[i].SetPropertyBlock(blocks[i], 0);
                 }
 

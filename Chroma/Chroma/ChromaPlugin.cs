@@ -93,8 +93,6 @@ namespace Chroma {
                     ChromaLogger.Log("Error " + e.Message + " while trying to create Chroma directory", ChromaLogger.Level.WARNING);
                 }
 
-                //ChromaLogger.Init();
-
                 ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
                 ChromaLogger.Log("Initializing Chroma [" + ChromaPlugin.Version.ToString() + "]", ChromaLogger.Level.INFO);
                 ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
@@ -216,14 +214,6 @@ namespace Chroma {
         }
 
         private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode mode) {
-            /*if (scene.name == "MenuCore") {
-                try {
-                    ChromaSettingsUI.InitializeMenu();
-
-                } catch (Exception e) {
-                    ChromaLogger.Log(e);
-                }
-            }*/
             if (scene.name == "MenuViewControllers")
             {
                 ChromaSettingsUI.InitializeMenu();
