@@ -94,16 +94,12 @@
     <Compile Include="Settings\ChromaConfig.cs" />
     <Compile Include="Settings\ChromaSettingsUI.cs" />
     <Compile Include="Utils\AudioUtil.cs" />
-    <Compile Include="Utils\Base64Sprites.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ChromaLogger.cs" />
     <Compile Include="ColourManager.cs" />
     <Compile Include="IChromaBehaviourExtension.cs" />
-    <Compile Include="Utils\SceneUtils.cs" />
     <Compile Include="Utils\SidePanelUtil.cs" />
-    <Compile Include="Utils\StringUtil.cs" />
-    <Compile Include="Utils\VersionChecker.cs" />
     <Compile Include="VFX\VFXLightning.cs" />
     <Compile Include="VFX\VFXRainbowBarriers.cs" />
     <Compile Include="VFX\VFXRainbowSabers.cs" />

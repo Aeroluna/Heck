@@ -18,37 +18,6 @@ namespace Chroma.Utils {
         private static string currentKey = defaultKey;
         private static string currentMessage = "";
 
-        /*private static ReleaseInfoViewController infoView;
-        private static TextMeshProUGUI tmText;
-        
-        private static bool Initialize() {
-            try {
-                if (infoView != null) return true;
-                infoView = GameObject.FindObjectOfType<ReleaseInfoViewController>();
-                if (infoView == null) infoView = Resources.FindObjectsOfTypeAll<ReleaseInfoViewController>().FirstOrDefault();
-                if (infoView != null) {
-                    textPageScrollView = infoView.GetField<TextPageScrollView>("_textPageScrollView");
-                    if (textPageScrollView != null) {
-                        tmText = textPageScrollView.GetField<TextMeshProUGUI>("_text");
-                        if (tmText != null) {
-                            if (!screenText.ContainsKey(defaultKey)) screenText.Add(defaultKey, tmText.text);
-                            ChromaLogger.Log(tmText.text);
-                            return true;
-                        } else {
-                            ChromaLogger.Log("Failure to get TextMeshProUGUI", ChromaLogger.Level.ERROR);
-                        }
-                    } else {
-                        ChromaLogger.Log("Failure to get TextPageScrollView", ChromaLogger.Level.ERROR);
-                    }
-                } else {
-                    ChromaLogger.Log("Failure to get InfoView", ChromaLogger.Level.ERROR);
-                }
-            } catch (Exception e) {
-                ChromaLogger.Log(e);
-            }
-            return false;
-        }*/
-
         /// <summary>
         /// Revert the panel to default
         /// </summary>
