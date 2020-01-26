@@ -302,7 +302,7 @@ namespace Chroma.Settings {
             get => ChromaConfig.CustomColourEventsEnabled;
             set {
                 ChromaConfig.CustomColourEventsEnabled = value;
-                ChromaPlugin.SetRGBCapability(value);
+                ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", value);
             }
         }
 
@@ -311,7 +311,7 @@ namespace Chroma.Settings {
             get => ChromaConfig.CustomSpecialEventsEnabled;
             set {
                 ChromaConfig.CustomSpecialEventsEnabled = value;
-                ChromaPlugin.SetSpecialEventCapability(value);
+                ChromaUtils.SetSongCoreCapability("Chroma Special Events", value);
             }
         }
 

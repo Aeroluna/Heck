@@ -171,23 +171,8 @@ namespace Chroma {
 
             ChromaLogger.Log("Chroma finished initializing.  " + chromaExtensions.Count + " extensions found.", ChromaLogger.Level.INFO);
 
-            try {
-                SongCore.Collections.RegisterCapability("Chroma");
-                SongCore.Collections.RegisterCapability("ChromaLite");
-            } catch (Exception) {
-                // This version of SongLoader doesn't support capabilities
-            }
-        }
-
-        //TODO these two methods somewhere else
-        public static void SetRGBCapability(bool enabled) {
-            if (enabled) SongCore.Collections.RegisterCapability("Chroma Lighting Events");
-            else SongCore.Collections.DeregisterizeCapability("Chroma Lighting Events");
-        }
-
-        public static void SetSpecialEventCapability(bool enabled) {
-            if (enabled) SongCore.Collections.RegisterCapability("Chroma Special Events");
-            else SongCore.Collections.DeregisterizeCapability("Chroma Special Events");
+            ChromaUtils.SetSongCoreCapability("Chroma");
+            ChromaUtils.SetSongCoreCapability("ChromaLite");
         }
 
         private void SceneManagerOnActiveSceneChanged(Scene current, Scene next) {

@@ -349,8 +349,8 @@ namespace Chroma.Settings {
                 customMapCheckingEnabled = ChromaConfig.GetBool("Map", "customMapCheckingEnabled", true);
                 customColourEventsEnabled = ChromaConfig.GetBool("Map", "customColourEventsEnabled", true);
                 customSpecialEventsEnabled = ChromaConfig.GetBool("Map", "customSpecialEventsEnabled", true);
-                ChromaPlugin.SetRGBCapability(CustomColourEventsEnabled);
-                ChromaPlugin.SetSpecialEventCapability(CustomSpecialEventsEnabled);
+                ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", CustomColourEventsEnabled);
+                ChromaUtils.SetSongCoreCapability("Chroma Special Events", CustomSpecialEventsEnabled);
 
                 /*
                  * AUDIO
