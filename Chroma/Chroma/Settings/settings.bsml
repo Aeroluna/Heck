@@ -10,20 +10,9 @@
       <string-setting text='Secrets' value='secrets' hover-hint='What could it mean?!?!'></string-setting>
     </scrollable-settings-container>
   </settings-submenu>
-  <settings-submenu text='Notes/Lights'>
-    <settings-container>
-      <clickable-text text='Back' click-event='back'></clickable-text>
-      <dropdown-list-setting text='Left Notes' value='coloura' formatter='colourformat' options='colours'></dropdown-list-setting>
-      <dropdown-list-setting text='Right Notes' value='colourb' formatter='colourformat' options='colours'></dropdown-list-setting>
-      <dropdown-list-setting text='Ambient (bg) Lights' value='lightambient' formatter='colourformat' options='colours'></dropdown-list-setting>
-      <dropdown-list-setting text='Warm (red) Lights' value='lightcoloura' formatter='colourformat' options='colours'></dropdown-list-setting>
-      <dropdown-list-setting text='Cold (blue) Lights' value='lightcolourb' formatter='colourformat' options='colours'></dropdown-list-setting>
-    </settings-container>
-  </settings-submenu>
   <settings-submenu text='Aesthetics'>
     <scrollable-settings-container>
       <clickable-text text='Back' click-event='back'></clickable-text>
-      <dropdown-list-setting text='Barriers' value='barriercolour' formatter='colourformat' options='colours'></dropdown-list-setting>
       <list-setting text='Barrier Col. Correction' value='barrierccscale' choices='barrierccscalechoices' formatter='percent'></list-setting>
       <dropdown-list-setting text='Neon Sign Top' value='signcolourb' formatter='colourformat' options='colours'></dropdown-list-setting>
       <dropdown-list-setting text='Neon Sign Bottom' value='signcoloura' formatter='colourformat' options='colours'></dropdown-list-setting>

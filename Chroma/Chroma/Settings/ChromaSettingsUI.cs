@@ -175,57 +175,6 @@ namespace Chroma.Settings {
 
         #endregion
 
-        #region Lights/Notes
-
-        [UIValue("coloura")]
-        public NamedColor LeftNotes {
-            get => stringToColour(ChromaConfig.GetString("Notes", "colourA", "DEFAULT"));
-            set {
-                ColourManager.A = value.color;
-                ChromaConfig.SetString("Notes", "colourA", value.name);
-            }
-        }
-
-        [UIValue("colourb")]
-        public NamedColor RightNotes {
-            get => stringToColour(ChromaConfig.GetString("Notes", "colourB", "DEFAULT"));
-            set {
-                ColourManager.B = value.color;
-                ChromaConfig.SetString("Notes", "colourB", value.name);
-            }
-        }
-
-        [UIValue("lightambient")]
-        public NamedColor AmbientLights {
-            get => stringToColour(ChromaConfig.GetString("Lights", "lightAmbient", "DEFAULT"));
-            set {
-                ColourManager.LightAmbient = value.color;
-                ColourManager.RecolourAmbientLights(ColourManager.LightAmbient);
-                ChromaConfig.SetString("Lights", "lightAmbient", value.name);
-            }
-        }
-
-        [UIValue("lightcoloura")]
-        public NamedColor WarmLights {
-            get => stringToColour(ChromaConfig.GetString("Lights", "lightColourA", "DEFAULT"));
-            set {
-                ColourManager.LightA = value.color;
-                ColourManager.RecolourAmbientLights(ColourManager.LightAmbient);
-                ChromaConfig.SetString("Lights", "lightColourA", value.name);
-            }
-        }
-
-        [UIValue("lightcolourb")]
-        public NamedColor ColdLights {
-            get => stringToColour(ChromaConfig.GetString("Lights", "lightColourB", "DEFAULT"));
-            set {
-                ColourManager.LightB = value.color;
-                ColourManager.RecolourAmbientLights(ColourManager.LightAmbient);
-                ChromaConfig.SetString("Lights", "lightColourB", value.name);
-            }
-        }
-        #endregion
-
         #region Aesthetics
 
         [UIValue("barriercolour")]

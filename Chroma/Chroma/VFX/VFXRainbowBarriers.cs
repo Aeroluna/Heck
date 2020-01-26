@@ -96,13 +96,13 @@ namespace Chroma.VFX {
             if (IsRainbowWalls()) {
                 StartCoroutine(RainbowWalls());
                 ChromaLogger.Log("Rainbow Walls!", ChromaLogger.Level.DEBUG);
-            } else if (ColourManager.BarrierColour == ColourManager.DefaultBarrierColour || ColourManager.BarrierColour == Color.clear) {
+            } else if (ColourManager.BarrierColour == Color.clear) {
                 ResetGlobalWallColours(); //We have default colours, boys!
                 ChromaLogger.Log("Default Walls", ChromaLogger.Level.DEBUG);
-            } else {
+            }/* else {
                 ApplyGlobalWallColours(ColourManager.BarrierColour);
                 ChromaLogger.Log(ColourManager.BarrierColour.ToString() + " Walls", ChromaLogger.Level.DEBUG);
-            }
+            }*/
 
         }
 

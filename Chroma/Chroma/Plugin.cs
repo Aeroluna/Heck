@@ -9,8 +9,6 @@ namespace Chroma {
 
     public class Plugin : IBeatSaberPlugin {
 
-        public string Version => ChromaPlugin.Version.ToString();
-
         ChromaPlugin chroma;
 
         public void OnApplicationStart() {

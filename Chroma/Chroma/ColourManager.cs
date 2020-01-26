@@ -287,7 +287,7 @@ namespace Chroma {
 
         public static Color DefaultBarrierColour { get; } = Color.red;
 
-        public static Color BarrierColour { get; set; } = DefaultBarrierColour;
+        public static Color BarrierColour { get; set; } = Color.clear;
 
         public static Color LaserPointerColour { get; set; } = Color.clear; //B;
 

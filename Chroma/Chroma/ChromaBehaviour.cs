@@ -263,7 +263,7 @@ namespace Chroma {
 
                 ChromaHandleBarrierSpawnedEvent?.Invoke(ref stretchableObstacle, ref obstacleSpawnController, ref obstacleController, ref didRecolour);
 
-                if (!didRecolour && color != ColourManager.DefaultBarrierColour && color != Color.clear) {
+                if (!didRecolour && color != Color.clear) {
                     RecolourWall(stretchableCore, ColourManager.GetCorrectedBarrierColour(time));
                 }
             } catch (Exception e) {

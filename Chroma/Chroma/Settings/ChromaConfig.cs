@@ -400,8 +400,8 @@ namespace Chroma.Settings {
                  * NOTES
                  */
 
-                ColourManager.A = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourA", "DEFAULT"), ColourManager.DefaultA);
-                ColourManager.B = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourB", "DEFAULT"), ColourManager.DefaultB);
+                //ColourManager.A = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourA", "DEFAULT"), ColourManager.DefaultA);
+                //ColourManager.B = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourB", "DEFAULT"), ColourManager.DefaultB);
                 ColourManager.AltA = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourAltA", "Notes Magenta"), ColourManager.DefaultAltA);
                 ColourManager.AltB = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourAltB", "Notes Green"), ColourManager.DefaultAltB);
                 ColourManager.NonColoured = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourNonColoured", "Notes White"), ColourManager.DefaultNonColoured);
@@ -412,9 +412,9 @@ namespace Chroma.Settings {
                  * LIGHTS
                  */
 
-                ColourManager.LightAmbient = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightAmbient", "DEFAULT"), ColourManager.DefaultLightAmbient);
-                ColourManager.LightA = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourA", "DEFAULT"), ColourManager.DefaultLightA);
-                ColourManager.LightB = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourB", "DEFAULT"), ColourManager.DefaultLightB);
+                //ColourManager.LightAmbient = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightAmbient", "DEFAULT"), ColourManager.DefaultLightAmbient);
+                //ColourManager.LightA = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourA", "DEFAULT"), ColourManager.DefaultLightA);
+                //ColourManager.LightB = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourB", "DEFAULT"), ColourManager.DefaultLightB);
                 ColourManager.LightAltA = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourAltA", "Light Magenta"), ColourManager.DefaultLightAltA);
                 ColourManager.LightAltB = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourAltB", "Light Green"), ColourManager.DefaultLightAltB);
                 ColourManager.LightWhite = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourWhite", "Light White"), ColourManager.DefaultLightWhite);
@@ -424,7 +424,7 @@ namespace Chroma.Settings {
                  * AESTHETICS
                  */
 
-                ColourManager.BarrierColour = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "barrierColour", "Barrier Red"), ColourManager.DefaultBarrierColour);
+                //ColourManager.BarrierColour = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "barrierColour", "DEFAULT"), ColourManager.DefaultBarrierColour);
                 ColourManager.LaserPointerColour = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "laserPointerColour", "DEFAULT"), ColourManager.DefaultB);
                 ColourManager.SignA = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "signColourA", "DEFAULT"), ColourManager.DefaultA);
                 ColourManager.SignB = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "signColourB", "DEFAULT"), ColourManager.DefaultB);

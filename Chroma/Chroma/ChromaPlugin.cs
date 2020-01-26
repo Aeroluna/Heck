@@ -18,8 +18,9 @@ using BeatSaberMarkupLanguage.Settings;
 namespace Chroma {
 
     public class ChromaPlugin {
-        
-        public static Version Version = typeof(ChromaPlugin).Assembly.GetName().Version;
+
+        private static Version assemblyVersion = typeof(ChromaPlugin).Assembly.GetName().Version;
+        public static string Version = assemblyVersion.Major+"."+assemblyVersion.Minor+"."+assemblyVersion.Build;
 
         private static ChromaPlugin _instance;
         /// <summary>
@@ -94,7 +95,7 @@ namespace Chroma {
                 }
 
                 ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
-                ChromaLogger.Log("Initializing Chroma [" + ChromaPlugin.Version.ToString() + "]", ChromaLogger.Level.INFO);
+                ChromaLogger.Log("Initializing Chroma [" + Version + "]", ChromaLogger.Level.INFO);
                 ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
 
                 //Used for getting gamemode data mostly

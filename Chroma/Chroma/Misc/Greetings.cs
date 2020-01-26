@@ -99,7 +99,7 @@ namespace Chroma.Misc {
         public static void RegisterChromaSideMenu() {
             SidePanelUtil.RegisterTextPanel("chroma", 
                 ResourceTextFiles.chromaNotes
-                .Replace("%VER%", ChromaPlugin.Instance.plugin.Version)
+                .Replace("%VER%", ChromaPlugin.Version)
                 .Replace("%USERNAME%", ChromaConfig.Username)
                 );
 
