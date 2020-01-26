@@ -99,6 +99,7 @@
     <Compile Include="ChromaLogger.cs" />
     <Compile Include="ColourManager.cs" />
     <Compile Include="IChromaBehaviourExtension.cs" />
+    <Compile Include="Utils\ChromaUtils.cs" />
     <Compile Include="Utils\SidePanelUtil.cs" />
     <Compile Include="VFX\VFXLightning.cs" />
     <Compile Include="VFX\VFXRainbowBarriers.cs" />
