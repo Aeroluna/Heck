@@ -108,7 +108,6 @@ namespace Chroma {
             StopAllCoroutines();
 
             if (beatmapObjectSpawnController != null) {
-                beatmapObjectSpawnController.obstacleDiStartMovementEvent -= HandleObstacleDidStartMovementEvent;
                 beatmapObjectSpawnController.noteWasCutEvent -= HandleNoteWasCutEvent;
                 beatmapObjectSpawnController.noteWasMissedEvent -= HandleNoteWasMissedEvent;
             }
@@ -138,7 +137,6 @@ namespace Chroma {
             }
 
             if (beatmapObjectSpawnController != null) {
-                beatmapObjectSpawnController.obstacleDiStartMovementEvent += HandleObstacleDidStartMovementEvent;
                 beatmapObjectSpawnController.noteWasCutEvent += HandleNoteWasCutEvent;
                 beatmapObjectSpawnController.noteWasMissedEvent += HandleNoteWasMissedEvent;
             }
@@ -246,49 +244,6 @@ namespace Chroma {
             }
             return beatmapData;
         }
-
-        #region barriers
-        private void HandleObstacleDidStartMovementEvent(BeatmapObjectSpawnController obstacleSpawnController, ObstacleController obstacleController) {
-
-            try {
-                StretchableObstacle stretchableObstacle = obstacleController.GetPrivateField<StretchableObstacle>("_stretchableObstacle");
-                StretchableCube stretchableCore = stretchableObstacle.GetPrivateField<StretchableCube>("_stretchableCore");
-                ParametricBoxFrameController frameController = stretchableObstacle.GetPrivateField<ParametricBoxFrameController>("_obstacleFrame");
-                ParametricBoxFakeGlowController fakeGlowController = stretchableObstacle.GetPrivateField<ParametricBoxFakeGlowController>("_obstacleFakeGlow");
-                float time = obstacleController.obstacleData.time;
-                Color color = ColourManager.GetBarrierColour(time);
-                frameController.color = color;
-                fakeGlowController.color = color;
-                bool didRecolour = VFX.VFXRainbowBarriers.IsRainbowWalls();
-
-                ChromaHandleBarrierSpawnedEvent?.Invoke(ref stretchableObstacle, ref obstacleSpawnController, ref obstacleController, ref didRecolour);
-
-                if (!didRecolour && color != Color.clear) {
-                    RecolourWall(stretchableCore, ColourManager.GetCorrectedBarrierColour(time));
-                }
-            } catch (Exception e) {
-                ChromaLogger.Log(e);
-            }
-        }
-
-        private void RecolourWall(StretchableCube wall, Color color) {
-            //CustomUI.Utilities.UIUtilities.PrintHierarchy(wall.transform.parent);
-            foreach (Transform component in wall.transform.parent) {
-                foreach (Transform child in component.transform) {
-                    try {
-                        MeshRenderer ren = child.GetComponent<MeshRenderer>();
-                        if (ren.material.color != Color.clear) ren.material.color = color;
-                    } catch(Exception) {
-                        // This doesn't have a color
-                        // It could be the Collider
-                    }
-                }
-            }
-
-            MeshRenderer r = wall.GetComponent<MeshRenderer>();
-            r.material.SetColor("_AddColor", color);
-        }
-        #endregion
 
         private void HandleNoteWasCutEvent(BeatmapObjectSpawnController noteSpawnController, INoteController noteController, NoteCutInfo noteCutInfo) {
             ChromaHandleNoteWasCutEvent?.Invoke(noteSpawnController, noteController, noteCutInfo);

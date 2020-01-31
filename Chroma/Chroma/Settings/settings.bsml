@@ -12,7 +12,6 @@
   <settings-submenu text='Aesthetics'>
     <scrollable-settings-container>
       <clickable-text text='Back' click-event='back'></clickable-text>
-      <list-setting text='Barrier Col. Correction' value='barrierccscale' choices='barrierccscalechoices' formatter='percent'></list-setting>
       <dropdown-list-setting text='Neon Sign Top' value='signcolourb' formatter='colourformat' options='colours'></dropdown-list-setting>
       <dropdown-list-setting text='Neon Sign Bottom' value='signcoloura' formatter='colourformat' options='colours'></dropdown-list-setting>
       <dropdown-list-setting text='Laser Pointer' value='laserpointercolour' formatter='colourformat' options='colours'></dropdown-list-setting>
@@ -34,7 +33,7 @@
       <dropdown-list-setting text='Technicolour Lights' value='techlights' options='techlightschoices' formatter='techlightform' hover-hint='Technicolour style of the lights.'></dropdown-list-setting>
       <dropdown-list-setting text='Lights Grouping' value='lightsgroup' options='lightsgroupchoices' formatter='techgroupform' hover-hint='Isolated Event for better performance, but more chaotic lighting'></dropdown-list-setting>
       <list-setting text='Lights Frequency' value='lightsfreq' choices='lightsfreqchoices' hover-hint='Master volume control for sounds made by Chroma' formatter='percentfreq'></list-setting>
-      <bool-setting text='Technicolour Barriers' value='techbarriers' hover-hint='If enabled, Barriers will rainbowify!'></bool-setting>
+      <dropdown-list-setting text='Technicolour Barriers' value='techbarriers' options='techbarrierschoices' formatter='techwallform' hover-hint='If enabled, Barriers will rainbowify!'></dropdown-list-setting>
       <dropdown-list-setting text='Technicolour Notes' value='technotes' options='techlightschoices' formatter='techlightform' hover-hint='Technicolour style of the blocks.'></dropdown-list-setting>
       <dropdown-list-setting text='Technicolour Sabers' value='techsabers' options='techlightschoices' formatter='techlightform' hover-hint='Technicolour style of the sabers.'></dropdown-list-setting>
       <bool-setting text='Desync Sabers' value='matchsabers' hover-hint='If true, technicolour sabers will have their &quot;time&quot; start and progress differently, resulting in their colours not matching so often.'></bool-setting>

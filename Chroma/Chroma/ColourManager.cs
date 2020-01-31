@@ -31,20 +31,6 @@ namespace Chroma {
             noteTypeColourOverrides[noteType == NoteType.NoteA ? 0 : 1] = noteType == NoteType.NoteA ? A : B;
         }
 
-        public static float barrierColourCorrectionScale = 1f;
-        public static Color GetBarrierColour(float time) {
-            if (TechnicolourBarriers) return GetTechnicolour(true, time, ChromaConfig.TechnicolourWallsStyle);
-            else {
-                Color c = ChromaBarrierColourEvent.GetColor(time);
-                return (c == Color.clear ? ColourManager.BarrierColour : c);
-            }
-        }
-        public static Color GetCorrectedBarrierColour(float time) {
-            Color baseColor = GetBarrierColour(time);
-            float cor = ColourManager.barrierColourCorrectionScale * 8;
-            return (baseColor / cor).ColorWithAlpha(0f);
-        }
-
         /*
          * TECHNICOLOUR
          */
@@ -90,6 +76,12 @@ namespace Chroma {
             PURE_RANDOM = 3
         }
 
+        public enum TechnicolourWallStyle {
+            OFF = 0,
+            GRADIENT = 1,
+            PURE_RANDOM = 2
+        }
+
         public enum TechnicolourTransition {
             FLAT = 0,
             SMOOTH = 1,
@@ -99,19 +91,6 @@ namespace Chroma {
             STANDARD = 0,
             ISOLATED_GROUP = 1,
             ISOLATED = 2
-        }
-
-        public static TechnicolourStyle GetTechnicolourStyleFromFloat(float f) {
-            if (f == 1) return TechnicolourStyle.WARM_COLD;
-            else if (f == 2) return TechnicolourStyle.ANY_PALETTE;
-            else if (f == 3) return TechnicolourStyle.PURE_RANDOM;
-            else return TechnicolourStyle.OFF;
-        }
-
-        public static TechnicolourLightsGrouping GetTechnicolourLightsGroupingFromFloat(float f) {
-            if (f == 1) return TechnicolourLightsGrouping.ISOLATED_GROUP;
-            else if (f == 2) return TechnicolourLightsGrouping.ISOLATED;
-            else return TechnicolourLightsGrouping.STANDARD;
         }
 
         private static bool technicolourLightsForceDisabled = false;
@@ -136,7 +115,7 @@ namespace Chroma {
         }
 
         public static bool TechnicolourBarriers {
-            get { return ChromaConfig.TechnicolourEnabled && ChromaConfig.TechnicolourWallsStyle != TechnicolourStyle.OFF; }
+            get { return ChromaConfig.TechnicolourEnabled && ChromaConfig.TechnicolourWallsStyle != TechnicolourWallStyle.OFF; }
         }
 
         public static Color GetTechnicolour(NoteData noteData, TechnicolourStyle style) {
@@ -200,10 +179,10 @@ namespace Chroma {
         }
 
         public static Color GetLerpedFromArray(Color[] colors, float time) {
-            float tm = Mathf.Repeat(time, TechnicolourWarmPalette.Length);
+            float tm = Mathf.Repeat(time, colors.Length);
             int t0 = Mathf.FloorToInt(tm);
             int t1 = Mathf.CeilToInt(tm);
-            if (t1 >= TechnicolourWarmPalette.Length) t1 = 0;
+            if (t1 >= colors.Length) t1 = 0;
             return (Color.Lerp(colors[t0], colors[t1], Mathf.Repeat(tm, 1)));
         }
 
@@ -549,7 +528,6 @@ namespace Chroma {
 
                 RefreshLightsEvent?.Invoke(ref ambientLight, ref red, ref blue, ref redLight, ref blueLight, ref platform, ref signA, ref signB, ref laser, ref ambientSound);
 
-                //ColourManager.RecolourAllLights(ColourManager.LightA, ColourManager.LightB);
                 ResetAllLights();
                 ColourManager.RecolourAmbientLights(ambientLight);
                 //if (!SceneUtils.IsTargetGameScene(SceneManager.GetActiveScene())) {

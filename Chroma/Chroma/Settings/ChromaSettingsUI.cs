@@ -28,11 +28,11 @@ namespace Chroma.Settings {
         [UIValue("loggerlevelchoices")]
         private List<object> _loggerLevelChoices = new List<object>() { 0, 1, 2, 3 };
 
-        [UIValue("barrierccscalechoices")]
-        private List<object> _barrierccChoices = new List<object>() { 0, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f, 1.8f, 1.9f, 2f };
-
         [UIValue("techlightschoices")]
         private List<object> _techlightsChoices = (new object[] { TechnicolourStyle.OFF, TechnicolourStyle.WARM_COLD, TechnicolourStyle.ANY_PALETTE, TechnicolourStyle.PURE_RANDOM }).ToList();
+
+        [UIValue("techbarrierschoices")]
+        private List<object> _techbarrierschoices = (new object[] { TechnicolourWallStyle.OFF, TechnicolourWallStyle.GRADIENT, TechnicolourWallStyle.PURE_RANDOM }).ToList();
 
         [UIValue("lightsgroupchoices")]
         private List<object> _lightsgroupChoices = ChromaConfig.WaiverRead ? new List<object>() { TechnicolourLightsGrouping.STANDARD, TechnicolourLightsGrouping.ISOLATED_GROUP, TechnicolourLightsGrouping.ISOLATED }
@@ -72,6 +72,19 @@ namespace Chroma.Settings {
                 case TechnicolourStyle.WARM_COLD:
                     return "WARM/COLD";
                 case TechnicolourStyle.OFF:
+                default:
+                    return "OFF";
+            }
+        }
+
+        [UIAction("techwallform")]
+        public string techwallFormat(TechnicolourWallStyle t) {
+            switch (t) {
+                case TechnicolourWallStyle.PURE_RANDOM:
+                    return "TRUE RANDOM";
+                case TechnicolourWallStyle.GRADIENT:
+                    return "GRADIENT";
+                case TechnicolourWallStyle.OFF:
                 default:
                     return "OFF";
             }
@@ -173,15 +186,6 @@ namespace Chroma.Settings {
             get => stringToColour(ChromaConfig.GetString("Aesthetics", "barrierColour", "Barrier Red"));
             set {
                 ChromaConfig.SetString("Aesthetics", "barrierColour", value.name);
-            }
-        }
-
-        [UIValue("barrierccscale")]
-        public float BarrierColCorrection {
-            get => ChromaConfig.GetFloat("Aesthetics", "barrierColourCorrectionScale", 1f);
-            set {
-                ColourManager.barrierColourCorrectionScale = value;
-                ChromaConfig.SetFloat("Aesthetics", "barrierColourCorrectionScale", value);
             }
         }
 
@@ -291,10 +295,10 @@ namespace Chroma.Settings {
         }
 
         [UIValue("techbarriers")]
-        public bool TechnicolourWallsStyle {
-            get => ChromaConfig.TechnicolourWallsStyle == TechnicolourStyle.ANY_PALETTE ? true : false;
+        public TechnicolourWallStyle TechnicolourWallsStyle {
+            get => ChromaConfig.TechnicolourWallsStyle;
             set {
-                ChromaConfig.TechnicolourWallsStyle = value ? TechnicolourStyle.ANY_PALETTE : TechnicolourStyle.OFF;
+                ChromaConfig.TechnicolourWallsStyle = value;
             }
         }
 

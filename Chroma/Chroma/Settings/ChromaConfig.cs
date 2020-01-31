@@ -245,7 +245,7 @@ namespace Chroma.Settings {
         }
         private static TechnicolourStyle technicolourBlocksStyle = TechnicolourStyle.OFF;
 
-        public static TechnicolourStyle TechnicolourWallsStyle {
+        public static TechnicolourWallStyle TechnicolourWallsStyle {
             get {
                 return technicolourWallsStyle;
             }
@@ -254,7 +254,7 @@ namespace Chroma.Settings {
                 ChromaConfig.SetInt("Technicolour", "technicolourWallsStyle", (int)technicolourWallsStyle);
             }
         }
-        private static TechnicolourStyle technicolourWallsStyle = TechnicolourStyle.OFF;
+        private static TechnicolourWallStyle technicolourWallsStyle = TechnicolourWallStyle.OFF;
 
         public static bool MatchTechnicolourSabers {
             get { return matchTechnicolourSabers; }
@@ -374,7 +374,7 @@ namespace Chroma.Settings {
                     technicolourLightsFrequency = GetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
                     technicolourSabersStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourSabersStyle", 0);
                     technicolourBlocksStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourBlocksStyle", 0);
-                    technicolourWallsStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourWallsStyle", 0);
+                    technicolourWallsStyle = (TechnicolourWallStyle)ChromaConfig.GetInt("Technicolour", "technicolourWallsStyle", 0);
                     matchTechnicolourSabers = ChromaConfig.GetBool("Technicolour", "matchTechnicolourSabers", false);
                 }
 
@@ -430,7 +430,6 @@ namespace Chroma.Settings {
                 ColourManager.SignB = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "signColourB", "DEFAULT"), ColourManager.DefaultB);
                 ColourManager.Platform = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "platformAccoutrements", "DEFAULT"), ColourManager.DefaultB);
 
-                ColourManager.barrierColourCorrectionScale = ChromaConfig.GetFloat("Aesthetics", "barrierColourCorrectionScale", 1f);
                 ChromaConfig.saberTrailStrength = ChromaConfig.GetFloat("Aesthetics", "saberTrailStrength", 1f);
 
                 /*

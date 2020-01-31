@@ -58,6 +58,7 @@
     <Compile Include="ChromaTesting.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
     <Compile Include="Extensions\TubeBloomPrePassLightExtensions.cs" />
+    <Compile Include="HarmonyPatches\ObstacleControllerInit.cs" />
     <Compile Include="HarmonyPatches\MenuLightsManagerSetColorsFromPreset.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromJson.cs" />
     <Compile Include="HarmonyPatches\BeatDataTransformHelperCreateTransformedBeatmapData.cs" />
@@ -151,6 +152,9 @@
     </Reference>
     <Reference Include="MainAssembly">
       <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\MainAssembly.dll</HintPath>
+    </Reference>
+    <Reference Include="MappingExtensions">
+      <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\MappingExtensions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json.12.0.0.0">
