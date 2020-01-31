@@ -134,7 +134,10 @@ namespace Chroma.Beatmap {
             }
 
             if (ChromaConfig.LightshowModifier) {
-                linesData = new BeatmapLineData[0];
+                foreach (BeatmapLineData b in linesData) {
+                    b.beatmapObjectsData = b.beatmapObjectsData.Where((source, index) => b.beatmapObjectsData[index].beatmapObjectType != BeatmapObjectType.Note).ToArray();
+                }
+                BS_Utils.Gameplay.ScoreSubmission.DisableSubmission("Chroma");
             }
 
             beatmapData = new BeatmapData(linesData, eventsData);
