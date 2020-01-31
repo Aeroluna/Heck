@@ -122,11 +122,6 @@ namespace Chroma {
             }
         }
 
-        /*public static TechnicolourTransition _technicolourLightsTransition = TechnicolourTransition.FLAT;
-        public static TechnicolourTransition _technicolourSabersTransition = TechnicolourTransition.FLAT;
-        public static TechnicolourTransition _technicolourBlocksTransition = TechnicolourTransition.FLAT;
-        public static TechnicolourTransition _technicolourWallsTransition = TechnicolourTransition.SMOOTH;*/
-
         public static bool TechnicolourLights {
             get {
                 return !ChromaBehaviour.IsLoadingSong && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourEnabled && ChromaConfig.TechnicolourLightsStyle != TechnicolourStyle.OFF; }
@@ -404,22 +399,6 @@ namespace Chroma {
             return newBaseSO;
         }
 
-        /*public static void RecolourLight(ref LightSwitchEventEffect obj, Color red, Color blue) {
-            if (obj.name.Contains("nightmare")) return;
-            string[] sa = new string[] { "_lightColor0", "_highlightColor0", "_lightColor1", "_highlightColor1" };
-
-            for (int i = 0; i < sa.Length; i++) {
-                string s = sa[i];
-
-                SimpleColorSO baseSO = SetupNewLightColourSOs(obj, s);
-
-                Color newColour = i < sa.Length / 2 ? blue : red;
-                if (newColour == Color.clear) continue;
-
-                baseSO.SetColor(newColour);
-            }
-        }*/
-
         public static void RecolourMenuStuff(Color red, Color blue, Color redLight, Color blueLight, Color platformLight, Color laser) {
 
             Renderer[] rends2 = GameObject.FindObjectsOfType<Renderer>();
@@ -457,28 +436,19 @@ namespace Chroma {
                     if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", blue);
                     if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", blue);
                 }*/
-                if (rend.name.Contains("VRCursor") && ColourManager.LaserPointerColour != Color.clear) {
-                    rend.material.color = ColourManager.LaserPointerColour;
-                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", ColourManager.LaserPointerColour);
-                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", ColourManager.LaserPointerColour);
+                if (rend.name.Contains("VRCursor") && LaserPointerColour != Color.clear) {
+                    rend.material.color = LaserPointerColour;
+                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", LaserPointerColour);
+                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", LaserPointerColour);
                 }
                 if (rend.name.Contains("Frame") && platformLight != Color.clear) {
                     rend.material.color = platformLight;
                     if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", platformLight);
                     if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", platformLight);
                 }
-
-                /*ChromaLogger.Log(rend.gameObject.name + " ::: " + rend.name.ToString());
-                if (rend.materials.Length > 0) {
-                    if (Vector3.Distance(rend.transform.position, Vector3.zero) < 4f) {
-                        foreach (Material m in rend.materials) {
-                            ChromaLogger.Log("___" + m.name);
-                        }
-                    }
-                }*/
             }
 
-            ChromaLogger.Log("Colourizing menustuff");
+            //ChromaLogger.Log("Colourizing menustuff");
         }
 
         private static Dictionary<LightWithId, Color> _originalLightColors = new Dictionary<LightWithId, Color>();
@@ -511,50 +481,48 @@ namespace Chroma {
         }
 
         public static void RecolourNeonSign(Color colorA, Color colorB) {
-
-            /*TubeBloomPrePassLight[] _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
-
+            bool Aclear = (colorA == Color.clear);
+            bool Bclear = (colorB == Color.clear);
+            TubeBloomPrePassLight[] _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
             foreach (var prePassLight in _prePassLights) {
-
                 if (prePassLight != null) {
-                    if (prePassLight.name.Contains("NeonLight (6)")) {
-                        if (colorA != Color.clear) prePassLight.color = colorA;
-
-                    }
-                    if (prePassLight.name.Contains("NeonLight (8)")) {
-                        if (prePassLight.gameObject.transform.position.ToString() == "(0.0, 17.2, 24.8)") {
-                            if (colorA != Color.clear) prePassLight.color = colorA;
-                        }
-
-                    }
+                    if (prePassLight.name.Contains("SaberNeon"))
+                        prePassLight.color = Aclear ? new Color(0.188f, 0.62f, 1f, 0.8f) : colorA.ColorWithAlpha(0.8f);
                     if (prePassLight.name.Contains("BATNeon") || prePassLight.name.Contains("ENeon"))
-                        if (colorB != Color.clear) prePassLight.color = colorB;
+                        prePassLight.color = Bclear ? new Color(1f, 0.031f, 0.031f, 1f) : colorB.ColorWithAlpha(1f);
 
                     //    Log($"PrepassLight: {prePassLight.name}");
                 }
-            }*/
-
-            SpriteRenderer[] sprites = Resources.FindObjectsOfTypeAll<SpriteRenderer>();
-            foreach (SpriteRenderer sprite in sprites) {
-                if (sprite != null) {
-                    if (sprite.name == "LogoSABER")
-                        if (colorA != Color.clear) sprite.color = colorA;
-                    if (sprite.name == "LogoBAT" || sprite.name == "LogoE")
-                        if (colorB != Color.clear) sprite.color = colorB;
-                }
-
             }
 
-            TextMeshPro[] tmps = GameObject.FindObjectsOfType<TextMeshPro>();
+            SpriteRenderer[] sprites = Resources.FindObjectsOfTypeAll<SpriteRenderer>();
+            foreach (var sprite in sprites) {
+                if (sprite != null) {
+                    if (sprite.name == "SaberLogo")
+                        sprite.color = Aclear ? new Color(0f, 0.569f, 1f, 1f) : colorA;
+                    if (sprite.name == "BatLogo" || sprite.name == "LogoE")
+                        sprite.color = Bclear ? new Color(1f, 0f, 0f, 1f) : colorB;
+                }
+            }
+
+            FlickeringNeonSign[] _flickers = Resources.FindObjectsOfTypeAll<FlickeringNeonSign>();
+            foreach (var flicker in _flickers) {
+                if (flicker != null) {
+                    flicker.Start();
+                }
+            }
+
+            //not supporting custommenutext until it is revived
+            /*TextMeshPro[] tmps = GameObject.FindObjectsOfType<TextMeshPro>();
             foreach (TextMeshPro tmp in tmps) {
                 if (tmp.gameObject.name == "CustomMenuText") {
                     if (colorB != Color.clear) tmp.color = colorB;
                 } else if (tmp.gameObject.name == "CustomMenuText-Bot") {
                     if (colorA != Color.clear) tmp.color = colorA;
                 }
-            }
-            
-            ChromaLogger.Log("Sign recoloured A:"+colorA.ToString() + " B:"+colorB.ToString());
+            }*/
+
+            //ChromaLogger.Log("Sign recoloured A:"+colorA.ToString() + " B:"+colorB.ToString());
 
         }
 
@@ -565,7 +533,7 @@ namespace Chroma {
 
             try {
 
-                ChromaLogger.Log("Refreshing Lights");
+                //ChromaLogger.Log("Refreshing Lights");
 
                 Color ambientLight = ColourManager.LightAmbient;
                 Color red = ColourManager.A;
@@ -598,37 +566,6 @@ namespace Chroma {
             }
 
         }
-
-        /*public static SimpleColorSO SetupNewLightColourSOs(LightSwitchEventEffect light, String s) {
-            return SetupNewLightColourSOs(light, s, Color.clear);
-        }
-
-        public static SimpleColorSO SetupNewLightColourSOs(LightSwitchEventEffect light, String s, Color overrideMultiplierColour) {
-            MultipliedColorSO mColorSO = light.GetField<MultipliedColorSO>(s);
-            SimpleColorSO baseSO = mColorSO.GetField<SimpleColorSO>("_baseColor");
-            
-            if (overrideMultiplierColour == Color.clear) {
-                mColorSO.SetField("_multiplierColor", mColorSO.GetField<Color>("_multiplierColor"));
-            } else {
-                mColorSO.SetField("_multiplierColor", overrideMultiplierColour);
-            }
-            //mColorSO.SetField("_baseColor", newBaseSO);
-
-            //light.SetField(s, newMColorSO);
-            //if (!light.name.Contains("chroma")) light.name = light.name + "_chroma";
-            return baseSO;
-        }
-
-        public static void SetupAllNewLightColourSOs() {
-            LightSwitchEventEffect[] lights = GetAllLightSwitches();
-            string[] sa = new string[] { "_lightColor0", "_highlightColor0", "_lightColor1", "_highlightColor1" };
-            foreach (LightSwitchEventEffect light in lights) {
-                for (int i = 0; i < sa.Length; i++) {
-                    SetupNewLightColourSOs(light, sa[i]);
-                }
-            }
-        }*/
-
 
         //TODO
         //This shit is messy.  Fix that.

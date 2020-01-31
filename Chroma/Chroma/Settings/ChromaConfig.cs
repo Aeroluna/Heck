@@ -452,12 +452,6 @@ namespace Chroma.Settings {
 
                 waiverRead = ChromaConfig.GetInt("Other", "safetyWaiver", 0) == 51228;
 
-                /*string waiverFilePath = Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/ChromaToggle/waiver_411.txt";
-                if (File.Exists(waiverFilePath)) {
-                    waiverRead = true;
-                    ChromaLogger.Log("Waiver found.");
-                }*/
-
                 ColourManager.RefreshLights();
 
                 if (type == LoadSettingsType.MANUAL) AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");

@@ -136,7 +136,6 @@ namespace Chroma {
                     }
                 } catch (Exception e) {
                     ChromaLogger.Log(e);
-                    ChromaLogger.Log("This plugin requires Harmony.  Either you do not have it installed, or there was an error.", ChromaLogger.Level.ERROR);
                 }
 
                 ChromaLogger.Log("Creating AudioUtil");
@@ -151,9 +150,6 @@ namespace Chroma {
                     ChromaLogger.Log("Error loading Chroma configuration", ChromaLogger.Level.ERROR);
                     throw e;
                 }
-
-                ChromaLogger.Log("Refreshing Lights");
-                ColourManager.RefreshLights();
 
                 //Side panel
                 try {
@@ -178,7 +174,6 @@ namespace Chroma {
 
         private void SceneManagerOnActiveSceneChanged(Scene current, Scene next) {
             ChromaLogger.Log("Scene change " + current.name + " -> " + next.name, ChromaLogger.Level.DEBUG);
-            doRefreshLights = true;
 
             if (current.name == "GameCore") {
                 if (next.name != "GameCore") {
@@ -200,30 +195,19 @@ namespace Chroma {
         }
 
         private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode mode) {
-            if (scene.name == "MenuViewControllers")
-            {
+            if (scene.name == "MenuViewControllers") {
                 ChromaSettingsUI.InitializeMenu();
                 BSMLSettings.instance.AddSettingsMenu("Chroma", "Chroma.Settings.settings.bsml", ChromaSettingsUI.instance);
             }
         }
         
         public void ReleaseInfoEnabled() {
-
             SidePanelUtil.SetPanel(ChromaSettingsUI.floatToPanel((float)ChromaConfig.SidePanel));
             //SidePanelUtil.SetPanel("chroma");
             //SidePanelUtil.SetPanelDirectly(SafetyWaiver.GetSafetyWaiverUIMessage());
         }
 
-        /// <summary>
-        /// Workaround for lights not being loaded in time for scene load methods
-        /// </summary>
-        public bool doRefreshLights = false;
-
         public void OnUpdate() {
-            if (doRefreshLights && SceneManager.GetActiveScene() != null && SceneManager.GetActiveScene().name == "MenuCore") {
-                ColourManager.RefreshLights();
-                doRefreshLights = false;
-            }
 
             if (Input.GetKeyDown(KeyCode.Backslash)) {
                 ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.MANUAL);
@@ -233,7 +217,7 @@ namespace Chroma {
 
                 if (Input.GetKey(KeyCode.Alpha1)) ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
                 else if (Input.GetKey(KeyCode.Alpha2)) ColourManager.RefreshLights();
-                //else if (Input.GetKey(KeyCode.Alpha3)) ChromaTesting.Test();
+                else if (Input.GetKey(KeyCode.Alpha3)) ChromaTesting.Test();
                 else {
 
                     ChromaLogger.Log(" [[ Debug Info ]]");

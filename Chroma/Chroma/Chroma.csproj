@@ -58,6 +58,7 @@
     <Compile Include="ChromaTesting.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
     <Compile Include="Extensions\TubeBloomPrePassLightExtensions.cs" />
+    <Compile Include="HarmonyPatches\MenuLightsManagerSetColorsFromPreset.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromJson.cs" />
     <Compile Include="HarmonyPatches\BeatDataTransformHelperCreateTransformedBeatmapData.cs" />
     <Compile Include="HarmonyPatches\LightPairRotationEventEffectUpdateRotationData.cs" />

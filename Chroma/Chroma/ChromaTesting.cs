@@ -18,17 +18,25 @@ namespace Chroma {
         public static Color lastColour = Color.black;
 
         public static void Test() {
-            if (lse != null) {
-                //Propagation testing
-                //Beatmap.ChromaEvents.RingEvents.RingLightsPropagateColour.Activate(lse, type, UnityEngine.Random.ColorHSV().ColorWithValue(1f), lse, UnityEngine.Random.value * 0.5f);
+            //if (lse != null) {
+            //Propagation testing
+            //Beatmap.ChromaEvents.RingEvents.RingLightsPropagateColour.Activate(lse, type, UnityEngine.Random.ColorHSV().ColorWithValue(1f), lse, UnityEngine.Random.value * 0.5f);
 
-                //Fade testing
-                //Color nextColour = UnityEngine.Random.ColorHSV().ColorWithValue(1f);
-                //Beatmap.ChromaEvents.LightsSmoothTransition.Activate(lse, type, lastColour, nextColour, lse, UnityEngine.Random.value * 3f, 0.1f);
-                //lastColour = nextColour;
+            //Fade testing
+            //Color nextColour = UnityEngine.Random.ColorHSV().ColorWithValue(1f);
+            //Beatmap.ChromaEvents.LightsSmoothTransition.Activate(lse, type, lastColour, nextColour, lse, UnityEngine.Random.value * 3f, 0.1f);
+            //lastColour = nextColour;
 
-                //Total randomization testing
-                //LightsIsolatedTechnicolour.Activate(lse, type, ColourManager.TechnicolourStyle.PURE_RANDOM, true, Time.time);
+            //Total randomization testing
+            //LightsIsolatedTechnicolour.Activate(lse, type, ColourManager.TechnicolourStyle.PURE_RANDOM, true, Time.time);
+            //}
+            SpriteRenderer[] sprites = Resources.FindObjectsOfTypeAll<SpriteRenderer>();
+            foreach (SpriteRenderer sprite in sprites)
+            {
+                if (sprite != null)
+                {
+                    ChromaLogger.Log(sprite.name + sprite.color.ToString());
+                }
             }
         }
 

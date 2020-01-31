@@ -2,7 +2,7 @@
     "$schema": "./Schema.json",
     "author": "SkyKiwi",
     "description": "RGB Lightmapping, custom colours, and rainbow modes",
-    "gameVersion": "1.6.0",
+    "gameVersion": "1.7.0",
     "id": "Chroma",
     "name": "Chroma",
     "version": "1.3.6",

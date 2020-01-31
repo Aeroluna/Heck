@@ -18,12 +18,11 @@ namespace Chroma {
             INFO = 2,
             WARNING = 4,
             ERROR = 8,
-            NEVER = 16
+            NEVER = 255
         }
 
         public static IPALogger logger;
 
-        public static Level LogLevel { get; set; } = Level.WARNING;
         public static Level SoundLevel { get; set; } = Level.NEVER;
 
         public static void Log(Exception e, Level level = Level.ERROR, bool sound = true,

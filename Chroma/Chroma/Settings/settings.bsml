@@ -6,7 +6,6 @@
       <bool-setting text='Enabled Map Checking' value='custommapchecking' hover-hint='If false, Chroma and its extensions will not check for special maps.  Recommended to leave on.'></bool-setting>
       <list-setting text='Chroma Sounds Volume' value='mastervolume' choices='mastervolumechoices' hover-hint='Master volume control for sounds made by Chroma' formatter='percent'></list-setting>
       <bool-setting text='Debug Mode' value='debugmode' hover-hint='Very performance heavy - only do this if you are bug chasing.'></bool-setting>
-      <list-setting text='Logging Level' value='loggerlevel' choices='loggerlevelchoices' hover-hint='The further to the left this is, the more will be logged.'></list-setting>
       <string-setting text='Secrets' value='secrets' hover-hint='What could it mean?!?!'></string-setting>
     </scrollable-settings-container>
   </settings-submenu>

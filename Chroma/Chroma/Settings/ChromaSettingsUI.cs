@@ -145,15 +145,6 @@ namespace Chroma.Settings {
             }
         }
 
-        [UIValue("loggerlevel")]
-        public int LogLevel {
-            get => ChromaConfig.GetInt("Logger", "loggerLevel", 2);
-            set {
-                ChromaConfig.SetInt("Logger", "loggerLevel", value);
-                ChromaLogger.LogLevel = (ChromaLogger.Level)value;
-            }
-        }
-
         [UIValue("secrets")]
         /// <summary>
         /// Required for any features that may cause dizziness, disorientation, nausea, seizures, or other forms of discomfort.
@@ -200,7 +191,7 @@ namespace Chroma.Settings {
             set {
                 ColourManager.SignB = value.color;
                 ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
-                ChromaConfig.SetString("Aesthetics", "signcolourB", value.name);
+                ChromaConfig.SetString("Aesthetics", "signColourB", value.name);
             }
         }
 
@@ -208,7 +199,7 @@ namespace Chroma.Settings {
         public NamedColor NeonSignBottom {
             get => stringToColour(ChromaConfig.GetString("Aesthetics", "signColourA", "DEFAULT"));
             set {
-                ColourManager.SignB = value.color;
+                ColourManager.SignA = value.color;
                 ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
                 ChromaConfig.SetString("Aesthetics", "signColourA", value.name);
             }
