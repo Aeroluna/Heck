@@ -256,6 +256,17 @@ namespace Chroma.Settings {
         }
         private static TechnicolourWallStyle technicolourWallsStyle = TechnicolourWallStyle.OFF;
 
+        public static TechnicolourWallStyle TechnicolourBombsStyle {
+            get {
+                return technicolourBombsStyle;
+            }
+            set {
+                technicolourBombsStyle = value;
+                ChromaConfig.SetInt("Technicolour", "technicolourBombsStyle", (int)technicolourBombsStyle);
+            }
+        }
+        private static TechnicolourWallStyle technicolourBombsStyle = TechnicolourWallStyle.OFF;
+
         public static bool MatchTechnicolourSabers {
             get { return matchTechnicolourSabers; }
             set {
@@ -374,6 +385,7 @@ namespace Chroma.Settings {
                     technicolourSabersStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourSabersStyle", 0);
                     technicolourBlocksStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourBlocksStyle", 0);
                     technicolourWallsStyle = (TechnicolourWallStyle)ChromaConfig.GetInt("Technicolour", "technicolourWallsStyle", 0);
+                    technicolourBombsStyle = (TechnicolourWallStyle)ChromaConfig.GetInt("Technicolour", "technicolourBombsStyle", 0);
                     matchTechnicolourSabers = ChromaConfig.GetBool("Technicolour", "matchTechnicolourSabers", false);
                 }
 

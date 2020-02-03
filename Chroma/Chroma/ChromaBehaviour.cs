@@ -113,7 +113,10 @@ namespace Chroma {
             }
             if (scoreController != null) scoreController.comboDidChangeEvent -= ComboChangedEvent;
 
-            ObstacleControllerInit.defaultObstacleColor = null;
+            ObstacleControllerInit.defaultObstacleColour = null;
+            ChromaNoteScaleEvent.NoteScales.Clear();
+            ChromaObstacleColourEvent.CustomObstacleColours.Clear();
+            ChromaBombColourEvent.CustomBombColours.Clear();
 
             Beatmap.ChromaEvents.MayhemEvent.manager = null;
         }
@@ -223,6 +226,9 @@ namespace Chroma {
                         break;
                     case "_noteScale":
                         ChromaNoteScaleEvent.Activate(n.Value);
+                        break;
+                    case "_bombColor":
+                        ChromaBombColourEvent.Activate(n.Value);
                         break;
                 }
             }

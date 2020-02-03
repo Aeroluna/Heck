@@ -16,7 +16,6 @@ namespace Chroma.Beatmap.Events {
 
         // Creates dictionary loaded with all _noteScale custom events and indexs them with the event's time
         public static void Activate(List<CustomEventData> eventData) {
-            NoteScales.Clear();
             if (!ChromaUtils.CheckSpecialEventRequirement()) return;
             foreach (CustomEventData d in eventData) {
                 try {
@@ -30,6 +29,7 @@ namespace Chroma.Beatmap.Events {
                     ChromaLogger.Log(e);
                 }
             }
+            ChromaLogger.Log("CREATED:" + NoteScales.Count);
         }
     }
 

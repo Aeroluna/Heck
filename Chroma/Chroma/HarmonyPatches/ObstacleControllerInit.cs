@@ -19,20 +19,20 @@ namespace Chroma.HarmonyPatches {
     [HarmonyPatch("Init")]
     class ObstacleControllerInit {
 
-        internal static Color? defaultObstacleColor;
-        public static void Prefix(ref SimpleColorSO ____color, ref ObstacleData obstacleData) {
+        internal static Color? defaultObstacleColour;
+        static void Prefix(ObstacleController __instance, ref SimpleColorSO ____color, ref ObstacleData obstacleData) {
             // Technicolour
             if (ColourManager.TechnicolourBarriers && ((int)ChromaConfig.TechnicolourWallsStyle == 2)) {
-                ColourManager.BarrierColour = ColourManager.GetTechnicolour(true, Time.time, ColourManager.TechnicolourStyle.PURE_RANDOM);
+                ColourManager.BarrierColour = ColourManager.GetTechnicolour(true, Time.time + __instance.GetInstanceID(), ColourManager.TechnicolourStyle.PURE_RANDOM);
             }
 
             // Save the _obstacleColor in case BarrierColor goes to Color.clear
-            if (defaultObstacleColor == null) defaultObstacleColor = Resources.FindObjectsOfTypeAll<ColorManager>().First().GetPrivateField<SimpleColorSO>("_obstaclesColor").color;
-            Color c = ColourManager.BarrierColour == Color.clear ? defaultObstacleColor.Value : ColourManager.BarrierColour;
+            if (defaultObstacleColour == null) defaultObstacleColour = Resources.FindObjectsOfTypeAll<ColorManager>().First().GetPrivateField<SimpleColorSO>("_obstaclesColor").color;
+            Color c = ColourManager.BarrierColour == Color.clear ? defaultObstacleColour.Value : ColourManager.BarrierColour;
 
-            // CustomObstacleColors
-            if (ChromaObstacleColourEvent.CustomObstacleColors.Count > 0) {
-                foreach (KeyValuePair<float, Color> d in ChromaObstacleColourEvent.CustomObstacleColors) {
+            // CustomObstacleColours
+            if (ChromaObstacleColourEvent.CustomObstacleColours.Count > 0) {
+                foreach (KeyValuePair<float, Color> d in ChromaObstacleColourEvent.CustomObstacleColours) {
                     if (d.Key <= obstacleData.time) c = d.Value;
                 }
             }

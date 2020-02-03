@@ -10,13 +10,13 @@ using Chroma.Utils;
 
 namespace Chroma.Beatmap.Events {
 
-    class ChromaObstacleColourEvent {
+    class ChromaBombColourEvent {
 
-        public static Dictionary<float, Color> CustomObstacleColours = new Dictionary<float, Color>();
+        public static Dictionary<float, Color> CustomBombColours = new Dictionary<float, Color>();
         
-        // Creates dictionary loaded with all _obstacleColor custom events and indexs them with the event's time
+        // Creates dictionary loaded with all _bombColor custom events and indexs them with the event's time
         public static void Activate(List<CustomEventData> eventData) {
-            if (!ChromaUtils.CheckSpecialEventRequirement()) return;
+            if (!ChromaUtils.CheckLightingEventRequirement()) return;
             foreach (CustomEventData d in eventData) {
                 try {
                     dynamic dynData = d.data;
@@ -24,8 +24,8 @@ namespace Chroma.Beatmap.Events {
                     float g = (float)Trees.at(dynData, "g");
                     float b = (float)Trees.at(dynData, "b");
                     Color c = new Color(r, g, b);
-                    CustomObstacleColours.Add(d.time, c);
-                    //ChromaLogger.Log("Global barrier colour registered: " + c.ToString());
+                    CustomBombColours.Add(d.time, c);
+                    //ChromaLogger.Log("Global bomb colour registered: " + c.ToString());
                 }
                 catch (Exception e) {
                     ChromaLogger.Log("INVALID CUSTOM EVENT", ChromaLogger.Level.WARNING);

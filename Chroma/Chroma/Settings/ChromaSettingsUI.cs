@@ -34,6 +34,9 @@ namespace Chroma.Settings {
         [UIValue("techbarrierschoices")]
         private List<object> _techbarrierschoices = (new object[] { TechnicolourWallStyle.OFF, TechnicolourWallStyle.GRADIENT, TechnicolourWallStyle.PURE_RANDOM }).ToList();
 
+        [UIValue("techbombschoices")]
+        private List<object> _techbombschoices = (new object[] { TechnicolourWallStyle.OFF, TechnicolourWallStyle.PURE_RANDOM }).ToList();
+
         [UIValue("lightsgroupchoices")]
         private List<object> _lightsgroupChoices = ChromaConfig.WaiverRead ? new List<object>() { TechnicolourLightsGrouping.STANDARD, TechnicolourLightsGrouping.ISOLATED_GROUP, TechnicolourLightsGrouping.ISOLATED }
             : new List<object>() { TechnicolourLightsGrouping.STANDARD, TechnicolourLightsGrouping.ISOLATED_GROUP };
@@ -297,6 +300,14 @@ namespace Chroma.Settings {
             get => ChromaConfig.TechnicolourWallsStyle;
             set {
                 ChromaConfig.TechnicolourWallsStyle = value;
+            }
+        }
+
+        [UIValue("techbombs")]
+        public TechnicolourWallStyle TechnicolourBombsStyle {
+            get => ChromaConfig.TechnicolourBombsStyle;
+            set {
+                ChromaConfig.TechnicolourBombsStyle = value;
             }
         }
 

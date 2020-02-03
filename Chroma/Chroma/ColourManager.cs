@@ -118,6 +118,10 @@ namespace Chroma {
             get { return ChromaConfig.TechnicolourEnabled && ChromaConfig.TechnicolourWallsStyle != TechnicolourWallStyle.OFF; }
         }
 
+        public static bool TechnicolourBombs {
+            get { return ChromaConfig.TechnicolourEnabled && ChromaConfig.TechnicolourBombsStyle != TechnicolourWallStyle.OFF; }
+        }
+
         public static Color GetTechnicolour(NoteData noteData, TechnicolourStyle style) {
             return GetTechnicolour(noteData.noteType == NoteType.NoteA, noteData.time + noteData.lineIndex + (int)noteData.noteLineLayer, style);
         }
