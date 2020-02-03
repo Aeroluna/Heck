@@ -9,7 +9,7 @@ namespace Chroma.Misc {
 
     public static class NoteScaling {
 
-        public delegate void HandleNoteScalingDelegate(ref NoteData note, ref float scale);
+        /*public delegate void HandleNoteScalingDelegate(ref NoteData note, ref float scale);
         public static event HandleNoteScalingDelegate HandleNoteScalingEvent;
 
         public static float GetNoteScale(NoteData note) {
@@ -21,7 +21,7 @@ namespace Chroma.Misc {
                 ChromaLogger.Log(e);
                 return 1;
             }
-        }
+        }*/
 
     }
 

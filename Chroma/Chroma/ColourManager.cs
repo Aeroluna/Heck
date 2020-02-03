@@ -322,13 +322,16 @@ namespace Chroma {
         }
 
         public static LightSwitchEventEffect[] GetAllLightSwitches() {
-            return Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>();
+            if (_lightSwitches == null) _lightSwitches = Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>();
+            return _lightSwitches;
         }
+        private static LightSwitchEventEffect[] _lightSwitches = null;
 
-        public static ParticleSystemEventEffect[] GetAllParticleSystems()
-        {
-            return Resources.FindObjectsOfTypeAll<ParticleSystemEventEffect>();
+        public static ParticleSystemEventEffect[] GetAllParticleSystems() {
+            if (_particleSystems == null) _particleSystems = Resources.FindObjectsOfTypeAll<ParticleSystemEventEffect>();
+            return _particleSystems;
         }
+        private static ParticleSystemEventEffect[] _particleSystems = null;
 
 
         public static void ResetAllLights() {
@@ -336,6 +339,8 @@ namespace Chroma {
             foreach (LightSwitchEventEffect light in lights) light.Reset();
             ParticleSystemEventEffect[] particles = GetAllParticleSystems();
             foreach (ParticleSystemEventEffect particle in particles) particle.Reset();
+            _lightSwitches = null;
+            _particleSystems = null;
         }
 
         public static void RecolourAllLights(Color red, Color blue) {

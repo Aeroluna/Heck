@@ -9,6 +9,7 @@ using UnityEngine;
 using Chroma.Settings;
 
 namespace Chroma.Beatmap.Events {
+
     class ChromaObstacleColorEvent {
 
         public static Dictionary<float, Color> CustomObstacleColors = new Dictionary<float, Color>();

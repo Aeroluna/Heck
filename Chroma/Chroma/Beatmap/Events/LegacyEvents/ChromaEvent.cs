@@ -47,7 +47,6 @@ namespace Chroma.Beatmap.Events {
             chromaEvents.Clear();
 
             ChromaBarrierColourEvent.Clear();
-            ChromaNoteScaleEvent.Clear();
         }
 
         public static ChromaEvent SetChromaEvent(BeatmapEventData lightEvent, ChromaEvent chromaEvent) {

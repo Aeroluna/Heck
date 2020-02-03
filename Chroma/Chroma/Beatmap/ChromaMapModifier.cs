@@ -239,9 +239,9 @@ namespace Chroma.Beatmap {
                     /*
                      * 
                      */
-                    case ChromaEvent.CHROMA_EVENT_SCALE: //1,950,000,001 = 1950000001 = Note Scale Event
+                    /*case ChromaEvent.CHROMA_EVENT_SCALE: //1,950,000,001 = 1950000001 = Note Scale Event
                         unfilledColourEvent = new ChromaNoteScaleEvent(bev);
-                        return null;
+                        return null;*/
                     case ChromaEvent.CHROMA_EVENT_HEALTH: //1,950,000,002 = 1950000002 = Health Event
                         unfilledColourEvent = new ChromaHealthEvent(bev);
                         return null;

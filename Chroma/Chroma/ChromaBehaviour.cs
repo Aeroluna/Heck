@@ -156,7 +156,6 @@ namespace Chroma {
                 }
             }
 
-            //yield return new WaitForSeconds(5f);
             IsLoadingSong = false;
         }
 
@@ -170,15 +169,9 @@ namespace Chroma {
 
         private void GCSSFound(Scene scene, BeatmapObjectCallbackController gcss) {
             ChromaLogger.Log("Found BOCC!", ChromaLogger.Level.DEBUG);
-            //Plugin.PlayReloadSound();
 
             _playerController = FindObjectOfType<PlayerController>();
             if (_playerController == null) ChromaLogger.Log("Player Controller not found!", ChromaLogger.Level.WARNING);
-
-            /*if (!SceneUtils.IsTargetGameScene(scene.buildIndex)) {
-                ChromaLogger.Log("Somehow we got to the point where we override a map, while not playing a map.  How did this happen?", ChromaLogger.Level.WARNING);
-                return;
-            }*/
 
             if (gcss == null) {
                 ChromaLogger.Log("Failed to obtain MainGameSceneSetup", ChromaLogger.Level.WARNING);
@@ -224,8 +217,13 @@ namespace Chroma {
             // Custom Events
             Dictionary<string, List<CustomEventData>> _customEventData = ((CustomBeatmapData)_beatmapData).customEventData;
             foreach (KeyValuePair<string, List<CustomEventData>> n in _customEventData) {
-                if (n.Key == "_obstacleColor") {
-                    ChromaObstacleColorEvent.Activate(n.Value);
+                switch (n.Key) {
+                    case "_obstacleColor":
+                        ChromaObstacleColorEvent.Activate(n.Value);
+                        break;
+                    case "_noteScale":
+                        ChromaNoteScaleEvent.Activate(n.Value);
+                        break;
                 }
             }
 

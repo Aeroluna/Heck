@@ -44,7 +44,7 @@
     <Compile Include="Beatmap\CustomBeatmapObject.cs" />
     <Compile Include="Beatmap\Events\ChromaObstacleColorEvent.cs" />
     <Compile Include="Beatmap\Events\LegacyEvents\ChromaRotateEvent.cs" />
-    <Compile Include="Beatmap\Events\LegacyEvents\ChromaNoteScaleEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaNoteScaleEvent.cs" />
     <Compile Include="Beatmap\Events\LegacyEvents\ChromaLightEvent.cs" />
     <Compile Include="Beatmap\Events\LegacyEvents\ChromaHealthEvent.cs" />
     <Compile Include="Beatmap\Events\LegacyEvents\ChromaColourEvent.cs" />

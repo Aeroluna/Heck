@@ -72,32 +72,19 @@ namespace Chroma.HarmonyPatches {
                 if (ColourManager.TechnicolourLights && (int)____event <= 4) { //0-4 are actual lighting events, we don't want to bother with anything else like ring spins or custom events
                                                                                //System.Random noteRandom = new System.Random(Mathf.FloorToInt(beatmapEventData.time * 408));
                     if (techniLightRandom.NextDouble() < ChromaConfig.TechnicolourLightsFrequency) {
-                        if (beatmapEventData.value != 0) {
-                            if (beatmapEventData.value <= 3) { //Blue events are 1, 2 and 3
-                                switch (ChromaConfig.TechnicolourLightsGrouping) {
-                                    case ColourManager.TechnicolourLightsGrouping.ISOLATED:
-                                        MayhemEvent.ActivateTechnicolour(beatmapEventData, __instance);
-                                        return false;
-                                    case ColourManager.TechnicolourLightsGrouping.ISOLATED_GROUP:
-                                        __instance.SetLightingColourB(ColourManager.GetTechnicolour(false, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
-                                        break;
-                                    default:
-                                        ColourManager.RecolourAllLights(Color.clear, ColourManager.GetTechnicolour(false, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
-                                        break;
-                                }
-                            }
-                            else if (beatmapEventData.value <= 7) {
-                                switch (ChromaConfig.TechnicolourLightsGrouping) {
-                                    case ColourManager.TechnicolourLightsGrouping.ISOLATED:
-                                        MayhemEvent.ActivateTechnicolour(beatmapEventData, __instance);
-                                        return false;
-                                    case ColourManager.TechnicolourLightsGrouping.ISOLATED_GROUP:
-                                        __instance.SetLightingColourA(ColourManager.GetTechnicolour(true, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
-                                        break;
-                                    default:
-                                        ColourManager.RecolourAllLights(ColourManager.GetTechnicolour(true, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle), Color.clear);
-                                        break;
-                                }
+                        if (beatmapEventData.value > 0 && beatmapEventData.value <= 7) {
+                            bool blue = beatmapEventData.value <= 3; //Blue events are 1, 2 and 3
+                            switch (ChromaConfig.TechnicolourLightsGrouping) {
+                                case ColourManager.TechnicolourLightsGrouping.ISOLATED:
+                                    MayhemEvent.ActivateTechnicolour(beatmapEventData, __instance);
+                                    return false;
+                                case ColourManager.TechnicolourLightsGrouping.ISOLATED_GROUP:
+                                    __instance.SetLightingColourA(ColourManager.GetTechnicolour(!blue, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
+                                    break;
+                                default:
+                                    Color c = ColourManager.GetTechnicolour(!blue, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle);
+                                    ColourManager.RecolourAllLights(blue ? Color.clear : c, blue ? c : Color.clear);
+                                    break;
                             }
                         }
                     }
