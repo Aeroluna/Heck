@@ -29,7 +29,7 @@ namespace Chroma.VFX {
         void Init() {
             if (IsRainbowWalls()) {
                 StartCoroutine(RainbowWalls());
-                ChromaLogger.Log("Gradient Walls!", ChromaLogger.Level.DEBUG);
+                //ChromaLogger.Log("Gradient Walls!", ChromaLogger.Level.DEBUG);
             }
         }
 

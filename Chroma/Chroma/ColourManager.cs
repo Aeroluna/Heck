@@ -513,6 +513,9 @@ namespace Chroma {
             try {
 
                 //ChromaLogger.Log("Refreshing Lights");
+                ColourManager.BarrierColour = Color.clear;
+                ColourManager.A = Color.clear;
+                ColourManager.B = Color.clear;
 
                 Color ambientLight = ColourManager.LightAmbient;
                 Color red = ColourManager.A;

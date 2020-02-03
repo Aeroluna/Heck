@@ -42,15 +42,16 @@
     <Compile Include="Beatmap\CustomBeatmapBomb.cs" />
     <Compile Include="Beatmap\CustomBeatmapNote.cs" />
     <Compile Include="Beatmap\CustomBeatmapObject.cs" />
-    <Compile Include="Beatmap\Events\ChromaRotateEvent.cs" />
-    <Compile Include="Beatmap\Events\ChromaNoteScaleEvent.cs" />
-    <Compile Include="Beatmap\Events\ChromaLightEvent.cs" />
-    <Compile Include="Beatmap\Events\ChromaHealthEvent.cs" />
-    <Compile Include="Beatmap\Events\ChromaColourEvent.cs" />
-    <Compile Include="Beatmap\Events\ChromaChanceEvent.cs" />
-    <Compile Include="Beatmap\Events\ChromaBarrierColourEvent.cs" />
-    <Compile Include="Beatmap\Events\ChromaAmbientLightEvent.cs" />
-    <Compile Include="Beatmap\Events\ChromaEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaObstacleColorEvent.cs" />
+    <Compile Include="Beatmap\Events\LegacyEvents\ChromaRotateEvent.cs" />
+    <Compile Include="Beatmap\Events\LegacyEvents\ChromaNoteScaleEvent.cs" />
+    <Compile Include="Beatmap\Events\LegacyEvents\ChromaLightEvent.cs" />
+    <Compile Include="Beatmap\Events\LegacyEvents\ChromaHealthEvent.cs" />
+    <Compile Include="Beatmap\Events\LegacyEvents\ChromaColourEvent.cs" />
+    <Compile Include="Beatmap\Events\LegacyEvents\ChromaChanceEvent.cs" />
+    <Compile Include="Beatmap\Events\LegacyEvents\ChromaBarrierColourEvent.cs" />
+    <Compile Include="Beatmap\Events\LegacyEvents\ChromaAmbientLightEvent.cs" />
+    <Compile Include="Beatmap\Events\LegacyEvents\ChromaEvent.cs" />
     <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingPropagationEvent.cs" />
     <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingSpeedEvent.cs" />
     <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingStepEvent.cs" />
@@ -138,6 +139,9 @@
     <Reference Include="BS_Utils">
       <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BS_Utils.dll</HintPath>
     </Reference>
+    <Reference Include="CustomEvents">
+      <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\CustomEvents.dll</HintPath>
+    </Reference>
     <Reference Include="CustomJSONData">
       <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\CustomJSONData.dll</HintPath>
     </Reference>
@@ -152,9 +156,6 @@
     </Reference>
     <Reference Include="MainAssembly">
       <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\MainAssembly.dll</HintPath>
-    </Reference>
-    <Reference Include="MappingExtensions">
-      <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\MappingExtensions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json.12.0.0.0">

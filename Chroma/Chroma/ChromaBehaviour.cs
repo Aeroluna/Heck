@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using IPA.Utilities;
+using Chroma.Beatmap.Events;
+using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
 
 namespace Chroma {
 
@@ -112,6 +115,8 @@ namespace Chroma {
                 beatmapObjectSpawnController.noteWasMissedEvent -= HandleNoteWasMissedEvent;
             }
             if (scoreController != null) scoreController.comboDidChangeEvent -= ComboChangedEvent;
+
+            ObstacleControllerInit.defaultObstacleColor = null;
         }
 
         void Start() {
@@ -191,11 +196,10 @@ namespace Chroma {
 
             //Map
 
-            BeatmapData _beatmapDataModel = gcss.GetPrivateField<BeatmapData>("_beatmapData");
-            if (_beatmapDataModel == null) ChromaLogger.Log("{XXX} : NULL BEATMAP DATA", ChromaLogger.Level.ERROR);
-            //if (_beatmapDataModel.beatmapData == null) ChromaLogger.Log("{XXX} : NULL BEATMAP DATA MODEL BEATMAP DATA", ChromaLogger.Level.ERROR);
+            BeatmapData _beatmapData = gcss.GetPrivateField<BeatmapData>("_beatmapData");
+            if (_beatmapData == null) ChromaLogger.Log("{XXX} : NULL BEATMAP DATA", ChromaLogger.Level.ERROR);
             //BeatmapData beatmapData = CreateTransformedBeatmapData(mgData.difficultyLevel.beatmapData, mgData.gameplayOptions, mgData.gameplayMode);
-            BeatmapData beatmapData = CreateTransformedBeatmapData(_beatmapDataModel, playerSettings, BaseGameMode.CurrentBaseGameMode);
+            BeatmapData beatmapData = CreateTransformedBeatmapData(_beatmapData, playerSettings, BaseGameMode.CurrentBaseGameMode);
             if (beatmapData != null) {
                 gcss.SetPrivateField("_beatmapData", beatmapData);
             }
@@ -210,8 +214,6 @@ namespace Chroma {
                 ChromaLogger.Log("Gamemode: " + BaseGameMode.CurrentBaseGameMode.ToString() + " -- Party: "+BaseGameMode.PartyMode, ChromaLogger.Level.DEBUG);
             }
 
-            //ChromaLogger.Log("Modify Sabers was called", ChromaLogger.Level.DEBUG);
-
             ColourManager.RefreshLights();
 
             if (ChromaConfig.LightshowModifier) {
@@ -220,6 +222,19 @@ namespace Chroma {
                 }
             }
 
+            // Custom Events
+            Dictionary<string, List<CustomEventData>> _customEventData = ((CustomBeatmapData)_beatmapData).customEventData;
+            foreach (KeyValuePair<string, List<CustomEventData>> n in _customEventData) {
+                if (n.Key == "_obstacleColor") {
+                    ChromaObstacleColorEvent.Activate(n.Value);
+                }
+            }
+
+            // Custom Events subscriptions
+            CustomEvents.CustomEventCallbackController cecc = gcss.GetComponentInParent<CustomEvents.CustomEventCallbackController>();
+            if (ChromaConfig.CustomColourEventsEnabled) {
+                //cecc.AddCustomEventCallback(ChromaObstacleColor.Activate, "_obstacleColor", 0);
+            }
         }
 
         private BeatmapData CreateTransformedBeatmapData(BeatmapData beatmapData, PlayerSpecificSettings playerSettings, BaseGameModeType baseGameMode) {
