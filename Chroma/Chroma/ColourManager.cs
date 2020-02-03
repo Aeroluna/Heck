@@ -341,10 +341,6 @@ namespace Chroma {
         public static void RecolourAllLights(Color red, Color blue) {
             MonoBehaviour[] lights = GetAllLightSwitches();
             RecolourLights(ref lights, red, blue);
-        }
-
-        public static void RecolourAllParticles(Color red, Color blue)
-        {
             MonoBehaviour[] particles = GetAllParticleSystems();
             RecolourLights(ref particles, red, blue);
         }

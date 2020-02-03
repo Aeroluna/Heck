@@ -25,8 +25,8 @@ namespace Chroma {
             set {
                 if (value)
                 {
-                    //ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
                     LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
+                    ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
                 }
                 isLoadingSong = value;
             }
