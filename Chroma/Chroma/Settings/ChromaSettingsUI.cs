@@ -163,7 +163,7 @@ namespace Chroma.Settings {
         /// Required for any features that may cause dizziness, disorientation, nausea, seizures, or other forms of discomfort.
         /// </summary>
         public string Secrets {
-            get => secret;
+            get => "";
             set {
                 if (value.ToUpper() == "SAFETYHAZARD") {
                     ChromaConfig.WaiverRead = true;
@@ -172,10 +172,8 @@ namespace Chroma.Settings {
                 else if (value.ToUpper() == "CREDITS") {
                     AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");
                 }
-                secret = value;
             }
         }
-        private static string secret = "";
 
         #endregion
 

@@ -11,11 +11,10 @@ using Chroma.Settings;
 namespace Chroma.Beatmap.Events {
     class ChromaObstacleColorEvent {
 
-        public static Action<List<CustomEventData>> Activate = Active;
         public static Dictionary<float, Color> CustomObstacleColors = new Dictionary<float, Color>();
         
         // Creates dictionary loaded with all _obstacleColor custom events and indexs them with the event's time
-        public static void Active(List<CustomEventData> eventData) {
+        public static void Activate(List<CustomEventData> eventData) {
             CustomObstacleColors.Clear();
             if (!ChromaConfig.CustomColourEventsEnabled) return;
             foreach (CustomEventData d in eventData) {

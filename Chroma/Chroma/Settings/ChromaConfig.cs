@@ -370,7 +370,6 @@ namespace Chroma.Settings {
                     technicolourLightsStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourLightsStyle", 1);
                     //technicolourLightsIndividual = GetBool("Technicolour", "technicolourLightsIndividual", technicolourLightsIndividual);
                     technicolourLightsGrouping = (TechnicolourLightsGrouping)ChromaConfig.GetInt("Technicolour", "technicolourLightsGrouping", 1);
-                    if (technicolourLightsGrouping == TechnicolourLightsGrouping.ISOLATED) TechnicolourLightsGrouping = TechnicolourLightsGrouping.ISOLATED_GROUP;
                     technicolourLightsFrequency = GetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
                     technicolourSabersStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourSabersStyle", 0);
                     technicolourBlocksStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourBlocksStyle", 0);

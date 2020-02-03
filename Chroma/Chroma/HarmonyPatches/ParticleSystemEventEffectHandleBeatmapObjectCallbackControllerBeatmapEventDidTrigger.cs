@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Chroma.HarmonyPatches {
-
+    /*
     [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(ParticleSystemEventEffect))]
     [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
@@ -33,9 +33,6 @@ namespace Chroma.HarmonyPatches {
         //2 = blue flash, 6 = red flash
         //3 = blue fade, 7 = red fade
         static bool Prefix(ParticleSystemEventEffect __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____colorEvent) {
-
-            //if (beatmapEventData.value == ChromaJSONEventData.GLOBAL_DO_NOTHING_VALUE) return false;
-
             try {
 
                 if (beatmapEventData.type == ____colorEvent) {
@@ -55,7 +52,7 @@ namespace Chroma.HarmonyPatches {
                             {
                                 LightWithId[][] lights = __instance.GetLightsPropagationGrouped();
                                 if (lights.Length > propID) SetOverrideLightWithIds(lights[(int)propID]);
-                            }*/
+                            }*//*
                         }
                     }
                 }
@@ -76,7 +73,7 @@ namespace Chroma.HarmonyPatches {
                                 /*case ColourManager.TechnicolourLightsGrouping.ISOLATED:
                                     //LightsIsolatedTechnicolour.Activate(__instance, ____event, ChromaConfig.TechnicolourLightsStyle, false, beatmapEventData.time);
                                     MayhemEvent.ActivateTechnicolour(beatmapEventData, __instance, ____event);
-                                    return false;*/
+                                    return false;*//*
                                 case ColourManager.TechnicolourLightsGrouping.ISOLATED_GROUP:
                                     __instance.SetLightingColourB(ColourManager.GetTechnicolour(false, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
                                     break;
@@ -89,7 +86,7 @@ namespace Chroma.HarmonyPatches {
                                 /*case ColourManager.TechnicolourLightsGrouping.ISOLATED:
                                     //LightsIsolatedTechnicolour.Activate(__instance, ____event, ChromaConfig.TechnicolourLightsStyle, true, beatmapEventData.time);
                                     MayhemEvent.ActivateTechnicolour(beatmapEventData, __instance, ____event);
-                                    return false;*/
+                                    return false;*//*
                                 case ColourManager.TechnicolourLightsGrouping.ISOLATED_GROUP:
                                     __instance.SetLightingColourA(ColourManager.GetTechnicolour(true, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
                                     break;
@@ -112,7 +109,6 @@ namespace Chroma.HarmonyPatches {
                 if (ChromaEvent.SimpleEventActivate(__instance, ref beatmapEventData, ref ____colorEvent)) return false;
 
                 if (beatmapEventData.type == ____colorEvent) {
-                    //CustomLightBehaviour customLight = CustomLightBehaviour.GetCustomLightColour(beatmapEventData);
                     ChromaEvent customEvent = ChromaEvent.GetChromaEvent(beatmapEventData);
                     if (customEvent != null) {
                         if (customEvent.RequiresColourEventsEnabled && !ChromaConfig.CustomColourEventsEnabled) return false;
@@ -121,11 +117,6 @@ namespace Chroma.HarmonyPatches {
                         customEvent.Activate(ref __monobehaviour, ref beatmapEventData, ref ____colorEvent);
                         return false;
                     }
-
-                    /*ChromaJSONEventData chromaEvent = ChromaJSONEventData.GetChromaEvent(beatmapEventData);
-                    if (chromaEvent != null) {
-                        chromaEvent.Activate(beatmapEventData, __instance, ____event);
-                    }*/
                 }
 
             } catch (Exception e) {
@@ -136,6 +127,6 @@ namespace Chroma.HarmonyPatches {
             return true;
         }
 
-    }
+    }*/
 
 }

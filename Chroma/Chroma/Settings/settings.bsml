@@ -10,17 +10,17 @@
     </scrollable-settings-container>
   </settings-submenu>
   <settings-submenu text='Aesthetics'>
-    <scrollable-settings-container>
+    <settings-container>
       <clickable-text text='Back' click-event='back'></clickable-text>
       <dropdown-list-setting text='Neon Sign Top' value='signcolourb' formatter='colourformat' options='colours'></dropdown-list-setting>
       <dropdown-list-setting text='Neon Sign Bottom' value='signcoloura' formatter='colourformat' options='colours'></dropdown-list-setting>
       <dropdown-list-setting text='Laser Pointer' value='laserpointercolour' formatter='colourformat' options='colours'></dropdown-list-setting>
       <dropdown-list-setting text='Platform Accoutrements' value='platformaccoutrements' formatter='colourformat' options='colours'></dropdown-list-setting>
-    </scrollable-settings-container>
+    </settings-container>
   </settings-submenu>
   <settings-submenu text='Events'>
     <settings-container>
-    <clickable-text text='Back' click-event='back'></clickable-text>
+      <clickable-text text='Back' click-event='back'></clickable-text>
       <bool-setting text='No Notes' value='lightshowonly' hover-hint='Disables all notes and sabers, allowing you to view the lightshow! (Will keep obstacles)'></bool-setting>
       <bool-setting text='RGB Lights' value='rgbevents' hover-hint='Enable/Disable RGB lighting events.'></bool-setting>
       <bool-setting text='Special Events' value='specialevents' hover-hint='Enable/Disable Special Events, such as note size changing, player heal/harm events, and rotation events.'></bool-setting>

@@ -351,7 +351,7 @@ namespace Chroma {
 
         public static void RecolourLights(ref MonoBehaviour[] lights, Color red, Color blue) {
             for (int i = 0; i < lights.Length; i++) {
-                RecolourLight(ref lights[i], red, blue);
+                lights[i].SetLightingColours(red, blue);
             }
         }
 

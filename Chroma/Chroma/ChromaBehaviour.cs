@@ -25,7 +25,7 @@ namespace Chroma {
             set {
                 if (value)
                 {
-                    ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
+                    //ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
                     LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
                 }
                 isLoadingSong = value;
@@ -81,9 +81,6 @@ namespace Chroma {
         public event ChromaHandleNoteWasMissed ChromaHandleNoteWasMissedEvent;
         public delegate void ChromaHandleNoteWasMissed(BeatmapObjectSpawnController noteSpawnController, INoteController noteController);
 
-        public event ChromaHandleBarrierSpawned ChromaHandleBarrierSpawnedEvent;
-        public delegate void ChromaHandleBarrierSpawned(ref StretchableObstacle stretchableObstacle, ref BeatmapObjectSpawnController obstacleSpawnController, ref ObstacleController obstacleController, ref bool didRecolour);
-
         public event ChromaHandleComboChange ChromaHandleComboChangeEvent;
         public delegate void ChromaHandleComboChange(int newCombo);
 
@@ -117,6 +114,8 @@ namespace Chroma {
             if (scoreController != null) scoreController.comboDidChangeEvent -= ComboChangedEvent;
 
             ObstacleControllerInit.defaultObstacleColor = null;
+
+            Beatmap.ChromaEvents.MayhemEvent.manager = null;
         }
 
         void Start() {
