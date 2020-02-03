@@ -39,7 +39,7 @@ namespace Chroma.HarmonyPatches {
 
             // CustomJSONData _customData individual color override
             try {
-                if (obstacleData is CustomObstacleData customData && ChromaConfig.CustomColourEventsEnabled) {
+                if (obstacleData is CustomObstacleData customData && ChromaUtils.CheckLightingEventRequirement()) {
                     dynamic dynData = customData.customData;
                     if (dynData != null) {
                         float? r = (float?)Trees.at(dynData, "_obstacleR");

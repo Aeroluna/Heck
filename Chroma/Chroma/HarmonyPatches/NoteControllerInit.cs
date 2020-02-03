@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using Chroma.Settings;
+using Chroma.Utils;
 
 namespace Chroma.HarmonyPatches {
 
@@ -30,7 +30,7 @@ namespace Chroma.HarmonyPatches {
 
             // CustomJSONData _customData individual scale override
             try {
-                if (____noteData is CustomNoteData customData && ChromaConfig.CustomSpecialEventsEnabled) {
+                if (____noteData is CustomNoteData customData && ChromaUtils.CheckSpecialEventRequirement()) {
                     dynamic dynData = customData.customData;
                     if (dynData != null) {
                         float? s = (float?)Trees.at(dynData, "_noteScale");

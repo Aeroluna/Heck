@@ -15,13 +15,43 @@ namespace Chroma.Utils
         public static void SetSongCoreCapability(string capability, bool enabled = true) {
             // Gotta check for SongCore first
             if (!IsModInstalled("SongCore")) return;
-            SetCapability(capability, enabled);
+            setCapability(capability, enabled);
         }
 
-        private static void SetCapability(string capability, bool enabled = true)
+        public static bool CheckSpecialEventRequirement() {
+            if (!IsModInstalled("SongCore")) return false;
+            return checkSpecialEventsActivation() && Settings.ChromaConfig.CustomSpecialEventsEnabled;
+        }
+
+        public static bool CheckLightingEventRequirement() {
+            if (!IsModInstalled("SongCore")) return Settings.ChromaConfig.CustomColourEventsEnabled;
+            return checkLightingEventActivation() && Settings.ChromaConfig.CustomColourEventsEnabled;
+        }
+
+        private static void setCapability(string capability, bool enabled = true)
         {
             if (enabled) SongCore.Collections.RegisterCapability(capability);
             else SongCore.Collections.DeregisterizeCapability(capability);
+        }
+
+        private static bool checkSpecialEventsActivation() {
+            // code from MappingExtensions
+            var diff = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap;
+            var songData = SongCore.Collections.RetrieveDifficultyData(diff);
+            if (songData != null) {
+                return (songData.additionalDifficultyData._requirements.Contains("Chroma Special Events"));
+            }
+            return false;
+        }
+
+        private static bool checkLightingEventActivation() {
+            var diff = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap;
+            var songData = SongCore.Collections.RetrieveDifficultyData(diff);
+            if (songData != null) {
+                return (songData.additionalDifficultyData._suggestions.Contains("Chroma Lighting Events") || 
+                    songData.additionalDifficultyData._requirements.Contains("Chroma Lighting Events"));
+            }
+            return false;
         }
     }
 }

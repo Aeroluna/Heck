@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using CustomJSONData.CustomBeatmap;
 using CustomJSONData;
-using Chroma.Settings;
+using Chroma.Utils;
 
 namespace Chroma.Beatmap.Events {
 
@@ -17,7 +17,7 @@ namespace Chroma.Beatmap.Events {
         // Creates dictionary loaded with all _noteScale custom events and indexs them with the event's time
         public static void Activate(List<CustomEventData> eventData) {
             NoteScales.Clear();
-            if (!ChromaConfig.CustomSpecialEventsEnabled) return;
+            if (!ChromaUtils.CheckSpecialEventRequirement()) return;
             foreach (CustomEventData d in eventData) {
                 try {
                     dynamic dynData = d.data;
