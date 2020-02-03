@@ -10,7 +10,7 @@ using Chroma.Utils;
 
 namespace Chroma.Beatmap.Events {
 
-    class ChromaObstacleColorEvent {
+    class ChromaObstacleColourEvent {
 
         public static Dictionary<float, Color> CustomObstacleColors = new Dictionary<float, Color>();
         

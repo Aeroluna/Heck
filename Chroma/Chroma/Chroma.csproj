@@ -42,7 +42,7 @@
     <Compile Include="Beatmap\CustomBeatmapBomb.cs" />
     <Compile Include="Beatmap\CustomBeatmapNote.cs" />
     <Compile Include="Beatmap\CustomBeatmapObject.cs" />
-    <Compile Include="Beatmap\Events\ChromaObstacleColorEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaObstacleColourEvent.cs" />
     <Compile Include="Beatmap\Events\LegacyEvents\ChromaRotateEvent.cs" />
     <Compile Include="Beatmap\Events\ChromaNoteScaleEvent.cs" />
     <Compile Include="Beatmap\Events\LegacyEvents\ChromaLightEvent.cs" />
@@ -85,7 +85,6 @@
     <Compile Include="IChromaExtension.cs" />
     <Compile Include="ChromaPlugin.cs" />
     <Compile Include="Misc\Greetings.cs" />
-    <Compile Include="Misc\NoteScaling.cs" />
     <Compile Include="ResourceTextFiles.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

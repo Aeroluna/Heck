@@ -31,8 +31,8 @@ namespace Chroma.HarmonyPatches {
             Color c = ColourManager.BarrierColour == Color.clear ? defaultObstacleColor.Value : ColourManager.BarrierColour;
 
             // CustomObstacleColors
-            if (ChromaObstacleColorEvent.CustomObstacleColors.Count > 0) {
-                foreach (KeyValuePair<float, Color> d in ChromaObstacleColorEvent.CustomObstacleColors) {
+            if (ChromaObstacleColourEvent.CustomObstacleColors.Count > 0) {
+                foreach (KeyValuePair<float, Color> d in ChromaObstacleColourEvent.CustomObstacleColors) {
                     if (d.Key <= obstacleData.time) c = d.Value;
                 }
             }

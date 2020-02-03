@@ -219,7 +219,7 @@ namespace Chroma {
             foreach (KeyValuePair<string, List<CustomEventData>> n in _customEventData) {
                 switch (n.Key) {
                     case "_obstacleColor":
-                        ChromaObstacleColorEvent.Activate(n.Value);
+                        ChromaObstacleColourEvent.Activate(n.Value);
                         break;
                     case "_noteScale":
                         ChromaNoteScaleEvent.Activate(n.Value);
