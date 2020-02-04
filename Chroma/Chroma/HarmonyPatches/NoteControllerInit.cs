@@ -46,7 +46,7 @@ namespace Chroma.HarmonyPatches {
                             float? b = (float?)Trees.at(dynData, "_bombB");
                             if (r != null && g != null && b != null) {
                                 c = new Color(r.Value, g.Value, b.Value);
-                                ChromaLogger.Log("Single bomb colour changed to " + c.ToString());
+                                //ChromaLogger.Log("Single bomb colour changed to " + c.ToString());
                             }
                         }
                     }

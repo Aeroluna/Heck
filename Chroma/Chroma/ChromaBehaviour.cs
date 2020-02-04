@@ -233,11 +233,9 @@ namespace Chroma {
                 }
             }
 
-            // Custom Events subscriptions
+            // SimpleCustomEvents subscriptions
             CustomEvents.CustomEventCallbackController cecc = gcss.GetComponentInParent<CustomEvents.CustomEventCallbackController>();
-            if (ChromaConfig.CustomColourEventsEnabled) {
                 //cecc.AddCustomEventCallback(ChromaObstacleColor.Activate, "_obstacleColor", 0);
-            }
         }
 
         private BeatmapData CreateTransformedBeatmapData(BeatmapData beatmapData, PlayerSpecificSettings playerSettings, BaseGameModeType baseGameMode) {

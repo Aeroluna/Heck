@@ -171,7 +171,7 @@ namespace Chroma.Beatmap {
                     }
 
                     ChromaEvent cLight = ApplyCustomEvent(bevData[i], ref unfilledEvent);
-                    if (cLight != null) ColourManager.TechnicolourLightsForceDisabled = true;
+                    if (cLight != null) ColourManager.TechnicolourLightsForceDisabled = ChromaUtils.CheckLightingEventRequirement();
                 }
 
             }

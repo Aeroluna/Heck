@@ -29,7 +29,6 @@ namespace Chroma.Beatmap.Events {
                     ChromaLogger.Log(e);
                 }
             }
-            ChromaLogger.Log("CREATED:" + NoteScales.Count);
         }
     }
 
