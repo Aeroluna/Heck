@@ -12,7 +12,7 @@ namespace Chroma.Beatmap.Events {
 
         public static float ringSpeedMult = 1f;
 
-        public ChromaRingSpeedEvent(BeatmapEventData data) : base(data, false, true, new Color[] { }) { }
+        public ChromaRingSpeedEvent(BeatmapEventData data) : base(data, false, new Color[] { }) { }
 
         public override bool Activate(ref MonoBehaviour light, ref BeatmapEventData data, ref BeatmapEventType eventType) {
             /*PlayerController playerController = GameObject.FindObjectOfType<PlayerController>();

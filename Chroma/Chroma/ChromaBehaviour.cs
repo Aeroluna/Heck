@@ -114,7 +114,6 @@ namespace Chroma {
             if (scoreController != null) scoreController.comboDidChangeEvent -= ComboChangedEvent;
 
             ObstacleControllerInit.defaultObstacleColour = null;
-            ChromaNoteScaleEvent.NoteScales.Clear();
             ChromaObstacleColourEvent.CustomObstacleColours.Clear();
             ChromaBombColourEvent.CustomBombColours.Clear();
 
@@ -223,9 +222,6 @@ namespace Chroma {
                 switch (n.Key) {
                     case "_obstacleColor":
                         ChromaObstacleColourEvent.Activate(n.Value);
-                        break;
-                    case "_noteScale":
-                        ChromaNoteScaleEvent.Activate(n.Value);
                         break;
                     case "_bombColor":
                         ChromaBombColourEvent.Activate(n.Value);

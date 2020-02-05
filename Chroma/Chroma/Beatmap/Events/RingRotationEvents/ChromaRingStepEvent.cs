@@ -12,7 +12,7 @@ namespace Chroma.Beatmap.Events {
 
         public static float ringStepMult = 1f;
 
-        public ChromaRingStepEvent(BeatmapEventData data) : base(data, false, true, new Color[] { }) { }
+        public ChromaRingStepEvent(BeatmapEventData data) : base(data, false, new Color[] { }) { }
 
         public override bool Activate(ref MonoBehaviour light, ref BeatmapEventData data, ref BeatmapEventType eventType) {
             /*PlayerController playerController = GameObject.FindObjectOfType<PlayerController>();

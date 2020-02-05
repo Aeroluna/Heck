@@ -39,11 +39,11 @@ namespace Chroma.Beatmap.Events {
             }
         }
 
-        public ChromaColourEvent(BeatmapEventData data, bool requiresColourEventsEnabled, bool requiresSpecialEventsEnabled, Color a) : this(data, requiresColourEventsEnabled, requiresSpecialEventsEnabled, a, a) { }
+        public ChromaColourEvent(BeatmapEventData data, bool requiresColourEventsEnabled, Color a) : this(data, requiresColourEventsEnabled, a, a) { }
 
-        public ChromaColourEvent(BeatmapEventData data, bool requiresColourEventsEnabled, bool requiresSpecialEventsEnabled, Color a, Color b) : this(data, requiresColourEventsEnabled, requiresSpecialEventsEnabled, new Color[] { a, b }) { }
+        public ChromaColourEvent(BeatmapEventData data, bool requiresColourEventsEnabled, Color a, Color b) : this(data, requiresColourEventsEnabled, new Color[] { a, b }) { }
 
-        public ChromaColourEvent(BeatmapEventData data, bool requiresColourEventsEnabled, bool requiresSpecialEventsEnabled, Color[] colors) : base(data, requiresColourEventsEnabled, requiresSpecialEventsEnabled) {
+        public ChromaColourEvent(BeatmapEventData data, bool requiresColourEventsEnabled, Color[] colors) : base(data, requiresColourEventsEnabled) {
             this.colors = colors;
         }
 

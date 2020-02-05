@@ -43,15 +43,10 @@
     <Compile Include="Beatmap\CustomBeatmapNote.cs" />
     <Compile Include="Beatmap\CustomBeatmapObject.cs" />
     <Compile Include="Beatmap\Events\ChromaBombColourEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaLightColourEvent.cs" />
     <Compile Include="Beatmap\Events\ChromaObstacleColourEvent.cs" />
-    <Compile Include="Beatmap\Events\LegacyEvents\ChromaRotateEvent.cs" />
-    <Compile Include="Beatmap\Events\ChromaNoteScaleEvent.cs" />
     <Compile Include="Beatmap\Events\LegacyEvents\ChromaLightEvent.cs" />
-    <Compile Include="Beatmap\Events\LegacyEvents\ChromaHealthEvent.cs" />
     <Compile Include="Beatmap\Events\LegacyEvents\ChromaColourEvent.cs" />
-    <Compile Include="Beatmap\Events\LegacyEvents\ChromaChanceEvent.cs" />
-    <Compile Include="Beatmap\Events\LegacyEvents\ChromaBarrierColourEvent.cs" />
-    <Compile Include="Beatmap\Events\LegacyEvents\ChromaAmbientLightEvent.cs" />
     <Compile Include="Beatmap\Events\LegacyEvents\ChromaEvent.cs" />
     <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingPropagationEvent.cs" />
     <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingSpeedEvent.cs" />

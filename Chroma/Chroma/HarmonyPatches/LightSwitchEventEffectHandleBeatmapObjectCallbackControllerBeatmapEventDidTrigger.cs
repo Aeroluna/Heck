@@ -34,9 +34,6 @@ namespace Chroma.HarmonyPatches {
         //2 = blue flash, 6 = red flash
         //3 = blue fade, 7 = red fade
         static bool Prefix(LightSwitchEventEffect __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____event) {
-
-            //if (beatmapEventData.value == ChromaJSONEventData.GLOBAL_DO_NOTHING_VALUE) return false;
-
             try {
 
                 if (beatmapEventData.type == ____event) {
@@ -56,6 +53,17 @@ namespace Chroma.HarmonyPatches {
                             {
                                 LightWithId[][] lights = __instance.GetLightsPropagationGrouped();
                                 if (lights.Length > propID) SetOverrideLightWithIds(lights[(int)propID]);
+                            }
+
+                            float? r = (float?)Trees.at(dynData, "r");
+                            float? g = (float?)Trees.at(dynData, "g");
+                            float? b = (float?)Trees.at(dynData, "b");
+                            if (r != null && g != null && b != null) {
+                                Color c = new Color((float)r, (float)g, (float)b);
+                                float? a = (float?)Trees.at(dynData, "a");
+                                if (a != null) c = c.ColorWithAlpha((float)a);
+                                MonoBehaviour __monobehaviour = __instance;
+                                ColourManager.RecolourLight(ref __monobehaviour, c, c);
                             }
                         }
                     }

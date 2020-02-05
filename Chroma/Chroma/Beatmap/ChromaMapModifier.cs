@@ -158,7 +158,7 @@ namespace Chroma.Beatmap {
                 for (int i = bevData.Length - 1; i >= 0; i--) {
 
                     //Forcing lane change
-                    switch (bevData[i].value) {
+                    /*switch (bevData[i].value) {
                         case ChromaEvent.CHROMA_EVENT_RING_ROTATE_LEFT:
                             bevData[i].SetPrivateProperty("type", BeatmapEventType.Event8);
                             break;
@@ -168,7 +168,7 @@ namespace Chroma.Beatmap {
                         case ChromaEvent.CHROMA_EVENT_RING_ROTATE_RESET:
                             bevData[i].SetPrivateProperty("type", BeatmapEventType.Event8);
                             break;
-                    }
+                    }*/
 
                     ChromaEvent cLight = ApplyCustomEvent(bevData[i], ref unfilledEvent);
                     if (cLight != null) ColourManager.TechnicolourLightsForceDisabled = ChromaUtils.CheckLightingEventRequirement();

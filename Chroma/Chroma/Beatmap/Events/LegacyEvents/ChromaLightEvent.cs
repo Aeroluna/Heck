@@ -11,7 +11,7 @@ namespace Chroma.Beatmap.Events {
 
         public const int CHROMA_LIGHT_OFFSET = 1900000000;
 
-        public ChromaLightEvent(BeatmapEventData data, Color a, Color b) : base(data, true, false, a, b) {
+        public ChromaLightEvent(BeatmapEventData data, Color a, Color b) : base(data, true, a, b) {
 
         }
 
