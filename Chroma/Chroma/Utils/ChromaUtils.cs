@@ -29,16 +29,6 @@ namespace Chroma.Utils
             else SongCore.Collections.DeregisterizeCapability(capability);
         }
 
-        private static bool checkSpecialEventsActivation() {
-            // code from MappingExtensions
-            var diff = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap;
-            var songData = SongCore.Collections.RetrieveDifficultyData(diff);
-            if (songData != null) {
-                return (songData.additionalDifficultyData._requirements.Contains("Chroma Special Events"));
-            }
-            return false;
-        }
-
         private static bool checkLightingEventActivation() {
             var diff = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap;
             var songData = SongCore.Collections.RetrieveDifficultyData(diff);

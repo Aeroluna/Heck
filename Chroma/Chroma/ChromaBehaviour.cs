@@ -116,6 +116,7 @@ namespace Chroma {
             ObstacleControllerInit.defaultObstacleColour = null;
             ChromaObstacleColourEvent.CustomObstacleColours.Clear();
             ChromaBombColourEvent.CustomBombColours.Clear();
+            ChromaLightColourEvent.CustomLightColours.Clear();
 
             Beatmap.ChromaEvents.MayhemEvent.manager = null;
         }
@@ -226,12 +227,11 @@ namespace Chroma {
                     case "_bombColor":
                         ChromaBombColourEvent.Activate(n.Value);
                         break;
+                    case "_lightRGB":
+                        ChromaLightColourEvent.Activate(n.Value);
+                        break;
                 }
             }
-
-            // SimpleCustomEvents subscriptions
-            CustomEvents.CustomEventCallbackController cecc = gcss.GetComponentInParent<CustomEvents.CustomEventCallbackController>();
-                //cecc.AddCustomEventCallback(ChromaObstacleColor.Activate, "_obstacleColor", 0);
         }
 
         private BeatmapData CreateTransformedBeatmapData(BeatmapData beatmapData, PlayerSpecificSettings playerSettings, BaseGameModeType baseGameMode) {

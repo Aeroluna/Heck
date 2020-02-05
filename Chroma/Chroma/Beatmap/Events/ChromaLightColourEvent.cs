@@ -12,7 +12,7 @@ namespace Chroma.Beatmap.Events {
 
     class ChromaLightColourEvent {
 
-        public static Dictionary<float, Color> CustomObstacleColours = new Dictionary<float, Color>();
+        public static Dictionary<int, Dictionary<float, Color>> CustomLightColours = new Dictionary<int, Dictionary<float, Color>>();
         
         // Creates dictionary loaded with all _rgbColor custom events and indexs them with the event's time
         public static void Activate(List<CustomEventData> eventData) {
@@ -20,11 +20,21 @@ namespace Chroma.Beatmap.Events {
             foreach (CustomEventData d in eventData) {
                 try {
                     dynamic dynData = d.data;
+                    int id = (int)Trees.at(dynData, "_lightsID");
                     float r = (float)Trees.at(dynData, "r");
                     float g = (float)Trees.at(dynData, "g");
                     float b = (float)Trees.at(dynData, "b");
+                    float? a = (float?)Trees.at(dynData, "a");
                     Color c = new Color(r, g, b);
-                    CustomObstacleColours.Add(d.time, c);
+                    if (a != null) c = c.ColorWithAlpha((float)a);
+
+                    // Dictionary of dictionaries!
+                    Dictionary<float, Color> dictionaryID;
+                    if (!CustomLightColours.TryGetValue(id, out dictionaryID)) {
+                        dictionaryID = new Dictionary<float, Color>();
+                        CustomLightColours.Add(id, dictionaryID);
+                    }
+                    dictionaryID.Add(d.time, c);
                     //ChromaLogger.Log("Global light colour registered: " + c.ToString());
                 }
                 catch (Exception e) {

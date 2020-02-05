@@ -34,6 +34,19 @@ namespace Chroma.HarmonyPatches {
         //2 = blue flash, 6 = red flash
         //3 = blue fade, 7 = red fade
         static bool Prefix(LightSwitchEventEffect __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____event) {
+            // CustomLightColours
+            if (ChromaLightColourEvent.CustomLightColours.Count > 0) {
+                Dictionary<float, Color> dictionaryID;
+                if (ChromaLightColourEvent.CustomLightColours.TryGetValue(__instance.LightsID - 1, out dictionaryID)) {
+                    foreach (KeyValuePair<float, Color> d in dictionaryID) {
+                        if (d.Key <= beatmapEventData.time) {
+                            MonoBehaviour __monobehaviour = __instance;
+                            ColourManager.RecolourLight(ref __monobehaviour, d.Value, d.Value);
+                        }
+                    }
+                }
+            }
+
             try {
 
                 if (beatmapEventData.type == ____event) {
@@ -55,15 +68,17 @@ namespace Chroma.HarmonyPatches {
                                 if (lights.Length > propID) SetOverrideLightWithIds(lights[(int)propID]);
                             }
 
-                            float? r = (float?)Trees.at(dynData, "r");
-                            float? g = (float?)Trees.at(dynData, "g");
-                            float? b = (float?)Trees.at(dynData, "b");
-                            if (r != null && g != null && b != null) {
-                                Color c = new Color((float)r, (float)g, (float)b);
-                                float? a = (float?)Trees.at(dynData, "a");
-                                if (a != null) c = c.ColorWithAlpha((float)a);
-                                MonoBehaviour __monobehaviour = __instance;
-                                ColourManager.RecolourLight(ref __monobehaviour, c, c);
+                            if (Utils.ChromaUtils.CheckLightingEventRequirement()) {
+                                float? r = (float?)Trees.at(dynData, "r");
+                                float? g = (float?)Trees.at(dynData, "g");
+                                float? b = (float?)Trees.at(dynData, "b");
+                                if (r != null && g != null && b != null) {
+                                    Color c = new Color((float)r, (float)g, (float)b);
+                                    float? a = (float?)Trees.at(dynData, "a");
+                                    if (a != null) c = c.ColorWithAlpha((float)a);
+                                    MonoBehaviour __monobehaviour = __instance;
+                                    ColourManager.RecolourLight(ref __monobehaviour, c, c);
+                                }
                             }
                         }
                     }
@@ -130,7 +145,7 @@ namespace Chroma.HarmonyPatches {
 
             }
             catch (Exception e) {
-                ChromaLogger.Log("Exception handling lights!", ChromaLogger.Level.WARNING);
+                ChromaLogger.Log("Exception handling legacy event!", ChromaLogger.Level.WARNING);
                 ChromaLogger.Log(e);
             }
             return true;
