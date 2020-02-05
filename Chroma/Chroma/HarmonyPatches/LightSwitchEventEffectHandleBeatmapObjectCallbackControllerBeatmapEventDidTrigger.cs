@@ -115,7 +115,6 @@ namespace Chroma.HarmonyPatches {
                     ChromaEvent customEvent = ChromaEvent.GetChromaEvent(beatmapEventData);
                     if (customEvent != null) {
                         if (customEvent.RequiresColourEventsEnabled && !ChromaConfig.CustomColourEventsEnabled) return false;
-                        if (customEvent.RequiresSpecialEventsEnabled && !ChromaConfig.CustomSpecialEventsEnabled) return false;
                         customEvent.Activate(ref __instance, ref beatmapEventData, ref ____event);
                         return false;
                     }

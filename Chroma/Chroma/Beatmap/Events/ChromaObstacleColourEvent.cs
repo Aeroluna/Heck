@@ -16,7 +16,7 @@ namespace Chroma.Beatmap.Events {
         
         // Creates dictionary loaded with all _obstacleColor custom events and indexs them with the event's time
         public static void Activate(List<CustomEventData> eventData) {
-            if (!ChromaUtils.CheckSpecialEventRequirement()) return;
+            if (!ChromaUtils.CheckLightingEventRequirement()) return;
             foreach (CustomEventData d in eventData) {
                 try {
                     dynamic dynData = d.data;

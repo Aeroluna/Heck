@@ -251,15 +251,6 @@ namespace Chroma.Settings {
             }
         }
 
-        [UIValue("specialevents")]
-        public bool CustomSpecialEventsEnabled {
-            get => ChromaConfig.CustomSpecialEventsEnabled;
-            set {
-                ChromaConfig.CustomSpecialEventsEnabled = value;
-                ChromaUtils.SetSongCoreCapability("Chroma Special Events", value);
-            }
-        }
-
         #endregion
 
         #region Technicolour

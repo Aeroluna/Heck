@@ -80,7 +80,6 @@ namespace Chroma.Beatmap.Events {
         protected bool requiresSpecialEventsEnabled;
 
         public bool RequiresColourEventsEnabled { get { return requiresColourEventsEnabled; } }
-        public bool RequiresSpecialEventsEnabled { get { return requiresSpecialEventsEnabled; } }
 
         public ChromaEvent(BeatmapEventData data, bool requiresColourEventsEnabled, bool requiresSpecialEventsEnabled) {
             this.data = data;
@@ -136,11 +135,11 @@ namespace Chroma.Beatmap.Events {
                     laserSpinDirection = -1;
                     return true;*/
                 case CHROMA_EVENT_MAIN_LIGHTNING:
-                    if (!ChromaConfig.CustomSpecialEventsEnabled) return true;
+                    //if (!ChromaConfig.CustomSpecialEventsEnabled) return true;
                     VFXLightning.InstanceOrDefault.TriggerLightning(false);
                     return true;
                 case CHROMA_EVENT_AMBIENT_LIGHTNING:
-                    if (!ChromaConfig.CustomSpecialEventsEnabled) return true;
+                    //if (!ChromaConfig.CustomSpecialEventsEnabled) return true;
                     VFXLightning.InstanceOrDefault.TriggerLightning(true);
                     return true;
             }

@@ -151,7 +151,7 @@ namespace Chroma.Beatmap {
              * LIGHTING EVENTS
              */
             
-            if (ChromaConfig.CustomColourEventsEnabled || ChromaConfig.CustomSpecialEventsEnabled) {
+            if (ChromaConfig.CustomColourEventsEnabled) {
 
                 BeatmapEventData[] bevData = beatmapData.beatmapEventData;
                 ChromaColourEvent unfilledEvent = null;
@@ -241,7 +241,7 @@ namespace Chroma.Beatmap {
                      */
                     /*case ChromaEvent.CHROMA_EVENT_SCALE: //1,950,000,001 = 1950000001 = Note Scale Event
                         unfilledColourEvent = new ChromaNoteScaleEvent(bev);
-                        return null;*/
+                        return null;
                     case ChromaEvent.CHROMA_EVENT_HEALTH: //1,950,000,002 = 1950000002 = Health Event
                         unfilledColourEvent = new ChromaHealthEvent(bev);
                         return null;
@@ -253,7 +253,7 @@ namespace Chroma.Beatmap {
                         return null;
                     case ChromaEvent.CHROMA_EVENT_BARRIER_COLOUR: //1,950,000,005 = 1950000005 = Barrier Colour Event
                         unfilledColourEvent = new ChromaBarrierColourEvent(bev);
-                        return null;
+                        return null;*/
                     /*case ChromaEvent.CHROMA_EVENT_RING_SPEED_MULT: //1,950,000,006 = 1950000006 = Ring Speed Event
                         unfilledColourEvent = new ChromaRingSpeedEvent(bev);
                         return null;

@@ -18,11 +18,6 @@ namespace Chroma.Utils
             setCapability(capability, enabled);
         }
 
-        public static bool CheckSpecialEventRequirement() {
-            if (!IsModInstalled("SongCore")) return false;
-            return checkSpecialEventsActivation() && Settings.ChromaConfig.CustomSpecialEventsEnabled;
-        }
-
         public static bool CheckLightingEventRequirement() {
             if (!IsModInstalled("SongCore")) return Settings.ChromaConfig.CustomColourEventsEnabled;
             return checkLightingEventActivation() && Settings.ChromaConfig.CustomColourEventsEnabled;
