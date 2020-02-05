@@ -244,10 +244,10 @@ namespace Chroma.Settings {
 
         [UIValue("rgbevents")]
         public bool CustomColourEventsEnabled {
-            get => ChromaConfig.CustomColourEventsEnabled;
+            get => !ChromaConfig.CustomColourEventsEnabled;
             set {
-                ChromaConfig.CustomColourEventsEnabled = value;
-                ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", value);
+                ChromaConfig.CustomColourEventsEnabled = !value;
+                ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", !value);
             }
         }
 

@@ -1,0 +1,5 @@
+﻿<modifier-container pref-width='65'>
+  <modifier src='#HueWheel' text='Technicolour' value='technicolour' apply-on-change='true' hover-hint='Enable Technicolour. Same as enabling from Mod Settings'></modifier>
+  <modifier src='Chroma.Resources.LightshowIcon.png' text='Lightshow Mode' value='lightshowonly' apply-on-change='true' hover-hint='Disable all notes and sabers, allowing you to view the lightshow! (Will keep obstacles)'></modifier>
+  <modifier src='#LightIcon' text='Disable RGB Lights' value='rgbevents' apply-on-change='true' hover-hint='Disable RGB lighting events, but you&apos;ll break my heart.'></modifier>
+</modifier-container>

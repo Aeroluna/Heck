@@ -122,12 +122,14 @@
     <EmbeddedResource Include="manifest.json" />
     <None Include="Resources\safetyWaiver.txt" />
     <EmbeddedResource Include="Settings\settings.bsml" />
+    <EmbeddedResource Include="Settings\modifiers.bsml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\chromaNotes.txt" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\credits.txt" />
+    <EmbeddedResource Include="Resources\LightshowIcon.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony.1.2.0.1">

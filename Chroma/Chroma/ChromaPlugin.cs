@@ -14,6 +14,7 @@ using System.IO;
 using IPA.Loader;
 using IPA;
 using BeatSaberMarkupLanguage.Settings;
+using BeatSaberMarkupLanguage.GameplaySetup;
 
 namespace Chroma {
 
@@ -146,6 +147,7 @@ namespace Chroma {
                     ChromaLogger.Log("Initializing Configuration");
                     ChromaConfig.Init();
                     ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.INITIAL);
+                    GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
                 } catch (Exception e) {
                     ChromaLogger.Log("Error loading Chroma configuration", ChromaLogger.Level.ERROR);
                     throw e;
@@ -217,7 +219,7 @@ namespace Chroma {
 
                 if (Input.GetKey(KeyCode.Alpha1)) ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
                 else if (Input.GetKey(KeyCode.Alpha2)) ColourManager.RefreshLights();
-                else if (Input.GetKey(KeyCode.Alpha3)) ChromaTesting.Test();
+                //else if (Input.GetKey(KeyCode.Alpha3)) ChromaTesting.Test();
                 else {
 
                     ChromaLogger.Log(" [[ Debug Info ]]");

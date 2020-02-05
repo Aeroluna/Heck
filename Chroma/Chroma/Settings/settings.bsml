@@ -18,18 +18,10 @@
       <dropdown-list-setting text='Platform Accoutrements' value='platformaccoutrements' formatter='colourformat' options='colours'></dropdown-list-setting>
     </settings-container>
   </settings-submenu>
-  <settings-submenu text='Events'>
-    <settings-container>
-      <clickable-text text='Back' click-event='back'></clickable-text>
-      <bool-setting text='No Notes' value='lightshowonly' hover-hint='Disables all notes and sabers, allowing you to view the lightshow! (Will keep obstacles)'></bool-setting>
-      <bool-setting text='RGB Lights' value='rgbevents' hover-hint='Enable/Disable RGB lighting events.'></bool-setting>
-      <bool-setting text='Special Events' value='specialevents' hover-hint='Enable/Disable Special Events, such as note size changing, player heal/harm events, and rotation events.'></bool-setting>
-    </settings-container>
-  </settings-submenu>
   <settings-submenu text='Technicolour'>
     <scrollable-settings-container>
       <clickable-text text='Back' click-event='back'></clickable-text>
-      <bool-setting text='Technicolour' value='technicolour' hover-hint='Enable/Disable Technicolour.  See Technicolour options below.'></bool-setting>
+      <bool-setting text='Technicolour' value='technicolour' hover-hint='Enable/Disable Technicolour. See Technicolour options below.'></bool-setting>
       <dropdown-list-setting text='Technicolour Lights' value='techlights' options='techlightschoices' formatter='techlightform' hover-hint='Technicolour style of the lights.'></dropdown-list-setting>
       <dropdown-list-setting text='Lights Grouping' value='lightsgroup' options='lightsgroupchoices' formatter='techgroupform' hover-hint='Isolated Event for better performance, but more chaotic lighting'></dropdown-list-setting>
       <list-setting text='Lights Frequency' value='lightsfreq' choices='lightsfreqchoices' hover-hint='Master volume control for sounds made by Chroma' formatter='percentfreq'></list-setting>
