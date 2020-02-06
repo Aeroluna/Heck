@@ -35,6 +35,10 @@ namespace Chroma.Extensions {
             LSEColourManager.GetLSEColourManager(lse)?.SetLightingColours(colourA, colourB);
         }
 
+        public static void SetLightingColours(this BeatmapEventType lse, Color colourA, Color colourB) {
+            LSEColourManager.GetLSEColourManager(lse)?.SetLightingColours(colourA, colourB);
+        }
+
         public static LightWithId[] GetLights(this LightSwitchEventEffect lse) {
             return LSEColourManager.GetLSEColourManager(lse)?.lights.ToArray();
         }
@@ -48,7 +52,7 @@ namespace Chroma.Extensions {
          */
 
         internal static void LSEStart(MonoBehaviour lse, BeatmapEventType type) {
-            LSEColourManager lsecm = LSEColourManager.GetOrCreateLSEColourManager(lse, type);
+            LSEColourManager lsecm = LSEColourManager.CreateLSEColourManager(lse, type);
             /*if (type == BeatmapEventType.Event1) {
                 ChromaTesting.lse = lse; ChromaTesting.type = type;
             }*/
@@ -76,7 +80,7 @@ namespace Chroma.Extensions {
                 return null;
             }
 
-            public static LSEColourManager GetOrCreateLSEColourManager(MonoBehaviour lse, BeatmapEventType type) {
+            public static LSEColourManager CreateLSEColourManager(MonoBehaviour lse, BeatmapEventType type) {
                 LSEColourManager lsecm;
                 try {
                     lsecm = GetLSEColourManager(type);
@@ -85,15 +89,10 @@ namespace Chroma.Extensions {
                     return null;
                 }
                 try {
-                    if (lsecm != null) {
-                        lsecm.Initialize(lse, type);
-                        return lsecm;
-                    } else {
-                        lsecm = new LSEColourManager(lse, type);
-                        lsecm.Initialize(lse, type);
-                        LSEColourManagers.Add(lsecm);
-                        return lsecm;
-                    }
+                    lsecm = new LSEColourManager(lse, type);
+                    lsecm.Initialize(lse, type);
+                    LSEColourManagers.Add(lsecm);
+                    return lsecm;
                 } catch (Exception e) {
                     ChromaLogger.Log(e);
                     return lsecm;

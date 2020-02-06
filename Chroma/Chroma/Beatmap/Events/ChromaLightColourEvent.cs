@@ -12,9 +12,9 @@ namespace Chroma.Beatmap.Events {
 
     class ChromaLightColourEvent {
 
-        public static Dictionary<int, Dictionary<float, Color>> CustomLightColours = new Dictionary<int, Dictionary<float, Color>>();
-        
-        // Creates dictionary loaded with all _rgbColor custom events and indexs them with the event's time
+        public static Dictionary<BeatmapEventType, Dictionary<float, Color>> CustomLightColours = new Dictionary<BeatmapEventType, Dictionary<float, Color>>();
+
+        // Creates dictionary loaded with all _lightRGB custom events and indexs them with the event's time and type
         public static void Activate(List<CustomEventData> eventData) {
             if (!ChromaUtils.CheckLightingEventRequirement()) return;
             foreach (CustomEventData d in eventData) {
@@ -30,9 +30,9 @@ namespace Chroma.Beatmap.Events {
 
                     // Dictionary of dictionaries!
                     Dictionary<float, Color> dictionaryID;
-                    if (!CustomLightColours.TryGetValue(id, out dictionaryID)) {
+                    if (!CustomLightColours.TryGetValue((BeatmapEventType)id, out dictionaryID)) {
                         dictionaryID = new Dictionary<float, Color>();
-                        CustomLightColours.Add(id, dictionaryID);
+                        CustomLightColours.Add((BeatmapEventType)id, dictionaryID);
                     }
                     dictionaryID.Add(d.time, c);
                     //ChromaLogger.Log("Global light colour registered: " + c.ToString());

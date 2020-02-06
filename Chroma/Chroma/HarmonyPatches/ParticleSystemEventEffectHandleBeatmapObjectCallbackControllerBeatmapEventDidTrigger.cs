@@ -28,6 +28,14 @@ namespace Chroma.HarmonyPatches {
         private static System.Random techniLightRandom = new System.Random(408);
 
         static bool Prefix(ParticleSystemEventEffect __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____colorEvent) {
+
+            MonoBehaviour __monobehaviour = __instance;
+            Color? c = LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.CheckCJD(__monobehaviour, beatmapEventData, ____colorEvent);
+
+            if (c != null) {
+                ColourManager.RecolourLight(ref __monobehaviour, (Color)c, (Color)c);
+            }
+
             try {
 
                 // https://docs.google.com/spreadsheets/d/1vCTlDvx0ZW8NkkZBYW6ecvXaVRxDUKX7QIoah9PCp_c/edit#gid=0

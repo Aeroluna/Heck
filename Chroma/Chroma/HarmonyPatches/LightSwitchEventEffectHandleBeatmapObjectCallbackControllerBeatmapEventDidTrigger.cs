@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using IPA.Utilities;
 
 namespace Chroma.HarmonyPatches {
 
@@ -34,59 +35,14 @@ namespace Chroma.HarmonyPatches {
         //2 = blue flash, 6 = red flash
         //3 = blue fade, 7 = red fade
         static bool Prefix(LightSwitchEventEffect __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____event) {
-            // CustomLightColours
-            if (ChromaLightColourEvent.CustomLightColours.Count > 0) {
-                Dictionary<float, Color> dictionaryID;
-                if (ChromaLightColourEvent.CustomLightColours.TryGetValue(__instance.LightsID - 1, out dictionaryID)) {
-                    foreach (KeyValuePair<float, Color> d in dictionaryID) {
-                        if (d.Key <= beatmapEventData.time) {
-                            MonoBehaviour __monobehaviour = __instance;
-                            ColourManager.RecolourLight(ref __monobehaviour, d.Value, d.Value);
-                        }
-                    }
-                }
-            }
 
-            try {
+            if (beatmapEventData.type != ____event) return true;
 
-                if (beatmapEventData.type == ____event) {
-                    if (beatmapEventData is CustomBeatmapEventData customData) {
-                        dynamic dynData = customData.customData;
-                        if (dynData != null)
-                        {
-                            long? lightID = Trees.at(dynData, "_lightID");
-                            if (lightID != null)
-                            {
-                                LightWithId[] lights = __instance.GetLights();
-                                if (lights.Length > lightID) SetOverrideLightWithIds(lights[(int)lightID]);
-                            }
+            MonoBehaviour __monobehaviour = __instance;
+            Color? c = CheckCJD(__monobehaviour, beatmapEventData, ____event);
 
-                            long? propID = Trees.at(dynData, "_propID");
-                            if (propID != null)
-                            {
-                                LightWithId[][] lights = __instance.GetLightsPropagationGrouped();
-                                if (lights.Length > propID) SetOverrideLightWithIds(lights[(int)propID]);
-                            }
-
-                            if (Utils.ChromaUtils.CheckLightingEventRequirement()) {
-                                float? r = (float?)Trees.at(dynData, "r");
-                                float? g = (float?)Trees.at(dynData, "g");
-                                float? b = (float?)Trees.at(dynData, "b");
-                                if (r != null && g != null && b != null) {
-                                    Color c = new Color((float)r, (float)g, (float)b);
-                                    float? a = (float?)Trees.at(dynData, "a");
-                                    if (a != null) c = c.ColorWithAlpha((float)a);
-                                    MonoBehaviour __monobehaviour = __instance;
-                                    ColourManager.RecolourLight(ref __monobehaviour, c, c);
-                                }
-                            }
-                        }
-                    }
-                }
-
-            } catch (Exception e) {
-                ChromaLogger.Log("INVALID _customData", ChromaLogger.Level.WARNING);
-                ChromaLogger.Log(e);
+            if (c != null) {
+                ColourManager.RecolourLight(ref __monobehaviour, (Color)c, (Color)c);
             }
 
             try {
@@ -105,8 +61,8 @@ namespace Chroma.HarmonyPatches {
                                     __instance.SetLightingColourA(ColourManager.GetTechnicolour(!blue, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
                                     break;
                                 default:
-                                    Color c = ColourManager.GetTechnicolour(!blue, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle);
-                                    ColourManager.RecolourAllLights(blue ? Color.clear : c, blue ? c : Color.clear);
+                                    Color t = ColourManager.GetTechnicolour(!blue, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle);
+                                    ColourManager.RecolourAllLights(blue ? Color.clear : t, blue ? t : Color.clear);
                                     break;
                             }
                         }
@@ -127,6 +83,97 @@ namespace Chroma.HarmonyPatches {
 
         static void Postfix(LightSwitchEventEffect __instance) {
             overrideLightWithIdActivation = null;
+        }
+
+        public static Color? CheckCJD(MonoBehaviour __monobehaviour, BeatmapEventData beatmapEventData, BeatmapEventType _event) {
+            Color? c = null;
+
+            // CustomLightColours
+            if (ChromaLightColourEvent.CustomLightColours.Count > 0) {
+                Dictionary<float, Color> dictionaryID;
+                if (ChromaLightColourEvent.CustomLightColours.TryGetValue(_event, out dictionaryID)) {
+                    foreach (KeyValuePair<float, Color> d in dictionaryID) {
+                        if (d.Key <= beatmapEventData.time) {
+                            c = d.Value;
+                        }
+                    }
+                }
+            }
+
+            try {
+
+                if (beatmapEventData is CustomBeatmapEventData customData) {
+                    dynamic dynData = customData.customData;
+                    if (dynData != null) {
+                        if (__monobehaviour is LightSwitchEventEffect) {
+                            LightSwitchEventEffect __instance = (LightSwitchEventEffect)__monobehaviour;
+
+                            long? lightID = Trees.at(dynData, "_lightID");
+                            if (lightID != null) {
+                                LightWithId[] lights = __instance.GetLights();
+                                if (lights.Length > lightID) SetOverrideLightWithIds(lights[(int)lightID]);
+                            }
+
+                            long? propID = Trees.at(dynData, "_propID");
+                            if (propID != null) {
+                                LightWithId[][] lights = __instance.GetLightsPropagationGrouped();
+                                if (lights.Length > propID) SetOverrideLightWithIds(lights[(int)propID]);
+                            }
+                        }
+
+                        if (Utils.ChromaUtils.CheckLightingEventRequirement()) {
+                            if (__monobehaviour is LightSwitchEventEffect) {
+                                // GRADIENT
+                                int? intid = (int?)Trees.at(dynData, "_lightsID");
+                                float? duration = (float?)Trees.at(dynData, "_duration");
+                                float? initr = (float?)Trees.at(dynData, "_startR");
+                                float? initg = (float?)Trees.at(dynData, "_startG");
+                                float? initb = (float?)Trees.at(dynData, "_startB");
+                                float? inita = (float?)Trees.at(dynData, "_startA");
+                                float? endr = (float?)Trees.at(dynData, "_endR");
+                                float? endg = (float?)Trees.at(dynData, "_endG");
+                                float? endb = (float?)Trees.at(dynData, "_endB");
+                                float? enda = (float?)Trees.at(dynData, "_endA");
+                                if (intid != null && duration != null && initr != null && initb != null && enda != null && endg != null && endb != null) {
+                                    BeatmapEventType id = (BeatmapEventType)intid;
+                                    Color initc = new Color((float)initr, (float)initg, (float)initb);
+                                    Color endc = new Color((float)endr, (float)endg, (float)endb);
+                                    if (inita != null) initc = initc.ColorWithAlpha((float)inita);
+                                    if (enda != null) endc = endc.ColorWithAlpha((float)enda);
+
+                                    ChromaGradientEvent.AddGradient(id, initc, endc, customData.time, (float)duration);
+
+                                    return initc;
+                                }
+                            }
+
+                            // RGB
+                            float? r = (float?)Trees.at(dynData, "r");
+                            float? g = (float?)Trees.at(dynData, "g");
+                            float? b = (float?)Trees.at(dynData, "b");
+                            if (r != null && g != null && b != null) {
+                                Color d = new Color((float)r, (float)g, (float)b);
+                                float? a = (float?)Trees.at(dynData, "a");
+                                if (a != null) d = d.ColorWithAlpha((float)a);
+                                c = d;
+
+                                // Clear any active gradient
+                                if (ChromaGradientEvent.CustomGradients.TryGetValue(_event, out ChromaGradientEvent gradient)) {
+                                    UnityEngine.Object.Destroy(gradient);
+                                    ChromaGradientEvent.CustomGradients.Remove(_event);
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+            catch (Exception e) {
+                ChromaLogger.Log("INVALID _customData", ChromaLogger.Level.WARNING);
+                ChromaLogger.Log(e);
+            }
+
+            return c;
         }
 
         public static bool ActivateLegacyEvent(MonoBehaviour __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____event) {

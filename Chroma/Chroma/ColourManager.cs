@@ -311,20 +311,6 @@ namespace Chroma {
             return new Color(red / 255f, green / 255f, blue / 255f, 1);
         }
 
-        public static void SetNoteColour(NoteController note, Color c) {
-            SetNoteColour(note.GetComponentInChildren<ColorNoteVisuals>(), c);
-        }
-
-        public static void SetNoteColour(ColorNoteVisuals noteVis, Color c) {
-            SpriteRenderer ____arrowGlowSpriteRenderer = noteVis.GetPrivateField<SpriteRenderer>("_arrowGlowSpriteRenderer");
-            SpriteRenderer ____circleGlowSpriteRenderer = noteVis.GetPrivateField<SpriteRenderer>("_circleGlowSpriteRenderer");
-            MaterialPropertyBlockController ____materialPropertyBlockController = noteVis.GetPrivateField<MaterialPropertyBlockController>("_materialPropertyBlockController");
-            if (____arrowGlowSpriteRenderer != null) ____arrowGlowSpriteRenderer.color = c;
-            if (____circleGlowSpriteRenderer != null) ____circleGlowSpriteRenderer.color = c;
-            MaterialPropertyBlock block = ____materialPropertyBlockController.materialPropertyBlock;
-            block.SetColor(noteVis.GetPrivateField<int>("_colorID"), c);
-        }
-
         public static LightSwitchEventEffect[] GetAllLightSwitches() {
             if (_lightSwitches == null) _lightSwitches = Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>();
             return _lightSwitches;
@@ -365,23 +351,28 @@ namespace Chroma {
             obj.SetLightingColours(red, blue);
         }
 
-        //TODO
-        //replace this function with a manager like LSEColourManager
-        public static SimpleColorSO SetupNewLightColourSOs(MonoBehaviour light, String s)
-        {
-            MultipliedColorSO mColorSO = light.GetPrivateField<MultipliedColorSO>(s);
-            SimpleColorSO baseSO = mColorSO.GetPrivateField<SimpleColorSO>("_baseColor");
-
-            SimpleColorSO newBaseSO = ScriptableObject.CreateInstance<SimpleColorSO>();// new SimpleColorSO();
-            newBaseSO.SetColor(baseSO.color);
-
-            MultipliedColorSO newMColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
-            newMColorSO.SetPrivateField("_multiplierColor", mColorSO.GetPrivateField<Color>("_multiplierColor"));
-            newMColorSO.SetPrivateField("_baseColor", newBaseSO);
-
-            light.SetPrivateField(s, newMColorSO);
-            return newBaseSO;
+        public static void RecolourLight(BeatmapEventType obj, Color red, Color blue) {
+            obj.SetLightingColours(red, blue);
         }
+
+        public static Dictionary<BeatmapEventType, LightSwitchEventEffect> LightSwitchs {
+            get {
+                if (_lightSwitchs == null) {
+                    _lightSwitchs = new Dictionary<BeatmapEventType, LightSwitchEventEffect>();
+                    foreach (LightSwitchEventEffect l in Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>()) {
+                        _lightSwitchs.Add(l.GetPrivateField<BeatmapEventType>("_event"), l);
+                    }
+                }
+                return _lightSwitchs;
+            }
+            set {
+                if (_lightSwitchs != null) {
+                    _lightSwitchs.Clear();
+                    _lightSwitchs = value;
+                }
+            }
+        }
+        private static Dictionary<BeatmapEventType, LightSwitchEventEffect> _lightSwitchs;
 
         public static void RecolourMenuStuff(Color red, Color blue, Color redLight, Color blueLight, Color platformLight, Color laser) {
 

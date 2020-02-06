@@ -81,6 +81,9 @@ namespace Chroma {
         public event ChromaHandleNoteWasMissed ChromaHandleNoteWasMissedEvent;
         public delegate void ChromaHandleNoteWasMissed(BeatmapObjectSpawnController noteSpawnController, INoteController noteController);
 
+        public event ChromaHandleBarrierSpawned ChromaHandleBarrierSpawnedEvent;
+        public delegate void ChromaHandleBarrierSpawned(ref StretchableObstacle stretchableObstacle, ref BeatmapObjectSpawnController obstacleSpawnController, ref ObstacleController obstacleController);
+
         public event ChromaHandleComboChange ChromaHandleComboChangeEvent;
         public delegate void ChromaHandleComboChange(int newCombo);
 
@@ -90,7 +93,8 @@ namespace Chroma {
         BeatmapObjectSpawnController beatmapObjectSpawnController;
         ScoreController scoreController;
 
-        float songBPM = 120f;
+        public static float songBPM = 120f;
+        public static AudioTimeSyncController ATSC;
 
         internal List<IChromaBehaviourExtension> extensions = new List<IChromaBehaviourExtension>();
 
@@ -108,6 +112,7 @@ namespace Chroma {
             StopAllCoroutines();
 
             if (beatmapObjectSpawnController != null) {
+                beatmapObjectSpawnController.obstacleDiStartMovementEvent -= HandleObstacleDidStartMovementEvent;
                 beatmapObjectSpawnController.noteWasCutEvent -= HandleNoteWasCutEvent;
                 beatmapObjectSpawnController.noteWasMissedEvent -= HandleNoteWasMissedEvent;
             }
@@ -117,6 +122,9 @@ namespace Chroma {
             ChromaObstacleColourEvent.CustomObstacleColours.Clear();
             ChromaBombColourEvent.CustomBombColours.Clear();
             ChromaLightColourEvent.CustomLightColours.Clear();
+            ChromaGradientEvent.CustomGradients.Clear();
+
+            ColourManager.LightSwitchs = null;
 
             Beatmap.ChromaEvents.MayhemEvent.manager = null;
         }
@@ -128,10 +136,11 @@ namespace Chroma {
         private IEnumerator DelayedStart() {
             yield return new WaitForSeconds(0f);
             ChromaBehaviourInstantiated?.Invoke(this);
-            beatmapObjectSpawnController = UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
+            beatmapObjectSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
             if (beatmapObjectSpawnController != null) {
                 songBPM = beatmapObjectSpawnController.GetPrivateField<float>("_beatsPerMinute");
                 ChromaLogger.Log("BPM Found : " + songBPM);
+                ATSC = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First();
             }
             BeatmapObjectCallbackController coreSetup = GetBeatmapObjectCallbackController();
             if (coreSetup != null) {
@@ -144,6 +153,7 @@ namespace Chroma {
             }
 
             if (beatmapObjectSpawnController != null) {
+                beatmapObjectSpawnController.obstacleDiStartMovementEvent += HandleObstacleDidStartMovementEvent;
                 beatmapObjectSpawnController.noteWasCutEvent += HandleNoteWasCutEvent;
                 beatmapObjectSpawnController.noteWasMissedEvent += HandleNoteWasMissedEvent;
             }
@@ -232,6 +242,12 @@ namespace Chroma {
                         break;
                 }
             }
+
+            // SimpleCustomEvents subscriptions
+            CustomEvents.CustomEventCallbackController cecc = gcss.GetComponentInParent<CustomEvents.CustomEventCallbackController>();
+            if (ChromaUtils.CheckLightingEventRequirement()) {
+                cecc.AddCustomEventCallback(ChromaGradientEvent.Activate, "_lightGradient", 0);
+            }
         }
 
         private BeatmapData CreateTransformedBeatmapData(BeatmapData beatmapData, PlayerSpecificSettings playerSettings, BaseGameModeType baseGameMode) {
@@ -255,6 +271,11 @@ namespace Chroma {
                 ChromaLogger.Log(e, ChromaLogger.Level.ERROR);
             }
             return beatmapData;
+        }
+
+        private void HandleObstacleDidStartMovementEvent(BeatmapObjectSpawnController obstacleSpawnController, ObstacleController obstacleController) {
+            StretchableObstacle stretchableObstacle = ReflectionUtil.GetPrivateField<StretchableObstacle>(obstacleController, "_stretchableObstacle");
+            ChromaHandleBarrierSpawnedEvent?.Invoke(ref stretchableObstacle, ref obstacleSpawnController, ref obstacleController);
         }
 
         private void HandleNoteWasCutEvent(BeatmapObjectSpawnController noteSpawnController, INoteController noteController, NoteCutInfo noteCutInfo) {

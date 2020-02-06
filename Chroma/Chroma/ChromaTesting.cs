@@ -30,12 +30,12 @@ namespace Chroma {
             //Total randomization testing
             //LightsIsolatedTechnicolour.Activate(lse, type, ColourManager.TechnicolourStyle.PURE_RANDOM, true, Time.time);
             //}
-            SpriteRenderer[] sprites = Resources.FindObjectsOfTypeAll<SpriteRenderer>();
-            foreach (SpriteRenderer sprite in sprites)
+            LightSwitchEventEffect[] sprites = Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>();
+            foreach (LightSwitchEventEffect sprite in sprites)
             {
                 if (sprite != null)
                 {
-                    ChromaLogger.Log(sprite.name + sprite.color.ToString());
+                    ChromaLogger.Log(sprite.name + sprite.LightsID);
                 }
             }
         }

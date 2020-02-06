@@ -43,6 +43,7 @@
     <Compile Include="Beatmap\CustomBeatmapNote.cs" />
     <Compile Include="Beatmap\CustomBeatmapObject.cs" />
     <Compile Include="Beatmap\Events\ChromaBombColourEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaGradientEvent.cs" />
     <Compile Include="Beatmap\Events\ChromaLightColourEvent.cs" />
     <Compile Include="Beatmap\Events\ChromaObstacleColourEvent.cs" />
     <Compile Include="Beatmap\Events\LegacyEvents\ChromaLightEvent.cs" />
@@ -135,6 +136,9 @@
     </Reference>
     <Reference Include="BS_Utils">
       <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BS_Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="CustomEvents">
+      <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\CustomEvents.dll</HintPath>
     </Reference>
     <Reference Include="CustomJSONData">
       <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\CustomJSONData.dll</HintPath>
