@@ -22,6 +22,15 @@ namespace Chroma.Utils
             if (!IsModInstalled("SongCore")) return Settings.ChromaConfig.CustomColourEventsEnabled;
             return checkLightingEventActivation() && Settings.ChromaConfig.CustomColourEventsEnabled;
         }
+        public static string RemoveSpecialCharacters(this string str) {
+            StringBuilder sb = new StringBuilder();
+            foreach (char c in str) {
+                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '.' || c == '_') {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString();
+        }
 
         private static void setCapability(string capability, bool enabled = true)
         {
