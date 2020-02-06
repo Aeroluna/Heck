@@ -24,18 +24,18 @@ namespace Chroma.Extensions {
         }
 
         public static void SetLightingColourA(this MonoBehaviour lse, Color colour) {
-            lse.SetLightingColours(colour, Color.clear);
+            lse.SetLightingColours(colour, null);
         }
 
         public static void SetLightingColourB(this MonoBehaviour lse, Color colour) {
-            lse.SetLightingColours(Color.clear, colour);
+            lse.SetLightingColours(null, colour);
         }
 
-        public static void SetLightingColours(this MonoBehaviour lse, Color colourA, Color colourB) {
+        public static void SetLightingColours(this MonoBehaviour lse, Color? colourA, Color? colourB) {
             LSEColourManager.GetLSEColourManager(lse)?.SetLightingColours(colourA, colourB);
         }
 
-        public static void SetLightingColours(this BeatmapEventType lse, Color colourA, Color colourB) {
+        public static void SetLightingColours(this BeatmapEventType lse, Color? colourA, Color? colourB) {
             LSEColourManager.GetLSEColourManager(lse)?.SetLightingColours(colourA, colourB);
         }
 
@@ -186,30 +186,30 @@ namespace Chroma.Extensions {
             }
 
             internal void Reset() {
-                if (ColourManager.LightB == Color.clear) {
+                if (ColourManager.LightB == null) {
                     _lightColor0.SetColor(_lightColor0_Original);
                     _highlightColor0.SetColor(_highlightColor0_Original);
                 } else {
-                    _lightColor0.SetColor(ColourManager.LightB);
-                    _highlightColor0.SetColor(ColourManager.LightB);
+                    _lightColor0.SetColor((Color)ColourManager.LightB);
+                    _highlightColor0.SetColor((Color)ColourManager.LightB);
                 }
-                if (ColourManager.LightA == Color.clear) {
+                if (ColourManager.LightA == null) {
                     _lightColor1.SetColor(_lightColor1_Original);
                     _highlightColor1.SetColor(_highlightColor1_Original);
                 } else {
-                    _lightColor1.SetColor(ColourManager.LightA);
-                    _highlightColor1.SetColor(ColourManager.LightA);
+                    _lightColor1.SetColor((Color)ColourManager.LightA);
+                    _highlightColor1.SetColor((Color)ColourManager.LightA);
                 }
             }
 
-            internal void SetLightingColours(Color colourA, Color colourB) {
-                if (colourB != Color.clear) {
-                    _lightColor0.SetColor(colourB);
-                    _highlightColor0.SetColor(colourB);
+            internal void SetLightingColours(Color? colourA, Color? colourB) {
+                if (colourB != null) {
+                    _lightColor0.SetColor((Color)colourB);
+                    _highlightColor0.SetColor((Color)colourB);
                 }
-                if (colourA != Color.clear) {
-                    _lightColor1.SetColor(colourA);
-                    _highlightColor1.SetColor(colourA);
+                if (colourA != null) {
+                    _lightColor1.SetColor((Color)colourA);
+                    _highlightColor1.SetColor((Color)colourA);
                 }
             }
 

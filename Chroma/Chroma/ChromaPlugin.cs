@@ -217,7 +217,7 @@ namespace Chroma {
 
             if (Input.GetKeyDown(KeyCode.Period) && ChromaConfig.DebugMode) {
 
-                if (Input.GetKey(KeyCode.Alpha1)) ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
+                if (Input.GetKey(KeyCode.Alpha1)) ColourManager.RecolourNeonSign((Color)ColourManager.SignA, (Color)ColourManager.SignB);
                 else if (Input.GetKey(KeyCode.Alpha2)) ColourManager.RefreshLights();
                 //else if (Input.GetKey(KeyCode.Alpha3)) ChromaTesting.Test();
                 else {

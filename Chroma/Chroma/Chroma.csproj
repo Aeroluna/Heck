@@ -49,9 +49,6 @@
     <Compile Include="Beatmap\Events\LegacyEvents\ChromaLightEvent.cs" />
     <Compile Include="Beatmap\Events\LegacyEvents\ChromaColourEvent.cs" />
     <Compile Include="Beatmap\Events\LegacyEvents\ChromaEvent.cs" />
-    <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingPropagationEvent.cs" />
-    <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingSpeedEvent.cs" />
-    <Compile Include="Beatmap\Events\RingRotationEvents\ChromaRingStepEvent.cs" />
     <Compile Include="ChromaBehaviour.cs" />
     <Compile Include="ChromaTesting.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
@@ -88,6 +85,7 @@
       <DependentUpon>ResourceTextFiles.resx</DependentUpon>
     </Compile>
     <Compile Include="Settings\NamedColor.cs" />
+    <Compile Include="Utils\Base64Sprites.cs" />
     <Compile Include="Utils\BaseGameMode.cs" />
     <Compile Include="Utils\BaseGameModeType.cs" />
     <Compile Include="Settings\ChromaConfig.cs" />

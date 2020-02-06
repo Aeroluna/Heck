@@ -15,9 +15,9 @@ namespace Chroma.HarmonyPatches {
     class ColorManagerColorForNoteType {
 
         public static bool Prefix(ref Color __result, ref NoteType type) {
-            Color c = ColourManager.GetNoteTypeColourOverride(type);
-            if (c != Color.clear) {
-                __result = c;
+            Color? c = ColourManager.GetNoteTypeColourOverride(type);
+            if (c != null) {
+                __result = (Color)c;
                 return false;
             }
             return true;
@@ -26,33 +26,3 @@ namespace Chroma.HarmonyPatches {
     }
 
 }
-
-
-/*
-
-[HarmonyPriority(Priority.High)]
-    [HarmonyPatch(typeof(ColorManager))]
-    [HarmonyPatch("ColorForNoteType")]
-    class ColorManagerColorForNoteType {
-
-        public static bool Prefix(ref Color __result, ref NoteType type) {
-            //if (ColourManager.TechnicolourBlocks) {
-            //    __result = ColourManager.GetTechnicolour(type == NoteType.NoteA, Time.time, ChromaConfig.TechnicolourBlocksStyle);
-            //    return false;
-            //}
-            try {
-                Color c = ColourManager.GetNoteTypeColourOverride(type);
-                if (c != Color.clear) {
-                    ChromaLogger.Log("Got colour " + c);
-                    __result = c;
-                    return false;
-                }
-            } catch (Exception e) {
-                ChromaLogger.Log(e);
-            }
-            return true;
-        }
-
-    }
-
-}*/

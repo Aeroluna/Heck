@@ -38,8 +38,7 @@ namespace Chroma.Settings {
         private List<object> _techbombschoices = (new object[] { TechnicolourWallStyle.OFF, TechnicolourWallStyle.PURE_RANDOM }).ToList();
 
         [UIValue("lightsgroupchoices")]
-        private List<object> _lightsgroupChoices = ChromaConfig.WaiverRead ? new List<object>() { TechnicolourLightsGrouping.STANDARD, TechnicolourLightsGrouping.ISOLATED_GROUP, TechnicolourLightsGrouping.ISOLATED }
-            : new List<object>() { TechnicolourLightsGrouping.STANDARD, TechnicolourLightsGrouping.ISOLATED_GROUP };
+        private List<object> _lightsgroupChoices = new List<object>() { TechnicolourLightsGrouping.STANDARD, TechnicolourLightsGrouping.ISOLATED_GROUP, TechnicolourLightsGrouping.ISOLATED };
 
         [UIValue("lightsfreqchoices")]
         private List<object> _lightsfreqChoices = new List<object>() { 0.05f, 0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.55f, 0.6f, 0.65f, 0.7f, 0.75f, 0.8f, 0.85f, 0.9f, 0.95f, 1f };
@@ -371,11 +370,11 @@ namespace Chroma.Settings {
 
         private static List<NamedColor> colourPresets = null;// = new List<NamedColour>();
 
-        public static Color GetColor(string name) {
-            return GetColor(name, Color.clear);
+        public static Color? GetColor(string name) {
+            return GetColor(name, null);
         }
 
-        public static Color GetColor(string name, Color defaultColor) {
+        public static Color? GetColor(string name, Color? defaultColor) {
             if (colourPresets == null) InitializePresetList();
             foreach (NamedColor t in colourPresets) {
                 if (t.name == name) return t.color;
@@ -385,7 +384,7 @@ namespace Chroma.Settings {
 
         private static void InitializePresetList() {
 
-            colourPresets = new List<NamedColor>() { new NamedColor( "DEFAULT", Color.clear ) };// new List<Tuple<string, Color>>();
+            colourPresets = new List<NamedColor>() { new NamedColor( "DEFAULT", null ) };// new List<Tuple<string, Color>>();
 
             ColourManager.SaveExampleColours();
 

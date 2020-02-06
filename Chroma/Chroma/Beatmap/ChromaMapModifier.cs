@@ -215,57 +215,7 @@ namespace Chroma.Beatmap {
                 b = a;
                 if (FillColourEvent(bev, ref unfilledColourEvent, a)) return unfilledColourEvent;
             } else {
-                switch (bev.value) {
-                    case ChromaLightEvent.CHROMA_LIGHT_OFFSET + 1: // 1,900,000,001 = 1900000001 = A/B
-                        a = ColourManager.LightA;
-                        b = ColourManager.LightB;
-                        break;
-                    case ChromaLightEvent.CHROMA_LIGHT_OFFSET + 2: // 1,900,000,002 = 1900000002 = AltA/AltB
-                        a = ColourManager.LightAltA;
-                        b = ColourManager.LightAltB;
-                        break;
-                    case ChromaLightEvent.CHROMA_LIGHT_OFFSET + 3: // 1,900,000,003 = 1900000003 = White/Half White
-                        a = ColourManager.LightWhite;
-                        b = ColourManager.LightGrey;
-                        break;
-                    case ChromaLightEvent.CHROMA_LIGHT_OFFSET + 4: // 1,900,000,004 = 1900000004 = Technicolor/Technicolor
-                        a = ColourManager.GetTechnicolour(true, bev.time, ColourManager.TechnicolourStyle.WARM_COLD);
-                        b = ColourManager.GetTechnicolour(false, bev.time, ColourManager.TechnicolourStyle.WARM_COLD);
-                        break;
-                    case ChromaLightEvent.CHROMA_LIGHT_OFFSET + 5: // 1,900,000,005 = 1900000005 = RandomColor/RandomColor
-                        a = UnityEngine.Random.ColorHSV(); a.a = 1;
-                        b = UnityEngine.Random.ColorHSV(); b.a = 1;
-                        break;
-                    /*
-                     * 
-                     */
-                    /*case ChromaEvent.CHROMA_EVENT_SCALE: //1,950,000,001 = 1950000001 = Note Scale Event
-                        unfilledColourEvent = new ChromaNoteScaleEvent(bev);
-                        return null;
-                    case ChromaEvent.CHROMA_EVENT_HEALTH: //1,950,000,002 = 1950000002 = Health Event
-                        unfilledColourEvent = new ChromaHealthEvent(bev);
-                        return null;
-                    case ChromaEvent.CHROMA_EVENT_ROTATE: //1,950,000,003 = 1950000003 = Rotate Event
-                        unfilledColourEvent = new ChromaRotateEvent(bev);
-                        return null;
-                    case ChromaEvent.CHROMA_EVENT_AMBIENT_LIGHT: //1,950,000,004 = 1950000004 = Ambient Light Event
-                        unfilledColourEvent = new ChromaAmbientLightEvent(bev);
-                        return null;
-                    case ChromaEvent.CHROMA_EVENT_BARRIER_COLOUR: //1,950,000,005 = 1950000005 = Barrier Colour Event
-                        unfilledColourEvent = new ChromaBarrierColourEvent(bev);
-                        return null;*/
-                    /*case ChromaEvent.CHROMA_EVENT_RING_SPEED_MULT: //1,950,000,006 = 1950000006 = Ring Speed Event
-                        unfilledColourEvent = new ChromaRingSpeedEvent(bev);
-                        return null;
-                    case ChromaEvent.CHROMA_EVENT_RING_PROPAGATION_MULT: //1,950,000,007 = 1950000007 = Ring Prop Event
-                        unfilledColourEvent = new ChromaRingPropagationEvent(bev);
-                        return null;
-                    case ChromaEvent.CHROMA_EVENT_RING_STEP_MULT: //1,950,000,008 = 1950000008 = Ring Step Event
-                        unfilledColourEvent = new ChromaRingStepEvent(bev);
-                        return null;*/
-                    default: return null;
-                }
-                if (FillColourEvent(bev, ref unfilledColourEvent, a, b)) return unfilledColourEvent;
+                return null;
             }
 
             if (unfilledColourEvent != null) unfilledColourEvent = null;

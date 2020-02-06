@@ -26,9 +26,9 @@ namespace Chroma.HarmonyPatches {
                 ColourManager.BarrierColour = ColourManager.GetTechnicolour(true, Time.time + __instance.GetInstanceID(), ColourManager.TechnicolourStyle.PURE_RANDOM);
             }
 
-            // Save the _obstacleColor in case BarrierColor goes to Color.clear
+            // Save the _obstacleColor in case BarrierColor goes to null
             if (defaultObstacleColour == null) defaultObstacleColour = Resources.FindObjectsOfTypeAll<ColorManager>().First().GetPrivateField<SimpleColorSO>("_obstaclesColor").color;
-            Color c = ColourManager.BarrierColour == Color.clear ? defaultObstacleColour.Value : ColourManager.BarrierColour;
+            Color? c = ColourManager.BarrierColour == null ? defaultObstacleColour.Value : ColourManager.BarrierColour;
 
             // CustomObstacleColours
             if (ChromaObstacleColourEvent.CustomObstacleColours.Count > 0) {
@@ -57,7 +57,7 @@ namespace Chroma.HarmonyPatches {
                 ChromaLogger.Log(e);
             }
 
-            if (c != Color.clear) ____color.SetColor(c);
+            if (c != null) ____color.SetColor((Color)c);
         }
     }
 }

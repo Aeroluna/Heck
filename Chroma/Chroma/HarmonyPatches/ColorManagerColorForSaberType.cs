@@ -22,13 +22,13 @@ namespace Chroma.HarmonyPatches {
             }
 
             if (type == Saber.SaberType.SaberA) {
-                if (ColourManager.A != Color.clear) {
-                    __result = ColourManager.A;
+                if (ColourManager.A != null) {
+                    __result = (Color)ColourManager.A;
                     return false;
                 }
             } else {
-                if (ColourManager.B != Color.clear) {
-                    __result = ColourManager.B;
+                if (ColourManager.B != null) {
+                    __result = (Color)ColourManager.B;
                     return false;
                 }
             }

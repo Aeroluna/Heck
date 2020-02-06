@@ -61,8 +61,8 @@ namespace Chroma.HarmonyPatches {
                                     __instance.SetLightingColourA(ColourManager.GetTechnicolour(!blue, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
                                     break;
                                 default:
-                                    Color t = ColourManager.GetTechnicolour(!blue, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle);
-                                    ColourManager.RecolourAllLights(blue ? Color.clear : t, blue ? t : Color.clear);
+                                    Color? t = ColourManager.GetTechnicolour(!blue, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle);
+                                    ColourManager.RecolourAllLights(blue ? null : t, blue ? t : null);
                                     break;
                             }
                         }

@@ -22,7 +22,7 @@ namespace Chroma.HarmonyPatches {
         static void Prefix(NoteController __instance, NoteData noteData) {
             // They said it couldn't be done, they called me a madman
             if (noteData.noteType == NoteType.Bomb) {
-                Color c = Color.clear;
+                Color? c = null;
 
                 // Technicolour
                 if (ColourManager.TechnicolourBombs && ((int)ChromaConfig.TechnicolourBombsStyle == 2)) {
@@ -56,9 +56,9 @@ namespace Chroma.HarmonyPatches {
                     ChromaLogger.Log(e);
                 }
 
-                if (c != Color.clear) {
+                if (c != null) {
                     Material mat = __instance.noteTransform.gameObject.GetComponent<Renderer>().material;
-                    mat.SetColor("_SimpleColor", c);
+                    mat.SetColor("_SimpleColor", (Color)c);
                 }
             }
         }
