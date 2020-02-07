@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using IPA.Utilities;
+using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
 
 namespace Chroma.Beatmap {
 
@@ -156,22 +158,16 @@ namespace Chroma.Beatmap {
                 BeatmapEventData[] bevData = beatmapData.beatmapEventData;
                 ChromaColourEvent unfilledEvent = null;
                 for (int i = bevData.Length - 1; i >= 0; i--) {
-
-                    //Forcing lane change
-                    /*switch (bevData[i].value) {
-                        case ChromaEvent.CHROMA_EVENT_RING_ROTATE_LEFT:
-                            bevData[i].SetPrivateProperty("type", BeatmapEventType.Event8);
-                            break;
-                        case ChromaEvent.CHROMA_EVENT_RING_ROTATE_RIGHT:
-                            bevData[i].SetPrivateProperty("type", BeatmapEventType.Event8);
-                            break;
-                        case ChromaEvent.CHROMA_EVENT_RING_ROTATE_RESET:
-                            bevData[i].SetPrivateProperty("type", BeatmapEventType.Event8);
-                            break;
-                    }*/
-
                     ChromaEvent cLight = ApplyCustomEvent(bevData[i], ref unfilledEvent);
-                    if (cLight != null) ColourManager.TechnicolourLightsForceDisabled = ChromaUtils.CheckLightingEventRequirement();
+                    if (cLight != null) ColourManager.TechnicolourLightsForceDisabled = true;
+
+                    try {
+                        if (ChromaUtils.CheckLightingEventRequirement() && bevData[i] is CustomBeatmapEventData customData) {
+                            dynamic dynData = customData.customData;
+                            if (Trees.at(dynData, "_lightsID") != null) ColourManager.TechnicolourLightsForceDisabled = true;
+                        }
+                    }
+                    catch { }
                 }
 
             }

@@ -26,6 +26,8 @@ namespace Chroma.Beatmap.Events {
                     Color c = new Color(r, g, b);
                     CustomBombColours.Add(d.time, c);
                     //ChromaLogger.Log("Global bomb colour registered: " + c.ToString());
+
+                    ColourManager.TechnicolourLightsForceDisabled = ChromaUtils.CheckLightingEventRequirement();
                 }
                 catch (Exception e) {
                     ChromaLogger.Log("INVALID CUSTOM EVENT", ChromaLogger.Level.WARNING);

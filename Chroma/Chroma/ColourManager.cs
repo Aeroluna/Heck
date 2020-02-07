@@ -115,11 +115,11 @@ namespace Chroma {
         }
 
         public static bool TechnicolourBarriers {
-            get { return ChromaConfig.TechnicolourEnabled && ChromaConfig.TechnicolourWallsStyle != TechnicolourWallStyle.OFF; }
+            get { return ChromaConfig.TechnicolourEnabled && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourWallsStyle != TechnicolourWallStyle.OFF; }
         }
 
         public static bool TechnicolourBombs {
-            get { return ChromaConfig.TechnicolourEnabled && ChromaConfig.TechnicolourBombsStyle != TechnicolourWallStyle.OFF; }
+            get { return ChromaConfig.TechnicolourEnabled && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourBombsStyle != TechnicolourWallStyle.OFF; }
         }
 
         public static Color GetTechnicolour(NoteData noteData, TechnicolourStyle style) {
@@ -135,7 +135,7 @@ namespace Chroma {
                 case TechnicolourStyle.ANY_PALETTE:
                     return GetEitherTechnicolour(time, transition);
                 case TechnicolourStyle.PURE_RANDOM:
-                    return Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f); //UnityEngine.Random.ColorHSV().ColorWithAlpha(1f);
+                    return Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f);
                 case TechnicolourStyle.WARM_COLD:
                     return warm ? GetWarmTechnicolour(time, transition) : GetColdTechnicolour(time, transition);
                 default: return Color.white;
@@ -143,8 +143,6 @@ namespace Chroma {
         }
 
         public static Color GetEitherTechnicolour(float time, TechnicolourTransition transition) {
-            //System.Random rand = new System.Random(Mathf.FloorToInt(8*time));
-            //return rand.NextDouble() < 0.5 ? GetWarmTechnicolour(time) : GetColdTechnicolour(time);
             switch (transition) {
                 case TechnicolourTransition.FLAT:
                     return GetRandomFromArray(TechnicolourCombinedPalette, time);
@@ -198,7 +196,6 @@ namespace Chroma {
          * LIGHTS
          */
 
-        //public static Color DefaultLightAmbient { get; set; } = new Color(0, 0.3765f, 0.5f, 1); //0, 192, 255
         public static Color DefaultLightAmbient { get; set; } = new Color(0, 0.706f, 1f, 1);
 
         public static Color DefaultLightA { get; } = new Color(1, 0.016f, 0.016f, 1); //255, 4, 4
@@ -466,7 +463,6 @@ namespace Chroma {
                     if (prePassLight.name.Contains("BATNeon") || prePassLight.name.Contains("ENeon"))
                         prePassLight.color = Bclear ? new Color(1f, 0.031f, 0.031f, 1f) : ((Color)colorB).ColorWithAlpha(1f);
 
-                    //    Log($"PrepassLight: {prePassLight.name}");
                 }
             }
 
@@ -529,10 +525,8 @@ namespace Chroma {
 
                 ResetAllLights();
                 ColourManager.RecolourAmbientLights(ambientLight);
-                //if (!SceneUtils.IsTargetGameScene(SceneManager.GetActiveScene())) {
-                    ColourManager.RecolourNeonSign(signA, signB);
-                    ColourManager.RecolourMenuStuff(red, blue, redLight, blueLight, platform, laser);
-                //}
+                ColourManager.RecolourNeonSign(signA, signB);
+                ColourManager.RecolourMenuStuff(red, blue, redLight, blueLight, platform, laser);
 
                 if (ambientSound == null) AudioUtil.Instance.StopAmbianceSound();
                 else AudioUtil.Instance.StartAmbianceSound(ambientSound);
