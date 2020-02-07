@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Chroma.Beatmap.Events {
+namespace Chroma.Beatmap.Events.Legacy {
 
     public class ChromaLightEvent : ChromaColourEvent {
 

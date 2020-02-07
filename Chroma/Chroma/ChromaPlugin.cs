@@ -117,10 +117,10 @@ namespace Chroma {
                     ChromaLogger.Log("Checking for extensions.");
                     foreach (PluginLoader.PluginInfo pluginInfo in PluginManager.AllPlugins) {
                         //We can't get IBeatSaberPlugin references
-                        /*if (plugin is IChromaExtension chromaExtension) {
+                        if (plugin is IChromaExtension chromaExtension) {
                             chromaExtension.ChromaApplicationStarted(this);
                             chromaExtensions.Add(chromaExtension);
-                        }*/
+                        }
                     }
                 } catch (Exception) {
                     ChromaLogger.Log("Error adding all Extension plugins!  Extension registration interrupted.", ChromaLogger.Level.ERROR);
@@ -219,7 +219,7 @@ namespace Chroma {
 
                 if (Input.GetKey(KeyCode.Alpha1)) ColourManager.RecolourNeonSign((Color)ColourManager.SignA, (Color)ColourManager.SignB);
                 else if (Input.GetKey(KeyCode.Alpha2)) ColourManager.RefreshLights();
-                //else if (Input.GetKey(KeyCode.Alpha3)) ChromaTesting.Test();
+                else if (Input.GetKey(KeyCode.Alpha3)) ChromaTesting.Test();
                 else {
 
                     ChromaLogger.Log(" [[ Debug Info ]]");

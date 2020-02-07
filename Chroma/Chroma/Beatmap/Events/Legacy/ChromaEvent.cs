@@ -8,19 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Chroma.Beatmap.Events {
+namespace Chroma.Beatmap.Events.Legacy {
 
     public abstract class ChromaEvent {
 
         private static Dictionary<BeatmapEventData, ChromaEvent> chromaEvents = new Dictionary<BeatmapEventData, ChromaEvent>();
 
         public static void ClearChromaEvents() {
-            //ChromaRingPropagationEvent.ringPropagationMult = 1f;
-            //ChromaRingSpeedEvent.ringSpeedMult = 1f;
-            //ChromaRingStepEvent.ringStepMult = 1f;
-
-            //ResetFlags();
-
             chromaEvents.Clear();
 
         }
@@ -53,7 +47,6 @@ namespace Chroma.Beatmap.Events {
         }
 
         protected bool requiresColourEventsEnabled;
-        protected bool requiresSpecialEventsEnabled;
 
         public bool RequiresColourEventsEnabled { get { return requiresColourEventsEnabled; } }
 

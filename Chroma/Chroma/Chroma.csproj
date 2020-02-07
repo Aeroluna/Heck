@@ -46,9 +46,9 @@
     <Compile Include="Beatmap\Events\ChromaGradientEvent.cs" />
     <Compile Include="Beatmap\Events\ChromaLightColourEvent.cs" />
     <Compile Include="Beatmap\Events\ChromaObstacleColourEvent.cs" />
-    <Compile Include="Beatmap\Events\LegacyEvents\ChromaLightEvent.cs" />
-    <Compile Include="Beatmap\Events\LegacyEvents\ChromaColourEvent.cs" />
-    <Compile Include="Beatmap\Events\LegacyEvents\ChromaEvent.cs" />
+    <Compile Include="Beatmap\Events\Legacy\ChromaLightEvent.cs" />
+    <Compile Include="Beatmap\Events\Legacy\ChromaColourEvent.cs" />
+    <Compile Include="Beatmap\Events\Legacy\ChromaEvent.cs" />
     <Compile Include="ChromaBehaviour.cs" />
     <Compile Include="ChromaTesting.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />

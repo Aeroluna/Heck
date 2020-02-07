@@ -30,14 +30,18 @@ namespace Chroma {
             //Total randomization testing
             //LightsIsolatedTechnicolour.Activate(lse, type, ColourManager.TechnicolourStyle.PURE_RANDOM, true, Time.time);
             //}
-            LightSwitchEventEffect[] sprites = Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>();
-            foreach (LightSwitchEventEffect sprite in sprites)
-            {
-                if (sprite != null)
-                {
-                    ChromaLogger.Log(sprite.name + sprite.LightsID);
-                }
-            }
+
+            //LightSwitchEventEffect[] sprites = Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>();
+            //foreach (LightSwitchEventEffect sprite in sprites)
+            //{
+            //    if (sprite != null)
+            //    {
+            //        ChromaLogger.Log(sprite.name + sprite.LightsID);
+            //    }
+            //}
+
+            VFX.VFXLightning.InstanceOrDefault.TriggerLightning(false);
+            VFX.VFXLightning.InstanceOrDefault.AmbientLightning = true;
         }
 
     }

@@ -1,6 +1,6 @@
 ﻿using Chroma.Beatmap.ChromaEvents;
 using Chroma.Beatmap.Events;
-using Chroma.Beatmap.Z_Testing.ChromaEvents;
+using Chroma.Beatmap.Events.Legacy;
 using Chroma.Extensions;
 using Chroma.Settings;
 using CustomJSONData;
