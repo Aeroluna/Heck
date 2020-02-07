@@ -53,6 +53,7 @@
     <Compile Include="ChromaTesting.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
     <Compile Include="Extensions\TubeBloomPrePassLightExtensions.cs" />
+    <Compile Include="HarmonyPatches\ColorNoteVisuals.cs" />
     <Compile Include="HarmonyPatches\ObstacleControllerInit.cs" />
     <Compile Include="HarmonyPatches\MenuLightsManagerSetColorsFromPreset.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromJson.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="Utils\ChromaUtils.cs" />
     <Compile Include="Utils\SidePanelUtil.cs" />
     <Compile Include="VFX\VFXLightning.cs" />
+    <Compile Include="VFX\VFXRainbowNotes.cs" />
     <Compile Include="VFX\VFXRainbowBarriers.cs" />
     <Compile Include="VFX\VFXRainbowSabers.cs" />
   </ItemGroup>

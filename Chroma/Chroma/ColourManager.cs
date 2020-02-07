@@ -73,13 +73,8 @@ namespace Chroma {
             OFF = 0,
             WARM_COLD = 1,
             ANY_PALETTE = 2,
-            PURE_RANDOM = 3
-        }
-
-        public enum TechnicolourWallStyle {
-            OFF = 0,
-            GRADIENT = 1,
-            PURE_RANDOM = 2
+            PURE_RANDOM = 3,
+            GRADIENT = 4
         }
 
         public enum TechnicolourTransition {
@@ -115,11 +110,11 @@ namespace Chroma {
         }
 
         public static bool TechnicolourBarriers {
-            get { return ChromaConfig.TechnicolourEnabled && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourWallsStyle != TechnicolourWallStyle.OFF; }
+            get { return ChromaConfig.TechnicolourEnabled && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourWallsStyle != TechnicolourStyle.OFF; }
         }
 
         public static bool TechnicolourBombs {
-            get { return ChromaConfig.TechnicolourEnabled && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourBombsStyle != TechnicolourWallStyle.OFF; }
+            get { return ChromaConfig.TechnicolourEnabled && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourBombsStyle != TechnicolourStyle.OFF; }
         }
 
         public static Color GetTechnicolour(NoteData noteData, TechnicolourStyle style) {

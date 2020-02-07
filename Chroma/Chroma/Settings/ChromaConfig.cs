@@ -235,7 +235,7 @@ namespace Chroma.Settings {
         }
         private static TechnicolourStyle technicolourBlocksStyle = TechnicolourStyle.OFF;
 
-        public static TechnicolourWallStyle TechnicolourWallsStyle {
+        public static TechnicolourStyle TechnicolourWallsStyle {
             get {
                 return technicolourWallsStyle;
             }
@@ -244,9 +244,9 @@ namespace Chroma.Settings {
                 ChromaConfig.SetInt("Technicolour", "technicolourWallsStyle", (int)technicolourWallsStyle);
             }
         }
-        private static TechnicolourWallStyle technicolourWallsStyle = TechnicolourWallStyle.OFF;
+        private static TechnicolourStyle technicolourWallsStyle = TechnicolourStyle.OFF;
 
-        public static TechnicolourWallStyle TechnicolourBombsStyle {
+        public static TechnicolourStyle TechnicolourBombsStyle {
             get {
                 return technicolourBombsStyle;
             }
@@ -255,7 +255,7 @@ namespace Chroma.Settings {
                 ChromaConfig.SetInt("Technicolour", "technicolourBombsStyle", (int)technicolourBombsStyle);
             }
         }
-        private static TechnicolourWallStyle technicolourBombsStyle = TechnicolourWallStyle.OFF;
+        private static TechnicolourStyle technicolourBombsStyle = TechnicolourStyle.OFF;
 
         public static bool MatchTechnicolourSabers {
             get { return matchTechnicolourSabers; }
@@ -370,8 +370,8 @@ namespace Chroma.Settings {
                     technicolourLightsFrequency = GetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
                     technicolourSabersStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourSabersStyle", 0);
                     technicolourBlocksStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourBlocksStyle", 0);
-                    technicolourWallsStyle = (TechnicolourWallStyle)ChromaConfig.GetInt("Technicolour", "technicolourWallsStyle", 0);
-                    technicolourBombsStyle = (TechnicolourWallStyle)ChromaConfig.GetInt("Technicolour", "technicolourBombsStyle", 0);
+                    technicolourWallsStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourWallsStyle", 0);
+                    technicolourBombsStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourBombsStyle", 0);
                     matchTechnicolourSabers = ChromaConfig.GetBool("Technicolour", "matchTechnicolourSabers", false);
                 }
 

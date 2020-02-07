@@ -23,7 +23,7 @@ namespace Chroma.VFX {
             rainbowSaberColours = null;
         }
 
-        private const float rainbowSabersUpdate = 0.12f;
+        private const float rainbowSabersUpdate = 0.08f;
 
         public static void Instantiate(Saber[] sabers, float bpm, bool smooth, bool match, float mismatchSpeedMult) {
             rainbowSaberColours = new Color[] { Color.white, Color.white };
@@ -55,6 +55,10 @@ namespace Chroma.VFX {
         void Init() {
             matchOffset = ColourManager.TechnicolourCombinedPalette.Length / 2f;
             switch (ChromaConfig.TechnicolourSabersStyle) {
+                case ColourManager.TechnicolourStyle.GRADIENT:
+                    SetupEither();
+                    StartCoroutine(SmoothRainbowSabers(SlowedPaletteTick));
+                    break;
                 case ColourManager.TechnicolourStyle.ANY_PALETTE:
                     SetupEither();
                     StartCoroutine(SmoothRainbowSabers(PaletteTick));
@@ -99,6 +103,11 @@ namespace Chroma.VFX {
         private void PaletteTick() {
             rainbowSaberColours[0] = ColourManager.GetLerpedFromArray(leftPalette, (Time.time * mismatchSpeedMult) / secondsPerBeat);
             rainbowSaberColours[1] = ColourManager.GetLerpedFromArray(rightPalette, (Time.time) / secondsPerBeat);
+        }
+
+        private void SlowedPaletteTick() {
+            rainbowSaberColours[0] = ColourManager.GetLerpedFromArray(leftPalette, ((Time.time / 2) * mismatchSpeedMult) / secondsPerBeat);
+            rainbowSaberColours[1] = ColourManager.GetLerpedFromArray(rightPalette, (Time.time / 2) / secondsPerBeat);
         }
 
         private void SetupWarmCold() {

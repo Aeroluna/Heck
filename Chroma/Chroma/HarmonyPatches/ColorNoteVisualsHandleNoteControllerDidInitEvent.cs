@@ -15,9 +15,8 @@ namespace Chroma.HarmonyPatches {
     class ColorNoteVisualsHandleNoteControllerDidInitEvent {
 
         static void Prefix(ref NoteController noteController) {
-            if (ColourManager.TechnicolourBlocks) {
+            if (ColourManager.TechnicolourBlocks && ChromaConfig.TechnicolourBlocksStyle != ColourManager.TechnicolourStyle.GRADIENT) {
                 try {
-                    //ColourManager.SetNoteTypeColourOverride(noteController.noteData.noteType, Color.green);
                     ColourManager.SetNoteTypeColourOverride(noteController.noteData.noteType, ColourManager.GetTechnicolour(noteController.noteData, ChromaConfig.TechnicolourBlocksStyle));
                 } catch (Exception e) {
                     ChromaLogger.Log(e);

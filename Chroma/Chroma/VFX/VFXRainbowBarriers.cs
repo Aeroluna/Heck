@@ -49,7 +49,7 @@ namespace Chroma.VFX {
         }
 
         public static bool IsRainbowWalls() {
-            return (ChromaConfig.TechnicolourWallsStyle == ColourManager.TechnicolourWallStyle.GRADIENT) && ColourManager.TechnicolourBarriers;
+            return (ChromaConfig.TechnicolourWallsStyle == ColourManager.TechnicolourStyle.GRADIENT) && ColourManager.TechnicolourBarriers;
         }
 
     }

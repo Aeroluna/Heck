@@ -29,13 +29,13 @@ namespace Chroma.Settings {
         private List<object> _loggerLevelChoices = new List<object>() { 0, 1, 2, 3 };
 
         [UIValue("techlightschoices")]
-        private List<object> _techlightsChoices = (new object[] { TechnicolourStyle.OFF, TechnicolourStyle.WARM_COLD, TechnicolourStyle.ANY_PALETTE, TechnicolourStyle.PURE_RANDOM }).ToList();
+        private List<object> _techlightsChoices = (new object[] { TechnicolourStyle.OFF, TechnicolourStyle.WARM_COLD, TechnicolourStyle.ANY_PALETTE, TechnicolourStyle.PURE_RANDOM, TechnicolourStyle.GRADIENT }).ToList();
 
         [UIValue("techbarrierschoices")]
-        private List<object> _techbarrierschoices = (new object[] { TechnicolourWallStyle.OFF, TechnicolourWallStyle.GRADIENT, TechnicolourWallStyle.PURE_RANDOM }).ToList();
+        private List<object> _techbarrierschoices = (new object[] { TechnicolourStyle.OFF, TechnicolourStyle.GRADIENT, TechnicolourStyle.PURE_RANDOM }).ToList();
 
         [UIValue("techbombschoices")]
-        private List<object> _techbombschoices = (new object[] { TechnicolourWallStyle.OFF, TechnicolourWallStyle.PURE_RANDOM }).ToList();
+        private List<object> _techbombschoices = (new object[] { TechnicolourStyle.OFF, TechnicolourStyle.PURE_RANDOM }).ToList();
 
         [UIValue("lightsgroupchoices")]
         private List<object> _lightsgroupChoices = new List<object>() { TechnicolourLightsGrouping.STANDARD, TechnicolourLightsGrouping.ISOLATED_GROUP, TechnicolourLightsGrouping.ISOLATED };
@@ -67,6 +67,8 @@ namespace Chroma.Settings {
         [UIAction("techlightform")]
         public string techlightFormat(TechnicolourStyle t) {
             switch (t) {
+                case TechnicolourStyle.GRADIENT:
+                    return "GRADIENT";
                 case TechnicolourStyle.PURE_RANDOM:
                     return "TRUE RANDOM";
                 case TechnicolourStyle.ANY_PALETTE:
@@ -74,19 +76,6 @@ namespace Chroma.Settings {
                 case TechnicolourStyle.WARM_COLD:
                     return "WARM/COLD";
                 case TechnicolourStyle.OFF:
-                default:
-                    return "OFF";
-            }
-        }
-
-        [UIAction("techwallform")]
-        public string techwallFormat(TechnicolourWallStyle t) {
-            switch (t) {
-                case TechnicolourWallStyle.PURE_RANDOM:
-                    return "TRUE RANDOM";
-                case TechnicolourWallStyle.GRADIENT:
-                    return "GRADIENT";
-                case TechnicolourWallStyle.OFF:
                 default:
                     return "OFF";
             }
@@ -286,7 +275,7 @@ namespace Chroma.Settings {
         }
 
         [UIValue("techbarriers")]
-        public TechnicolourWallStyle TechnicolourWallsStyle {
+        public TechnicolourStyle TechnicolourWallsStyle {
             get => ChromaConfig.TechnicolourWallsStyle;
             set {
                 ChromaConfig.TechnicolourWallsStyle = value;
@@ -294,7 +283,7 @@ namespace Chroma.Settings {
         }
 
         [UIValue("techbombs")]
-        public TechnicolourWallStyle TechnicolourBombsStyle {
+        public TechnicolourStyle TechnicolourBombsStyle {
             get => ChromaConfig.TechnicolourBombsStyle;
             set {
                 ChromaConfig.TechnicolourBombsStyle = value;

@@ -162,6 +162,7 @@ namespace Chroma {
             if (scoreController != null) scoreController.comboDidChangeEvent += ComboChangedEvent;
             
             VFX.VFXRainbowBarriers.Instantiate(songBPM);
+            VFX.VFXRainbowNotes.Instantiate(songBPM);
             if (ColourManager.TechnicolourSabers) {
                 Saber[] sabers = GameObject.FindObjectsOfType<Saber>();
                 if (sabers != null) {
