@@ -192,6 +192,8 @@ namespace Chroma.VFX {
                     materialPropertyBlockController.ApplyChanges();
                 }
             }
+            ColourManager.SetNoteTypeColourOverride(NoteType.NoteA, gradientLeftColor);
+            ColourManager.SetNoteTypeColourOverride(NoteType.NoteB, gradientRightColor);
         }
 
         private void RainbowWalls() {

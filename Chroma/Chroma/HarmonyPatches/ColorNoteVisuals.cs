@@ -20,7 +20,7 @@ namespace Chroma.HarmonyPatches {
     class ColorNoteVisualsAwake {
 
         static void Postfix(ColorNoteVisuals __instance) {
-            if (ColourManager.TechnicolourLights && (ChromaConfig.TechnicolourLightsStyle == ColourManager.TechnicolourStyle.GRADIENT))
+            if (ColourManager.TechnicolourBlocks && (ChromaConfig.TechnicolourBlocksStyle == ColourManager.TechnicolourStyle.GRADIENT))
                 VFX.TechnicolourController.Instance._colorNoteVisuals.Add(__instance);
         }
 
