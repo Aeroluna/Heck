@@ -13,21 +13,17 @@ using UnityEngine;
 [HarmonyPatch(typeof(SaberWeaponTrail))]
 [HarmonyPatch("color", MethodType.Getter)]
 class SaberWeaponTrailColor {
-
-    //Default colours
-    //
     
     public static bool Prefix(SaberWeaponTrail __instance, ref Color __result, ref Color ____multiplierSaberColor, ref SaberTypeObject ____saberTypeObject) {
-        if (VFXRainbowSabers.rainbowSaberColours != null) {
-            __result = VFXRainbowSabers.rainbowSaberColours[____saberTypeObject.saberType == Saber.SaberType.SaberA ? 0 : 1];
-            return false;
+        if (TechnicolourController.Instantiated()) {
+            Color? c = TechnicolourController.Instance.rainbowSaberColours[____saberTypeObject.saberType == Saber.SaberType.SaberA ? 0 : 1];
+            if (c != null) {
+                __result = (Color)c;
+                return false;
+            }
         }
         return true;
     }
-
-    /*public static void Postfix(SaberWeaponTrail __instance, ref Color __result) {
-        __result = __result.ColorWithAlpha(__result.a * ChromaConfig.SaberTrailStrength);
-    }*/
 
 }
 

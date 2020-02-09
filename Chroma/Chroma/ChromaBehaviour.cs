@@ -95,6 +95,7 @@ namespace Chroma {
 
         public static float songBPM = 120f;
         public static AudioTimeSyncController ATSC;
+        public static bool LightingRegistered;
 
         internal List<IChromaBehaviourExtension> extensions = new List<IChromaBehaviourExtension>();
 
@@ -124,6 +125,9 @@ namespace Chroma {
             ChromaLightColourEvent.CustomLightColours.Clear();
             ChromaGradientEvent.CustomGradients.Clear();
 
+            ChromaGradientEvent.Clear();
+            VFX.TechnicolourController.Clear();
+
             ColourManager.LightSwitchs = null;
 
             Beatmap.ChromaEvents.MayhemEvent.manager = null;
@@ -135,6 +139,7 @@ namespace Chroma {
 
         private IEnumerator DelayedStart() {
             yield return new WaitForSeconds(0f);
+            LightingRegistered = ChromaUtils.CheckLightingEventRequirement();
             ChromaBehaviourInstantiated?.Invoke(this);
             beatmapObjectSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
             if (beatmapObjectSpawnController != null) {
@@ -160,13 +165,12 @@ namespace Chroma {
 
             scoreController = GameObject.FindObjectsOfType<ScoreController>().FirstOrDefault();
             if (scoreController != null) scoreController.comboDidChangeEvent += ComboChangedEvent;
-            
-            VFX.VFXRainbowBarriers.Instantiate(songBPM);
-            VFX.VFXRainbowNotes.Instantiate(songBPM);
+
+            VFX.TechnicolourController.InitializeGradients();
             if (ColourManager.TechnicolourSabers) {
                 Saber[] sabers = GameObject.FindObjectsOfType<Saber>();
                 if (sabers != null) {
-                    VFX.VFXRainbowSabers.Instantiate(sabers, songBPM, true, ChromaConfig.MatchTechnicolourSabers, ChromaConfig.MatchTechnicolourSabers ? 1f : 0.8f) ;
+                    VFX.TechnicolourController.InitializeSabers(sabers);
                 }
             }
 
@@ -246,7 +250,7 @@ namespace Chroma {
 
             // SimpleCustomEvents subscriptions
             CustomEvents.CustomEventCallbackController cecc = gcss.GetComponentInParent<CustomEvents.CustomEventCallbackController>();
-            if (ChromaUtils.CheckLightingEventRequirement()) {
+            if (ChromaBehaviour.LightingRegistered) {
                 cecc.AddCustomEventCallback(ChromaGradientEvent.Activate, "_lightGradient", 0);
             }
         }

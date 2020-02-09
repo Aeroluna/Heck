@@ -20,18 +20,8 @@ namespace Chroma.HarmonyPatches {
     class ColorNoteVisualsAwake {
 
         static void Postfix(ColorNoteVisuals __instance) {
-            VFX.VFXRainbowNotes._colorNoteVisuals.Add(__instance);
-        }
-
-    }
-
-    [HarmonyPriority(Priority.Low)]
-    [HarmonyPatch(typeof(ColorNoteVisuals))]
-    [HarmonyPatch("OnDestroy")]
-    class ColorNoteVisualsOnDestroy {
-
-        static void Postfix(ColorNoteVisuals __instance) {
-            VFX.VFXRainbowNotes._colorNoteVisuals.Remove(__instance);
+            if (ColourManager.TechnicolourLights && (ChromaConfig.TechnicolourLightsStyle == ColourManager.TechnicolourStyle.GRADIENT))
+                VFX.TechnicolourController.Instance._colorNoteVisuals.Add(__instance);
         }
 
     }

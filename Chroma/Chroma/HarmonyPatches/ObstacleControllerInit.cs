@@ -22,8 +22,8 @@ namespace Chroma.HarmonyPatches {
         internal static Color? defaultObstacleColour;
         static void Prefix(ObstacleController __instance, ref SimpleColorSO ____color, ref ObstacleData obstacleData) {
             // Technicolour
-            if (ColourManager.TechnicolourBarriers && ((int)ChromaConfig.TechnicolourWallsStyle == 2)) {
-                ColourManager.BarrierColour = ColourManager.GetTechnicolour(true, Time.time + __instance.GetInstanceID(), ColourManager.TechnicolourStyle.PURE_RANDOM);
+            if (ColourManager.TechnicolourBarriers && (ChromaConfig.TechnicolourWallsStyle != ColourManager.TechnicolourStyle.GRADIENT)) {
+                ColourManager.BarrierColour = ColourManager.GetTechnicolour(true, Time.time + __instance.GetInstanceID(), ChromaConfig.TechnicolourWallsStyle);
             }
 
             // Save the _obstacleColor in case BarrierColor goes to null
@@ -39,7 +39,7 @@ namespace Chroma.HarmonyPatches {
 
             // CustomJSONData _customData individual color override
             try {
-                if (obstacleData is CustomObstacleData customData && ChromaUtils.CheckLightingEventRequirement()) {
+                if (obstacleData is CustomObstacleData customData && ChromaBehaviour.LightingRegistered) {
                     dynamic dynData = customData.customData;
                     if (dynData != null) {
                         float? r = (float?)Trees.at(dynData, "_obstacleR");
@@ -58,6 +58,26 @@ namespace Chroma.HarmonyPatches {
             }
 
             if (c != null) ____color.SetColor((Color)c);
+        }
+    }
+
+    [HarmonyPriority(Priority.Low)]
+    [HarmonyPatch(typeof(ObstacleController))]
+    [HarmonyPatch("OnEnable")]
+    class ObstacleControllerOnEnable {
+        static void Postfix(ObstacleController __instance) {
+            if (!VFX.TechnicolourController.Instantiated()) return;
+            VFX.TechnicolourController.Instance._stretchableObstacles.Add(__instance.GetPrivateField<StretchableObstacle>("_stretchableObstacle"));
+        }
+    }
+
+    [HarmonyPriority(Priority.Low)]
+    [HarmonyPatch(typeof(ObstacleController))]
+    [HarmonyPatch("OnDisable")]
+    class ObstacleControllerOnDisable {
+        static void Postfix(ObstacleController __instance) {
+            if (!VFX.TechnicolourController.Instantiated()) return;
+            VFX.TechnicolourController.Instance._stretchableObstacles.Remove(__instance.GetPrivateField<StretchableObstacle>("_stretchableObstacle"));
         }
     }
 }

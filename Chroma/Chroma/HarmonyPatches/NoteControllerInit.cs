@@ -22,11 +22,14 @@ namespace Chroma.HarmonyPatches {
         static void Prefix(NoteController __instance, NoteData noteData) {
             // They said it couldn't be done, they called me a madman
             if (noteData.noteType == NoteType.Bomb) {
+                if (VFX.TechnicolourController.Instantiated())
+                    VFX.TechnicolourController.Instance._bombControllers.Add(__instance);
+
                 Color? c = null;
 
                 // Technicolour
-                if (ColourManager.TechnicolourBombs && ((int)ChromaConfig.TechnicolourBombsStyle == 2)) {
-                    c = ColourManager.GetTechnicolour(true, Time.time + __instance.GetInstanceID(), ColourManager.TechnicolourStyle.PURE_RANDOM);
+                if (ColourManager.TechnicolourBombs && ChromaConfig.TechnicolourBombsStyle != ColourManager.TechnicolourStyle.GRADIENT) {
+                    c = ColourManager.GetTechnicolour(true, Time.time + __instance.GetInstanceID(), ChromaConfig.TechnicolourBombsStyle);
                 }
 
                 // NoteScales
@@ -38,7 +41,7 @@ namespace Chroma.HarmonyPatches {
 
                 // CustomJSONData _customData individual scale override
                 try {
-                    if (noteData is CustomNoteData customData && ChromaUtils.CheckLightingEventRequirement()) {
+                    if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered) {
                         dynamic dynData = customData.customData;
                         if (dynData != null) {
                             float? r = (float?)Trees.at(dynData, "_bombR");

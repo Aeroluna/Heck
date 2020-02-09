@@ -38,6 +38,15 @@ namespace Chroma.HarmonyPatches {
 
             if (beatmapEventData.type != ____event) return true;
 
+            if (beatmapEventData.value <= 7 && beatmapEventData.value >= 0) {
+                if (VFX.TechnicolourController.Instantiated() && !VFX.TechnicolourController.Instance._lightSwitchLastValue.TryGetValue(__instance, out int value)) {
+                    VFX.TechnicolourController.Instance._lightSwitchLastValue.Add(__instance, beatmapEventData.value);
+                }
+                else {
+                    VFX.TechnicolourController.Instance._lightSwitchLastValue[__instance] = beatmapEventData.value;
+                }
+            }
+
             MonoBehaviour __monobehaviour = __instance;
             Color? c = CheckCJD(__monobehaviour, beatmapEventData, ____event);
 
@@ -48,7 +57,7 @@ namespace Chroma.HarmonyPatches {
             try {
 
                 // https://docs.google.com/spreadsheets/d/1vCTlDvx0ZW8NkkZBYW6ecvXaVRxDUKX7QIoah9PCp_c/edit#gid=0
-                if (ColourManager.TechnicolourLights && (int)____event <= 4) { //0-4 are actual lighting events, we don't want to bother with anything else like ring spins or custom events
+                if (ColourManager.TechnicolourLights && ChromaConfig.TechnicolourLightsStyle != ColourManager.TechnicolourStyle.GRADIENT && (int)____event <= 4) { //0-4 are actual lighting events, we don't want to bother with anything else like ring spins or custom events
                                                                                //System.Random noteRandom = new System.Random(Mathf.FloorToInt(beatmapEventData.time * 408));
                     if (techniLightRandom.NextDouble() < ChromaConfig.TechnicolourLightsFrequency) {
                         if (beatmapEventData.value > 0 && beatmapEventData.value <= 7) {
@@ -60,6 +69,7 @@ namespace Chroma.HarmonyPatches {
                                 case ColourManager.TechnicolourLightsGrouping.ISOLATED_GROUP:
                                     __instance.SetLightingColourA(ColourManager.GetTechnicolour(!blue, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
                                     break;
+                                case ColourManager.TechnicolourLightsGrouping.STANDARD:
                                 default:
                                     Color? t = ColourManager.GetTechnicolour(!blue, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle);
                                     ColourManager.RecolourAllLights(blue ? null : t, blue ? t : null);
@@ -99,7 +109,7 @@ namespace Chroma.HarmonyPatches {
                     }
                 }
             }
-
+            
             try {
 
                 if (beatmapEventData is CustomBeatmapEventData customData) {
@@ -120,8 +130,8 @@ namespace Chroma.HarmonyPatches {
                                 if (lights.Length > propID) SetOverrideLightWithIds(lights[(int)propID]);
                             }
                         }
-
-                        if (Utils.ChromaUtils.CheckLightingEventRequirement()) {
+                        
+                        if (ChromaBehaviour.LightingRegistered) {
                             if (__monobehaviour is LightSwitchEventEffect) {
                                 // GRADIENT
                                 int? intid = (int?)Trees.at(dynData, "_lightsID");
@@ -172,7 +182,7 @@ namespace Chroma.HarmonyPatches {
                 ChromaLogger.Log("INVALID _customData", ChromaLogger.Level.WARNING);
                 ChromaLogger.Log(e);
             }
-
+            
             return c;
         }
 

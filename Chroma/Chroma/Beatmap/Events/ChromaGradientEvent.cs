@@ -21,12 +21,13 @@ namespace Chroma.Beatmap.Events {
                 if (_instance == null) _instance = new GameObject("Chroma_GradientController");
                 return _instance;
             }
-            set {
-                if (_instance != null) Destroy(_instance);
-                _instance = value;
-            }
         }
         private static GameObject _instance;
+
+        public static void Clear() {
+            if (_instance != null) Destroy(_instance);
+            _instance = null;
+        }
 
         public static ChromaGradientEvent Instantiate(Color initc, Color endc, float start, float dur, BeatmapEventType type) {
             ChromaGradientEvent gradient = Instance.AddComponent<ChromaGradientEvent>();

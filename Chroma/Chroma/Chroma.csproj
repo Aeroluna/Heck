@@ -100,9 +100,7 @@
     <Compile Include="Utils\ChromaUtils.cs" />
     <Compile Include="Utils\SidePanelUtil.cs" />
     <Compile Include="VFX\VFXLightning.cs" />
-    <Compile Include="VFX\VFXRainbowNotes.cs" />
-    <Compile Include="VFX\VFXRainbowBarriers.cs" />
-    <Compile Include="VFX\VFXRainbowSabers.cs" />
+    <Compile Include="VFX\TechnicolourController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Beatmap\ChromaNotes\" />

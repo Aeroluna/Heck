@@ -32,10 +32,7 @@ namespace Chroma.Settings {
         private List<object> _techlightsChoices = (new object[] { TechnicolourStyle.OFF, TechnicolourStyle.WARM_COLD, TechnicolourStyle.ANY_PALETTE, TechnicolourStyle.PURE_RANDOM, TechnicolourStyle.GRADIENT }).ToList();
 
         [UIValue("techbarrierschoices")]
-        private List<object> _techbarrierschoices = (new object[] { TechnicolourStyle.OFF, TechnicolourStyle.GRADIENT, TechnicolourStyle.PURE_RANDOM }).ToList();
-
-        [UIValue("techbombschoices")]
-        private List<object> _techbombschoices = (new object[] { TechnicolourStyle.OFF, TechnicolourStyle.PURE_RANDOM }).ToList();
+        private List<object> _techbarrierschoices = (new object[] { TechnicolourStyle.OFF, TechnicolourStyle.ANY_PALETTE, TechnicolourStyle.PURE_RANDOM, TechnicolourStyle.GRADIENT }).ToList();
 
         [UIValue("lightsgroupchoices")]
         private List<object> _lightsgroupChoices = new List<object>() { TechnicolourLightsGrouping.STANDARD, TechnicolourLightsGrouping.ISOLATED_GROUP, TechnicolourLightsGrouping.ISOLATED };

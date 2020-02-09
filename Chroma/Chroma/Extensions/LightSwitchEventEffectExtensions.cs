@@ -53,9 +53,6 @@ namespace Chroma.Extensions {
 
         internal static void LSEStart(MonoBehaviour lse, BeatmapEventType type) {
             LSEColourManager lsecm = LSEColourManager.CreateLSEColourManager(lse, type);
-            /*if (type == BeatmapEventType.Event1) {
-                ChromaTesting.lse = lse; ChromaTesting.type = type;
-            }*/
         }
 
         internal static void LSEDestroy(MonoBehaviour lse, BeatmapEventType type) {

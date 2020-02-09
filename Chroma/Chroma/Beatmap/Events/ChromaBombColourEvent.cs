@@ -16,7 +16,7 @@ namespace Chroma.Beatmap.Events {
         
         // Creates dictionary loaded with all _bombColor custom events and indexs them with the event's time
         public static void Activate(List<CustomEventData> eventData) {
-            if (!ChromaUtils.CheckLightingEventRequirement()) return;
+            if (!ChromaBehaviour.LightingRegistered) return;
             foreach (CustomEventData d in eventData) {
                 try {
                     dynamic dynData = d.data;
@@ -27,7 +27,7 @@ namespace Chroma.Beatmap.Events {
                     CustomBombColours.Add(d.time, c);
                     //ChromaLogger.Log("Global bomb colour registered: " + c.ToString());
 
-                    ColourManager.TechnicolourLightsForceDisabled = ChromaUtils.CheckLightingEventRequirement();
+                    ColourManager.TechnicolourLightsForceDisabled = true;
                 }
                 catch (Exception e) {
                     ChromaLogger.Log("INVALID CUSTOM EVENT", ChromaLogger.Level.WARNING);

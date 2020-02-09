@@ -159,7 +159,7 @@ namespace Chroma.Beatmap {
                     if (cLight != null) ColourManager.TechnicolourLightsForceDisabled = true;
 
                     try {
-                        if (ChromaUtils.CheckLightingEventRequirement() && bevData[i] is CustomBeatmapEventData customData) {
+                        if (ChromaBehaviour.LightingRegistered && bevData[i] is CustomBeatmapEventData customData) {
                             dynamic dynData = customData.customData;
                             if (Trees.at(dynData, "_lightsID") != null) ColourManager.TechnicolourLightsForceDisabled = true;
                         }

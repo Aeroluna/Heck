@@ -98,7 +98,7 @@ namespace Chroma {
 
         public static bool TechnicolourLights {
             get {
-                return !ChromaBehaviour.IsLoadingSong && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourEnabled && ChromaConfig.TechnicolourLightsStyle != TechnicolourStyle.OFF; }
+                return ChromaConfig.TechnicolourEnabled && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourLightsStyle != TechnicolourStyle.OFF; }
         }
 
         public static bool TechnicolourSabers {
@@ -360,7 +360,7 @@ namespace Chroma {
             set {
                 if (_lightSwitchs != null) {
                     _lightSwitchs.Clear();
-                    _lightSwitchs = value;
+                    _lightSwitchs = null;
                 }
             }
         }

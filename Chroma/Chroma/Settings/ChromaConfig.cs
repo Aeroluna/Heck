@@ -287,7 +287,6 @@ namespace Chroma.Settings {
 
             ChromaPlugin.MainMenuLoadedEvent += ChromaEvent.ClearChromaEvents;
             ChromaPlugin.SongSceneLoadedEvent += ChromaEvent.ClearChromaEvents;
-            VFX.VFXRainbowSabers.RegisterListeners();
         }
 
 
