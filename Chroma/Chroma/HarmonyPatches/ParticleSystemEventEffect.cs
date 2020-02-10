@@ -57,6 +57,17 @@ namespace Chroma.HarmonyPatches {
 
         static bool Prefix(ParticleSystemEventEffect __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____colorEvent) {
 
+            if (beatmapEventData.type != ____colorEvent) return true;
+
+            if (beatmapEventData.value <= 7 && beatmapEventData.value >= 0) {
+                if (VFX.TechnicolourController.Instantiated() && !VFX.TechnicolourController.Instance._particleSystemLastValue.TryGetValue(__instance, out int value)) {
+                    VFX.TechnicolourController.Instance._particleSystemLastValue.Add(__instance, beatmapEventData.value);
+                }
+                else {
+                    VFX.TechnicolourController.Instance._particleSystemLastValue[__instance] = beatmapEventData.value;
+                }
+            }
+
             MonoBehaviour __monobehaviour = __instance;
             Color? c = LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.CheckCJD(__monobehaviour, beatmapEventData, ____colorEvent);
 

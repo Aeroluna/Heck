@@ -55,6 +55,7 @@ namespace Chroma.VFX {
         public List<ColorNoteVisuals> _colorNoteVisuals = new List<ColorNoteVisuals>();
         public List<StretchableObstacle> _stretchableObstacles = new List<StretchableObstacle>();
         public Dictionary<LightSwitchEventEffect, int> _lightSwitchLastValue = new Dictionary<LightSwitchEventEffect, int>();
+        public Dictionary<ParticleSystemEventEffect, int> _particleSystemLastValue = new Dictionary<ParticleSystemEventEffect, int>();
         public List<NoteController> _bombControllers = new List<NoteController>();
 
         public static void InitializeGradients() {
@@ -122,6 +123,10 @@ namespace Chroma.VFX {
         }
 
         private void RainbowLights() {
+
+            ColourManager.RecolourAllLights(gradientLeftColor, gradientRightColor);
+
+            // light switches
             foreach (KeyValuePair<LightSwitchEventEffect, int> n in _lightSwitchLastValue) {
 
                 if (n.Value == 0) continue;
@@ -136,8 +141,6 @@ namespace Chroma.VFX {
                         warm = "1";
                         break;
                 }
-                float _offColorIntensity = n.Key.GetPrivateField<float>("_offColorIntensity");
-                ColourManager.RecolourAllLights(gradientLeftColor, gradientRightColor);
 
                 Color c;
                 switch (n.Value) {
@@ -149,24 +152,53 @@ namespace Chroma.VFX {
                         c = n.Key.GetPrivateField<MultipliedColorSO>("_highlightColor" + warm).color;
                         break;
                 }
-
                 if (n.Key.enabled) {
                     n.Key.SetPrivateField("_highlightColor", c);
-
-                    if (n.Value == 3 || n.Value == 7) {
-                        n.Key.SetPrivateField("_afterHighlightColor", c.ColorWithAlpha(_offColorIntensity));
-                    }
-                    else {
-                        n.Key.SetPrivateField("_afterHighlightColor", c);
-                    }
+                    if (n.Value == 3 || n.Value == 7) n.Key.SetPrivateField("_afterHighlightColor", c.ColorWithAlpha(0f));
+                    else n.Key.SetPrivateField("_afterHighlightColor", c);
                 }
                 else {
-                    if (n.Value == 1 || n.Value == 5 || n.Value == 2 || n.Value == 6) {
-                        n.Key.SetColor(c);
-                    }
+                    if (n.Value == 1 || n.Value == 5 || n.Value == 2 || n.Value == 6) n.Key.SetColor(c);
                 }
-                n.Key.SetPrivateField("_offColor", c.ColorWithAlpha(_offColorIntensity));
-                
+                n.Key.SetPrivateField("_offColor", c.ColorWithAlpha(0f));
+            }
+
+            // particles
+            foreach (KeyValuePair<ParticleSystemEventEffect, int> n in _particleSystemLastValue) {
+
+                if (n.Value == 0) continue;
+
+                String warm;
+                switch (n.Value) {
+                    case 1: case 2: case 3:
+                    default:
+                        warm = "0";
+                        break;
+                    case 5: case 6: case 7:
+                        warm = "1";
+                        break;
+                }
+
+                Color c;
+                switch (n.Value) {
+                    case 1: case 5:
+                    default:
+                        c = n.Key.GetPrivateField<MultipliedColorSO>("_lightColor" + warm).color;
+                        break;
+                    case 2: case 6: case 3: case 7:
+                        c = n.Key.GetPrivateField<MultipliedColorSO>("_highlightColor" + warm).color;
+                        break;
+                }
+                if (n.Key.enabled) {
+                    n.Key.SetPrivateField("_highlightColor", c);
+                    if (n.Value == 3 || n.Value == 7) n.Key.SetPrivateField("_afterHighlightColor", c.ColorWithAlpha(0f));
+                    else  n.Key.SetPrivateField("_afterHighlightColor", c);
+                }
+                else {
+                    if (n.Value == 1 || n.Value == 5 || n.Value == 2 || n.Value == 6) n.Key.SetPrivateField("_particleColor", c);
+                }
+                n.Key.SetPrivateField("_offColor", c.ColorWithAlpha(0f));
+                n.Key.RefreshParticles();
             }
         }
 
