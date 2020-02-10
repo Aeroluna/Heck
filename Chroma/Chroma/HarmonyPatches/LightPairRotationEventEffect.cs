@@ -39,7 +39,7 @@ namespace Chroma.HarmonyPatches {
     class LightPairRotationEventEffectUpdateRotationData {
 
         //Laser rotation
-        static bool Prefix(LightPairRotationEventEffect __instance, ref BeatmapEventType ____eventL) {
+        static bool Prefix(LightPairRotationEventEffect __instance, ref BeatmapEventType ____eventL, float startRotationOffset, float direction) {
 
             if (!ChromaBehaviour.LightingRegistered) return true;
 
@@ -70,10 +70,8 @@ namespace Chroma.HarmonyPatches {
                         int? dir = (int?)Trees.at(dynData, "_direction");
                         if (dir == null) dir = -1;
 
-                        bool rotInboard;
-                        if (dir == -1) rotInboard = UnityEngine.Random.value < 0.5f;
-                        else if (dir == 1) rotInboard = true;
-                        else rotInboard = false;
+                        if (dir == 1) direction = 1;
+                        else if (dir == 0) direction = -1;
 
                         //Actual lasering
                         Transform _transform = _rotationData.GetField<Transform>("transform");
@@ -85,12 +83,14 @@ namespace Chroma.HarmonyPatches {
                                 _transform.localRotation = _startRotation;
                             }
                         }
-                        else if (!(bool)lockPosition) {
-                            _transform.localRotation = _startRotation;
-                            _transform.Rotate(_rotationVector, UnityEngine.Random.Range(0f, 180f), Space.Self);
+                        else {
+                            _rotationData.SetPrivateField("enabled", true);
+                            _rotationData.SetPrivateField("rotationSpeed", (float)precisionSpeed * 20f * direction);
+                            if (!(bool)lockPosition) {
+                                _transform.localRotation = _startRotation;
+                                _transform.Rotate(_rotationVector, startRotationOffset, Space.Self);
+                            }
                         }
-                        _rotationData.SetPrivateField("enabled", true);
-                        _rotationData.SetPrivateField("rotationSpeed", (float)precisionSpeed * 20f * (rotInboard ? -1f : 1f));
 
                         return false;
                     }
