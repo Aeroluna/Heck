@@ -70,7 +70,6 @@
     <Compile Include="HarmonyPatches\ColorManagerColorForNoteType.cs" />
     <Compile Include="HarmonyPatches\ColorManagerColorForSaberType.cs" />
     <Compile Include="HarmonyPatches\ColorNoteVisualsHandleNoteControllerDidInitEvent.cs" />
-    <Compile Include="HarmonyPatches\LightRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.cs" />
     <Compile Include="HarmonyPatches\LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.cs" />
     <Compile Include="HarmonyPatches\NoteControllerInit.cs" />
     <Compile Include="HarmonyPatches\NoteCutEffectSpawnerSpawnNoteCutEffect.cs" />
