@@ -1,6 +1,4 @@
-﻿using Chroma.Beatmap.ChromaEvents;
-using Chroma.Beatmap.Events;
-using Chroma.Beatmap.Z_Testing.ChromaEvents;
+﻿using Chroma.Beatmap.Events;
 using Chroma.Extensions;
 using Chroma.Settings;
 using CustomJSONData;
@@ -81,7 +79,7 @@ namespace Chroma.HarmonyPatches {
                 if (ColourManager.TechnicolourLights && (int)____colorEvent <= 4) { //0-4 are actual lighting events, we don't want to bother with anything else like ring spins or custom events
                     if (techniLightRandom.NextDouble() < ChromaConfig.TechnicolourLightsFrequency) {
                         if (beatmapEventData.value != 0 && (ChromaConfig.TechnicolourLightsGrouping == ColourManager.TechnicolourLightsGrouping.ISOLATED)) {
-                            MayhemEvent.ParticleTechnicolour(beatmapEventData, __instance);
+                            VFX.MayhemEvent.ParticleTechnicolour(beatmapEventData, __instance);
                             return false;
                         }
                     }

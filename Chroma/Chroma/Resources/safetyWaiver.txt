@@ -34,9 +34,4 @@ Below are the features explicitly blocked unless the safety waiver has been sign
 -<indent=3>Stretch well beforehand, and do not play more than a couple</indent>
 -<indent=3>minutes at a time.  Don't be as dumb as I am.</indent>
 
-<align="center">How to Sign</align>
-If you skipped to this point, be aware that Chroma is sentient and will track you down.  Chroma will hurt you.  And it won't be anyone's fault but your own.
-
-To mark the safety waiver as read, open the settings menu and type "SAFETYHAZARD" into the password field.
-
 Good luck.

@@ -6,7 +6,7 @@ using UnityEngine;
 using System.Linq;
 using System;
 
-namespace Chroma.Beatmap.ChromaEvents {
+namespace Chroma.VFX {
 
     class MayhemEvent {
 

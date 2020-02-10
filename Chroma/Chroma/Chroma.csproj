@@ -33,9 +33,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Beatmap\ChromaEvents\MayhemEvent.cs" />
-    <Compile Include="Beatmap\ChromaEvents\Z_Testing\LightsSmoothTransition.cs" />
-    <Compile Include="Beatmap\ChromaEvents\Z_Testing\RingEvents\RingLightsPropagateColour.cs" />
+    <Compile Include="VFX\MayhemEvent.cs" />
     <Compile Include="Beatmap\ChromaMapModifier.cs" />
     <Compile Include="Beatmap\CustomBeatmap.cs" />
     <Compile Include="Beatmap\CustomBeatmapBarrier.cs" />
@@ -51,7 +49,6 @@
     <Compile Include="Beatmap\Events\Legacy\ChromaColourEvent.cs" />
     <Compile Include="Beatmap\Events\Legacy\ChromaEvent.cs" />
     <Compile Include="ChromaBehaviour.cs" />
-    <Compile Include="ChromaTesting.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
     <Compile Include="Extensions\SaberColourizer.cs" />
     <Compile Include="HarmonyPatches\ColorNoteVisuals.cs" />
@@ -89,13 +86,9 @@
     <Compile Include="IChromaBehaviourExtension.cs" />
     <Compile Include="Utils\ChromaUtils.cs" />
     <Compile Include="Utils\SidePanelUtil.cs" />
-    <Compile Include="VFX\VFXLightning.cs" />
     <Compile Include="VFX\TechnicolourController.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Beatmap\ChromaNotes\" />
-    <Folder Include="Beatmap\Events\VFXEvents\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="ResourceTextFiles.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

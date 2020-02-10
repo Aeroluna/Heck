@@ -41,6 +41,8 @@ namespace Chroma.HarmonyPatches {
         //Laser rotation
         static bool Prefix(LightPairRotationEventEffect __instance, ref BeatmapEventType ____eventL) {
 
+            if (!ChromaBehaviour.LightingRegistered) return true;
+
             BeatmapEventData beatmapEventData = LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.lastLightPairRotationEventEffectData;
 
             // Thank you +1 Rabbit for providing this code

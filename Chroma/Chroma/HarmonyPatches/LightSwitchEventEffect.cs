@@ -1,5 +1,4 @@
-﻿using Chroma.Beatmap.ChromaEvents;
-using Chroma.Beatmap.Events;
+﻿using Chroma.Beatmap.Events;
 using Chroma.Beatmap.Events.Legacy;
 using Chroma.Extensions;
 using Chroma.Settings;
@@ -116,7 +115,7 @@ namespace Chroma.HarmonyPatches {
                             bool blue = beatmapEventData.value <= 3; //Blue events are 1, 2 and 3
                             switch (ChromaConfig.TechnicolourLightsGrouping) {
                                 case ColourManager.TechnicolourLightsGrouping.ISOLATED:
-                                    MayhemEvent.ActivateTechnicolour(beatmapEventData, __instance);
+                                    VFX.MayhemEvent.ActivateTechnicolour(beatmapEventData, __instance);
                                     return false;
                                 case ColourManager.TechnicolourLightsGrouping.ISOLATED_GROUP:
                                     __instance.SetLightingColourA(ColourManager.GetTechnicolour(!blue, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));

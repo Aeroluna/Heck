@@ -20,7 +20,7 @@ namespace Chroma.HarmonyPatches {
         static bool Prefix(TrackLaneRingsRotationEffectSpawner __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____beatmapEventType, ref TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect, ref float ____rotationStep, ref float ____rotationPropagationSpeed, ref float ____rotationFlexySpeed) {
 
             try {
-                if (beatmapEventData.type == ____beatmapEventType) {
+                if (beatmapEventData.type == ____beatmapEventType && ChromaBehaviour.LightingRegistered) {
                     if (beatmapEventData is CustomBeatmapEventData customData) {
                         dynamic dynData = customData.customData;
                         if (dynData != null) {

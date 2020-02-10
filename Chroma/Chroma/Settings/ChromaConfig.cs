@@ -320,11 +320,10 @@ namespace Chroma.Settings {
 
             ColourManager.LightSwitchs = null;
 
-            Beatmap.ChromaEvents.MayhemEvent.manager = null;
+            VFX.MayhemEvent.manager = null;
         }
 
         internal static void LoadSettings(LoadSettingsType type) {
-            //string iniName = ModPrefs.GetString("Chroma", "ConfigProfile", "default", true); //TODO get the thing
             string iniName = "settings";
             IniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);
 
@@ -338,7 +337,6 @@ namespace Chroma.Settings {
                 
                 ChromaLogger.Log("Loading settings [" + type.ToString() + "]", ChromaLogger.Level.INFO);
 
-                //string iniName = ModPrefs.GetString("Chroma", "ConfigProfile", "default", true); //TODO get the thing
                 string iniName = "settings";
                 IniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);
 
@@ -381,7 +379,6 @@ namespace Chroma.Settings {
                     technicolourEnabled = ChromaConfig.GetBool("Technicolour", "technicolourEnabled", false);
 
                     technicolourLightsStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourLightsStyle", 1);
-                    //technicolourLightsIndividual = GetBool("Technicolour", "technicolourLightsIndividual", technicolourLightsIndividual);
                     technicolourLightsGrouping = (TechnicolourLightsGrouping)ChromaConfig.GetInt("Technicolour", "technicolourLightsGrouping", 1);
                     technicolourLightsFrequency = GetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
                     technicolourSabersStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourSabersStyle", 0);
