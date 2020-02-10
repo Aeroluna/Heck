@@ -119,20 +119,6 @@ namespace Chroma {
                 beatmapObjectSpawnController.noteWasMissedEvent -= HandleNoteWasMissedEvent;
             }
             if (scoreController != null) scoreController.comboDidChangeEvent -= ComboChangedEvent;
-
-            ChromaObstacleColourEvent.CustomObstacleColours.Clear();
-            ChromaNoteColourEvent.CustomNoteColours.Clear();
-            ChromaNoteColourEvent.SavedNoteColours.Clear();
-            ChromaBombColourEvent.CustomBombColours.Clear();
-            ChromaLightColourEvent.CustomLightColours.Clear();
-            ChromaGradientEvent.CustomGradients.Clear();
-
-            ChromaGradientEvent.Clear();
-            VFX.TechnicolourController.Clear();
-
-            ColourManager.LightSwitchs = null;
-
-            Beatmap.ChromaEvents.MayhemEvent.manager = null;
         }
 
         void Start() {

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Chroma.Beatmap.Events;
 using static Chroma.ColourManager;
 
 namespace Chroma.Settings {
@@ -287,6 +288,9 @@ namespace Chroma.Settings {
 
             ChromaPlugin.MainMenuLoadedEvent += ChromaEvent.ClearChromaEvents;
             ChromaPlugin.SongSceneLoadedEvent += ChromaEvent.ClearChromaEvents;
+
+            ChromaPlugin.MainMenuLoadedEvent += CleanupSongEvents;
+            ChromaPlugin.SongSceneLoadedEvent += CleanupSongEvents;
         }
 
 
@@ -301,10 +305,23 @@ namespace Chroma.Settings {
             ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteB);
 
             ColourManager.RefreshLights();
-
-            //LoadSettingsEvent?.Invoke(LoadSettingsType.MENU_LOADED);
         }
 
+        private static void CleanupSongEvents() {
+            ChromaObstacleColourEvent.CustomObstacleColours.Clear();
+            ChromaNoteColourEvent.CustomNoteColours.Clear();
+            ChromaNoteColourEvent.SavedNoteColours.Clear();
+            ChromaBombColourEvent.CustomBombColours.Clear();
+            ChromaLightColourEvent.CustomLightColours.Clear();
+            ChromaGradientEvent.CustomGradients.Clear();
+
+            ChromaGradientEvent.Clear();
+            VFX.TechnicolourController.Clear();
+
+            ColourManager.LightSwitchs = null;
+
+            Beatmap.ChromaEvents.MayhemEvent.manager = null;
+        }
 
         internal static void LoadSettings(LoadSettingsType type) {
             //string iniName = ModPrefs.GetString("Chroma", "ConfigProfile", "default", true); //TODO get the thing

@@ -53,7 +53,11 @@ namespace Chroma.HarmonyPatches {
                 ChromaLogger.Log(e);
             }
 
-            if (c != null) ____color.SetColor((Color)c);
+            if (c != null) {
+                // create new SimpleColorSO, as to not overwrite the main color scheme
+                ____color = ScriptableObject.CreateInstance<SimpleColorSO>();
+                ____color.SetColor((Color)c);
+            }
         }
     }
 
