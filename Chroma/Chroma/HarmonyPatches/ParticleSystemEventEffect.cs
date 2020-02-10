@@ -12,8 +12,36 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using System.Collections;
 
 namespace Chroma.HarmonyPatches {
+
+    [HarmonyPriority(Priority.High)]
+    [HarmonyPatch(typeof(ParticleSystemEventEffect))]
+    [HarmonyPatch("Start")]
+    class ParticleSystemEventEffectStart {
+
+        static void Postfix(ParticleSystemEventEffect __instance, ref BeatmapEventType ____colorEvent) {
+            __instance.StartCoroutine(WaitThenStart(__instance, ____colorEvent));
+        }
+
+        private static IEnumerator WaitThenStart(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent) {
+            yield return new WaitForEndOfFrame();
+            LightSwitchEventEffectExtensions.LSEStart(__instance, ____colorEvent);
+        }
+
+    }
+
+    [HarmonyPriority(Priority.High)]
+    [HarmonyPatch(typeof(ParticleSystemEventEffect))]
+    [HarmonyPatch("OnDestroy")]
+    class ParticleSystemEventEffectOnDestroy {
+
+        static void Postfix(ParticleSystemEventEffect __instance, ref BeatmapEventType ____colorEvent) {
+            LightSwitchEventEffectExtensions.LSEDestroy(__instance, ____colorEvent);
+        }
+
+    }
 
     [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(ParticleSystemEventEffect))]

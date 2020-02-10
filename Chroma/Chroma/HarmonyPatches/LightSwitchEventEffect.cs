@@ -13,8 +13,58 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using IPA.Utilities;
+using System.Collections;
 
 namespace Chroma.HarmonyPatches {
+
+    [HarmonyPriority(Priority.High)]
+    [HarmonyPatch(typeof(LightSwitchEventEffect))]
+    [HarmonyPatch("Start")]
+    class LightSwitchEventEffectStart {
+
+        static void Postfix(LightSwitchEventEffect __instance, ref BeatmapEventType ____event) {
+            __instance.StartCoroutine(WaitThenStart(__instance, ____event));
+        }
+
+        private static IEnumerator WaitThenStart(LightSwitchEventEffect __instance, BeatmapEventType ____event) {
+            yield return new WaitForEndOfFrame();
+            LightSwitchEventEffectExtensions.LSEStart(__instance, ____event);
+        }
+
+    }
+
+    [HarmonyPriority(Priority.High)]
+    [HarmonyPatch(typeof(LightSwitchEventEffect))]
+    [HarmonyPatch("OnDestroy")]
+    class LightSwitchEventEffectOnDestroy {
+
+        static void Postfix(LightSwitchEventEffect __instance, ref BeatmapEventType ____event) {
+            LightSwitchEventEffectExtensions.LSEDestroy(__instance, ____event);
+        }
+
+    }
+
+    [HarmonyPriority(Priority.High)]
+    [HarmonyPatch(typeof(LightSwitchEventEffect))]
+    [HarmonyPatch("SetColor")]
+    class LightSwitchEventEffectSetColor {
+
+        static bool Prefix(LightSwitchEventEffect __instance, ref Color color) {
+
+            if (LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.overrideLightWithIdActivation != null) {
+
+                LightWithId[] lights = LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.overrideLightWithIdActivation;
+                for (int i = 0; i < lights.Length; i++) {
+                    lights[i].ColorWasSet(color);
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
+    }
 
     [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(LightSwitchEventEffect))]

@@ -9,6 +9,22 @@ using UnityEngine;
 
 namespace Chroma.HarmonyPatches {
 
+    [HarmonyPriority(Priority.Low)]
+    [HarmonyPatch(typeof(ColorManager))]
+    [HarmonyPatch("ColorForNoteType")]
+    class ColorManagerColorForNoteType {
+
+        public static bool Prefix(ref Color __result, ref NoteType type) {
+            Color? c = ColourManager.GetNoteTypeColourOverride(type);
+            if (c != null) {
+                __result = (Color)c;
+                return false;
+            }
+            return true;
+        }
+
+    }
+
     [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(ColorManager))]
     [HarmonyPatch("ColorForSaberType")]
@@ -26,7 +42,8 @@ namespace Chroma.HarmonyPatches {
                     __result = (Color)ColourManager.A;
                     return false;
                 }
-            } else {
+            }
+            else {
                 if (ColourManager.B != null) {
                     __result = (Color)ColourManager.B;
                     return false;
