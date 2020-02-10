@@ -21,6 +21,9 @@ namespace Chroma.Beatmap {
         public static CustomBeatmap CreateTransformedData(BeatmapData beatmapData, ref ChromaBehaviour chromaBehaviour, ref PlayerSpecificSettings playerSettings, ref BaseGameModeType baseGameMode, ref float bpm) {
 
             ColourManager.TechnicolourLightsForceDisabled = false;
+            ColourManager.TechnicolourBlocksForceDisabled = false;
+            ColourManager.TechnicolourBarriersForceDisabled = false;
+            ColourManager.TechnicolourBombsForceDisabled = false;
 
             if (beatmapData == null) ChromaLogger.Log("Null beatmapData", ChromaLogger.Level.ERROR);
             if (playerSettings == null) ChromaLogger.Log("Null playerSettings", ChromaLogger.Level.ERROR);
@@ -164,6 +167,7 @@ namespace Chroma.Beatmap {
                             if (Trees.at(dynData, "_lightsID") != null) ColourManager.TechnicolourLightsForceDisabled = true;
                             if (Trees.at(dynData, "_obstacleR") != null) ColourManager.TechnicolourBarriersForceDisabled = true;
                             if (Trees.at(dynData, "_bombR") != null) ColourManager.TechnicolourBombsForceDisabled = true;
+                            if (Trees.at(dynData, "_id") != null) ColourManager.TechnicolourBlocksForceDisabled = true;
                         }
                     }
                     catch { }

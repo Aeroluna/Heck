@@ -59,7 +59,7 @@ namespace Chroma.HarmonyPatches {
 
             // CustomJSONData _customData individual color override
             try {
-                if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered) {
+                if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered && ChromaConfig.NoteColourEventsEnabled) {
                     dynamic dynData = customData.customData;
                     if (dynData != null) {
                         float? r = (float?)Trees.at(dynData, "_noteR");

@@ -89,6 +89,7 @@ namespace Chroma {
         }
 
         public static bool TechnicolourLightsForceDisabled { get; set; } = false;
+        public static bool TechnicolourBlocksForceDisabled { get; set; } = false;
         public static bool TechnicolourBarriersForceDisabled { get; set; } = false;
         public static bool TechnicolourBombsForceDisabled { get; set; } = false;
 
@@ -98,11 +99,11 @@ namespace Chroma {
         }
 
         public static bool TechnicolourSabers {
-            get { return ChromaConfig.TechnicolourEnabled && ChromaConfig.TechnicolourSabersStyle != TechnicolourStyle.OFF; }
+            get { return ChromaConfig.TechnicolourEnabled && !TechnicolourBlocksForceDisabled && ChromaConfig.TechnicolourSabersStyle != TechnicolourStyle.OFF; }
         }
 
         public static bool TechnicolourBlocks {
-            get { return ChromaConfig.TechnicolourEnabled && ChromaConfig.TechnicolourBlocksStyle != TechnicolourStyle.OFF; }
+            get { return ChromaConfig.TechnicolourEnabled && !TechnicolourBlocksForceDisabled && ChromaConfig.TechnicolourBlocksStyle != TechnicolourStyle.OFF; }
         }
 
         public static bool TechnicolourBarriers {

@@ -36,7 +36,7 @@ namespace Chroma.Beatmap.Events {
                     }
                     dictionaryID.Add(d.time, c);
 
-                    //ColourManager.TechnicolourBarriersForceDisabled = true;
+                    ColourManager.TechnicolourBlocksForceDisabled = true;
                 }
                 catch (Exception e) {
                     ChromaLogger.Log("INVALID CUSTOM EVENT", ChromaLogger.Level.WARNING);

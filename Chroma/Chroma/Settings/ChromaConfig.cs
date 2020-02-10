@@ -105,6 +105,17 @@ namespace Chroma.Settings {
         }
         private static bool customColourEventsEnabled = true;
 
+        public static bool NoteColourEventsEnabled
+        {
+            get { return customColourEventsEnabled; }
+            set
+            {
+                noteColourEventsEnabled = value;
+                ChromaConfig.SetBool("Map", "noteColourEventsEnabled", noteColourEventsEnabled);
+            }
+        }
+        private static bool noteColourEventsEnabled = true;
+
         /// <summary>
         /// Global multiplier for audio sources used by Chroma
         /// </summary>
@@ -361,6 +372,7 @@ namespace Chroma.Settings {
 
                 customMapCheckingEnabled = ChromaConfig.GetBool("Map", "customMapCheckingEnabled", true);
                 customColourEventsEnabled = ChromaConfig.GetBool("Map", "customColourEventsEnabled", true);
+                noteColourEventsEnabled = ChromaConfig.GetBool("Map", "noteColourEventsEnabled", true);
                 ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", CustomColourEventsEnabled);
 
                 /*

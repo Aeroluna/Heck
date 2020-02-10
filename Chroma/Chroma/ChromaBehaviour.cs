@@ -228,7 +228,7 @@ namespace Chroma {
                         ChromaObstacleColourEvent.Activate(n.Value);
                         break;
                     case "_noteColor":
-                        ChromaNoteColourEvent.Activate(n.Value);
+                        if (ChromaConfig.NoteColourEventsEnabled) ChromaNoteColourEvent.Activate(n.Value);
                         break;
                     case "_bombColor":
                         ChromaBombColourEvent.Activate(n.Value);

@@ -236,6 +236,16 @@ namespace Chroma.Settings {
             }
         }
 
+        [UIValue("notecolors")]
+        public bool NoteColourEventsEnabled
+        {
+            get => !ChromaConfig.NoteColourEventsEnabled;
+            set
+            {
+                ChromaConfig.NoteColourEventsEnabled = !value;
+            }
+        }
+
         #endregion
 
         #region Technicolour
