@@ -121,6 +121,8 @@ namespace Chroma {
 
             ObstacleControllerInit.defaultObstacleColour = null;
             ChromaObstacleColourEvent.CustomObstacleColours.Clear();
+            ChromaNoteColourEvent.CustomNoteColours.Clear();
+            ChromaNoteColourEvent.SavedNoteColours.Clear();
             ChromaBombColourEvent.CustomBombColours.Clear();
             ChromaLightColourEvent.CustomLightColours.Clear();
             ChromaGradientEvent.CustomGradients.Clear();
@@ -166,13 +168,12 @@ namespace Chroma {
             scoreController = GameObject.FindObjectsOfType<ScoreController>().FirstOrDefault();
             if (scoreController != null) scoreController.comboDidChangeEvent += ComboChangedEvent;
 
-            VFX.TechnicolourController.InitializeGradients();
-            if (ColourManager.TechnicolourSabers) {
-                Saber[] sabers = GameObject.FindObjectsOfType<Saber>();
-                if (sabers != null) {
-                    VFX.TechnicolourController.InitializeSabers(sabers);
-                }
+            Saber[] sabers = GameObject.FindObjectsOfType<Saber>();
+            if (sabers != null) {
+                Extensions.SaberColourizer.InitializeSabers(sabers);
             }
+
+            VFX.TechnicolourController.InitializeGradients();
 
             IsLoadingSong = false;
         }
@@ -239,6 +240,9 @@ namespace Chroma {
                     case "_obstacleColor":
                         ChromaObstacleColourEvent.Activate(n.Value);
                         break;
+                    case "_noteColor":
+                        ChromaNoteColourEvent.Activate(n.Value);
+                        break;
                     case "_bombColor":
                         ChromaBombColourEvent.Activate(n.Value);
                         break;
@@ -251,7 +255,7 @@ namespace Chroma {
             // SimpleCustomEvents subscriptions
             CustomEvents.CustomEventCallbackController cecc = gcss.GetComponentInParent<CustomEvents.CustomEventCallbackController>();
             if (ChromaBehaviour.LightingRegistered) {
-                cecc.AddCustomEventCallback(ChromaGradientEvent.Activate, "_lightGradient", 0);
+                cecc.AddCustomEventCallback(ChromaGradientEvent.Callback, "_lightGradient", 0);
             }
         }
 

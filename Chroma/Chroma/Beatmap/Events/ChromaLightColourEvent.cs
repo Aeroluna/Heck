@@ -35,7 +35,6 @@ namespace Chroma.Beatmap.Events {
                         CustomLightColours.Add((BeatmapEventType)id, dictionaryID);
                     }
                     dictionaryID.Add(d.time, c);
-                    //ChromaLogger.Log("Global light colour registered: " + c.ToString());
 
                     ColourManager.TechnicolourLightsForceDisabled = true;
                 }

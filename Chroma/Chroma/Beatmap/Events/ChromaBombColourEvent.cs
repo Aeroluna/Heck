@@ -25,7 +25,6 @@ namespace Chroma.Beatmap.Events {
                     float b = (float)Trees.at(dynData, "b");
                     Color c = new Color(r, g, b);
                     CustomBombColours.Add(d.time, c);
-                    //ChromaLogger.Log("Global bomb colour registered: " + c.ToString());
 
                     ColourManager.TechnicolourBombsForceDisabled = true;
                 }

@@ -68,7 +68,7 @@ namespace Chroma.Beatmap.Events {
         }
 
         // Creates dictionary loaded with all _lightGradient custom events and indexs them with the event's time and type
-        public static void Activate(CustomEventData eventData) {
+        public static void Callback(CustomEventData eventData) {
             try {
                 // Pull and assign all custom data
                 dynamic dynData = eventData.data;

@@ -21,14 +21,12 @@ namespace Chroma.HarmonyPatches {
 
         internal static Color? defaultObstacleColour;
         static void Prefix(ObstacleController __instance, ref SimpleColorSO ____color, ref ObstacleData obstacleData) {
+            Color? c = ColourManager.BarrierColour;
+
             // Technicolour
             if (ColourManager.TechnicolourBarriers && (ChromaConfig.TechnicolourWallsStyle != ColourManager.TechnicolourStyle.GRADIENT)) {
-                ColourManager.BarrierColour = ColourManager.GetTechnicolour(true, Time.time + __instance.GetInstanceID(), ChromaConfig.TechnicolourWallsStyle);
+                c = ColourManager.GetTechnicolour(true, Time.time + __instance.GetInstanceID(), ChromaConfig.TechnicolourWallsStyle);
             }
-
-            // Save the _obstacleColor in case BarrierColor goes to null
-            if (defaultObstacleColour == null) defaultObstacleColour = Resources.FindObjectsOfTypeAll<ColorManager>().First().GetPrivateField<SimpleColorSO>("_obstaclesColor").color;
-            Color? c = ColourManager.BarrierColour == null ? defaultObstacleColour.Value : ColourManager.BarrierColour;
 
             // CustomObstacleColours
             if (ChromaObstacleColourEvent.CustomObstacleColours.Count > 0) {
@@ -47,7 +45,6 @@ namespace Chroma.HarmonyPatches {
                         float? b = (float?)Trees.at(dynData, "_obstacleB");
                         if (r != null && g != null && b != null) {
                             c = new Color(r.Value, g.Value, b.Value);
-                            //ChromaLogger.Log("Single barrier colour changed to " + c.ToString());
                         }
                     }
                 }

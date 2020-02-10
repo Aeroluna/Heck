@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using IPA.Utilities;
+using Chroma.Extensions;
 
 namespace Chroma.VFX {
 
@@ -67,14 +68,28 @@ namespace Chroma.VFX {
                 Instance.UpdateTechnicolourEvent += Instance.RainbowWalls;
             if (ColourManager.TechnicolourBombs && (ChromaConfig.TechnicolourBombsStyle == ColourManager.TechnicolourStyle.GRADIENT))
                 Instance.UpdateTechnicolourEvent += Instance.RainbowBombs;
-        }
 
-        public static void InitializeSabers(Saber[] sabers) {
-            Instance.saberColourizers = new SaberColourizer[sabers.Length];
-            for (int i = 0; i < sabers.Length; i++) {
-                Instance.saberColourizers[i] = new SaberColourizer(sabers[i]);
+            // sabers use this script regardless of if technicolour
+            if (ColourManager.TechnicolourSabers) {
+                switch (ChromaConfig.TechnicolourSabersStyle) {
+                    case ColourManager.TechnicolourStyle.GRADIENT:
+                        Instance.UpdateTechnicolourEvent += Instance.GradientTick;
+                        break;
+                    case ColourManager.TechnicolourStyle.ANY_PALETTE:
+                        Instance.SetupEither();
+                        Instance.UpdateTechnicolourEvent += Instance.PaletteTick;
+                        break;
+                    case ColourManager.TechnicolourStyle.PURE_RANDOM:
+                        Instance.SetupRandom();
+                        Instance.UpdateTechnicolourEvent += Instance.RandomTick;
+                        break;
+                    default:
+                        Instance.SetupWarmCold();
+                        Instance.UpdateTechnicolourEvent += Instance.PaletteTick;
+                        break;
+                }
+                Instance.UpdateTechnicolourEvent += Instance.RainbowSabers;
             }
-            Instance.SabersInit();
         }
 
         void Update() {
@@ -94,33 +109,11 @@ namespace Chroma.VFX {
             }
         }
 
-        SaberColourizer[] saberColourizers;
         private bool match;
         private float mismatchSpeedOffset = 0;
 
         Color[] leftSaberPalette;
         Color[] rightSaberPalette;
-
-        void SabersInit() {
-            switch (ChromaConfig.TechnicolourSabersStyle) {
-                case ColourManager.TechnicolourStyle.GRADIENT:
-                    UpdateTechnicolourEvent += GradientTick;
-                    break;
-                case ColourManager.TechnicolourStyle.ANY_PALETTE:
-                    SetupEither();
-                    UpdateTechnicolourEvent += PaletteTick;
-                    break;
-                case ColourManager.TechnicolourStyle.PURE_RANDOM:
-                    SetupRandom();
-                    UpdateTechnicolourEvent += RandomTick;
-                    break;
-                default:
-                    SetupWarmCold();
-                    UpdateTechnicolourEvent += PaletteTick;
-                    break;
-            }
-            UpdateTechnicolourEvent += RainbowSabers;
-        }
 
         private void RainbowLights() {
 
@@ -257,7 +250,7 @@ namespace Chroma.VFX {
         }
 
         private void RainbowSabers() {
-            foreach (SaberColourizer saber in saberColourizers) {
+            foreach (SaberColourizer saber in SaberColourizer.saberColourizers) {
                 saber.Colourize(saber.warm ? (Color)rainbowSaberColours[0] : (Color)rainbowSaberColours[1]);
             }
         }
@@ -319,66 +312,6 @@ namespace Chroma.VFX {
         private void SetupRandom() {
             randomCycleLeft = new Color[] { Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f), Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f) };
             randomCycleRight = new Color[] { Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f), Color.HSVToRGB(UnityEngine.Random.value, 1f, 1f) };
-        }
-
-
-
-        private class SaberColourizer {
-
-            public bool warm;
-
-            SetSaberGlowColor[] glowColors;
-            MeshRenderer[] meshRenderers;
-            MaterialPropertyBlock[] blocks;
-            SetSaberGlowColor.PropertyTintColorPair[][] tintPairs;
-
-            List<Material> customMats = new List<Material>();
-
-            public SaberColourizer(Saber saber) {
-                warm = saber.saberType == Saber.SaberType.SaberA;
-
-                glowColors = saber.GetComponentsInChildren<SetSaberGlowColor>();
-                meshRenderers = new MeshRenderer[glowColors.Length];
-                blocks = new MaterialPropertyBlock[glowColors.Length];
-                tintPairs = new SetSaberGlowColor.PropertyTintColorPair[glowColors.Length][];
-                for (int i = 0; i < glowColors.Length; i++) {
-                    meshRenderers[i] = glowColors[i].GetPrivateField<MeshRenderer>("_meshRenderer");
-
-                    blocks[i] = glowColors[i].GetPrivateField<MaterialPropertyBlock>("_materialPropertyBlock");
-                    if (blocks[i] == null) {
-                        blocks[i] = new MaterialPropertyBlock();
-                        glowColors[i].SetPrivateField("_materialPropertyBlock", blocks[i]);
-                    }
-                    tintPairs[i] = glowColors[i].GetPrivateField<SetSaberGlowColor.PropertyTintColorPair[]>("_propertyTintColorPairs");
-                    meshRenderers[i].SetPropertyBlock(blocks[i], 0);
-                }
-
-                //Custom sabers??
-                Renderer[] renderers = saber.GetComponentsInChildren<Renderer>();
-                for (int i = 0; i < renderers.Length; i++) {
-                    foreach (Material material in renderers[i].materials) {
-                        if ((material.HasProperty("_Glow") && material.GetFloat("_Glow") > 0f) || (material.HasProperty("_Bloom") && material.GetFloat("_Bloom") > 0f)) {
-                            customMats.Add(material);
-                        }
-                    }
-                }
-            }
-
-            public void Colourize(Color color) {
-                for (int i = 0; i < glowColors.Length; i++) {
-
-                    for (int j = 0; j < tintPairs[i].Length; j++) {
-                        blocks[i].SetColor(tintPairs[i][j].property, color * tintPairs[i][j].tintColor);
-                    }
-
-                    meshRenderers[i].SetPropertyBlock(blocks[i], 0);
-                }
-
-                foreach (Material material in customMats) {
-                    material.SetColor("_Color", color);
-                }
-            }
-
         }
 
     }

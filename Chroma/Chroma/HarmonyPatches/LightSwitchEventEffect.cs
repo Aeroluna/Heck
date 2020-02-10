@@ -89,11 +89,13 @@ namespace Chroma.HarmonyPatches {
             if (beatmapEventData.type != ____event) return true;
 
             if (beatmapEventData.value <= 7 && beatmapEventData.value >= 0) {
-                if (VFX.TechnicolourController.Instantiated() && !VFX.TechnicolourController.Instance._lightSwitchLastValue.TryGetValue(__instance, out int value)) {
-                    VFX.TechnicolourController.Instance._lightSwitchLastValue.Add(__instance, beatmapEventData.value);
-                }
-                else {
-                    VFX.TechnicolourController.Instance._lightSwitchLastValue[__instance] = beatmapEventData.value;
+                if (VFX.TechnicolourController.Instantiated()) {
+                    if(!VFX.TechnicolourController.Instance._lightSwitchLastValue.TryGetValue(__instance, out int value)) {
+                        VFX.TechnicolourController.Instance._lightSwitchLastValue.Add(__instance, beatmapEventData.value);
+                    }
+                    else {
+                        VFX.TechnicolourController.Instance._lightSwitchLastValue[__instance] = beatmapEventData.value;
+                    }
                 }
             }
 
@@ -159,7 +161,8 @@ namespace Chroma.HarmonyPatches {
                     }
                 }
             }
-            
+
+            // CustomJSONData _customData individual override
             try {
 
                 if (beatmapEventData is CustomBeatmapEventData customData) {
@@ -238,8 +241,6 @@ namespace Chroma.HarmonyPatches {
 
         public static bool ActivateLegacyEvent(MonoBehaviour __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____event) {
             try {
-
-                //if (ChromaEvent.SimpleEventActivate(__instance, ref beatmapEventData, ref ____event)) return false;
 
                 if (beatmapEventData.type == ____event) {
                     ChromaEvent customEvent = ChromaEvent.GetChromaEvent(beatmapEventData);

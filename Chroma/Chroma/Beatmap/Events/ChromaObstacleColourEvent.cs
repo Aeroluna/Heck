@@ -25,7 +25,6 @@ namespace Chroma.Beatmap.Events {
                     float b = (float)Trees.at(dynData, "b");
                     Color c = new Color(r, g, b);
                     CustomObstacleColours.Add(d.time, c);
-                    //ChromaLogger.Log("Global barrier colour registered: " + c.ToString());
 
                     ColourManager.TechnicolourBarriersForceDisabled = true;
                 }

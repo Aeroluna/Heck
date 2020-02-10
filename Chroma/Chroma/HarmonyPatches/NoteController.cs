@@ -49,7 +49,6 @@ namespace Chroma.HarmonyPatches {
                             float? b = (float?)Trees.at(dynData, "_bombB");
                             if (r != null && g != null && b != null) {
                                 c = new Color(r.Value, g.Value, b.Value);
-                                //ChromaLogger.Log("Single bomb colour changed to " + c.ToString());
                             }
                         }
                     }
@@ -63,6 +62,8 @@ namespace Chroma.HarmonyPatches {
                     Material mat = __instance.noteTransform.gameObject.GetComponent<Renderer>().material;
                     mat.SetColor("_SimpleColor", (Color)c);
                 }
+
+                __instance.noteWasCutEvent += ChromaNoteColourEvent.SaberColour;
             }
         }
 

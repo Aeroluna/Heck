@@ -45,6 +45,7 @@
     <Compile Include="Beatmap\Events\ChromaBombColourEvent.cs" />
     <Compile Include="Beatmap\Events\ChromaGradientEvent.cs" />
     <Compile Include="Beatmap\Events\ChromaLightColourEvent.cs" />
+    <Compile Include="Beatmap\Events\ChromaNoteColourEvent.cs" />
     <Compile Include="Beatmap\Events\ChromaObstacleColourEvent.cs" />
     <Compile Include="Beatmap\Events\Legacy\ChromaLightEvent.cs" />
     <Compile Include="Beatmap\Events\Legacy\ChromaColourEvent.cs" />
@@ -52,8 +53,9 @@
     <Compile Include="ChromaBehaviour.cs" />
     <Compile Include="ChromaTesting.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
-    <Compile Include="Extensions\TubeBloomPrePassLightExtensions.cs" />
+    <Compile Include="Extensions\SaberColourizer.cs" />
     <Compile Include="HarmonyPatches\ColorNoteVisuals.cs" />
+    <Compile Include="HarmonyPatches\NoteDebrisSpawner.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />
     <Compile Include="HarmonyPatches\MenuLightsManager.cs" />
     <Compile Include="HarmonyPatches\LightPairRotationEventEffect.cs" />

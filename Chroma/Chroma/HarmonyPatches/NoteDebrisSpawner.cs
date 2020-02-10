@@ -10,11 +10,11 @@ using UnityEngine;
 
 namespace Chroma.HarmonyPatches {
     
-    [HarmonyPatch(typeof(NoteCutEffectSpawner))]
-    [HarmonyPatch("SpawnNoteCutEffect")]
-    class NoteCutEffectSpawnerSpawnNoteCutEffect {
+    [HarmonyPatch(typeof(NoteDebrisSpawner))]
+    [HarmonyPatch("SpawnDebris")]
+    class NoteDebrisSpawnerSpawnDebris {
 
-        static void Prefix(ref NoteController noteController) {
+        static void Prefix(ref INoteController noteController) {
             if (!ColourManager.TechnicolourBlocks || ChromaConfig.TechnicolourBlocksStyle != ColourManager.TechnicolourStyle.GRADIENT) {
                 if (ChromaNoteColourEvent.SavedNoteColours.TryGetValue(noteController, out Color c)) {
                     ColourManager.SetNoteTypeColourOverride(noteController.noteData.noteType, c);
@@ -22,7 +22,7 @@ namespace Chroma.HarmonyPatches {
             }
         }
 
-        static void Postfix(ref NoteController noteController) {
+        static void Postfix(ref INoteController noteController) {
             ColourManager.RemoveNoteTypeColourOverride(noteController.noteData.noteType);
         }
 
