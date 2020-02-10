@@ -1,35 +1,35 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using CustomJSONData;
-using UnityEngine;
-using Chroma.Utils;
 using IPA.Utilities;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 
-namespace Chroma.Beatmap.Events {
-
-    class ChromaGradientEvent : MonoBehaviour {
-
+namespace Chroma.Beatmap.Events
+{
+    internal class ChromaGradientEvent : MonoBehaviour
+    {
         public static Dictionary<BeatmapEventType, ChromaGradientEvent> CustomGradients = new Dictionary<BeatmapEventType, ChromaGradientEvent>();
 
-        public static GameObject Instance {
-            get {
+        public static GameObject Instance
+        {
+            get
+            {
                 if (_instance == null) _instance = new GameObject("Chroma_GradientController");
                 return _instance;
             }
         }
+
         private static GameObject _instance;
 
-        public static void Clear() {
+        public static void Clear()
+        {
             if (_instance != null) Destroy(_instance);
             _instance = null;
         }
 
-        public static ChromaGradientEvent Instantiate(Color initc, Color endc, float start, float dur, BeatmapEventType type) {
+        public static ChromaGradientEvent Instantiate(Color initc, Color endc, float start, float dur, BeatmapEventType type)
+        {
             ChromaGradientEvent gradient = Instance.AddComponent<ChromaGradientEvent>();
             gradient._initcolor = initc;
             gradient._endcolor = endc;
@@ -39,15 +39,18 @@ namespace Chroma.Beatmap.Events {
             return gradient;
         }
 
-        void Update() {
+        private void Update()
+        {
             float _time = ChromaBehaviour.ATSC.songTime - _start;
-            if (_time <= _duration) {
+            if (_time <= _duration)
+            {
                 Color c = Color.Lerp(_initcolor, _endcolor, _time / _duration);
                 ColourManager.RecolourLight(_event, c, c);
                 if (ColourManager.LightSwitchs[_event].GetPrivateField<bool>("_lightIsOn"))
                     ColourManager.LightSwitchs[_event].SetColor(c);
             }
-            else {
+            else
+            {
                 CustomGradients.Remove(_event);
                 Destroy(this);
             }
@@ -59,8 +62,10 @@ namespace Chroma.Beatmap.Events {
         public float _duration;
         public BeatmapEventType _event;
 
-        public static void AddGradient(BeatmapEventType id, Color initc, Color endc, float time, float duration) {
-            if (CustomGradients.TryGetValue(id, out ChromaGradientEvent gradient)) {
+        public static void AddGradient(BeatmapEventType id, Color initc, Color endc, float time, float duration)
+        {
+            if (CustomGradients.TryGetValue(id, out ChromaGradientEvent gradient))
+            {
                 Destroy(gradient);
                 CustomGradients.Remove(id);
             }
@@ -68,8 +73,10 @@ namespace Chroma.Beatmap.Events {
         }
 
         // Creates dictionary loaded with all _lightGradient custom events and indexs them with the event's time and type
-        public static void Callback(CustomEventData eventData) {
-            try {
+        public static void Callback(CustomEventData eventData)
+        {
+            try
+            {
                 // Pull and assign all custom data
                 dynamic dynData = eventData.data;
                 int intid = (int)Trees.at(dynData, "_lightsID");
@@ -91,10 +98,11 @@ namespace Chroma.Beatmap.Events {
 
                 AddGradient(id, initc, endc, eventData.time, duration);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 ChromaLogger.Log("INVALID CUSTOM EVENT", ChromaLogger.Level.WARNING);
                 ChromaLogger.Log(e);
             }
-    }
+        }
     }
 }

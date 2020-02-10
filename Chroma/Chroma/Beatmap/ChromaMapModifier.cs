@@ -1,25 +1,22 @@
 ﻿using Chroma.Beatmap.Events.Legacy;
 using Chroma.Settings;
-using Chroma.Utils;
+using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using IPA.Utilities;
-using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
 
-namespace Chroma.Beatmap {
-
-    public class ChromaMapModifier {
-
+namespace Chroma.Beatmap
+{
+    public class ChromaMapModifier
+    {
         public delegate void ModifyCustomBeatmapDelegate(int randSeed, ref CustomBeatmap customBeatmap, ref BeatmapData baseBeatmapData, ref PlayerSpecificSettings playerSettings, ref BaseGameModeType baseGameMode, ref float bpm);
+
         public static event ModifyCustomBeatmapDelegate ModifyCustomBeatmapEvent;
 
-        public static CustomBeatmap CreateTransformedData(BeatmapData beatmapData, ref ChromaBehaviour chromaBehaviour, ref PlayerSpecificSettings playerSettings, ref BaseGameModeType baseGameMode, ref float bpm) {
-
+        public static CustomBeatmap CreateTransformedData(BeatmapData beatmapData, ref ChromaBehaviour chromaBehaviour, ref PlayerSpecificSettings playerSettings, ref BaseGameModeType baseGameMode, ref float bpm)
+        {
             ColourManager.TechnicolourLightsForceDisabled = false;
             ColourManager.TechnicolourBlocksForceDisabled = false;
             ColourManager.TechnicolourBarriersForceDisabled = false;
@@ -33,31 +30,42 @@ namespace Chroma.Beatmap {
             beatmapData = beatmapData.GetCopy();
             BeatmapLineData[] beatmapLinesData = beatmapData.beatmapLinesData;
             int[] array = new int[beatmapLinesData.Length];
-            for (int i = 0; i < array.Length; i++) {
+            for (int i = 0; i < array.Length; i++)
+            {
                 array[i] = 0;
             }
             UnityEngine.Random.InitState(0);
             bool flag;
-            do {
+            do
+            {
                 flag = false;
                 float num = 999999f;
                 int num2 = 0;
-                for (int j = 0; j < beatmapLinesData.Length; j++) {
+                for (int j = 0; j < beatmapLinesData.Length; j++)
+                {
                     BeatmapObjectData[] beatmapObjectsData = beatmapLinesData[j].beatmapObjectsData;
                     int num3 = array[j];
-                    while (num3 < beatmapObjectsData.Length && beatmapObjectsData[num3].time < num + 0.001f) {
+                    while (num3 < beatmapObjectsData.Length && beatmapObjectsData[num3].time < num + 0.001f)
+                    {
                         flag = true;
                         BeatmapObjectData beatmapObjectData = beatmapObjectsData[num3];
                         float time = beatmapObjectData.time;
-                        if (Mathf.Abs(time - num) < 0.001f) {
-                            if (beatmapObjectData.beatmapObjectType == BeatmapObjectType.Note) {
+                        if (Mathf.Abs(time - num) < 0.001f)
+                        {
+                            if (beatmapObjectData.beatmapObjectType == BeatmapObjectType.Note)
+                            {
                                 num2++;
                             }
-                        } else if (time < num) {
+                        }
+                        else if (time < num)
+                        {
                             num = time;
-                            if (beatmapObjectData.beatmapObjectType == BeatmapObjectType.Note) {
+                            if (beatmapObjectData.beatmapObjectType == BeatmapObjectType.Note)
+                            {
                                 num2 = 1;
-                            } else {
+                            }
+                            else
+                            {
                                 num2 = 0;
                             }
                         }
@@ -66,25 +74,33 @@ namespace Chroma.Beatmap {
                 }
 
                 CustomBeatmapObject customBeatmapObject = null;
-                for (int k = 0; k < beatmapLinesData.Length; k++) {
+                for (int k = 0; k < beatmapLinesData.Length; k++)
+                {
                     BeatmapObjectData[] beatmapObjectsData2 = beatmapLinesData[k].beatmapObjectsData;
                     int num4 = array[k];
-                    while (num4 < beatmapObjectsData2.Length && beatmapObjectsData2[num4].time < num + 0.001f) {
+                    while (num4 < beatmapObjectsData2.Length && beatmapObjectsData2[num4].time < num + 0.001f)
+                    {
                         BeatmapObjectData beatmapObjectData2 = beatmapObjectsData2[num4];
-                        if (beatmapObjectData2.beatmapObjectType == BeatmapObjectType.Note) {
+                        if (beatmapObjectData2.beatmapObjectType == BeatmapObjectType.Note)
+                        {
                             NoteData noteData = beatmapObjectData2 as NoteData;
-                            if (noteData != null) {
-
-                                if (noteData.noteType == NoteType.NoteA || noteData.noteType == NoteType.NoteB) {
+                            if (noteData != null)
+                            {
+                                if (noteData.noteType == NoteType.NoteA || noteData.noteType == NoteType.NoteB)
+                                {
                                     customBeatmapObject = new CustomBeatmapNote(beatmapObjectData2 as NoteData);
-                                } else if (noteData.noteType == NoteType.Bomb) {
+                                }
+                                else if (noteData.noteType == NoteType.Bomb)
+                                {
                                     customBeatmapObject = new CustomBeatmapBomb(beatmapObjectData2 as NoteData);
                                 }
-
                             }
-                        } else if (beatmapObjectData2.beatmapObjectType == BeatmapObjectType.Obstacle) {
+                        }
+                        else if (beatmapObjectData2.beatmapObjectType == BeatmapObjectType.Obstacle)
+                        {
                             ObstacleData obstacle = beatmapObjectData2 as ObstacleData;
-                            if (obstacle != null) {
+                            if (obstacle != null)
+                            {
                                 customBeatmapObject = new CustomBeatmapBarrier(obstacle);
                             }
                         }
@@ -95,16 +111,19 @@ namespace Chroma.Beatmap {
                 }
             }
             while (flag);
-            
+
             CustomBeatmap customBeatmap = new CustomBeatmap(customBeatmapData);
-            
-            try {
+
+            try
+            {
                 ChromaLogger.Log("Modifying map data...");
                 if (beatmapData == null) ChromaLogger.Log("Null beatmapData", ChromaLogger.Level.ERROR);
                 if (beatmapData.beatmapEventData == null) ChromaLogger.Log("Null beatmapData.beatmapEventData", ChromaLogger.Level.ERROR);
                 ModifyCustomBeatmapEvent?.Invoke(beatmapData.notesCount * beatmapData.beatmapEventData.Length, ref customBeatmap, ref beatmapData, ref playerSettings, ref baseGameMode, ref bpm);
                 //ModifyCustomBeatmap(beatmapData.notesCount * beatmapData.beatmapEventData.Length, ref customBeatmap, ref beatmapData, ref playerSettings, ref baseGameMode, ref bpm);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 ChromaLogger.Log("Exception modifying map data...", ChromaLogger.Level.ERROR);
                 ChromaLogger.Log(e);
             }
@@ -113,30 +132,36 @@ namespace Chroma.Beatmap {
 
             //from Tweaks
             int[] array2 = new int[beatmapLinesData.Length];
-            for (int l = 0; l < customBeatmapData.Count; l++) {
+            for (int l = 0; l < customBeatmapData.Count; l++)
+            {
                 BeatmapObjectData beatmapObjectData2 = customBeatmapData[l].Data;
                 array2[Mathf.Clamp(beatmapObjectData2.lineIndex, 0, 3)]++; //array2[beatmapObjectData2.lineIndex]++;
             }
             BeatmapLineData[] linesData = new BeatmapLineData[beatmapLinesData.Length];
-            for (int m = 0; m < beatmapLinesData.Length; m++) {
+            for (int m = 0; m < beatmapLinesData.Length; m++)
+            {
                 linesData[m] = new BeatmapLineData();
                 linesData[m].beatmapObjectsData = new BeatmapObjectData[array2[m]];
                 array[m] = 0;
             }
-            for (int n = 0; n < customBeatmapData.Count; n++) {
+            for (int n = 0; n < customBeatmapData.Count; n++)
+            {
                 BeatmapObjectData beatmapObjectData3 = customBeatmapData[n].Data;
                 int lineIndex = Mathf.Clamp(beatmapObjectData3.lineIndex, 0, 3); //beatmapObjectData3.lineIndex;
                 linesData[lineIndex].beatmapObjectsData[array[lineIndex]] = beatmapObjectData3;
                 array[lineIndex]++;
             }
             BeatmapEventData[] eventsData = new BeatmapEventData[beatmapData.beatmapEventData.Length];
-            for (int num5 = 0; num5 < beatmapData.beatmapEventData.Length; num5++) {
+            for (int num5 = 0; num5 < beatmapData.beatmapEventData.Length; num5++)
+            {
                 BeatmapEventData beatmapEventData = beatmapData.beatmapEventData[num5];
                 eventsData[num5] = beatmapEventData;
             }
 
-            if (ChromaConfig.LightshowModifier) {
-                foreach (BeatmapLineData b in linesData) {
+            if (ChromaConfig.LightshowModifier)
+            {
+                foreach (BeatmapLineData b in linesData)
+                {
                     b.beatmapObjectsData = b.beatmapObjectsData.Where((source, index) => b.beatmapObjectsData[index].beatmapObjectType != BeatmapObjectType.Note).ToArray();
                 }
                 BS_Utils.Gameplay.ScoreSubmission.DisableSubmission("Chroma");
@@ -148,21 +173,23 @@ namespace Chroma.Beatmap {
 
             customBeatmap.BeatmapData = beatmapData;
 
-            
             /*
              * LIGHTING EVENTS
              */
-            
-            if (ChromaConfig.CustomColourEventsEnabled) {
 
+            if (ChromaConfig.CustomColourEventsEnabled)
+            {
                 BeatmapEventData[] bevData = beatmapData.beatmapEventData;
                 ChromaColourEvent unfilledEvent = null;
-                for (int i = bevData.Length - 1; i >= 0; i--) {
+                for (int i = bevData.Length - 1; i >= 0; i--)
+                {
                     ChromaEvent cLight = ApplyCustomEvent(bevData[i], ref unfilledEvent);
                     if (cLight != null) ColourManager.TechnicolourLightsForceDisabled = true;
 
-                    try {
-                        if (ChromaBehaviour.LightingRegistered && bevData[i] is CustomBeatmapEventData customData) {
+                    try
+                    {
+                        if (ChromaBehaviour.LightingRegistered && bevData[i] is CustomBeatmapEventData customData)
+                        {
                             dynamic dynData = customData.customData;
                             if (Trees.at(dynData, "_lightsID") != null) ColourManager.TechnicolourLightsForceDisabled = true;
                             if (Trees.at(dynData, "_obstacleR") != null) ColourManager.TechnicolourBarriersForceDisabled = true;
@@ -172,14 +199,10 @@ namespace Chroma.Beatmap {
                     }
                     catch { }
                 }
-
             }
 
             return customBeatmap;
-
         }
-
-
 
         // Colour Events
         //   - Stores two colour values, A and B
@@ -203,17 +226,20 @@ namespace Chroma.Beatmap {
 
         // > 2,000,000,000 = >2000000000 = RGB (see ColourManager.ColourFromInt)
 
-        public static ChromaEvent ApplyCustomEvent(BeatmapEventData bev, ref ChromaColourEvent unfilledColourEvent) {
-
+        public static ChromaEvent ApplyCustomEvent(BeatmapEventData bev, ref ChromaColourEvent unfilledColourEvent)
+        {
             //ChromaLogger.Log("Checking BEV ||| " + bev.time + "s : " + bev.value + "v");
 
             Color a, b;
 
-            if (bev.value >= ColourManager.RGB_INT_OFFSET) { // > 2,000,000,000 = >2000000000 = RGB (see ColourManager.ColourFromInt)
+            if (bev.value >= ColourManager.RGB_INT_OFFSET)
+            { // > 2,000,000,000 = >2000000000 = RGB (see ColourManager.ColourFromInt)
                 a = ColourManager.ColourFromInt(bev.value);
                 b = a;
                 if (FillColourEvent(bev, ref unfilledColourEvent, a)) return unfilledColourEvent;
-            } else {
+            }
+            else
+            {
                 return null;
             }
 
@@ -222,8 +248,10 @@ namespace Chroma.Beatmap {
             return ChromaEvent.SetChromaEvent(bev, new ChromaLightEvent(bev, a, b));
         }
 
-        public static bool FillColourEvent(BeatmapEventData bev, ref ChromaColourEvent unfilledColourEvent, params Color[] colors) {
-            if (unfilledColourEvent != null) {
+        public static bool FillColourEvent(BeatmapEventData bev, ref ChromaColourEvent unfilledColourEvent, params Color[] colors)
+        {
+            if (unfilledColourEvent != null)
+            {
                 unfilledColourEvent.Colors = colors;
                 if (ChromaConfig.LegacyLighting) ChromaEvent.SetChromaEvent(bev, unfilledColourEvent);
                 ChromaLogger.Log("Filled " + unfilledColourEvent.GetType().ToString() + " event.");
@@ -232,10 +260,5 @@ namespace Chroma.Beatmap {
             }
             return false;
         }
-
-
-
-
     }
-
 }

@@ -1,46 +1,43 @@
-﻿using Chroma.Beatmap.Events;
+﻿using BS_Utils.Utilities;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Harmony;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using BS_Utils.Utilities;
 using System.Reflection;
+using UnityEngine;
 
-namespace Chroma.HarmonyPatches {
-
+namespace Chroma.HarmonyPatches
+{
     [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(LightPairRotationEventEffect))]
     [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
-    class LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger {
-
+    internal class LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
+    {
         public static BeatmapEventData lastLightPairRotationEventEffectData;
 
         //Laser rotation
-        static void Prefix(ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____eventL, ref BeatmapEventType ____eventR) {
-            if (beatmapEventData.type == ____eventL || beatmapEventData.type == ____eventR) {
+        private static void Prefix(ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____eventL, ref BeatmapEventType ____eventR)
+        {
+            if (beatmapEventData.type == ____eventL || beatmapEventData.type == ____eventR)
+            {
                 lastLightPairRotationEventEffectData = beatmapEventData;
             }
         }
 
-        static void Postfix() {
+        private static void Postfix()
+        {
             lastLightPairRotationEventEffectData = null;
         }
-
     }
 
     [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(LightPairRotationEventEffect))]
     [HarmonyPatch("UpdateRotationData")]
-    class LightPairRotationEventEffectUpdateRotationData {
-
+    internal class LightPairRotationEventEffectUpdateRotationData
+    {
         //Laser rotation
-        static bool Prefix(LightPairRotationEventEffect __instance, ref BeatmapEventType ____eventL, float startRotationOffset, float direction) {
-
+        private static bool Prefix(LightPairRotationEventEffect __instance, ref BeatmapEventType ____eventL, float startRotationOffset, float direction)
+        {
             if (!ChromaBehaviour.LightingRegistered) return true;
 
             BeatmapEventData beatmapEventData = LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.lastLightPairRotationEventEffectData;
@@ -56,11 +53,13 @@ namespace Chroma.HarmonyPatches {
 
             var _rotationData = GetPrivateFieldM.Invoke(null, new object[] { __instance, rotationName });
 
-            try {
-                if (beatmapEventData is CustomBeatmapEventData customData && _rotationData != null) {
+            try
+            {
+                if (beatmapEventData is CustomBeatmapEventData customData && _rotationData != null)
+                {
                     dynamic dynData = customData.customData;
-                    if (dynData != null) {
-
+                    if (dynData != null)
+                    {
                         bool? lockPosition = Trees.at(dynData, "_lockPosition");
                         if (lockPosition == null) lockPosition = false;
 
@@ -77,16 +76,20 @@ namespace Chroma.HarmonyPatches {
                         Transform _transform = _rotationData.GetField<Transform>("transform");
                         Quaternion _startRotation = _rotationData.GetField<Quaternion>("startRotation");
                         Vector3 _rotationVector = __instance.GetPrivateField<Vector3>("_rotationVector");
-                        if (precisionSpeed == 0) {
+                        if (precisionSpeed == 0)
+                        {
                             _rotationData.SetPrivateField("enabled", false);
-                            if (!(bool)lockPosition) {
+                            if (!(bool)lockPosition)
+                            {
                                 _transform.localRotation = _startRotation;
                             }
                         }
-                        else {
+                        else
+                        {
                             _rotationData.SetPrivateField("enabled", true);
                             _rotationData.SetPrivateField("rotationSpeed", (float)precisionSpeed * 20f * direction);
-                            if (!(bool)lockPosition) {
+                            if (!(bool)lockPosition)
+                            {
                                 _transform.localRotation = _startRotation;
                                 _transform.Rotate(_rotationVector, startRotationOffset, Space.Self);
                             }
@@ -96,14 +99,13 @@ namespace Chroma.HarmonyPatches {
                     }
                 }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 ChromaLogger.Log("INVALID _customData", ChromaLogger.Level.WARNING);
                 ChromaLogger.Log(e);
             }
 
             return true;
         }
-
     }
-
 }

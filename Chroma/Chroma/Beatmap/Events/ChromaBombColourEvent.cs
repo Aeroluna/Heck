@@ -1,24 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using CustomJSONData;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
-using Chroma.Utils;
 
-namespace Chroma.Beatmap.Events {
-
-    class ChromaBombColourEvent {
-
+namespace Chroma.Beatmap.Events
+{
+    internal class ChromaBombColourEvent
+    {
         public static Dictionary<float, Color> CustomBombColours = new Dictionary<float, Color>();
-        
+
         // Creates dictionary loaded with all _bombColor custom events and indexs them with the event's time
-        public static void Activate(List<CustomEventData> eventData) {
+        public static void Activate(List<CustomEventData> eventData)
+        {
             if (!ChromaBehaviour.LightingRegistered) return;
-            foreach (CustomEventData d in eventData) {
-                try {
+            foreach (CustomEventData d in eventData)
+            {
+                try
+                {
                     dynamic dynData = d.data;
                     float r = (float)Trees.at(dynData, "r");
                     float g = (float)Trees.at(dynData, "g");
@@ -28,7 +27,8 @@ namespace Chroma.Beatmap.Events {
 
                     ColourManager.TechnicolourBombsForceDisabled = true;
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     ChromaLogger.Log("INVALID CUSTOM EVENT", ChromaLogger.Level.WARNING);
                     ChromaLogger.Log(e);
                 }

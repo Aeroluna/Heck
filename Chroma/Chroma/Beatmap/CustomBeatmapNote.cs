@@ -1,32 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Chroma.Beatmap {
-    
-    public class CustomBeatmapNote : CustomBeatmapObject {
-
+﻿namespace Chroma.Beatmap
+{
+    public class CustomBeatmapNote : CustomBeatmapObject
+    {
         private NoteData _note;
 
-        public NoteData Note {
+        public NoteData Note
+        {
             get { return _note; }
         }
 
-        public NoteType NoteType {
+        public NoteType NoteType
+        {
             get { return _note.noteType; }
-            set {
-                if (_note.noteType != value) {
+            set
+            {
+                if (_note.noteType != value)
+                {
                     _note.SwitchNoteType();
                 }
             }
         }
 
-        public CustomBeatmapNote(NoteData note) : base(note) {
+        public CustomBeatmapNote(NoteData note) : base(note)
+        {
             this._note = note;
         }
-
     }
-
 }

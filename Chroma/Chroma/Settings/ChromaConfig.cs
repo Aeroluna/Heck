@@ -1,73 +1,75 @@
-﻿using Chroma.Beatmap.Events.Legacy;
+﻿using Chroma.Beatmap.Events;
+using Chroma.Beatmap.Events.Legacy;
 using Chroma.Misc;
 using Chroma.Utils;
-using IPA.Config;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using Chroma.Beatmap.Events;
 using static Chroma.ColourManager;
 
-namespace Chroma.Settings {
-
-    public static class ChromaConfig {
-
-        public enum LoadSettingsType {
+namespace Chroma.Settings
+{
+    public static class ChromaConfig
+    {
+        public enum LoadSettingsType
+        {
             INITIAL,
             MANUAL,
             MENU_LOADED,
         }
-
 
         private static BS_Utils.Utilities.Config _iniProfile;
 
         /// <summary>
         /// Returns the player selected ini file for preferences
         /// </summary>
-        public static BS_Utils.Utilities.Config IniProfile {
-            get {
-                if (_iniProfile == null) {
+        public static BS_Utils.Utilities.Config IniProfile
+        {
+            get
+            {
+                if (_iniProfile == null)
+                {
                     string iniName = "default";
                     _iniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);
                 }
                 return _iniProfile;
             }
-            set {
+            set
+            {
                 _iniProfile = value;
             }
         }
 
-
-        public static int TimesLaunched {
+        public static int TimesLaunched
+        {
             get { return timesLaunched; }
         }
+
         private static int timesLaunched = 0;
 
-
         private static MainSettingsModelSO mainSettingsModel;
-        public static MainSettingsModelSO MainSettingsModel {
+
+        public static MainSettingsModelSO MainSettingsModel
+        {
             get { return mainSettingsModel; }
         }
 
         public static bool oldHaptics = true;
 
-
         /// <summary>
         /// Enables debug features.  Significant performance cost.
         /// </summary>
-        public static bool DebugMode {
+        public static bool DebugMode
+        {
             get { return debugMode; }
-            set {
+            set
+            {
                 debugMode = value;
                 ChromaConfig.SetBool("Other", "debugMode", debugMode);
             }
         }
-        private static bool debugMode = false;
 
+        private static bool debugMode = false;
 
         public static string Username { get; private set; } = "Unknown";
         public static ulong UserID { get; private set; } = 0;
@@ -81,28 +83,35 @@ namespace Chroma.Settings {
                 ChromaConfig.SetFloat("Other", "sidePanel", (float)sidePanel);
             }
         }
+
         private static ChromaSettingsUI.SidePanelEnum sidePanel = ChromaSettingsUI.SidePanelEnum.Default;
 
         /// <summary>
         /// Enables checking for tailored maps.
         /// This will not disable map checking entirely, it will simply prevent a map from being detected as created for a specific gamemode.
         /// </summary>
-        public static bool CustomMapCheckingEnabled {
+        public static bool CustomMapCheckingEnabled
+        {
             get { return customMapCheckingEnabled; }
-            set {
+            set
+            {
                 customMapCheckingEnabled = value;
                 ChromaConfig.SetBool("Map", "customMapCheckingEnabled", customMapCheckingEnabled);
             }
         }
+
         private static bool customMapCheckingEnabled = true;
 
-        public static bool CustomColourEventsEnabled {
+        public static bool CustomColourEventsEnabled
+        {
             get { return customColourEventsEnabled; }
-            set {
+            set
+            {
                 customColourEventsEnabled = value;
                 ChromaConfig.SetBool("Map", "customColourEventsEnabled", customColourEventsEnabled);
             }
         }
+
         private static bool customColourEventsEnabled = true;
 
         public static bool NoteColourEventsEnabled
@@ -114,184 +123,228 @@ namespace Chroma.Settings {
                 ChromaConfig.SetBool("Map", "noteColourEventsEnabled", noteColourEventsEnabled);
             }
         }
+
         private static bool noteColourEventsEnabled = true;
 
         /// <summary>
         /// Global multiplier for audio sources used by Chroma
         /// </summary>
-        public static float MasterVolume {
+        public static float MasterVolume
+        {
             get { return masterVolume; }
-            set {
+            set
+            {
                 masterVolume = value;
                 ChromaConfig.SetFloat("Audio", "masterVolume", masterVolume);
             }
         }
-        private static float masterVolume = 1f;
 
+        private static float masterVolume = 1f;
 
         /// <summary>
         /// Global multiplier for audio sources used by Chroma
         /// </summary>
-        public static float SaberTrailStrength {
+        public static float SaberTrailStrength
+        {
             get { return saberTrailStrength; }
-            set {
+            set
+            {
                 saberTrailStrength = value;
                 ChromaConfig.SetFloat("Aesthetics", "saberTrailStrength", saberTrailStrength);
             }
         }
-        private static float saberTrailStrength = 1f;
 
+        private static float saberTrailStrength = 1f;
 
         /// <summary>
         /// Required for any features that may cause dizziness, disorientation, nausea, seizures, or other forms of discomfort.
         /// </summary>
-        public static bool WaiverRead {
+        public static bool WaiverRead
+        {
             get { return waiverRead; }
-            set {
-                if (value) {
+            set
+            {
+                if (value)
+                {
                     waiverRead = true;
                     ChromaConfig.SetInt("Other", "safetyWaiver", 51228);
                 }
             }
         }
+
         private static bool waiverRead = false;
 
-        public static bool HideSubMenus {
+        public static bool HideSubMenus
+        {
             get { return hideSubMenus; }
-            set {
+            set
+            {
                 hideSubMenus = value;
                 ChromaConfig.SetBool("Other", "hideSubMenus", hideSubMenus);
             }
         }
+
         private static bool hideSubMenus;
 
         #region modifiers
-        public static bool LightshowModifier {
+
+        public static bool LightshowModifier
+        {
             get { return lightshowModifier; }
-            set {
+            set
+            {
                 lightshowModifier = value;
                 ChromaConfig.SetBool("Modifiers", "lightshowModifier", lightshowModifier);
             }
         }
+
         private static bool lightshowModifier;
-        #endregion
 
+        #endregion modifiers
 
+        #region technicolour
 
-
-
-
-
-        #region technicolour 
-        public static bool TechnicolourEnabled {
+        public static bool TechnicolourEnabled
+        {
             get { return technicolourEnabled; }
-            set {
+            set
+            {
                 technicolourEnabled = value;
                 ChromaConfig.SetBool("Technicolour", "technicolourEnabled", technicolourEnabled);
             }
         }
+
         private static bool technicolourEnabled = false;
 
-
-        public static TechnicolourStyle TechnicolourLightsStyle {
-            get {
+        public static TechnicolourStyle TechnicolourLightsStyle
+        {
+            get
+            {
                 return technicolourLightsStyle;
             }
-            set {
+            set
+            {
                 technicolourLightsStyle = value;
                 ChromaConfig.SetInt("Technicolour", "technicolourLightsStyle", (int)technicolourLightsStyle);
             }
         }
+
         private static TechnicolourStyle technicolourLightsStyle = TechnicolourStyle.OFF;
 
-
-        public static TechnicolourLightsGrouping TechnicolourLightsGrouping {
+        public static TechnicolourLightsGrouping TechnicolourLightsGrouping
+        {
             get { return technicolourLightsGrouping; }
-            set {
+            set
+            {
                 technicolourLightsGrouping = value;
                 ChromaConfig.SetFloat("Technicolour", "technicolourLightsGrouping", (int)technicolourLightsGrouping);
             }
         }
+
         private static TechnicolourLightsGrouping technicolourLightsGrouping = TechnicolourLightsGrouping.STANDARD;
 
-
-        public static float TechnicolourLightsFrequency {
+        public static float TechnicolourLightsFrequency
+        {
             get { return technicolourLightsFrequency; }
-            set {
+            set
+            {
                 technicolourLightsFrequency = value;
                 ChromaConfig.SetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
             }
         }
+
         private static float technicolourLightsFrequency = 0.1f;
 
-
-        public static TechnicolourStyle TechnicolourSabersStyle {
-            get {
+        public static TechnicolourStyle TechnicolourSabersStyle
+        {
+            get
+            {
                 return technicolourSabersStyle;
             }
-            set {
+            set
+            {
                 technicolourSabersStyle = value;
                 ChromaConfig.SetInt("Technicolour", "technicolourSabersStyle", (int)technicolourSabersStyle);
             }
         }
+
         private static TechnicolourStyle technicolourSabersStyle = TechnicolourStyle.OFF;
 
-        public static TechnicolourStyle TechnicolourBlocksStyle {
-            get {
+        public static TechnicolourStyle TechnicolourBlocksStyle
+        {
+            get
+            {
                 return technicolourBlocksStyle;
             }
-            set {
+            set
+            {
                 technicolourBlocksStyle = value;
                 ChromaConfig.SetInt("Technicolour", "technicolourBlocksStyle", (int)technicolourBlocksStyle);
             }
         }
+
         private static TechnicolourStyle technicolourBlocksStyle = TechnicolourStyle.OFF;
 
-        public static TechnicolourStyle TechnicolourWallsStyle {
-            get {
+        public static TechnicolourStyle TechnicolourWallsStyle
+        {
+            get
+            {
                 return technicolourWallsStyle;
             }
-            set {
+            set
+            {
                 technicolourWallsStyle = value;
                 ChromaConfig.SetInt("Technicolour", "technicolourWallsStyle", (int)technicolourWallsStyle);
             }
         }
+
         private static TechnicolourStyle technicolourWallsStyle = TechnicolourStyle.OFF;
 
-        public static TechnicolourStyle TechnicolourBombsStyle {
-            get {
+        public static TechnicolourStyle TechnicolourBombsStyle
+        {
+            get
+            {
                 return technicolourBombsStyle;
             }
-            set {
+            set
+            {
                 technicolourBombsStyle = value;
                 ChromaConfig.SetInt("Technicolour", "technicolourBombsStyle", (int)technicolourBombsStyle);
             }
         }
+
         private static TechnicolourStyle technicolourBombsStyle = TechnicolourStyle.OFF;
 
-        public static bool MatchTechnicolourSabers {
+        public static bool MatchTechnicolourSabers
+        {
             get { return matchTechnicolourSabers; }
-            set {
+            set
+            {
                 matchTechnicolourSabers = value;
                 ChromaConfig.SetBool("Map", "matchTechnicolourSabers", matchTechnicolourSabers);
             }
         }
+
         private static bool matchTechnicolourSabers = true;
-        #endregion
+
+        #endregion technicolour
 
         #region tempoary
+
         public static bool LegacyLighting { get { return legacyLighting; } }
         private static bool legacyLighting = false;
-        #endregion
+
+        #endregion tempoary
 
         /// <summary>
         /// Called when Chroma reloads the config files.
         /// </summary>
         public static event LoadSettingsDelegate LoadSettingsEvent;
+
         public delegate void LoadSettingsDelegate(BS_Utils.Utilities.Config iniProfile, LoadSettingsType type);
 
-
-        internal static void Init() {
+        internal static void Init()
+        {
             LoadSettingsEvent += OnLoadSettingsEvent;
 
             ChromaPlugin.MainMenuLoadedEvent += OnMainMenuLoaded;
@@ -304,21 +357,24 @@ namespace Chroma.Settings {
             ChromaPlugin.SongSceneLoadedEvent += CleanupSongEvents;
         }
 
-
-        private static void OnMainMenuLoaded() {
+        private static void OnMainMenuLoaded()
+        {
             ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteA);
             ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteB);
 
             LoadSettings(LoadSettingsType.MENU_LOADED);
         }
-        private static void OnSongLoaded() {
+
+        private static void OnSongLoaded()
+        {
             ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteA);
             ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteB);
 
             ColourManager.RefreshLights();
         }
 
-        private static void CleanupSongEvents() {
+        private static void CleanupSongEvents()
+        {
             ChromaObstacleColourEvent.CustomObstacleColours.Clear();
             ChromaNoteColourEvent.CustomNoteColours.Clear();
             ChromaNoteColourEvent.SavedNoteColours.Clear();
@@ -334,18 +390,18 @@ namespace Chroma.Settings {
             VFX.MayhemEvent.manager = null;
         }
 
-        internal static void LoadSettings(LoadSettingsType type) {
+        internal static void LoadSettings(LoadSettingsType type)
+        {
             string iniName = "settings";
             IniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);
 
             LoadSettingsEvent?.Invoke(IniProfile, type);
         }
 
-
-        private static void OnLoadSettingsEvent(BS_Utils.Utilities.Config iniProfile, LoadSettingsType type) {
-
-            try {
-                
+        private static void OnLoadSettingsEvent(BS_Utils.Utilities.Config iniProfile, LoadSettingsType type)
+        {
+            try
+            {
                 ChromaLogger.Log("Loading settings [" + type.ToString() + "]", ChromaLogger.Level.INFO);
 
                 string iniName = "settings";
@@ -360,11 +416,11 @@ namespace Chroma.Settings {
                 ChromaLogger.Log(Greetings.GetGreeting(UserID, Username), ChromaLogger.Level.INFO);
                 if (DebugMode) ChromaLogger.Log("=== YOUR ID : " + UserID.ToString());
 
-                if (type == LoadSettingsType.INITIAL) {
-                    timesLaunched = ChromaConfig.GetInt("Other", "timesLaunched", 0)+1;
+                if (type == LoadSettingsType.INITIAL)
+                {
+                    timesLaunched = ChromaConfig.GetInt("Other", "timesLaunched", 0) + 1;
                     ChromaConfig.SetInt("Other", "timesLaunched", timesLaunched);
                 }
-                
 
                 /*
                  * MAP
@@ -387,7 +443,8 @@ namespace Chroma.Settings {
                  * TECHNICOLOUR
                  */
 
-                if (type == LoadSettingsType.INITIAL) {
+                if (type == LoadSettingsType.INITIAL)
+                {
                     technicolourEnabled = ChromaConfig.GetBool("Technicolour", "technicolourEnabled", false);
 
                     technicolourLightsStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourLightsStyle", 1);
@@ -406,11 +463,14 @@ namespace Chroma.Settings {
                 Color[] technicolourCold = new Color[technicolourColdString.Length];
                 Color[] technicolourWarm = new Color[technicolourWarmString.Length];
 
-                for (int i = 0; i < Mathf.Max(technicolourCold.Length, technicolourWarm.Length); i++) {
-                    if (i < technicolourCold.Length) {
+                for (int i = 0; i < Mathf.Max(technicolourCold.Length, technicolourWarm.Length); i++)
+                {
+                    if (i < technicolourCold.Length)
+                    {
                         technicolourCold[i] = ColourManager.ColourFromString(technicolourColdString[i]);
                     }
-                    if (i < technicolourWarm.Length) {
+                    if (i < technicolourWarm.Length)
+                    {
                         technicolourWarm[i] = ColourManager.ColourFromString(technicolourWarmString[i]);
                     }
                 }
@@ -476,61 +536,66 @@ namespace Chroma.Settings {
                 ColourManager.RefreshLights();
 
                 if (type == LoadSettingsType.MANUAL) AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");
-
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 ChromaLogger.Log("Error loading Chroma configs!  Waduhek", ChromaLogger.Level.ERROR);
                 ChromaLogger.Log(e);
             }
-
         }
 
-        public static void LoadSettingsModel() {
-
+        public static void LoadSettingsModel()
+        {
             mainSettingsModel = UnityEngine.Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().FirstOrDefault();
-            if (mainSettingsModel) {
+            if (mainSettingsModel)
+            {
                 ChromaLogger.Log("Found settings model", ChromaLogger.Level.DEBUG);
                 oldHaptics = mainSettingsModel.controllersRumbleEnabled;
             }
-
         }
-
 
         #region configshortcuts
 
-        public static void SetBool(string category, string name, bool value) {
+        public static void SetBool(string category, string name, bool value)
+        {
             IniProfile.SetBool(category, name, value);
         }
 
-        public static void SetFloat(string category, string name, float value) {
+        public static void SetFloat(string category, string name, float value)
+        {
             IniProfile.SetFloat(category, name, value);
         }
 
-        public static void SetInt(string category, string name, int value) {
+        public static void SetInt(string category, string name, int value)
+        {
             IniProfile.SetInt(category, name, value);
         }
 
-        public static void SetString(string category, string name, string value) {
+        public static void SetString(string category, string name, string value)
+        {
             IniProfile.SetString(category, name, value);
         }
 
-        public static bool GetBool(string category, string name, bool def = false) {
+        public static bool GetBool(string category, string name, bool def = false)
+        {
             return IniProfile.GetBool(category, name, def, true);
         }
 
-        public static float GetFloat(string category, string name, float def) {
+        public static float GetFloat(string category, string name, float def)
+        {
             return IniProfile.GetFloat(category, name, def, true);
         }
 
-        public static int GetInt(string category, string name, int def) {
+        public static int GetInt(string category, string name, int def)
+        {
             return IniProfile.GetInt(category, name, def, true);
         }
 
-        public static string GetString(string category, string name, string def) {
+        public static string GetString(string category, string name, string def)
+        {
             return IniProfile.GetString(category, name, def, true);
         }
 
-        #endregion
-
+        #endregion configshortcuts
     }
-
 }

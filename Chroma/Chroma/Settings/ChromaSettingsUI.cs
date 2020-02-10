@@ -1,22 +1,20 @@
-﻿using Chroma.Utils;
-using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.MenuButtons;
-using System;
+using Chroma.Utils;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using static Chroma.ColourManager;
 
-namespace Chroma.Settings {
-
-    public class ChromaSettingsUI : PersistentSingleton<ChromaSettingsUI> {
-
+namespace Chroma.Settings
+{
+    public class ChromaSettingsUI : PersistentSingleton<ChromaSettingsUI>
+    {
         [UIValue("sidepanelchoices")]
         private List<object> _sidePanelChoices = (new object[] { SidePanelEnum.Default, SidePanelEnum.Chroma, SidePanelEnum.ChromaWaiver }).ToList();
-        public enum SidePanelEnum {
+
+        public enum SidePanelEnum
+        {
             Default = 0,
             Chroma = 1,
             ChromaWaiver = 2
@@ -44,17 +42,22 @@ namespace Chroma.Settings {
         private List<object> _colours = colourToObject();
 
         [UIAction("colourformat")]
-        public string colourFormat(NamedColor col) {
+        public string colourFormat(NamedColor col)
+        {
             return col.name;
         }
 
         [UIAction("sidepanelform")]
-        public string sidePanelFormat(SidePanelEnum f) {
-            switch (f) {
+        public string sidePanelFormat(SidePanelEnum f)
+        {
+            switch (f)
+            {
                 case SidePanelEnum.ChromaWaiver:
                     return "Safety Waiver";
+
                 case SidePanelEnum.Chroma:
                     return "Chroma Notes";
+
                 case SidePanelEnum.Default:
                 default:
                     return "Release Notes";
@@ -62,16 +65,22 @@ namespace Chroma.Settings {
         }
 
         [UIAction("techlightform")]
-        public string techlightFormat(TechnicolourStyle t) {
-            switch (t) {
+        public string techlightFormat(TechnicolourStyle t)
+        {
+            switch (t)
+            {
                 case TechnicolourStyle.GRADIENT:
                     return "GRADIENT";
+
                 case TechnicolourStyle.PURE_RANDOM:
                     return "TRUE RANDOM";
+
                 case TechnicolourStyle.ANY_PALETTE:
                     return "EITHER";
+
                 case TechnicolourStyle.WARM_COLD:
                     return "WARM/COLD";
+
                 case TechnicolourStyle.OFF:
                 default:
                     return "OFF";
@@ -79,12 +88,16 @@ namespace Chroma.Settings {
         }
 
         [UIAction("techgroupform")]
-        public string techgroupingFormat(TechnicolourLightsGrouping t) {
-            switch (t) {
+        public string techgroupingFormat(TechnicolourLightsGrouping t)
+        {
+            switch (t)
+            {
                 case TechnicolourLightsGrouping.ISOLATED:
                     return "Isolated (Mayhem)";
+
                 case TechnicolourLightsGrouping.ISOLATED_GROUP:
                     return "Isolated Event";
+
                 case TechnicolourLightsGrouping.STANDARD:
                 default:
                     return "Standard";
@@ -92,21 +105,25 @@ namespace Chroma.Settings {
         }
 
         [UIAction("percent")]
-        public string percentDisplay(float percent) {
+        public string percentDisplay(float percent)
+        {
             return $"{percent * 100f}%";
         }
 
         [UIAction("percentfreq")]
-        public string percentfreqDisplay(float percent) {
-            return percentDisplay(percent) + (percent==0.1f?" (Def)":"");
+        public string percentfreqDisplay(float percent)
+        {
+            return percentDisplay(percent) + (percent == 0.1f ? " (Def)" : "");
         }
 
         #region Settings
 
         [UIValue("sidepanel")]
-        public SidePanelEnum SidePanel {
+        public SidePanelEnum SidePanel
+        {
             get => ChromaConfig.SidePanel;
-            set {
+            set
+            {
                 ChromaConfig.SidePanel = value;
                 SidePanelUtil.SetPanel(floatToPanel((float)value));
             }
@@ -117,9 +134,11 @@ namespace Chroma.Settings {
         /// Enables checking for tailored maps.
         /// This will not disable map checking entirely, it will simply prevent a map from being detected as created for a specific gamemode.
         /// </summary>
-        public bool CustomMapCheckingEnabled {
+        public bool CustomMapCheckingEnabled
+        {
             get => ChromaConfig.CustomMapCheckingEnabled;
-            set {
+            set
+            {
                 ChromaConfig.CustomMapCheckingEnabled = value;
             }
         }
@@ -128,9 +147,11 @@ namespace Chroma.Settings {
         /// <summary>
         /// Global multiplier for audio sources used by Chroma
         /// </summary>
-        public float MasterVolume {
+        public float MasterVolume
+        {
             get => ChromaConfig.MasterVolume;
-            set {
+            set
+            {
                 ChromaConfig.MasterVolume = value;
             }
         }
@@ -139,9 +160,11 @@ namespace Chroma.Settings {
         /// <summary>
         /// Global multiplier for audio sources used by Chroma
         /// </summary>
-        public bool DebugMode {
+        public bool DebugMode
+        {
             get => ChromaConfig.DebugMode;
-            set {
+            set
+            {
                 ChromaConfig.DebugMode = value;
             }
         }
@@ -150,35 +173,43 @@ namespace Chroma.Settings {
         /// <summary>
         /// Required for any features that may cause dizziness, disorientation, nausea, seizures, or other forms of discomfort.
         /// </summary>
-        public string Secrets {
+        public string Secrets
+        {
             get => "";
-            set {
-                if (value.ToUpper() == "SAFETYHAZARD") {
+            set
+            {
+                if (value.ToUpper() == "SAFETYHAZARD")
+                {
                     ChromaConfig.WaiverRead = true;
                     AudioUtil.Instance.PlayOneShotSound("NightmareMode.wav");
                 }
-                else if (value.ToUpper() == "CREDITS") {
+                else if (value.ToUpper() == "CREDITS")
+                {
                     AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");
                 }
             }
         }
 
-        #endregion
+        #endregion Settings
 
         #region Aesthetics
 
         [UIValue("barriercolour")]
-        public NamedColor Barriers {
+        public NamedColor Barriers
+        {
             get => stringToColour(ChromaConfig.GetString("Aesthetics", "barrierColour", "Barrier Red"));
-            set {
+            set
+            {
                 ChromaConfig.SetString("Aesthetics", "barrierColour", value.name);
             }
         }
 
         [UIValue("signcolourb")]
-        public NamedColor NeonSignTop {
+        public NamedColor NeonSignTop
+        {
             get => stringToColour(ChromaConfig.GetString("Aesthetics", "signColourB", "DEFAULT"));
-            set {
+            set
+            {
                 ColourManager.SignB = value.color;
                 ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
                 ChromaConfig.SetString("Aesthetics", "signColourB", value.name);
@@ -186,9 +217,11 @@ namespace Chroma.Settings {
         }
 
         [UIValue("signcoloura")]
-        public NamedColor NeonSignBottom {
+        public NamedColor NeonSignBottom
+        {
             get => stringToColour(ChromaConfig.GetString("Aesthetics", "signColourA", "DEFAULT"));
-            set {
+            set
+            {
                 ColourManager.SignA = value.color;
                 ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
                 ChromaConfig.SetString("Aesthetics", "signColourA", value.name);
@@ -196,9 +229,11 @@ namespace Chroma.Settings {
         }
 
         [UIValue("laserpointercolour")]
-        public NamedColor LaserPointer {
+        public NamedColor LaserPointer
+        {
             get => stringToColour(ChromaConfig.GetString("Aesthetics", "laserPointerColour", "DEFAULT"));
-            set {
+            set
+            {
                 ColourManager.LaserPointerColour = value.color;
                 ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform, ColourManager.LaserPointerColour);
                 ChromaConfig.SetString("Aesthetics", "laserPointerColour", value.name);
@@ -206,31 +241,37 @@ namespace Chroma.Settings {
         }
 
         [UIValue("platformaccoutrements")]
-        public NamedColor PlatformAccoutrements {
+        public NamedColor PlatformAccoutrements
+        {
             get => stringToColour(ChromaConfig.GetString("Aesthetics", "platformAccoutrements", "DEFAULT"));
-            set {
+            set
+            {
                 ColourManager.Platform = value.color;
                 ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform, ColourManager.LaserPointerColour);
                 ChromaConfig.SetString("Aesthetics", "platformAccoutrements", value.name);
             }
         }
 
-        #endregion
+        #endregion Aesthetics
 
         #region Events
 
         [UIValue("lightshowonly")]
-        public bool LightshowModifier {
+        public bool LightshowModifier
+        {
             get => ChromaConfig.LightshowModifier;
-            set {
+            set
+            {
                 ChromaConfig.LightshowModifier = value;
             }
         }
 
         [UIValue("rgbevents")]
-        public bool CustomColourEventsEnabled {
+        public bool CustomColourEventsEnabled
+        {
             get => !ChromaConfig.CustomColourEventsEnabled;
-            set {
+            set
+            {
                 ChromaConfig.CustomColourEventsEnabled = !value;
                 ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", !value);
             }
@@ -246,148 +287,183 @@ namespace Chroma.Settings {
             }
         }
 
-        #endregion
+        #endregion Events
 
         #region Technicolour
+
         [UIValue("technicolour")]
-        public bool TechnicolourEnabled {
+        public bool TechnicolourEnabled
+        {
             get => ChromaConfig.TechnicolourEnabled;
-            set {
+            set
+            {
                 ChromaConfig.TechnicolourEnabled = value;
             }
         }
 
         [UIValue("techlights")]
-        public TechnicolourStyle TechnicolourLightsStyle {
+        public TechnicolourStyle TechnicolourLightsStyle
+        {
             get => ChromaConfig.TechnicolourLightsStyle;
-            set {
+            set
+            {
                 ChromaConfig.TechnicolourLightsStyle = value;
             }
         }
 
         [UIValue("lightsgroup")]
-        public TechnicolourLightsGrouping TechnicolourLightsGroup {
+        public TechnicolourLightsGrouping TechnicolourLightsGroup
+        {
             get => ChromaConfig.TechnicolourLightsGrouping;
-            set {
+            set
+            {
                 ChromaConfig.TechnicolourLightsGrouping = value;
             }
         }
 
         [UIValue("lightsfreq")]
-        public float TechnicolourLightsFrequency {
+        public float TechnicolourLightsFrequency
+        {
             get => ChromaConfig.TechnicolourLightsFrequency;
-            set {
+            set
+            {
                 ChromaConfig.TechnicolourLightsFrequency = value;
             }
         }
 
         [UIValue("techbarriers")]
-        public TechnicolourStyle TechnicolourWallsStyle {
+        public TechnicolourStyle TechnicolourWallsStyle
+        {
             get => ChromaConfig.TechnicolourWallsStyle;
-            set {
+            set
+            {
                 ChromaConfig.TechnicolourWallsStyle = value;
             }
         }
 
         [UIValue("techbombs")]
-        public TechnicolourStyle TechnicolourBombsStyle {
+        public TechnicolourStyle TechnicolourBombsStyle
+        {
             get => ChromaConfig.TechnicolourBombsStyle;
-            set {
+            set
+            {
                 ChromaConfig.TechnicolourBombsStyle = value;
             }
         }
 
         [UIValue("technotes")]
-        public TechnicolourStyle TechnicolourBlocksStyle {
+        public TechnicolourStyle TechnicolourBlocksStyle
+        {
             get => ChromaConfig.TechnicolourBlocksStyle;
-            set {
+            set
+            {
                 ChromaConfig.TechnicolourBlocksStyle = value;
             }
         }
 
         [UIValue("techsabers")]
-        public TechnicolourStyle TechnicolourSabersStyle {
+        public TechnicolourStyle TechnicolourSabersStyle
+        {
             get => ChromaConfig.TechnicolourSabersStyle;
-            set {
+            set
+            {
                 ChromaConfig.TechnicolourSabersStyle = value;
             }
         }
 
         [UIValue("matchsabers")]
-        public bool MatchTechnicolourSabers {
+        public bool MatchTechnicolourSabers
+        {
             get => !ChromaConfig.MatchTechnicolourSabers;
-            set {
+            set
+            {
                 ChromaConfig.MatchTechnicolourSabers = !value;
             }
         }
-        #endregion
 
-        private static NamedColor stringToColour(string str) {
-            if (colourPresets==null) InitializePresetList();
-            foreach (NamedColor t in colourPresets) {
+        #endregion Technicolour
+
+        private static NamedColor stringToColour(string str)
+        {
+            if (colourPresets == null) InitializePresetList();
+            foreach (NamedColor t in colourPresets)
+            {
                 if (t.name == str) return t;
             }
             return colourPresets[0];
         }
 
-        private static List<object> colourToObject() {
+        private static List<object> colourToObject()
+        {
             if (colourPresets == null) InitializePresetList();
             List<object> t = new List<object>();
-            foreach (NamedColor i in colourPresets) {
+            foreach (NamedColor i in colourPresets)
+            {
                 t.Add(i);
             }
             return t;
         }
 
-        public static string floatToPanel(float f) {
-            switch (f) {
+        public static string floatToPanel(float f)
+        {
+            switch (f)
+            {
                 case 2:
                     return "chromaWaiver";
+
                 case 1:
                     return "chroma";
+
                 case 0:
                 default:
                     return "default";
             }
         }
 
-        public static void OnReloadClick() {
+        public static void OnReloadClick()
+        {
             //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.MANUAL);
         }
 
-        public static void InitializeMenu() {
+        public static void InitializeMenu()
+        {
             InitializePresetList();
 
             ChromaLogger.Log("Registering buttons");
-            
+
             MenuButtons.instance.RegisterButton(new MenuButton("Reload Chroma", "", OnReloadClick, true));
         }
 
         private static List<NamedColor> colourPresets = null;// = new List<NamedColour>();
 
-        public static Color? GetColor(string name) {
+        public static Color? GetColor(string name)
+        {
             return GetColor(name, null);
         }
 
-        public static Color? GetColor(string name, Color? defaultColor) {
+        public static Color? GetColor(string name, Color? defaultColor)
+        {
             if (colourPresets == null) InitializePresetList();
-            foreach (NamedColor t in colourPresets) {
+            foreach (NamedColor t in colourPresets)
+            {
                 if (t.name == name) return t.color;
             }
             return defaultColor;
         }
 
-        private static void InitializePresetList() {
-
-            colourPresets = new List<NamedColor>() { new NamedColor( "DEFAULT", null ) };// new List<Tuple<string, Color>>();
+        private static void InitializePresetList()
+        {
+            colourPresets = new List<NamedColor>() { new NamedColor("DEFAULT", null) };// new List<Tuple<string, Color>>();
 
             ColourManager.SaveExampleColours();
 
             //TODO add custom colours
             List<NamedColor> userColours = ColourManager.LoadColoursFromFile();
-            if (userColours != null) {
-                foreach (NamedColor t in userColours) {
+            if (userColours != null)
+            {
+                foreach (NamedColor t in userColours)
+                {
                     colourPresets.Add(t);
                 }
             }
@@ -425,13 +501,10 @@ namespace Chroma.Settings {
                 new NamedColor( "K/DA Purple", new Color(0.761f, 0.125f, 0.867f) ),
                 new NamedColor( "Klouder Blue", new Color(0.349f, 0.69f, 0.957f) ),
                 new NamedColor( "Miku", new Color(0.0352941176f, 0.929411765f, 0.764705882f) ),
-            }) {
+            })
+            {
                 colourPresets.Add(t);
             }
-
         }
-
-
     }
-
 }

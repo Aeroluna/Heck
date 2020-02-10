@@ -1,41 +1,46 @@
-﻿using Chroma.Settings;
-using IPA;
-using System;
-using UnityEngine;
+﻿using IPA;
 using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
 
-namespace Chroma {
+namespace Chroma
+{
+    public class Plugin : IBeatSaberPlugin
+    {
+        private ChromaPlugin chroma;
 
-    public class Plugin : IBeatSaberPlugin {
-
-        ChromaPlugin chroma;
-
-        public void OnApplicationStart() {
+        public void OnApplicationStart()
+        {
             chroma = ChromaPlugin.Instantiate(this);
         }
 
-        public void Init(object thisIsNull, IPALogger pluginLogger) {
+        public void Init(object thisIsNull, IPALogger pluginLogger)
+        {
             ChromaLogger.logger = pluginLogger;
         }
 
-        public void OnApplicationQuit() {
+        public void OnApplicationQuit()
+        {
         }
 
-        public void OnUpdate() {
+        public void OnUpdate()
+        {
             chroma.OnUpdate();
         }
 
-        public void OnFixedUpdate() {
+        public void OnFixedUpdate()
+        {
         }
 
-        public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) {
+        public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
+        {
         }
 
-        public void OnSceneUnloaded(Scene scene) {
+        public void OnSceneUnloaded(Scene scene)
+        {
         }
 
-        public void OnActiveSceneChanged(Scene prevScene, Scene nextScene) {
+        public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
+        {
         }
     }
 }

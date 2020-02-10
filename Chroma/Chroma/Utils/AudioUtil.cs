@@ -1,24 +1,26 @@
-﻿using Chroma.Settings;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Chroma.Utils {
-
-    public class AudioUtil : MonoBehaviour {
-
+namespace Chroma.Utils
+{
+    public class AudioUtil : MonoBehaviour
+    {
         private static AudioUtil _instance;
 
         /// <summary>
         /// Returns the singleton AudioUtil MonoBehaviour.
         /// Will create a new one if it does not exist.
         /// </summary>
-        public static AudioUtil Instance {
-            get {
-                if (_instance == null) {
+        public static AudioUtil Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
                     ChromaLogger.Log("Initializing AudioBehaviour...", ChromaLogger.Level.DEBUG);
                     GameObject ob = new GameObject("ChromaAudioBehaviour");
                     _instance = ob.AddComponent<AudioUtil>();
@@ -29,12 +31,14 @@ namespace Chroma.Utils {
             }
         }
 
-
         private List<AudioSource> oneShotPool = new List<AudioSource>();
 
-        private AudioSource AvailableOneShot {
-            get {
-                for (int i = 0; i < oneShotPool.Count; i++) {
+        private AudioSource AvailableOneShot
+        {
+            get
+            {
+                for (int i = 0; i < oneShotPool.Count; i++)
+                {
                     if (oneShotPool[i].isPlaying) continue;
                     return oneShotPool[i];
                 }
@@ -44,14 +48,18 @@ namespace Chroma.Utils {
             }
         }
 
-        AudioSource ambianceSource;
+        private AudioSource ambianceSource;
 
         private Dictionary<string, AudioClip> memorizedClips = new Dictionary<string, AudioClip>();
 
-        void Init() {
-            try {
+        private void Init()
+        {
+            try
+            {
                 Directory.CreateDirectory(Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma/Audio");
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 ChromaLogger.Log("Error " + e.Message + " while trying to create Audio directory", ChromaLogger.Level.WARNING);
             }
 
@@ -66,30 +74,40 @@ namespace Chroma.Utils {
             //foreach (AudioSource a in GetComponents<AudioSource>()) MakeSourceNonDimensional(a);
         }
 
-        float masterVolume = 1f;
+        private float masterVolume = 1f;
 
-        public void SetVolume(float masterVolume) {
+        public void SetVolume(float masterVolume)
+        {
             //oneShotSource.volume = masterVolume;
             //ambianceSource.volume = masterVolume;
             //altOneShotSource.volume = masterVolume;
             this.masterVolume = masterVolume;
         }
 
-        IEnumerator GenerateAudioClip(AudioSource audioSource, string filenameWithExtension, bool play = false) {
-            if (memorizedClips.ContainsKey(filenameWithExtension)) {
+        private IEnumerator GenerateAudioClip(AudioSource audioSource, string filenameWithExtension, bool play = false)
+        {
+            if (memorizedClips.ContainsKey(filenameWithExtension))
+            {
                 audioSource.clip = memorizedClips[filenameWithExtension];
-            } else {
+            }
+            else
+            {
                 string filePath = Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma/Audio/" + filenameWithExtension;
                 ChromaLogger.Log("Searching for audio file " + filePath, ChromaLogger.Level.DEBUG, false);
-                using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(filePath, AudioType.WAV)) {
+                using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(filePath, AudioType.WAV))
+                {
                     yield return www.SendWebRequest();
-                    if (www.isHttpError || www.isNetworkError) {
+                    if (www.isHttpError || www.isNetworkError)
+                    {
                         ChromaLogger.Log(www.error, ChromaLogger.Level.ERROR, false);
                         yield break;
-                    } else {
+                    }
+                    else
+                    {
                         ChromaLogger.Log("Found sound " + filenameWithExtension, ChromaLogger.Level.INFO, false);
                         AudioClip downloadedClip = DownloadHandlerAudioClip.GetContent(www);
-                        if (downloadedClip == null) {
+                        if (downloadedClip == null)
+                        {
                             ChromaLogger.Log("Failed to find sound " + filePath, ChromaLogger.Level.WARNING, false);
                             yield break;
                         }
@@ -109,17 +127,20 @@ namespace Chroma.Utils {
         /// <param name="volume">Optional volume multiplier</param>
         /// <param name="pitch">Optional pitch multiplier</param>
         /// <returns>The Unity AudioSource used to play the sound</returns>
-        public AudioSource PlayOneShotSound(string filenameWithExtension, float volume = 1f, float pitch = 1f) {
+        public AudioSource PlayOneShotSound(string filenameWithExtension, float volume = 1f, float pitch = 1f)
+        {
             AudioSource oneShotSource = AvailableOneShot;
             PlayOneShotSound(filenameWithExtension, oneShotSource);
             return oneShotSource;
         }
 
         private float lastTime = 0;
+
         /// <summary>
         /// Plays "Error.wav", with a delay in case of error spam.
         /// </summary>
-        public void PlayErrorSound() {
+        public void PlayErrorSound()
+        {
             if (Time.unscaledTime < lastTime + 1f) return;
             lastTime = Time.unscaledTime;
             PlayOneShotSound("Error.wav");
@@ -132,7 +153,8 @@ namespace Chroma.Utils {
         /// <param name="oneShotSource">The AudioSource to play the file through</param>
         /// <param name="volume">Optional volume multiplier</param>
         /// <param name="pitch">Optional pitch multiplier</param>
-        public void PlayOneShotSound(string filenameWithExtension, AudioSource oneShotSource, float volume = 1f, float pitch = 1f) {
+        public void PlayOneShotSound(string filenameWithExtension, AudioSource oneShotSource, float volume = 1f, float pitch = 1f)
+        {
             oneShotSource.volume = masterVolume * volume;
             oneShotSource.pitch = pitch;
             StartCoroutine(GenerateAudioClip(oneShotSource, filenameWithExtension, true));
@@ -141,7 +163,8 @@ namespace Chroma.Utils {
         /// <summary>
         /// Plays "ConfigReload.wav" once.
         /// </summary>
-        public void PlayReloadSound() {
+        public void PlayReloadSound()
+        {
             PlayOneShotSound("ConfigReload.wav");
         }
 
@@ -150,7 +173,8 @@ namespace Chroma.Utils {
         /// </summary>
         /// <param name="filenameWithExtension">The file name with extension, found in the Audio folder</param>
         /// <param name="volume">Optional volume multiplier</param>
-        public void StartAmbianceSound(string filenameWithExtension, float volume = 1f) {
+        public void StartAmbianceSound(string filenameWithExtension, float volume = 1f)
+        {
             ambianceSource.volume = masterVolume * volume;
             StartCoroutine(GenerateAudioClip(ambianceSource, filenameWithExtension, true));
         }
@@ -158,7 +182,8 @@ namespace Chroma.Utils {
         /// <summary>
         /// Stops the ambient AudioSource from playing.
         /// </summary>
-        public void StopAmbianceSound() {
+        public void StopAmbianceSound()
+        {
             ambianceSource.Stop();
         }
 
@@ -167,7 +192,8 @@ namespace Chroma.Utils {
         /// </summary>
         /// <param name="source">The audio source to flatten</param>
         /// <param name="loop">Whether the audio source should loop or not.</param>
-        public static void MakeSourceNonDimensional(AudioSource source, bool loop) {
+        public static void MakeSourceNonDimensional(AudioSource source, bool loop)
+        {
             source.loop = loop;
             source.bypassEffects = true;
             source.bypassListenerEffects = true;
@@ -181,10 +207,9 @@ namespace Chroma.Utils {
         /// Makes sounds created by the given AudioSource a global, non-directional source.
         /// </summary>
         /// <param name="source">The audio source to flatten</param>
-        public static void MakeSourceNonDimensional(AudioSource source) {
+        public static void MakeSourceNonDimensional(AudioSource source)
+        {
             MakeSourceNonDimensional(source, source.loop);
         }
-
     }
-
 }

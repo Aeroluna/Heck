@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TMPro;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
-namespace Chroma.Utils {
-    
-    public static class SidePanelUtil {
-
+namespace Chroma.Utils
+{
+    public static class SidePanelUtil
+    {
         private const string defaultKey = "default";
         private static Dictionary<string, string> screenText = new Dictionary<string, string>();
 
@@ -21,7 +15,8 @@ namespace Chroma.Utils {
         /// <summary>
         /// Revert the panel to default
         /// </summary>
-        public static void ResetPanel() {
+        public static void ResetPanel()
+        {
             SetPanel(defaultKey);
         }
 
@@ -30,9 +25,11 @@ namespace Chroma.Utils {
         /// </summary>
         /// <param name="key">The key used in RegisterTextPanel</param>
         /// <returns>true if the key exists</returns>
-        public static bool SetPanel(string key) {
+        public static bool SetPanel(string key)
+        {
             if (key == null) return false;
-            if (screenText.TryGetValue(key, out string message)) {
+            if (screenText.TryGetValue(key, out string message))
+            {
                 SetPanelDirectly(message, key);
                 return true;
             }
@@ -44,10 +41,14 @@ namespace Chroma.Utils {
         /// </summary>
         /// <param name="key">key to use for EnablePanel</param>
         /// <param name="message">Message to be shown</param>
-        public static void RegisterTextPanel(string key, string message) {
-            if (screenText.ContainsKey(key)) {
+        public static void RegisterTextPanel(string key, string message)
+        {
+            if (screenText.ContainsKey(key))
+            {
                 screenText[key] = message;
-            } else {
+            }
+            else
+            {
                 screenText.Add(key, message);
             }
         }
@@ -56,7 +57,8 @@ namespace Chroma.Utils {
         /// Sets the panel directly via message
         /// </summary>
         /// <param name="message">Message to be shown</param>
-        public static void SetPanelDirectly(string message, string key = null) {
+        public static void SetPanelDirectly(string message, string key = null)
+        {
             currentKey = key;
             currentMessage = message;
             textPageScrollView.SetText(message);
@@ -65,14 +67,16 @@ namespace Chroma.Utils {
         /// <summary>
         /// Reapplies the current key
         /// </summary>
-        public static void Update() {
+        public static void Update()
+        {
             SetPanel(currentKey);
         }
 
-
-        internal static void ReleaseInfoEnabled(ReleaseInfoViewController instance, TextPageScrollView textPageScrollView, string message) {
+        internal static void ReleaseInfoEnabled(ReleaseInfoViewController instance, TextPageScrollView textPageScrollView, string message)
+        {
             SidePanelUtil.textPageScrollView = textPageScrollView;
-            if (!screenText.ContainsKey(defaultKey)) {
+            if (!screenText.ContainsKey(defaultKey))
+            {
                 screenText.Add(defaultKey, message);
                 currentKey = defaultKey;
                 currentMessage = message;
@@ -81,7 +85,7 @@ namespace Chroma.Utils {
         }
 
         public delegate void ReleaseInfoEnabledDelegate();
+
         public static event ReleaseInfoEnabledDelegate ReleaseInfoEnabledEvent;
     }
-
 }

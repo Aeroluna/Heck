@@ -1,24 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using CustomJSONData;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
-using Chroma.Utils;
 
-namespace Chroma.Beatmap.Events {
-
-    class ChromaLightColourEvent {
-
+namespace Chroma.Beatmap.Events
+{
+    internal class ChromaLightColourEvent
+    {
         public static Dictionary<BeatmapEventType, Dictionary<float, Color>> CustomLightColours = new Dictionary<BeatmapEventType, Dictionary<float, Color>>();
 
         // Creates dictionary loaded with all _lightRGB custom events and indexs them with the event's time and type
-        public static void Activate(List<CustomEventData> eventData) {
+        public static void Activate(List<CustomEventData> eventData)
+        {
             if (!ChromaBehaviour.LightingRegistered) return;
-            foreach (CustomEventData d in eventData) {
-                try {
+            foreach (CustomEventData d in eventData)
+            {
+                try
+                {
                     dynamic dynData = d.data;
                     int id = (int)Trees.at(dynData, "_lightsID");
                     float r = (float)Trees.at(dynData, "r");
@@ -30,7 +29,8 @@ namespace Chroma.Beatmap.Events {
 
                     // Dictionary of dictionaries!
                     Dictionary<float, Color> dictionaryID;
-                    if (!CustomLightColours.TryGetValue((BeatmapEventType)id, out dictionaryID)) {
+                    if (!CustomLightColours.TryGetValue((BeatmapEventType)id, out dictionaryID))
+                    {
                         dictionaryID = new Dictionary<float, Color>();
                         CustomLightColours.Add((BeatmapEventType)id, dictionaryID);
                     }
@@ -38,7 +38,8 @@ namespace Chroma.Beatmap.Events {
 
                     ColourManager.TechnicolourLightsForceDisabled = true;
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     ChromaLogger.Log("INVALID CUSTOM EVENT", ChromaLogger.Level.WARNING);
                     ChromaLogger.Log(e);
                 }
