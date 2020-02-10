@@ -90,8 +90,6 @@ namespace Chroma.Beatmap.Events {
                 if (enda != null) endc = endc.ColorWithAlpha((float)enda);
 
                 AddGradient(id, initc, endc, eventData.time, duration);
-
-                ColourManager.TechnicolourLightsForceDisabled = true;
             }
             catch (Exception e) {
                 ChromaLogger.Log("INVALID CUSTOM EVENT", ChromaLogger.Level.WARNING);

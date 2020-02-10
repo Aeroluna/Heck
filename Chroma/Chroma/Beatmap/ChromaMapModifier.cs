@@ -162,6 +162,8 @@ namespace Chroma.Beatmap {
                         if (ChromaBehaviour.LightingRegistered && bevData[i] is CustomBeatmapEventData customData) {
                             dynamic dynData = customData.customData;
                             if (Trees.at(dynData, "_lightsID") != null) ColourManager.TechnicolourLightsForceDisabled = true;
+                            if (Trees.at(dynData, "_obstacleR") != null) ColourManager.TechnicolourBarriersForceDisabled = true;
+                            if (Trees.at(dynData, "_bombR") != null) ColourManager.TechnicolourBombsForceDisabled = true;
                         }
                     }
                     catch { }

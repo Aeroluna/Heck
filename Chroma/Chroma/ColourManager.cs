@@ -88,17 +88,13 @@ namespace Chroma {
             ISOLATED = 2
         }
 
-        private static bool technicolourLightsForceDisabled = false;
-        public static bool TechnicolourLightsForceDisabled {
-            get { return technicolourLightsForceDisabled; }
-            set {
-                technicolourLightsForceDisabled = value;
-            }
-        }
+        public static bool TechnicolourLightsForceDisabled { get; set; } = false;
+        public static bool TechnicolourBarriersForceDisabled { get; set; } = false;
+        public static bool TechnicolourBombsForceDisabled { get; set; } = false;
 
         public static bool TechnicolourLights {
             get {
-                return ChromaConfig.TechnicolourEnabled && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourLightsStyle != TechnicolourStyle.OFF; }
+                return ChromaConfig.TechnicolourEnabled && !TechnicolourLightsForceDisabled && ChromaConfig.TechnicolourLightsStyle != TechnicolourStyle.OFF; }
         }
 
         public static bool TechnicolourSabers {
@@ -110,11 +106,11 @@ namespace Chroma {
         }
 
         public static bool TechnicolourBarriers {
-            get { return ChromaConfig.TechnicolourEnabled && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourWallsStyle != TechnicolourStyle.OFF; }
+            get { return ChromaConfig.TechnicolourEnabled && !TechnicolourBarriersForceDisabled && ChromaConfig.TechnicolourWallsStyle != TechnicolourStyle.OFF; }
         }
 
         public static bool TechnicolourBombs {
-            get { return ChromaConfig.TechnicolourEnabled && !technicolourLightsForceDisabled && ChromaConfig.TechnicolourBombsStyle != TechnicolourStyle.OFF; }
+            get { return ChromaConfig.TechnicolourEnabled && !TechnicolourBombsForceDisabled && ChromaConfig.TechnicolourBombsStyle != TechnicolourStyle.OFF; }
         }
 
         public static Color GetTechnicolour(NoteData noteData, TechnicolourStyle style) {
@@ -477,16 +473,6 @@ namespace Chroma {
                     flicker.Start();
                 }
             }
-
-            //not supporting custommenutext until it is revived
-            /*TextMeshPro[] tmps = GameObject.FindObjectsOfType<TextMeshPro>();
-            foreach (TextMeshPro tmp in tmps) {
-                if (tmp.gameObject.name == "CustomMenuText") {
-                    if (colorB != Color.clear) tmp.color = colorB;
-                } else if (tmp.gameObject.name == "CustomMenuText-Bot") {
-                    if (colorA != Color.clear) tmp.color = colorA;
-                }
-            }*/
 
             //ChromaLogger.Log("Sign recoloured A:"+colorA.ToString() + " B:"+colorB.ToString());
 

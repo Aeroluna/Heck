@@ -27,7 +27,7 @@ namespace Chroma.Beatmap.Events {
                     CustomObstacleColours.Add(d.time, c);
                     //ChromaLogger.Log("Global barrier colour registered: " + c.ToString());
 
-                    ColourManager.TechnicolourLightsForceDisabled = true;
+                    ColourManager.TechnicolourBarriersForceDisabled = true;
                 }
                 catch (Exception e) {
                     ChromaLogger.Log("INVALID CUSTOM EVENT", ChromaLogger.Level.WARNING);
