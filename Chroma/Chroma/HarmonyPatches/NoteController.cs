@@ -62,8 +62,6 @@ namespace Chroma.HarmonyPatches {
                     Material mat = __instance.noteTransform.gameObject.GetComponent<Renderer>().material;
                     mat.SetColor("_SimpleColor", (Color)c);
                 }
-
-                __instance.noteWasCutEvent += ChromaNoteColourEvent.SaberColour;
             }
         }
 

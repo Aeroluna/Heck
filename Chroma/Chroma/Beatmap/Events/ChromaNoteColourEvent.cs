@@ -7,6 +7,7 @@ using CustomJSONData.CustomBeatmap;
 using CustomJSONData;
 using UnityEngine;
 using Chroma.Extensions;
+using IPA.Utilities;
 
 namespace Chroma.Beatmap.Events {
 
@@ -45,14 +46,24 @@ namespace Chroma.Beatmap.Events {
         }
 
         public static void SaberColour(NoteController noteController, NoteCutInfo noteCutInfo) {
+            Color color;
+            bool noteType = noteController.noteData.noteType == NoteType.NoteA;
             if (SavedNoteColours.TryGetValue(noteController, out Color c)) {
-                foreach (SaberColourizer saber in SaberColourizer.saberColourizers) {
-                    if (saber.warm == (noteController.noteData.noteType == NoteType.NoteA)) {
-                        saber.Colourize(c);
-                    }
+                color = c;
+            } else {
+                Color? managerColor = noteType ? ColourManager.A : ColourManager.B;
+                if (managerColor == null) {
+                    color = noteType ? ChromaBehaviour.ColorManager.GetPrivateField<SimpleColorSO>("_saberAcolor").color : ChromaBehaviour.ColorManager.GetPrivateField<SimpleColorSO>("_saberBcolor").color;
+                }
+                else {
+                    color = noteType ? (Color)ColourManager.A : (Color)ColourManager.B;
                 }
             }
-            noteController.noteWasCutEvent -= SaberColour;
+            foreach (SaberColourizer saber in SaberColourizer.saberColourizers) {
+                if (saber.warm == (noteController.noteData.noteType == NoteType.NoteA)) {
+                    saber.Colourize(color);
+                }
+            }
         }
     }
 }

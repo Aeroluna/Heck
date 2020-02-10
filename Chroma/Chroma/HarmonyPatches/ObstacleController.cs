@@ -19,7 +19,6 @@ namespace Chroma.HarmonyPatches {
     [HarmonyPatch("Init")]
     class ObstacleControllerInit {
 
-        internal static Color? defaultObstacleColour;
         static void Prefix(ObstacleController __instance, ref SimpleColorSO ____color, ref ObstacleData obstacleData) {
             Color? c = ColourManager.BarrierColour;
 

@@ -80,6 +80,9 @@ namespace Chroma.HarmonyPatches {
                 ChromaNoteColourEvent.SavedNoteColours.Add(noteController, (Color)c);
                 ColourManager.SetNoteTypeColourOverride(noteData.noteType, (Color)c);
             }
+
+            // colour sabers to color of block we smack
+            noteController.noteWasCutEvent += ChromaNoteColourEvent.SaberColour;
         }
 
         static void Postfix(ref NoteController noteController) {
