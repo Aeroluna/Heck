@@ -23,9 +23,9 @@ namespace Chroma.Beatmap.Events
                 {
                     dynamic dynData = d.data;
                     int id = (int)Trees.at(dynData, "_id");
-                    float r = (float)Trees.at(dynData, "r");
-                    float g = (float)Trees.at(dynData, "g");
-                    float b = (float)Trees.at(dynData, "b");
+                    float r = (float)Trees.at(dynData, "_r");
+                    float g = (float)Trees.at(dynData, "_g");
+                    float b = (float)Trees.at(dynData, "_b");
                     Color c = new Color(r, g, b);
 
                     // Dictionary of dictionaries!
@@ -60,7 +60,7 @@ namespace Chroma.Beatmap.Events
                 Color? managerColor = noteType ? ColourManager.A : ColourManager.B;
                 if (managerColor == null)
                 {
-                    color = noteType ? ChromaBehaviour.ColorManager.GetPrivateField<SimpleColorSO>("_saberAcolor").color : ChromaBehaviour.ColorManager.GetPrivateField<SimpleColorSO>("_saberBcolor").color;
+                    color = noteType ? ChromaBehaviour.ColorManager.GetPrivateField<ColorScheme>("_colorScheme").saberAColor : ChromaBehaviour.ColorManager.GetPrivateField<ColorScheme>("_colorScheme").saberBColor;
                 }
                 else
                 {

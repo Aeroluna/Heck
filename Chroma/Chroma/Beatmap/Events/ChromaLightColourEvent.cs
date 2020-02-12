@@ -20,10 +20,10 @@ namespace Chroma.Beatmap.Events
                 {
                     dynamic dynData = d.data;
                     int id = (int)Trees.at(dynData, "_lightsID");
-                    float r = (float)Trees.at(dynData, "r");
-                    float g = (float)Trees.at(dynData, "g");
-                    float b = (float)Trees.at(dynData, "b");
-                    float? a = (float?)Trees.at(dynData, "a");
+                    float r = (float)Trees.at(dynData, "_r");
+                    float g = (float)Trees.at(dynData, "_g");
+                    float b = (float)Trees.at(dynData, "_b");
+                    float? a = (float?)Trees.at(dynData, "_a");
                     Color c = new Color(r, g, b);
                     if (a != null) c = c.ColorWithAlpha((float)a);
 

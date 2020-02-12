@@ -329,13 +329,6 @@ namespace Chroma.Settings
 
         #endregion technicolour
 
-        #region tempoary
-
-        public static bool LegacyLighting { get { return legacyLighting; } }
-        private static bool legacyLighting = false;
-
-        #endregion tempoary
-
         /// <summary>
         /// Called when Chroma reloads the config files.
         /// </summary>
@@ -524,8 +517,6 @@ namespace Chroma.Settings
                  */
 
                 sidePanel = (ChromaSettingsUI.SidePanelEnum)ChromaConfig.GetFloat("Other", "sidePanel", 1);
-
-                legacyLighting = ChromaConfig.GetBool("Other", "legacyLighting", false);
 
                 debugMode = ChromaConfig.GetBool("Other", "debugMode", false);
 

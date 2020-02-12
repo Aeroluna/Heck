@@ -19,9 +19,9 @@ namespace Chroma.Beatmap.Events
                 try
                 {
                     dynamic dynData = d.data;
-                    float r = (float)Trees.at(dynData, "r");
-                    float g = (float)Trees.at(dynData, "g");
-                    float b = (float)Trees.at(dynData, "b");
+                    float r = (float)Trees.at(dynData, "_r");
+                    float g = (float)Trees.at(dynData, "_g");
+                    float b = (float)Trees.at(dynData, "_b");
                     Color c = new Color(r, g, b);
                     CustomObstacleColours.Add(d.time, c);
 

@@ -69,18 +69,13 @@ namespace Chroma.Utils
             AudioSource mainOneShot = AvailableOneShot;
 
             StartCoroutine(GenerateAudioClip(mainOneShot, "ConfigReload.wav"));
-            StartCoroutine(GenerateAudioClip(ambianceSource, "RainLoop.wav"));
-
-            //foreach (AudioSource a in GetComponents<AudioSource>()) MakeSourceNonDimensional(a);
+            //StartCoroutine(GenerateAudioClip(ambianceSource, "RainLoop.wav"));
         }
 
         private float masterVolume = 1f;
 
         public void SetVolume(float masterVolume)
         {
-            //oneShotSource.volume = masterVolume;
-            //ambianceSource.volume = masterVolume;
-            //altOneShotSource.volume = masterVolume;
             this.masterVolume = masterVolume;
         }
 
@@ -158,14 +153,6 @@ namespace Chroma.Utils
             oneShotSource.volume = masterVolume * volume;
             oneShotSource.pitch = pitch;
             StartCoroutine(GenerateAudioClip(oneShotSource, filenameWithExtension, true));
-        }
-
-        /// <summary>
-        /// Plays "ConfigReload.wav" once.
-        /// </summary>
-        public void PlayReloadSound()
-        {
-            PlayOneShotSound("ConfigReload.wav");
         }
 
         /// <summary>

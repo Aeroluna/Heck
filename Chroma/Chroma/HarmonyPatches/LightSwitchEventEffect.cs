@@ -235,13 +235,13 @@ namespace Chroma.HarmonyPatches
                             }
 
                             // RGB
-                            float? r = (float?)Trees.at(dynData, "r");
-                            float? g = (float?)Trees.at(dynData, "g");
-                            float? b = (float?)Trees.at(dynData, "b");
+                            float? r = (float?)Trees.at(dynData, "_r");
+                            float? g = (float?)Trees.at(dynData, "_g");
+                            float? b = (float?)Trees.at(dynData, "_b");
                             if (r != null && g != null && b != null)
                             {
                                 Color d = new Color((float)r, (float)g, (float)b);
-                                float? a = (float?)Trees.at(dynData, "a");
+                                float? a = (float?)Trees.at(dynData, "_a");
                                 if (a != null) d = d.ColorWithAlpha((float)a);
                                 c = d;
 

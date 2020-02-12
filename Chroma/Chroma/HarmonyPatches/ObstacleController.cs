@@ -42,9 +42,9 @@ namespace Chroma.HarmonyPatches
                     dynamic dynData = customData.customData;
                     if (dynData != null)
                     {
-                        float? r = (float?)Trees.at(dynData, "_obstacleR");
-                        float? g = (float?)Trees.at(dynData, "_obstacleG");
-                        float? b = (float?)Trees.at(dynData, "_obstacleB");
+                        float? r = (float?)Trees.at(dynData, "_r");
+                        float? g = (float?)Trees.at(dynData, "_g");
+                        float? b = (float?)Trees.at(dynData, "_b");
                         if (r != null && g != null && b != null)
                         {
                             c = new Color(r.Value, g.Value, b.Value);

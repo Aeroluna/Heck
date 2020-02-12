@@ -14,7 +14,7 @@ namespace Chroma.Beatmap.Events.Legacy
 
         public static ChromaEvent SetChromaEvent(BeatmapEventData lightEvent, ChromaEvent chromaEvent)
         {
-            if (chromaEvents.ContainsKey(lightEvent))
+            if (chromaEvents.TryGetValue(lightEvent, out ChromaEvent value))
             {
                 chromaEvents.Remove(lightEvent);
             }

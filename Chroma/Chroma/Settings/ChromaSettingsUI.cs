@@ -181,7 +181,7 @@ namespace Chroma.Settings
                 if (value.ToUpper() == "SAFETYHAZARD")
                 {
                     ChromaConfig.WaiverRead = true;
-                    AudioUtil.Instance.PlayOneShotSound("NightmareMode.wav");
+                    //AudioUtil.Instance.PlayOneShotSound("NightmareMode.wav");
                 }
                 else if (value.ToUpper() == "CREDITS")
                 {
@@ -273,17 +273,19 @@ namespace Chroma.Settings
             set
             {
                 ChromaConfig.CustomColourEventsEnabled = !value;
+                ChromaLogger.Log(ChromaConfig.CustomColourEventsEnabled);
                 ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", !value);
             }
         }
 
-        [UIValue("notecolors")]
+        [UIValue("notecolours")]
         public bool NoteColourEventsEnabled
         {
             get => !ChromaConfig.NoteColourEventsEnabled;
             set
             {
                 ChromaConfig.NoteColourEventsEnabled = !value;
+                ChromaLogger.Log(ChromaConfig.NoteColourEventsEnabled);
             }
         }
 

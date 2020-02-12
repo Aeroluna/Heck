@@ -6,6 +6,7 @@ using Harmony;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using IPA.Utilities;
 
 namespace Chroma.HarmonyPatches
 {
@@ -69,9 +70,9 @@ namespace Chroma.HarmonyPatches
                     dynamic dynData = customData.customData;
                     if (dynData != null)
                     {
-                        float? r = (float?)Trees.at(dynData, "_noteR");
-                        float? g = (float?)Trees.at(dynData, "_noteG");
-                        float? b = (float?)Trees.at(dynData, "_noteB");
+                        float? r = (float?)Trees.at(dynData, "_r");
+                        float? g = (float?)Trees.at(dynData, "_g");
+                        float? b = (float?)Trees.at(dynData, "_b");
                         if (r != null && g != null && b != null)
                         {
                             c = new Color(r.Value, g.Value, b.Value);
@@ -92,7 +93,10 @@ namespace Chroma.HarmonyPatches
             }
 
             // colour sabers to color of block we smack
-            noteController.noteWasCutEvent += ChromaNoteColourEvent.SaberColour;
+            if (ChromaNoteColourEvent.SavedNoteColours.Count > 0)
+            {
+                noteController.noteWasCutEvent += ChromaNoteColourEvent.SaberColour;
+            }
         }
 
         private static void Postfix(ref NoteController noteController)

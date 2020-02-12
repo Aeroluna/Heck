@@ -236,7 +236,6 @@ namespace Chroma.Beatmap
             { // > 2,000,000,000 = >2000000000 = RGB (see ColourManager.ColourFromInt)
                 a = ColourManager.ColourFromInt(bev.value);
                 b = a;
-                if (FillColourEvent(bev, ref unfilledColourEvent, a)) return unfilledColourEvent;
             }
             else
             {
@@ -246,19 +245,6 @@ namespace Chroma.Beatmap
             if (unfilledColourEvent != null) unfilledColourEvent = null;
 
             return ChromaEvent.SetChromaEvent(bev, new ChromaLightEvent(bev, a, b));
-        }
-
-        public static bool FillColourEvent(BeatmapEventData bev, ref ChromaColourEvent unfilledColourEvent, params Color[] colors)
-        {
-            if (unfilledColourEvent != null)
-            {
-                unfilledColourEvent.Colors = colors;
-                if (ChromaConfig.LegacyLighting) ChromaEvent.SetChromaEvent(bev, unfilledColourEvent);
-                ChromaLogger.Log("Filled " + unfilledColourEvent.GetType().ToString() + " event.");
-                unfilledColourEvent = null;
-                return true;
-            }
-            return false;
         }
     }
 }

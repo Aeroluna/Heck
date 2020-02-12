@@ -69,8 +69,8 @@ namespace Chroma.HarmonyPatches
                         int? dir = (int?)Trees.at(dynData, "_direction");
                         if (dir == null) dir = -1;
 
-                        if (dir == 1) direction = 1;
-                        else if (dir == 0) direction = -1;
+                        if (dir == 1) direction = beatmapEventData.type == ____eventL ? 1 : -1;
+                        else if (dir == 0) direction = beatmapEventData.type == ____eventL ? -1 : 1;
 
                         //Actual lasering
                         Transform _transform = _rotationData.GetField<Transform>("transform");
