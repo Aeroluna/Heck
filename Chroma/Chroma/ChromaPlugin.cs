@@ -170,6 +170,7 @@ namespace Chroma
                     ChromaConfig.Init();
                     ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.INITIAL);
                     GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
+                    if (ChromaConfig.LightshowMenu) GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", ChromaSettingsUI.instance);
                 }
                 catch (Exception e)
                 {

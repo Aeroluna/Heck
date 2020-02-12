@@ -249,6 +249,11 @@ namespace Chroma
                 {
                     saber.gameObject.SetActive(false);
                 }
+
+                if (ChromaConfig.PlayersPlace) GameObject.Find("PlayersPlace").SetActive(false);
+                if (ChromaConfig.Spectrograms) GameObject.Find("Spectrograms").SetActive(false);
+                if (ChromaConfig.BackColumns) GameObject.Find("BackColumns").SetActive(false);
+                if (ChromaConfig.Buildings) GameObject.Find("Buildings").SetActive(false);
             }
 
             // Custom Events

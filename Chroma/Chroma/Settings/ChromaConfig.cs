@@ -174,18 +174,6 @@ namespace Chroma.Settings
 
         private static bool waiverRead = false;
 
-        public static bool HideSubMenus
-        {
-            get { return hideSubMenus; }
-            set
-            {
-                hideSubMenus = value;
-                ChromaConfig.SetBool("Other", "hideSubMenus", hideSubMenus);
-            }
-        }
-
-        private static bool hideSubMenus;
-
         #region modifiers
 
         public static bool LightshowModifier
@@ -328,6 +316,75 @@ namespace Chroma.Settings
         private static bool matchTechnicolourSabers = true;
 
         #endregion technicolour
+
+        #region lightshow
+
+        /// Secret stuffs
+        ///
+        public static bool LightshowMenu
+        {
+            get { return lightshowMenu; }
+            set
+            {
+                if (value)
+                {
+                    lightshowMenu = true;
+                    ChromaConfig.SetInt("Lightshow", "lightshowMenu", 6777);
+                }
+            }
+        }
+
+        private static bool lightshowMenu = false;
+
+        public static bool PlayersPlace
+        {
+            get { return playersPlace; }
+            set
+            {
+                playersPlace = value;
+                ChromaConfig.SetBool("Lightshow", "playersPlace", value);
+            }
+        }
+
+        private static bool playersPlace = false;
+
+        public static bool Spectrograms
+        {
+            get { return spectrograms; }
+            set
+            {
+                spectrograms = value;
+                ChromaConfig.SetBool("Lightshow", "spectrograms", value);
+            }
+        }
+
+        private static bool spectrograms = false;
+
+        public static bool BackColumns
+        {
+            get { return backColumns; }
+            set
+            {
+                backColumns = value;
+                ChromaConfig.SetBool("Lightshow", "backColumns", value);
+            }
+        }
+
+        private static bool backColumns = false;
+
+        public static bool Buildings
+        {
+            get { return buildings; }
+            set
+            {
+                buildings = value;
+                ChromaConfig.SetBool("Lightshow", "buildings", value);
+            }
+        }
+
+        private static bool buildings = false;
+
+        #endregion lightshow
 
         /// <summary>
         /// Called when Chroma reloads the config files.
@@ -520,9 +577,17 @@ namespace Chroma.Settings
 
                 debugMode = ChromaConfig.GetBool("Other", "debugMode", false);
 
-                hideSubMenus = ChromaConfig.GetBool("Other", "hideSubMenus", false);
-
                 waiverRead = ChromaConfig.GetInt("Other", "safetyWaiver", 0) == 51228;
+
+                /*
+                 * LIGHTSHOW
+                 */
+
+                lightshowMenu = ChromaConfig.GetInt("Lightshow", "lightshowMenu", 0, false) == 6777;
+                playersPlace = ChromaConfig.GetBool("Lightshow", "playersPlace", false, false);
+                spectrograms = ChromaConfig.GetBool("Lightshow", "spectrograms", false, false);
+                backColumns = ChromaConfig.GetBool("Lightshow", "backColumns", false, false);
+                buildings = ChromaConfig.GetBool("Lightshow", "buildings", false, false);
 
                 ColourManager.RefreshLights();
 
@@ -567,24 +632,24 @@ namespace Chroma.Settings
             IniProfile.SetString(category, name, value);
         }
 
-        public static bool GetBool(string category, string name, bool def = false)
+        public static bool GetBool(string category, string name, bool def = false, bool autoSave = true)
         {
-            return IniProfile.GetBool(category, name, def, true);
+            return IniProfile.GetBool(category, name, def, autoSave);
         }
 
-        public static float GetFloat(string category, string name, float def)
+        public static float GetFloat(string category, string name, float def, bool autoSave = true)
         {
-            return IniProfile.GetFloat(category, name, def, true);
+            return IniProfile.GetFloat(category, name, def, autoSave);
         }
 
-        public static int GetInt(string category, string name, int def)
+        public static int GetInt(string category, string name, int def, bool autoSave = true)
         {
-            return IniProfile.GetInt(category, name, def, true);
+            return IniProfile.GetInt(category, name, def, autoSave);
         }
 
-        public static string GetString(string category, string name, string def)
+        public static string GetString(string category, string name, string def, bool autoSave = true)
         {
-            return IniProfile.GetString(category, name, def, true);
+            return IniProfile.GetString(category, name, def, autoSave);
         }
 
         #endregion configshortcuts

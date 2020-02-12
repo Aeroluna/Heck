@@ -1,0 +1,6 @@
+﻿<modifier-container pref-width='65'>
+  <modifier src='#LightIcon' text='PlayersPlace' value='playersplace' apply-on-change='true'></modifier>
+  <modifier src='#LightIcon' text='Spectrograms' value='spectrograms' apply-on-change='true'></modifier>
+  <modifier src='#LightIcon' text='BackColumns' value='backcolumns' apply-on-change='true'></modifier>
+  <modifier src='#LightIcon' text='Buildings' value='buildings' apply-on-change='true'></modifier>
+</modifier-container>

@@ -6,7 +6,6 @@ using Harmony;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using IPA.Utilities;
 
 namespace Chroma.HarmonyPatches
 {

@@ -100,6 +100,7 @@
     <None Include="Resources\safetyWaiver.txt" />
     <EmbeddedResource Include="Settings\settings.bsml" />
     <EmbeddedResource Include="Settings\modifiers.bsml" />
+    <EmbeddedResource Include="Settings\lightshow.bsml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\chromaNotes.txt" />

@@ -178,14 +178,22 @@ namespace Chroma.Settings
             get => "";
             set
             {
-                if (value.ToUpper() == "SAFETYHAZARD")
+                switch (value.ToUpper())
                 {
-                    ChromaConfig.WaiverRead = true;
-                    //AudioUtil.Instance.PlayOneShotSound("NightmareMode.wav");
-                }
-                else if (value.ToUpper() == "CREDITS")
-                {
-                    AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");
+                    case "SAFETYHAZARD":
+                        ChromaConfig.WaiverRead = true;
+                        //AudioUtil.Instance.PlayOneShotSound("NightmareMode.wav");
+                        break;
+
+                    case "CREDITS":
+                        AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");
+                        break;
+
+                    case "LIGHTSHOW":
+                        BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", ChromaSettingsUI.instance);
+                        ChromaConfig.LightshowMenu = true;
+                        AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");
+                        break;
                 }
             }
         }
@@ -273,7 +281,6 @@ namespace Chroma.Settings
             set
             {
                 ChromaConfig.CustomColourEventsEnabled = !value;
-                ChromaLogger.Log(ChromaConfig.CustomColourEventsEnabled);
                 ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", !value);
             }
         }
@@ -285,7 +292,6 @@ namespace Chroma.Settings
             set
             {
                 ChromaConfig.NoteColourEventsEnabled = !value;
-                ChromaLogger.Log(ChromaConfig.NoteColourEventsEnabled);
             }
         }
 
@@ -384,6 +390,50 @@ namespace Chroma.Settings
         }
 
         #endregion Technicolour
+
+        #region Lightshow
+
+        [UIValue("playersplace")]
+        public bool PlayersPlace
+        {
+            get => ChromaConfig.PlayersPlace;
+            set
+            {
+                ChromaConfig.PlayersPlace = value;
+            }
+        }
+
+        [UIValue("spectrograms")]
+        public bool Spectrograms
+        {
+            get => ChromaConfig.Spectrograms;
+            set
+            {
+                ChromaConfig.Spectrograms = value;
+            }
+        }
+
+        [UIValue("backcolumns")]
+        public bool BackColumns
+        {
+            get => ChromaConfig.BackColumns;
+            set
+            {
+                ChromaConfig.BackColumns = value;
+            }
+        }
+
+        [UIValue("buildings")]
+        public bool Buildings
+        {
+            get => ChromaConfig.Buildings;
+            set
+            {
+                ChromaConfig.Buildings = value;
+            }
+        }
+
+        #endregion Lightshow
 
         private static NamedColor stringToColour(string str)
         {
