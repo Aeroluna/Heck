@@ -210,7 +210,7 @@ namespace Chroma.HarmonyPatches
                             if (__monobehaviour is LightSwitchEventEffect)
                             {
                                 // GRADIENT
-                                int? intid = (int?)Trees.at(dynData, "_lightsID");
+                                int? intid = (int?)Trees.at(dynData, "_event");
                                 float? duration = (float?)Trees.at(dynData, "_duration");
                                 float? initr = (float?)Trees.at(dynData, "_startR");
                                 float? initg = (float?)Trees.at(dynData, "_startG");

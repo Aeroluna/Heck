@@ -19,7 +19,7 @@ namespace Chroma.Beatmap.Events
                 try
                 {
                     dynamic dynData = d.data;
-                    int id = (int)Trees.at(dynData, "_lightsID");
+                    int id = (int)Trees.at(dynData, "_event");
                     float r = (float)Trees.at(dynData, "_r");
                     float g = (float)Trees.at(dynData, "_g");
                     float b = (float)Trees.at(dynData, "_b");
