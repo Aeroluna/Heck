@@ -26,7 +26,9 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("HandleNoteControllerDidInitEvent")]
     internal class ColorNoteVisualsHandleNoteControllerDidInitEvent
     {
-        private static void Prefix(ref NoteController noteController)
+        public static bool noteColoursActive;
+
+        private static void Prefix(ref NoteController noteController, ref ColorManager ____colorManager)
         {
             NoteData noteData = noteController.noteData;
             bool warm = noteData.noteType == NoteType.NoteA;
@@ -87,14 +89,14 @@ namespace Chroma.HarmonyPatches
 
             if (c != null)
             {
-                ChromaNoteColourEvent.SavedNoteColours.Add(noteController, (Color)c);
                 ColourManager.SetNoteTypeColourOverride(noteData.noteType, (Color)c);
+                noteColoursActive = true;
             }
 
-            // colour sabers to color of block we smack
-            if (ChromaNoteColourEvent.SavedNoteColours.Count > 0)
+            if (noteColoursActive)
             {
-                noteController.noteWasCutEvent += ChromaNoteColourEvent.SaberColour;
+                ChromaNoteColourEvent.SavedNoteColours[noteController] = ____colorManager.ColorForNoteType(noteData.noteType);
+                if (!ColourManager.TechnicolourSabers) noteController.noteWasCutEvent += ChromaNoteColourEvent.SaberColour;
             }
         }
 

@@ -191,13 +191,39 @@ namespace Chroma.Beatmap
                         if (ChromaBehaviour.LightingRegistered && bevData[i] is CustomBeatmapEventData customData)
                         {
                             dynamic dynData = customData.customData;
-                            if (Trees.at(dynData, "_event") != null) ColourManager.TechnicolourLightsForceDisabled = true;
-                            if (Trees.at(dynData, "_obstacleR") != null) ColourManager.TechnicolourBarriersForceDisabled = true;
-                            if (Trees.at(dynData, "_bombR") != null) ColourManager.TechnicolourBombsForceDisabled = true;
-                            if (Trees.at(dynData, "_id") != null) ColourManager.TechnicolourBlocksForceDisabled = true;
+                            if (Trees.at(dynData, "_r") != null) ColourManager.TechnicolourLightsForceDisabled = true;
                         }
                     }
                     catch { }
+                }
+
+                BeatmapLineData[] bData = beatmapData.beatmapLinesData;
+                foreach (BeatmapLineData b in bData)
+                {
+                    foreach (BeatmapObjectData beatmapObjectsData in b.beatmapObjectsData)
+                    {
+                        try
+                        {
+                            if (ChromaBehaviour.LightingRegistered)
+                            {
+                                if (beatmapObjectsData is CustomNoteData customNoteData)
+                                {
+                                    dynamic dynData = customNoteData.customData;
+                                    if (Trees.at(dynData, "_r") != null)
+                                    {
+                                        if (customNoteData.noteType == NoteType.Bomb) ColourManager.TechnicolourBombsForceDisabled = true;
+                                        else ColourManager.TechnicolourBlocksForceDisabled = true;
+                                    }
+                                }
+                                else if (beatmapObjectsData is CustomObstacleData customObstacleData)
+                                {
+                                    dynamic dynData = customObstacleData.customData;
+                                    if (Trees.at(dynData, "_r") != null) ColourManager.TechnicolourBarriersForceDisabled = true;
+                                }
+                            }
+                        }
+                        catch { }
+                    }
                 }
             }
 

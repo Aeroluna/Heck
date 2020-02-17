@@ -116,7 +116,7 @@ namespace Chroma.Settings
 
         public static bool NoteColourEventsEnabled
         {
-            get { return customColourEventsEnabled; }
+            get { return noteColourEventsEnabled; }
             set
             {
                 noteColourEventsEnabled = value;
@@ -431,6 +431,11 @@ namespace Chroma.Settings
             ChromaBombColourEvent.CustomBombColours.Clear();
             ChromaLightColourEvent.CustomLightColours.Clear();
             ChromaGradientEvent.CustomGradients.Clear();
+
+            HarmonyPatches.ColorNoteVisualsHandleNoteControllerDidInitEvent.noteColoursActive = false;
+
+            Extensions.SaberColourizer.currentAColor = null;
+            Extensions.SaberColourizer.currentBColor = null;
 
             ChromaGradientEvent.Clear();
             VFX.TechnicolourController.Clear();

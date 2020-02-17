@@ -28,30 +28,48 @@ namespace Chroma.HarmonyPatches
     {
         public static bool Prefix(ref Saber.SaberType type, ref Color __result)
         {
+            bool warm = type == Saber.SaberType.SaberA;
+
             if (ColourManager.TechnicolourSabers)
             {
-                __result = ColourManager.GetTechnicolour(type == Saber.SaberType.SaberA, Time.time, ChromaConfig.TechnicolourSabersStyle);
+                if (ChromaConfig.TechnicolourSabersStyle != ColourManager.TechnicolourStyle.GRADIENT)
+                {
+                    __result = ColourManager.GetTechnicolour(warm, Time.time, ChromaConfig.TechnicolourSabersStyle);
+                    return false;
+                }
+                else
+                {
+                    __result = (Color)VFX.TechnicolourController.Instance.rainbowSaberColours[type == Saber.SaberType.SaberA ? 0 : 1];
+                }
+            }
+
+            Color? color = warm ? Extensions.SaberColourizer.currentAColor : Extensions.SaberColourizer.currentBColor;
+            if (color == null) color = warm ? ColourManager.A : ColourManager.B;
+            if (color != null)
+            {
+                __result = (Color)color;
                 return false;
             }
 
-            if (type == Saber.SaberType.SaberA)
-            {
-                if (ColourManager.A != null)
-                {
-                    __result = (Color)ColourManager.A;
-                    return false;
-                }
-            }
-            else
-            {
-                if (ColourManager.B != null)
-                {
-                    __result = (Color)ColourManager.B;
-                    return false;
-                }
-            }
-
             return true;
+        }
+    }
+
+    [HarmonyPriority(Priority.High)]
+    [HarmonyPatch(typeof(ColorManager))]
+    [HarmonyPatch("EffectsColorForSaberType")]
+    internal class ColorManagerEffectsColorForSaberType
+    {
+        public static bool Prefix(ColorManager __instance, ref Saber.SaberType type, ref Color __result)
+        {
+            Color rgbColor = __instance.ColorForSaberType(type);
+            float h;
+            float s;
+            float v;
+            Color.RGBToHSV(rgbColor, out h, out s, out v);
+            v = 1f;
+            __result = Color.HSVToRGB(h, s, v);
+            return false;
         }
     }
 }

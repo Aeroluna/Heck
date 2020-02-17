@@ -105,7 +105,6 @@ namespace Chroma
 
         public static float songBPM = 120f;
         public static AudioTimeSyncController ATSC;
-        public static ColorManager ColorManager;
         public static bool LightingRegistered;
 
         internal List<IChromaBehaviourExtension> extensions = new List<IChromaBehaviourExtension>();
@@ -150,7 +149,6 @@ namespace Chroma
                 songBPM = beatmapObjectSpawnController.GetPrivateField<float>("_beatsPerMinute");
                 ChromaLogger.Log("BPM Found : " + songBPM);
                 ATSC = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First();
-                ColorManager = Resources.FindObjectsOfTypeAll<ColorManager>().First();
             }
             BeatmapObjectCallbackController coreSetup = GetBeatmapObjectCallbackController();
             if (coreSetup != null)

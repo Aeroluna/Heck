@@ -51,21 +51,11 @@ namespace Chroma.Beatmap.Events
         {
             Color color;
             bool noteType = noteController.noteData.noteType == NoteType.NoteA;
-            if (SavedNoteColours.TryGetValue(noteController, out Color c))
-            {
-                color = c;
-            }
+            if (SavedNoteColours.TryGetValue(noteController, out Color c)) color = c;
             else
             {
-                Color? managerColor = noteType ? ColourManager.A : ColourManager.B;
-                if (managerColor == null)
-                {
-                    color = noteType ? ChromaBehaviour.ColorManager.GetPrivateField<ColorScheme>("_colorScheme").saberAColor : ChromaBehaviour.ColorManager.GetPrivateField<ColorScheme>("_colorScheme").saberBColor;
-                }
-                else
-                {
-                    color = noteType ? (Color)ColourManager.A : (Color)ColourManager.B;
-                }
+                ChromaLogger.Log("SavedNoteColour not found!", ChromaLogger.Level.WARNING);
+                return;
             }
             foreach (SaberColourizer saber in SaberColourizer.saberColourizers)
             {
@@ -74,6 +64,9 @@ namespace Chroma.Beatmap.Events
                     saber.Colourize(color);
                 }
             }
+
+            // unsubscribe
+            noteController.noteWasCutEvent -= SaberColour;
         }
     }
 }

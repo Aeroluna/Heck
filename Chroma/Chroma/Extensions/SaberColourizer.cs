@@ -15,6 +15,11 @@ namespace Chroma.Extensions
 
         private List<Material> customMats = new List<Material>();
 
+        public static SaberBurnMarkArea saberBurnMarkArea = null;
+
+        public static Color? currentAColor = null;
+        public static Color? currentBColor = null;
+
         public SaberColourizer(Saber saber)
         {
             warm = saber.saberType == Saber.SaberType.SaberA;
@@ -64,6 +69,9 @@ namespace Chroma.Extensions
 
         public void Colourize(Color color)
         {
+            if (warm) currentAColor = color;
+            else currentBColor = color;
+
             for (int i = 0; i < glowColors.Length; i++)
             {
                 for (int j = 0; j < tintPairs[i].Length; j++)
@@ -77,6 +85,13 @@ namespace Chroma.Extensions
             foreach (Material material in customMats)
             {
                 material.SetColor("_Color", color);
+            }
+
+            if (saberBurnMarkArea != null)
+            {
+                LineRenderer[] _lineRenderers = saberBurnMarkArea.GetPrivateField<LineRenderer[]>("_lineRenderers");
+                _lineRenderers[warm ? 0 : 1].startColor = color;
+                _lineRenderers[warm ? 0 : 1].endColor = color;
             }
         }
     }
