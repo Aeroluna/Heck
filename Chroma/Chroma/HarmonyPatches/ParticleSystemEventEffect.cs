@@ -67,9 +67,9 @@ namespace Chroma.HarmonyPatches
             MonoBehaviour __monobehaviour = __instance;
             Color? c = LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.CheckCJD(__monobehaviour, beatmapEventData, ____colorEvent);
 
-            if (c != null)
+            if (c.HasValue)
             {
-                ColourManager.RecolourLight(ref __monobehaviour, (Color)c, (Color)c);
+                ColourManager.RecolourLight(ref __monobehaviour, c.Value, c.Value);
             }
 
             try

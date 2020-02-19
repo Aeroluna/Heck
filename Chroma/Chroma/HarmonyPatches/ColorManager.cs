@@ -12,9 +12,9 @@ namespace Chroma.HarmonyPatches
         public static bool Prefix(ref Color __result, ref NoteType type)
         {
             Color? c = ColourManager.GetNoteTypeColourOverride(type);
-            if (c != null)
+            if (c.HasValue)
             {
-                __result = (Color)c;
+                __result = c.Value;
                 return false;
             }
             return true;
@@ -39,15 +39,15 @@ namespace Chroma.HarmonyPatches
                 }
                 else
                 {
-                    __result = (Color)VFX.TechnicolourController.Instance.rainbowSaberColours[type == Saber.SaberType.SaberA ? 0 : 1];
+                    __result = VFX.TechnicolourController.Instance.rainbowSaberColours[type == Saber.SaberType.SaberA ? 0 : 1].Value;
                 }
             }
 
             Color? color = warm ? Extensions.SaberColourizer.currentAColor : Extensions.SaberColourizer.currentBColor;
             if (color == null) color = warm ? ColourManager.A : ColourManager.B;
-            if (color != null)
+            if (color.HasValue)
             {
-                __result = (Color)color;
+                __result = color.Value;
                 return false;
             }
 

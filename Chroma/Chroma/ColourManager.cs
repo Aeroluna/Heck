@@ -427,23 +427,23 @@ namespace Chroma
 
             foreach (Renderer rend in rends2)
             {
-                if (rend.name.Contains("Laser") && laser != null)
+                if (rend.name.Contains("Laser") && laser.HasValue)
                 {
-                    rend.material.color = (Color)laser;
-                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", (Color)laser);
-                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", (Color)laser);
+                    rend.material.color = laser.Value;
+                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", laser.Value);
+                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", laser.Value);
                 }
-                if (rend.name.Contains("Glow") && platformLight != null)
+                if (rend.name.Contains("Glow") && platformLight.HasValue)
                 {
-                    rend.material.color = (Color)platformLight;
-                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", (Color)platformLight);
-                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", (Color)platformLight);
+                    rend.material.color = platformLight.Value;
+                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", platformLight.Value);
+                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", platformLight.Value);
                 }
-                if (rend.name.Contains("Feet") && platformLight != null)
+                if (rend.name.Contains("Feet") && platformLight.HasValue)
                 {
-                    rend.material.color = (Color)platformLight;
-                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", (Color)platformLight);
-                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", (Color)platformLight);
+                    rend.material.color = platformLight.Value;
+                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", platformLight.Value);
+                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", platformLight.Value);
                 }
                 /*if (rend.name.Contains("Neon")) {
                     rend.material.color = blue;
@@ -460,17 +460,17 @@ namespace Chroma
                     if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", blue);
                     if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", blue);
                 }*/
-                if (rend.name.Contains("VRCursor") && LaserPointerColour != null)
+                if (rend.name.Contains("VRCursor") && LaserPointerColour.HasValue)
                 {
-                    rend.material.color = (Color)LaserPointerColour;
-                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", (Color)LaserPointerColour);
-                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", (Color)LaserPointerColour);
+                    rend.material.color = LaserPointerColour.Value;
+                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", LaserPointerColour.Value);
+                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", LaserPointerColour.Value);
                 }
-                if (rend.name.Contains("Frame") && platformLight != null)
+                if (rend.name.Contains("Frame") && platformLight.HasValue)
                 {
-                    rend.material.color = (Color)platformLight;
-                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", (Color)platformLight);
-                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", (Color)platformLight);
+                    rend.material.color = platformLight.Value;
+                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", platformLight.Value);
+                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", platformLight.Value);
                 }
             }
 
@@ -481,37 +481,15 @@ namespace Chroma
 
         public static void RecolourAmbientLights(Color? color)
         {
-            if (color == null) return;
+            if (!color.HasValue) return;
             try
             {
                 HashSet<BloomPrePassBGLight> bls = new HashSet<BloomPrePassBGLight>(BloomPrePassBGLight.bloomBGLightList);
-                foreach (BloomPrePassBGLight light in bls) light.color = (Color)color;
+                foreach (BloomPrePassBGLight light in bls) light.color = color.Value;
             }
             catch (Exception e)
             {
                 ChromaLogger.Log(e);
-            }
-        }
-
-        public static void BreakReality()
-        {
-            Color color = Color.black;
-            Renderer[] rends = GameObject.FindObjectsOfType<Renderer>();
-            foreach (Renderer rend in rends)
-            {
-                if (color == Color.black) rend.enabled = false;
-                else
-                {
-                    rend.enabled = true;
-                    if (rend.materials.Length > 0)
-                    {
-                        if (rend.material.shader.name == "Custom/ParametricBox" || rend.material.shader.name == "Custom/ParametricBoxOpaque")
-                        {
-                            rend.material.SetColor("_Color", new Color(color.r * 0.5f, color.g * 0.5f, color.b * 0.5f, 1.0f));
-                            Console.WriteLine("found material");
-                        }
-                    }
-                }
             }
         }
 
@@ -525,9 +503,9 @@ namespace Chroma
                 if (prePassLight != null)
                 {
                     if (prePassLight.name.Contains("SaberNeon"))
-                        prePassLight.color = Aclear ? new Color(0.188f, 0.62f, 1f, 0.8f) : ((Color)colorA).ColorWithAlpha(0.8f);
+                        prePassLight.color = Aclear ? new Color(0.188f, 0.62f, 1f, 0.8f) : colorA.Value.ColorWithAlpha(0.8f);
                     if (prePassLight.name.Contains("BATNeon") || prePassLight.name.Contains("ENeon"))
-                        prePassLight.color = Bclear ? new Color(1f, 0.031f, 0.031f, 1f) : ((Color)colorB).ColorWithAlpha(1f);
+                        prePassLight.color = Bclear ? new Color(1f, 0.031f, 0.031f, 1f) : colorB.Value.ColorWithAlpha(1f);
                 }
             }
 
@@ -537,9 +515,9 @@ namespace Chroma
                 if (sprite != null)
                 {
                     if (sprite.name == "SaberLogo")
-                        sprite.color = Aclear ? new Color(0f, 0.569f, 1f, 1f) : (Color)colorA;
+                        sprite.color = Aclear ? new Color(0f, 0.569f, 1f, 1f) : colorA.Value;
                     if (sprite.name == "BatLogo" || sprite.name == "LogoE")
-                        sprite.color = Bclear ? new Color(1f, 0f, 0f, 1f) : (Color)colorB;
+                        sprite.color = Bclear ? new Color(1f, 0f, 0f, 1f) : colorB.Value;
                 }
             }
 
@@ -713,7 +691,7 @@ namespace Chroma
 
             List<NamedColor> namedColors = LoadColoursFromFile();
             List<XmlColour> xmColours = new List<XmlColour>();
-            foreach (NamedColor nc in namedColors) xmColours.Add(new XmlColour(nc.name, (Color)nc.color));
+            foreach (NamedColor nc in namedColors) xmColours.Add(new XmlColour(nc.name, nc.color.Value));
             foreach (XmlColour xc in colours) xmColours.Add(xc);
 
             try

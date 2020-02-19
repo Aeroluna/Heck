@@ -99,10 +99,7 @@ namespace Chroma.Beatmap
                         else if (beatmapObjectData2.beatmapObjectType == BeatmapObjectType.Obstacle)
                         {
                             ObstacleData obstacle = beatmapObjectData2 as ObstacleData;
-                            if (obstacle != null)
-                            {
-                                customBeatmapObject = new CustomBeatmapBarrier(obstacle);
-                            }
+                            if (obstacle != null) customBeatmapObject = new CustomBeatmapBarrier(obstacle);
                         }
                         array[k]++;
                         num4++;
@@ -120,7 +117,6 @@ namespace Chroma.Beatmap
                 if (beatmapData == null) ChromaLogger.Log("Null beatmapData", ChromaLogger.Level.ERROR);
                 if (beatmapData.beatmapEventData == null) ChromaLogger.Log("Null beatmapData.beatmapEventData", ChromaLogger.Level.ERROR);
                 ModifyCustomBeatmapEvent?.Invoke(beatmapData.notesCount * beatmapData.beatmapEventData.Length, ref customBeatmap, ref beatmapData, ref playerSettings, ref baseGameMode, ref bpm);
-                //ModifyCustomBeatmap(beatmapData.notesCount * beatmapData.beatmapEventData.Length, ref customBeatmap, ref beatmapData, ref playerSettings, ref baseGameMode, ref bpm);
             }
             catch (Exception e)
             {
@@ -169,8 +165,6 @@ namespace Chroma.Beatmap
 
             beatmapData = new BeatmapData(linesData, eventsData);
 
-            //if (chromaInjectmap != null) chromaInjectmap.Inject(beatmapData);
-
             customBeatmap.BeatmapData = beatmapData;
 
             /*
@@ -212,7 +206,7 @@ namespace Chroma.Beatmap
                                     if (Trees.at(dynData, "_r") != null)
                                     {
                                         if (customNoteData.noteType == NoteType.Bomb) ColourManager.TechnicolourBombsForceDisabled = true;
-                                        else ColourManager.TechnicolourBlocksForceDisabled = true;
+                                        else ColourManager.TechnicolourBlocksForceDisabled = ChromaConfig.NoteColourEventsEnabled;
                                     }
                                 }
                                 else if (beatmapObjectsData is CustomObstacleData customObstacleData)

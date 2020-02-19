@@ -12,9 +12,9 @@ internal class SaberWeaponTrailColor
         if (TechnicolourController.Instantiated())
         {
             Color? c = TechnicolourController.Instance.rainbowSaberColours[____saberTypeObject.saberType == Saber.SaberType.SaberA ? 0 : 1];
-            if (c != null)
+            if (c.HasValue)
             {
-                __result = (Color)c;
+                __result = c.Value;
                 return false;
             }
         }

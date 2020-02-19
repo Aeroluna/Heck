@@ -25,7 +25,7 @@ namespace Chroma.Beatmap.Events
                     float b = (float)Trees.at(dynData, "_b");
                     float? a = (float?)Trees.at(dynData, "_a");
                     Color c = new Color(r, g, b);
-                    if (a != null) c = c.ColorWithAlpha((float)a);
+                    if (a.HasValue) c = c.ColorWithAlpha(a.Value);
 
                     // Dictionary of dictionaries!
                     Dictionary<float, Color> dictionaryID;

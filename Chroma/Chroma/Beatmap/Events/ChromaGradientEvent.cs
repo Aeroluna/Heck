@@ -93,8 +93,8 @@ namespace Chroma.Beatmap.Events
                 BeatmapEventType id = (BeatmapEventType)intid;
                 Color initc = new Color(initr, initg, initb);
                 Color endc = new Color(endr, endg, endb);
-                if (inita != null) initc = initc.ColorWithAlpha((float)inita);
-                if (enda != null) endc = endc.ColorWithAlpha((float)enda);
+                if (inita.HasValue) initc = initc.ColorWithAlpha(inita.Value);
+                if (enda.HasValue) endc = endc.ColorWithAlpha(enda.Value);
 
                 AddGradient(id, initc, endc, eventData.time, duration);
             }

@@ -212,9 +212,6 @@ namespace Chroma
                 if (next.name != "GameCore")
                 {
                     Time.timeScale = 1f;
-                    //ChromaBehaviour.ClearInstance();
-                    //if (ChromaConfig.reloadGameModes) ChromaGameMode.InitializeGameModes();
-                    //ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.MENU_LOADED);
                     MainMenuLoadedEvent?.Invoke();
                 }
             }
@@ -222,8 +219,6 @@ namespace Chroma
             {
                 if (next.name == "GameCore")
                 {
-                    //overrideGameMode = null;
-                    //ChromaBehaviour.CreateNewInstance(GetSelectedGameMode());
                     ChromaBehaviour.CreateNewInstance();
                     SongSceneLoadedEvent?.Invoke();
                 }
@@ -242,8 +237,6 @@ namespace Chroma
         public void ReleaseInfoEnabled()
         {
             SidePanelUtil.SetPanel(ChromaSettingsUI.floatToPanel((float)ChromaConfig.SidePanel));
-            //SidePanelUtil.SetPanel("chroma");
-            //SidePanelUtil.SetPanelDirectly(SafetyWaiver.GetSafetyWaiverUIMessage());
         }
 
         public void OnUpdate()
@@ -255,20 +248,15 @@ namespace Chroma
 
             if (Input.GetKeyDown(KeyCode.Period) && ChromaConfig.DebugMode)
             {
-                if (Input.GetKey(KeyCode.Alpha1)) ColourManager.RecolourNeonSign((Color)ColourManager.SignA, (Color)ColourManager.SignB);
-                else if (Input.GetKey(KeyCode.Alpha2)) ColourManager.RefreshLights();
-                else
+                ChromaLogger.Log(" [[ Debug Info ]]");
+
+                if (ChromaConfig.TechnicolourEnabled)
                 {
-                    ChromaLogger.Log(" [[ Debug Info ]]");
-
-                    if (ChromaConfig.TechnicolourEnabled)
-                    {
-                        ChromaLogger.Log("TechnicolourStyles (Lights | Walls | Notes | Sabers) : " + ChromaConfig.TechnicolourLightsStyle + " | " + ChromaConfig.TechnicolourWallsStyle + " | " + ChromaConfig.TechnicolourBlocksStyle + " | " + ChromaConfig.TechnicolourSabersStyle);
-                        ChromaLogger.Log("Technicolour (Lights | Walls | Notes | Sabers) : " + ColourManager.TechnicolourLights + " | " + ColourManager.TechnicolourBarriers + " | " + ColourManager.TechnicolourBlocks + " | " + ColourManager.TechnicolourSabers);
-                    }
-
-                    DebugButtonPressedEvent?.Invoke();
+                    ChromaLogger.Log("TechnicolourStyles (Lights | Walls | Notes | Sabers) : " + ChromaConfig.TechnicolourLightsStyle + " | " + ChromaConfig.TechnicolourWallsStyle + " | " + ChromaConfig.TechnicolourBlocksStyle + " | " + ChromaConfig.TechnicolourSabersStyle);
+                    ChromaLogger.Log("Technicolour (Lights | Walls | Notes | Sabers) : " + ColourManager.TechnicolourLights + " | " + ColourManager.TechnicolourBarriers + " | " + ColourManager.TechnicolourBlocks + " | " + ColourManager.TechnicolourSabers);
                 }
+
+                DebugButtonPressedEvent?.Invoke();
             }
         }
 

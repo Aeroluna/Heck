@@ -30,7 +30,7 @@ namespace Chroma.HarmonyPatches
                             }
 
                             bool? reset = Trees.at(dynData, "_reset");
-                            if (reset != null && reset == true)
+                            if (reset.HasValue && reset == true)
                             {
                                 ChromaLogger.Log("Ring spin [RESET]");
                                 ResetRings(__instance, ref ____trackLaneRingsRotationEffect, ref ____rotationStep, ref ____rotationPropagationSpeed, ref ____rotationFlexySpeed);
@@ -38,14 +38,14 @@ namespace Chroma.HarmonyPatches
                             }
 
                             float? stepMult = (float?)Trees.at(dynData, "_stepMult");
-                            if (stepMult == null) stepMult = 1f;
+                            stepMult = stepMult.GetValueOrDefault(1f);
                             float? propMult = (float?)Trees.at(dynData, "_propMult");
-                            if (propMult == null) propMult = 1f;
+                            propMult = propMult.GetValueOrDefault(1f);
                             float? speedMult = (float?)Trees.at(dynData, "_speedMult");
-                            if (speedMult == null) speedMult = 1f;
+                            speedMult = speedMult.GetValueOrDefault(1f);
 
                             int? dir = (int?)Trees.at(dynData, "_direction");
-                            if (dir == null) dir = -1;
+                            if (!dir.HasValue) dir = -1;
 
                             bool rotRight;
                             if (dir == -1)
@@ -55,17 +55,14 @@ namespace Chroma.HarmonyPatches
                             else rotRight = dir == 1 ? true : false;
 
                             bool? counterSpin = Trees.at(dynData, "_counterSpin");
-                            if (counterSpin != null && counterSpin == true)
+                            if (counterSpin.HasValue && counterSpin == true)
                             {
-                                if (__instance.name.ToLower().Contains("small"))
-                                {
-                                    rotRight = !rotRight;
-                                }
+                                if (__instance.name.ToLower().Contains("small")) rotRight = !rotRight;
                             }
 
                             if (ChromaConfig.DebugMode) ChromaLogger.Log("[[CJD]] Ring Spin (" + __instance.name + "_" + beatmapEventData.time + ") - [Dir:" + (dir == -1 ? "random" : rotRight ? "right" : "left") + "] - [Step:" + stepMult + "] - [Prop:" + propMult + "] - [Speed:" + speedMult + "]");
 
-                            TriggerRotation(rotRight, __instance, ref ____trackLaneRingsRotationEffect, ref ____rotationStep, ref ____rotationPropagationSpeed, ref ____rotationFlexySpeed, (float)stepMult, (float)propMult, (float)speedMult);
+                            TriggerRotation(rotRight, __instance, ref ____trackLaneRingsRotationEffect, ref ____rotationStep, ref ____rotationPropagationSpeed, ref ____rotationFlexySpeed, stepMult.Value, propMult.Value, speedMult.Value);
                             return false;
                         }
                     }

@@ -223,10 +223,7 @@ namespace Chroma
             if (_beatmapData == null) ChromaLogger.Log("{XXX} : NULL BEATMAP DATA", ChromaLogger.Level.ERROR);
             //BeatmapData beatmapData = CreateTransformedBeatmapData(mgData.difficultyLevel.beatmapData, mgData.gameplayOptions, mgData.gameplayMode);
             BeatmapData beatmapData = CreateTransformedBeatmapData(_beatmapData, playerSettings, BaseGameMode.CurrentBaseGameMode);
-            if (beatmapData != null)
-            {
-                gcss.SetPrivateField("_beatmapData", beatmapData);
-            }
+            if (beatmapData != null) gcss.SetPrivateField("_beatmapData", beatmapData);
 
             foreach (IChromaBehaviourExtension extension in extensions) extension.PostInitialization(songBPM, beatmapData, playerSettings, scoreController);
 

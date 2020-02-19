@@ -102,11 +102,7 @@ namespace Chroma.HarmonyPatches
 
             MonoBehaviour __monobehaviour = __instance;
             Color? c = CheckCJD(__monobehaviour, beatmapEventData, ____event);
-
-            if (c != null)
-            {
-                ColourManager.RecolourLight(ref __monobehaviour, (Color)c, (Color)c);
-            }
+            if (c.HasValue) ColourManager.RecolourLight(ref __monobehaviour, c.Value, c.Value);
 
             try
             {
@@ -190,18 +186,18 @@ namespace Chroma.HarmonyPatches
                         {
                             LightSwitchEventEffect __instance = (LightSwitchEventEffect)__monobehaviour;
 
-                            long? lightID = Trees.at(dynData, "_lightID");
-                            if (lightID != null)
+                            int? lightID = (int?)Trees.at(dynData, "_lightID");
+                            if (lightID.HasValue)
                             {
                                 LightWithId[] lights = __instance.GetLights();
-                                if (lights.Length > lightID) SetOverrideLightWithIds(lights[(int)lightID]);
+                                if (lights.Length > lightID) SetOverrideLightWithIds(lights[lightID.Value]);
                             }
 
-                            long? propID = Trees.at(dynData, "_propID");
-                            if (propID != null)
+                            int? propID = (int?)Trees.at(dynData, "_propID");
+                            if (propID.HasValue)
                             {
                                 LightWithId[][] lights = __instance.GetLightsPropagationGrouped();
-                                if (lights.Length > propID) SetOverrideLightWithIds(lights[(int)propID]);
+                                if (lights.Length > propID) SetOverrideLightWithIds(lights[propID.Value]);
                             }
                         }
 
@@ -220,15 +216,15 @@ namespace Chroma.HarmonyPatches
                                 float? endg = (float?)Trees.at(dynData, "_endG");
                                 float? endb = (float?)Trees.at(dynData, "_endB");
                                 float? enda = (float?)Trees.at(dynData, "_endA");
-                                if (intid != null && duration != null && initr != null && initb != null && enda != null && endg != null && endb != null)
+                                if (intid.HasValue && duration.HasValue && initr.HasValue && initb.HasValue && enda.HasValue && endg.HasValue && endb.HasValue)
                                 {
                                     BeatmapEventType id = (BeatmapEventType)intid;
-                                    Color initc = new Color((float)initr, (float)initg, (float)initb);
-                                    Color endc = new Color((float)endr, (float)endg, (float)endb);
-                                    if (inita != null) initc = initc.ColorWithAlpha((float)inita);
-                                    if (enda != null) endc = endc.ColorWithAlpha((float)enda);
+                                    Color initc = new Color(initr.Value, initg.Value, initb.Value);
+                                    Color endc = new Color(endr.Value, endg.Value, endb.Value);
+                                    if (inita.HasValue) initc = initc.ColorWithAlpha(inita.Value);
+                                    if (enda.HasValue) endc = endc.ColorWithAlpha(enda.Value);
 
-                                    ChromaGradientEvent.AddGradient(id, initc, endc, customData.time, (float)duration);
+                                    ChromaGradientEvent.AddGradient(id, initc, endc, customData.time, duration.Value);
 
                                     return initc;
                                 }
@@ -238,12 +234,11 @@ namespace Chroma.HarmonyPatches
                             float? r = (float?)Trees.at(dynData, "_r");
                             float? g = (float?)Trees.at(dynData, "_g");
                             float? b = (float?)Trees.at(dynData, "_b");
-                            if (r != null && g != null && b != null)
+                            float? a = (float?)Trees.at(dynData, "_a");
+                            if (r.HasValue && g.HasValue && b.HasValue)
                             {
-                                Color d = new Color((float)r, (float)g, (float)b);
-                                float? a = (float?)Trees.at(dynData, "_a");
-                                if (a != null) d = d.ColorWithAlpha((float)a);
-                                c = d;
+                                c = new Color(r.Value, g.Value, b.Value);
+                                if (a.HasValue) c = c.Value.ColorWithAlpha(a.Value);
 
                                 // Clear any active gradient
                                 if (ChromaGradientEvent.CustomGradients.TryGetValue(_event, out ChromaGradientEvent gradient))

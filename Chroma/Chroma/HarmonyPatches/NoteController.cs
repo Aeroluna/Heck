@@ -50,7 +50,7 @@ namespace Chroma.HarmonyPatches
                             float? r = (float?)Trees.at(dynData, "_r");
                             float? g = (float?)Trees.at(dynData, "_g");
                             float? b = (float?)Trees.at(dynData, "_b");
-                            if (r != null && g != null && b != null)
+                            if (r.HasValue && g.HasValue && b.HasValue)
                             {
                                 c = new Color(r.Value, g.Value, b.Value);
                             }
@@ -63,10 +63,10 @@ namespace Chroma.HarmonyPatches
                     ChromaLogger.Log(e);
                 }
 
-                if (c != null)
+                if (c.HasValue)
                 {
                     Material mat = __instance.noteTransform.gameObject.GetComponent<Renderer>().material;
-                    mat.SetColor("_SimpleColor", (Color)c);
+                    mat.SetColor("_SimpleColor", c.Value);
                 }
             }
         }

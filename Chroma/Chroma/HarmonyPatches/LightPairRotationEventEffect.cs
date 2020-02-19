@@ -61,13 +61,13 @@ namespace Chroma.HarmonyPatches
                     if (dynData != null)
                     {
                         bool? lockPosition = Trees.at(dynData, "_lockPosition");
-                        if (lockPosition == null) lockPosition = false;
+                        lockPosition = lockPosition.GetValueOrDefault(false);
 
                         float? precisionSpeed = (float?)Trees.at(dynData, "_preciseSpeed");
-                        if (precisionSpeed == null) precisionSpeed = beatmapEventData.value;
+                        precisionSpeed = precisionSpeed.GetValueOrDefault(beatmapEventData.value);
 
                         int? dir = (int?)Trees.at(dynData, "_direction");
-                        if (dir == null) dir = -1;
+                        dir = dir.GetValueOrDefault(-1);
 
                         if (dir == 1) direction = beatmapEventData.type == ____eventL ? 1 : -1;
                         else if (dir == 0) direction = beatmapEventData.type == ____eventL ? -1 : 1;
@@ -79,7 +79,7 @@ namespace Chroma.HarmonyPatches
                         if (precisionSpeed == 0)
                         {
                             _rotationData.SetPrivateField("enabled", false);
-                            if (!(bool)lockPosition)
+                            if (!lockPosition.Value)
                             {
                                 _transform.localRotation = _startRotation;
                             }
@@ -87,8 +87,8 @@ namespace Chroma.HarmonyPatches
                         else
                         {
                             _rotationData.SetPrivateField("enabled", true);
-                            _rotationData.SetPrivateField("rotationSpeed", (float)precisionSpeed * 20f * direction);
-                            if (!(bool)lockPosition)
+                            _rotationData.SetPrivateField("rotationSpeed", precisionSpeed * 20f * direction);
+                            if (!lockPosition.Value)
                             {
                                 _transform.localRotation = _startRotation;
                                 _transform.Rotate(_rotationVector, startRotationOffset, Space.Self);

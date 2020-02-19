@@ -74,7 +74,7 @@ namespace Chroma.HarmonyPatches
                         float? r = (float?)Trees.at(dynData, "_r");
                         float? g = (float?)Trees.at(dynData, "_g");
                         float? b = (float?)Trees.at(dynData, "_b");
-                        if (r != null && g != null && b != null)
+                        if (r.HasValue && g.HasValue && b.HasValue)
                         {
                             c = new Color(r.Value, g.Value, b.Value);
                         }
@@ -87,9 +87,9 @@ namespace Chroma.HarmonyPatches
                 ChromaLogger.Log(e);
             }
 
-            if (c != null)
+            if (c.HasValue)
             {
-                ColourManager.SetNoteTypeColourOverride(noteData.noteType, (Color)c);
+                ColourManager.SetNoteTypeColourOverride(noteData.noteType, c.Value);
                 noteColoursActive = true;
             }
 

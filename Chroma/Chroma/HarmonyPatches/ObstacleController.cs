@@ -45,9 +45,11 @@ namespace Chroma.HarmonyPatches
                         float? r = (float?)Trees.at(dynData, "_r");
                         float? g = (float?)Trees.at(dynData, "_g");
                         float? b = (float?)Trees.at(dynData, "_b");
-                        if (r != null && g != null && b != null)
+                        float? a = (float?)Trees.at(dynData, "_a");
+                        if (r.HasValue && g.HasValue && b.HasValue)
                         {
                             c = new Color(r.Value, g.Value, b.Value);
+                            if (a.HasValue) c = c.Value.ColorWithAlpha(a.Value);
                         }
                     }
                 }
@@ -58,11 +60,11 @@ namespace Chroma.HarmonyPatches
                 ChromaLogger.Log(e);
             }
 
-            if (c != null)
+            if (c.HasValue)
             {
                 // create new SimpleColorSO, as to not overwrite the main color scheme
                 ____color = ScriptableObject.CreateInstance<SimpleColorSO>();
-                ____color.SetColor((Color)c);
+                ____color.SetColor(c.Value);
             }
         }
     }

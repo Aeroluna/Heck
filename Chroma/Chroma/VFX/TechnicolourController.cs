@@ -302,7 +302,7 @@ namespace Chroma.VFX
         {
             foreach (SaberColourizer saber in SaberColourizer.saberColourizers)
             {
-                saber.Colourize(saber.warm ? (Color)rainbowSaberColours[0] : (Color)rainbowSaberColours[1]);
+                saber.Colourize(saber.warm ? rainbowSaberColours[0].Value : rainbowSaberColours[1].Value);
             }
         }
 

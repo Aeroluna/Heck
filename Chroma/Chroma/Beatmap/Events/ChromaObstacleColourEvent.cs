@@ -22,7 +22,9 @@ namespace Chroma.Beatmap.Events
                     float r = (float)Trees.at(dynData, "_r");
                     float g = (float)Trees.at(dynData, "_g");
                     float b = (float)Trees.at(dynData, "_b");
+                    float? a = (float?)Trees.at(dynData, "_a");
                     Color c = new Color(r, g, b);
+                    if (a.HasValue) c = c.ColorWithAlpha(a.Value);
                     CustomObstacleColours.Add(d.time, c);
 
                     ColourManager.TechnicolourBarriersForceDisabled = true;

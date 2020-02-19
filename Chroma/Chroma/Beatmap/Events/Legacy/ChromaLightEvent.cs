@@ -12,7 +12,7 @@ namespace Chroma.Beatmap.Events.Legacy
 
         public override bool Activate(ref MonoBehaviour light, ref BeatmapEventData data, ref BeatmapEventType eventType)
         {
-            ColourManager.RecolourLight(ref light, A == null ? (Color)ColourManager.LightA : A, B == null ? (Color)ColourManager.LightB : B);
+            ColourManager.RecolourLight(ref light, A == null ? ColourManager.LightA.Value : A, B == null ? ColourManager.LightB.Value : B);
             return true;
         }
     }
