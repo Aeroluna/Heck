@@ -1,0 +1,3181 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>IPA.Loader</name>
+    </assembly>
+    <members>
+        <member name="T:IPA.Config.Config">
+            <summary>
+            A class to handle updating ConfigProviders automatically
+            </summary>
+        </member>
+        <member name="T:IPA.Config.Config.TypeAttribute">
+            <inheritdoc />
+            <summary>
+            Defines the type of the <see cref="T:IPA.Config.IConfigProvider" />
+            </summary>
+        </member>
+        <member name="P:IPA.Config.Config.TypeAttribute.Extension">
+            <summary>
+            The extension associated with this type, without the '.'
+            </summary>
+            <value>the extension to register the config provider as</value>
+        </member>
+        <member name="M:IPA.Config.Config.TypeAttribute.#ctor(System.String)">
+            <inheritdoc />
+            <summary>
+            Constructs the attribute with a specified extension.
+            </summary>
+            <param name="ext">the extension associated with this type, without the '.'</param>
+        </member>
+        <member name="T:IPA.Config.Config.PreferAttribute">
+            <inheritdoc />
+            <summary>
+            Specifies that a particular parameter is preferred to be a specific type of <see cref="T:IPA.Config.IConfigProvider" />. If it is not available, also specifies backups. If none are available, the default is used.
+            </summary>
+        </member>
+        <member name="P:IPA.Config.Config.PreferAttribute.PreferenceOrder">
+            <summary>
+            The order of preference for the config type. 
+            </summary>
+            <value>the list of config extensions in order of preference</value>
+        </member>
+        <member name="M:IPA.Config.Config.PreferAttribute.#ctor(System.String[])">
+            <inheritdoc />
+            <summary>
+            Constructs the attribute with a specific preference list. Each entry is the extension without a '.'
+            </summary>
+            <param name="preference">The preferences in order of preference.</param>
+        </member>
+        <member name="T:IPA.Config.Config.NameAttribute">
+            <inheritdoc />
+            <summary>
+            Specifies a preferred config name, instead of using the plugin's name.
+            </summary>
+        </member>
+        <member name="P:IPA.Config.Config.NameAttribute.Name">
+            <summary>
+            The name to use for the config.
+            </summary>
+            <value>the name to use for the config</value>
+        </member>
+        <member name="M:IPA.Config.Config.NameAttribute.#ctor(System.String)">
+            <inheritdoc />
+            <summary>
+            Constructs the attribute with a specific name.
+            </summary>
+            <param name="name">the name to use for the config.</param>
+        </member>
+        <member name="M:IPA.Config.Config.Register``1">
+            <summary>
+            Registers a <see cref="T:IPA.Config.IConfigProvider"/> to use for configs.
+            </summary>
+            <typeparam name="T">the type to register</typeparam>
+        </member>
+        <member name="M:IPA.Config.Config.Register(System.Type)">
+            <summary>
+            Registers a <see cref="T:IPA.Config.IConfigProvider"/> to use for configs.
+            </summary>
+            <param name="type">the type to register</param>
+        </member>
+        <member name="M:IPA.Config.Config.GetProviderFor(System.String,System.String[])">
+            <summary>
+            Gets an <see cref="T:IPA.Config.IConfigProvider"/> using the specified list of preferred config types.
+            </summary>
+            <param name="configName">the name of the mod for this config</param>
+            <param name="extensions">the preferred config types to try to get</param>
+            <returns>an <see cref="T:IPA.Config.IConfigProvider"/> of the requested type, or of type JSON.</returns>
+        </member>
+        <member name="M:IPA.Config.Config.MakeLink``1(IPA.Config.IConfigProvider,System.Action{IPA.Config.IConfigProvider,IPA.Utilities.Ref{``0}})">
+            <summary>
+            Creates a linked <see cref="T:IPA.Utilities.Ref`1"/> for the config provider. This <see cref="T:IPA.Utilities.Ref`1"/> will be automatically updated whenever the file on-disk changes.
+            </summary>
+            <typeparam name="T">the type of the parsed value</typeparam>
+            <param name="config">the <see cref="T:IPA.Config.IConfigProvider"/> to create a link to</param>
+            <param name="onChange">an action to perform on value change</param>
+            <returns>a <see cref="T:IPA.Utilities.Ref`1"/> to an ever-changing value, mirroring whatever the file contains.</returns>
+        </member>
+        <member name="M:IPA.Config.Config.RemoveLinks(IPA.Config.IConfigProvider)">
+            <summary>
+            Removes all linked <see cref="T:IPA.Utilities.Ref`1"/> such that they are no longer updated.
+            </summary>
+            <param name="config">the <see cref="T:IPA.Config.IConfigProvider"/> to unlink</param>
+        </member>
+        <member name="T:IPA.Config.IConfigProvider">
+            <summary>
+            An interface for configuration providers.
+            </summary>
+        </member>
+        <member name="M:IPA.Config.IConfigProvider.Parse``1">
+            <summary>
+            Loads the data provided by this <see cref="T:IPA.Config.IConfigProvider"/> into an object of type <typeparamref name="T"/>.
+            </summary>
+            <typeparam name="T">the type of the object to parse into</typeparam>
+            <returns>the values from the config provider parsed into the object</returns>
+        </member>
+        <member name="M:IPA.Config.IConfigProvider.Store``1(``0)">
+            <summary>
+            Stores the data from <paramref name="obj"/> into the <see cref="T:IPA.Config.IConfigProvider"/>.
+            </summary>
+            <typeparam name="T">the type of <paramref name="obj"/></typeparam>
+            <param name="obj">the object containing the data to save</param>
+        </member>
+        <member name="P:IPA.Config.IConfigProvider.Dynamic">
+            <summary>
+            Gets a dynamic object providing access to the configuration.
+            </summary>
+            <value>a dynamically bound object to use to access config values directly</value>
+        </member>
+        <member name="P:IPA.Config.IConfigProvider.HasChanged">
+            <summary>
+            Returns <see langword="true"/> if object has changed since the last save
+            </summary>
+            <value><see langword="true"/> if object has changed since the last save, else <see langword="false"/></value>
+        </member>
+        <member name="P:IPA.Config.IConfigProvider.InMemoryChanged">
+            <summary>
+            Returns <see langword="true"/> if the data in memory has been changed - notably including loads.
+            </summary>
+            <value><see langword="true"/> if the data in memory has been changed, else <see langword="false"/></value>
+        </member>
+        <member name="P:IPA.Config.IConfigProvider.Filename">
+            <summary>
+            Will be set with the filename (no extension) to save to. When saving, the implementation should add the appropriate extension. Should error if set multiple times.
+            </summary>
+            <value>the extensionless filename to save to</value>
+        </member>
+        <member name="P:IPA.Config.IConfigProvider.LastModified">
+            <summary>
+            Gets the last time the config was modified.
+            </summary>
+            <value>the last time the config file was modified</value>
+        </member>
+        <member name="M:IPA.Config.IConfigProvider.Save">
+            <summary>
+            Saves configuration to file. Should error if not a root object.
+            </summary>
+        </member>
+        <member name="M:IPA.Config.IConfigProvider.Load">
+            <summary>
+            Loads the state of the file on disk.
+            </summary>
+        </member>
+        <member name="T:IPA.Config.IniFile">
+            <summary>
+            Create a New INI file to store or load data
+            </summary>
+        </member>
+        <member name="M:IPA.Config.IniFile.#ctor(System.String)">
+            <summary>
+            INIFile Constructor.
+            </summary>
+            <PARAM name="iniPath"></PARAM>
+        </member>
+        <member name="M:IPA.Config.IniFile.IniWriteValue(System.String,System.String,System.String)">
+            <summary>
+            Write Data to the INI File
+            </summary>
+            <PARAM name="section"></PARAM>
+            Section name
+            <PARAM name="key"></PARAM>
+            Key Name
+            <PARAM name="value"></PARAM>
+            Value Name
+        </member>
+        <member name="M:IPA.Config.IniFile.IniReadValue(System.String,System.String)">
+            <summary>
+            Read Data Value From the Ini File
+            </summary>
+            <PARAM name="section"></PARAM>
+            <PARAM name="key"></PARAM>
+            <returns></returns>
+        </member>
+        <member name="T:IPA.Config.IModPrefs">
+            <summary>
+            Allows to get and set preferences for your mod. 
+            </summary>
+        </member>
+        <member name="M:IPA.Config.IModPrefs.GetString(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Gets a string from the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="defaultValue">Value that should be used when no value is found.</param>
+            <param name="autoSave">Whether or not the default value should be written if no value is found.</param>
+            <returns></returns>
+        </member>
+        <member name="M:IPA.Config.IModPrefs.GetInt(System.String,System.String,System.Int32,System.Boolean)">
+            <summary>
+            Gets an int from the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="defaultValue">Value that should be used when no value is found.</param>
+            <param name="autoSave">Whether or not the default value should be written if no value is found.</param>
+            <returns></returns>
+        </member>
+        <member name="M:IPA.Config.IModPrefs.GetFloat(System.String,System.String,System.Single,System.Boolean)">
+            <summary>
+            Gets a float from the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="defaultValue">Value that should be used when no value is found.</param>
+            <param name="autoSave">Whether or not the default value should be written if no value is found.</param>
+            <returns></returns>
+        </member>
+        <member name="M:IPA.Config.IModPrefs.GetBool(System.String,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Gets a bool from the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="defaultValue">Value that should be used when no value is found.</param>
+            <param name="autoSave">Whether or not the default value should be written if no value is found.</param>
+            <returns></returns>
+        </member>
+        <member name="M:IPA.Config.IModPrefs.HasKey(System.String,System.String)">
+            <summary>
+            Checks whether or not a key exists in the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <returns></returns>
+        </member>
+        <member name="M:IPA.Config.IModPrefs.SetFloat(System.String,System.String,System.Single)">
+            <summary>
+            Sets a float in the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="value">Value that should be written.</param>
+        </member>
+        <member name="M:IPA.Config.IModPrefs.SetInt(System.String,System.String,System.Int32)">
+            <summary>
+            Sets an int in the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="value">Value that should be written.</param>
+        </member>
+        <member name="M:IPA.Config.IModPrefs.SetString(System.String,System.String,System.String)">
+            <summary>
+            Sets a string in the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="value">Value that should be written.</param>
+        </member>
+        <member name="M:IPA.Config.IModPrefs.SetBool(System.String,System.String,System.Boolean)">
+            <summary>
+            Sets a bool in the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="value">Value that should be written.</param>
+        </member>
+        <member name="T:IPA.Config.ModPrefs">
+            <inheritdoc />
+            <summary>
+            Allows to get and set preferences for your mod. 
+            </summary>
+        </member>
+        <member name="M:IPA.Config.ModPrefs.#ctor(IPA.Loader.PluginLoader.PluginMetadata)">
+            <summary>
+            Constructs a ModPrefs object for the provide plugin.
+            </summary>
+            <param name="plugin">the plugin to get the preferences file for</param>
+        </member>
+        <member name="M:IPA.Config.ModPrefs.GetString(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Gets a string from the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="defaultValue">Value that should be used when no value is found.</param>
+            <param name="autoSave">Whether or not the default value should be written if no value is found.</param>
+            <returns></returns>
+        </member>
+        <member name="M:IPA.Config.ModPrefs.GetInt(System.String,System.String,System.Int32,System.Boolean)">
+            <summary>
+            Gets an int from the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="defaultValue">Value that should be used when no value is found.</param>
+            <param name="autoSave">Whether or not the default value should be written if no value is found.</param>
+            <returns></returns>
+        </member>
+        <member name="M:IPA.Config.ModPrefs.GetFloat(System.String,System.String,System.Single,System.Boolean)">
+            <summary>
+            Gets a float from the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="defaultValue">Value that should be used when no value is found.</param>
+            <param name="autoSave">Whether or not the default value should be written if no value is found.</param>
+            <returns></returns>
+        </member>
+        <member name="M:IPA.Config.ModPrefs.GetBool(System.String,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Gets a bool from the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="defaultValue">Value that should be used when no value is found.</param>
+            <param name="autoSave">Whether or not the default value should be written if no value is found.</param>
+            <returns></returns>
+        </member>
+        <member name="M:IPA.Config.ModPrefs.HasKey(System.String,System.String)">
+            <summary>
+            Checks whether or not a key exists in the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <returns></returns>
+        </member>
+        <member name="M:IPA.Config.ModPrefs.SetFloat(System.String,System.String,System.Single)">
+            <summary>
+            Sets a float in the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="value">Value that should be written.</param>
+        </member>
+        <member name="M:IPA.Config.ModPrefs.SetInt(System.String,System.String,System.Int32)">
+            <summary>
+            Sets an int in the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="value">Value that should be written.</param>
+        </member>
+        <member name="M:IPA.Config.ModPrefs.SetString(System.String,System.String,System.String)">
+            <summary>
+            Sets a string in the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="value">Value that should be written.</param>
+        </member>
+        <member name="M:IPA.Config.ModPrefs.SetBool(System.String,System.String,System.Boolean)">
+            <summary>
+            Sets a bool in the ini.
+            </summary>
+            <param name="section">Section of the key.</param>
+            <param name="name">Name of the key.</param>
+            <param name="value">Value that should be written.</param>
+        </member>
+        <member name="T:IPA.Loader.Features.Feature">
+            <summary>
+            The root interface for a mod Feature.
+            </summary>
+            <remarks>
+            Avoid storing any data in any subclasses. If you do, it may result in a failure to load the feature.
+            </remarks>
+        </member>
+        <member name="M:IPA.Loader.Features.Feature.Initialize(IPA.Loader.PluginLoader.PluginMetadata,System.String[])">
+             <summary>
+             Initializes the feature with the parameters provided in the definition.
+            
+             Note: When no parenthesis are provided, <paramref name="parameters"/> is an empty array.
+             </summary>
+             <remarks>
+             This gets called BEFORE *your* `Init` method.
+             
+             Returning <see langword="false" /> does *not* prevent the plugin from being loaded. It simply prevents the feature from being used.
+             </remarks>
+             <param name="meta">the metadata of the plugin that is being prepared</param>
+             <param name="parameters">the parameters passed to the feature definition, or null</param>
+             <returns><see langword="true"/> if the feature is valid for the plugin, <see langword="false"/> otherwise</returns>
+        </member>
+        <member name="M:IPA.Loader.Features.Feature.Evaluate">
+             <summary>
+             Evaluates the Feature for use in conditional meta-Features. This should be re-calculated on every call, unless it can be proven to not change.
+            
+             This will be called on every feature that returns <see langword="true" /> from <see cref="M:IPA.Loader.Features.Feature.Initialize(IPA.Loader.PluginLoader.PluginMetadata,System.String[])"/>
+             </summary>
+             <returns>the truthiness of the Feature.</returns>
+        </member>
+        <member name="P:IPA.Loader.Features.Feature.InvalidMessage">
+            <summary>
+            The message to be logged when the feature is not valid for a plugin.
+            This should also be set whenever either <see cref="M:IPA.Loader.Features.Feature.BeforeLoad(IPA.Loader.PluginLoader.PluginMetadata)"/> or <see cref="M:IPA.Loader.Features.Feature.BeforeInit(IPA.Loader.PluginLoader.PluginInfo)"/> returns false.
+            </summary>
+            <value>the message to show when the feature is marked invalid</value>
+        </member>
+        <member name="M:IPA.Loader.Features.Feature.BeforeLoad(IPA.Loader.PluginLoader.PluginMetadata)">
+            <summary>
+            Called before a plugin is loaded. This should never throw an exception. An exception will abort the loading of the plugin with an error.
+            </summary>
+            <remarks>
+            The assembly will still be loaded, but the plugin will not be constructed if this returns <see langword="false" />.
+            Any features it defines, for example, will still be loaded.
+            </remarks>
+            <param name="plugin">the plugin about to be loaded</param>
+            <returns>whether or not the plugin should be loaded</returns>
+        </member>
+        <member name="M:IPA.Loader.Features.Feature.BeforeInit(IPA.Loader.PluginLoader.PluginInfo)">
+            <summary>
+            Called before a plugin's `Init` method is called. This will not be called if there is no `Init` method. This should never throw an exception. An exception will abort the loading of the plugin with an error.
+            </summary>
+            <param name="plugin">the plugin to be initialized</param>
+            <returns>whether or not to call the Init method</returns>
+        </member>
+        <member name="M:IPA.Loader.Features.Feature.AfterInit(IPA.Loader.PluginLoader.PluginInfo,IPA.IBeatSaberPlugin)">
+            <summary>
+            Called after a plugin has been fully initialized, whether or not there is an `Init` method. This should never throw an exception.
+            </summary>
+            <param name="plugin">the plugin that was just initialized</param>
+            <param name="pluginInstance">the instance of the plugin being initialized</param>
+        </member>
+        <member name="M:IPA.Loader.Features.Feature.AfterInit(IPA.Loader.PluginLoader.PluginInfo)">
+            <summary>
+            Called after a plugin has been fully initialized, whether or not there is an `Init` method. This should never throw an exception.
+            </summary>
+            <param name="plugin">the plugin that was just initialized</param>
+        </member>
+        <member name="M:IPA.Loader.Features.Feature.RequireLoaded(IPA.Loader.PluginLoader.PluginMetadata)">
+            <summary>
+            Ensures a plugin's assembly is loaded. Do not use unless you need to.
+            </summary>
+            <param name="plugin">the plugin to ensure is loaded.</param>
+        </member>
+        <member name="P:IPA.Loader.Features.Feature.StoreOnPlugin">
+            <summary>
+            Defines whether or not this feature will be accessible from the plugin metadata once loaded.
+            </summary>
+            <value><see langword="true"/> if this <see cref="T:IPA.Loader.Features.Feature"/> will be stored on the plugin metadata, <see langword="false"/> otherwise</value>
+        </member>
+        <member name="T:IPA.Loader.PluginInitInjector">
+            <summary>
+            The type that handles value injecting into a plugin's Init.
+            </summary>
+        </member>
+        <member name="T:IPA.Loader.PluginInitInjector.InjectParameter">
+            <summary>
+            A typed injector for a plugin's Init method. When registered, called for all associated types. If it returns null, the default for the type will be used.
+            </summary>
+            <param name="previous">the previous return value of the function, or <see langword="null"/> if never called for plugin.</param>
+            <param name="param">the <see cref="T:System.Reflection.ParameterInfo"/> of the parameter being injected.</param>
+            <param name="meta">the <see cref="T:IPA.Loader.PluginLoader.PluginMetadata"/> for the plugin being loaded.</param>
+            <returns>the value to inject into that parameter.</returns>
+        </member>
+        <member name="M:IPA.Loader.PluginInitInjector.AddInjector(System.Type,IPA.Loader.PluginInitInjector.InjectParameter)">
+            <summary>
+            Adds an injector to be used when calling future plugins' Init methods.
+            </summary>
+            <param name="type">the type of the parameter.</param>
+            <param name="injector">the function to call for injection.</param>
+        </member>
+        <member name="T:IPA.Loader.PluginLoader">
+            <summary>
+            A type to manage the loading of plugins.
+            </summary>
+        </member>
+        <member name="T:IPA.Loader.PluginLoader.PluginMetadata">
+            <summary>
+            A class which describes a loaded plugin.
+            </summary>
+        </member>
+        <member name="P:IPA.Loader.PluginLoader.PluginMetadata.Assembly">
+            <summary>
+            The assembly the plugin was loaded from.
+            </summary>
+            <value>the loaded Assembly that contains the plugin main type</value>
+        </member>
+        <member name="P:IPA.Loader.PluginLoader.PluginMetadata.PluginType">
+            <summary>
+            The TypeDefinition for the main type of the plugin.
+            </summary>
+            <value>the Cecil definition for the plugin main type</value>
+        </member>
+        <member name="P:IPA.Loader.PluginLoader.PluginMetadata.Name">
+            <summary>
+            The human readable name of the plugin.
+            </summary>
+            <value>the name of the plugin</value>
+        </member>
+        <member name="P:IPA.Loader.PluginLoader.PluginMetadata.Id">
+            <summary>
+            The BeatMods ID of the plugin, or null if it doesn't have one.
+            </summary>
+            <value>the updater ID of the plugin</value>
+        </member>
+        <member name="P:IPA.Loader.PluginLoader.PluginMetadata.Version">
+            <summary>
+            The version of the plugin.
+            </summary>
+            <value>the version of the plugin</value>
+        </member>
+        <member name="P:IPA.Loader.PluginLoader.PluginMetadata.File">
+            <summary>
+            The file the plugin was loaded from.
+            </summary>
+            <value>the file the plugin was loaded from</value>
+        </member>
+        <member name="P:IPA.Loader.PluginLoader.PluginMetadata.Features">
+            <summary>
+            The features this plugin requests.
+            </summary>
+            <value>the list of features requested by the plugin</value>
+        </member>
+        <member name="P:IPA.Loader.PluginLoader.PluginMetadata.IsBare">
+            <summary>
+            Whether or not this metadata object represents a bare manifest.
+            </summary>
+            <value><see langword="true"/> if it is bare, <see langword="false"/> otherwise</value>
+        </member>
+        <member name="M:IPA.Loader.PluginLoader.PluginMetadata.ToString">
+            <summary>
+            Gets all of the metadata as a readable string.
+            </summary>
+            <returns>the readable printable metadata string</returns>
+        </member>
+        <member name="T:IPA.Loader.PluginLoader.PluginInfo">
+            <summary>
+            A container object for all the data relating to a plugin.
+            </summary>
+        </member>
+        <member name="P:IPA.Loader.PluginLoader.PluginInfo.Metadata">
+            <summary>
+            Metadata for the plugin.
+            </summary>
+            <value>the metadata for this plugin</value>
+        </member>
+        <member name="T:IPA.Loader.PluginManager">
+            <summary>
+            The manager class for all plugins.
+            </summary>
+        </member>
+        <member name="P:IPA.Loader.PluginManager.BSPlugins">
+            <summary>
+            An <see cref="T:System.Collections.IEnumerable"/> of new Beat Saber plugins
+            </summary>
+        </member>
+        <member name="M:IPA.Loader.PluginManager.GetPlugin(System.String)">
+            <summary>
+            Gets info about the plugin with the specified name.
+            </summary>
+            <param name="name">the name of the plugin to get (must be an exact match)</param>
+            <returns>the plugin info for the requested plugin or null</returns>
+        </member>
+        <member name="M:IPA.Loader.PluginManager.GetPluginFromModSaberName(System.String)">
+            <summary>
+            Gets info about the plugin with the specified ModSaber name.
+            </summary>
+            <param name="name">the ModSaber name of the plugin to get (must be an exact match)</param>
+            <returns>the plugin info for the requested plugin or null</returns>
+        </member>
+        <member name="M:IPA.Loader.PluginManager.GetPluginFromId(System.String)">
+            <summary>
+            Gets info about the plugin with the specified ID.
+            </summary>
+            <param name="name">the ID name of the plugin to get (must be an exact match)</param>
+            <returns>the plugin info for the requested plugin or null</returns>
+        </member>
+        <member name="M:IPA.Loader.PluginManager.GetDisabledPlugin(System.String)">
+            <summary>
+            Gets a disabled plugin's metadata by its name.
+            </summary>
+            <param name="name">the name of the disabled plugin to get</param>
+            <returns>the metadata for the corresponding plugin</returns>
+        </member>
+        <member name="M:IPA.Loader.PluginManager.GetDisabledPluginFromId(System.String)">
+            <summary>
+            Gets a disabled plugin's metadata by its ID.
+            </summary>
+            <param name="name">the ID of the disabled plugin to get</param>
+            <returns>the metadata for the corresponding plugin</returns>
+        </member>
+        <member name="M:IPA.Loader.PluginManager.DisablePlugin(IPA.Loader.PluginLoader.PluginInfo)">
+            <summary>
+            Disables a plugin, and all dependents.
+            </summary>
+            <param name="plugin">the plugin to disable</param>
+            <returns>whether or not it needs a restart to enable</returns>
+        </member>
+        <member name="M:IPA.Loader.PluginManager.DisablePlugin(System.String)">
+            <summary>
+            Disables a plugin, and all dependents.
+            </summary>
+            <param name="pluginId">the ID, or name if the ID is null, of the plugin to disable</param>
+            <returns>whether a restart is needed to activate</returns>
+        </member>
+        <member name="M:IPA.Loader.PluginManager.EnablePlugin(IPA.Loader.PluginLoader.PluginMetadata)">
+            <summary>
+            Enables a plugin that had been previously disabled.
+            </summary>
+            <param name="plugin">the plugin to enable</param>
+            <returns>whether a restart is needed to activate</returns>
+        </member>
+        <member name="M:IPA.Loader.PluginManager.EnablePlugin(System.String)">
+            <summary>
+            Enables a plugin that had been previously disabled.
+            </summary>
+            <param name="pluginId">the ID, or name if the ID is null, of the plugin to enable</param>
+            <returns>whether a restart is needed to activate</returns>
+        </member>
+        <member name="M:IPA.Loader.PluginManager.IsDisabled(IPA.Loader.PluginLoader.PluginMetadata)">
+            <summary>
+            Checks if a given plugin is disabled.
+            </summary>
+            <param name="meta">the plugin to check</param>
+            <returns><see langword="true"/> if the plugin is disabled, <see langword="false"/> otherwise.</returns>
+        </member>
+        <member name="M:IPA.Loader.PluginManager.IsEnabled(IPA.Loader.PluginLoader.PluginMetadata)">
+            <summary>
+            Checks if a given plugin is enabled.
+            </summary>
+            <param name="meta">the plugin to check</param>
+            <returns><see langword="true"/> if the plugin is enabled, <see langword="false"/> otherwise.</returns>
+        </member>
+        <member name="P:IPA.Loader.PluginManager.DisabledPlugins">
+            <summary>
+            Gets a list of disabled BSIPA plugins.
+            </summary>
+            <value>a collection of all disabled plugins as <see cref="T:IPA.Loader.PluginLoader.PluginMetadata"/></value>
+        </member>
+        <member name="T:IPA.Loader.PluginManager.PluginEnableDelegate">
+            <summary>
+            An invoker for the <see cref="E:IPA.Loader.PluginManager.PluginEnabled"/> event.
+            </summary>
+            <param name="plugin">the plugin that was enabled</param>
+            <param name="needsRestart">whether it needs a restart to take effect</param>
+        </member>
+        <member name="T:IPA.Loader.PluginManager.PluginDisableDelegate">
+            <summary>
+            An invoker for the <see cref="E:IPA.Loader.PluginManager.PluginDisabled"/> event.
+            </summary>
+            <param name="plugin">the plugin that was disabled</param>
+            <param name="needsRestart">whether it needs a restart to take effect</param>
+        </member>
+        <member name="E:IPA.Loader.PluginManager.PluginEnabled">
+            <summary>
+            Called whenever a plugin is enabled.
+            </summary>
+        </member>
+        <member name="E:IPA.Loader.PluginManager.PluginDisabled">
+            <summary>
+            Called whenever a plugin is disabled.
+            </summary>
+        </member>
+        <member name="P:IPA.Loader.PluginManager.AllPlugins">
+            <summary>
+            Gets a list of all BSIPA plugins.
+            </summary>
+            <value>a collection of all enabled plugins as <see cref="T:IPA.Loader.PluginLoader.PluginInfo"/>s</value>
+        </member>
+        <member name="M:IPA.Loader.PluginManager.InfoFromMetadata(IPA.Loader.PluginLoader.PluginMetadata)">
+            <summary>
+            Converts a plugin's metadata to a <see cref="T:IPA.Loader.PluginLoader.PluginInfo"/>.
+            </summary>
+            <param name="meta">the metadata</param>
+            <returns>the plugin info</returns>
+        </member>
+        <member name="P:IPA.Loader.PluginManager.Plugins">
+            <summary>
+            An <see cref="T:System.Collections.IEnumerable"/> of old IPA plugins.
+            </summary>
+            <value>all legacy plugin instances</value>
+        </member>
+        <member name="T:IPA.Logging.Printers.ColorlessConsolePrinter">
+            <summary>
+            A colorless version of <see cref="T:IPA.Logging.Printers.ColoredConsolePrinter"/>, that indiscriminantly prints to standard out.
+            </summary>
+        </member>
+        <member name="P:IPA.Logging.Printers.ColorlessConsolePrinter.Filter">
+            <summary>
+            A filter for this specific printer.
+            </summary>
+            <value>the filter level for this printer</value>
+        </member>
+        <member name="M:IPA.Logging.Printers.ColorlessConsolePrinter.Print(IPA.Logging.Logger.Level,System.DateTime,System.String,System.String)">
+            <summary>
+            Prints an entry to standard out.
+            </summary>
+            <param name="level">the <see cref="T:IPA.Logging.Logger.Level"/> of the message</param>
+            <param name="time">the <see cref="T:System.DateTime"/> the message was recorded at</param>
+            <param name="logName">the name of the log that sent the message</param>
+            <param name="message">the message to print</param>
+        </member>
+        <member name="T:IPA.Logging.Printers.PluginSubLogPrinter">
+            <summary>
+            Prints log messages to the file specified by the name.
+            </summary>
+        </member>
+        <member name="P:IPA.Logging.Printers.PluginSubLogPrinter.Filter">
+            <summary>
+            Provides a filter for this specific printer.
+            </summary>
+            <value>the filter for this printer</value>
+        </member>
+        <member name="M:IPA.Logging.Printers.PluginSubLogPrinter.GetFileInfo">
+            <summary>
+            Gets the <see cref="T:System.IO.FileInfo"/> for the target file.
+            </summary>
+            <returns>the file to write to</returns>
+        </member>
+        <member name="M:IPA.Logging.Printers.PluginSubLogPrinter.#ctor(System.String,System.String)">
+            <summary>
+            Creates a new printer with the given name.
+            </summary>
+            <param name="mainname">the name of the main logger</param>
+            <param name="name">the name of the logger</param>
+        </member>
+        <member name="M:IPA.Logging.Printers.PluginSubLogPrinter.Print(IPA.Logging.Logger.Level,System.DateTime,System.String,System.String)">
+            <summary>
+            Prints an entry to the associated file.
+            </summary>
+            <param name="level">the <see cref="T:IPA.Logging.Logger.Level"/> of the message</param>
+            <param name="time">the <see cref="T:System.DateTime"/> the message was recorded at</param>
+            <param name="logName">the name of the log that sent the message</param>
+            <param name="message">the message to print</param>
+        </member>
+        <member name="T:IPA.Logging.Printers.ColoredConsolePrinter">
+            <summary>
+            Prints a pretty message to the console.
+            </summary>
+        </member>
+        <member name="P:IPA.Logging.Printers.ColoredConsolePrinter.Filter">
+            <summary>
+            A filter for this specific printer.
+            </summary>
+            <value>the filter to apply to this printer</value>
+        </member>
+        <member name="P:IPA.Logging.Printers.ColoredConsolePrinter.Color">
+            <summary>
+            The color to print messages as.
+            </summary>
+            <value>the color to print this message as</value>
+        </member>
+        <member name="M:IPA.Logging.Printers.ColoredConsolePrinter.Print(IPA.Logging.Logger.Level,System.DateTime,System.String,System.String)">
+            <summary>
+            Prints an entry to the console window.
+            </summary>
+            <param name="level">the <see cref="T:IPA.Logging.Logger.Level"/> of the message</param>
+            <param name="time">the <see cref="T:System.DateTime"/> the message was recorded at</param>
+            <param name="logName">the name of the log that sent the message</param>
+            <param name="message">the message to print</param>
+        </member>
+        <member name="T:IPA.Logging.Printers.GlobalLogFilePrinter">
+            <summary>
+            A printer for all messages to a unified log location.
+            </summary>
+        </member>
+        <member name="P:IPA.Logging.Printers.GlobalLogFilePrinter.Filter">
+            <summary>
+            Provides a filter for this specific printer.
+            </summary>
+            <value>the filter level for this printer</value>
+        </member>
+        <member name="M:IPA.Logging.Printers.GlobalLogFilePrinter.Print(IPA.Logging.Logger.Level,System.DateTime,System.String,System.String)">
+            <summary>
+            Prints an entry to the associated file.
+            </summary>
+            <param name="level">the <see cref="T:IPA.Logging.Logger.Level"/> of the message</param>
+            <param name="time">the <see cref="T:System.DateTime"/> the message was recorded at</param>
+            <param name="logName">the name of the log that sent the message</param>
+            <param name="message">the message to print</param>
+        </member>
+        <member name="M:IPA.Logging.Printers.GlobalLogFilePrinter.GetFileInfo">
+            <summary>
+            Gets the <see cref="T:System.IO.FileInfo"/> for the target file.
+            </summary>
+            <returns>the target file to write to</returns>
+        </member>
+        <member name="T:IPA.Logging.Printers.GZFilePrinter">
+            <summary>
+            A <see cref="T:IPA.Logging.LogPrinter"/> abstract class that provides the utilities to write to a GZip file.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Printers.GZFilePrinter.FileWriter">
+            <summary>
+            The <see cref="T:System.IO.StreamWriter"/> that writes to the GZip file.
+            </summary>
+            <value>the writer to the underlying filestream</value>
+        </member>
+        <member name="M:IPA.Logging.Printers.GZFilePrinter.GetFileInfo">
+            <summary>
+            Gets the <see cref="T:System.IO.FileInfo"/> for the file to write to.
+            </summary>
+            <returns>the file to write to</returns>
+        </member>
+        <member name="M:IPA.Logging.Printers.GZFilePrinter.StartPrint">
+            <summary>
+            Called at the start of any print session.
+            </summary>
+        </member>
+        <member name="M:IPA.Logging.Printers.GZFilePrinter.EndPrint">
+            <summary>
+            Called at the end of any print session.
+            </summary>
+        </member>
+        <member name="M:IPA.Logging.Printers.GZFilePrinter.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:IPA.Logging.Printers.GZFilePrinter.Dispose(System.Boolean)">
+            <summary>
+            Disposes the file printer.
+            </summary>
+            <param name="disposing">does nothing</param>
+        </member>
+        <member name="T:IPA.Logging.Printers.PluginLogFilePrinter">
+            <summary>
+            Prints log messages to the file specified by the name.
+            </summary>
+        </member>
+        <member name="P:IPA.Logging.Printers.PluginLogFilePrinter.Filter">
+            <summary>
+            Provides a filter for this specific printer.
+            </summary>
+            <value>the filter level for this printer</value>
+        </member>
+        <member name="M:IPA.Logging.Printers.PluginLogFilePrinter.GetFileInfo">
+            <summary>
+            Gets the <see cref="T:System.IO.FileInfo"/> for the target file.
+            </summary>
+            <returns>the file to write to</returns>
+        </member>
+        <member name="M:IPA.Logging.Printers.PluginLogFilePrinter.#ctor(System.String)">
+            <summary>
+            Creates a new printer with the given name.
+            </summary>
+            <param name="name">the name of the logger</param>
+        </member>
+        <member name="M:IPA.Logging.Printers.PluginLogFilePrinter.Print(IPA.Logging.Logger.Level,System.DateTime,System.String,System.String)">
+            <summary>
+            Prints an entry to the associated file.
+            </summary>
+            <param name="level">the <see cref="T:IPA.Logging.Logger.Level"/> of the message</param>
+            <param name="time">the <see cref="T:System.DateTime"/> the message was recorded at</param>
+            <param name="logName">the name of the log that sent the message</param>
+            <param name="message">the message to print</param>
+        </member>
+        <member name="T:IPA.Logging.Logger">
+            <summary>
+            The logger base class. Provides the format for console logs.
+            </summary>
+        </member>
+        <member name="P:IPA.Logging.Logger.LogFormat">
+            <summary>
+            The standard format for log messages.
+            </summary>
+            <value>the format for the standard loggers to print in</value>
+        </member>
+        <member name="T:IPA.Logging.Logger.Level">
+            <summary>
+            An enum specifying the level of the message. Resembles Syslog.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.Level.None">
+            <summary>
+            No associated level. These never get shown.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.Level.Trace">
+            <summary>
+            A trace message. These are ignored *incredibly* early.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.Level.Debug">
+            <summary>
+            A debug message.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.Level.Info">
+            <summary>
+            An informational message.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.Level.Notice">
+            <summary>
+            A notice. More significant than Info, but less than a warning.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.Level.Warning">
+            <summary>
+            A warning message.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.Level.Error">
+            <summary>
+            An error message.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.Level.Critical">
+            <summary>
+            A critical error message.
+            </summary>
+        </member>
+        <member name="T:IPA.Logging.Logger.LogLevel">
+            <summary>
+            An enum providing log level filters.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.None">
+            <summary>
+            Allow no messages through.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.TraceOnly">
+            <summary>
+            Only shows Trace messages.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.DebugOnly">
+            <summary>
+            Only shows Debug messages.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.InfoOnly">
+            <summary>
+            Only shows info messages.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.NoticeOnly">
+            <summary>
+            Only shows notice messages.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.WarningOnly">
+            <summary>
+            Only shows Warning messages.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.ErrorOnly">
+            <summary>
+            Only shows Error messages.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.CriticalOnly">
+            <summary>
+            Only shows Critical messages.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.ErrorUp">
+            <summary>
+            Shows all messages error and up.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.WarningUp">
+            <summary>
+            Shows all messages warning and up.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.NoticeUp">
+            <summary>
+            Shows all messages Notice and up.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.InfoUp">
+            <summary>
+            Shows all messages info and up.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.DebugUp">
+            <summary>
+            Shows all messages debug and up.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.All">
+            <summary>
+            Shows all messages.
+            </summary>
+        </member>
+        <member name="F:IPA.Logging.Logger.LogLevel.Undefined">
+            <summary>
+            Used for when the level is undefined.
+            </summary>
+        </member>
+        <member name="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.String)">
+            <summary>
+            A basic log function.
+            </summary>
+            <param name="level">the level of the message</param>
+            <param name="message">the message to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.Exception)">
+            <summary>
+            A basic log function taking an exception to log.
+            </summary>
+            <param name="level">the level of the message</param>
+            <param name="e">the exception to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Trace(System.String)">
+            <summary>
+            Sends a trace message.
+            Equivalent to `Log(Level.Trace, message);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.String)"/>
+            <param name="message">the message to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Trace(System.Exception)">
+            <summary>
+            Sends an exception as a trace message.
+            Equivalent to `Log(Level.Trace, e);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.Exception)"/>
+            <param name="e">the exception to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Debug(System.String)">
+            <summary>
+            Sends a debug message.
+            Equivalent to `Log(Level.Debug, message);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.String)"/>
+            <param name="message">the message to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Debug(System.Exception)">
+            <summary>
+            Sends an exception as a debug message.
+            Equivalent to `Log(Level.Debug, e);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.Exception)"/>
+            <param name="e">the exception to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Info(System.String)">
+            <summary>
+            Sends an info message.
+            Equivalent to `Log(Level.Info, message);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.String)"/>
+            <param name="message">the message to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Info(System.Exception)">
+            <summary>
+            Sends an exception as an info message.
+            Equivalent to `Log(Level.Info, e);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.Exception)"/>
+            <param name="e">the exception to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Notice(System.String)">
+            <summary>
+            Sends a notice message.
+            Equivalent to `Log(Level.Notice, message);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.String)"/>
+            <param name="message">the message to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Notice(System.Exception)">
+            <summary>
+            Sends an exception as a notice message.
+            Equivalent to `Log(Level.Notice, e);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.Exception)"/>
+            <param name="e">the exception to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Warn(System.String)">
+            <summary>
+            Sends a warning message.
+            Equivalent to `Log(Level.Warning, message);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.String)"/>
+            <param name="message">the message to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Warn(System.Exception)">
+            <summary>
+            Sends an exception as a warning message.
+            Equivalent to `Log(Level.Warning, e);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.Exception)"/>
+            <param name="e">the exception to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Error(System.String)">
+            <summary>
+            Sends an error message.
+            Equivalent to `Log(Level.Error, message);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.String)"/>
+            <param name="message">the message to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Error(System.Exception)">
+            <summary>
+            Sends an exception as an error message.
+            Equivalent to `Log(Level.Error, e);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.Exception)"/>
+            <param name="e">the exception to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Critical(System.String)">
+            <summary>
+            Sends a critical message.
+            Equivalent to `Log(Level.Critical, message);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.String)"/>
+            <param name="message">the message to log</param>
+        </member>
+        <member name="M:IPA.Logging.Logger.Critical(System.Exception)">
+            <summary>
+            Sends an exception as a critical message.
+            Equivalent to `Log(Level.Critical, e);`
+            </summary>
+            <seealso cref="M:IPA.Logging.Logger.Log(IPA.Logging.Logger.Level,System.Exception)"/>
+            <param name="e">the exception to log</param>
+        </member>
+        <member name="T:IPA.Logging.LogPrinter">
+            <summary>
+            The log printer's base class.
+            </summary>
+        </member>
+        <member name="P:IPA.Logging.LogPrinter.Filter">
+            <summary>
+            Provides a filter for which log levels to allow through.
+            </summary>
+            <value>the level to filter to</value>
+        </member>
+        <member name="M:IPA.Logging.LogPrinter.Print(IPA.Logging.Logger.Level,System.DateTime,System.String,System.String)">
+            <summary>
+            Prints a provided message from a given log at the specified time.
+            </summary>
+            <param name="level">the log level</param>
+            <param name="time">the time the message was composed</param>
+            <param name="logName">the name of the log that created this message</param>
+            <param name="message">the message</param>
+        </member>
+        <member name="M:IPA.Logging.LogPrinter.StartPrint">
+            <summary>
+            Called before the first print in a group. May be called multiple times.
+            Use this to create file handles and the like.
+            </summary>
+        </member>
+        <member name="M:IPA.Logging.LogPrinter.EndPrint">
+            <summary>
+            Called after the last print in a group. May be called multiple times.
+            Use this to dispose file handles and the like.
+            </summary>
+        </member>
+        <member name="T:IPA.Logging.StandardLogger">
+             <summary>
+             The default (and standard) <see cref="T:IPA.Logging.Logger"/> implementation.
+             </summary>
+             <remarks>
+             <see cref="T:IPA.Logging.StandardLogger"/> uses a multi-threaded approach to logging. All actual I/O is done on another thread,
+             where all messaged are guaranteed to be logged in the order they appeared. It is up to the printers to format them.
+            
+             This logger supports child loggers. Use <see cref="M:IPA.Logging.LoggerExtensions.GetChildLogger(IPA.Logging.Logger,System.String)"/> to safely get a child.
+             The modification of printers on a parent are reflected down the chain.
+             </remarks>
+        </member>
+        <member name="P:IPA.Logging.StandardLogger.ConsoleWriter">
+            <summary>
+            The <see cref="T:System.IO.TextWriter"/> for writing directly to the console window, or stdout if no window open.
+            </summary>
+            <value>a <see cref="T:System.IO.TextWriter"/> for the current primary text output</value>
+        </member>
+        <member name="M:IPA.Logging.StandardLogger.AddDefaultPrinter(IPA.Logging.LogPrinter)">
+            <summary>
+            Adds to the default printer pool that all printers inherit from. Printers added this way will be passed every message from every logger.
+            </summary>
+            <param name="printer">the printer to add</param>
+        </member>
+        <member name="P:IPA.Logging.StandardLogger.PrintFilter">
+            <summary>
+            All levels defined by this filter will be sent to loggers. All others will be ignored.
+            </summary>
+            <value>the global filter level</value>
+        </member>
+        <member name="M:IPA.Logging.StandardLogger.Configure(IPA.Config.SelfConfig)">
+            <summary>
+            Configures internal debug settings based on the config passed in.
+            </summary>
+            <param name="cfg"></param>
+        </member>
+        <member name="M:IPA.Logging.StandardLogger.GetChild(System.String)">
+            <summary>
+            Gets a child printer with the given name, either constructing a new one or using one that was already made.
+            </summary>
+            <param name="name"></param>
+            <returns>a child <see cref="T:IPA.Logging.StandardLogger"/> with the given sub-name</returns>
+        </member>
+        <member name="M:IPA.Logging.StandardLogger.AddPrinter(IPA.Logging.LogPrinter)">
+            <summary>
+            Adds a log printer to the logger.
+            </summary>
+            <param name="printer">the printer to add</param>
+        </member>
+        <member name="M:IPA.Logging.StandardLogger.Log(IPA.Logging.Logger.Level,System.String)">
+            <summary>
+            Logs a specific message at a given level.
+            </summary>
+            <param name="level">the message level</param>
+            <param name="message">the message to log</param>
+        </member>
+        <member name="M:IPA.Logging.StandardLogger.Debug(System.String)">
+            <inheritdoc />
+            <summary>
+            An override to <see cref="M:IPA.Logging.Logger.Debug(System.String)" /> which shows the method that called it.
+            </summary>
+            <param name="message">the message to log</param>
+        </member>
+        <member name="M:IPA.Logging.StandardLogger.LogThread">
+            <summary>
+            The log printer thread for <see cref="T:IPA.Logging.StandardLogger"/>.
+            </summary>
+        </member>
+        <member name="M:IPA.Logging.StandardLogger.StopLogThread">
+            <summary>
+            Stops and joins the log printer thread.
+            </summary>
+        </member>
+        <member name="T:IPA.Logging.LoggerExtensions">
+            <summary>
+            A class providing extensions for various loggers.
+            </summary>
+        </member>
+        <member name="M:IPA.Logging.LoggerExtensions.GetChildLogger(IPA.Logging.Logger,System.String)">
+            <summary>
+            Gets a child logger, if supported. Currently the only defined and supported logger is <see cref="T:IPA.Logging.StandardLogger"/>, and most plugins will only ever receive this anyway.
+            </summary>
+            <param name="logger">the parent <see cref="T:IPA.Logging.Logger"/></param>
+            <param name="name">the name of the child</param>
+            <returns>the child logger</returns>
+        </member>
+        <member name="T:IPA.IBeatSaberPlugin">
+            <summary>
+            Interface for Beat Saber plugins. Every class that implements this will be loaded if the DLL is placed at
+            data/Managed/Plugins.
+            </summary>
+        </member>
+        <member name="M:IPA.IBeatSaberPlugin.OnApplicationStart">
+            <summary>
+            Gets invoked when the application is started.
+            
+            THIS EVENT WILL NOT BE GUARANTEED TO FIRE. USE Init OR <see cref="M:IPA.IDisablablePlugin.OnEnable"/> INSTEAD.
+            </summary>
+        </member>
+        <member name="M:IPA.IBeatSaberPlugin.OnApplicationQuit">
+            <summary>
+            Gets invoked when the application is closed.
+            </summary>
+        </member>
+        <member name="M:IPA.IBeatSaberPlugin.OnUpdate">
+            <summary>
+            Gets invoked on every graphic update.
+            </summary>
+        </member>
+        <member name="M:IPA.IBeatSaberPlugin.OnFixedUpdate">
+            <summary>
+            Gets invoked on ever physics update.
+            </summary>
+        </member>
+        <member name="M:IPA.IBeatSaberPlugin.OnSceneLoaded(UnityEngine.SceneManagement.Scene,UnityEngine.SceneManagement.LoadSceneMode)">
+            <summary>
+            Gets invoked whenever a scene is loaded.
+            </summary>
+            <param name="scene">The scene currently loaded</param>
+            <param name="sceneMode">The type of loading</param>
+        </member>
+        <member name="M:IPA.IBeatSaberPlugin.OnSceneUnloaded(UnityEngine.SceneManagement.Scene)">
+            <summary>
+            Gets invoked whenever a scene is unloaded
+            </summary>
+            <param name="scene">The unloaded scene</param>
+        </member>
+        <member name="M:IPA.IBeatSaberPlugin.OnActiveSceneChanged(UnityEngine.SceneManagement.Scene,UnityEngine.SceneManagement.Scene)">
+            <summary>
+            Gets invoked whenever a scene is changed
+            </summary>
+            <param name="prevScene">The Scene that was previously loaded</param>
+            <param name="nextScene">The Scene being loaded</param>
+        </member>
+        <member name="T:IPA.IDisablablePlugin">
+            <summary>
+            Provides methods to allow runtime enabling and disabling of a plugin.
+            </summary>
+        </member>
+        <member name="M:IPA.IDisablablePlugin.OnEnable">
+            <summary>
+            Called when a plugin is enabled. This is where you should set up Harmony patches and the like.
+            </summary>
+            <remarks>
+            This will be called after Init, and will be called when the plugin loads normally too.
+            When a plugin is disabled at startup, neither this nor Init will be called until it is enabled.
+            
+            Init will only ever be called once.
+            </remarks>
+        </member>
+        <member name="M:IPA.IDisablablePlugin.OnDisable">
+            <summary>
+            Called when a plugin is disabled at runtime. This should disable things like Harmony patches and unsubscribe
+            from events. After this is called there should be no lingering effects of the mod.
+            </summary>
+            <remarks>
+            This will get called at shutdown, after <see cref="M:IPA.IBeatSaberPlugin.OnApplicationQuit"/>, as well as when the
+            plugin is disabled at runtime.
+            </remarks>
+        </member>
+        <member name="T:IPA.IEnhancedBeatSaberPlugin">
+            <inheritdoc cref="T:IPA.IBeatSaberPlugin" />
+            <summary>
+            An enhanced version of a standard BeatSaber plugin.
+            </summary>
+        </member>
+        <member name="T:IPA.IGenericEnhancedPlugin">
+            <summary>
+            A generic interface for the modification for enhanced plugins.
+            </summary>
+        </member>
+        <member name="P:IPA.IGenericEnhancedPlugin.Filter">
+            <summary>
+            Gets a list of executables this plugin should be executed on (without the file ending)
+            </summary>
+            <example>{ "PlayClub", "PlayClubStudio" }</example>
+        </member>
+        <member name="M:IPA.IGenericEnhancedPlugin.OnLateUpdate">
+            <summary>
+            Called after Update.
+            </summary>
+        </member>
+        <member name="T:IPA.Old.IEnhancedPlugin">
+            <inheritdoc cref="T:IPA.Old.IPlugin" />
+            <summary>
+            An enhanced version of the standard IPA plugin.
+            </summary>
+        </member>
+        <member name="P:IPA.Old.IEnhancedPlugin.Filter">
+            <summary>
+            Gets a list of executables this plugin should be executed on (without the file ending)
+            </summary>
+            <example>{ "PlayClub", "PlayClubStudio" }</example>
+        </member>
+        <member name="M:IPA.Old.IEnhancedPlugin.OnLateUpdate">
+            <summary>
+            Called after Update.
+            </summary>
+        </member>
+        <member name="T:IPA.Old.IPlugin">
+            <summary>
+            Interface for generic Illusion unity plugins. Every class that implements this will be loaded if the DLL is placed at
+            data/Managed/Plugins.
+            </summary>
+        </member>
+        <member name="P:IPA.Old.IPlugin.Name">
+            <summary>
+            Gets the name of the plugin.
+            </summary>
+        </member>
+        <member name="P:IPA.Old.IPlugin.Version">
+            <summary>
+            Gets the version of the plugin.
+            </summary>
+        </member>
+        <member name="M:IPA.Old.IPlugin.OnApplicationStart">
+            <summary>
+            Gets invoked when the application is started.
+            </summary>
+        </member>
+        <member name="M:IPA.Old.IPlugin.OnApplicationQuit">
+            <summary>
+            Gets invoked when the application is closed.
+            </summary>
+        </member>
+        <member name="M:IPA.Old.IPlugin.OnLevelWasLoaded(System.Int32)">
+            <summary>
+            Gets invoked whenever a level is loaded.
+            </summary>
+            <param name="level"></param>
+        </member>
+        <member name="M:IPA.Old.IPlugin.OnLevelWasInitialized(System.Int32)">
+            <summary>
+            Gets invoked after the first update cycle after a level was loaded.
+            </summary>
+            <param name="level"></param>
+        </member>
+        <member name="M:IPA.Old.IPlugin.OnUpdate">
+            <summary>
+            Gets invoked on every graphic update.
+            </summary>
+        </member>
+        <member name="M:IPA.Old.IPlugin.OnFixedUpdate">
+            <summary>
+            Gets invoked on ever physics update.
+            </summary>
+        </member>
+        <member name="T:IPA.Utilities.BeatSaber">
+            <summary>
+            Provides some basic utility methods and properties of Beat Saber
+            </summary>
+        </member>
+        <member name="P:IPA.Utilities.BeatSaber.GameVersion">
+            <summary>
+            Provides the current game version.
+            </summary>
+            <value>the SemVer version of the game</value>
+        </member>
+        <member name="T:IPA.Utilities.BeatSaber.Release">
+            <summary>
+            The different types of releases of the game.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.BeatSaber.Release.Steam">
+            <summary>
+            Indicates a Steam release.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.BeatSaber.Release.Oculus">
+            <summary>
+            Indicates an Oculus release.
+            </summary>
+        </member>
+        <member name="P:IPA.Utilities.BeatSaber.ReleaseType">
+            <summary>
+            Gets the <see cref="T:IPA.Utilities.BeatSaber.Release"/> type of this installation of Beat Saber
+            </summary>
+            <value>the type of release this is</value>
+        </member>
+        <member name="P:IPA.Utilities.BeatSaber.InstallPath">
+            <summary>
+            Gets the path to the Beat Saber install directory.
+            </summary>
+            <value>the path of the game install directory</value>
+        </member>
+        <member name="P:IPA.Utilities.BeatSaber.LibraryPath">
+            <summary>
+            The path to the `Libs` folder. Use only if necessary.
+            </summary>
+            <value>the path to the library directory</value>
+        </member>
+        <member name="P:IPA.Utilities.BeatSaber.NativeLibraryPath">
+            <summary>
+            The path to the `Libs\Native` folder. Use only if necessary.
+            </summary>
+            <value>the path to the native library directory</value>
+        </member>
+        <member name="P:IPA.Utilities.BeatSaber.PluginsPath">
+            <summary>
+            The directory to load plugins from.
+            </summary>
+            <value>the path to the plugin directory</value>
+        </member>
+        <member name="P:IPA.Utilities.BeatSaber.UserDataPath">
+            <summary>
+            The path to the `UserData` folder.
+            </summary>
+            <value>the path to the user data directory</value>
+        </member>
+        <member name="T:IPA.Utilities.AlmostVersion">
+            <summary>
+            A type that wraps <see cref="T:SemVer.Version"/> so that the string of the version is stored when the string is 
+            not a valid <see cref="T:SemVer.Version"/>.
+            </summary>
+        </member>
+        <member name="T:IPA.Utilities.AlmostVersion.StoredAs">
+            <summary>
+            Represents a storage type of either parsed <see cref="T:SemVer.Version"/> object or raw <see cref="F:IPA.Utilities.AlmostVersion.StoredAs.String"/>.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.AlmostVersion.StoredAs.SemVer">
+            <summary>
+            The version was stored as a <see cref="T:SemVer.Version"/>.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.AlmostVersion.StoredAs.String">
+            <summary>
+            The version was stored as a <see cref="F:IPA.Utilities.AlmostVersion.StoredAs.String"/>.
+            </summary>
+        </member>
+        <member name="M:IPA.Utilities.AlmostVersion.#ctor(System.String)">
+            <summary>
+            Creates a new <see cref="T:IPA.Utilities.AlmostVersion"/> with the version string provided in <paramref name="vertext"/>.
+            </summary>
+            <param name="vertext">the version string to store</param>
+        </member>
+        <member name="M:IPA.Utilities.AlmostVersion.#ctor(SemVer.Version)">
+            <summary>
+            Creates an <see cref="T:IPA.Utilities.AlmostVersion"/> from the <see cref="T:SemVer.Version"/> provided in <paramref name="ver"/>.
+            </summary>
+            <param name="ver">the <see cref="T:SemVer.Version"/> to store</param>
+        </member>
+        <member name="M:IPA.Utilities.AlmostVersion.#ctor(System.String,IPA.Utilities.AlmostVersion.StoredAs)">
+            <summary>
+            Creates an <see cref="T:IPA.Utilities.AlmostVersion"/> from the version string in <paramref name="vertext"/> stored using 
+            the storage mode specified in <paramref name="mode"/>.
+            </summary>
+            <param name="vertext">the text to parse as an <see cref="T:IPA.Utilities.AlmostVersion"/></param>
+            <param name="mode">the storage mode to store the version in</param>
+        </member>
+        <member name="M:IPA.Utilities.AlmostVersion.#ctor(System.String,IPA.Utilities.AlmostVersion)">
+            <summary>
+            Creates a new <see cref="T:IPA.Utilities.AlmostVersion"/> from the version string in <paramref name="vertext"/> stored the
+            same way as the <see cref="T:IPA.Utilities.AlmostVersion"/> passed in <paramref name="copyMode"/>.
+            </summary>
+            <param name="vertext">the text to parse as an <see cref="T:IPA.Utilities.AlmostVersion"/></param>
+            <param name="copyMode">an <see cref="T:IPA.Utilities.AlmostVersion"/> to copy the storage mode of</param>
+        </member>
+        <member name="P:IPA.Utilities.AlmostVersion.StringValue">
+            <summary>
+            The value of the <see cref="T:IPA.Utilities.AlmostVersion"/> if it was stored as a <see cref="T:System.String"/>.
+            </summary>
+            <value>the stored value as a <see cref="T:System.String"/>, or <see langword="null"/> if not stored as a string.</value>
+        </member>
+        <member name="P:IPA.Utilities.AlmostVersion.SemverValue">
+            <summary>
+            The value of the <see cref="T:IPA.Utilities.AlmostVersion"/> if it was stored as a <see cref="T:SemVer.Version"/>.
+            </summary>
+            <value>the stored value as a <see cref="T:SemVer.Version"/>, or <see langword="null"/> if not stored as a version.</value>
+        </member>
+        <member name="P:IPA.Utilities.AlmostVersion.StorageMode">
+            <summary>
+            The way the value is stored, whether it be as a <see cref="T:SemVer.Version"/> or a <see cref="T:System.String"/>.
+            </summary>
+            <value>the storage mode used to store this value</value>
+        </member>
+        <member name="M:IPA.Utilities.AlmostVersion.ToString">
+            <summary>
+            Gets a string representation of the current version. If the value is stored as a string, this returns it. If it is
+            stored as a <see cref="T:SemVer.Version"/>, it is equivalent to calling <see cref="M:SemVer.Version.ToString"/>.
+            </summary>
+            <returns>a string representation of the current version</returns>
+            <seealso cref="M:System.Object.ToString"/>
+        </member>
+        <member name="M:IPA.Utilities.AlmostVersion.CompareTo(IPA.Utilities.AlmostVersion)">
+            <summary>
+            Compares <see langword="this"/> to the <see cref="T:IPA.Utilities.AlmostVersion"/> in <paramref name="other"/> using <see cref="M:SemVer.Version.CompareTo(SemVer.Version)"/>
+            or <see cref="M:System.String.CompareTo(System.String)"/>, depending on the current store.
+            </summary>
+            <remarks>
+            The storage methods of the two objects must be the same, or this will throw an <see cref="T:System.InvalidOperationException"/>.
+            </remarks>
+            <param name="other">the <see cref="T:IPA.Utilities.AlmostVersion"/> to compare to</param>
+            <returns>less than 0 if <paramref name="other"/> is considered bigger than <see langword="this"/>, 0 if equal, and greater than zero if smaller</returns>
+            <seealso cref="M:IPA.Utilities.AlmostVersion.CompareTo(SemVer.Version)"/>
+        </member>
+        <member name="M:IPA.Utilities.AlmostVersion.CompareTo(SemVer.Version)">
+            <summary>
+            Compares <see langword="this"/> to the <see cref="T:SemVer.Version"/> in <paramref name="other"/> using <see cref="M:SemVer.Version.CompareTo(SemVer.Version)"/>.
+            </summary>
+            <remarks>
+            The storage method of <see langword="this"/> must be <see cref="F:IPA.Utilities.AlmostVersion.StoredAs.SemVer"/>, else an <see cref="T:System.InvalidOperationException"/> will
+            be thrown.
+            </remarks>
+            <param name="other">the <see cref="T:SemVer.Version"/> to compare to</param>
+            <returns>less than 0 if <paramref name="other"/> is considered bigger than <see langword="this"/>, 0 if equal, and greater than zero if smaller</returns>
+            <seealso cref="M:IPA.Utilities.AlmostVersion.CompareTo(IPA.Utilities.AlmostVersion)"/>
+        </member>
+        <member name="M:IPA.Utilities.AlmostVersion.Equals(System.Object)">
+            <summary>
+            Performs a strict equality check between <see langword="this"/> and <paramref name="obj"/>.
+            </summary>
+            <remarks>
+            This may return <see langword="false"/> where <see cref="M:IPA.Utilities.AlmostVersion.op_Equality(IPA.Utilities.AlmostVersion,IPA.Utilities.AlmostVersion)"/> returns <see langword="true"/>
+            </remarks>
+            <param name="obj">the object to compare to</param>
+            <returns><see langword="true"/> if they are equal, <see langword="false"/> otherwise</returns>
+            <seealso cref="M:System.Object.Equals(System.Object)"/>
+        </member>
+        <member name="M:IPA.Utilities.AlmostVersion.GetHashCode">
+            <summary>
+            Default generated hash code function generated by VS.
+            </summary>
+            <returns>a value unique to each object, except those that are considered equal by <see cref="M:IPA.Utilities.AlmostVersion.Equals(System.Object)"/></returns>
+            <seealso cref="M:System.Object.GetHashCode"/>
+        </member>
+        <member name="M:IPA.Utilities.AlmostVersion.op_Equality(IPA.Utilities.AlmostVersion,IPA.Utilities.AlmostVersion)">
+            <summary>
+            Compares two versions, only taking into account the numeric part of the version if they are stored as <see cref="T:SemVer.Version"/><see langword="sealed"/>,
+            or strict equality if they are stored as <see cref="T:System.String"/>s.
+            </summary>
+            <remarks>
+            This is a looser equality than <see cref="M:IPA.Utilities.AlmostVersion.Equals(System.Object)"/>, meaning that this may return <see langword="true"/> where <see cref="M:IPA.Utilities.AlmostVersion.Equals(System.Object)"/>
+            does not.
+            </remarks>
+            <param name="l">the first value to compare</param>
+            <param name="r">the second value to compare</param>
+            <returns><see langword="true"/> if they are mostly equal, <see langword="false"/> otherwise</returns>
+            <seealso cref="M:IPA.Utilities.AlmostVersion.Equals(System.Object)"/>
+        </member>
+        <member name="M:IPA.Utilities.AlmostVersion.op_Inequality(IPA.Utilities.AlmostVersion,IPA.Utilities.AlmostVersion)">
+            <summary>
+            The opposite of <see cref="M:IPA.Utilities.AlmostVersion.op_Equality(IPA.Utilities.AlmostVersion,IPA.Utilities.AlmostVersion)"/>. Equivalent to <code>!(l == r)</code>.
+            </summary>
+            <param name="l">the first value to compare</param>
+            <param name="r">the second value to compare</param>
+            <returns><see langword="true"/> if they are not mostly equal, <see langword="false"/> otherwise</returns>
+            <seealso cref="M:IPA.Utilities.AlmostVersion.op_Equality(IPA.Utilities.AlmostVersion,IPA.Utilities.AlmostVersion)"/>
+        </member>
+        <member name="M:IPA.Utilities.AlmostVersion.op_Implicit(SemVer.Version)~IPA.Utilities.AlmostVersion">
+            <summary>
+            Implicitly converts a <see cref="T:SemVer.Version"/> to <see cref="T:IPA.Utilities.AlmostVersion"/> using <see cref="M:IPA.Utilities.AlmostVersion.#ctor(SemVer.Version)"/>.
+            </summary>
+            <param name="ver">the <see cref="T:SemVer.Version"/> to convert</param>
+            <seealso cref="M:IPA.Utilities.AlmostVersion.#ctor(SemVer.Version)"/>
+        </member>
+        <member name="M:IPA.Utilities.AlmostVersion.op_Implicit(IPA.Utilities.AlmostVersion)~SemVer.Version">
+            <summary>
+            Implicitly converts an <see cref="T:IPA.Utilities.AlmostVersion"/> to <see cref="T:SemVer.Version"/>, if applicable, using <see cref="P:IPA.Utilities.AlmostVersion.SemverValue"/>.
+            If not applicable, returns <see langword="null"/>
+            </summary>
+            <param name="av">the <see cref="T:IPA.Utilities.AlmostVersion"/> to convert to a <see cref="T:SemVer.Version"/></param>
+            <seealso cref="P:IPA.Utilities.AlmostVersion.SemverValue"/>
+        </member>
+        <member name="T:IPA.Utilities.CriticalSection">
+            <summary>
+            Provides utilities for managing various critical sections.
+            </summary>
+        </member>
+        <member name="M:IPA.Utilities.CriticalSection.EnterExecuteSection">
+            <summary>
+            Enters a critical execution section. Does not nest.
+            </summary>
+            <note>
+            During a critical execution section, the program must execute until the end of the section before
+            exiting. If an exit signal is recieved during the section, it will be canceled, and the process
+            will terminate at the end of the section.
+            </note>
+        </member>
+        <member name="M:IPA.Utilities.CriticalSection.ExitExecuteSection">
+            <summary>
+            Exits a critical execution section. Does not nest.
+            </summary>
+            <note>
+            During a critical execution section, the program must execute until the end of the section before
+            exiting. If an exit signal is recieved during the section, it will be canceled, and the process
+            will terminate at the end of the section.
+            </note>
+        </member>
+        <member name="M:IPA.Utilities.CriticalSection.EnterGCSection">
+            <summary>
+            Enters a GC critical section. Each call to this must be paired with a call to <see cref="M:IPA.Utilities.CriticalSection.ExitGCSection"/>.
+            </summary>
+            <note>
+            During a GC critical section, no GCs will occur. 
+            
+            This may throw an <see cref="T:System.EntryPointNotFoundException"/> if the build of Mono the game is running on does
+            not have `mono_unity_gc_disable` exported. Use with caution.
+            </note>
+        </member>
+        <member name="M:IPA.Utilities.CriticalSection.ExitGCSection">
+            <summary>
+            Exits a GC critical section. Each call to this must have a preceding call to <see cref="M:IPA.Utilities.CriticalSection.EnterGCSection"/>.
+            </summary>
+            <note>
+            During a GC critical section, no GCs will occur. 
+            
+            This may throw an <see cref="T:System.EntryPointNotFoundException"/> if the build of Mono the game is running on does
+            not have `mono_unity_gc_enable` exported. Use with caution.
+            </note>
+        </member>
+        <member name="T:IPA.Utilities.Ref">
+            <summary>
+            Utilities to create <see cref="T:IPA.Utilities.Ref`1"/> using type inference.
+            </summary>
+        </member>
+        <member name="M:IPA.Utilities.Ref.Create``1(``0)">
+            <summary>
+            Creates a <see cref="T:IPA.Utilities.Ref`1"/>.
+            </summary>
+            <typeparam name="T">the type to reference.</typeparam>
+            <param name="val">the default value.</param>
+            <returns>the new <see cref="T:IPA.Utilities.Ref`1"/>.</returns>
+        </member>
+        <member name="T:IPA.Utilities.Ref`1">
+            <summary>
+            A class to store a reference for passing to methods which cannot take ref parameters.
+            </summary>
+            <typeparam name="T">the type of the value</typeparam>
+        </member>
+        <member name="P:IPA.Utilities.Ref`1.Value">
+            <summary>
+            The value of the reference
+            </summary>
+            <value>the value wrapped by this <see cref="T:IPA.Utilities.Ref`1"/></value>
+        </member>
+        <member name="P:IPA.Utilities.Ref`1.Error">
+            <summary>
+            An exception that was generated while creating the value.
+            </summary>
+            <value>the error held in this <see cref="T:IPA.Utilities.Ref`1"/></value>
+        </member>
+        <member name="M:IPA.Utilities.Ref`1.#ctor(`0)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="reference">the initial value of the reference</param>
+        </member>
+        <member name="M:IPA.Utilities.Ref`1.op_Implicit(IPA.Utilities.Ref{`0})~`0">
+            <summary>
+            Converts to referenced type, returning the stored reference.
+            </summary>
+            <param name="self">the object to be de-referenced</param>
+            <returns>the value referenced by the object</returns>
+        </member>
+        <member name="M:IPA.Utilities.Ref`1.op_Implicit(`0)~IPA.Utilities.Ref{`0}">
+            <summary>
+            Converts a value T to a reference to that object. Will overwrite the reference in the left hand expression if there is one.
+            </summary>
+            <param name="toConvert">the value to wrap in the Ref</param>
+            <returns>the Ref wrapping the value</returns>
+        </member>
+        <member name="M:IPA.Utilities.Ref`1.Verify">
+            <summary>
+            Throws error if one was set.
+            </summary>
+        </member>
+        <member name="M:IPA.Utilities.Ref`1.CompareTo(`0)">
+            <summary>
+            Compares the wrapped object to the other object.
+            </summary>
+            <param name="other">the object to compare to</param>
+            <returns>the value of the comparison</returns>
+        </member>
+        <member name="M:IPA.Utilities.Ref`1.CompareTo(IPA.Utilities.Ref{`0})">
+            <summary>
+            Compares the wrapped object to the other wrapped object.
+            </summary>
+            <param name="other">the wrapped object to compare to</param>
+            <returns>the value of the comparison</returns>
+        </member>
+        <member name="T:IPA.Utilities.ReflectionUtil">
+            <summary>
+            A utility class providing reflection helper methods.
+            </summary>
+        </member>
+        <member name="M:IPA.Utilities.ReflectionUtil.SetPrivateField(System.Object,System.String,System.Object)">
+            <summary>
+            Sets a (potentially) private field on the target object.
+            </summary>
+            <param name="obj">the object instance</param>
+            <param name="fieldName">the field to set</param>
+            <param name="value">the value to set it to</param>
+        </member>
+        <member name="M:IPA.Utilities.ReflectionUtil.GetPrivateField``1(System.Object,System.String)">
+            <summary>
+            Gets the value of a (potentially) private field.
+            </summary>
+            <typeparam name="T">the type of te field (result casted)</typeparam>
+            <param name="obj">the object instance to pull from</param>
+            <param name="fieldName">the name of the field to read</param>
+            <returns>the value of the field</returns>
+        </member>
+        <member name="M:IPA.Utilities.ReflectionUtil.SetPrivateProperty(System.Object,System.String,System.Object)">
+            <summary>
+            Sets a (potentially) private property on the target object.
+            </summary>
+            <param name="obj">the target object instance</param>
+            <param name="propertyName">the name of the property</param>
+            <param name="value">the value to set it to</param>
+        </member>
+        <member name="M:IPA.Utilities.ReflectionUtil.InvokePrivateMethod(System.Object,System.String,System.Object[])">
+            <summary>
+            Invokes a (potentially) private method.
+            </summary>
+            <param name="obj">the object to call from</param>
+            <param name="methodName">the method name</param>
+            <param name="methodParams">the method parameters</param>
+            <returns>the return value</returns>
+        </member>
+        <member name="M:IPA.Utilities.ReflectionUtil.InvokePrivateMethod``1(System.Object,System.String,System.Object[])">
+            <summary>
+            Invokes a (potentially) private method.
+            </summary>
+            <typeparam name="T">the return type</typeparam>
+            <param name="obj">the object to call from</param>
+            <param name="methodName">the method name to call</param>
+            <param name="methodParams">the method's parameters</param>
+            <returns>the return value</returns>
+        </member>
+        <member name="M:IPA.Utilities.ReflectionUtil.CopyComponent(UnityEngine.Component,System.Type,UnityEngine.GameObject,System.Type)">
+            <summary>
+            Copies a component <paramref name="original"/> to a component of <paramref name="overridingType"/> on the destination <see cref="T:UnityEngine.GameObject"/>.
+            </summary>
+            <param name="original">the original component</param>
+            <param name="overridingType">the new component's type</param>
+            <param name="destination">the destination GameObject</param>
+            <param name="originalTypeOverride">overrides the source component type (for example, to a superclass)</param>
+            <returns>the copied component</returns>
+        </member>
+        <member name="M:IPA.Utilities.ReflectionUtil.CopyComponent``1(UnityEngine.Component,UnityEngine.GameObject,System.Type)">
+            <summary>
+            A generic version of <see cref="M:IPA.Utilities.ReflectionUtil.CopyComponent(UnityEngine.Component,System.Type,UnityEngine.GameObject,System.Type)"/>. 
+            </summary>
+            <seealso cref="M:IPA.Utilities.ReflectionUtil.CopyComponent(UnityEngine.Component,System.Type,UnityEngine.GameObject,System.Type)"/>
+            <typeparam name="T">the overriding type</typeparam>
+            <param name="original">the original component</param>
+            <param name="destination">the destination game object</param>
+            <param name="originalTypeOverride">overrides the source component type (for example, to a superclass)</param>
+            <returns>the copied component</returns>
+        </member>
+        <member name="M:IPA.Utilities.ReflectionUtil.CallNonStaticMethod(System.String,System.String,System.String,System.Type[],System.Object[])">
+            <summary>
+            Calls an instance method on a type specified by <paramref name="functionClass"/> and <paramref name="dependency"/>.
+            </summary>
+            <seealso cref="M:IPA.Utilities.ReflectionUtil.CallNonStaticMethod(System.Type,System.String,System.Type[],System.Object[])"/>
+            <param name="functionClass">the type name</param>
+            <param name="dependency">the assembly the type is in</param>
+            <param name="function">the name of the method to call</param>
+            <param name="methodSig">the type signature of the method</param>
+            <param name="parameters">the method parameters</param>
+            <returns>the result of the call</returns>
+        </member>
+        <member name="M:IPA.Utilities.ReflectionUtil.CallNonStaticMethod(System.Type,System.String,System.Type[],System.Object[])">
+            <summary>
+            Calls an instance method on a new object.
+            </summary>
+            <param name="type">the object type</param>
+            <param name="function">the name of the method to call</param>
+            <param name="methodSig">the type signature</param>
+            <param name="parameters">the parameters</param>
+            <returns>the result of the call</returns>
+        </member>
+        <member name="M:IPA.Utilities.ReflectionUtil.CallNonStaticMethod``1(System.Type,System.String,System.Type[],System.Object[])">
+            <summary>
+            Calls an instance method on a new object.
+            </summary>
+            <seealso cref="M:IPA.Utilities.ReflectionUtil.CallNonStaticMethod(System.Type,System.String,System.Type[],System.Object[])"/>
+            <typeparam name="T">the return type</typeparam>
+            <param name="type">the object type</param>
+            <param name="function">the name of the method to call</param>
+            <param name="methodSig">the type signature</param>
+            <param name="parameters">the parameters</param>
+            <returns>the result of the call</returns>
+        </member>
+        <member name="T:IPA.Utilities.Extensions">
+            <summary>
+            A class providing various extension methods.
+            </summary>
+        </member>
+        <member name="M:IPA.Utilities.Extensions.GetDefault(System.Type)">
+            <summary>
+            Gets the default value for a given <see cref="T:System.Type"/>.
+            </summary>
+            <param name="type">the <see cref="T:System.Type"/> to get the default value for</param>
+            <returns>the default value of <paramref name="type"/></returns>
+        </member>
+        <member name="M:IPA.Utilities.Extensions.Unwrap(System.Nullable{System.Boolean})">
+            <summary>
+            Unwraps a <see cref="T:System.Nullable`1"/> where T is <see cref="T:System.Boolean"/> such that if the value is null, it gives <see langword="false"/>.
+            </summary>
+            <param name="self">the bool? to unwrap</param>
+            <returns>the unwrapped value, or <see langword="false"/> if it was <see langword="null"/></returns>
+        </member>
+        <member name="T:IPA.Utilities.Utils">
+            <summary>
+            A class providing static utility functions that in any other language would just *exist*.
+            </summary>
+        </member>
+        <member name="M:IPA.Utilities.Utils.StringToByteArray(System.String)">
+            <summary>
+            Converts a hex string to a byte array.
+            </summary>
+            <param name="hex">the hex stream</param>
+            <returns>the corresponding byte array</returns>
+        </member>
+        <member name="M:IPA.Utilities.Utils.ByteArrayToString(System.Byte[])">
+            <summary>
+            Converts a byte array to a hex string.
+            </summary>
+            <param name="ba">the byte array</param>
+            <returns>the hex form of the array</returns>
+        </member>
+        <member name="M:IPA.Utilities.Utils.UnsafeCompare(System.Byte[],System.Byte[])">
+            <summary>
+            Uses unsafe code to compare 2 byte arrays quickly.
+            </summary>
+            <param name="a1">array 1</param>
+            <param name="a2">array 2</param>
+            <returns>whether or not they are byte-for-byte equal</returns>
+        </member>
+        <member name="M:IPA.Utilities.Utils.GetRelativePath(System.String,System.String)">
+            <summary>
+            Gets a path relative to the provided folder.
+            </summary>
+            <param name="file">the file to relativize</param>
+            <param name="folder">the source folder</param>
+            <returns>a path to get from <paramref name="folder"/> to <paramref name="file"/></returns>
+        </member>
+        <member name="M:IPA.Utilities.Utils.CopyAll(System.IO.DirectoryInfo,System.IO.DirectoryInfo,System.String,System.Func{System.Exception,System.IO.FileInfo,System.Boolean})">
+            <summary>
+            Copies all files from <paramref name="source"/> to <paramref name="target"/>.
+            </summary>
+            <param name="source">the source directory</param>
+            <param name="target">the destination directory</param>
+            <param name="appendFileName">the filename of the file to append together</param>
+            <param name="onCopyException">a delegate called when there is an error copying. Return true to keep going.</param>
+        </member>
+        <member name="P:IPA.Utilities.Utils.CanUseDateTimeNowSafely">
+            <summary>
+            Whether you can safely use <see cref="P:System.DateTime.Now"/> without Mono throwing a fit.
+            </summary>
+            <value><see langword="true"/> if you can use <see cref="P:System.DateTime.Now"/> safely, <see langword="false"/> otherwise</value>
+        </member>
+        <member name="M:IPA.Utilities.Utils.CurrentTime">
+            <summary>
+            Gets the current <see cref="T:System.DateTime"/> if supported, otherwise, if Mono would throw a fit,
+            returns <see cref="F:System.DateTime.MinValue"/> plus some value, such that each time it is called
+            the value will be greater than the previous result. Not suitable for timing.
+            </summary>
+            <returns>the current <see cref="T:System.DateTime"/> if supported, otherwise some indeterminant increasing value.</returns>
+        </member>
+        <member name="M:IPA.Utilities.Utils.VersionCompareNoPrerelease(SemVer.Version,SemVer.Version)">
+            <summary>
+            Compares a pair of <see cref="T:SemVer.Version"/>s ignoring both the prerelease and build fields.
+            </summary>
+            <param name="l">the left value</param>
+            <param name="r">the right value</param>
+            <returns>-1 if l is less than r, 0 if they are equal in the numeric portion, or 1 if l is greater than r</returns>
+        </member>
+        <member name="T:IPA.Utilities.Win32">
+            <summary>
+            Defines helpers for working with Win32 APIs
+            </summary>
+        </member>
+        <member name="T:IPA.Utilities.Win32.ConsoleCtrlDelegate">
+            <summary>
+            Delegate type to be used as the Handler Routine for SCCH
+            </summary>
+        </member>
+        <member name="T:IPA.Utilities.Win32.CtrlTypes">
+            <summary>
+            Enumerated type for the control messages sent to the handler routine
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.CtrlTypes.CTRL_C_EVENT">
+            <summary>
+            The user pressed Ctrl+C
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.CtrlTypes.CTRL_BREAK_EVENT">
+            <summary>
+            The user pressed Ctrl+Break
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.CtrlTypes.CTRL_CLOSE_EVENT">
+            <summary>
+            The user pressed Ctrl+Close
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.CtrlTypes.CTRL_LOGOFF_EVENT">
+            <summary>
+            The user logged off
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.CtrlTypes.CTRL_SHUTDOWN_EVENT">
+            <summary>
+            The computer shut dowm
+            </summary>
+        </member>
+        <member name="T:IPA.Utilities.Win32.POINT">
+            <summary>
+            A point.
+            </summary>
+        </member>
+        <member name="M:IPA.Utilities.Win32.POINT.#ctor(System.Int32,System.Int32)">
+            <summary>
+            Constructs a point
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+        </member>
+        <member name="T:IPA.Utilities.Win32.WM">
+            <summary>
+            Windows Messages
+            Defined in winuser.h from Windows SDK v6.1
+            Documentation pulled from MSDN.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NULL">
+            <summary>
+            The WM_NULL message performs no operation. An application sends the WM_NULL message if it wants to post a message that the recipient window will ignore.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CREATE">
+            <summary>
+            The WM_CREATE message is sent when an application requests that a window be created by calling the CreateWindowEx or CreateWindow function. (The message is sent before the function returns.) The window procedure of the new window receives this message after the window is created, but before the window becomes visible.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DESTROY">
+            <summary>
+            The WM_DESTROY message is sent when a window is being destroyed. It is sent to the window procedure of the window being destroyed after the window is removed from the screen. 
+            This message is sent first to the window being destroyed and then to the child windows (if any) as they are destroyed. During the processing of the message, it can be assumed that all child windows still exist.
+            /// </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MOVE">
+            <summary>
+            The WM_MOVE message is sent after a window has been moved. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SIZE">
+            <summary>
+            The WM_SIZE message is sent to a window after its size has changed.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.ACTIVATE">
+            <summary>
+            The WM_ACTIVATE message is sent to both the window being activated and the window being deactivated. If the windows use the same input queue, the message is sent synchronously, first to the window procedure of the top-level window being deactivated, then to the window procedure of the top-level window being activated. If the windows use different input queues, the message is sent asynchronously, so the window is activated immediately. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SETFOCUS">
+            <summary>
+            The WM_SETFOCUS message is sent to a window after it has gained the keyboard focus. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.KILLFOCUS">
+            <summary>
+            The WM_KILLFOCUS message is sent to a window immediately before it loses the keyboard focus. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.ENABLE">
+            <summary>
+            The WM_ENABLE message is sent when an application changes the enabled state of a window. It is sent to the window whose enabled state is changing. This message is sent before the EnableWindow function returns, but after the enabled state (WS_DISABLED style bit) of the window has changed. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SETREDRAW">
+            <summary>
+            An application sends the WM_SETREDRAW message to a window to allow changes in that window to be redrawn or to prevent changes in that window from being redrawn. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SETTEXT">
+            <summary>
+            An application sends a WM_SETTEXT message to set the text of a window. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.GETTEXT">
+            <summary>
+            An application sends a WM_GETTEXT message to copy the text that corresponds to a window into a buffer provided by the caller. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.GETTEXTLENGTH">
+            <summary>
+            An application sends a WM_GETTEXTLENGTH message to determine the length, in characters, of the text associated with a window. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.PAINT">
+            <summary>
+            The WM_PAINT message is sent when the system or another application makes a request to paint a portion of an application's window. The message is sent when the UpdateWindow or RedrawWindow function is called, or by the DispatchMessage function when the application obtains a WM_PAINT message by using the GetMessage or PeekMessage function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CLOSE">
+            <summary>
+            The WM_CLOSE message is sent as a signal that a window or an application should terminate.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.QUERYENDSESSION">
+            <summary>
+            The WM_QUERYENDSESSION message is sent when the user chooses to end the session or when an application calls one of the system shutdown functions. If any application returns zero, the session is not ended. The system stops sending WM_QUERYENDSESSION messages as soon as one application returns zero.
+            After processing this message, the system sends the WM_ENDSESSION message with the wParam parameter set to the results of the WM_QUERYENDSESSION message.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.QUERYOPEN">
+            <summary>
+            The WM_QUERYOPEN message is sent to an icon when the user requests that the window be restored to its previous size and position.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.ENDSESSION">
+            <summary>
+            The WM_ENDSESSION message is sent to an application after the system processes the results of the WM_QUERYENDSESSION message. The WM_ENDSESSION message informs the application whether the session is ending.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.QUIT">
+            <summary>
+            The WM_QUIT message indicates a request to terminate an application and is generated when the application calls the PostQuitMessage function. It causes the GetMessage function to return zero.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.ERASEBKGND">
+            <summary>
+            The WM_ERASEBKGND message is sent when the window background must be erased (for example, when a window is resized). The message is sent to prepare an invalidated portion of a window for painting. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SYSCOLORCHANGE">
+            <summary>
+            This message is sent to all top-level windows when a change is made to a system color setting. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SHOWWINDOW">
+            <summary>
+            The WM_SHOWWINDOW message is sent to a window when the window is about to be hidden or shown.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.WININICHANGE">
+            <summary>
+            An application sends the WM_WININICHANGE message to all top-level windows after making a change to the WIN.INI file. The SystemParametersInfo function sends this message after an application uses the function to change a setting in WIN.INI.
+            Note  The WM_WININICHANGE message is provided only for compatibility with earlier versions of the system. Applications should use the WM_SETTINGCHANGE message.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SETTINGCHANGE">
+            <summary>
+            An application sends the WM_WININICHANGE message to all top-level windows after making a change to the WIN.INI file. The SystemParametersInfo function sends this message after an application uses the function to change a setting in WIN.INI.
+            Note  The WM_WININICHANGE message is provided only for compatibility with earlier versions of the system. Applications should use the WM_SETTINGCHANGE message.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DEVMODECHANGE">
+            <summary>
+            The WM_DEVMODECHANGE message is sent to all top-level windows whenever the user changes device-mode settings. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.ACTIVATEAPP">
+            <summary>
+            The WM_ACTIVATEAPP message is sent when a window belonging to a different application than the active window is about to be activated. The message is sent to the application whose window is being activated and to the application whose window is being deactivated.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.FONTCHANGE">
+            <summary>
+            An application sends the WM_FONTCHANGE message to all top-level windows in the system after changing the pool of font resources. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.TIMECHANGE">
+            <summary>
+            A message that is sent whenever there is a change in the system time.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CANCELMODE">
+            <summary>
+            The WM_CANCELMODE message is sent to cancel certain modes, such as mouse capture. For example, the system sends this message to the active window when a dialog box or message box is displayed. Certain functions also send this message explicitly to the specified window regardless of whether it is the active window. For example, the EnableWindow function sends this message when disabling the specified window.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SETCURSOR">
+            <summary>
+            The WM_SETCURSOR message is sent to a window if the mouse causes the cursor to move within a window and mouse input is not captured. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MOUSEACTIVATE">
+            <summary>
+            The WM_MOUSEACTIVATE message is sent when the cursor is in an inactive window and the user presses a mouse button. The parent window receives this message only if the child window passes it to the DefWindowProc function.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CHILDACTIVATE">
+            <summary>
+            The WM_CHILDACTIVATE message is sent to a child window when the user clicks the window's title bar or when the window is activated, moved, or sized.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.QUEUESYNC">
+            <summary>
+            The WM_QUEUESYNC message is sent by a computer-based training (CBT) application to separate user-input messages from other messages sent through the WH_JOURNALPLAYBACK Hook procedure. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.GETMINMAXINFO">
+            <summary>
+            The WM_GETMINMAXINFO message is sent to a window when the size or position of the window is about to change. An application can use this message to override the window's default maximized size and position, or its default minimum or maximum tracking size. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.PAINTICON">
+            <summary>
+            Windows NT 3.51 and earlier: The WM_PAINTICON message is sent to a minimized window when the icon is to be painted. This message is not sent by newer versions of Microsoft Windows, except in unusual circumstances explained in the Remarks.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.ICONERASEBKGND">
+            <summary>
+            Windows NT 3.51 and earlier: The WM_ICONERASEBKGND message is sent to a minimized window when the background of the icon must be filled before painting the icon. A window receives this message only if a class icon is defined for the window; otherwise, WM_ERASEBKGND is sent. This message is not sent by newer versions of Windows.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NEXTDLGCTL">
+            <summary>
+            The WM_NEXTDLGCTL message is sent to a dialog box procedure to set the keyboard focus to a different control in the dialog box. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SPOOLERSTATUS">
+            <summary>
+            The WM_SPOOLERSTATUS message is sent from Print Manager whenever a job is added to or removed from the Print Manager queue. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DRAWITEM">
+            <summary>
+            The WM_DRAWITEM message is sent to the parent window of an owner-drawn button, combo box, list box, or menu when a visual aspect of the button, combo box, list box, or menu has changed.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MEASUREITEM">
+            <summary>
+            The WM_MEASUREITEM message is sent to the owner window of a combo box, list box, list view control, or menu item when the control or menu is created.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DELETEITEM">
+            <summary>
+            Sent to the owner of a list box or combo box when the list box or combo box is destroyed or when items are removed by the LB_DELETESTRING, LB_RESETCONTENT, CB_DELETESTRING, or CB_RESETCONTENT message. The system sends a WM_DELETEITEM message for each deleted item. The system sends the WM_DELETEITEM message for any deleted list box or combo box item with nonzero item data.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.VKEYTOITEM">
+            <summary>
+            Sent by a list box with the LBS_WANTKEYBOARDINPUT style to its owner in response to a WM_KEYDOWN message. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CHARTOITEM">
+            <summary>
+            Sent by a list box with the LBS_WANTKEYBOARDINPUT style to its owner in response to a WM_CHAR message. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SETFONT">
+            <summary>
+            An application sends a WM_SETFONT message to specify the font that a control is to use when drawing text. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.GETFONT">
+            <summary>
+            An application sends a WM_GETFONT message to a control to retrieve the font with which the control is currently drawing its text. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SETHOTKEY">
+            <summary>
+            An application sends a WM_SETHOTKEY message to a window to associate a hot key with the window. When the user presses the hot key, the system activates the window. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.GETHOTKEY">
+            <summary>
+            An application sends a WM_GETHOTKEY message to determine the hot key associated with a window. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.QUERYDRAGICON">
+            <summary>
+            The WM_QUERYDRAGICON message is sent to a minimized (iconic) window. The window is about to be dragged by the user but does not have an icon defined for its class. An application can return a handle to an icon or cursor. The system displays this cursor or icon while the user drags the icon.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.COMPAREITEM">
+            <summary>
+            The system sends the WM_COMPAREITEM message to determine the relative position of a new item in the sorted list of an owner-drawn combo box or list box. Whenever the application adds a new item, the system sends this message to the owner of a combo box or list box created with the CBS_SORT or LBS_SORT style. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.GETOBJECT">
+            <summary>
+            Active Accessibility sends the WM_GETOBJECT message to obtain information about an accessible object contained in a server application. 
+            Applications never send this message directly. It is sent only by Active Accessibility in response to calls to AccessibleObjectFromPoint, AccessibleObjectFromEvent, or AccessibleObjectFromWindow. However, server applications handle this message. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.COMPACTING">
+            <summary>
+            The WM_COMPACTING message is sent to all top-level windows when the system detects more than 12.5 percent of system time over a 30- to 60-second interval is being spent compacting memory. This indicates that system memory is low.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.COMMNOTIFY">
+            <summary>
+            WM_COMMNOTIFY is Obsolete for Win32-Based Applications
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.WINDOWPOSCHANGING">
+            <summary>
+            The WM_WINDOWPOSCHANGING message is sent to a window whose size, position, or place in the Z order is about to change as a result of a call to the SetWindowPos function or another window-management function.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.WINDOWPOSCHANGED">
+            <summary>
+            The WM_WINDOWPOSCHANGED message is sent to a window whose size, position, or place in the Z order has changed as a result of a call to the SetWindowPos function or another window-management function.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.POWER">
+            <summary>
+            Notifies applications that the system, typically a battery-powered personal computer, is about to enter a suspended mode.
+            Use: POWERBROADCAST
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.COPYDATA">
+            <summary>
+            An application sends the WM_COPYDATA message to pass data to another application. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CANCELJOURNAL">
+            <summary>
+            The WM_CANCELJOURNAL message is posted to an application when a user cancels the application's journaling activities. The message is posted with a NULL window handle. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NOTIFY">
+            <summary>
+            Sent by a common control to its parent window when an event has occurred or the control requires some information. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.INPUTLANGCHANGEREQUEST">
+            <summary>
+            The WM_INPUTLANGCHANGEREQUEST message is posted to the window with the focus when the user chooses a new input language, either with the hotkey (specified in the Keyboard control panel application) or from the indicator on the system taskbar. An application can accept the change by passing the message to the DefWindowProc function or reject the change (and prevent it from taking place) by returning immediately. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.INPUTLANGCHANGE">
+            <summary>
+            The WM_INPUTLANGCHANGE message is sent to the topmost affected window after an application's input language has been changed. You should make any application-specific settings and pass the message to the DefWindowProc function, which passes the message to all first-level child windows. These child windows can pass the message to DefWindowProc to have it pass the message to their child windows, and so on. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.TCARD">
+            <summary>
+            Sent to an application that has initiated a training card with Microsoft Windows Help. The message informs the application when the user clicks an authorable button. An application initiates a training card by specifying the HELP_TCARD command in a call to the WinHelp function.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HELP">
+            <summary>
+            Indicates that the user pressed the F1 key. If a menu is active when F1 is pressed, WM_HELP is sent to the window associated with the menu; otherwise, WM_HELP is sent to the window that has the keyboard focus. If no window has the keyboard focus, WM_HELP is sent to the currently active window. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.USERCHANGED">
+            <summary>
+            The WM_USERCHANGED message is sent to all windows after the user has logged on or off. When the user logs on or off, the system updates the user-specific settings. The system sends this message immediately after updating the settings.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NOTIFYFORMAT">
+            <summary>
+            Determines if a window accepts ANSI or Unicode structures in the WM_NOTIFY notification message. WM_NOTIFYFORMAT messages are sent from a common control to its parent window and from the parent window to the common control.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CONTEXTMENU">
+            <summary>
+            The WM_CONTEXTMENU message notifies a window that the user clicked the right mouse button (right-clicked) in the window.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.STYLECHANGING">
+            <summary>
+            The WM_STYLECHANGING message is sent to a window when the SetWindowLong function is about to change one or more of the window's styles.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.STYLECHANGED">
+            <summary>
+            The WM_STYLECHANGED message is sent to a window after the SetWindowLong function has changed one or more of the window's styles
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DISPLAYCHANGE">
+            <summary>
+            The WM_DISPLAYCHANGE message is sent to all windows when the display resolution has changed.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.GETICON">
+            <summary>
+            The WM_GETICON message is sent to a window to retrieve a handle to the large or small icon associated with a window. The system displays the large icon in the ALT+TAB dialog, and the small icon in the window caption. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SETICON">
+            <summary>
+            An application sends the WM_SETICON message to associate a new large or small icon with a window. The system displays the large icon in the ALT+TAB dialog box, and the small icon in the window caption. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCCREATE">
+            <summary>
+            The WM_NCCREATE message is sent prior to the WM_CREATE message when a window is first created.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCDESTROY">
+            <summary>
+            The WM_NCDESTROY message informs a window that its nonclient area is being destroyed. The DestroyWindow function sends the WM_NCDESTROY message to the window following the WM_DESTROY message. WM_DESTROY is used to free the allocated memory object associated with the window. 
+            The WM_NCDESTROY message is sent after the child windows have been destroyed. In contrast, WM_DESTROY is sent before the child windows are destroyed.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCCALCSIZE">
+            <summary>
+            The WM_NCCALCSIZE message is sent when the size and position of a window's client area must be calculated. By processing this message, an application can control the content of the window's client area when the size or position of the window changes.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCHITTEST">
+            <summary>
+            The WM_NCHITTEST message is sent to a window when the cursor moves, or when a mouse button is pressed or released. If the mouse is not captured, the message is sent to the window beneath the cursor. Otherwise, the message is sent to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCPAINT">
+            <summary>
+            The WM_NCPAINT message is sent to a window when its frame must be painted. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCACTIVATE">
+            <summary>
+            The WM_NCACTIVATE message is sent to a window when its nonclient area needs to be changed to indicate an active or inactive state.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.GETDLGCODE">
+            <summary>
+            The WM_GETDLGCODE message is sent to the window procedure associated with a control. By default, the system handles all keyboard input to the control; the system interprets certain types of keyboard input as dialog box navigation keys. To override this default behavior, the control can respond to the WM_GETDLGCODE message to indicate the types of input it wants to process itself.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SYNCPAINT">
+            <summary>
+            The WM_SYNCPAINT message is used to synchronize painting while avoiding linking independent GUI threads.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCMOUSEMOVE">
+            <summary>
+            The WM_NCMOUSEMOVE message is posted to a window when the cursor is moved within the nonclient area of the window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this message is not posted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCLBUTTONDOWN">
+            <summary>
+            The WM_NCLBUTTONDOWN message is posted when the user presses the left mouse button while the cursor is within the nonclient area of a window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this message is not posted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCLBUTTONUP">
+            <summary>
+            The WM_NCLBUTTONUP message is posted when the user releases the left mouse button while the cursor is within the nonclient area of a window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this message is not posted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCLBUTTONDBLCLK">
+            <summary>
+            The WM_NCLBUTTONDBLCLK message is posted when the user double-clicks the left mouse button while the cursor is within the nonclient area of a window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this message is not posted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCRBUTTONDOWN">
+            <summary>
+            The WM_NCRBUTTONDOWN message is posted when the user presses the right mouse button while the cursor is within the nonclient area of a window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this message is not posted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCRBUTTONUP">
+            <summary>
+            The WM_NCRBUTTONUP message is posted when the user releases the right mouse button while the cursor is within the nonclient area of a window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this message is not posted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCRBUTTONDBLCLK">
+            <summary>
+            The WM_NCRBUTTONDBLCLK message is posted when the user double-clicks the right mouse button while the cursor is within the nonclient area of a window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this message is not posted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCMBUTTONDOWN">
+            <summary>
+            The WM_NCMBUTTONDOWN message is posted when the user presses the middle mouse button while the cursor is within the nonclient area of a window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this message is not posted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCMBUTTONUP">
+            <summary>
+            The WM_NCMBUTTONUP message is posted when the user releases the middle mouse button while the cursor is within the nonclient area of a window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this message is not posted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCMBUTTONDBLCLK">
+            <summary>
+            The WM_NCMBUTTONDBLCLK message is posted when the user double-clicks the middle mouse button while the cursor is within the nonclient area of a window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this message is not posted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCXBUTTONDOWN">
+            <summary>
+            The WM_NCXBUTTONDOWN message is posted when the user presses the first or second X button while the cursor is in the nonclient area of a window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this message is not posted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCXBUTTONUP">
+            <summary>
+            The WM_NCXBUTTONUP message is posted when the user releases the first or second X button while the cursor is in the nonclient area of a window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this message is not posted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCXBUTTONDBLCLK">
+            <summary>
+            The WM_NCXBUTTONDBLCLK message is posted when the user double-clicks the first or second X button while the cursor is in the nonclient area of a window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this message is not posted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.INPUT_DEVICE_CHANGE">
+            <summary>
+            The WM_INPUT_DEVICE_CHANGE message is sent to the window that registered to receive raw input. A window receives this message through its WindowProc function.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.INPUT">
+            <summary>
+            The WM_INPUT message is sent to the window that is getting raw input. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.KEYFIRST">
+            <summary>
+            This message filters for keyboard messages.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.KEYDOWN">
+            <summary>
+            The WM_KEYDOWN message is posted to the window with the keyboard focus when a nonsystem key is pressed. A nonsystem key is a key that is pressed when the ALT key is not pressed. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.KEYUP">
+            <summary>
+            The WM_KEYUP message is posted to the window with the keyboard focus when a nonsystem key is released. A nonsystem key is a key that is pressed when the ALT key is not pressed, or a keyboard key that is pressed when a window has the keyboard focus. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CHAR">
+            <summary>
+            The WM_CHAR message is posted to the window with the keyboard focus when a WM_KEYDOWN message is translated by the TranslateMessage function. The WM_CHAR message contains the character code of the key that was pressed. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DEADCHAR">
+            <summary>
+            The WM_DEADCHAR message is posted to the window with the keyboard focus when a WM_KEYUP message is translated by the TranslateMessage function. WM_DEADCHAR specifies a character code generated by a dead key. A dead key is a key that generates a character, such as the umlaut (double-dot), that is combined with another character to form a composite character. For example, the umlaut-O character (Ö) is generated by typing the dead key for the umlaut character, and then typing the O key. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SYSKEYDOWN">
+            <summary>
+            The WM_SYSKEYDOWN message is posted to the window with the keyboard focus when the user presses the F10 key (which activates the menu bar) or holds down the ALT key and then presses another key. It also occurs when no window currently has the keyboard focus; in this case, the WM_SYSKEYDOWN message is sent to the active window. The window that receives the message can distinguish between these two contexts by checking the context code in the lParam parameter. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SYSKEYUP">
+            <summary>
+            The WM_SYSKEYUP message is posted to the window with the keyboard focus when the user releases a key that was pressed while the ALT key was held down. It also occurs when no window currently has the keyboard focus; in this case, the WM_SYSKEYUP message is sent to the active window. The window that receives the message can distinguish between these two contexts by checking the context code in the lParam parameter. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SYSCHAR">
+            <summary>
+            The WM_SYSCHAR message is posted to the window with the keyboard focus when a WM_SYSKEYDOWN message is translated by the TranslateMessage function. It specifies the character code of a system character key — that is, a character key that is pressed while the ALT key is down. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SYSDEADCHAR">
+            <summary>
+            The WM_SYSDEADCHAR message is sent to the window with the keyboard focus when a WM_SYSKEYDOWN message is translated by the TranslateMessage function. WM_SYSDEADCHAR specifies the character code of a system dead key — that is, a dead key that is pressed while holding down the ALT key. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.UNICHAR">
+            <summary>
+            The WM_UNICHAR message is posted to the window with the keyboard focus when a WM_KEYDOWN message is translated by the TranslateMessage function. The WM_UNICHAR message contains the character code of the key that was pressed. 
+            The WM_UNICHAR message is equivalent to WM_CHAR, but it uses Unicode Transformation Format (UTF)-32, whereas WM_CHAR uses UTF-16. It is designed to send or post Unicode characters to ANSI windows and it can can handle Unicode Supplementary Plane characters.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.KEYLAST">
+            <summary>
+            This message filters for keyboard messages.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.IME_STARTCOMPOSITION">
+            <summary>
+            Sent immediately before the IME generates the composition string as a result of a keystroke. A window receives this message through its WindowProc function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.IME_ENDCOMPOSITION">
+            <summary>
+            Sent to an application when the IME ends composition. A window receives this message through its WindowProc function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.IME_COMPOSITION">
+            <summary>
+            Sent to an application when the IME changes composition status as a result of a keystroke. A window receives this message through its WindowProc function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.INITDIALOG">
+            <summary>
+            The WM_INITDIALOG message is sent to the dialog box procedure immediately before a dialog box is displayed. Dialog box procedures typically use this message to initialize controls and carry out any other initialization tasks that affect the appearance of the dialog box. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.COMMAND">
+            <summary>
+            The WM_COMMAND message is sent when the user selects a command item from a menu, when a control sends a notification message to its parent window, or when an accelerator keystroke is translated. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SYSCOMMAND">
+            <summary>
+            A window receives this message when the user chooses a command from the Window menu, clicks the maximize button, minimize button, restore button, close button, or moves the form. You can stop the form from moving by filtering this out.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.TIMER">
+            <summary>
+            The WM_TIMER message is posted to the installing thread's message queue when a timer expires. The message is posted by the GetMessage or PeekMessage function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HSCROLL">
+            <summary>
+            The WM_HSCROLL message is sent to a window when a scroll event occurs in the window's standard horizontal scroll bar. This message is also sent to the owner of a horizontal scroll bar control when a scroll event occurs in the control. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.VSCROLL">
+            <summary>
+            The WM_VSCROLL message is sent to a window when a scroll event occurs in the window's standard vertical scroll bar. This message is also sent to the owner of a vertical scroll bar control when a scroll event occurs in the control. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.INITMENU">
+            <summary>
+            The WM_INITMENU message is sent when a menu is about to become active. It occurs when the user clicks an item on the menu bar or presses a menu key. This allows the application to modify the menu before it is displayed. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.INITMENUPOPUP">
+            <summary>
+            The WM_INITMENUPOPUP message is sent when a drop-down menu or submenu is about to become active. This allows an application to modify the menu before it is displayed, without changing the entire menu. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MENUSELECT">
+            <summary>
+            The WM_MENUSELECT message is sent to a menu's owner window when the user selects a menu item. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MENUCHAR">
+            <summary>
+            The WM_MENUCHAR message is sent when a menu is active and the user presses a key that does not correspond to any mnemonic or accelerator key. This message is sent to the window that owns the menu. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.ENTERIDLE">
+            <summary>
+            The WM_ENTERIDLE message is sent to the owner window of a modal dialog box or menu that is entering an idle state. A modal dialog box or menu enters an idle state when no messages are waiting in its queue after it has processed one or more previous messages. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MENURBUTTONUP">
+            <summary>
+            The WM_MENURBUTTONUP message is sent when the user releases the right mouse button while the cursor is on a menu item. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MENUDRAG">
+            <summary>
+            The WM_MENUDRAG message is sent to the owner of a drag-and-drop menu when the user drags a menu item. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MENUGETOBJECT">
+            <summary>
+            The WM_MENUGETOBJECT message is sent to the owner of a drag-and-drop menu when the mouse cursor enters a menu item or moves from the center of the item to the top or bottom of the item. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.UNINITMENUPOPUP">
+            <summary>
+            The WM_UNINITMENUPOPUP message is sent when a drop-down menu or submenu has been destroyed. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MENUCOMMAND">
+            <summary>
+            The WM_MENUCOMMAND message is sent when the user makes a selection from a menu. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CHANGEUISTATE">
+            <summary>
+            An application sends the WM_CHANGEUISTATE message to indicate that the user interface (UI) state should be changed.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.UPDATEUISTATE">
+            <summary>
+            An application sends the WM_UPDATEUISTATE message to change the user interface (UI) state for the specified window and all its child windows.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.QUERYUISTATE">
+            <summary>
+            An application sends the WM_QUERYUISTATE message to retrieve the user interface (UI) state for a window.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CTLCOLORMSGBOX">
+            <summary>
+            The WM_CTLCOLORMSGBOX message is sent to the owner window of a message box before Windows draws the message box. By responding to this message, the owner window can set the text and background colors of the message box by using the given display device context handle. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CTLCOLOREDIT">
+            <summary>
+            An edit control that is not read-only or disabled sends the WM_CTLCOLOREDIT message to its parent window when the control is about to be drawn. By responding to this message, the parent window can use the specified device context handle to set the text and background colors of the edit control. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CTLCOLORLISTBOX">
+            <summary>
+            Sent to the parent window of a list box before the system draws the list box. By responding to this message, the parent window can set the text and background colors of the list box by using the specified display device context handle. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CTLCOLORBTN">
+            <summary>
+            The WM_CTLCOLORBTN message is sent to the parent window of a button before drawing the button. The parent window can change the button's text and background colors. However, only owner-drawn buttons respond to the parent window processing this message. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CTLCOLORDLG">
+            <summary>
+            The WM_CTLCOLORDLG message is sent to a dialog box before the system draws the dialog box. By responding to this message, the dialog box can set its text and background colors using the specified display device context handle. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CTLCOLORSCROLLBAR">
+            <summary>
+            The WM_CTLCOLORSCROLLBAR message is sent to the parent window of a scroll bar control when the control is about to be drawn. By responding to this message, the parent window can use the display context handle to set the background color of the scroll bar control. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CTLCOLORSTATIC">
+            <summary>
+            A static control, or an edit control that is read-only or disabled, sends the WM_CTLCOLORSTATIC message to its parent window when the control is about to be drawn. By responding to this message, the parent window can use the specified device context handle to set the text and background colors of the static control. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MOUSEFIRST">
+            <summary>
+            Use WM_MOUSEFIRST to specify the first mouse message. Use the PeekMessage() Function.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MOUSEMOVE">
+            <summary>
+            The WM_MOUSEMOVE message is posted to a window when the cursor moves. If the mouse is not captured, the message is posted to the window that contains the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.LBUTTONDOWN">
+            <summary>
+            The WM_LBUTTONDOWN message is posted when the user presses the left mouse button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.LBUTTONUP">
+            <summary>
+            The WM_LBUTTONUP message is posted when the user releases the left mouse button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.LBUTTONDBLCLK">
+            <summary>
+            The WM_LBUTTONDBLCLK message is posted when the user double-clicks the left mouse button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.RBUTTONDOWN">
+            <summary>
+            The WM_RBUTTONDOWN message is posted when the user presses the right mouse button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.RBUTTONUP">
+            <summary>
+            The WM_RBUTTONUP message is posted when the user releases the right mouse button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.RBUTTONDBLCLK">
+            <summary>
+            The WM_RBUTTONDBLCLK message is posted when the user double-clicks the right mouse button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MBUTTONDOWN">
+            <summary>
+            The WM_MBUTTONDOWN message is posted when the user presses the middle mouse button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MBUTTONUP">
+            <summary>
+            The WM_MBUTTONUP message is posted when the user releases the middle mouse button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MBUTTONDBLCLK">
+            <summary>
+            The WM_MBUTTONDBLCLK message is posted when the user double-clicks the middle mouse button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MOUSEWHEEL">
+            <summary>
+            The WM_MOUSEWHEEL message is sent to the focus window when the mouse wheel is rotated. The DefWindowProc function propagates the message to the window's parent. There should be no internal forwarding of the message, since DefWindowProc propagates it up the parent chain until it finds a window that processes it.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.XBUTTONDOWN">
+            <summary>
+            The WM_XBUTTONDOWN message is posted when the user presses the first or second X button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.XBUTTONUP">
+            <summary>
+            The WM_XBUTTONUP message is posted when the user releases the first or second X button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.XBUTTONDBLCLK">
+            <summary>
+            The WM_XBUTTONDBLCLK message is posted when the user double-clicks the first or second X button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MOUSEHWHEEL">
+            <summary>
+            The WM_MOUSEHWHEEL message is sent to the focus window when the mouse's horizontal scroll wheel is tilted or rotated. The DefWindowProc function propagates the message to the window's parent. There should be no internal forwarding of the message, since DefWindowProc propagates it up the parent chain until it finds a window that processes it.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MOUSELAST">
+            <summary>
+            Use WM_MOUSELAST to specify the last mouse message. Used with PeekMessage() Function.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.PARENTNOTIFY">
+            <summary>
+            The WM_PARENTNOTIFY message is sent to the parent of a child window when the child window is created or destroyed, or when the user clicks a mouse button while the cursor is over the child window. When the child window is being created, the system sends WM_PARENTNOTIFY just before the CreateWindow or CreateWindowEx function that creates the window returns. When the child window is being destroyed, the system sends the message before any processing to destroy the window takes place.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.ENTERMENULOOP">
+            <summary>
+            The WM_ENTERMENULOOP message informs an application's main window procedure that a menu modal loop has been entered. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.EXITMENULOOP">
+            <summary>
+            The WM_EXITMENULOOP message informs an application's main window procedure that a menu modal loop has been exited. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NEXTMENU">
+            <summary>
+            The WM_NEXTMENU message is sent to an application when the right or left arrow key is used to switch between the menu bar and the system menu. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SIZING">
+            <summary>
+            The WM_SIZING message is sent to a window that the user is resizing. By processing this message, an application can monitor the size and position of the drag rectangle and, if needed, change its size or position. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CAPTURECHANGED">
+            <summary>
+            The WM_CAPTURECHANGED message is sent to the window that is losing the mouse capture.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MOVING">
+            <summary>
+            The WM_MOVING message is sent to a window that the user is moving. By processing this message, an application can monitor the position of the drag rectangle and, if needed, change its position.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.POWERBROADCAST">
+            <summary>
+            Notifies applications that a power-management event has occurred.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DEVICECHANGE">
+            <summary>
+            Notifies an application of a change to the hardware configuration of a device or the computer.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MDICREATE">
+            <summary>
+            An application sends the WM_MDICREATE message to a multiple-document interface (MDI) client window to create an MDI child window. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MDIDESTROY">
+            <summary>
+            An application sends the WM_MDIDESTROY message to a multiple-document interface (MDI) client window to close an MDI child window. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MDIACTIVATE">
+            <summary>
+            An application sends the WM_MDIACTIVATE message to a multiple-document interface (MDI) client window to instruct the client window to activate a different MDI child window. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MDIRESTORE">
+            <summary>
+            An application sends the WM_MDIRESTORE message to a multiple-document interface (MDI) client window to restore an MDI child window from maximized or minimized size. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MDINEXT">
+            <summary>
+            An application sends the WM_MDINEXT message to a multiple-document interface (MDI) client window to activate the next or previous child window. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MDIMAXIMIZE">
+            <summary>
+            An application sends the WM_MDIMAXIMIZE message to a multiple-document interface (MDI) client window to maximize an MDI child window. The system resizes the child window to make its client area fill the client window. The system places the child window's window menu icon in the rightmost position of the frame window's menu bar, and places the child window's restore icon in the leftmost position. The system also appends the title bar text of the child window to that of the frame window. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MDITILE">
+            <summary>
+            An application sends the WM_MDITILE message to a multiple-document interface (MDI) client window to arrange all of its MDI child windows in a tile format. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MDICASCADE">
+            <summary>
+            An application sends the WM_MDICASCADE message to a multiple-document interface (MDI) client window to arrange all its child windows in a cascade format. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MDIICONARRANGE">
+            <summary>
+            An application sends the WM_MDIICONARRANGE message to a multiple-document interface (MDI) client window to arrange all minimized MDI child windows. It does not affect child windows that are not minimized. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MDIGETACTIVE">
+            <summary>
+            An application sends the WM_MDIGETACTIVE message to a multiple-document interface (MDI) client window to retrieve the handle to the active MDI child window. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MDISETMENU">
+            <summary>
+            An application sends the WM_MDISETMENU message to a multiple-document interface (MDI) client window to replace the entire menu of an MDI frame window, to replace the window menu of the frame window, or both. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.ENTERSIZEMOVE">
+            <summary>
+            The WM_ENTERSIZEMOVE message is sent one time to a window after it enters the moving or sizing modal loop. The window enters the moving or sizing modal loop when the user clicks the window's title bar or sizing border, or when the window passes the WM_SYSCOMMAND message to the DefWindowProc function and the wParam parameter of the message specifies the SC_MOVE or SC_SIZE value. The operation is complete when DefWindowProc returns. 
+            The system sends the WM_ENTERSIZEMOVE message regardless of whether the dragging of full windows is enabled.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.EXITSIZEMOVE">
+            <summary>
+            The WM_EXITSIZEMOVE message is sent one time to a window, after it has exited the moving or sizing modal loop. The window enters the moving or sizing modal loop when the user clicks the window's title bar or sizing border, or when the window passes the WM_SYSCOMMAND message to the DefWindowProc function and the wParam parameter of the message specifies the SC_MOVE or SC_SIZE value. The operation is complete when DefWindowProc returns. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DROPFILES">
+            <summary>
+            Sent when the user drops a file on the window of an application that has registered itself as a recipient of dropped files.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MDIREFRESHMENU">
+            <summary>
+            An application sends the WM_MDIREFRESHMENU message to a multiple-document interface (MDI) client window to refresh the window menu of the MDI frame window. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.IME_SETCONTEXT">
+            <summary>
+            Sent to an application when a window is activated. A window receives this message through its WindowProc function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.IME_NOTIFY">
+            <summary>
+            Sent to an application to notify it of changes to the IME window. A window receives this message through its WindowProc function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.IME_CONTROL">
+            <summary>
+            Sent by an application to direct the IME window to carry out the requested command. The application uses this message to control the IME window that it has created. To send this message, the application calls the SendMessage function with the following parameters.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.IME_COMPOSITIONFULL">
+            <summary>
+            Sent to an application when the IME window finds no space to extend the area for the composition window. A window receives this message through its WindowProc function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.IME_SELECT">
+            <summary>
+            Sent to an application when the operating system is about to change the current IME. A window receives this message through its WindowProc function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.IME_CHAR">
+            <summary>
+            Sent to an application when the IME gets a character of the conversion result. A window receives this message through its WindowProc function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.IME_REQUEST">
+            <summary>
+            Sent to an application to provide commands and request information. A window receives this message through its WindowProc function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.IME_KEYDOWN">
+            <summary>
+            Sent to an application by the IME to notify the application of a key press and to keep message order. A window receives this message through its WindowProc function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.IME_KEYUP">
+            <summary>
+            Sent to an application by the IME to notify the application of a key release and to keep message order. A window receives this message through its WindowProc function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MOUSEHOVER">
+            <summary>
+            The WM_MOUSEHOVER message is posted to a window when the cursor hovers over the client area of the window for the period of time specified in a prior call to TrackMouseEvent.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.MOUSELEAVE">
+            <summary>
+            The WM_MOUSELEAVE message is posted to a window when the cursor leaves the client area of the window specified in a prior call to TrackMouseEvent.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCMOUSEHOVER">
+            <summary>
+            The WM_NCMOUSEHOVER message is posted to a window when the cursor hovers over the nonclient area of the window for the period of time specified in a prior call to TrackMouseEvent.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.NCMOUSELEAVE">
+            <summary>
+            The WM_NCMOUSELEAVE message is posted to a window when the cursor leaves the nonclient area of the window specified in a prior call to TrackMouseEvent.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.WTSSESSION_CHANGE">
+            <summary>
+            The WM_WTSSESSION_CHANGE message notifies applications of changes in session state.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CUT">
+            <summary>
+            An application sends a WM_CUT message to an edit control or combo box to delete (cut) the current selection, if any, in the edit control and copy the deleted text to the clipboard in CF_TEXT format. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.COPY">
+            <summary>
+            An application sends the WM_COPY message to an edit control or combo box to copy the current selection to the clipboard in CF_TEXT format. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.PASTE">
+            <summary>
+            An application sends a WM_PASTE message to an edit control or combo box to copy the current content of the clipboard to the edit control at the current caret position. Data is inserted only if the clipboard contains data in CF_TEXT format. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CLEAR">
+            <summary>
+            An application sends a WM_CLEAR message to an edit control or combo box to delete (clear) the current selection, if any, from the edit control. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.UNDO">
+            <summary>
+            An application sends a WM_UNDO message to an edit control to undo the last operation. When this message is sent to an edit control, the previously deleted text is restored or the previously added text is deleted.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.RENDERFORMAT">
+            <summary>
+            The WM_RENDERFORMAT message is sent to the clipboard owner if it has delayed rendering a specific clipboard format and if an application has requested data in that format. The clipboard owner must render data in the specified format and place it on the clipboard by calling the SetClipboardData function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.RENDERALLFORMATS">
+            <summary>
+            The WM_RENDERALLFORMATS message is sent to the clipboard owner before it is destroyed, if the clipboard owner has delayed rendering one or more clipboard formats. For the content of the clipboard to remain available to other applications, the clipboard owner must render data in all the formats it is capable of generating, and place the data on the clipboard by calling the SetClipboardData function. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DESTROYCLIPBOARD">
+            <summary>
+            The WM_DESTROYCLIPBOARD message is sent to the clipboard owner when a call to the EmptyClipboard function empties the clipboard. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DRAWCLIPBOARD">
+            <summary>
+            The WM_DRAWCLIPBOARD message is sent to the first window in the clipboard viewer chain when the content of the clipboard changes. This enables a clipboard viewer window to display the new content of the clipboard. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.PAINTCLIPBOARD">
+            <summary>
+            The WM_PAINTCLIPBOARD message is sent to the clipboard owner by a clipboard viewer window when the clipboard contains data in the CF_OWNERDISPLAY format and the clipboard viewer's client area needs repainting. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.VSCROLLCLIPBOARD">
+            <summary>
+            The WM_VSCROLLCLIPBOARD message is sent to the clipboard owner by a clipboard viewer window when the clipboard contains data in the CF_OWNERDISPLAY format and an event occurs in the clipboard viewer's vertical scroll bar. The owner should scroll the clipboard image and update the scroll bar values. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SIZECLIPBOARD">
+            <summary>
+            The WM_SIZECLIPBOARD message is sent to the clipboard owner by a clipboard viewer window when the clipboard contains data in the CF_OWNERDISPLAY format and the clipboard viewer's client area has changed size. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.ASKCBFORMATNAME">
+            <summary>
+            The WM_ASKCBFORMATNAME message is sent to the clipboard owner by a clipboard viewer window to request the name of a CF_OWNERDISPLAY clipboard format.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CHANGECBCHAIN">
+            <summary>
+            The WM_CHANGECBCHAIN message is sent to the first window in the clipboard viewer chain when a window is being removed from the chain. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HSCROLLCLIPBOARD">
+            <summary>
+            The WM_HSCROLLCLIPBOARD message is sent to the clipboard owner by a clipboard viewer window. This occurs when the clipboard contains data in the CF_OWNERDISPLAY format and an event occurs in the clipboard viewer's horizontal scroll bar. The owner should scroll the clipboard image and update the scroll bar values. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.QUERYNEWPALETTE">
+            <summary>
+            This message informs a window that it is about to receive the keyboard focus, giving the window the opportunity to realize its logical palette when it receives the focus. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.PALETTEISCHANGING">
+            <summary>
+            The WM_PALETTEISCHANGING message informs applications that an application is going to realize its logical palette. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.PALETTECHANGED">
+            <summary>
+            This message is sent by the OS to all top-level and overlapped windows after the window with the keyboard focus realizes its logical palette. 
+            This message enables windows that do not have the keyboard focus to realize their logical palettes and update their client areas.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HOTKEY">
+            <summary>
+            The WM_HOTKEY message is posted when the user presses a hot key registered by the RegisterHotKey function. The message is placed at the top of the message queue associated with the thread that registered the hot key. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.PRINT">
+            <summary>
+            The WM_PRINT message is sent to a window to request that it draw itself in the specified device context, most commonly in a printer device context.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.PRINTCLIENT">
+            <summary>
+            The WM_PRINTCLIENT message is sent to a window to request that it draw its client area in the specified device context, most commonly in a printer device context.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.APPCOMMAND">
+            <summary>
+            The WM_APPCOMMAND message notifies a window that the user generated an application command event, for example, by clicking an application command button using the mouse or typing an application command key on the keyboard.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.THEMECHANGED">
+            <summary>
+            The WM_THEMECHANGED message is broadcast to every window following a theme change event. Examples of theme change events are the activation of a theme, the deactivation of a theme, or a transition from one theme to another.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CLIPBOARDUPDATE">
+            <summary>
+            Sent when the contents of the clipboard have changed.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DWMCOMPOSITIONCHANGED">
+            <summary>
+            The system will send a window the WM_DWMCOMPOSITIONCHANGED message to indicate that the availability of desktop composition has changed.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DWMNCRENDERINGCHANGED">
+            <summary>
+            WM_DWMNCRENDERINGCHANGED is called when the non-client area rendering status of a window has changed. Only windows that have set the flag DWM_BLURBEHIND.fTransitionOnMaximized to true will get this message. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DWMCOLORIZATIONCOLORCHANGED">
+            <summary>
+            Sent to all top-level windows when the colorization color has changed. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.DWMWINDOWMAXIMIZEDCHANGE">
+            <summary>
+            WM_DWMWINDOWMAXIMIZEDCHANGE will let you know when a DWM composed window is maximized. You also have to register for this message as well. You'd have other windowd go opaque when this message is sent.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.GETTITLEBARINFOEX">
+            <summary>
+            Sent to request extended title bar information. A window receives this message through its WindowProc function.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.APP">
+            <summary>
+            The WM_APP constant is used by applications to help define private messages, usually of the form WM_APP+X, where X is an integer value. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.USER">
+            <summary>
+            The WM_USER constant is used by applications to help define private messages for use by private window classes, usually of the form WM_USER+X, where X is an integer value. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CPL_LAUNCH">
+            <summary>
+            An application sends the WM_CPL_LAUNCH message to Windows Control Panel to request that a Control Panel application be started. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.CPL_LAUNCHED">
+            <summary>
+            The WM_CPL_LAUNCHED message is sent when a Control Panel application, started by the WM_CPL_LAUNCH message, has closed. The WM_CPL_LAUNCHED message is sent to the window identified by the wParam parameter of the WM_CPL_LAUNCH message that started the application. 
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.SYSTIMER">
+            <summary>
+            WM_SYSTIMER is a well-known yet still undocumented message. Windows uses WM_SYSTIMER for internal actions like scrolling.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HSHELL_ACCESSIBILITYSTATE">
+            <summary>
+            The accessibility state has changed.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HSHELL_ACTIVATESHELLWINDOW">
+            <summary>
+            The shell should activate its main window.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HSHELL_APPCOMMAND">
+            <summary>
+            The user completed an input event (for example, pressed an application command button on the mouse or an application command key on the keyboard), and the application did not handle the WM_APPCOMMAND message generated by that input.
+            If the Shell procedure handles the WM_COMMAND message, it should not call CallNextHookEx. See the Return Value section for more information.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HSHELL_GETMINRECT">
+            <summary>
+            A window is being minimized or maximized. The system needs the coordinates of the minimized rectangle for the window.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HSHELL_LANGUAGE">
+            <summary>
+            Keyboard language was changed or a new keyboard layout was loaded.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HSHELL_REDRAW">
+            <summary>
+            The title of a window in the task bar has been redrawn.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HSHELL_TASKMAN">
+            <summary>
+            The user has selected the task list. A shell application that provides a task list should return TRUE to prevent Windows from starting its task list.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HSHELL_WINDOWCREATED">
+            <summary>
+            A top-level, unowned window has been created. The window exists when the system calls this hook.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HSHELL_WINDOWDESTROYED">
+            <summary>
+            A top-level, unowned window is about to be destroyed. The window still exists when the system calls this hook.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HSHELL_WINDOWACTIVATED">
+            <summary>
+            The activation has changed to a different top-level, unowned window.
+            </summary>
+        </member>
+        <member name="F:IPA.Utilities.Win32.WM.HSHELL_WINDOWREPLACED">
+            <summary>
+            A top-level window is being replaced. The window exists when the system calls this hook.
+            </summary>
+        </member>
+        <member name="F:IPA.Updating.BeatMods.ApiEndpoint.Mod.Id">
+            <summary>
+            Will be a useless string of characters. Do not use.
+            </summary>
+        </member>
+        <member name="F:IPA.Updating.BeatMods.ApiEndpoint.Mod.DownloadsObject.Hashes">
+            <summary>
+            Hashes stored are MD5
+            </summary>
+        </member>
+        <member name="T:IPA.Updating.BeatMods.Updater.InstallFinish">
+            <summary>
+            This will still be called even if there was an error. Called after all three download/install attempts, or after a successful installation.
+            ALWAYS called.
+            </summary>
+            <param name="obj"></param>
+            <param name="didError"></param>
+        </member>
+        <member name="T:IPA.Updating.BeatMods.Updater.InstallFailed">
+            <summary>
+            This can be called multiple times
+            </summary>
+            <param name="obj"></param>
+            <param name="error"></param>
+        </member>
+    </members>
+</doc>

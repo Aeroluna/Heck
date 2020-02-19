@@ -1,10 +1,14 @@
 ﻿{
   "$schema": "https://raw.githubusercontent.com/nike4613/ModSaber-MetadataFileSchema/master/Schema.json",
-  "author": "",
-  "description": "",
-  "gameVersion": "0.12.2",
-  "id": null,
+  "author": "Ramen Noodle",
+  "description": "Gives mappers a host of new options for mapping, and you the player to play said maps!",
+  "gameVersion": "1.7.0",
+  "id": "NoodleExtensions",
   "name": "NoodleExtensions",
   "version": "0.0.1-alpha",
-  "features": []
+  "dependsOn": {
+    "SongCore": "^2.0.0",
+    "BS Utils": "^1.3.0",
+    "CustomJSONData": "^0.0.4"
+  }
 }
