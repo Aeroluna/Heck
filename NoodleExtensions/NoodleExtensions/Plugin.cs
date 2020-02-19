@@ -1,9 +1,7 @@
-﻿using IPA;
-using IPA.Config;
-using IPA.Utilities;
-using UnityEngine.SceneManagement;
-using Harmony;
+﻿using Harmony;
+using IPA;
 using System.Reflection;
+using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
 
 namespace NoodleExtensions
@@ -27,34 +25,28 @@ namespace NoodleExtensions
 
         public void OnApplicationQuit()
         {
-            
         }
 
         public void OnFixedUpdate()
         {
-
         }
 
         public void OnUpdate()
         {
-
         }
 
         public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
         {
-
         }
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
         {
-
         }
 
         public void OnSceneUnloaded(Scene scene)
         {
-
         }
 
-        #endregion
+        #endregion Unused
     }
 }
