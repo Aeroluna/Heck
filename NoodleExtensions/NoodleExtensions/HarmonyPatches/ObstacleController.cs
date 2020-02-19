@@ -26,9 +26,11 @@ namespace NoodleExtensions.HarmonyPatches
                     float? _startHeight = (float?)Trees.at(dynData, "_startHeight");
                     float? _height = (float?)Trees.at(dynData, "_height");
                     float? _width = (float?)Trees.at(dynData, "_width");
-                    float? _rotation = (float?)Trees.at(dynData, "_rotation");
+                    float? _rotX = (float?)Trees.at(dynData, "_rotationX");
+                    float? _rotY = (float?)Trees.at(dynData, "_rotationY");
+                    float? _rotZ = (float?)Trees.at(dynData, "_rotationZ");
 
-                    if (_startRow.HasValue || _startHeight.HasValue || _height.HasValue || _width.HasValue || _rotation.HasValue)
+                    if (_startRow.HasValue || _startHeight.HasValue || _height.HasValue || _width.HasValue || _rotX.HasValue || _rotY.HasValue || _rotZ.HasValue)
                     {
                         // WARNING: THE GUY WHO WROTE THIS IS PEPEGA!
                         if (_startRow.HasValue || _startHeight.HasValue)
@@ -60,12 +62,8 @@ namespace NoodleExtensions.HarmonyPatches
                         }
 
                         // oh my god im actually adding rotation
-                        if (_rotation.HasValue)
-                        {
-                            Quaternion rotation = Quaternion.identity;
-                            rotation.eulerAngles = new Vector3(0, 0, _rotation.Value);
-                            __instance.transform.SetPositionAndRotation(startPos, rotation);
-                        }
+                        if (_rotX.HasValue || _rotY.HasValue || _rotZ.HasValue)
+                            __instance.transform.localEulerAngles = new Vector3(_rotX.GetValueOrDefault(0), _rotY.GetValueOrDefault(0), _rotZ.GetValueOrDefault(0));
 
                         // Below ripped from base game
                         float num = _width.GetValueOrDefault(obstacleData.width) * singleLineWidth;
