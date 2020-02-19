@@ -1,0 +1,10 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/nike4613/ModSaber-MetadataFileSchema/master/Schema.json",
+  "author": "",
+  "description": "",
+  "gameVersion": "0.12.2",
+  "id": null,
+  "name": "NoodleExtensions",
+  "version": "0.0.1-alpha",
+  "features": []
+}
