@@ -1,8 +1,8 @@
-﻿using Chroma.Beatmap;
-using Chroma.Beatmap.Events;
+﻿using Chroma.Events;
 using Chroma.HarmonyPatches;
 using Chroma.Settings;
 using Chroma.Utils;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using IPA.Utilities;
 using System;
@@ -32,19 +32,14 @@ namespace Chroma
             }
         }
 
-        private static ChromaBehaviour _instance = null;
-
-        public static ChromaBehaviour Instance
-        {
-            get { return _instance; }
-        }
+        public static ChromaBehaviour Instance { get; private set; } = null;
 
         public static void ClearInstance()
         {
-            if (_instance != null)
+            if (Instance != null)
             {
-                Destroy(_instance.gameObject);
-                _instance = null;
+                Destroy(Instance.gameObject);
+                Instance = null;
             }
         }
 
@@ -57,7 +52,7 @@ namespace Chroma
             //if (SceneUtils.IsTargetGameScene(SceneManager.GetActiveScene().buildIndex)) {
             GameObject instanceObject = new GameObject("ChromaBehaviour");
             ChromaBehaviour behaviour = instanceObject.AddComponent<ChromaBehaviour>();
-            _instance = behaviour;
+            Instance = behaviour;
             ChromaLogger.Log("ChromaBehaviour instantiated.", ChromaLogger.Level.DEBUG);
             return behaviour;
             /*} else {
@@ -66,12 +61,7 @@ namespace Chroma
             }*/
         }
 
-        private PlayerController _playerController;
-
-        public PlayerController PlayerController
-        {
-            get { return _playerController; }
-        }
+        public PlayerController PlayerController { get; private set; }
 
         /// <summary>
         /// Called when CB is instantiated, used to attach extensions.
@@ -171,10 +161,10 @@ namespace Chroma
                 beatmapObjectSpawnController.noteWasMissedEvent += HandleNoteWasMissedEvent;
             }
 
-            scoreController = GameObject.FindObjectsOfType<ScoreController>().FirstOrDefault();
+            scoreController = FindObjectsOfType<ScoreController>().FirstOrDefault();
             if (scoreController != null) scoreController.comboDidChangeEvent += ComboChangedEvent;
 
-            Saber[] sabers = GameObject.FindObjectsOfType<Saber>();
+            Saber[] sabers = FindObjectsOfType<Saber>();
             if (sabers != null)
             {
                 Extensions.SaberColourizer.InitializeSabers(sabers);
@@ -187,10 +177,10 @@ namespace Chroma
 
         private BeatmapObjectCallbackController GetBeatmapObjectCallbackController()
         {
-            BeatmapObjectCallbackController s = GameObject.FindObjectOfType<BeatmapObjectCallbackController>();
+            BeatmapObjectCallbackController s = FindObjectOfType<BeatmapObjectCallbackController>();
             if (s == null)
             {
-                s = UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapObjectCallbackController>().FirstOrDefault();
+                s = Resources.FindObjectsOfTypeAll<BeatmapObjectCallbackController>().FirstOrDefault();
             }
             return s;
         }
@@ -199,8 +189,8 @@ namespace Chroma
         {
             ChromaLogger.Log("Found BOCC!", ChromaLogger.Level.DEBUG);
 
-            _playerController = FindObjectOfType<PlayerController>();
-            if (_playerController == null) ChromaLogger.Log("Player Controller not found!", ChromaLogger.Level.WARNING);
+            PlayerController = FindObjectOfType<PlayerController>();
+            if (PlayerController == null) ChromaLogger.Log("Player Controller not found!", ChromaLogger.Level.WARNING);
 
             if (gcss == null)
             {
@@ -208,7 +198,6 @@ namespace Chroma
                 return;
             }
 
-            //GameplayCoreSetupData mgData = ReflectionUtil.GetPrivateField<MainGameSceneSetupData>(mgs, "_mainGameSceneSetupData");
             BS_Utils.Gameplay.LevelData levelData = BS_Utils.Plugin.LevelData;
             if (!levelData.IsSet)
             {
@@ -221,37 +210,27 @@ namespace Chroma
 
             BeatmapData _beatmapData = gcss.GetPrivateField<BeatmapData>("_beatmapData");
             if (_beatmapData == null) ChromaLogger.Log("{XXX} : NULL BEATMAP DATA", ChromaLogger.Level.ERROR);
-            //BeatmapData beatmapData = CreateTransformedBeatmapData(mgData.difficultyLevel.beatmapData, mgData.gameplayOptions, mgData.gameplayMode);
-            BeatmapData beatmapData = CreateTransformedBeatmapData(_beatmapData, playerSettings, BaseGameMode.CurrentBaseGameMode);
+            BeatmapData beatmapData = CreateTransformedData(_beatmapData);
             if (beatmapData != null) gcss.SetPrivateField("_beatmapData", beatmapData);
 
             foreach (IChromaBehaviourExtension extension in extensions) extension.PostInitialization(songBPM, beatmapData, playerSettings, scoreController);
-
-            //modes = GetModes(mgData.gameplayMode, chromaSong);
-
-            if (ChromaConfig.DebugMode)
-            {
-                Console.WriteLine();
-                Console.WriteLine();
-                ChromaLogger.Log("Gamemode: " + BaseGameMode.CurrentBaseGameMode.ToString() + " -- Party: " + BaseGameMode.PartyMode, ChromaLogger.Level.DEBUG);
-            }
 
             ColourManager.RefreshLights();
 
             if (ChromaConfig.LightshowModifier)
             {
-                foreach (Saber saber in GameObject.FindObjectsOfType<Saber>())
+                foreach (Saber saber in FindObjectsOfType<Saber>())
                 {
                     saber.gameObject.SetActive(false);
                 }
 
-                if (ChromaConfig.PlayersPlace) GameObject.Find("PlayersPlace").SetActive(false);
-                if (ChromaConfig.Spectrograms) GameObject.Find("Spectrograms").SetActive(false);
-                if (ChromaConfig.BackColumns) GameObject.Find("BackColumns").SetActive(false);
-                if (ChromaConfig.Buildings) GameObject.Find("Buildings").SetActive(false);
+                if (ChromaConfig.PlayersPlace) GameObject.Find("PlayersPlace")?.SetActive(false);
+                if (ChromaConfig.Spectrograms) GameObject.Find("Spectrograms")?.SetActive(false);
+                if (ChromaConfig.BackColumns) GameObject.Find("BackColumns")?.SetActive(false);
+                if (ChromaConfig.Buildings) GameObject.Find("Buildings")?.SetActive(false);
             }
 
-            // Custom Events
+            // CustomJSONData Custom Events
             Dictionary<string, List<CustomEventData>> _customEventData = ((CustomBeatmapData)_beatmapData).customEventData;
             foreach (KeyValuePair<string, List<CustomEventData>> n in _customEventData)
             {
@@ -277,40 +256,74 @@ namespace Chroma
 
             // SimpleCustomEvents subscriptions
             CustomEvents.CustomEventCallbackController cecc = gcss.GetComponentInParent<CustomEvents.CustomEventCallbackController>();
-            if (ChromaBehaviour.LightingRegistered)
+            if (LightingRegistered)
             {
                 cecc.AddCustomEventCallback(ChromaGradientEvent.Callback, "_lightGradient", 0);
             }
         }
 
-        private BeatmapData CreateTransformedBeatmapData(BeatmapData beatmapData, PlayerSpecificSettings playerSettings, BaseGameModeType baseGameMode)
+        public static BeatmapData CreateTransformedData(BeatmapData beatmapData)
         {
-            try
+            ColourManager.TechnicolourLightsForceDisabled = false;
+            ColourManager.TechnicolourBlocksForceDisabled = false;
+            ColourManager.TechnicolourBarriersForceDisabled = false;
+            ColourManager.TechnicolourBombsForceDisabled = false;
+
+            if (beatmapData == null) ChromaLogger.Log("Null beatmapData", ChromaLogger.Level.ERROR);
+
+            if (ChromaConfig.LightshowModifier)
             {
-                if (beatmapData == null) throw new Exception("Null beatmapData");
-                if (ChromaConfig.CustomMapCheckingEnabled)
+                foreach (BeatmapLineData b in beatmapData.beatmapLinesData)
                 {
-                    /*if (ModeActive(ChromaMode.DOUBLES_DOTS) || ModeActive(ChromaMode.DOUBLES_MONO) || ModeActive(ChromaMode.DOUBLES_REMOVED) || ModeActive(ChromaMode.INVERT_COLOUR) || ModeActive(ChromaMode.MIRROR_DIRECTION) || ModeActive(ChromaMode.MIRROR_POSITION) || ModeActive(ChromaMode.MONOCHROME) || ModeActive(ChromaMode.NO_ARROWS) || ModeActive(ChromaMode.RANDOM_COLOURS_CHROMA) || ModeActive(ChromaMode.RANDOM_COLOURS_INTENSE) || ModeActive(ChromaMode.RANDOM_COLOURS_ORIGINAL) || ModeActive(ChromaMode.RANDOM_COLOURS_TRUE)) {*/
-                    ChromaLogger.Log("Attempting map modification...");
-                    //return ChromaToggle.Beatmap.Z_MapModifier.CreateTransformedData(beatmapData, modes);
-                    ChromaBehaviour chroma = this;
-                    CustomBeatmap customBeatmap = ChromaMapModifier.CreateTransformedData(beatmapData, ref chroma, ref playerSettings, ref baseGameMode, ref songBPM);
-                    if (customBeatmap == null)
+                    b.beatmapObjectsData = b.beatmapObjectsData.Where((source, index) => b.beatmapObjectsData[index].beatmapObjectType != BeatmapObjectType.Note).ToArray();
+                }
+                BS_Utils.Gameplay.ScoreSubmission.DisableSubmission("Chroma");
+            }
+
+            /*
+             * LIGHTING EVENTS
+             */
+
+            if (ChromaConfig.CustomColourEventsEnabled)
+            {
+                BeatmapEventData[] bevData = beatmapData.beatmapEventData;
+                for (int i = bevData.Length - 1; i >= 0; i--)
+                {
+                    if (LightingRegistered && bevData[i] is CustomBeatmapEventData customData)
                     {
-                        ChromaLogger.Log("Major error sir, beatmap data failed!", ChromaLogger.Level.WARNING);
-                        return beatmapData;
+                        dynamic dynData = customData.customData;
+                        if (Trees.at(dynData, "_r") != null) ColourManager.TechnicolourLightsForceDisabled = true;
+                        continue;
                     }
-                    else
+                    if (bevData[i].value >= ColourManager.RGB_INT_OFFSET) ColourManager.TechnicolourLightsForceDisabled = true;
+                }
+
+                BeatmapLineData[] bData = beatmapData.beatmapLinesData;
+                foreach (BeatmapLineData b in bData)
+                {
+                    foreach (BeatmapObjectData beatmapObjectsData in b.beatmapObjectsData)
                     {
-                        return customBeatmap.BeatmapData;
+                        if (LightingRegistered)
+                        {
+                            if (beatmapObjectsData is CustomNoteData customNoteData)
+                            {
+                                dynamic dynData = customNoteData.customData;
+                                if (Trees.at(dynData, "_r") != null)
+                                {
+                                    if (customNoteData.noteType == NoteType.Bomb) ColourManager.TechnicolourBombsForceDisabled = true;
+                                    else ColourManager.TechnicolourBlocksForceDisabled = ChromaConfig.NoteColourEventsEnabled;
+                                }
+                            }
+                            else if (beatmapObjectsData is CustomObstacleData customObstacleData)
+                            {
+                                dynamic dynData = customObstacleData.customData;
+                                if (Trees.at(dynData, "_r") != null) ColourManager.TechnicolourBarriersForceDisabled = true;
+                            }
+                        }
                     }
                 }
             }
-            catch (Exception e)
-            {
-                ChromaLogger.Log("Error creating transformed map data...");
-                ChromaLogger.Log(e, ChromaLogger.Level.ERROR);
-            }
+
             return beatmapData;
         }
 

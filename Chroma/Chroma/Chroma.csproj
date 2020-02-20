@@ -35,20 +35,11 @@
   <ItemGroup>
     <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />
     <Compile Include="VFX\MayhemEvent.cs" />
-    <Compile Include="Beatmap\ChromaMapModifier.cs" />
-    <Compile Include="Beatmap\CustomBeatmap.cs" />
-    <Compile Include="Beatmap\CustomBeatmapBarrier.cs" />
-    <Compile Include="Beatmap\CustomBeatmapBomb.cs" />
-    <Compile Include="Beatmap\CustomBeatmapNote.cs" />
-    <Compile Include="Beatmap\CustomBeatmapObject.cs" />
-    <Compile Include="Beatmap\Events\ChromaBombColourEvent.cs" />
-    <Compile Include="Beatmap\Events\ChromaGradientEvent.cs" />
-    <Compile Include="Beatmap\Events\ChromaLightColourEvent.cs" />
-    <Compile Include="Beatmap\Events\ChromaNoteColourEvent.cs" />
-    <Compile Include="Beatmap\Events\ChromaObstacleColourEvent.cs" />
-    <Compile Include="Beatmap\Events\Legacy\ChromaLightEvent.cs" />
-    <Compile Include="Beatmap\Events\Legacy\ChromaColourEvent.cs" />
-    <Compile Include="Beatmap\Events\Legacy\ChromaEvent.cs" />
+    <Compile Include="Events\ChromaBombColourEvent.cs" />
+    <Compile Include="Events\ChromaGradientEvent.cs" />
+    <Compile Include="Events\ChromaLightColourEvent.cs" />
+    <Compile Include="Events\ChromaNoteColourEvent.cs" />
+    <Compile Include="Events\ChromaObstacleColourEvent.cs" />
     <Compile Include="ChromaBehaviour.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
     <Compile Include="Extensions\SaberColourizer.cs" />
@@ -75,8 +66,6 @@
     </Compile>
     <Compile Include="Settings\NamedColor.cs" />
     <Compile Include="Utils\Base64Sprites.cs" />
-    <Compile Include="Utils\BaseGameMode.cs" />
-    <Compile Include="Utils\BaseGameModeType.cs" />
     <Compile Include="Settings\ChromaConfig.cs" />
     <Compile Include="Settings\ChromaSettingsUI.cs" />
     <Compile Include="Utils\AudioUtil.cs" />

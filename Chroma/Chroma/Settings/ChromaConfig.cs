@@ -1,5 +1,4 @@
-﻿using Chroma.Beatmap.Events;
-using Chroma.Beatmap.Events.Legacy;
+﻿using Chroma.Events;
 using Chroma.Misc;
 using Chroma.Utils;
 using System;
@@ -40,19 +39,9 @@ namespace Chroma.Settings
             }
         }
 
-        public static int TimesLaunched
-        {
-            get { return timesLaunched; }
-        }
+        public static int TimesLaunched { get; private set; } = 0;
 
-        private static int timesLaunched = 0;
-
-        private static MainSettingsModelSO mainSettingsModel;
-
-        public static MainSettingsModelSO MainSettingsModel
-        {
-            get { return mainSettingsModel; }
-        }
+        public static MainSettingsModelSO MainSettingsModel { get; private set; }
 
         public static bool oldHaptics = true;
 
@@ -65,7 +54,7 @@ namespace Chroma.Settings
             set
             {
                 debugMode = value;
-                ChromaConfig.SetBool("Other", "debugMode", debugMode);
+                SetBool("Other", "debugMode", debugMode);
             }
         }
 
@@ -80,7 +69,7 @@ namespace Chroma.Settings
             set
             {
                 sidePanel = value;
-                ChromaConfig.SetFloat("Other", "sidePanel", (float)sidePanel);
+                SetFloat("Other", "sidePanel", (float)sidePanel);
             }
         }
 
@@ -96,7 +85,7 @@ namespace Chroma.Settings
             set
             {
                 customMapCheckingEnabled = value;
-                ChromaConfig.SetBool("Map", "customMapCheckingEnabled", customMapCheckingEnabled);
+                SetBool("Map", "customMapCheckingEnabled", customMapCheckingEnabled);
             }
         }
 
@@ -108,7 +97,7 @@ namespace Chroma.Settings
             set
             {
                 customColourEventsEnabled = value;
-                ChromaConfig.SetBool("Map", "customColourEventsEnabled", customColourEventsEnabled);
+                SetBool("Map", "customColourEventsEnabled", customColourEventsEnabled);
             }
         }
 
@@ -120,7 +109,7 @@ namespace Chroma.Settings
             set
             {
                 noteColourEventsEnabled = value;
-                ChromaConfig.SetBool("Map", "noteColourEventsEnabled", noteColourEventsEnabled);
+                SetBool("Map", "noteColourEventsEnabled", noteColourEventsEnabled);
             }
         }
 
@@ -135,7 +124,7 @@ namespace Chroma.Settings
             set
             {
                 masterVolume = value;
-                ChromaConfig.SetFloat("Audio", "masterVolume", masterVolume);
+                SetFloat("Audio", "masterVolume", masterVolume);
             }
         }
 
@@ -150,7 +139,7 @@ namespace Chroma.Settings
             set
             {
                 saberTrailStrength = value;
-                ChromaConfig.SetFloat("Aesthetics", "saberTrailStrength", saberTrailStrength);
+                SetFloat("Aesthetics", "saberTrailStrength", saberTrailStrength);
             }
         }
 
@@ -167,7 +156,7 @@ namespace Chroma.Settings
                 if (value)
                 {
                     waiverRead = true;
-                    ChromaConfig.SetInt("Other", "safetyWaiver", 51228);
+                    SetInt("Other", "safetyWaiver", 51228);
                 }
             }
         }
@@ -182,7 +171,7 @@ namespace Chroma.Settings
             set
             {
                 lightshowModifier = value;
-                ChromaConfig.SetBool("Modifiers", "lightshowModifier", lightshowModifier);
+                SetBool("Modifiers", "lightshowModifier", lightshowModifier);
             }
         }
 
@@ -198,7 +187,7 @@ namespace Chroma.Settings
             set
             {
                 technicolourEnabled = value;
-                ChromaConfig.SetBool("Technicolour", "technicolourEnabled", technicolourEnabled);
+                SetBool("Technicolour", "technicolourEnabled", technicolourEnabled);
             }
         }
 
@@ -213,7 +202,7 @@ namespace Chroma.Settings
             set
             {
                 technicolourLightsStyle = value;
-                ChromaConfig.SetInt("Technicolour", "technicolourLightsStyle", (int)technicolourLightsStyle);
+                SetInt("Technicolour", "technicolourLightsStyle", (int)technicolourLightsStyle);
             }
         }
 
@@ -225,7 +214,7 @@ namespace Chroma.Settings
             set
             {
                 technicolourLightsGrouping = value;
-                ChromaConfig.SetFloat("Technicolour", "technicolourLightsGrouping", (int)technicolourLightsGrouping);
+                SetFloat("Technicolour", "technicolourLightsGrouping", (int)technicolourLightsGrouping);
             }
         }
 
@@ -237,7 +226,7 @@ namespace Chroma.Settings
             set
             {
                 technicolourLightsFrequency = value;
-                ChromaConfig.SetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
+                SetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
             }
         }
 
@@ -252,7 +241,7 @@ namespace Chroma.Settings
             set
             {
                 technicolourSabersStyle = value;
-                ChromaConfig.SetInt("Technicolour", "technicolourSabersStyle", (int)technicolourSabersStyle);
+                SetInt("Technicolour", "technicolourSabersStyle", (int)technicolourSabersStyle);
             }
         }
 
@@ -267,7 +256,7 @@ namespace Chroma.Settings
             set
             {
                 technicolourBlocksStyle = value;
-                ChromaConfig.SetInt("Technicolour", "technicolourBlocksStyle", (int)technicolourBlocksStyle);
+                SetInt("Technicolour", "technicolourBlocksStyle", (int)technicolourBlocksStyle);
             }
         }
 
@@ -282,7 +271,7 @@ namespace Chroma.Settings
             set
             {
                 technicolourWallsStyle = value;
-                ChromaConfig.SetInt("Technicolour", "technicolourWallsStyle", (int)technicolourWallsStyle);
+                SetInt("Technicolour", "technicolourWallsStyle", (int)technicolourWallsStyle);
             }
         }
 
@@ -297,7 +286,7 @@ namespace Chroma.Settings
             set
             {
                 technicolourBombsStyle = value;
-                ChromaConfig.SetInt("Technicolour", "technicolourBombsStyle", (int)technicolourBombsStyle);
+                SetInt("Technicolour", "technicolourBombsStyle", (int)technicolourBombsStyle);
             }
         }
 
@@ -309,7 +298,7 @@ namespace Chroma.Settings
             set
             {
                 matchTechnicolourSabers = value;
-                ChromaConfig.SetBool("Map", "matchTechnicolourSabers", matchTechnicolourSabers);
+                SetBool("Map", "matchTechnicolourSabers", matchTechnicolourSabers);
             }
         }
 
@@ -329,7 +318,7 @@ namespace Chroma.Settings
                 if (value)
                 {
                     lightshowMenu = true;
-                    ChromaConfig.SetInt("Lightshow", "lightshowMenu", 6777);
+                    SetInt("Lightshow", "lightshowMenu", 6777);
                 }
             }
         }
@@ -342,7 +331,7 @@ namespace Chroma.Settings
             set
             {
                 playersPlace = value;
-                ChromaConfig.SetBool("Lightshow", "playersPlace", value);
+                SetBool("Lightshow", "playersPlace", value);
             }
         }
 
@@ -354,7 +343,7 @@ namespace Chroma.Settings
             set
             {
                 spectrograms = value;
-                ChromaConfig.SetBool("Lightshow", "spectrograms", value);
+                SetBool("Lightshow", "spectrograms", value);
             }
         }
 
@@ -366,7 +355,7 @@ namespace Chroma.Settings
             set
             {
                 backColumns = value;
-                ChromaConfig.SetBool("Lightshow", "backColumns", value);
+                SetBool("Lightshow", "backColumns", value);
             }
         }
 
@@ -378,7 +367,7 @@ namespace Chroma.Settings
             set
             {
                 buildings = value;
-                ChromaConfig.SetBool("Lightshow", "buildings", value);
+                SetBool("Lightshow", "buildings", value);
             }
         }
 
@@ -400,27 +389,24 @@ namespace Chroma.Settings
             ChromaPlugin.MainMenuLoadedEvent += OnMainMenuLoaded;
             ChromaPlugin.SongSceneLoadedEvent += OnSongLoaded;
 
-            ChromaPlugin.MainMenuLoadedEvent += ChromaEvent.ClearChromaEvents;
-            ChromaPlugin.SongSceneLoadedEvent += ChromaEvent.ClearChromaEvents;
-
             ChromaPlugin.MainMenuLoadedEvent += CleanupSongEvents;
             ChromaPlugin.SongSceneLoadedEvent += CleanupSongEvents;
         }
 
         private static void OnMainMenuLoaded()
         {
-            ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteA);
-            ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteB);
+            RemoveNoteTypeColourOverride(NoteType.NoteA);
+            RemoveNoteTypeColourOverride(NoteType.NoteB);
 
             LoadSettings(LoadSettingsType.MENU_LOADED);
         }
 
         private static void OnSongLoaded()
         {
-            ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteA);
-            ColourManager.RemoveNoteTypeColourOverride(NoteType.NoteB);
+            RemoveNoteTypeColourOverride(NoteType.NoteA);
+            RemoveNoteTypeColourOverride(NoteType.NoteB);
 
-            ColourManager.RefreshLights();
+            RefreshLights();
         }
 
         private static void CleanupSongEvents()
@@ -440,7 +426,7 @@ namespace Chroma.Settings
             ChromaGradientEvent.Clear();
             VFX.TechnicolourController.Clear();
 
-            ColourManager.LightSwitchs = null;
+            LightSwitchs = null;
 
             VFX.MayhemEvent.manager = null;
         }
@@ -473,24 +459,24 @@ namespace Chroma.Settings
 
                 if (type == LoadSettingsType.INITIAL)
                 {
-                    timesLaunched = ChromaConfig.GetInt("Other", "timesLaunched", 0) + 1;
-                    ChromaConfig.SetInt("Other", "timesLaunched", timesLaunched);
+                    TimesLaunched = GetInt("Other", "timesLaunched", 0) + 1;
+                    SetInt("Other", "timesLaunched", TimesLaunched);
                 }
 
                 /*
                  * MAP
                  */
 
-                customMapCheckingEnabled = ChromaConfig.GetBool("Map", "customMapCheckingEnabled", true);
-                customColourEventsEnabled = ChromaConfig.GetBool("Map", "customColourEventsEnabled", true);
-                noteColourEventsEnabled = ChromaConfig.GetBool("Map", "noteColourEventsEnabled", true);
+                customMapCheckingEnabled = GetBool("Map", "customMapCheckingEnabled", true);
+                customColourEventsEnabled = GetBool("Map", "customColourEventsEnabled", true);
+                noteColourEventsEnabled = GetBool("Map", "noteColourEventsEnabled", true);
                 ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", CustomColourEventsEnabled);
 
                 /*
                  * AUDIO
                  */
 
-                masterVolume = Mathf.Clamp01(ChromaConfig.GetFloat("Audio", "masterVolume", 1));
+                masterVolume = Mathf.Clamp01(GetFloat("Audio", "masterVolume", 1));
 
                 AudioUtil.Instance.SetVolume(masterVolume);
 
@@ -500,20 +486,20 @@ namespace Chroma.Settings
 
                 if (type == LoadSettingsType.INITIAL)
                 {
-                    technicolourEnabled = ChromaConfig.GetBool("Technicolour", "technicolourEnabled", false);
+                    technicolourEnabled = GetBool("Technicolour", "technicolourEnabled", false);
 
-                    technicolourLightsStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourLightsStyle", 1);
-                    technicolourLightsGrouping = (TechnicolourLightsGrouping)ChromaConfig.GetInt("Technicolour", "technicolourLightsGrouping", 1);
+                    technicolourLightsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourLightsStyle", 1);
+                    technicolourLightsGrouping = (TechnicolourLightsGrouping)GetInt("Technicolour", "technicolourLightsGrouping", 1);
                     technicolourLightsFrequency = GetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
-                    technicolourSabersStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourSabersStyle", 0);
-                    technicolourBlocksStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourBlocksStyle", 0);
-                    technicolourWallsStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourWallsStyle", 0);
-                    technicolourBombsStyle = (TechnicolourStyle)ChromaConfig.GetInt("Technicolour", "technicolourBombsStyle", 0);
-                    matchTechnicolourSabers = ChromaConfig.GetBool("Technicolour", "matchTechnicolourSabers", false);
+                    technicolourSabersStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourSabersStyle", 0);
+                    technicolourBlocksStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourBlocksStyle", 0);
+                    technicolourWallsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourWallsStyle", 0);
+                    technicolourBombsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourBombsStyle", 0);
+                    matchTechnicolourSabers = GetBool("Technicolour", "matchTechnicolourSabers", false);
                 }
 
-                string[] technicolourColdString = ChromaConfig.GetString("Technicolour", "technicolourB", "0;128;255;255-0;255;0;255-0;0;255;255-0;255;204;255").Split('-');
-                string[] technicolourWarmString = ChromaConfig.GetString("Technicolour", "technicolourA", "255;0;0;255-255;0;255;255-255;153;0;255-255;0;102;255").Split('-');
+                string[] technicolourColdString = GetString("Technicolour", "technicolourB", "0;128;255;255-0;255;0;255-0;0;255;255-0;255;204;255").Split('-');
+                string[] technicolourWarmString = GetString("Technicolour", "technicolourA", "255;0;0;255-255;0;255;255-255;153;0;255-255;0;102;255").Split('-');
 
                 Color[] technicolourCold = new Color[technicolourColdString.Length];
                 Color[] technicolourWarm = new Color[technicolourWarmString.Length];
@@ -522,16 +508,16 @@ namespace Chroma.Settings
                 {
                     if (i < technicolourCold.Length)
                     {
-                        technicolourCold[i] = ColourManager.ColourFromString(technicolourColdString[i]);
+                        technicolourCold[i] = ColourFromString(technicolourColdString[i]);
                     }
                     if (i < technicolourWarm.Length)
                     {
-                        technicolourWarm[i] = ColourManager.ColourFromString(technicolourWarmString[i]);
+                        technicolourWarm[i] = ColourFromString(technicolourWarmString[i]);
                     }
                 }
 
-                ColourManager.TechnicolourWarmPalette = technicolourWarm;
-                ColourManager.TechnicolourColdPalette = technicolourCold;
+                TechnicolourWarmPalette = technicolourWarm;
+                TechnicolourColdPalette = technicolourCold;
 
                 /*
                  * NOTES
@@ -539,11 +525,11 @@ namespace Chroma.Settings
 
                 //ColourManager.A = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourA", "DEFAULT"), ColourManager.DefaultA);
                 //ColourManager.B = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourB", "DEFAULT"), ColourManager.DefaultB);
-                ColourManager.AltA = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourAltA", "Notes Magenta"), ColourManager.DefaultAltA);
-                ColourManager.AltB = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourAltB", "Notes Green"), ColourManager.DefaultAltB);
-                ColourManager.NonColoured = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourNonColoured", "Notes White"), ColourManager.DefaultNonColoured);
-                ColourManager.DoubleHit = ColourManager.DoubleHit = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourDuochrome", "Notes Purple"));
-                ColourManager.Super = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourSuper", "Notes Gold"), ColourManager.DefaultSuper);
+                AltA = ChromaSettingsUI.GetColor(GetString("Notes", "colourAltA", "Notes Magenta"), DefaultAltA);
+                AltB = ChromaSettingsUI.GetColor(GetString("Notes", "colourAltB", "Notes Green"), DefaultAltB);
+                NonColoured = ChromaSettingsUI.GetColor(GetString("Notes", "colourNonColoured", "Notes White"), DefaultNonColoured);
+                DoubleHit = DoubleHit = ChromaSettingsUI.GetColor(GetString("Notes", "colourDuochrome", "Notes Purple"));
+                Super = ChromaSettingsUI.GetColor(GetString("Notes", "colourSuper", "Notes Gold"), DefaultSuper);
 
                 /*
                  * LIGHTS
@@ -552,49 +538,49 @@ namespace Chroma.Settings
                 //ColourManager.LightAmbient = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightAmbient", "DEFAULT"), ColourManager.DefaultLightAmbient);
                 //ColourManager.LightA = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourA", "DEFAULT"), ColourManager.DefaultLightA);
                 //ColourManager.LightB = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourB", "DEFAULT"), ColourManager.DefaultLightB);
-                ColourManager.LightAltA = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourAltA", "Light Magenta"), ColourManager.DefaultLightAltA);
-                ColourManager.LightAltB = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourAltB", "Light Green"), ColourManager.DefaultLightAltB);
-                ColourManager.LightWhite = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourWhite", "Light White"), ColourManager.DefaultLightWhite);
-                ColourManager.LightGrey = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourGrey", "Light Grey"), ColourManager.DefaultLightGrey);
+                LightAltA = ChromaSettingsUI.GetColor(GetString("Lights", "lightColourAltA", "Light Magenta"), DefaultLightAltA);
+                LightAltB = ChromaSettingsUI.GetColor(GetString("Lights", "lightColourAltB", "Light Green"), DefaultLightAltB);
+                LightWhite = ChromaSettingsUI.GetColor(GetString("Lights", "lightColourWhite", "Light White"), DefaultLightWhite);
+                LightGrey = ChromaSettingsUI.GetColor(GetString("Lights", "lightColourGrey", "Light Grey"), DefaultLightGrey);
 
                 /*
                  * AESTHETICS
                  */
 
                 //ColourManager.BarrierColour = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "barrierColour", "DEFAULT"), ColourManager.DefaultBarrierColour);
-                ColourManager.LaserPointerColour = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "laserPointerColour", "DEFAULT"), ColourManager.DefaultB);
-                ColourManager.SignA = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "signColourA", "DEFAULT"), ColourManager.DefaultA);
-                ColourManager.SignB = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "signColourB", "DEFAULT"), ColourManager.DefaultB);
-                ColourManager.Platform = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "platformAccoutrements", "DEFAULT"), ColourManager.DefaultB);
+                LaserPointerColour = ChromaSettingsUI.GetColor(GetString("Aesthetics", "laserPointerColour", "DEFAULT"), DefaultB);
+                SignA = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourA", "DEFAULT"), DefaultA);
+                SignB = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourB", "DEFAULT"), DefaultB);
+                Platform = ChromaSettingsUI.GetColor(GetString("Aesthetics", "platformAccoutrements", "DEFAULT"), DefaultB);
 
-                ChromaConfig.saberTrailStrength = ChromaConfig.GetFloat("Aesthetics", "saberTrailStrength", 1f);
+                saberTrailStrength = GetFloat("Aesthetics", "saberTrailStrength", 1f);
 
                 /*
                  * MODIFIERS
                  */
-                lightshowModifier = ChromaConfig.GetBool("Modifiers", "lightshowModifier", false);
+                lightshowModifier = GetBool("Modifiers", "lightshowModifier", false);
 
                 /*
                  * OTHER
                  */
 
-                sidePanel = (ChromaSettingsUI.SidePanelEnum)ChromaConfig.GetFloat("Other", "sidePanel", 1);
+                sidePanel = (ChromaSettingsUI.SidePanelEnum)GetFloat("Other", "sidePanel", 1);
 
-                debugMode = ChromaConfig.GetBool("Other", "debugMode", false);
+                debugMode = GetBool("Other", "debugMode", false);
 
-                waiverRead = ChromaConfig.GetInt("Other", "safetyWaiver", 0) == 51228;
+                waiverRead = GetInt("Other", "safetyWaiver", 0) == 51228;
 
                 /*
                  * LIGHTSHOW
                  */
 
-                lightshowMenu = ChromaConfig.GetInt("Lightshow", "lightshowMenu", 0, false) == 6777;
-                playersPlace = ChromaConfig.GetBool("Lightshow", "playersPlace", false, false);
-                spectrograms = ChromaConfig.GetBool("Lightshow", "spectrograms", false, false);
-                backColumns = ChromaConfig.GetBool("Lightshow", "backColumns", false, false);
-                buildings = ChromaConfig.GetBool("Lightshow", "buildings", false, false);
+                lightshowMenu = GetInt("Lightshow", "lightshowMenu", 0, false) == 6777;
+                playersPlace = GetBool("Lightshow", "playersPlace", false, false);
+                spectrograms = GetBool("Lightshow", "spectrograms", false, false);
+                backColumns = GetBool("Lightshow", "backColumns", false, false);
+                buildings = GetBool("Lightshow", "buildings", false, false);
 
-                ColourManager.RefreshLights();
+                RefreshLights();
 
                 if (type == LoadSettingsType.MANUAL) AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");
             }
@@ -607,11 +593,11 @@ namespace Chroma.Settings
 
         public static void LoadSettingsModel()
         {
-            mainSettingsModel = UnityEngine.Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().FirstOrDefault();
-            if (mainSettingsModel)
+            MainSettingsModel = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().FirstOrDefault();
+            if (MainSettingsModel)
             {
                 ChromaLogger.Log("Found settings model", ChromaLogger.Level.DEBUG);
-                oldHaptics = mainSettingsModel.controllersRumbleEnabled;
+                oldHaptics = MainSettingsModel.controllersRumbleEnabled;
             }
         }
 

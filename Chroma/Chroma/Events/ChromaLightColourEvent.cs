@@ -4,13 +4,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Chroma.Beatmap.Events
+namespace Chroma.Events
 {
-    internal class ChromaObstacleColourEvent
+    internal class ChromaLightColourEvent
     {
-        public static Dictionary<float, Color> CustomObstacleColours = new Dictionary<float, Color>();
+        public static Dictionary<BeatmapEventType, Dictionary<float, Color>> CustomLightColours = new Dictionary<BeatmapEventType, Dictionary<float, Color>>();
 
-        // Creates dictionary loaded with all _obstacleColor custom events and indexs them with the event's time
+        // Creates dictionary loaded with all _lightRGB custom events and indexs them with the event's time and type
         public static void Activate(List<CustomEventData> eventData)
         {
             if (!ChromaBehaviour.LightingRegistered) return;
@@ -19,15 +19,24 @@ namespace Chroma.Beatmap.Events
                 try
                 {
                     dynamic dynData = d.data;
+                    int id = (int)Trees.at(dynData, "_event");
                     float r = (float)Trees.at(dynData, "_r");
                     float g = (float)Trees.at(dynData, "_g");
                     float b = (float)Trees.at(dynData, "_b");
                     float? a = (float?)Trees.at(dynData, "_a");
                     Color c = new Color(r, g, b);
                     if (a.HasValue) c = c.ColorWithAlpha(a.Value);
-                    CustomObstacleColours.Add(d.time, c);
 
-                    ColourManager.TechnicolourBarriersForceDisabled = true;
+                    // Dictionary of dictionaries!
+                    Dictionary<float, Color> dictionaryID;
+                    if (!CustomLightColours.TryGetValue((BeatmapEventType)id, out dictionaryID))
+                    {
+                        dictionaryID = new Dictionary<float, Color>();
+                        CustomLightColours.Add((BeatmapEventType)id, dictionaryID);
+                    }
+                    dictionaryID.Add(d.time, c);
+
+                    ColourManager.TechnicolourLightsForceDisabled = true;
                 }
                 catch (Exception e)
                 {

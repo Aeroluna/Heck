@@ -38,12 +38,8 @@ namespace Chroma
 
         private static Color[] _technicolourWarmPalette;
         private static Color[] _technicolourColdPalette;
-        private static Color[] _technicolourCombinedPalette;
 
-        public static Color[] TechnicolourCombinedPalette
-        {
-            get { return _technicolourCombinedPalette; }
-        }
+        public static Color[] TechnicolourCombinedPalette { get; private set; }
 
         public static Color[] TechnicolourWarmPalette
         {
@@ -72,8 +68,8 @@ namespace Chroma
             for (int i = 0; i < _technicolourColdPalette.Length; i++) newCombined[i] = _technicolourColdPalette[i];
             for (int i = 0; i < _technicolourWarmPalette.Length; i++) newCombined[_technicolourColdPalette.Length + i] = _technicolourWarmPalette[i];
             System.Random shuffleRandom = new System.Random();
-            _technicolourCombinedPalette = newCombined.OrderBy(x => shuffleRandom.Next()).ToArray();
-            ChromaLogger.Log("Combined TC Palette formed : " + _technicolourCombinedPalette.Length);
+            TechnicolourCombinedPalette = newCombined.OrderBy(x => shuffleRandom.Next()).ToArray();
+            ChromaLogger.Log("Combined TC Palette formed : " + TechnicolourCombinedPalette.Length);
         }
 
         public enum TechnicolourStyle
@@ -423,7 +419,7 @@ namespace Chroma
 
         public static void RecolourMenuStuff(Color? red, Color? blue, Color? redLight, Color? blueLight, Color? platformLight, Color? laser)
         {
-            Renderer[] rends2 = GameObject.FindObjectsOfType<Renderer>();
+            Renderer[] rends2 = UnityEngine.Object.FindObjectsOfType<Renderer>();
 
             foreach (Renderer rend in rends2)
             {
@@ -543,24 +539,24 @@ namespace Chroma
             {
                 //ChromaLogger.Log("Refreshing Lights");
 
-                Color? ambientLight = ColourManager.LightAmbient;
-                Color? red = ColourManager.A;
-                Color? blue = ColourManager.B;
-                Color? redLight = ColourManager.LightA;
-                Color? blueLight = ColourManager.LightB;
-                Color? platform = ColourManager.Platform;
-                Color? signA = ColourManager.SignA;
-                Color? signB = ColourManager.SignB;
-                Color? laser = ColourManager.LaserPointerColour;
+                Color? ambientLight = LightAmbient;
+                Color? red = A;
+                Color? blue = B;
+                Color? redLight = LightA;
+                Color? blueLight = LightB;
+                Color? platform = Platform;
+                Color? signA = SignA;
+                Color? signB = SignB;
+                Color? laser = LaserPointerColour;
 
                 string ambientSound = null;
 
                 RefreshLightsEvent?.Invoke(ref ambientLight, ref red, ref blue, ref redLight, ref blueLight, ref platform, ref signA, ref signB, ref laser, ref ambientSound);
 
                 ResetAllLights();
-                ColourManager.RecolourAmbientLights(ambientLight);
-                ColourManager.RecolourNeonSign(signA, signB);
-                ColourManager.RecolourMenuStuff(red, blue, redLight, blueLight, platform, laser);
+                RecolourAmbientLights(ambientLight);
+                RecolourNeonSign(signA, signB);
+                RecolourMenuStuff(red, blue, redLight, blueLight, platform, laser);
 
                 if (ambientSound == null) AudioUtil.Instance.StopAmbianceSound();
                 else AudioUtil.Instance.StartAmbianceSound(ambientSound);

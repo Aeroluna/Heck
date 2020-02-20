@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Chroma.Beatmap.Events
+namespace Chroma.Events
 {
     internal class ChromaGradientEvent : MonoBehaviour
     {
@@ -42,7 +42,7 @@ namespace Chroma.Beatmap.Events
         private void Update()
         {
             float _time = ChromaBehaviour.ATSC.songTime - _start;
-            if (_time <= _duration)
+            if (_time < 0 || _time <= _duration)
             {
                 Color c = Color.Lerp(_initcolor, _endcolor, _time / _duration);
                 ColourManager.RecolourLight(_event, c, c);
@@ -51,6 +51,7 @@ namespace Chroma.Beatmap.Events
             }
             else
             {
+                if (_time > _duration) ColourManager.RecolourLight(_event, _endcolor, _endcolor);
                 CustomGradients.Remove(_event);
                 Destroy(this);
             }

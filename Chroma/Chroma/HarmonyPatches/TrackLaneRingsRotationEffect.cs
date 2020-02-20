@@ -32,7 +32,7 @@ namespace Chroma.HarmonyPatches
                             bool? reset = Trees.at(dynData, "_reset");
                             if (reset.HasValue && reset == true)
                             {
-                                ChromaLogger.Log("Ring spin [RESET]");
+                                if (ChromaConfig.DebugMode) ChromaLogger.Log("Ring spin [RESET]");
                                 ResetRings(__instance, ref ____trackLaneRingsRotationEffect, ref ____rotationStep, ref ____rotationPropagationSpeed, ref ____rotationFlexySpeed);
                                 return false;
                             }

@@ -18,25 +18,17 @@ namespace Chroma
         private static Version assemblyVersion = typeof(ChromaPlugin).Assembly.GetName().Version;
         public static string Version = assemblyVersion.Major + "." + assemblyVersion.Minor + "." + assemblyVersion.Build;
 
-        private static ChromaPlugin _instance;
-
         /// <summary>
         /// Creates a new Instance if one does not exist.
         /// </summary>
-        public static ChromaPlugin Instance
-        {
-            get
-            {
-                return _instance;
-            }
-        }
+        public static ChromaPlugin Instance { get; private set; }
 
         internal static ChromaPlugin Instantiate(Plugin plugin)
         {
-            _instance = new ChromaPlugin();
-            _instance.plugin = plugin;
-            _instance.Initialize();
-            return _instance;
+            Instance = new ChromaPlugin();
+            Instance.plugin = plugin;
+            Instance.Initialize();
+            return Instance;
         }
 
         /// <summary>
@@ -62,16 +54,12 @@ namespace Chroma
         {
         }
 
-        private HarmonyInstance coreHarmony = HarmonyInstance.Create("net.binaryelement.chroma");
         private List<HarmonyInstance> harmonyInstances = new List<HarmonyInstance>();
 
         /// <summary>
         /// Returns the Harmony instance the core Chroma plugin uses.
         /// </summary>
-        public HarmonyInstance CoreHarmonyInstance
-        {
-            get { return coreHarmony; }
-        }
+        public HarmonyInstance CoreHarmonyInstance { get; } = HarmonyInstance.Create("net.binaryelement.chroma");
 
         /// <summary>
         /// Returns a readonly list of all HarmonyInstances used by Chroma and its extensions, including the CoreHarmonyInstance
@@ -108,18 +96,6 @@ namespace Chroma
                 ChromaLogger.Log("Initializing Chroma [" + Version + "]", ChromaLogger.Level.INFO);
                 ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
 
-                //Used for getting gamemode data mostly
-                try
-                {
-                    ChromaLogger.Log("Initializing Coordinators");
-                    BaseGameMode.InitializeCoordinators();
-                }
-                catch (Exception e)
-                {
-                    ChromaLogger.Log("Error initializing coordinators", ChromaLogger.Level.ERROR);
-                    throw e;
-                }
-
                 ChromaLogger.Log("Registering scenechange events");
                 SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
                 SceneManager.sceneLoaded += SceneManager_sceneLoaded;
@@ -147,8 +123,8 @@ namespace Chroma
                 ChromaLogger.Log("Patching with Harmony.");
                 try
                 {
-                    coreHarmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
-                    harmonyInstances.Add(coreHarmony);
+                    CoreHarmonyInstance.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
+                    harmonyInstances.Add(CoreHarmonyInstance);
                     foreach (IChromaExtension extension in chromaExtensions)
                     {
                         HarmonyInstance newPatch = extension.PatchHarmony();

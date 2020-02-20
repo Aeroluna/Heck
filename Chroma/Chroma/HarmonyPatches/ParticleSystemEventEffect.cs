@@ -52,48 +52,28 @@ namespace Chroma.HarmonyPatches
         {
             if (beatmapEventData.type != ____colorEvent) return true;
 
-            if (beatmapEventData.value <= 7 && beatmapEventData.value >= 0)
+            if (ColourManager.TechnicolourLights && (int)____colorEvent <= 4)
             {
-                if (VFX.TechnicolourController.Instantiated() && !VFX.TechnicolourController.Instance._particleSystemLastValue.TryGetValue(__instance, out int value))
+                if (beatmapEventData.value > 0 && beatmapEventData.value <= 7)
                 {
-                    VFX.TechnicolourController.Instance._particleSystemLastValue.Add(__instance, beatmapEventData.value);
-                }
-                else
-                {
-                    VFX.TechnicolourController.Instance._particleSystemLastValue[__instance] = beatmapEventData.value;
-                }
-            }
-
-            MonoBehaviour __monobehaviour = __instance;
-            Color? c = LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.CheckCJD(__monobehaviour, beatmapEventData, ____colorEvent);
-
-            if (c.HasValue)
-            {
-                ColourManager.RecolourLight(ref __monobehaviour, c.Value, c.Value);
-            }
-
-            try
-            {
-                // https://docs.google.com/spreadsheets/d/1vCTlDvx0ZW8NkkZBYW6ecvXaVRxDUKX7QIoah9PCp_c/edit#gid=0
-                if (ColourManager.TechnicolourLights && (int)____colorEvent <= 4)
-                { //0-4 are actual lighting events, we don't want to bother with anything else like ring spins or custom events
-                    if (techniLightRandom.NextDouble() < ChromaConfig.TechnicolourLightsFrequency)
+                    if (ChromaConfig.TechnicolourLightsGrouping == ColourManager.TechnicolourLightsGrouping.ISOLATED &&
+                        techniLightRandom.NextDouble() < ChromaConfig.TechnicolourLightsFrequency)
                     {
-                        if (beatmapEventData.value != 0 && (ChromaConfig.TechnicolourLightsGrouping == ColourManager.TechnicolourLightsGrouping.ISOLATED))
-                        {
-                            VFX.MayhemEvent.ParticleTechnicolour(beatmapEventData, __instance);
-                            return false;
-                        }
+                        // ParticleSystem need only worry about mayhem
+                        VFX.MayhemEvent.ParticleTechnicolour(beatmapEventData, __instance);
+                        return false;
+                    }
+                    else if (ChromaConfig.TechnicolourLightsStyle != ColourManager.TechnicolourStyle.GRADIENT)
+                    {
+                        // This is for fun gradient stuff
+                        VFX.TechnicolourController.Instance._particleSystemLastValue[__instance] = beatmapEventData.value;
                     }
                 }
             }
-            catch (Exception e)
-            {
-                ChromaLogger.Log("Exception handling technicolour lights!", ChromaLogger.Level.WARNING);
-                ChromaLogger.Log(e);
-            }
 
-            return LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ActivateLegacyEvent(__instance, ref beatmapEventData, ref ____colorEvent);
+            LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ColourLightSwitch(__instance, beatmapEventData, ____colorEvent);
+
+            return true;
         }
     }
 }

@@ -190,7 +190,7 @@ namespace Chroma.Settings
                         break;
 
                     case "LIGHTSHOW":
-                        BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", ChromaSettingsUI.instance);
+                        BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", instance);
                         ChromaConfig.LightshowMenu = true;
                         AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");
                         break;
@@ -218,8 +218,8 @@ namespace Chroma.Settings
             get => stringToColour(ChromaConfig.GetString("Aesthetics", "signColourB", "DEFAULT"));
             set
             {
-                ColourManager.SignB = value.color;
-                ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
+                SignB = value.color;
+                RecolourNeonSign(SignA, SignB);
                 ChromaConfig.SetString("Aesthetics", "signColourB", value.name);
             }
         }
@@ -230,8 +230,8 @@ namespace Chroma.Settings
             get => stringToColour(ChromaConfig.GetString("Aesthetics", "signColourA", "DEFAULT"));
             set
             {
-                ColourManager.SignA = value.color;
-                ColourManager.RecolourNeonSign(ColourManager.SignA, ColourManager.SignB);
+                SignA = value.color;
+                RecolourNeonSign(SignA, SignB);
                 ChromaConfig.SetString("Aesthetics", "signColourA", value.name);
             }
         }
@@ -242,8 +242,8 @@ namespace Chroma.Settings
             get => stringToColour(ChromaConfig.GetString("Aesthetics", "laserPointerColour", "DEFAULT"));
             set
             {
-                ColourManager.LaserPointerColour = value.color;
-                ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform, ColourManager.LaserPointerColour);
+                LaserPointerColour = value.color;
+                RecolourMenuStuff(A, B, LightA, LightB, Platform, LaserPointerColour);
                 ChromaConfig.SetString("Aesthetics", "laserPointerColour", value.name);
             }
         }
@@ -254,8 +254,8 @@ namespace Chroma.Settings
             get => stringToColour(ChromaConfig.GetString("Aesthetics", "platformAccoutrements", "DEFAULT"));
             set
             {
-                ColourManager.Platform = value.color;
-                ColourManager.RecolourMenuStuff(ColourManager.A, ColourManager.B, ColourManager.LightA, ColourManager.LightB, ColourManager.Platform, ColourManager.LaserPointerColour);
+                Platform = value.color;
+                RecolourMenuStuff(A, B, LightA, LightB, Platform, LaserPointerColour);
                 ChromaConfig.SetString("Aesthetics", "platformAccoutrements", value.name);
             }
         }
@@ -508,10 +508,10 @@ namespace Chroma.Settings
         {
             colourPresets = new List<NamedColor>() { new NamedColor("DEFAULT", null) };// new List<Tuple<string, Color>>();
 
-            ColourManager.SaveExampleColours();
+            SaveExampleColours();
 
             //TODO add custom colours
-            List<NamedColor> userColours = ColourManager.LoadColoursFromFile();
+            List<NamedColor> userColours = LoadColoursFromFile();
             if (userColours != null)
             {
                 foreach (NamedColor t in userColours)
@@ -523,23 +523,23 @@ namespace Chroma.Settings
             // CC GitHub to steal colours from
             // https://github.com/Kylemc1413/BeatSaber-CustomColors/blob/master/ColorsUI.cs
             foreach (NamedColor t in new List<NamedColor> {
-                new NamedColor( "Notes Red", ColourManager.DefaultA ),
-                new NamedColor( "Notes Blue", ColourManager.DefaultB ),
-                new NamedColor( "Notes Magenta", ColourManager.DefaultAltA ),
-                new NamedColor( "Notes Green", ColourManager.DefaultAltB ),
-                new NamedColor( "Notes Purple", ColourManager.DefaultDoubleHit ),
-                new NamedColor( "Notes White", ColourManager.DefaultNonColoured ),
-                new NamedColor( "Notes Gold", ColourManager.DefaultSuper ),
+                new NamedColor( "Notes Red", DefaultA ),
+                new NamedColor( "Notes Blue", DefaultB ),
+                new NamedColor( "Notes Magenta", DefaultAltA ),
+                new NamedColor( "Notes Green", DefaultAltB ),
+                new NamedColor( "Notes Purple", DefaultDoubleHit ),
+                new NamedColor( "Notes White", DefaultNonColoured ),
+                new NamedColor( "Notes Gold", DefaultSuper ),
 
-                new NamedColor( "Light Ambient", ColourManager.DefaultLightAmbient ),
-                new NamedColor( "Light Red", ColourManager.DefaultLightA ),
-                new NamedColor( "Light Blue", ColourManager.DefaultLightB ),
-                new NamedColor( "Light Magenta", ColourManager.DefaultLightAltA ),
-                new NamedColor( "Light Green", ColourManager.DefaultLightAltB ),
-                new NamedColor( "Light White", ColourManager.DefaultLightWhite ),
-                new NamedColor( "Light Grey", ColourManager.DefaultLightGrey ),
+                new NamedColor( "Light Ambient", DefaultLightAmbient ),
+                new NamedColor( "Light Red", DefaultLightA ),
+                new NamedColor( "Light Blue", DefaultLightB ),
+                new NamedColor( "Light Magenta", DefaultLightAltA ),
+                new NamedColor( "Light Green", DefaultLightAltB ),
+                new NamedColor( "Light White", DefaultLightWhite ),
+                new NamedColor( "Light Grey", DefaultLightGrey ),
 
-                new NamedColor( "Barrier Red", ColourManager.DefaultBarrierColour ),
+                new NamedColor( "Barrier Red", DefaultBarrierColour ),
 
                 new NamedColor( "CC Elec. Blue", new Color(0, .98f, 2.157f) ),
                 new NamedColor( "CC Dark Blue", new Color(0f, 0.28000000000000003f, 0.55000000000000004f) ),

@@ -1,4 +1,4 @@
-﻿using Chroma.Beatmap.Events;
+﻿using Chroma.Events;
 using Chroma.Settings;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;

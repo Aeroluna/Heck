@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Chroma.Beatmap.Events
+namespace Chroma.Events
 {
     internal class ChromaNoteColourEvent
     {

@@ -9,8 +9,6 @@ namespace Chroma.VFX
 {
     public class TechnicolourController : MonoBehaviour
     {
-        private const float rainbowUpdateInterval = 0.04f;
-
         public static bool Instantiated()
         {
             return _instance != null;
