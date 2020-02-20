@@ -1,6 +1,6 @@
-﻿using CustomJSONData;
+﻿using BS_Utils.Utilities;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using BS_Utils.Utilities;
 using Harmony;
 using System.Linq;
 using UnityEngine;
@@ -13,6 +13,7 @@ namespace NoodleExtensions.HarmonyPatches
     internal class ObstacleControllerInit
     {
         private static BeatmapObjectSpawnController beatmapObjectSpawnController;
+
         public static void Postfix(ref ObstacleController __instance, ObstacleData obstacleData, Vector3 startPos, Vector3 midPos, Vector3 endPos, float move2Duration,
             float singleLineWidth, ref Vector3 ____startPos, ref Vector3 ____endPos, ref Vector3 ____midPos,
             ref StretchableObstacle ____stretchableObstacle, ref Bounds ____bounds, SimpleColorSO ____color, float height)
@@ -21,9 +22,7 @@ namespace NoodleExtensions.HarmonyPatches
             float? _startHeight = null;
             float? _height = null;
             float? _width = null;
-            float? _rotX = null;
-            float? _rotY = null;
-            float? _rotZ = null;
+            Vector3? _rot = null;
 
             // These are all constants but let's be safe
             if (beatmapObjectSpawnController == null) beatmapObjectSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
@@ -37,16 +36,11 @@ namespace NoodleExtensions.HarmonyPatches
             if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
-                if (dynData != null)
-                {
-                    _startRow = (float?)Trees.at(dynData, "_startRow");
-                    _startHeight = (float?)Trees.at(dynData, "_startHeight");
-                    _height = (float?)Trees.at(dynData, "_height");
-                    _width = (float?)Trees.at(dynData, "_width");
-                    _rotX = (float?)Trees.at(dynData, "_rotationX");
-                    _rotY = (float?)Trees.at(dynData, "_rotationY");
-                    _rotZ = (float?)Trees.at(dynData, "_rotationZ");
-                }
+                _startRow = (float?)Trees.at(dynData, "_startRow");
+                _startHeight = (float?)Trees.at(dynData, "_startHeight");
+                _height = (float?)Trees.at(dynData, "_height");
+                _width = (float?)Trees.at(dynData, "_width");
+                _rot = Trees.getVector3(dynData, "_rotation");
             }
 
             // Mapping Extensions Legacy Support
@@ -61,7 +55,7 @@ namespace NoodleExtensions.HarmonyPatches
                 if (!_height.HasValue) _height = ((type / 1000) / 1000f) * height;
                 if (!_startHeight.HasValue) _startHeight = ((type % 1000) / 1000f) * 4;
             }
-            else
+            else if ((int)obstacleData.obstacleType >= 1000)
             {
                 // Precise Height Only
                 if (!_height.HasValue) _height = (((int)obstacleData.obstacleType - 1000f) / 1000f) * height;
@@ -89,8 +83,8 @@ namespace NoodleExtensions.HarmonyPatches
             }
 
             // oh my god im actually adding rotation
-            if (_rotX.HasValue || _rotY.HasValue || _rotZ.HasValue)
-                __instance.transform.Rotate(_rotX.GetValueOrDefault(0), _rotY.GetValueOrDefault(0), _rotZ.GetValueOrDefault(0));
+            if (_rot.HasValue)
+                __instance.transform.Rotate(_rot.Value);
 
             if (_startHeight.HasValue || _width.HasValue || _height.HasValue)
             {
