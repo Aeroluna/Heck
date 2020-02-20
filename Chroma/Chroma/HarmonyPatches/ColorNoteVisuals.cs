@@ -69,15 +69,15 @@ namespace Chroma.HarmonyPatches
                 if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered && ChromaConfig.NoteColourEventsEnabled)
                 {
                     dynamic dynData = customData.customData;
-                    if (dynData != null)
+
+                    List<object> color = Trees.at(dynData, "_color");
+                    if (color != null)
                     {
-                        float? r = (float?)Trees.at(dynData, "_r");
-                        float? g = (float?)Trees.at(dynData, "_g");
-                        float? b = (float?)Trees.at(dynData, "_b");
-                        if (r.HasValue && g.HasValue && b.HasValue)
-                        {
-                            c = new Color(r.Value, g.Value, b.Value);
-                        }
+                        float r = Convert.ToSingle(color[0]);
+                        float g = Convert.ToSingle(color[1]);
+                        float b = Convert.ToSingle(color[2]);
+
+                        c = new Color(r, g, b);
                     }
                 }
             }

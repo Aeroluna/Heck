@@ -82,20 +82,21 @@ namespace Chroma.Events
                 dynamic dynData = eventData.data;
                 int intid = (int)Trees.at(dynData, "_event");
                 float duration = (float)Trees.at(dynData, "_duration");
-                float initr = (float)Trees.at(dynData, "_startR");
-                float initg = (float)Trees.at(dynData, "_startG");
-                float initb = (float)Trees.at(dynData, "_startB");
-                float? inita = (float?)Trees.at(dynData, "_startA");
-                float endr = (float)Trees.at(dynData, "_endR");
-                float endg = (float)Trees.at(dynData, "_endG");
-                float endb = (float)Trees.at(dynData, "_endB");
-                float? enda = (float?)Trees.at(dynData, "_endA");
+                List<object> initcolor = Trees.at(dynData, "_startColor");
+                List<object> endcolor = Trees.at(dynData, "_endColor");
+
+                float initr = Convert.ToSingle(initcolor[0]);
+                float initg = Convert.ToSingle(initcolor[1]);
+                float initb = Convert.ToSingle(initcolor[2]);
+                float endr = Convert.ToSingle(endcolor[0]);
+                float endg = Convert.ToSingle(endcolor[1]);
+                float endb = Convert.ToSingle(endcolor[2]);
 
                 BeatmapEventType id = (BeatmapEventType)intid;
                 Color initc = new Color(initr, initg, initb);
                 Color endc = new Color(endr, endg, endb);
-                if (inita.HasValue) initc = initc.ColorWithAlpha(inita.Value);
-                if (enda.HasValue) endc = endc.ColorWithAlpha(enda.Value);
+                if (initcolor.Count > 3) initc = initc.ColorWithAlpha(Convert.ToSingle(initcolor[3]));
+                if (endcolor.Count > 3) endc = endc.ColorWithAlpha(Convert.ToSingle(endcolor[3]));
 
                 AddGradient(id, initc, endc, eventData.time, duration);
             }

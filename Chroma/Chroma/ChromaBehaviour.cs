@@ -292,7 +292,7 @@ namespace Chroma
                     if (LightingRegistered && bevData[i] is CustomBeatmapEventData customData)
                     {
                         dynamic dynData = customData.customData;
-                        if (Trees.at(dynData, "_r") != null) ColourManager.TechnicolourLightsForceDisabled = true;
+                        if (Trees.at(dynData, "_color") != null) ColourManager.TechnicolourLightsForceDisabled = true;
                         continue;
                     }
                     if (bevData[i].value >= ColourManager.RGB_INT_OFFSET) ColourManager.TechnicolourLightsForceDisabled = true;
@@ -308,7 +308,7 @@ namespace Chroma
                             if (beatmapObjectsData is CustomNoteData customNoteData)
                             {
                                 dynamic dynData = customNoteData.customData;
-                                if (Trees.at(dynData, "_r") != null)
+                                if (Trees.at(dynData, "_color") != null)
                                 {
                                     if (customNoteData.noteType == NoteType.Bomb) ColourManager.TechnicolourBombsForceDisabled = true;
                                     else ColourManager.TechnicolourBlocksForceDisabled = ChromaConfig.NoteColourEventsEnabled;
@@ -317,7 +317,7 @@ namespace Chroma
                             else if (beatmapObjectsData is CustomObstacleData customObstacleData)
                             {
                                 dynamic dynData = customObstacleData.customData;
-                                if (Trees.at(dynData, "_r") != null) ColourManager.TechnicolourBarriersForceDisabled = true;
+                                if (Trees.at(dynData, "_color") != null) ColourManager.TechnicolourBarriersForceDisabled = true;
                             }
                         }
                     }

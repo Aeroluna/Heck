@@ -58,45 +58,43 @@ namespace Chroma.HarmonyPatches
                 if (beatmapEventData is CustomBeatmapEventData customData && _rotationData != null)
                 {
                     dynamic dynData = customData.customData;
-                    if (dynData != null)
+
+                    bool? lockPosition = Trees.at(dynData, "_lockPosition");
+                    lockPosition = lockPosition.GetValueOrDefault(false);
+
+                    float? precisionSpeed = (float?)Trees.at(dynData, "_preciseSpeed");
+                    precisionSpeed = precisionSpeed.GetValueOrDefault(beatmapEventData.value);
+
+                    int? dir = (int?)Trees.at(dynData, "_direction");
+                    dir = dir.GetValueOrDefault(-1);
+
+                    if (dir == 1) direction = beatmapEventData.type == ____eventL ? 1 : -1;
+                    else if (dir == 0) direction = beatmapEventData.type == ____eventL ? -1 : 1;
+
+                    //Actual lasering
+                    Transform _transform = _rotationData.GetField<Transform>("transform");
+                    Quaternion _startRotation = _rotationData.GetField<Quaternion>("startRotation");
+                    Vector3 _rotationVector = __instance.GetPrivateField<Vector3>("_rotationVector");
+                    if (precisionSpeed == 0)
                     {
-                        bool? lockPosition = Trees.at(dynData, "_lockPosition");
-                        lockPosition = lockPosition.GetValueOrDefault(false);
-
-                        float? precisionSpeed = (float?)Trees.at(dynData, "_preciseSpeed");
-                        precisionSpeed = precisionSpeed.GetValueOrDefault(beatmapEventData.value);
-
-                        int? dir = (int?)Trees.at(dynData, "_direction");
-                        dir = dir.GetValueOrDefault(-1);
-
-                        if (dir == 1) direction = beatmapEventData.type == ____eventL ? 1 : -1;
-                        else if (dir == 0) direction = beatmapEventData.type == ____eventL ? -1 : 1;
-
-                        //Actual lasering
-                        Transform _transform = _rotationData.GetField<Transform>("transform");
-                        Quaternion _startRotation = _rotationData.GetField<Quaternion>("startRotation");
-                        Vector3 _rotationVector = __instance.GetPrivateField<Vector3>("_rotationVector");
-                        if (precisionSpeed == 0)
+                        _rotationData.SetPrivateField("enabled", false);
+                        if (!lockPosition.Value)
                         {
-                            _rotationData.SetPrivateField("enabled", false);
-                            if (!lockPosition.Value)
-                            {
-                                _transform.localRotation = _startRotation;
-                            }
+                            _transform.localRotation = _startRotation;
                         }
-                        else
-                        {
-                            _rotationData.SetPrivateField("enabled", true);
-                            _rotationData.SetPrivateField("rotationSpeed", precisionSpeed * 20f * direction);
-                            if (!lockPosition.Value)
-                            {
-                                _transform.localRotation = _startRotation;
-                                _transform.Rotate(_rotationVector, startRotationOffset, Space.Self);
-                            }
-                        }
-
-                        return false;
                     }
+                    else
+                    {
+                        _rotationData.SetPrivateField("enabled", true);
+                        _rotationData.SetPrivateField("rotationSpeed", precisionSpeed * 20f * direction);
+                        if (!lockPosition.Value)
+                        {
+                            _transform.localRotation = _startRotation;
+                            _transform.Rotate(_rotationVector, startRotationOffset, Space.Self);
+                        }
+                    }
+
+                    return false;
                 }
             }
             catch (Exception e)

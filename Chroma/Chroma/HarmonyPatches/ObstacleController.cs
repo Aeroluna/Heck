@@ -40,17 +40,16 @@ namespace Chroma.HarmonyPatches
                 if (obstacleData is CustomObstacleData customData && ChromaBehaviour.LightingRegistered)
                 {
                     dynamic dynData = customData.customData;
-                    if (dynData != null)
+
+                    List<object> color = Trees.at(dynData, "_color");
+                    if (color != null)
                     {
-                        float? r = (float?)Trees.at(dynData, "_r");
-                        float? g = (float?)Trees.at(dynData, "_g");
-                        float? b = (float?)Trees.at(dynData, "_b");
-                        float? a = (float?)Trees.at(dynData, "_a");
-                        if (r.HasValue && g.HasValue && b.HasValue)
-                        {
-                            c = new Color(r.Value, g.Value, b.Value);
-                            if (a.HasValue) c = c.Value.ColorWithAlpha(a.Value);
-                        }
+                        float r = Convert.ToSingle(color[0]);
+                        float g = Convert.ToSingle(color[1]);
+                        float b = Convert.ToSingle(color[2]);
+
+                        c = new Color(r, g, b);
+                        if (color.Count > 3) c = c.Value.ColorWithAlpha(Convert.ToSingle(color[3]));
                     }
                 }
             }

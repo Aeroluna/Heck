@@ -23,9 +23,11 @@ namespace Chroma.Events
                 {
                     dynamic dynData = d.data;
                     int id = (int)Trees.at(dynData, "_id");
-                    float r = (float)Trees.at(dynData, "_r");
-                    float g = (float)Trees.at(dynData, "_g");
-                    float b = (float)Trees.at(dynData, "_b");
+                    List<object> color = Trees.at(dynData, "_color");
+                    float r = Convert.ToSingle(color[0]);
+                    float g = Convert.ToSingle(color[1]);
+                    float b = Convert.ToSingle(color[2]);
+
                     Color c = new Color(r, g, b);
 
                     // Dictionary of dictionaries!

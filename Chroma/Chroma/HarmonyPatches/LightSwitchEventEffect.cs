@@ -157,75 +157,86 @@ namespace Chroma.HarmonyPatches
             if (beatmapEventData.value >= ColourManager.RGB_INT_OFFSET) c = ColourManager.ColourFromInt(beatmapEventData.value);
 
             // CustomJSONData _customData individual override
-            if (beatmapEventData is CustomBeatmapEventData customData)
+            try
             {
-                dynamic dynData = customData.customData;
-                if (__monobehaviour is LightSwitchEventEffect)
+                if (beatmapEventData is CustomBeatmapEventData customData)
                 {
-                    LightSwitchEventEffect __instance = (LightSwitchEventEffect)__monobehaviour;
+                    dynamic dynData = customData.customData;
 
-                    int? lightID = (int?)Trees.at(dynData, "_lightID");
-                    if (lightID.HasValue)
-                    {
-                        LightWithId[] lights = __instance.GetLights();
-                        if (lights.Length > lightID) SetOverrideLightWithIds(lights[lightID.Value]);
-                    }
-
-                    int? propID = (int?)Trees.at(dynData, "_propID");
-                    if (propID.HasValue)
-                    {
-                        LightWithId[][] lights = __instance.GetLightsPropagationGrouped();
-                        if (lights.Length > propID) SetOverrideLightWithIds(lights[propID.Value]);
-                    }
-                }
-
-                if (ChromaBehaviour.LightingRegistered)
-                {
                     if (__monobehaviour is LightSwitchEventEffect)
                     {
-                        // GRADIENT
-                        int? intid = (int?)Trees.at(dynData, "_event");
-                        float? duration = (float?)Trees.at(dynData, "_duration");
-                        float? initr = (float?)Trees.at(dynData, "_startR");
-                        float? initg = (float?)Trees.at(dynData, "_startG");
-                        float? initb = (float?)Trees.at(dynData, "_startB");
-                        float? inita = (float?)Trees.at(dynData, "_startA");
-                        float? endr = (float?)Trees.at(dynData, "_endR");
-                        float? endg = (float?)Trees.at(dynData, "_endG");
-                        float? endb = (float?)Trees.at(dynData, "_endB");
-                        float? enda = (float?)Trees.at(dynData, "_endA");
-                        if (intid.HasValue && duration.HasValue && initr.HasValue && initb.HasValue && enda.HasValue && endg.HasValue && endb.HasValue)
+                        LightSwitchEventEffect __instance = (LightSwitchEventEffect)__monobehaviour;
+
+                        int? lightID = (int?)Trees.at(dynData, "_lightID");
+                        if (lightID.HasValue)
                         {
-                            BeatmapEventType id = (BeatmapEventType)intid;
-                            Color initc = new Color(initr.Value, initg.Value, initb.Value);
-                            Color endc = new Color(endr.Value, endg.Value, endb.Value);
-                            if (inita.HasValue) initc = initc.ColorWithAlpha(inita.Value);
-                            if (enda.HasValue) endc = endc.ColorWithAlpha(enda.Value);
+                            LightWithId[] lights = __instance.GetLights();
+                            if (lights.Length > lightID) SetOverrideLightWithIds(lights[lightID.Value]);
+                        }
 
-                            ChromaGradientEvent.AddGradient(id, initc, endc, customData.time, duration.Value);
-
-                            c = initc;
+                        int? propID = (int?)Trees.at(dynData, "_propID");
+                        if (propID.HasValue)
+                        {
+                            LightWithId[][] lights = __instance.GetLightsPropagationGrouped();
+                            if (lights.Length > propID) SetOverrideLightWithIds(lights[propID.Value]);
                         }
                     }
 
-                    // RGB
-                    float? r = (float?)Trees.at(dynData, "_r");
-                    float? g = (float?)Trees.at(dynData, "_g");
-                    float? b = (float?)Trees.at(dynData, "_b");
-                    float? a = (float?)Trees.at(dynData, "_a");
-                    if (r.HasValue && g.HasValue && b.HasValue)
+                    if (ChromaBehaviour.LightingRegistered)
                     {
-                        c = new Color(r.Value, g.Value, b.Value);
-                        if (a.HasValue) c = c.Value.ColorWithAlpha(a.Value);
-
-                        // Clear any active gradient
-                        if (ChromaGradientEvent.CustomGradients.TryGetValue(_event, out ChromaGradientEvent gradient))
+                        if (__monobehaviour is LightSwitchEventEffect)
                         {
-                            UnityEngine.Object.Destroy(gradient);
-                            ChromaGradientEvent.CustomGradients.Remove(_event);
+                            dynamic gradient = Trees.at(dynData, "_lightGradient");
+                            if (gradient != null)
+                            {
+                                // GRADIENT
+                                float duration = (float)Trees.at(gradient, "_duration");
+                                List<object> initcolor = Trees.at(gradient, "_startColor");
+                                List<object> endcolor = Trees.at(gradient, "_endColor");
+
+                                float initr = Convert.ToSingle(initcolor[0]);
+                                float initg = Convert.ToSingle(initcolor[1]);
+                                float initb = Convert.ToSingle(initcolor[2]);
+                                float endr = Convert.ToSingle(endcolor[0]);
+                                float endg = Convert.ToSingle(endcolor[1]);
+                                float endb = Convert.ToSingle(endcolor[2]);
+
+                                Color initc = new Color(initr, initg, initb);
+                                Color endc = new Color(endr, endg, endb);
+                                if (initcolor.Count > 3) initc = initc.ColorWithAlpha(Convert.ToSingle(initcolor[3]));
+                                if (endcolor.Count > 3) endc = endc.ColorWithAlpha(Convert.ToSingle(endcolor[3]));
+
+                                ChromaGradientEvent.AddGradient(beatmapEventData.type, initc, endc, customData.time, duration);
+
+                                c = initc;
+                            }
+                        }
+
+                        // RGB
+                        List<object> color = Trees.at(dynData, "_color");
+                        if (color != null)
+                        {
+                            float r = Convert.ToSingle(color[0]);
+                            float g = Convert.ToSingle(color[1]);
+                            float b = Convert.ToSingle(color[2]);
+
+                            c = new Color(r, g, b);
+                            if (color.Count > 3) c = c.Value.ColorWithAlpha(Convert.ToSingle(color[3]));
+
+                            // Clear any active gradient
+                            if (ChromaGradientEvent.CustomGradients.TryGetValue(_event, out ChromaGradientEvent gradient))
+                            {
+                                UnityEngine.Object.Destroy(gradient);
+                                ChromaGradientEvent.CustomGradients.Remove(_event);
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                ChromaLogger.Log("INVALID _customData", ChromaLogger.Level.WARNING);
+                ChromaLogger.Log(e);
             }
 
             if (c.HasValue) ColourManager.RecolourLight(ref __monobehaviour, c.Value, c.Value);

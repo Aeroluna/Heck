@@ -19,12 +19,13 @@ namespace Chroma.Events
                 try
                 {
                     dynamic dynData = d.data;
-                    float r = (float)Trees.at(dynData, "_r");
-                    float g = (float)Trees.at(dynData, "_g");
-                    float b = (float)Trees.at(dynData, "_b");
-                    float? a = (float?)Trees.at(dynData, "_a");
+                    List<object> color = Trees.at(dynData, "_color");
+                    float r = Convert.ToSingle(color[0]);
+                    float g = Convert.ToSingle(color[1]);
+                    float b = Convert.ToSingle(color[2]);
+
                     Color c = new Color(r, g, b);
-                    if (a.HasValue) c = c.ColorWithAlpha(a.Value);
+                    if (color.Count > 3) c = c.ColorWithAlpha(Convert.ToSingle(color[3]));
                     CustomObstacleColours.Add(d.time, c);
 
                     ColourManager.TechnicolourBarriersForceDisabled = true;
