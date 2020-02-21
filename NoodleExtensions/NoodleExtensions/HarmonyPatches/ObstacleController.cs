@@ -44,7 +44,7 @@ namespace NoodleExtensions.HarmonyPatches
             }
 
             // Mapping Extensions Legacy Support
-            // TODO: Decide if we're keeping this
+            // Someone remind me to remove this crap
             if (Plugin.MappingExtensionsActive)
             {
                 if ((obstacleData.lineIndex >= 1000 || obstacleData.lineIndex <= -1000) && !_startRow.HasValue) _startRow = ((obstacleData.lineIndex
