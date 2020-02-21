@@ -63,14 +63,19 @@ namespace Chroma.Events
         public float _duration;
         public BeatmapEventType _event;
 
-        public static void AddGradient(BeatmapEventType id, Color initc, Color endc, float time, float duration)
+        public static Color AddGradient(BeatmapEventType id, Color initc, Color endc, float time, float duration)
         {
-            if (CustomGradients.TryGetValue(id, out ChromaGradientEvent gradient))
+            if (ChromaBehaviour.ATSC.songTime - time < duration)
             {
-                Destroy(gradient);
-                CustomGradients.Remove(id);
+                if (CustomGradients.TryGetValue(id, out ChromaGradientEvent gradient))
+                {
+                    Destroy(gradient);
+                    CustomGradients.Remove(id);
+                }
+                CustomGradients.Add(id, Instantiate(initc, endc, time, duration, id));
+                return initc;
             }
-            CustomGradients.Add(id, Instantiate(initc, endc, time, duration, id));
+            else return endc;
         }
 
         // Creates dictionary loaded with all _lightGradient custom events and indexs them with the event's time and type

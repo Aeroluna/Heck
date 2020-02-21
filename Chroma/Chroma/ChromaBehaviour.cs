@@ -287,15 +287,18 @@ namespace Chroma
             if (ChromaConfig.CustomColourEventsEnabled)
             {
                 BeatmapEventData[] bevData = beatmapData.beatmapEventData;
-                for (int i = bevData.Length - 1; i >= 0; i--)
+                foreach (BeatmapEventData b in bevData)
                 {
-                    if (LightingRegistered && bevData[i] is CustomBeatmapEventData customData)
+                    if (LightingRegistered && b is CustomBeatmapEventData customData)
                     {
                         dynamic dynData = customData.customData;
-                        if (Trees.at(dynData, "_color") != null) ColourManager.TechnicolourLightsForceDisabled = true;
-                        continue;
+                        if (Trees.at(dynData, "_color") != null)
+                        {
+                            ColourManager.TechnicolourLightsForceDisabled = true;
+                            continue;
+                        }
                     }
-                    if (bevData[i].value >= ColourManager.RGB_INT_OFFSET) ColourManager.TechnicolourLightsForceDisabled = true;
+                    if (b.value >= ColourManager.RGB_INT_OFFSET) ColourManager.TechnicolourLightsForceDisabled = true;
                 }
 
                 BeatmapLineData[] bData = beatmapData.beatmapLinesData;

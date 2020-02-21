@@ -46,12 +46,8 @@ namespace Chroma.Utils
         {
             var diff = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap;
             var songData = SongCore.Collections.RetrieveDifficultyData(diff);
-            if (songData != null)
-            {
-                return (songData.additionalDifficultyData._suggestions.Contains("Chroma Lighting Events") ||
-                    songData.additionalDifficultyData._requirements.Contains("Chroma Lighting Events"));
-            }
-            return false;
+            return (songData?.additionalDifficultyData._suggestions.Contains("Chroma Lighting Events") ?? false ||
+                songData.additionalDifficultyData._requirements.Contains("Chroma Lighting Events"));
         }
     }
 }

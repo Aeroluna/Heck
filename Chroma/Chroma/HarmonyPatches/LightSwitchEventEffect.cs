@@ -206,9 +206,7 @@ namespace Chroma.HarmonyPatches
                                 if (initcolor.Count > 3) initc = initc.ColorWithAlpha(Convert.ToSingle(initcolor[3]));
                                 if (endcolor.Count > 3) endc = endc.ColorWithAlpha(Convert.ToSingle(endcolor[3]));
 
-                                ChromaGradientEvent.AddGradient(beatmapEventData.type, initc, endc, customData.time, duration);
-
-                                c = initc;
+                                c = ChromaGradientEvent.AddGradient(beatmapEventData.type, initc, endc, customData.time, duration);
                             }
                         }
 
