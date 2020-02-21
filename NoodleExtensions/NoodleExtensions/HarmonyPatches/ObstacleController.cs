@@ -33,7 +33,7 @@ namespace NoodleExtensions.HarmonyPatches
             float _noteLinesDistance = beatmapObjectSpawnController.GetField<float>("_noteLinesDistance");
 
             // CustomJSONData
-            if (obstacleData is CustomObstacleData customData)
+            if (Plugin.NoodleExtensionsActive && obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
                 _startRow = (float?)Trees.at(dynData, "_startRow");
@@ -44,21 +44,24 @@ namespace NoodleExtensions.HarmonyPatches
             }
 
             // Mapping Extensions Legacy Support
-            // TODO: SongCore requirement checker
-            if ((obstacleData.lineIndex >= 1000 || obstacleData.lineIndex <= -1000) && !_startRow.HasValue) _startRow = ((obstacleData.lineIndex
-                    - (obstacleData.lineIndex >= 1000 ? 1000 : -1000)) / 1000f) - (_noteLinesCount / 2);
-            if (obstacleData.width >= 1000 && !_width.HasValue) _width = (obstacleData.width - 1000) / 1000f;
-            if ((int)obstacleData.obstacleType >= 4001 && (int)obstacleData.obstacleType <= 4100000)
+            // TODO: Decide if we're keeping this
+            if (Plugin.MappingExtensionsActive)
             {
-                // Precise Start Height
-                int type = (int)obstacleData.obstacleType - 4001;
-                if (!_height.HasValue) _height = ((type / 1000) / 1000f) * height;
-                if (!_startHeight.HasValue) _startHeight = ((type % 1000) / 1000f) * 4;
-            }
-            else if ((int)obstacleData.obstacleType >= 1000)
-            {
-                // Precise Height Only
-                if (!_height.HasValue) _height = (((int)obstacleData.obstacleType - 1000f) / 1000f) * height;
+                if ((obstacleData.lineIndex >= 1000 || obstacleData.lineIndex <= -1000) && !_startRow.HasValue) _startRow = ((obstacleData.lineIndex
+                        - (obstacleData.lineIndex >= 1000 ? 1000 : -1000)) / 1000f) - (_noteLinesCount / 2);
+                if (obstacleData.width >= 1000 && !_width.HasValue) _width = ((obstacleData.width - 1000) / 1000f);
+                if ((int)obstacleData.obstacleType >= 4001 && (int)obstacleData.obstacleType <= 4100000)
+                {
+                    // Precise Start Height
+                    int type = (int)obstacleData.obstacleType - 4001;
+                    if (!_height.HasValue) _height = (((type / 1000) / 1000f) * height) / singleLineWidth;
+                    if (!_startHeight.HasValue) _startHeight = ((type % 1000) / 1000f) * 4;
+                }
+                else if ((int)obstacleData.obstacleType >= 1000)
+                {
+                    // Precise Height Only
+                    if (!_height.HasValue) _height = ((((int)obstacleData.obstacleType - 1000f) / 1000f) * height) / singleLineWidth;
+                }
             }
 
             // Actual wall stuff
@@ -83,8 +86,7 @@ namespace NoodleExtensions.HarmonyPatches
             }
 
             // oh my god im actually adding rotation
-            if (_rot.HasValue)
-                __instance.transform.Rotate(_rot.Value);
+            if (_rot.HasValue) __instance.transform.Rotate(_rot.Value);
 
             if (_startHeight.HasValue || _width.HasValue || _height.HasValue)
             {
@@ -96,7 +98,7 @@ namespace NoodleExtensions.HarmonyPatches
                 ____endPos = endPos + b;
 
                 float length = (____endPos - ____midPos).magnitude / move2Duration * obstacleData.duration;
-                float trueHeight = _height.GetValueOrDefault(height); // Take _type as height if _height no exist
+                float trueHeight = _height.GetValueOrDefault(height) * singleLineWidth; // Take _type as height if _height no exist
                 ____stretchableObstacle.SetSizeAndColor(num * 0.98f, trueHeight, length, ____color.color);
                 ____bounds = ____stretchableObstacle.bounds;
             }
