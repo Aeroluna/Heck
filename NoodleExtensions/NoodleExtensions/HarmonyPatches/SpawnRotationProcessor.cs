@@ -1,6 +1,7 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Harmony;
+using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
@@ -14,7 +15,7 @@ namespace NoodleExtensions.HarmonyPatches
             if (!__result) return;
 
             // CustomJSONData
-            if (Plugin.NoodleExtensionsActive && !Plugin.MappingExtensionsActive && beatmapEventData is CustomBeatmapEventData customData)
+            if (NoodleExtensionsActive && !MappingExtensionsActive && beatmapEventData is CustomBeatmapEventData customData)
             {
                 dynamic dynData = customData.customData;
                 float? _rotation = (float?)Trees.at(dynData, "_rotation");
