@@ -19,7 +19,7 @@ namespace NoodleExtensions.HarmonyPatches
             ref StretchableObstacle ____stretchableObstacle, ref Bounds ____bounds, SimpleColorSO ____color, float height)
         {
             // CustomJSONData
-            if (Plugin.NoodleExtensionsActive && obstacleData is CustomObstacleData customData)
+            if (Plugin.NoodleExtensionsActive && !Plugin.MappingExtensionsActive && obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
                 float? _startRow = (float?)Trees.at(dynData, "_startRow");
