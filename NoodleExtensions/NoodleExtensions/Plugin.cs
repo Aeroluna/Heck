@@ -58,26 +58,33 @@ namespace NoodleExtensions
             return songData?.additionalDifficultyData._requirements.Contains(capability) ?? false;
         }
 
-        internal static Vector3 GetNoteOffset(BeatmapObjectData beatMapObjectData, float? _startRow, float? _startHeight)
+        internal static Vector3 GetNoteOffset(BeatmapObjectData beatmapObjectData, float? _startRow, float? _startHeight)
         {
             float _noteLinesCount = beatmapObjectSpawnController.GetField<float>("_noteLinesCount");
             float _noteLinesDistance = beatmapObjectSpawnController.GetField<float>("_noteLinesDistance");
 
             float distance = -(_noteLinesCount - 1) * 0.5f + (_startRow.HasValue ? _noteLinesCount / 2 : 0); // Add last part to simulate https://github.com/spookyGh0st/beatwalls/#wall
-            distance = (distance + _startRow.GetValueOrDefault(beatMapObjectData.lineIndex)) * _noteLinesDistance;
+            float lineIndex = _startRow.GetValueOrDefault(beatmapObjectData.lineIndex); // i should not be allowed to use ternary operators
+            distance = (distance + lineIndex) * _noteLinesDistance;
 
+            return beatmapObjectSpawnController.transform.right * distance
+                + new Vector3(0, LineYPosForLineLayer(beatmapObjectData, _startHeight), 0);
+        }
+
+        internal static float LineYPosForLineLayer(BeatmapObjectData beatmapObjectData, float? height)
+        {
+            float _noteLinesDistance = beatmapObjectSpawnController.GetField<float>("_noteLinesDistance");
+            float _baseLinesYPos = beatmapObjectSpawnController.GetField<float>("_baseLinesYPos");
             float ypos = 0;
-            if (_startHeight.HasValue)
+            if (height.HasValue)
             {
-                ypos = _startHeight.Value * _noteLinesDistance;
+                ypos = (height.Value * _noteLinesDistance) + _baseLinesYPos; // offset by 0.25
             }
-            else if (beatMapObjectData is NoteData noteData)
+            else if (beatmapObjectData is NoteData noteData)
             {
                 ypos = beatmapObjectSpawnController.LineYPosForLineLayer(noteData.startNoteLineLayer);
             }
-
-            return beatmapObjectSpawnController.transform.right * distance
-                + new Vector3(0, ypos, 0);
+            return ypos;
         }
 
         #region Unused

@@ -67,11 +67,6 @@ namespace NoodleExtensions.HarmonyPatches
                     float trueHeight = _height.GetValueOrDefault(height) * (_height.HasValue ? singleLineWidth : 1); // Take _type as height if _height no exist
                     ____stretchableObstacle.SetSizeAndColor(num * 0.98f, trueHeight, length, ____color.color);
                     ____bounds = ____stretchableObstacle.bounds;
-
-                    Logger.Log("_startRow:" + _startRow?.ToString() ?? "Null");
-                    Logger.Log("_startHeight:" + _startHeight?.ToString() ?? "Null");
-                    Logger.Log("_width:" + _width?.ToString() ?? "Null");
-                    Logger.Log("_height:" + _height?.ToString() ?? "Null");
                 }
             }
         }

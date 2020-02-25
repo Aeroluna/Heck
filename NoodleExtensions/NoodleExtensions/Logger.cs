@@ -15,7 +15,7 @@ namespace NoodleExtensions
             Log(e.ToString(), level);
         }
 
-        public static void Log(Object obj, IPALogger.Level level = IPALogger.Level.Debug,
+        public static void Log(object obj, IPALogger.Level level = IPALogger.Level.Debug,
             [CallerMemberName] string member = "",
             [CallerLineNumber] int line = 0)
         {
