@@ -16,7 +16,8 @@ namespace NoodleExtensions.HarmonyPatches
     {
         public static void Postfix(ref ObstacleController __instance, ObstacleData obstacleData, Vector3 startPos, Vector3 midPos, Vector3 endPos, float move2Duration,
             float singleLineWidth, ref Vector3 ____startPos, ref Vector3 ____endPos, ref Vector3 ____midPos,
-            ref StretchableObstacle ____stretchableObstacle, ref Bounds ____bounds, SimpleColorSO ____color, float height)
+            ref StretchableObstacle ____stretchableObstacle, ref Bounds ____bounds, SimpleColorSO ____color, float height, ref Quaternion ____worldRotation,
+            ref Quaternion ____inverseWorldRotation)
         {
             if (NoodleExtensionsActive && !MappingExtensionsActive && obstacleData is CustomObstacleData customData)
             {
@@ -25,7 +26,8 @@ namespace NoodleExtensions.HarmonyPatches
                 float? _startHeight = (float?)Trees.at(dynData, "_startHeight");
                 float? _height = (float?)Trees.at(dynData, "_height");
                 float? _width = (float?)Trees.at(dynData, "_width");
-                List<object> _rot = Trees.at(dynData, "_rotation");
+                List<object> _localrot = Trees.at(dynData, "_localRotation");
+                float? _rotation = Trees.at(dynData, "_rotation");
 
                 // Actual wall stuff
                 if (_startRow.HasValue || _startHeight.HasValue || _width.HasValue || _height.HasValue)
@@ -53,13 +55,6 @@ namespace NoodleExtensions.HarmonyPatches
                         endPos = a3 + noteOffset;
                     }
 
-                    // oh my god im actually adding rotation
-                    if (_rot != null)
-                    {
-                        Vector3 vector = new Vector3(Convert.ToSingle(_rot[0]), Convert.ToSingle(_rot[1]), Convert.ToSingle(_rot[2]));
-                        __instance.transform.Rotate(vector);
-                    }
-
                     // Below ripped from base game
                     float num = _width.GetValueOrDefault(obstacleData.width) * singleLineWidth;
                     Vector3 b = new Vector3((num - singleLineWidth) * 0.5f, _startHeight.GetValueOrDefault(0), 0); // We add _startHeight here
@@ -71,6 +66,22 @@ namespace NoodleExtensions.HarmonyPatches
                     float trueHeight = _height.GetValueOrDefault(height) * (_height.HasValue ? singleLineWidth : 1); // Take _type as height if _height no exist
                     ____stretchableObstacle.SetSizeAndColor(num * 0.98f, trueHeight, length, ____color.color);
                     ____bounds = ____stretchableObstacle.bounds;
+                }
+
+                // Precision 360 on individual wall
+                // Can be super abused so lets be nice, ok?
+                if (_rotation.HasValue)
+                {
+                    ____worldRotation = Quaternion.Euler(0, _rotation.Value, 0);
+                    ____inverseWorldRotation = Quaternion.Euler(0, -_rotation.Value, 0);
+                    __instance.transform.localRotation = ____worldRotation;
+                }
+
+                // oh my god im actually adding rotation
+                if (_localrot != null)
+                {
+                    Vector3 vector = new Vector3(Convert.ToSingle(_localrot[0]), Convert.ToSingle(_localrot[1]), Convert.ToSingle(_localrot[2]));
+                    __instance.transform.Rotate(vector);
                 }
             }
         }
