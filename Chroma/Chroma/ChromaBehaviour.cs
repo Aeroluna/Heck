@@ -259,7 +259,10 @@ namespace Chroma
             if (LightingRegistered)
             {
                 cecc.AddCustomEventCallback(ChromaGradientEvent.Callback, "AddGradient", 0);
-                cecc.AddCustomEventCallback(ChromaSaberColourEvent.Callback, "SetSaberColor", 0);
+                if (ChromaConfig.NoteColourEventsEnabled)
+                {
+                    cecc.AddCustomEventCallback(ChromaSaberColourEvent.Callback, "SetSaberColor", 0);
+                }
             }
         }
 
