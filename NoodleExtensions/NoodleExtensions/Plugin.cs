@@ -28,6 +28,7 @@ namespace NoodleExtensions
                 return _bosc;
             }
         }
+
         private static BeatmapObjectSpawnController _bosc;
 
         public void Init(object thisIsNull, IPALogger pluginLogger)

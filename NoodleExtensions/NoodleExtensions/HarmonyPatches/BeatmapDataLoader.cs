@@ -3,10 +3,6 @@ using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Harmony;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using UnityEngine;
-using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
