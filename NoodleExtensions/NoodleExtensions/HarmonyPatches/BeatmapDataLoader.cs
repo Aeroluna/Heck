@@ -32,7 +32,6 @@ namespace NoodleExtensions.HarmonyPatches
             if (notes.Count != 2) return;
             List<float> lineIndexes = new List<float>();
             List<float> lineLayers = new List<float>();
-            // CustomJSONData
             for (int i = 0; i < notes.Count; i++)
             {
                 if (notes[i] is CustomNoteData customData)

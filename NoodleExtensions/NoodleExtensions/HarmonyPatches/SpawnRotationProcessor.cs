@@ -14,13 +14,12 @@ namespace NoodleExtensions.HarmonyPatches
         {
             if (!__result) return;
 
-            // CustomJSONData
             if (NoodleExtensionsActive && !MappingExtensionsActive && beatmapEventData is CustomBeatmapEventData customData)
             {
                 dynamic dynData = customData.customData;
                 float? _rotation = (float?)Trees.at(dynData, "_rotation");
 
-                if (_rotation.HasValue) ____rotation = _rotation.Value;
+                if (_rotation.HasValue) ____rotation += _rotation.Value;
             }
         }
     }

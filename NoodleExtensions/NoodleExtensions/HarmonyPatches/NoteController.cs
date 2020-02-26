@@ -14,7 +14,6 @@ namespace NoodleExtensions.HarmonyPatches
     {
         public static void Prefix(ref NoteController __instance, NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float jumpGravity)
         {
-            // CustomJSONData
             if (NoodleExtensionsActive && !MappingExtensionsActive && noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
@@ -62,7 +61,6 @@ namespace NoodleExtensions.HarmonyPatches
 
         public static void Postfix(NoteController __instance, NoteData noteData)
         {
-            // CustomJSONData
             if (NoodleExtensionsActive && !MappingExtensionsActive && noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;

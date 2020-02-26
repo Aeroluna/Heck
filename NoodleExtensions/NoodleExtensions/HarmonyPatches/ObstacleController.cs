@@ -2,6 +2,8 @@
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Harmony;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static NoodleExtensions.Plugin;
 
@@ -16,7 +18,6 @@ namespace NoodleExtensions.HarmonyPatches
             float singleLineWidth, ref Vector3 ____startPos, ref Vector3 ____endPos, ref Vector3 ____midPos,
             ref StretchableObstacle ____stretchableObstacle, ref Bounds ____bounds, SimpleColorSO ____color, float height)
         {
-            // CustomJSONData
             if (NoodleExtensionsActive && !MappingExtensionsActive && obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
@@ -24,7 +25,7 @@ namespace NoodleExtensions.HarmonyPatches
                 float? _startHeight = (float?)Trees.at(dynData, "_startHeight");
                 float? _height = (float?)Trees.at(dynData, "_height");
                 float? _width = (float?)Trees.at(dynData, "_width");
-                Vector3? _rot = Trees.getVector3(dynData, "_rotation");
+                List<object> _rot = Trees.at(dynData, "_rotation");
 
                 // Actual wall stuff
                 if (_startRow.HasValue || _startHeight.HasValue || _width.HasValue || _height.HasValue)
@@ -53,7 +54,11 @@ namespace NoodleExtensions.HarmonyPatches
                     }
 
                     // oh my god im actually adding rotation
-                    if (_rot.HasValue) __instance.transform.Rotate(_rot.Value);
+                    if (_rot != null)
+                    {
+                        Vector3 vector = new Vector3(Convert.ToSingle(_rot[0]), Convert.ToSingle(_rot[1]), Convert.ToSingle(_rot[2]));
+                        __instance.transform.Rotate(vector);
+                    }
 
                     // Below ripped from base game
                     float num = _width.GetValueOrDefault(obstacleData.width) * singleLineWidth;
