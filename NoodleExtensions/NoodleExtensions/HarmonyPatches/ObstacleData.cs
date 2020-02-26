@@ -3,7 +3,6 @@ using CustomJSONData.CustomBeatmap;
 using Harmony;
 using System.Collections.Generic;
 using UnityEngine;
-using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
@@ -27,7 +26,7 @@ namespace NoodleExtensions.HarmonyPatches
                 if (_rot.HasValue)
                 {
                     _rot *= -1;
-                    List<object> rotation = new List<object>() {_rot.Value.x, _rot.Value.y, _rot.Value.z};
+                    List<object> rotation = new List<object>() { _rot.Value.x, _rot.Value.y, _rot.Value.z };
                     dynData._rotation = rotation;
                 }
             }

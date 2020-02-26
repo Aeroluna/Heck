@@ -1,10 +1,6 @@
-﻿using BS_Utils.Utilities;
-using CustomJSONData;
+﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Harmony;
-using System.Collections.Generic;
-using UnityEngine;
-using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {

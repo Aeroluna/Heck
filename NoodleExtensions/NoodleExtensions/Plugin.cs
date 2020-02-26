@@ -12,7 +12,7 @@ namespace NoodleExtensions
 {
     public class Plugin : IBeatSaberPlugin
     {
-        public const bool DebugMode = true;
+        public const bool DebugMode = false;
 
         internal static bool MappingExtensionsActive = false;
         internal static bool NoodleExtensionsActive = false;
