@@ -181,7 +181,7 @@ namespace Chroma
 
         private void SceneManagerOnActiveSceneChanged(Scene current, Scene next)
         {
-            ChromaLogger.Log("Scene change " + current.name + " -> " + next.name, ChromaLogger.Level.DEBUG);
+            //ChromaLogger.Log("Scene change " + current.name + " -> " + next.name, ChromaLogger.Level.DEBUG);
 
             if (current.name == "GameCore")
             {

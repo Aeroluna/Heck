@@ -1,6 +1,4 @@
-﻿using Chroma.Settings;
-using Harmony;
-using UnityEngine;
+﻿using Harmony;
 
 namespace Chroma.HarmonyPatches
 {

@@ -78,7 +78,7 @@ namespace Chroma.Events
             else return endc;
         }
 
-        // Creates dictionary loaded with all _lightGradient custom events and indexs them with the event's time and type
+        // Instantiate self
         public static void Callback(CustomEventData eventData)
         {
             try

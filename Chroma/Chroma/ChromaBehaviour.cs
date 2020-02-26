@@ -236,19 +236,19 @@ namespace Chroma
             {
                 switch (n.Key)
                 {
-                    case "_obstacleColor":
+                    case "SetObstacleColor":
                         ChromaObstacleColourEvent.Activate(n.Value);
                         break;
 
-                    case "_noteColor":
+                    case "SetNoteColor":
                         if (ChromaConfig.NoteColourEventsEnabled) ChromaNoteColourEvent.Activate(n.Value);
                         break;
 
-                    case "_bombColor":
+                    case "SetBombColor":
                         ChromaBombColourEvent.Activate(n.Value);
                         break;
 
-                    case "_lightRGB":
+                    case "SetLightColor":
                         ChromaLightColourEvent.Activate(n.Value);
                         break;
                 }
@@ -258,7 +258,8 @@ namespace Chroma
             CustomEvents.CustomEventCallbackController cecc = gcss.GetComponentInParent<CustomEvents.CustomEventCallbackController>();
             if (LightingRegistered)
             {
-                cecc.AddCustomEventCallback(ChromaGradientEvent.Callback, "_lightGradient", 0);
+                cecc.AddCustomEventCallback(ChromaGradientEvent.Callback, "AddGradient", 0);
+                cecc.AddCustomEventCallback(ChromaSaberColourEvent.Callback, "SetSaberColor", 0);
             }
         }
 

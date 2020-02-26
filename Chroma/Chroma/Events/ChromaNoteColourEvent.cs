@@ -1,7 +1,6 @@
 ﻿using Chroma.Extensions;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using IPA.Utilities;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -53,17 +52,21 @@ namespace Chroma.Events
         {
             Color color;
             bool noteType = noteController.noteData.noteType == NoteType.NoteA;
-            if (SavedNoteColours.TryGetValue(noteController, out Color c)) color = c;
-            else
+            bool saberType = noteCutInfo.saberType == Saber.SaberType.SaberA;
+            if (noteType == saberType)
             {
-                ChromaLogger.Log("SavedNoteColour not found!", ChromaLogger.Level.WARNING);
-                return;
-            }
-            foreach (SaberColourizer saber in SaberColourizer.saberColourizers)
-            {
-                if (saber.warm == (noteController.noteData.noteType == NoteType.NoteA))
+                if (SavedNoteColours.TryGetValue(noteController, out Color c)) color = c;
+                else
                 {
-                    saber.Colourize(color);
+                    ChromaLogger.Log("SavedNoteColour not found!", ChromaLogger.Level.WARNING);
+                    return;
+                }
+                foreach (SaberColourizer saber in SaberColourizer.saberColourizers)
+                {
+                    if (saber.warm == (noteController.noteData.noteType == NoteType.NoteA))
+                    {
+                        saber.Colourize(color);
+                    }
                 }
             }
 
