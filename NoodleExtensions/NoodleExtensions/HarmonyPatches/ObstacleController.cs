@@ -49,7 +49,7 @@ namespace NoodleExtensions.HarmonyPatches
                         // Ripped from base game
                         Vector3 noteOffset = GetNoteOffset(obstacleData, _startRow, null);
                         noteOffset.y = _startHeight.HasValue ? _verticalObstaclePosY : ((obstacleData.obstacleType == ObstacleType.Top)
-                            ? (_topObstaclePosY + _globalJumpOffsetY) : _verticalObstaclePosY); ; // If _startHeight is set, put wall on floor
+                            ? (_topObstaclePosY + _globalJumpOffsetY) : _verticalObstaclePosY); // If _startHeight is set, put wall on floor
                         startPos = a + noteOffset;
                         midPos = a2 + noteOffset;
                         endPos = a3 + noteOffset;
@@ -57,13 +57,13 @@ namespace NoodleExtensions.HarmonyPatches
 
                     // Below ripped from base game
                     float num = _width.GetValueOrDefault(obstacleData.width) * singleLineWidth;
-                    Vector3 b = new Vector3((num - singleLineWidth) * 0.5f, _startHeight.GetValueOrDefault(0), 0); // We add _startHeight here
+                    Vector3 b = new Vector3((num - singleLineWidth) * 0.5f, _startHeight.GetValueOrDefault(0) * singleLineWidth, 0); // We add _startHeight here
                     ____startPos = startPos + b;
                     ____midPos = midPos + b;
                     ____endPos = endPos + b;
 
                     float length = (____endPos - ____midPos).magnitude / move2Duration * obstacleData.duration;
-                    float trueHeight = _height.GetValueOrDefault(height) * (_height.HasValue ? 1 : singleLineWidth); // Take _type as height if _height no exist
+                    float trueHeight = (_height * singleLineWidth) ?? height; // Take _type as height if _height no exist
                     ____stretchableObstacle.SetSizeAndColor(num * 0.98f, trueHeight, length, ____color.color);
                     ____bounds = ____stretchableObstacle.bounds;
                 }
