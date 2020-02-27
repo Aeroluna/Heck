@@ -63,7 +63,7 @@ namespace NoodleExtensions.HarmonyPatches
                     ____endPos = endPos + b;
 
                     float length = (____endPos - ____midPos).magnitude / move2Duration * obstacleData.duration;
-                    float trueHeight = _height.GetValueOrDefault(height) * (_height.HasValue ? singleLineWidth : 1); // Take _type as height if _height no exist
+                    float trueHeight = _height.GetValueOrDefault(height) * (_height.HasValue ? 1 : singleLineWidth); // Take _type as height if _height no exist
                     ____stretchableObstacle.SetSizeAndColor(num * 0.98f, trueHeight, length, ____color.color);
                     ____bounds = ____stretchableObstacle.bounds;
                 }
