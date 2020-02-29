@@ -121,9 +121,6 @@
   <data name="chromaNotes" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\chromaNotes.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
-  <data name="credits" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>resources\credits.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
   <data name="safetyWaiver" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\safetyWaiver.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>

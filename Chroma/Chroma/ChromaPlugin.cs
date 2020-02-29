@@ -8,6 +8,7 @@ using IPA.Loader;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,7 +16,7 @@ namespace Chroma
 {
     public class ChromaPlugin
     {
-        private static Version assemblyVersion = typeof(ChromaPlugin).Assembly.GetName().Version;
+        private static Version assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
         public static string Version = assemblyVersion.Major + "." + assemblyVersion.Minor + "." + assemblyVersion.Build;
 
         /// <summary>
@@ -123,7 +124,7 @@ namespace Chroma
                 ChromaLogger.Log("Patching with Harmony.");
                 try
                 {
-                    CoreHarmonyInstance.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
+                    CoreHarmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
                     harmonyInstances.Add(CoreHarmonyInstance);
                     foreach (IChromaExtension extension in chromaExtensions)
                     {

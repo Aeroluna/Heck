@@ -78,28 +78,6 @@ namespace Chroma {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;size=6&gt;&lt;mspace=4&gt;&lt;align=&quot;center&quot;&gt;CHROMA&lt;/align&gt;&lt;/mspace&gt;&lt;/size&gt;
-        ///People who did stuff.  Yaaaaay!
-        ///
-        ///&lt;align=&quot;center&quot;&gt;&lt;b&gt;Lead Developer&lt;/b&gt;&lt;/align&gt;
-        ///&lt;b&gt;&lt;color=#00aaaa&gt;SkyKiwiTV&lt;/color&gt;&lt;/b&gt;
-        ///-&lt;indent=3&gt;Made the thing&lt;/indent&gt;
-        ///-&lt;indent=3&gt;Yeah yeah we already knew that big whoop&lt;/indent&gt;
-        ///-&lt;indent=3&gt;Thinks squeaksies is the best&lt;/indent&gt;
-        ///
-        ///
-        ///&lt;align=&quot;center&quot;&gt;&lt;b&gt;Significant Contributors&lt;/b&gt;&lt;/align&gt;
-        ///&lt;b&gt;&lt;color=#9b59b6&gt;Arti&lt;/color&gt;&lt;/b&gt; - Enabler
-        ///-&lt;indent=3&gt;Learned me good in the ways of Harmony&lt;/indent&gt;
-        ///-&lt;inden [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string credits {
-            get {
-                return ResourceManager.GetString("credits", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &lt;size=6&gt;&lt;mspace=4&gt;&lt;align=&quot;center&quot;&gt;SAFETY WAIVER&lt;/align&gt;&lt;/mspace&gt;&lt;/size&gt;
         ///
         ///Certain features of Chroma and its extension mods require you to agree to a safety warning.  Both the reasoning behind this, and the instructions to do so, are below.

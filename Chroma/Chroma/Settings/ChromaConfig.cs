@@ -454,7 +454,6 @@ namespace Chroma.Settings
                 Username = BS_Utils.Gameplay.GetUserInfo.GetUserName();
                 UserID = BS_Utils.Gameplay.GetUserInfo.GetUserID();
 
-                ChromaLogger.Log(Greetings.GetGreeting(UserID, Username), ChromaLogger.Level.INFO);
                 if (DebugMode) ChromaLogger.Log("=== YOUR ID : " + UserID.ToString());
 
                 if (type == LoadSettingsType.INITIAL)
@@ -528,7 +527,7 @@ namespace Chroma.Settings
                 AltA = ChromaSettingsUI.GetColor(GetString("Notes", "colourAltA", "Notes Magenta"), DefaultAltA);
                 AltB = ChromaSettingsUI.GetColor(GetString("Notes", "colourAltB", "Notes Green"), DefaultAltB);
                 NonColoured = ChromaSettingsUI.GetColor(GetString("Notes", "colourNonColoured", "Notes White"), DefaultNonColoured);
-                DoubleHit = DoubleHit = ChromaSettingsUI.GetColor(GetString("Notes", "colourDuochrome", "Notes Purple"));
+                DoubleHit = ChromaSettingsUI.GetColor(GetString("Notes", "colourDuochrome", "Notes Purple"), DefaultDoubleHit);
                 Super = ChromaSettingsUI.GetColor(GetString("Notes", "colourSuper", "Notes Gold"), DefaultSuper);
 
                 /*
@@ -548,10 +547,10 @@ namespace Chroma.Settings
                  */
 
                 //ColourManager.BarrierColour = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "barrierColour", "DEFAULT"), ColourManager.DefaultBarrierColour);
-                LaserPointerColour = ChromaSettingsUI.GetColor(GetString("Aesthetics", "laserPointerColour", "DEFAULT"), DefaultB);
-                SignA = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourA", "DEFAULT"), DefaultA);
-                SignB = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourB", "DEFAULT"), DefaultB);
-                Platform = ChromaSettingsUI.GetColor(GetString("Aesthetics", "platformAccoutrements", "DEFAULT"), DefaultB);
+                LaserPointerColour = ChromaSettingsUI.GetColor(GetString("Aesthetics", "laserPointerColour", "DEFAULT"), null);
+                SignA = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourA", "DEFAULT"), null);
+                SignB = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourB", "DEFAULT"), null);
+                Platform = ChromaSettingsUI.GetColor(GetString("Aesthetics", "platformAccoutrements", "DEFAULT"), null);
 
                 saberTrailStrength = GetFloat("Aesthetics", "saberTrailStrength", 1f);
 

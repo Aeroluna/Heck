@@ -1,6 +1,6 @@
 <size=6><align="center"><mspace=4>CHROMA</mspace> %VER%</align></size>
 
-Welcome, %USERNAME%!  
+%GREETING%
 
 Here at the luxurious suite of Chroma we value your eye-cone-thingies.
 
@@ -13,6 +13,30 @@ If instead of fighting back the neverending onslaught of aggressive cubes, you'r
 And of course, all colours can be customized.  We didn't forget those of you who can't appreciate all sixteen million colours.  It's a rough life you live, and Chroma wants only to make things better.  Chroma is your friend.  Chroma loves you.  Chroma never wants you to le-
 
 <size=6><mspace=4><align="center">CHANGE LOGS</align></mspace></size>
+
+<align="center">Version 1.4.0</align>
+It's been awhile, hasn't it?
+-<indent=3>SkyKiwi went missing, now I (Aeroluna) am in control!</indent>
+-<indent=3>Update to Beat Saber 1.7.0!</indent>
+-<indent=3>Replaced CustomUI with BSML</indent>
+-<indent=3>MASSIVE code rework</indent>
+-<indent=3>Say bye to lag on starting songs!</indent>
+-<indent=3>Repurposed Chroma Greetings to say potentially disturbing things to you!</indent>
+-<indent=3>Made Dragons and Origins side lasers get affected by Chromafication</indent>
+-<indent=3>Removed option to set Note Color, Light Color, and Barrier Color. Use vanilla game color override for this</indent>
+-<indent=3>Laser Pointer, Neon Sign color, and Platform Accoutrements fixed</indent>
+-<indent=3>Added customEvents and customData through CustomJSONData for notes, walls, sabers, lights, and even bombs</indent>
+-<indent=3>Added Gradient events so that mappers don't have to place 1000 color events for a gradient</indent>
+-<indent=3>Precise Laser Spin Controls. This only matters to lighters, huh?</indent>
+-<indent=3>Precise Ring Spin Controls. Enough said</indent>
+-<indent=3>Isolate Lights. a.k.a. ring prop</indent>
+-<indent=3>Moved Technicolour options to Mod Settings</indent>
+-<indent=3>Fixed Mayhem Technicolour mode and removed safety waiver requirement</indent>
+-<indent=3>New Technicolour Style: Gradient, anything set to this style will be synced up</indent>
+-<indent=3>Reworked Technicolour Saber desync into Left/Right desync (Recommended for Gradient style)</indent>
+-<indent=3>Lightshow Mode no longer kills walls</indent>
+-<indent=3>Secret settings for Lightshow Mode if you type "lightshow" into secrets</indent>
+-<indent=3>Erased all legacy events, gone without a trace (Except for RGB ones)</indent>
 
 <align="center">Version 1.2.0</align>
 -<indent=3>Update to Beat Saber 0.13.2!</indent>
@@ -81,19 +105,20 @@ Welcome to the alpha pre-release of Chroma!  You're doing your fellow Saberians 
 Typos typos typos.  Don't type stuff up like this on 40 hours of wakefulness.
 
 <b>Lead Developer:</b>
+-<indent=3>Aeroluna</indent>
+
+<b>Original Developer:</b>
 -<indent=3>SkyKiwiTV</indent>
 
 <b>Significant Contributors:</b>
 -<indent=3>Arti</indent>
 -<indent=3>brian</indent>
 -<indent=3>Caeden117</indent>
+-<indent=3>%USERNAME%</indent>
 -<indent=3>Kyle 1413</indent>
 -<indent=3>Moon</indent>
 -<indent=3>PlasmaPower</indent>
 -<indent=3>squeaksies</indent>
 
-<b>ChroMapper Pioneers:</b>
--<indent=3>Liquid Popsicle</indent>
--<indent=3>AaltopahWi</indent>
-
-<i>For more info on contributors, mappers, and the like, type "credits" into the Secrets panel in Chroma Settings</i>
+Huge thanks to my friends in the Ramen Noodle group for helping me every step of the way!
+(We're taking over Beat Saber, obey your new Ramen overlords)

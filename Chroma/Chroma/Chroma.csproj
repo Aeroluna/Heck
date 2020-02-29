@@ -79,7 +79,6 @@
     <Compile Include="Utils\SidePanelUtil.cs" />
     <Compile Include="VFX\TechnicolourController.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="ResourceTextFiles.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
@@ -97,7 +96,6 @@
     <None Include="Resources\chromaNotes.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\credits.txt" />
     <EmbeddedResource Include="Resources\LightshowIcon.png" />
   </ItemGroup>
   <ItemGroup>
