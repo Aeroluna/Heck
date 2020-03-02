@@ -25,11 +25,6 @@ It's been awhile, hasn't it?
 -<indent=3>Made Dragons and Origins side lasers get affected by Chromafication</indent>
 -<indent=3>Removed option to set Note Color, Light Color, and Barrier Color. Use vanilla game color override for this</indent>
 -<indent=3>Laser Pointer, Neon Sign color, and Platform Accoutrements fixed</indent>
--<indent=3>Added customEvents and customData through CustomJSONData for notes, walls, sabers, lights, and even bombs</indent>
--<indent=3>Added Gradient events so that mappers don't have to place 1000 color events for a gradient</indent>
--<indent=3>Precise Laser Spin Controls. This only matters to lighters, huh?</indent>
--<indent=3>Precise Ring Spin Controls. Enough said</indent>
--<indent=3>Isolate Lights. a.k.a. ring prop</indent>
 -<indent=3>Moved Technicolour options to Mod Settings</indent>
 -<indent=3>Fixed Mayhem Technicolour mode and removed safety waiver requirement</indent>
 -<indent=3>New Technicolour Style: Gradient, anything set to this style will be synced up</indent>
@@ -37,6 +32,12 @@ It's been awhile, hasn't it?
 -<indent=3>Lightshow Mode no longer kills walls</indent>
 -<indent=3>Secret settings for Lightshow Mode if you type "lightshow" into secrets</indent>
 -<indent=3>Erased all legacy events, gone without a trace (Except for RGB ones)</indent>
+-<indent=3>Added customEvents and customData through CustomJSONData for notes, walls, sabers, lights, and even bombs</indent>
+-<indent=3>Added Gradient events so that mappers don't have to place 1000 color events for a gradient</indent>
+-<indent=3>Precise Laser Spin Controls. This only matters to lighters, huh?</indent>
+-<indent=3>Precise Ring Spin Controls. Enough said</indent>
+-<indent=3>Isolate Lights. a.k.a. ring prop</indent>
+-<indent=3>Remove specific props from environments (another mapper thing)</indent>
 
 <align="center">Version 1.2.0</align>
 -<indent=3>Update to Beat Saber 0.13.2!</indent>

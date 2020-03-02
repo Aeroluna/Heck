@@ -217,6 +217,18 @@ namespace Chroma
 
             ColourManager.RefreshLights();
 
+            if (beatmapData is CustomBeatmapData customBeatmapData)
+            {
+                dynamic dynData = customBeatmapData.beatmapCustomData;
+                List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
+                if (objectsToKill != null)
+                {
+                    GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+                    objectsToKill.Cast<string>()?.ToList()?.ForEach(s => gameObjects.Where(obj => obj.name.Contains(s)
+                    && obj.scene.name.Contains("Environment"))?.ToList()?.ForEach(n => n.SetActive(false)));
+                }
+            }
+
             if (ChromaConfig.LightshowModifier)
             {
                 foreach (Saber saber in FindObjectsOfType<Saber>())
