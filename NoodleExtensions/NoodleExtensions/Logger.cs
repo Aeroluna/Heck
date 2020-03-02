@@ -26,14 +26,7 @@ namespace NoodleExtensions
             [CallerMemberName] string member = "",
             [CallerLineNumber] int line = 0)
         {
-            if (Plugin.DebugMode)
-            {
-                logger.Log(level, $"{member}({line}): {message}");
-            }
-            else
-            {
-                logger.Log(level, $"{message}");
-            }
+            logger.Log(level, $"{member}({line}): {message}");
         }
     }
 }

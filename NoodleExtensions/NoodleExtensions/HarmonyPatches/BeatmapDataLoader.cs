@@ -3,6 +3,7 @@ using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Harmony;
 using System.Collections.Generic;
+using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
@@ -18,9 +19,9 @@ namespace NoodleExtensions.HarmonyPatches
                 if (notes[i] is CustomNoteData customData)
                 {
                     dynamic dynData = customData.customData;
-                    float? _flipY = (float?)Trees.at(dynData, "_flipY");
+                    float? _flipY = (float?)Trees.at(dynData, FLIPJUMP);
                     if (_flipY.HasValue) notes[i].SetProperty("flipYSide", _flipY.Value, typeof(NoteData));
-                    float? _flip = (float?)Trees.at(dynData, "_flipRow");
+                    float? _flip = (float?)Trees.at(dynData, FLIPX);
                     if (_flip.HasValue)
                     {
                         dynData.flipLineIndex = _flip.Value;
@@ -37,8 +38,8 @@ namespace NoodleExtensions.HarmonyPatches
                 if (notes[i] is CustomNoteData customData)
                 {
                     dynamic dynData = customData.customData;
-                    lineIndexes.Add(((float?)Trees.at(dynData, "_startRow")).GetValueOrDefault(notes[i].lineIndex - 2));
-                    lineLayers.Add(((float?)Trees.at(dynData, "_startHeight")).GetValueOrDefault((float)notes[i].noteLineLayer));
+                    lineIndexes.Add(((float?)Trees.at(dynData, STARTPOSX)).GetValueOrDefault(notes[i].lineIndex - 2));
+                    lineLayers.Add(((float?)Trees.at(dynData, STARTPOSY)).GetValueOrDefault((float)notes[i].noteLineLayer));
                 }
             }
             if (notes[0].noteType != notes[1].noteType && ((notes[0].noteType == NoteType.NoteA && lineIndexes[0] > lineIndexes[1]) ||

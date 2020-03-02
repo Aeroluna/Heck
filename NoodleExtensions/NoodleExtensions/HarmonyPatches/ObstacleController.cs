@@ -22,12 +22,12 @@ namespace NoodleExtensions.HarmonyPatches
             if (NoodleExtensionsActive && !MappingExtensionsActive && obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
-                float? _startRow = (float?)Trees.at(dynData, "_startRow");
-                float? _startHeight = (float?)Trees.at(dynData, "_startHeight");
-                float? _height = (float?)Trees.at(dynData, "_height");
-                float? _width = (float?)Trees.at(dynData, "_width");
-                List<object> _localrot = Trees.at(dynData, "_localRotation");
-                float? _rotation = Trees.at(dynData, "_rotation");
+                float? _startRow = (float?)Trees.at(dynData, STARTPOSX);
+                float? _startHeight = (float?)Trees.at(dynData, STARTPOSY);
+                float? _height = (float?)Trees.at(dynData, HEIGHT);
+                float? _width = (float?)Trees.at(dynData, WIDTH);
+                List<object> _localrot = Trees.at(dynData, LOCALROTATION);
+                float? _rotation = Trees.at(dynData, ROTATION);
 
                 // Actual wall stuff
                 if (_startRow.HasValue || _startHeight.HasValue || _width.HasValue || _height.HasValue)
@@ -69,7 +69,6 @@ namespace NoodleExtensions.HarmonyPatches
                 }
 
                 // Precision 360 on individual wall
-                // Can be super abused so lets be nice, ok?
                 if (_rotation.HasValue)
                 {
                     ____worldRotation = Quaternion.Euler(0, _rotation.Value, 0);

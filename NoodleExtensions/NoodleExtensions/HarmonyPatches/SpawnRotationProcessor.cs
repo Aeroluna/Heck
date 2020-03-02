@@ -17,7 +17,7 @@ namespace NoodleExtensions.HarmonyPatches
             if (NoodleExtensionsActive && !MappingExtensionsActive && beatmapEventData is CustomBeatmapEventData customData)
             {
                 dynamic dynData = customData.customData;
-                float? _rotation = (float?)Trees.at(dynData, "_rotation");
+                float? _rotation = (float?)Trees.at(dynData, ROTATION);
 
                 if (_rotation.HasValue)
                 {

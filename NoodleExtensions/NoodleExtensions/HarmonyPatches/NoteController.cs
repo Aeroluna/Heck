@@ -18,9 +18,9 @@ namespace NoodleExtensions.HarmonyPatches
             if (NoodleExtensionsActive && !MappingExtensionsActive && noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                float? _startRow = (float?)Trees.at(dynData, "_startRow");
-                float? _startHeight = (float?)Trees.at(dynData, "_startHeight");
-                float? _rotation = (float?)Trees.at(dynData, "_rotation");
+                float? _startRow = (float?)Trees.at(dynData, STARTPOSX);
+                float? _startHeight = (float?)Trees.at(dynData, STARTPOSY);
+                float? _rotation = (float?)Trees.at(dynData, ROTATION);
 
                 float _globalJumpOffsetY = beatmapObjectSpawnController.GetField<float>("_globalJumpOffsetY");
                 float _moveDistance = beatmapObjectSpawnController.GetField<float>("_moveDistance");
@@ -69,7 +69,7 @@ namespace NoodleExtensions.HarmonyPatches
             if (NoodleExtensionsActive && !MappingExtensionsActive && noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                float? _rot = (float?)Trees.at(dynData, "_cutDirection");
+                float? _rot = (float?)Trees.at(dynData, CUTDIRECTION);
                 if (!_rot.HasValue) return;
 
                 NoteMovement noteMovement = __instance.GetPrivateField<NoteMovement>("_noteMovement");
