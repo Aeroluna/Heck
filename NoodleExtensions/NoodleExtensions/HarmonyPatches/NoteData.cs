@@ -1,6 +1,7 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Harmony;
+using System.Collections.Generic;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
@@ -15,9 +16,11 @@ namespace NoodleExtensions.HarmonyPatches
             if (__instance is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                float? _startRow = (float?)Trees.at(dynData, STARTPOSX);
+                List<object> _position = Trees.at(dynData, POSITION);
                 float? flipLineIndex = (float?)Trees.at(dynData, "flipLineIndex");
                 float? _rotation = (float?)Trees.at(dynData, ROTATION);
+
+                float? _startRow = (float?)_position[0];
 
                 if (_startRow.HasValue) dynData._startRow = ((_startRow.Value + 0.5f) * -1) - 0.5f;
                 if (flipLineIndex.HasValue) dynData.flipLineIndex = ((flipLineIndex.Value + 0.5f) * -1) - 0.5f;

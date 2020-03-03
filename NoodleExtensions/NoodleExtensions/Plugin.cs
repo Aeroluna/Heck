@@ -13,17 +13,19 @@ namespace NoodleExtensions
     public class Plugin : IBeatSaberPlugin
     {
         // All objects
-        internal const string STARTPOSX = "_posX";
-        internal const string STARTPOSY = "_posY";
+        internal const string POSITION = "_position";
+
         internal const string ROTATION = "_rotation"; // Rotation events included
 
         // Wall exclusives
         internal const string LOCALROTATION = "_localRotation";
+
         internal const string HEIGHT = "_height";
         internal const string WIDTH = "_width";
 
         // Note exclusives
         internal const string CUTDIRECTION = "_cutDirection";
+
         internal const string FLIPX = "_flipX";
         internal const string FLIPJUMP = "_flipJump";
 

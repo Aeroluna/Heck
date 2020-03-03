@@ -17,10 +17,12 @@ namespace NoodleExtensions.HarmonyPatches
             if (__instance is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
-                float? _startRow = (float?)Trees.at(dynData, STARTPOSX);
+                List<object> _position = Trees.at(dynData, POSITION);
                 float? _width = (float?)Trees.at(dynData, WIDTH);
                 Vector3? _localrot = Trees.getVector3(dynData, LOCALROTATION);
                 float? _rotation = Trees.at(dynData, ROTATION);
+
+                float? _startRow = (float?)_position[0];
 
                 float width = _width.GetValueOrDefault(__instance.width);
                 if (_startRow.HasValue) dynData._startRow = (_startRow.Value + width) * -1;

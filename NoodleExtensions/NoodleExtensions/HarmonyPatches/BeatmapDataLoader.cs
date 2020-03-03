@@ -38,8 +38,9 @@ namespace NoodleExtensions.HarmonyPatches
                 if (notes[i] is CustomNoteData customData)
                 {
                     dynamic dynData = customData.customData;
-                    lineIndexes.Add(((float?)Trees.at(dynData, STARTPOSX)).GetValueOrDefault(notes[i].lineIndex - 2));
-                    lineLayers.Add(((float?)Trees.at(dynData, STARTPOSY)).GetValueOrDefault((float)notes[i].noteLineLayer));
+                    List<object> _position = Trees.at(dynData, POSITION);
+                    lineIndexes.Add(((float?)_position[0]).GetValueOrDefault(notes[i].lineIndex - 2));
+                    lineLayers.Add(((float?)_position[1]).GetValueOrDefault((float)notes[i].noteLineLayer));
                 }
             }
             if (notes[0].noteType != notes[1].noteType && ((notes[0].noteType == NoteType.NoteA && lineIndexes[0] > lineIndexes[1]) ||
