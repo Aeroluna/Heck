@@ -23,13 +23,15 @@ namespace NoodleExtensions.HarmonyPatches
             {
                 dynamic dynData = customData.customData;
                 List<object> _position = Trees.at(dynData, POSITION);
-                float? _width = (float?)Trees.at(dynData, WIDTH);
-                float? _height = (float?)Trees.at(dynData, HEIGHT);
+                List<object> _scale = Trees.at(dynData, SCALE);
                 List<object> _localrot = Trees.at(dynData, LOCALROTATION);
                 float? _rotation = (float?)Trees.at(dynData, ROTATION);
 
                 float? _startRow = (float?)_position[0];
                 float? _startHeight = (float?)_position[1];
+
+                float? _width = (float?)_scale[0];
+                float? _height = (float?)_scale[1];
 
                 // Actual wall stuff
                 if (_startRow.HasValue || _startHeight.HasValue || _width.HasValue || _height.HasValue)

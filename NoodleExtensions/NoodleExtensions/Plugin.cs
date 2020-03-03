@@ -20,8 +20,7 @@ namespace NoodleExtensions
         // Wall exclusives
         internal const string LOCALROTATION = "_localRotation";
 
-        internal const string HEIGHT = "_height";
-        internal const string WIDTH = "_width";
+        internal const string SCALE = "_scale";
 
         // Note exclusives
         internal const string CUTDIRECTION = "_cutDirection";

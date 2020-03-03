@@ -18,11 +18,12 @@ namespace NoodleExtensions.HarmonyPatches
             {
                 dynamic dynData = customData.customData;
                 List<object> _position = Trees.at(dynData, POSITION);
-                float? _width = (float?)Trees.at(dynData, WIDTH);
+                List<object> _scale = Trees.at(dynData, SCALE);
                 Vector3? _localrot = Trees.getVector3(dynData, LOCALROTATION);
                 float? _rotation = Trees.at(dynData, ROTATION);
 
                 float? _startRow = (float?)_position[0];
+                float? _width = (float?)_scale[0];
 
                 float width = _width.GetValueOrDefault(__instance.width);
                 if (_startRow.HasValue) dynData._startRow = (_startRow.Value + width) * -1;
