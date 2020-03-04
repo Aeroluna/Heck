@@ -2,6 +2,7 @@
 using CustomJSONData.CustomBeatmap;
 using Harmony;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static NoodleExtensions.Plugin;
 
@@ -17,13 +18,13 @@ namespace NoodleExtensions.HarmonyPatches
             if (__instance is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
-                List<object> _position = Trees.at(dynData, POSITION);
-                List<object> _scale = Trees.at(dynData, SCALE);
+                List<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToList();
+                List<float?> _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat()).ToList();
                 Vector3? _localrot = Trees.getVector3(dynData, LOCALROTATION);
                 float? _rotation = Trees.at(dynData, ROTATION);
 
-                float? _startRow = (float?)_position[0];
-                float? _width = (float?)_scale[0];
+                float? _startRow = _position?.ElementAtOrDefault(0);
+                float? _width = _scale?.ElementAtOrDefault(0);
 
                 float width = _width.GetValueOrDefault(__instance.width);
                 if (_startRow.HasValue) dynData._startRow = (_startRow.Value + width) * -1;

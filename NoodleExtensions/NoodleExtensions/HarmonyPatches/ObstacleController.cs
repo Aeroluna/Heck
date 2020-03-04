@@ -4,6 +4,7 @@ using CustomJSONData.CustomBeatmap;
 using Harmony;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static NoodleExtensions.Plugin;
 
@@ -22,16 +23,16 @@ namespace NoodleExtensions.HarmonyPatches
             if (NoodleExtensionsActive && !MappingExtensionsActive && obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
-                List<object> _position = Trees.at(dynData, POSITION);
-                List<object> _scale = Trees.at(dynData, SCALE);
-                List<object> _localrot = Trees.at(dynData, LOCALROTATION);
+                List<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToList();
+                List<float?> _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat()).ToList();
+                List<float> _localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n)).ToList();
                 float? _rotation = (float?)Trees.at(dynData, ROTATION);
 
-                float? _startRow = (float?)_position[0];
-                float? _startHeight = (float?)_position[1];
+                float? _startRow = _position?.ElementAtOrDefault(0);
+                float? _startHeight = _position?.ElementAtOrDefault(1);
 
-                float? _width = (float?)_scale[0];
-                float? _height = (float?)_scale[1];
+                float? _width = _scale?.ElementAtOrDefault(0);
+                float? _height = _scale?.ElementAtOrDefault(1);
 
                 // Actual wall stuff
                 if (_startRow.HasValue || _startHeight.HasValue || _width.HasValue || _height.HasValue)

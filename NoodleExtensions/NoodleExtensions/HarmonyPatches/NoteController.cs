@@ -3,6 +3,7 @@ using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Harmony;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static NoodleExtensions.Plugin;
 
@@ -19,11 +20,11 @@ namespace NoodleExtensions.HarmonyPatches
             if (NoodleExtensionsActive && !MappingExtensionsActive && noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                List<object> _position = Trees.at(dynData, POSITION);
+                List<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToList();
                 float? _rotation = (float?)Trees.at(dynData, ROTATION);
 
-                float? _startRow = (float?)_position[0];
-                float? _startHeight = (float?)_position[1];
+                float? _startRow = _position?.ElementAtOrDefault(0);
+                float? _startHeight = _position?.ElementAtOrDefault(1);
 
                 float _globalJumpOffsetY = beatmapObjectSpawnController.GetField<float>("_globalJumpOffsetY");
                 float _moveDistance = beatmapObjectSpawnController.GetField<float>("_moveDistance");

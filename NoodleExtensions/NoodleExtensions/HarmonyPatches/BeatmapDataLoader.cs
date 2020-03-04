@@ -3,6 +3,7 @@ using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Harmony;
 using System.Collections.Generic;
+using System.Linq;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
@@ -38,9 +39,12 @@ namespace NoodleExtensions.HarmonyPatches
                 if (notes[i] is CustomNoteData customData)
                 {
                     dynamic dynData = customData.customData;
-                    List<object> _position = Trees.at(dynData, POSITION);
-                    lineIndexes.Add(((float?)_position[0]).GetValueOrDefault(notes[i].lineIndex - 2));
-                    lineLayers.Add(((float?)_position[1]).GetValueOrDefault((float)notes[i].noteLineLayer));
+                    List<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToList();
+                    float? _startRow = _position?.ElementAtOrDefault(0);
+                    float? _startHeight = _position?.ElementAtOrDefault(1);
+
+                    lineIndexes.Add(_startRow.GetValueOrDefault(notes[i].lineIndex - 2));
+                    lineLayers.Add(_startHeight.GetValueOrDefault((float)notes[i].noteLineLayer));
                 }
             }
             if (notes[0].noteType != notes[1].noteType && ((notes[0].noteType == NoteType.NoteA && lineIndexes[0] > lineIndexes[1]) ||
