@@ -25,6 +25,8 @@ namespace NoodleExtensions
         // Note exclusives
         internal const string CUTDIRECTION = "_cutDirection";
 
+        internal const string FLIP = "_flip";
+
         internal const string FLIPX = "_flipX";
         internal const string FLIPJUMP = "_flipJump";
 

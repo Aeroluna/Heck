@@ -23,11 +23,11 @@ namespace NoodleExtensions.HarmonyPatches
                 Vector3? _localrot = Trees.getVector3(dynData, LOCALROTATION);
                 float? _rotation = Trees.at(dynData, ROTATION);
 
-                float? _startRow = _position?.ElementAtOrDefault(0);
+                float? _startX = _position?.ElementAtOrDefault(0);
                 float? _width = _scale?.ElementAtOrDefault(0);
 
                 float width = _width.GetValueOrDefault(__instance.width);
-                if (_startRow.HasValue) dynData._startRow = (_startRow.Value + width) * -1;
+                if (_startX.HasValue) dynData._startX = (_startX.Value + width) * -1;
 
                 if (_localrot.HasValue)
                 {

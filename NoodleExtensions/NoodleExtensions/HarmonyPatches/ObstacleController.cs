@@ -28,16 +28,16 @@ namespace NoodleExtensions.HarmonyPatches
                 List<float> _localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n)).ToList();
                 float? _rotation = (float?)Trees.at(dynData, ROTATION);
 
-                float? _startRow = _position?.ElementAtOrDefault(0);
-                float? _startHeight = _position?.ElementAtOrDefault(1);
+                float? _startX = _position?.ElementAtOrDefault(0);
+                float? _startY = _position?.ElementAtOrDefault(1);
 
                 float? _width = _scale?.ElementAtOrDefault(0);
                 float? _height = _scale?.ElementAtOrDefault(1);
 
                 // Actual wall stuff
-                if (_startRow.HasValue || _startHeight.HasValue || _width.HasValue || _height.HasValue)
+                if (_startX.HasValue || _startY.HasValue || _width.HasValue || _height.HasValue)
                 {
-                    if (_startRow.HasValue || _startHeight.HasValue)
+                    if (_startX.HasValue || _startY.HasValue)
                     {
                         float _topObstaclePosY = beatmapObjectSpawnController.GetField<float>("_topObstaclePosY");
                         float _globalJumpOffsetY = beatmapObjectSpawnController.GetField<float>("_globalJumpOffsetY");
@@ -52,9 +52,9 @@ namespace NoodleExtensions.HarmonyPatches
                         Vector3 a3 = a - forward * (_moveDistance + _jumpDistance);
 
                         // Ripped from base game
-                        Vector3 noteOffset = GetNoteOffset(obstacleData, _startRow, null);
-                        noteOffset.y = _startHeight.HasValue ? _verticalObstaclePosY : ((obstacleData.obstacleType == ObstacleType.Top)
-                            ? (_topObstaclePosY + _globalJumpOffsetY) : _verticalObstaclePosY); // If _startHeight is set, put wall on floor
+                        Vector3 noteOffset = GetNoteOffset(obstacleData, _startX, null);
+                        noteOffset.y = _startY.HasValue ? _verticalObstaclePosY : ((obstacleData.obstacleType == ObstacleType.Top)
+                            ? (_topObstaclePosY + _globalJumpOffsetY) : _verticalObstaclePosY); // If _startY(_startHeight) is set, put wall on floor
                         startPos = a + noteOffset;
                         midPos = a2 + noteOffset;
                         endPos = a3 + noteOffset;
@@ -62,7 +62,7 @@ namespace NoodleExtensions.HarmonyPatches
 
                     // Below ripped from base game
                     float num = _width.GetValueOrDefault(obstacleData.width) * singleLineWidth;
-                    Vector3 b = new Vector3((num - singleLineWidth) * 0.5f, _startHeight.GetValueOrDefault(0) * singleLineWidth, 0); // We add _startHeight here
+                    Vector3 b = new Vector3((num - singleLineWidth) * 0.5f, _startY.GetValueOrDefault(0) * singleLineWidth, 0); // We add _startY(_startHeight) here
                     ____startPos = startPos + b;
                     ____midPos = midPos + b;
                     ____endPos = endPos + b;

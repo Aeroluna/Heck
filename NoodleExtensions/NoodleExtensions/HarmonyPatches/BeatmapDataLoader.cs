@@ -20,12 +20,13 @@ namespace NoodleExtensions.HarmonyPatches
                 if (notes[i] is CustomNoteData customData)
                 {
                     dynamic dynData = customData.customData;
-                    float? _flipY = (float?)Trees.at(dynData, FLIPJUMP);
+                    float?[] _flip = ((List<object>)Trees.at(dynData, FLIP))?.Select(n => n.ToNullableFloat()).ToArray();
+                    float? _flipX = _flip?.ElementAtOrDefault(0);
+                    float? _flipY = _flip?.ElementAtOrDefault(1);
                     if (_flipY.HasValue) notes[i].SetProperty("flipYSide", _flipY.Value, typeof(NoteData));
-                    float? _flip = (float?)Trees.at(dynData, FLIPX);
-                    if (_flip.HasValue)
+                    if (_flipX.HasValue)
                     {
-                        dynData.flipLineIndex = _flip.Value;
+                        dynData.flipLineIndex = _flipX.Value;
                         notes.Remove(notes[i]);
                     }
                 }
@@ -39,7 +40,7 @@ namespace NoodleExtensions.HarmonyPatches
                 if (notes[i] is CustomNoteData customData)
                 {
                     dynamic dynData = customData.customData;
-                    List<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToList();
+                    float?[] _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToArray();
                     float? _startRow = _position?.ElementAtOrDefault(0);
                     float? _startHeight = _position?.ElementAtOrDefault(1);
 
