@@ -22,9 +22,9 @@ namespace NoodleExtensions.HarmonyPatches
             if (NoodleExtensionsActive && !MappingExtensionsActive && obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
-                float?[] _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToArray();
-                float?[] _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat()).ToArray();
-                float[] _localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n)).ToArray();
+                IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
+                IEnumerable<float?> _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
+                IEnumerable<float> _localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
                 float? _rotation = (float?)Trees.at(dynData, ROTATION);
 
                 float? _startX = _position?.ElementAtOrDefault(0);
@@ -83,7 +83,7 @@ namespace NoodleExtensions.HarmonyPatches
                 // oh my god im actually adding rotation
                 if (_localrot != null)
                 {
-                    Vector3 vector = new Vector3(Convert.ToSingle(_localrot[0]), Convert.ToSingle(_localrot[1]), Convert.ToSingle(_localrot[2]));
+                    Vector3 vector = new Vector3(_localrot.ElementAt(0), _localrot.ElementAt(1), _localrot.ElementAt(2));
                     __instance.transform.Rotate(vector);
                 }
             }

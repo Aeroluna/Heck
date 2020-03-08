@@ -18,14 +18,13 @@ namespace NoodleExtensions.HarmonyPatches
             for (int i = customNotes.Count - 1; i >= 0; i--)
             {
                 dynamic dynData = customNotes[i].customData;
-                float?[] _flip = ((List<object>)Trees.at(dynData, FLIP))?.Select(n => n.ToNullableFloat()).ToArray();
+                IEnumerable<float?> _flip = ((List<object>)Trees.at(dynData, FLIP))?.Select(n => n.ToNullableFloat());
                 float? _flipX = _flip?.ElementAtOrDefault(0);
                 float? _flipY = _flip?.ElementAtOrDefault(1);
                 if (_flipX.HasValue || _flipY.HasValue)
                 {
                     if (_flipX.HasValue) dynData.flipLineIndex = _flipX.Value;
                     if (_flipY.HasValue) dynData.flipYSide = _flipY.Value;
-                    Logger.Log(_flipY?.ToString() ?? "null");
                     customNotes.Remove(customNotes[i]);
                 }
             }
@@ -39,7 +38,7 @@ namespace NoodleExtensions.HarmonyPatches
                 for (int i = 0; i < customNotes.Count; i++)
                 {
                     dynamic dynData = customNotes[i].customData;
-                    float?[] _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToArray();
+                    IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
                     float? _startRow = _position?.ElementAtOrDefault(0);
                     float? _startHeight = _position?.ElementAtOrDefault(1);
 

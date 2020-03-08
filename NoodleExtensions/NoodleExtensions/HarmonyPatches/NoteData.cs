@@ -17,7 +17,7 @@ namespace NoodleExtensions.HarmonyPatches
             if (__instance is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                float?[] _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToArray();
+                IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
                 float? flipLineIndex = (float?)Trees.at(dynData, "flipLineIndex");
                 float? _rotation = (float?)Trees.at(dynData, ROTATION);
 

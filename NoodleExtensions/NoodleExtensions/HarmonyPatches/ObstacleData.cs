@@ -17,8 +17,8 @@ namespace NoodleExtensions.HarmonyPatches
             if (__instance is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
-                float?[] _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToArray();
-                float?[] _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat()).ToArray();
+                IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
+                IEnumerable<float?> _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
                 Vector3? _localrot = Trees.getVector3(dynData, LOCALROTATION);
                 float? _rotation = Trees.at(dynData, ROTATION);
 
