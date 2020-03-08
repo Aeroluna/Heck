@@ -8,18 +8,17 @@ using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
-    [HarmonyPriority(Priority.Normal)]
     [HarmonyPatch(typeof(ObstacleData))]
     [HarmonyPatch("MirrorLineIndex")]
     internal class ObstacleDataMirrorLineIndex
     {
-        public static void Postfix(ObstacleData __instance)
+        private static void Postfix(ObstacleData __instance)
         {
             if (__instance is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
-                List<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToList();
-                List<float?> _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat()).ToList();
+                float?[] _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToArray();
+                float?[] _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat()).ToArray();
                 Vector3? _localrot = Trees.getVector3(dynData, LOCALROTATION);
                 float? _rotation = Trees.at(dynData, ROTATION);
 

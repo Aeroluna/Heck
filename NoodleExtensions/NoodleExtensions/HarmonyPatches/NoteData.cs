@@ -12,12 +12,12 @@ namespace NoodleExtensions.HarmonyPatches
     [HarmonyPatch("MirrorLineIndex")]
     internal class NoteDataMirrorLineIndex
     {
-        public static void Postfix(NoteData __instance)
+        private static void Postfix(NoteData __instance)
         {
             if (__instance is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                List<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToList();
+                float?[] _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToArray();
                 float? flipLineIndex = (float?)Trees.at(dynData, "flipLineIndex");
                 float? _rotation = (float?)Trees.at(dynData, ROTATION);
 
@@ -35,7 +35,7 @@ namespace NoodleExtensions.HarmonyPatches
     [HarmonyPatch("MirrorTransformCutDirection")]
     internal class NoteDataMirrorTransformCutDirection
     {
-        public static void Postfix(NoteData __instance)
+        private static void Postfix(NoteData __instance)
         {
             if (__instance is CustomNoteData customData)
             {

@@ -27,9 +27,6 @@ namespace NoodleExtensions
 
         internal const string FLIP = "_flip";
 
-        internal const string FLIPX = "_flipX";
-        internal const string FLIPJUMP = "_flipJump";
-
         internal static bool MappingExtensionsActive = false;
         internal static bool NoodleExtensionsActive = false;
 

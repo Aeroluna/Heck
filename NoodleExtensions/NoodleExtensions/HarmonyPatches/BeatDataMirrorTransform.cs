@@ -5,12 +5,11 @@ using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
-    [HarmonyPriority(Priority.Normal)]
     [HarmonyPatch(typeof(BeatDataMirrorTransform))]
     [HarmonyPatch("CreateTransformedData")]
     internal class BeatDataMirrorTransformCreateTransformedData
     {
-        public static void Postfix(ref BeatmapData __result)
+        private static void Postfix(ref BeatmapData __result)
         {
             for (int num5 = 0; num5 < __result.beatmapEventData.Length; num5++)
             {

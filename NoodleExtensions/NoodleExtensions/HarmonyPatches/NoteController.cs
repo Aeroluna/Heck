@@ -9,18 +9,17 @@ using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
-    [HarmonyPriority(Priority.Normal)]
     [HarmonyPatch(typeof(NoteController))]
     [HarmonyPatch("Init")]
     internal class NoteControllerInit
     {
-        public static void Prefix(ref NoteController __instance, NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos,
-            ref float jumpGravity, ref float worldRotation)
+        private static void Prefix(ref NoteController __instance, NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos,
+            ref float jumpGravity, ref float worldRotation, ref float? __state)
         {
             if (NoodleExtensionsActive && !MappingExtensionsActive && noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                List<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToList();
+                float?[] _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat()).ToArray();
                 float? _rotation = (float?)Trees.at(dynData, ROTATION);
 
                 float? _startRow = _position?.ElementAtOrDefault(0);
@@ -65,10 +64,18 @@ namespace NoodleExtensions.HarmonyPatches
 
                 // Precision 360 on individual note
                 if (_rotation.HasValue) worldRotation = _rotation.Value;
+
+                // flipYSide stuff
+                float? flipYSide = (float?)Trees.at(dynData, "flipYSide");
+                if (flipYSide.HasValue)
+                {
+                    __state = customData.flipYSide;
+                    customData.SetProperty("flipYSide", flipYSide.Value, typeof(NoteData));
+                }
             }
         }
 
-        public static void Postfix(NoteController __instance, NoteData noteData)
+        private static void Postfix(NoteController __instance, NoteData noteData, float? __state)
         {
             if (NoodleExtensionsActive && !MappingExtensionsActive && noteData is CustomNoteData customData)
             {
@@ -85,6 +92,9 @@ namespace NoodleExtensions.HarmonyPatches
                 vector += noteJump.GetPrivateField<Vector3[]>("_randomRotations")[noteJump.GetPrivateField<int>("_randomRotationIdx")] * 20;
                 Quaternion midrotation = Quaternion.Euler(vector);
                 noteJump.SetPrivateField("_middleRotation", midrotation);
+
+                // Reset flipYSide after Prefix
+                if (__state.HasValue) customData.SetProperty("flipYSide", __state.Value, typeof(NoteData));
             }
         }
     }

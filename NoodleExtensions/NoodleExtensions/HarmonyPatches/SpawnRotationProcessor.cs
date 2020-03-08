@@ -5,12 +5,11 @@ using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
-    [HarmonyPriority(Priority.Normal)]
     [HarmonyPatch(typeof(SpawnRotationProcessor))]
     [HarmonyPatch("ProcessBeatmapEventData")]
     internal class SpawnRotationProcessorProcessBeatmapEventData
     {
-        public static bool Prefix(BeatmapEventData beatmapEventData, ref float ____rotation)
+        private static bool Prefix(BeatmapEventData beatmapEventData, ref float ____rotation)
         {
             if (!beatmapEventData.type.IsRotationEvent()) return true;
 
