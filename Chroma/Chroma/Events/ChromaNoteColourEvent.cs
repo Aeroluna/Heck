@@ -55,7 +55,9 @@ namespace Chroma.Events
             bool saberType = noteCutInfo.saberType == Saber.SaberType.SaberA;
             if (noteType == saberType)
             {
-                if (SavedNoteColours.TryGetValue(noteController, out Color c)) color = c;
+                if (ColourManager.TechnicolourBlocks && Settings.ChromaConfig.TechnicolourBlocksStyle == ColourManager.TechnicolourStyle.GRADIENT)
+                    color = noteType ? VFX.TechnicolourController.Instance.gradientLeftColor : VFX.TechnicolourController.Instance.gradientRightColor;
+                else if (SavedNoteColours.TryGetValue(noteController, out Color c)) color = c;
                 else
                 {
                     ChromaLogger.Log("SavedNoteColour not found!", ChromaLogger.Level.WARNING);
@@ -63,7 +65,7 @@ namespace Chroma.Events
                 }
                 foreach (SaberColourizer saber in SaberColourizer.saberColourizers)
                 {
-                    if (saber.warm == (noteController.noteData.noteType == NoteType.NoteA))
+                    if (saber.warm == noteType)
                     {
                         saber.Colourize(color);
                     }

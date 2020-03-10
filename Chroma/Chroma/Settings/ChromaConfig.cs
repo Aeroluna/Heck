@@ -1,5 +1,4 @@
 ﻿using Chroma.Events;
-using Chroma.Misc;
 using Chroma.Utils;
 using System;
 using System.Linq;

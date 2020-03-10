@@ -93,7 +93,7 @@ namespace Chroma.HarmonyPatches
                 noteColoursActive = true;
             }
 
-            if (noteColoursActive)
+            if (noteColoursActive || ChromaConfig.TechnicolourBlocksStyle == ColourManager.TechnicolourStyle.GRADIENT)
             {
                 ChromaNoteColourEvent.SavedNoteColours[noteController] = ____colorManager.ColorForNoteType(noteData.noteType);
                 if (!ColourManager.TechnicolourSabers) noteController.noteWasCutEvent += ChromaNoteColourEvent.SaberColour;

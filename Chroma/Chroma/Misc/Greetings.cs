@@ -18,7 +18,7 @@ namespace Chroma.Misc
                     return new string[] {
                         $"Welcome, {name} !",
                     };
-                    
+
                 case 0:
                     return new string[] {
                         $"HELLO {id}- WHOOPS I MEAN {name.ToUpper()} HAHA!",

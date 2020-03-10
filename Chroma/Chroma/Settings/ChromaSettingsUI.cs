@@ -153,6 +153,7 @@ namespace Chroma.Settings
             set
             {
                 ChromaConfig.MasterVolume = value;
+                AudioUtil.Instance.SetVolume(value);
             }
         }
 
@@ -184,6 +185,7 @@ namespace Chroma.Settings
                         ChromaConfig.WaiverRead = true;
                         //AudioUtil.Instance.PlayOneShotSound("NightmareMode.wav");
                         break;
+
                     case "LIGHTSHOW":
                         BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", instance);
                         ChromaConfig.LightshowMenu = true;

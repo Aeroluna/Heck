@@ -55,7 +55,6 @@
     <Compile Include="HarmonyPatches\LightSwitchEventEffect.cs" />
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\NoteCutEffectSpawner.cs" />
-    <Compile Include="HarmonyPatches\SaberWeaponTrail.cs" />
     <Compile Include="HarmonyPatches\TrackLaneRingsRotationEffect.cs" />
     <Compile Include="IChromaExtension.cs" />
     <Compile Include="ChromaPlugin.cs" />

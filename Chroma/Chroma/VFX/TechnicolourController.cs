@@ -47,9 +47,9 @@ namespace Chroma.VFX
         private float bpm;
         private float secondsPerBeat = 0.5f;
 
-        private Color gradientColor;
-        private Color gradientLeftColor;
-        private Color gradientRightColor;
+        public Color gradientColor { get; private set; }
+        public Color gradientLeftColor { get; private set; }
+        public Color gradientRightColor { get; private set; }
 
         public Color?[] rainbowSaberColours = new Color?[] { null, null };
 
@@ -70,7 +70,7 @@ namespace Chroma.VFX
             if (ColourManager.TechnicolourBombs && (ChromaConfig.TechnicolourBombsStyle == ColourManager.TechnicolourStyle.GRADIENT))
                 Instance.UpdateTechnicolourEvent += Instance.RainbowBombs;
 
-            // sabers use this script regardless of if technicolour
+            // sabers use this script regardless of technicolour style
             if (ColourManager.TechnicolourSabers)
             {
                 switch (ChromaConfig.TechnicolourSabersStyle)
@@ -133,7 +133,7 @@ namespace Chroma.VFX
             {
                 if (n.Value == 0) continue;
 
-                String warm;
+                string warm;
                 switch (n.Value)
                 {
                     case 1:

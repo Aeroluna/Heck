@@ -1,5 +1,4 @@
-﻿using Chroma.Settings;
-using Harmony;
+﻿using Harmony;
 using UnityEngine;
 
 namespace Chroma.HarmonyPatches
@@ -29,19 +28,6 @@ namespace Chroma.HarmonyPatches
         public static bool Prefix(ref Saber.SaberType type, ref Color __result)
         {
             bool warm = type == Saber.SaberType.SaberA;
-
-            if (ColourManager.TechnicolourSabers)
-            {
-                if (ChromaConfig.TechnicolourSabersStyle != ColourManager.TechnicolourStyle.GRADIENT)
-                {
-                    __result = ColourManager.GetTechnicolour(warm, Time.time, ChromaConfig.TechnicolourSabersStyle);
-                    return false;
-                }
-                else
-                {
-                    __result = VFX.TechnicolourController.Instance.rainbowSaberColours[type == Saber.SaberType.SaberA ? 0 : 1].Value;
-                }
-            }
 
             Color? color = warm ? Extensions.SaberColourizer.currentAColor : Extensions.SaberColourizer.currentBColor;
             if (color == null) color = warm ? ColourManager.A : ColourManager.B;
