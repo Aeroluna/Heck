@@ -217,18 +217,6 @@ namespace Chroma
 
             ColourManager.RefreshLights();
 
-            if (beatmapData is CustomBeatmapData customBeatmapData)
-            {
-                dynamic dynData = customBeatmapData.beatmapCustomData;
-                List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
-                if (objectsToKill != null)
-                {
-                    GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-                    objectsToKill.Cast<string>()?.ToList()?.ForEach(s => gameObjects.Where(obj => obj.name.Contains(s)
-                    && obj.scene.name.Contains("Environment"))?.ToList()?.ForEach(n => n.SetActive(false)));
-                }
-            }
-
             if (ChromaConfig.LightshowModifier)
             {
                 foreach (Saber saber in FindObjectsOfType<Saber>())
@@ -243,8 +231,17 @@ namespace Chroma
             }
 
             // CustomJSONData Custom Events
-            if (_beatmapData is CustomBeatmapData _customBeatmap)
+            if (beatmapData is CustomBeatmapData _customBeatmap)
             {
+                dynamic dynData = _customBeatmap.beatmapCustomData;
+                List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
+                if (objectsToKill != null)
+                {
+                    GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+                    objectsToKill.Cast<string>()?.ToList()?.ForEach(s => gameObjects.Where(obj => obj.name.Contains(s)
+                    && obj.scene.name.Contains("Environment"))?.ToList()?.ForEach(n => n.SetActive(false)));
+                }
+
                 Dictionary<string, List<CustomEventData>> _customEventData = _customBeatmap.customEventData;
                 foreach (KeyValuePair<string, List<CustomEventData>> n in _customEventData)
                 {
@@ -270,6 +267,11 @@ namespace Chroma
             }
 
             // SimpleCustomEvents subscriptions
+            if (ChromaUtils.IsModInstalled("CustomEvents")) RegisterCustomEvents(gcss);
+        }
+        
+        private static void RegisterCustomEvents(BeatmapObjectCallbackController gcss)
+        {
             CustomEvents.CustomEventCallbackController cecc = gcss.GetComponentInParent<CustomEvents.CustomEventCallbackController>();
             if (cecc != null && LightingRegistered)
             {

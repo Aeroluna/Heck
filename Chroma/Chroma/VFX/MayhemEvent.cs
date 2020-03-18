@@ -6,12 +6,22 @@ namespace Chroma.VFX
 {
     internal class MayhemEvent
     {
-        internal static List<LightWithId>[] manager;
+        internal static List<LightWithId>[] LightWithIdManager
+        {
+            get {
+                if (manager == null) manager = GameObject.Find("LightWithIdManager").GetComponent<LightWithIdManager>().GetPrivateField<List<LightWithId>[]>("_lights");
+                return manager;
+            }
+        }
+        private static List<LightWithId>[] manager;
+        internal static void ClearManager()
+        {
+            manager = null;
+        }
 
         public static void ActivateTechnicolour(BeatmapEventData baseData, LightSwitchEventEffect lse)
         {
-            if (manager == null) manager = GameObject.Find("LightWithIdManager").GetComponent<LightWithIdManager>().GetPrivateField<List<LightWithId>[]>("_lights");
-            LightWithId[] lights = manager[lse.LightsID].ToArray();
+            LightWithId[] lights = LightWithIdManager[lse.LightsID].ToArray();
             for (int i = 0; i < lights.Length; i++) lights[i].ColorWasSet(ColourManager.GetTechnicolour(baseData.value > 3, baseData.time + lights[i].GetInstanceID(), Settings.ChromaConfig.TechnicolourLightsStyle));
         }
 

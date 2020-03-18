@@ -418,6 +418,7 @@ namespace Chroma.Settings
             ChromaGradientEvent.CustomGradients.Clear();
 
             HarmonyPatches.ColorNoteVisualsHandleNoteControllerDidInitEvent.noteColoursActive = false;
+            HarmonyPatches.ObstacleControllerInit.ClearObstacleColors();
 
             Extensions.SaberColourizer.currentAColor = null;
             Extensions.SaberColourizer.currentBColor = null;
@@ -427,7 +428,7 @@ namespace Chroma.Settings
 
             LightSwitchs = null;
 
-            VFX.MayhemEvent.manager = null;
+            VFX.MayhemEvent.ClearManager();
         }
 
         internal static void LoadSettings(LoadSettingsType type)
