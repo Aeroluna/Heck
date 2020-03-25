@@ -32,14 +32,14 @@ namespace Chroma.HarmonyPatches
         {
             NoteData noteData = noteController.noteData;
             bool warm = noteData.noteType == NoteType.NoteA;
-            Color? c = warm ? ColourManager.A : ColourManager.B;
+            Color? c = null;
 
             // Technicolour
             if (ColourManager.TechnicolourBlocks && ChromaConfig.TechnicolourBlocksStyle != ColourManager.TechnicolourStyle.GRADIENT)
             {
                 try
                 {
-                    c = ColourManager.GetTechnicolour(noteData, ChromaConfig.TechnicolourBlocksStyle);
+                    c = ColourManager.GetTechnicolour(noteData.noteType == NoteType.NoteA, noteData.time + noteData.lineIndex + (int)noteData.noteLineLayer, ChromaConfig.TechnicolourBlocksStyle);
                 }
                 catch (Exception e)
                 {

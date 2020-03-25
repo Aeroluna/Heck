@@ -74,22 +74,6 @@ namespace Chroma.Settings
 
         private static ChromaSettingsUI.SidePanelEnum sidePanel = ChromaSettingsUI.SidePanelEnum.Default;
 
-        /// <summary>
-        /// Enables checking for tailored maps.
-        /// This will not disable map checking entirely, it will simply prevent a map from being detected as created for a specific gamemode.
-        /// </summary>
-        public static bool CustomMapCheckingEnabled
-        {
-            get { return customMapCheckingEnabled; }
-            set
-            {
-                customMapCheckingEnabled = value;
-                SetBool("Map", "customMapCheckingEnabled", customMapCheckingEnabled);
-            }
-        }
-
-        private static bool customMapCheckingEnabled = true;
-
         public static bool CustomColourEventsEnabled
         {
             get { return customColourEventsEnabled; }
@@ -385,11 +369,11 @@ namespace Chroma.Settings
         {
             LoadSettingsEvent += OnLoadSettingsEvent;
 
-            ChromaPlugin.MainMenuLoadedEvent += OnMainMenuLoaded;
-            ChromaPlugin.SongSceneLoadedEvent += OnSongLoaded;
+            Plugin.MainMenuLoadedEvent += OnMainMenuLoaded;
+            Plugin.SongSceneLoadedEvent += OnSongLoaded;
 
-            ChromaPlugin.MainMenuLoadedEvent += CleanupSongEvents;
-            ChromaPlugin.SongSceneLoadedEvent += CleanupSongEvents;
+            Plugin.MainMenuLoadedEvent += CleanupSongEvents;
+            Plugin.SongSceneLoadedEvent += CleanupSongEvents;
         }
 
         private static void OnMainMenuLoaded()
@@ -466,18 +450,9 @@ namespace Chroma.Settings
                  * MAP
                  */
 
-                customMapCheckingEnabled = GetBool("Map", "customMapCheckingEnabled", true);
                 customColourEventsEnabled = GetBool("Map", "customColourEventsEnabled", true);
                 noteColourEventsEnabled = GetBool("Map", "noteColourEventsEnabled", true);
                 ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", CustomColourEventsEnabled);
-
-                /*
-                 * AUDIO
-                 */
-
-                masterVolume = Mathf.Clamp01(GetFloat("Audio", "masterVolume", 1));
-
-                AudioUtil.Instance.SetVolume(masterVolume);
 
                 /*
                  * TECHNICOLOUR
@@ -519,30 +494,6 @@ namespace Chroma.Settings
                 TechnicolourColdPalette = technicolourCold;
 
                 /*
-                 * NOTES
-                 */
-
-                //ColourManager.A = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourA", "DEFAULT"), ColourManager.DefaultA);
-                //ColourManager.B = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Notes", "colourB", "DEFAULT"), ColourManager.DefaultB);
-                AltA = ChromaSettingsUI.GetColor(GetString("Notes", "colourAltA", "Notes Magenta"), DefaultAltA);
-                AltB = ChromaSettingsUI.GetColor(GetString("Notes", "colourAltB", "Notes Green"), DefaultAltB);
-                NonColoured = ChromaSettingsUI.GetColor(GetString("Notes", "colourNonColoured", "Notes White"), DefaultNonColoured);
-                DoubleHit = ChromaSettingsUI.GetColor(GetString("Notes", "colourDuochrome", "Notes Purple"), DefaultDoubleHit);
-                Super = ChromaSettingsUI.GetColor(GetString("Notes", "colourSuper", "Notes Gold"), DefaultSuper);
-
-                /*
-                 * LIGHTS
-                 */
-
-                //ColourManager.LightAmbient = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightAmbient", "DEFAULT"), ColourManager.DefaultLightAmbient);
-                //ColourManager.LightA = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourA", "DEFAULT"), ColourManager.DefaultLightA);
-                //ColourManager.LightB = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Lights", "lightColourB", "DEFAULT"), ColourManager.DefaultLightB);
-                LightAltA = ChromaSettingsUI.GetColor(GetString("Lights", "lightColourAltA", "Light Magenta"), DefaultLightAltA);
-                LightAltB = ChromaSettingsUI.GetColor(GetString("Lights", "lightColourAltB", "Light Green"), DefaultLightAltB);
-                LightWhite = ChromaSettingsUI.GetColor(GetString("Lights", "lightColourWhite", "Light White"), DefaultLightWhite);
-                LightGrey = ChromaSettingsUI.GetColor(GetString("Lights", "lightColourGrey", "Light Grey"), DefaultLightGrey);
-
-                /*
                  * AESTHETICS
                  */
 
@@ -580,8 +531,6 @@ namespace Chroma.Settings
                 buildings = GetBool("Lightshow", "buildings", false, false);
 
                 RefreshLights();
-
-                if (type == LoadSettingsType.MANUAL) AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");
             }
             catch (Exception e)
             {

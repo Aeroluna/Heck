@@ -101,8 +101,9 @@ namespace Chroma.HarmonyPatches
                                     return false;
 
                                 case ColourManager.TechnicolourLightsGrouping.ISOLATED_GROUP:
-                                    if (blue) __instance.SetLightingColourB(ColourManager.GetTechnicolour(false, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
-                                    else __instance.SetLightingColourA(ColourManager.GetTechnicolour(true, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
+                                    // ternary operator gore
+                                    __instance.SetLightingColours( blue ? (Color?)ColourManager.GetTechnicolour(false, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle) : null,
+                                        blue ? null : (Color?)ColourManager.GetTechnicolour(true, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle));
                                     break;
 
                                 case ColourManager.TechnicolourLightsGrouping.STANDARD:

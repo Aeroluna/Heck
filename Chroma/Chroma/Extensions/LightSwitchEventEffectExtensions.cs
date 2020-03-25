@@ -12,26 +12,6 @@ namespace Chroma.Extensions
             LSEColourManager.GetLSEColourManager(lse)?.Reset();
         }
 
-        public static Color? GetLightingColourA(this MonoBehaviour lse)
-        {
-            return LSEColourManager.GetLSEColourManager(lse)?.GetLightingColourA();
-        }
-
-        public static Color? GetLightingColourB(this MonoBehaviour lse)
-        {
-            return LSEColourManager.GetLSEColourManager(lse)?.GetLightingColourB();
-        }
-
-        public static void SetLightingColourA(this MonoBehaviour lse, Color colour)
-        {
-            lse.SetLightingColours(colour, null);
-        }
-
-        public static void SetLightingColourB(this MonoBehaviour lse, Color colour)
-        {
-            lse.SetLightingColours(null, colour);
-        }
-
         public static void SetLightingColours(this MonoBehaviour lse, Color? colourA, Color? colourB)
         {
             LSEColourManager.GetLSEColourManager(lse)?.SetLightingColours(colourA, colourB);
@@ -212,26 +192,10 @@ namespace Chroma.Extensions
 
             internal void Reset()
             {
-                if (!ColourManager.LightB.HasValue)
-                {
-                    _lightColor0.SetColor(_lightColor0_Original);
-                    _highlightColor0.SetColor(_highlightColor0_Original);
-                }
-                else
-                {
-                    _lightColor0.SetColor(ColourManager.LightB.Value);
-                    _highlightColor0.SetColor(ColourManager.LightB.Value);
-                }
-                if (!ColourManager.LightA.HasValue)
-                {
-                    _lightColor1.SetColor(_lightColor1_Original);
-                    _highlightColor1.SetColor(_highlightColor1_Original);
-                }
-                else
-                {
-                    _lightColor1.SetColor(ColourManager.LightA.Value);
-                    _highlightColor1.SetColor(ColourManager.LightA.Value);
-                }
+                _lightColor0.SetColor(_lightColor0_Original);
+                _highlightColor0.SetColor(_highlightColor0_Original);
+                _lightColor1.SetColor(_lightColor1_Original);
+                _highlightColor1.SetColor(_highlightColor1_Original);
             }
 
             internal void SetLightingColours(Color? colourA, Color? colourB)

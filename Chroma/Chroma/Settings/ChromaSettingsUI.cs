@@ -1,5 +1,6 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.MenuButtons;
+using BeatSaberMarkupLanguage.Settings;
 using Chroma.Utils;
 using System.Collections.Generic;
 using System.Linq;
@@ -129,34 +130,6 @@ namespace Chroma.Settings
             }
         }
 
-        [UIValue("custommapchecking")]
-        /// <summary>
-        /// Enables checking for tailored maps.
-        /// This will not disable map checking entirely, it will simply prevent a map from being detected as created for a specific gamemode.
-        /// </summary>
-        public bool CustomMapCheckingEnabled
-        {
-            get => ChromaConfig.CustomMapCheckingEnabled;
-            set
-            {
-                ChromaConfig.CustomMapCheckingEnabled = value;
-            }
-        }
-
-        [UIValue("mastervolume")]
-        /// <summary>
-        /// Global multiplier for audio sources used by Chroma
-        /// </summary>
-        public float MasterVolume
-        {
-            get => ChromaConfig.MasterVolume;
-            set
-            {
-                ChromaConfig.MasterVolume = value;
-                AudioUtil.Instance.SetVolume(value);
-            }
-        }
-
         [UIValue("debugmode")]
         /// <summary>
         /// Global multiplier for audio sources used by Chroma
@@ -183,13 +156,11 @@ namespace Chroma.Settings
                 {
                     case "SAFETYHAZARD":
                         ChromaConfig.WaiverRead = true;
-                        //AudioUtil.Instance.PlayOneShotSound("NightmareMode.wav");
                         break;
 
                     case "LIGHTSHOW":
                         BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", instance);
                         ChromaConfig.LightshowMenu = true;
-                        AudioUtil.Instance.PlayOneShotSound("ConfigReload.wav");
                         break;
                 }
             }
@@ -240,7 +211,7 @@ namespace Chroma.Settings
             set
             {
                 LaserPointerColour = value.color;
-                RecolourMenuStuff(A, B, LightA, LightB, Platform, LaserPointerColour);
+                RecolourMenuStuff(Platform, LaserPointerColour);
                 ChromaConfig.SetString("Aesthetics", "laserPointerColour", value.name);
             }
         }
@@ -252,7 +223,7 @@ namespace Chroma.Settings
             set
             {
                 Platform = value.color;
-                RecolourMenuStuff(A, B, LightA, LightB, Platform, LaserPointerColour);
+                RecolourMenuStuff(Platform, LaserPointerColour);
                 ChromaConfig.SetString("Aesthetics", "platformAccoutrements", value.name);
             }
         }
@@ -479,9 +450,9 @@ namespace Chroma.Settings
         {
             InitializePresetList();
 
-            ChromaLogger.Log("Registering buttons");
-
             MenuButtons.instance.RegisterButton(new MenuButton("Reload Chroma", "", OnReloadClick, true));
+
+            BSMLSettings.instance.AddSettingsMenu("Chroma", "Chroma.Settings.settings.bsml", ChromaSettingsUI.instance);
         }
 
         private static List<NamedColor> colourPresets = null;// = new List<NamedColour>();
@@ -520,23 +491,23 @@ namespace Chroma.Settings
             // CC GitHub to steal colours from
             // https://github.com/Kylemc1413/BeatSaber-CustomColors/blob/master/ColorsUI.cs
             foreach (NamedColor t in new List<NamedColor> {
-                new NamedColor( "Notes Red", DefaultA ),
-                new NamedColor( "Notes Blue", DefaultB ),
-                new NamedColor( "Notes Magenta", DefaultAltA ),
-                new NamedColor( "Notes Green", DefaultAltB ),
-                new NamedColor( "Notes Purple", DefaultDoubleHit ),
-                new NamedColor( "Notes White", DefaultNonColoured ),
-                new NamedColor( "Notes Gold", DefaultSuper ),
+                new NamedColor( "Notes Red", new Color(1, 0, 0, 1) ),
+                new NamedColor( "Notes Blue", new Color(0, 0.502f, 1, 1) ),
+                new NamedColor( "Notes Magenta", new Color(1, 0, 1, 1) ),
+                new NamedColor( "Notes Green", new Color(0, 1, 0, 1) ),
+                new NamedColor( "Notes Purple", new Color(1.05f, 0, 2.188f, 1) ),
+                new NamedColor( "Notes White", new Color(1, 1, 1, 1) ),
+                new NamedColor( "Notes Gold", new Color(1, 1, 0, 1) ),
 
-                new NamedColor( "Light Ambient", DefaultLightAmbient ),
-                new NamedColor( "Light Red", DefaultLightA ),
-                new NamedColor( "Light Blue", DefaultLightB ),
-                new NamedColor( "Light Magenta", DefaultLightAltA ),
-                new NamedColor( "Light Green", DefaultLightAltB ),
-                new NamedColor( "Light White", DefaultLightWhite ),
-                new NamedColor( "Light Grey", DefaultLightGrey ),
+                new NamedColor( "Light Ambient", new Color(0, 0.706f, 1f, 1) ),
+                new NamedColor( "Light Red", new Color(1, 0.016f, 0.016f, 1) ),
+                new NamedColor( "Light Blue", new Color(0, 0.753f, 1, 1) ),
+                new NamedColor( "Light Magenta", new Color(1, 0.032f, 1, 1) ),
+                new NamedColor( "Light Green", new Color(0.016f, 1, 0.016f, 1) ),
+                new NamedColor( "Light White", new Color(1, 1, 1, 1) ),
+                new NamedColor( "Light Grey", new Color(0.6f, 0.6f, 0.6f, 1) ),
 
-                new NamedColor( "Barrier Red", DefaultBarrierColour ),
+                new NamedColor( "Barrier Red", Color.red ),
 
                 new NamedColor( "CC Elec. Blue", new Color(0, .98f, 2.157f) ),
                 new NamedColor( "CC Dark Blue", new Color(0f, 0.28000000000000003f, 0.55000000000000004f) ),

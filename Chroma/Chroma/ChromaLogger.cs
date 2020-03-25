@@ -21,28 +21,28 @@ namespace Chroma
 
         public static Level SoundLevel { get; set; } = Level.NEVER;
 
-        public static void Log(Exception e, Level level = Level.ERROR, bool sound = true,
+        public static void Log(Exception e, Level level = Level.ERROR,
             [CallerMemberName] string member = "",
             [CallerLineNumber] int line = 0)
         {
-            Log(e.ToString(), level, sound, member, line);
+            Log(e.ToString(), level, member, line);
         }
 
-        public static void Log(Object obj, Level level = Level.DEBUG, bool sound = true,
+        public static void Log(object obj, Level level = Level.DEBUG,
             [CallerMemberName] string member = "",
             [CallerLineNumber] int line = 0)
         {
-            Log(obj.ToString(), level, sound, member, line);
+            Log(obj.ToString(), level, member, line);
         }
 
-        public static void Log(string[] messages, Level level = Level.DEBUG, bool sound = true,
+        public static void Log(string[] messages, Level level = Level.DEBUG,
             [CallerMemberName] string member = "",
             [CallerLineNumber] int line = 0)
         {
-            foreach (String s in messages) Log(s, level, sound, member, line);
+            foreach (string s in messages) Log(s, level, member, line);
         }
 
-        public static void Log(string message, Level level = Level.DEBUG, bool sound = true,
+        public static void Log(string message, Level level = Level.DEBUG,
             [CallerMemberName] string member = "",
             [CallerLineNumber] int line = 0)
         {
@@ -54,7 +54,6 @@ namespace Chroma
             {
                 logger.Log((IPALogger.Level)level, $"{message}");
             }
-            if (sound && level >= SoundLevel) AudioUtil.Instance.PlayErrorSound();
         }
     }
 }

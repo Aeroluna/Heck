@@ -151,7 +151,7 @@ namespace Chroma.Misc
         {
             SidePanelUtil.RegisterTextPanel("chroma",
                 ResourceTextFiles.chromaNotes
-                .Replace("%VER%", ChromaPlugin.Version)
+                .Replace("%VER%", Plugin.Version)
                 .Replace("%USERNAME%", ChromaConfig.Username)
                 .Replace("%GREETING%", string.Join("\n", GetGreeting(ChromaConfig.UserID, ChromaConfig.Username)))
                 );

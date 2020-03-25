@@ -97,18 +97,6 @@ namespace Chroma
         public static AudioTimeSyncController ATSC;
         public static bool LightingRegistered;
 
-        internal List<IChromaBehaviourExtension> extensions = new List<IChromaBehaviourExtension>();
-
-        /// <summary>
-        /// Attaches an IChromaBehaviourExtension.
-        /// Methods on IChromaBehaviourExtension will not be called unless attached.
-        /// </summary>
-        /// <param name="extension">The extension to attach.</param>
-        public void AttachExtension(IChromaBehaviourExtension extension)
-        {
-            extensions.Add(extension);
-        }
-
         private void OnDestroy()
         {
             ChromaLogger.Log("ChromaBehaviour destroyed.", ChromaLogger.Level.DEBUG);
@@ -212,8 +200,6 @@ namespace Chroma
             if (_beatmapData == null) ChromaLogger.Log("{XXX} : NULL BEATMAP DATA", ChromaLogger.Level.ERROR);
             BeatmapData beatmapData = CreateTransformedData(_beatmapData);
             if (beatmapData != null) gcss.SetPrivateField("_beatmapData", beatmapData);
-
-            foreach (IChromaBehaviourExtension extension in extensions) extension.PostInitialization(songBPM, beatmapData, playerSettings, scoreController);
 
             ColourManager.RefreshLights();
 

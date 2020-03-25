@@ -30,7 +30,6 @@ namespace Chroma.HarmonyPatches
             bool warm = type == Saber.SaberType.SaberA;
 
             Color? color = warm ? Extensions.SaberColourizer.currentAColor : Extensions.SaberColourizer.currentBColor;
-            if (color == null) color = warm ? ColourManager.A : ColourManager.B;
             if (color.HasValue)
             {
                 __result = color.Value;

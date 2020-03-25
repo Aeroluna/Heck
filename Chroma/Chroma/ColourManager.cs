@@ -27,7 +27,7 @@ namespace Chroma
 
         public static void RemoveNoteTypeColourOverride(NoteType noteType)
         {
-            noteTypeColourOverrides[noteType == NoteType.NoteA ? 0 : 1] = noteType == NoteType.NoteA ? A : B;
+            noteTypeColourOverrides[noteType == NoteType.NoteA ? 0 : 1] = null;
         }
 
         /*
@@ -127,16 +127,6 @@ namespace Chroma
             get { return ChromaConfig.TechnicolourEnabled && !TechnicolourBombsForceDisabled && ChromaConfig.TechnicolourBombsStyle != TechnicolourStyle.OFF; }
         }
 
-        public static Color GetTechnicolour(NoteData noteData, TechnicolourStyle style)
-        {
-            return GetTechnicolour(noteData.noteType == NoteType.NoteA, noteData.time + noteData.lineIndex + (int)noteData.noteLineLayer, style);
-        }
-
-        public static Color GetTechnicolour(float time, TechnicolourStyle style, TechnicolourTransition transition = TechnicolourTransition.FLAT)
-        {
-            return GetTechnicolour(true, time, style, transition);
-        }
-
         public static Color GetTechnicolour(bool warm, float time, TechnicolourStyle style, TechnicolourTransition transition = TechnicolourTransition.FLAT)
         {
             switch (style)
@@ -217,76 +207,8 @@ namespace Chroma
         #endregion technicolour
 
         /*
-         * LIGHTS
+         * COLORS
          */
-
-        public static Color DefaultLightAmbient { get; set; } = new Color(0, 0.706f, 1f, 1);
-
-        public static Color DefaultLightA { get; } = new Color(1, 0.016f, 0.016f, 1); //255, 4, 4
-
-        public static Color DefaultLightB { get; } = new Color(0, 0.753f, 1, 1); //0, 192, 255
-
-        public static Color DefaultLightAltA { get; } = new Color(1, 0.032f, 1, 1); //255, 8, 255
-
-        public static Color DefaultLightAltB { get; } = new Color(0.016f, 1, 0.016f, 1); //4, 255, 4
-
-        public static Color DefaultLightWhite { get; } = new Color(1, 1, 1, 1); //Color.white
-
-        public static Color DefaultLightGrey { get; } = new Color(0.6f, 0.6f, 0.6f, 1); //Color.white
-
-        public static Color? LightAmbient { get; set; } = null; //new Color(0, 0.3765f, 0.5f, 1); //0, 192, 255
-
-        public static Color? LightA { get; set; } = null; //new Color(1, 0, 0, 1);
-
-        public static Color? LightB { get; set; } = null; //new Color(0, 0.502f, 1, 1);
-
-        public static Color? LightAltA { get; set; } = null; //new Color(1, 0, 1, 1); //Color.magenta
-
-        public static Color? LightAltB { get; set; } = null; //new Color(0, 1, 0, 1); //Color.green
-
-        public static Color? LightWhite { get; set; } = null; //new Color(1, 1, 1, 1); //Color.white
-
-        public static Color? LightGrey { get; set; } = null; //new Color(0.5f, 0.5f, 0.5f, 1); //128, 128, 128
-
-        /*
-         * BLOCKS / SABERS
-         */
-
-        public static Color DefaultA { get; } = new Color(1, 0, 0, 1);
-
-        public static Color DefaultB { get; } = new Color(0, 0.502f, 1, 1);
-
-        public static Color DefaultAltA { get; } = new Color(1, 0, 1, 1); //Color.magenta
-
-        public static Color DefaultAltB { get; } = new Color(0, 1, 0, 1); //Color.green
-
-        public static Color DefaultDoubleHit { get; } = new Color(1.05f, 0, 2.188f, 1);
-
-        public static Color DefaultNonColoured { get; } = new Color(1, 1, 1, 1); //Color.white
-
-        public static Color DefaultSuper { get; set; } = new Color(1, 1, 0, 1);
-
-        public static Color? A { get; set; } = null; //new Color(1, 0, 0, 1);
-
-        public static Color? B { get; set; } = null; //new Color(0, 0.502f, 1, 1);
-
-        public static Color? AltA { get; set; } = null; //new Color(1, 0, 1, 1); //Color.magenta
-
-        public static Color? AltB { get; set; } = null; //new Color(0, 1, 0, 1); //Color.green
-
-        public static Color? DoubleHit { get; set; } = null; //new Color(1.05f, 0, 2.188f, 1);
-
-        public static Color? NonColoured { get; set; } = null; //new Color(1, 1, 1, 1);
-
-        public static Color? Super { get; set; } = null; //new Color(1, 1, 0, 1);
-
-        /*
-         * OTHER
-         */
-
-        public static Color DefaultBarrierColour { get; } = Color.red;
-
-        public static Color? BarrierColour { get; set; } = null;
 
         public static Color? LaserPointerColour { get; set; } = null; //B;
 
@@ -296,17 +218,12 @@ namespace Chroma
 
         public static Color? Platform { get; set; } = null;
 
-        public static String ColourToString(Color color)
-        {
-            return Mathf.RoundToInt(color.r * 255) + ";" + Mathf.RoundToInt(color.g * 255) + ";" + Mathf.RoundToInt(color.b * 255) + ";" + Mathf.RoundToInt(color.a * 255);
-        }
-
-        public static Color ColourFromString(String colorString)
+        public static Color ColourFromString(string colorString)
         {
             Color color = Color.black;
             try
             {
-                String[] split = colorString.Split(';');
+                string[] split = colorString.Split(';');
                 if (split.Length > 2)
                 {
                     color.r = float.Parse(split[0]) / 255f;
@@ -321,14 +238,6 @@ namespace Chroma
         }
 
         public const int RGB_INT_OFFSET = 2000000000;
-
-        public static int ColourToInt(Color color)
-        {
-            int r = Mathf.FloorToInt(color.r * 255);
-            int g = Mathf.FloorToInt(color.g * 255);
-            int b = Mathf.FloorToInt(color.b * 255);
-            return RGB_INT_OFFSET + (((r & 0x0ff) << 16) | ((g & 0x0ff) << 8) | (b & 0x0ff));
-        }
 
         public static Color ColourFromInt(int rgb)
         {
@@ -409,7 +318,6 @@ namespace Chroma
             {
                 if (_lightSwitchs != null)
                 {
-                    _lightSwitchs.Clear();
                     _lightSwitchs = null;
                 }
             }
@@ -417,7 +325,7 @@ namespace Chroma
 
         private static Dictionary<BeatmapEventType, LightSwitchEventEffect> _lightSwitchs;
 
-        public static void RecolourMenuStuff(Color? red, Color? blue, Color? redLight, Color? blueLight, Color? platformLight, Color? laser)
+        public static void RecolourMenuStuff(Color? platformLight, Color? laser)
         {
             Renderer[] rends2 = UnityEngine.Object.FindObjectsOfType<Renderer>();
 
@@ -441,21 +349,6 @@ namespace Chroma
                     if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", platformLight.Value);
                     if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", platformLight.Value);
                 }
-                /*if (rend.name.Contains("Neon")) {
-                    rend.material.color = blue;
-                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", blue);
-                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", blue);
-                }
-                if (rend.name.Contains("Border")) {
-                    rend.material.color = blue;
-                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", blueLight);
-                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", blueLight);
-                }*/
-                /*if (rend.name.Contains("Light")) {
-                    rend.material.color = blue;
-                    if (rend.material.HasProperty("_color")) rend.material.SetColor("_color", blue);
-                    if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", blue);
-                }*/
                 if (rend.name.Contains("VRCursor") && LaserPointerColour.HasValue)
                 {
                     rend.material.color = LaserPointerColour.Value;
@@ -529,37 +422,13 @@ namespace Chroma
             //ChromaLogger.Log("Sign recoloured A:"+colorA.ToString() + " B:"+colorB.ToString());
         }
 
-        public delegate void RefreshLightsDelegate(ref Color? ambientLight, ref Color? red, ref Color? blue, ref Color? redLight, ref Color? blueLight, ref Color? platform, ref Color? signA, ref Color? signB, ref Color? laser, ref string ambientSound);
-
-        public static event RefreshLightsDelegate RefreshLightsEvent;
-
         public static void RefreshLights()
         {
             try
             {
-                //ChromaLogger.Log("Refreshing Lights");
-
-                Color? ambientLight = LightAmbient;
-                Color? red = A;
-                Color? blue = B;
-                Color? redLight = LightA;
-                Color? blueLight = LightB;
-                Color? platform = Platform;
-                Color? signA = SignA;
-                Color? signB = SignB;
-                Color? laser = LaserPointerColour;
-
-                string ambientSound = null;
-
-                RefreshLightsEvent?.Invoke(ref ambientLight, ref red, ref blue, ref redLight, ref blueLight, ref platform, ref signA, ref signB, ref laser, ref ambientSound);
-
                 ResetAllLights();
-                RecolourAmbientLights(ambientLight);
-                RecolourNeonSign(signA, signB);
-                RecolourMenuStuff(red, blue, redLight, blueLight, platform, laser);
-
-                if (ambientSound == null) AudioUtil.Instance.StopAmbianceSound();
-                else AudioUtil.Instance.StartAmbianceSound(ambientSound);
+                RecolourNeonSign(SignA, SignB);
+                RecolourMenuStuff(Platform, LaserPointerColour);
             }
             catch (Exception e)
             {

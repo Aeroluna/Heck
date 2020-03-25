@@ -42,7 +42,7 @@ namespace Chroma.HarmonyPatches
 
         private static void Prefix(ObstacleController __instance, ref SimpleColorSO ____color, ref ObstacleData obstacleData)
         {
-            Color? c = ColourManager.BarrierColour;
+            Color? c = null;
 
             // Technicolour
             if (ColourManager.TechnicolourBarriers && (ChromaConfig.TechnicolourWallsStyle != ColourManager.TechnicolourStyle.GRADIENT))
