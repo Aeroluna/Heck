@@ -155,9 +155,6 @@ namespace Chroma.HarmonyPatches
                 }
             }
 
-            // Ew gross legacy color events
-            if (beatmapEventData.value >= ColourManager.RGB_INT_OFFSET) c = ColourManager.ColourFromInt(beatmapEventData.value);
-
             // CustomJSONData _customData individual override
             try
             {
@@ -239,7 +236,8 @@ namespace Chroma.HarmonyPatches
                 ChromaLogger.Log(e);
             }
 
-            if (c.HasValue) ColourManager.RecolourLight(ref __monobehaviour, c.Value, c.Value);
+            if (c.HasValue) __monobehaviour.SetLightingColours(c.Value, c.Value);
+            else __monobehaviour.Reset();
         }
     }
 }

@@ -94,26 +94,26 @@ namespace Chroma.Extensions
                 }
             }
 
-            public MonoBehaviour lse;
-            public BeatmapEventType type;
+            private MonoBehaviour lse;
+            private BeatmapEventType type;
 
-            public Color _lightColor0_Original;
-            public Color _highlightColor0_Original;
-            public Color _lightColor1_Original;
-            public Color _highlightColor1_Original;
+            private Color _lightColor0_Original;
+            private Color _highlightColor0_Original;
+            private Color _lightColor1_Original;
+            private Color _highlightColor1_Original;
 
-            public SimpleColorSO _lightColor0;
-            public SimpleColorSO _highlightColor0;
-            public SimpleColorSO _lightColor1;
-            public SimpleColorSO _highlightColor1;
+            private SimpleColorSO _lightColor0;
+            private SimpleColorSO _highlightColor0;
+            private SimpleColorSO _lightColor1;
+            private SimpleColorSO _highlightColor1;
 
-            public MultipliedColorSO m_lightColor0;
-            public MultipliedColorSO m_highlightColor0;
-            public MultipliedColorSO m_lightColor1;
-            public MultipliedColorSO m_highlightColor1;
+            private MultipliedColorSO m_lightColor0;
+            private MultipliedColorSO m_highlightColor0;
+            private MultipliedColorSO m_lightColor1;
+            private MultipliedColorSO m_highlightColor1;
 
-            public List<LightWithId> lights;
-            public LightWithId[][] lightsPropagationGrouped;
+            public List<LightWithId> lights { get; private set; }
+            public LightWithId[][] lightsPropagationGrouped { get; private set; }
 
             private LSEColourManager(MonoBehaviour lse, BeatmapEventType type)
             {
@@ -166,7 +166,6 @@ namespace Chroma.Extensions
             //We still need to do the first half of this even if the LSECM already exists as custom map colours exist and we need to be able to know the default colour
             private void InitializeSOs(MonoBehaviour lse, string id, ref SimpleColorSO sColorSO, ref Color originalColour, ref MultipliedColorSO mColorSO)
             {
-                //ChromaLogger.Log(lse.GetField<ColorSO>(id).GetType().Name, ChromaLogger.Level.ERROR, false);
                 MultipliedColorSO lightMultSO = lse.GetPrivateField<MultipliedColorSO>(id);
                 Color multiplierColour = lightMultSO.GetPrivateField<Color>("_multiplierColor");
                 SimpleColorSO lightSO = lightMultSO.GetPrivateField<SimpleColorSO>("_baseColor");
@@ -187,7 +186,7 @@ namespace Chroma.Extensions
 
             internal void LSEDestroyed()
             {
-                this.lse = null;
+                lse = null;
             }
 
             internal void Reset()
@@ -210,16 +209,6 @@ namespace Chroma.Extensions
                     _lightColor1.SetColor(colourA.Value);
                     _highlightColor1.SetColor(colourA.Value);
                 }
-            }
-
-            internal Color GetLightingColourA()
-            {
-                return _lightColor1;
-            }
-
-            internal Color GetLightingColourB()
-            {
-                return _lightColor0;
             }
         }
     }

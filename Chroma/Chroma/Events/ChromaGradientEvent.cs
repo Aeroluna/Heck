@@ -3,6 +3,7 @@ using CustomJSONData.CustomBeatmap;
 using IPA.Utilities;
 using System;
 using System.Collections.Generic;
+using Chroma.Extensions;
 using UnityEngine;
 
 namespace Chroma.Events
@@ -28,7 +29,7 @@ namespace Chroma.Events
             _instance = null;
         }
 
-        public static ChromaGradientEvent Instantiate(Color initc, Color endc, float start, float dur, BeatmapEventType type)
+        private static ChromaGradientEvent Instantiate(Color initc, Color endc, float start, float dur, BeatmapEventType type)
         {
             ChromaGradientEvent gradient = Instance.AddComponent<ChromaGradientEvent>();
             gradient._initcolor = initc;
@@ -45,25 +46,25 @@ namespace Chroma.Events
             if (_time < 0 || _time <= _duration)
             {
                 Color c = Color.Lerp(_initcolor, _endcolor, _time / _duration);
-                ColourManager.RecolourLight(_event, c, c);
+                _event.SetLightingColours(c, c);
                 if (ColourManager.LightSwitchs[_event].GetPrivateField<bool>("_lightIsOn"))
                     ColourManager.LightSwitchs[_event].SetColor(c);
             }
             else
             {
-                if (_time > _duration) ColourManager.RecolourLight(_event, _endcolor, _endcolor);
+                if (_time > _duration) _event.SetLightingColours(_endcolor, _endcolor);
                 CustomGradients.Remove(_event);
                 Destroy(this);
             }
         }
 
-        public Color _initcolor;
-        public Color _endcolor;
-        public float _start;
-        public float _duration;
-        public BeatmapEventType _event;
+        private Color _initcolor;
+        private Color _endcolor;
+        private float _start;
+        private float _duration;
+        private BeatmapEventType _event;
 
-        public static Color AddGradient(BeatmapEventType id, Color initc, Color endc, float time, float duration)
+        internal static Color AddGradient(BeatmapEventType id, Color initc, Color endc, float time, float duration)
         {
             if (ChromaBehaviour.ATSC.songTime - time < duration)
             {
@@ -79,7 +80,7 @@ namespace Chroma.Events
         }
 
         // Instantiate self
-        public static void Callback(CustomEventData eventData)
+        internal static void Callback(CustomEventData eventData)
         {
             try
             {

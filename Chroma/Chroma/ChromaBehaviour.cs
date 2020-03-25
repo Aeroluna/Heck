@@ -307,7 +307,7 @@ namespace Chroma
                             continue;
                         }
                     }
-                    if (b.value >= ColourManager.RGB_INT_OFFSET) ColourManager.TechnicolourLightsForceDisabled = true;
+                    if (b.value >= 2000000000) ColourManager.TechnicolourLightsForceDisabled = true;
                 }
 
                 BeatmapLineData[] bData = beatmapData.beatmapLinesData;

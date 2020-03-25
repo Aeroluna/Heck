@@ -452,7 +452,7 @@ namespace Chroma.Settings
 
                 customColourEventsEnabled = GetBool("Map", "customColourEventsEnabled", true);
                 noteColourEventsEnabled = GetBool("Map", "noteColourEventsEnabled", true);
-                ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", CustomColourEventsEnabled);
+                ChromaUtils.SetSongCoreCapability(Plugin.REQUIREMENT_NAME, CustomColourEventsEnabled);
 
                 /*
                  * TECHNICOLOUR
@@ -497,13 +497,10 @@ namespace Chroma.Settings
                  * AESTHETICS
                  */
 
-                //ColourManager.BarrierColour = ChromaSettingsUI.GetColor(ChromaConfig.GetString("Aesthetics", "barrierColour", "DEFAULT"), ColourManager.DefaultBarrierColour);
                 LaserPointerColour = ChromaSettingsUI.GetColor(GetString("Aesthetics", "laserPointerColour", "DEFAULT"), null);
                 SignA = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourA", "DEFAULT"), null);
                 SignB = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourB", "DEFAULT"), null);
                 Platform = ChromaSettingsUI.GetColor(GetString("Aesthetics", "platformAccoutrements", "DEFAULT"), null);
-
-                saberTrailStrength = GetFloat("Aesthetics", "saberTrailStrength", 1f);
 
                 /*
                  * MODIFIERS

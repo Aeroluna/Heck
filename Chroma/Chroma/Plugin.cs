@@ -17,21 +17,23 @@ namespace Chroma
     public class Plugin : IBeatSaberPlugin
     {
         private static Version assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
-        public static string Version = assemblyVersion.Major + "." + assemblyVersion.Minor + "." + assemblyVersion.Build;
+        internal static string Version = assemblyVersion.Major + "." + assemblyVersion.Minor + "." + assemblyVersion.Build;
+
+        internal const string REQUIREMENT_NAME = "Chroma";
 
         /// <summary>
         /// Called when the game transitions to the Main Menu from any other scene.
         /// </summary>
-        public static event MainMenuLoadedDelegate MainMenuLoadedEvent;
+        internal static event MainMenuLoadedDelegate MainMenuLoadedEvent;
 
-        public delegate void MainMenuLoadedDelegate();
+        internal delegate void MainMenuLoadedDelegate();
 
         /// <summary>
         /// Called when the player starts a song.
         /// </summary>
-        public static event SongSceneLoadedDelegate SongSceneLoadedEvent;
+        internal static event SongSceneLoadedDelegate SongSceneLoadedEvent;
 
-        public delegate void SongSceneLoadedDelegate();
+        internal delegate void SongSceneLoadedDelegate();
 
         public void OnApplicationStart()
         {
@@ -89,9 +91,6 @@ namespace Chroma
             }
 
             ChromaLogger.Log("Chroma finished initializing.");
-
-            ChromaUtils.SetSongCoreCapability("Chroma");
-            ChromaUtils.SetSongCoreCapability("ChromaLite");
         }
 
         public void ReleaseInfoEnabled()

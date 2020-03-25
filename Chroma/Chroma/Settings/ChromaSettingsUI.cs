@@ -249,7 +249,7 @@ namespace Chroma.Settings
             set
             {
                 ChromaConfig.CustomColourEventsEnabled = !value;
-                ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", !value);
+                ChromaUtils.SetSongCoreCapability(Plugin.REQUIREMENT_NAME, !value);
             }
         }
 
@@ -442,7 +442,6 @@ namespace Chroma.Settings
 
         public static void OnReloadClick()
         {
-            //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.MANUAL);
         }
 
@@ -457,11 +456,6 @@ namespace Chroma.Settings
 
         private static List<NamedColor> colourPresets = null;// = new List<NamedColour>();
 
-        public static Color? GetColor(string name)
-        {
-            return GetColor(name, null);
-        }
-
         public static Color? GetColor(string name, Color? defaultColor)
         {
             if (colourPresets == null) InitializePresetList();
@@ -475,18 +469,6 @@ namespace Chroma.Settings
         private static void InitializePresetList()
         {
             colourPresets = new List<NamedColor>() { new NamedColor("DEFAULT", null) };// new List<Tuple<string, Color>>();
-
-            SaveExampleColours();
-
-            //TODO add custom colours
-            List<NamedColor> userColours = LoadColoursFromFile();
-            if (userColours != null)
-            {
-                foreach (NamedColor t in userColours)
-                {
-                    colourPresets.Add(t);
-                }
-            }
 
             // CC GitHub to steal colours from
             // https://github.com/Kylemc1413/BeatSaber-CustomColors/blob/master/ColorsUI.cs

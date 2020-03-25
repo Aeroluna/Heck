@@ -237,17 +237,6 @@ namespace Chroma
             return color;
         }
 
-        public const int RGB_INT_OFFSET = 2000000000;
-
-        public static Color ColourFromInt(int rgb)
-        {
-            rgb = rgb - RGB_INT_OFFSET;
-            int red = (rgb >> 16) & 0x0ff;
-            int green = (rgb >> 8) & 0x0ff;
-            int blue = (rgb) & 0x0ff;
-            return new Color(red / 255f, green / 255f, blue / 255f, 1);
-        }
-
         public static LightSwitchEventEffect[] GetAllLightSwitches()
         {
             if (_lightSwitches == null) _lightSwitches = Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>();
@@ -288,17 +277,7 @@ namespace Chroma
             {
                 lights[i].SetLightingColours(red, blue);
             }
-        }
-
-        public static void RecolourLight(ref MonoBehaviour obj, Color red, Color blue)
-        {
-            obj.SetLightingColours(red, blue);
-        }
-
-        public static void RecolourLight(BeatmapEventType obj, Color red, Color blue)
-        {
-            obj.SetLightingColours(red, blue);
-        }
+        }\
 
         public static Dictionary<BeatmapEventType, LightSwitchEventEffect> LightSwitchs
         {
@@ -436,143 +415,5 @@ namespace Chroma
                 ChromaLogger.Log(e, ChromaLogger.Level.WARNING);
             }
         }
-
-        //TODO
-        //This shit is messy.  Fix that.
-
-        #region savedColours
-
-        [XmlRoot("Colour")]
-        public class XmlColour
-        {
-            [XmlElement("Name")]
-            public string name;
-
-            [XmlElement("R")]
-            public int r;
-
-            [XmlElement("G")]
-            public int g;
-
-            [XmlElement("B")]
-            public int b;
-
-            [XmlElement("A")]
-            public int a;
-
-            public XmlColour()
-            {
-            }
-
-            public XmlColour(string name, int r, int g, int b, int a = 255)
-            {
-                this.name = name;
-                this.r = r;
-                this.g = g;
-                this.b = b;
-                this.a = a;
-            }
-
-            public XmlColour(string name, Color color)
-            {
-                this.name = name;
-                this.r = Mathf.FloorToInt(color.r);
-                this.r = Mathf.FloorToInt(color.g);
-                this.r = Mathf.FloorToInt(color.b);
-                this.r = Mathf.FloorToInt(color.a);
-            }
-
-            public Color Color
-            {
-                get
-                {
-                    return new Color(r / 255f, g / 255f, b / 255f, a / 255f);
-                }
-            }
-        }
-
-        public static List<NamedColor> LoadColoursFromFile()
-        {
-            List<NamedColor> colors = new List<NamedColor>();
-
-            string filePath = Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma/Colours.xml";
-
-            List<XmlColour> xms = new List<XmlColour>();
-
-            try
-            {
-                if (File.Exists(filePath))
-                {
-                    XmlSerializer ser = new XmlSerializer(typeof(List<XmlColour>));
-                    using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
-                    {
-                        xms = (List<XmlColour>)ser.Deserialize(fileStream);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                ChromaLogger.Log(e);
-            }
-
-            if (xms != null)
-            {
-                foreach (XmlColour xm in xms)
-                {
-                    colors.Add(new NamedColor(xm.name, xm.Color));
-                }
-            }
-
-            return colors;
-        }
-
-        public static void SaveExampleColours()
-        {
-            try
-            {
-                string filePath = Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma/Colours.xml";
-                if (!File.Exists(filePath))
-                {
-                    XmlColour[] exampleColours = new XmlColour[] {
-                        new XmlColour("Dark Red", 128, 0, 0, 255),
-                        new XmlColour("Mega Blue", 0, 0, 700, 255),
-                        new XmlColour("Brown(Why?)", 139, 69, 19, 255),
-                    };
-
-                    SaveColours(exampleColours);
-                }
-            }
-            catch (Exception e)
-            {
-                ChromaLogger.Log(e);
-            }
-        }
-
-        public static void SaveColours(params XmlColour[] colours)
-        {
-            if (colours.Length < 1) return;
-
-            string filePath = Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma/Colours.xml";
-
-            List<NamedColor> namedColors = LoadColoursFromFile();
-            List<XmlColour> xmColours = new List<XmlColour>();
-            foreach (NamedColor nc in namedColors) xmColours.Add(new XmlColour(nc.name, nc.color.Value));
-            foreach (XmlColour xc in colours) xmColours.Add(xc);
-
-            try
-            {
-                using (StreamWriter w = File.CreateText(filePath))
-                {
-                    XmlSerializer ser = new XmlSerializer(xmColours.GetType());
-                    ser.Serialize(w, xmColours);
-                }
-            }
-            catch (Exception e)
-            {
-                ChromaLogger.Log(e);
-            }
-        }
-
-        #endregion savedColours
     }
 }
