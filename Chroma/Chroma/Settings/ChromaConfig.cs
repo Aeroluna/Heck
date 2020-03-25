@@ -563,7 +563,7 @@ namespace Chroma.Settings
                  * OTHER
                  */
 
-                sidePanel = (ChromaSettingsUI.SidePanelEnum)GetFloat("Other", "sidePanel", 1);
+                sidePanel = (ChromaSettingsUI.SidePanelEnum)GetFloat("Other", "sidePanel", 0);
 
                 debugMode = GetBool("Other", "debugMode", false);
 

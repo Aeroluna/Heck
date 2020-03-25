@@ -230,56 +230,58 @@ namespace Chroma
                 if (ChromaConfig.Buildings) GameObject.Find("Buildings")?.SetActive(false);
             }
 
-            // CustomJSONData Custom Events
-            if (beatmapData is CustomBeatmapData _customBeatmap)
+            // CustomJSONData
+            if (LightingRegistered)
             {
-                dynamic dynData = _customBeatmap.beatmapCustomData;
-                List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
-                if (objectsToKill != null)
+                if (beatmapData is CustomBeatmapData _customBeatmap)
                 {
-                    GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-                    objectsToKill.Cast<string>()?.ToList()?.ForEach(s => gameObjects.Where(obj => obj.name.Contains(s)
-                    && obj.scene.name.Contains("Environment"))?.ToList()?.ForEach(n => n.SetActive(false)));
-                }
-
-                Dictionary<string, List<CustomEventData>> _customEventData = _customBeatmap.customEventData;
-                foreach (KeyValuePair<string, List<CustomEventData>> n in _customEventData)
-                {
-                    switch (n.Key)
+                    dynamic dynData = _customBeatmap.beatmapCustomData;
+                    List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
+                    if (objectsToKill != null)
                     {
-                        case "SetObstacleColor":
-                            ChromaObstacleColourEvent.Activate(n.Value);
-                            break;
+                        GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+                        objectsToKill?.Cast<string>()?.ToList()?.ForEach(s => gameObjects.Where(obj => obj.name.Contains(s)
+                        && obj.scene.name.Contains("Environment"))?.ToList()?.ForEach(n => n.SetActive(false)));
+                    }
 
-                        case "SetNoteColor":
-                            if (ChromaConfig.NoteColourEventsEnabled) ChromaNoteColourEvent.Activate(n.Value);
-                            break;
+                    Dictionary<string, List<CustomEventData>> _customEventData = _customBeatmap.customEventData;
+                    foreach (KeyValuePair<string, List<CustomEventData>> n in _customEventData)
+                    {
+                        switch (n.Key)
+                        {
+                            case "SetObstacleColor":
+                                ChromaObstacleColourEvent.Activate(n.Value);
+                                break;
 
-                        case "SetBombColor":
-                            ChromaBombColourEvent.Activate(n.Value);
-                            break;
+                            case "SetNoteColor":
+                                if (ChromaConfig.NoteColourEventsEnabled) ChromaNoteColourEvent.Activate(n.Value);
+                                break;
 
-                        case "SetLightColor":
-                            ChromaLightColourEvent.Activate(n.Value);
-                            break;
+                            case "SetBombColor":
+                                ChromaBombColourEvent.Activate(n.Value);
+                                break;
+
+                            case "SetLightColor":
+                                ChromaLightColourEvent.Activate(n.Value);
+                                break;
+                        }
                     }
                 }
-            }
 
-            // SimpleCustomEvents subscriptions
-            if (ChromaUtils.IsModInstalled("CustomEvents")) RegisterCustomEvents(gcss);
+                // SimpleCustomEvents subscriptions
+                // TODO: decide what i'm gonna do with simplecustomevents
+                if (ChromaUtils.IsModInstalled("CustomEvents")) RegisterCustomEvents(gcss);
+            }
         }
         
         private static void RegisterCustomEvents(BeatmapObjectCallbackController gcss)
         {
             CustomEvents.CustomEventCallbackController cecc = gcss.GetComponentInParent<CustomEvents.CustomEventCallbackController>();
-            if (cecc != null && LightingRegistered)
+            if (cecc == null) return;
+            cecc.AddCustomEventCallback(ChromaGradientEvent.Callback, "AddGradient", 0);
+            if (ChromaConfig.NoteColourEventsEnabled)
             {
-                cecc.AddCustomEventCallback(ChromaGradientEvent.Callback, "AddGradient", 0);
-                if (ChromaConfig.NoteColourEventsEnabled)
-                {
-                    cecc.AddCustomEventCallback(ChromaSaberColourEvent.Callback, "SetSaberColor", 0);
-                }
+                cecc.AddCustomEventCallback(ChromaSaberColourEvent.Callback, "SetSaberColor", 0);
             }
         }
 

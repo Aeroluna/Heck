@@ -15,7 +15,6 @@ namespace Chroma.Events
         // Creates dictionary loaded with all _noteColor custom events and indexs them with the event's time
         public static void Activate(List<CustomEventData> eventData)
         {
-            if (!ChromaBehaviour.LightingRegistered) return;
             foreach (CustomEventData d in eventData)
             {
                 try
