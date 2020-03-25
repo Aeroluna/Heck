@@ -1,14 +1,13 @@
 ﻿using Chroma.Settings;
-using Chroma.Utils;
 using System;
 using System.Runtime.CompilerServices;
 using IPALogger = IPA.Logging.Logger;
 
 namespace Chroma
 {
-    public static class ChromaLogger
+    internal static class ChromaLogger
     {
-        public enum Level
+        internal enum Level
         {
             DEBUG = 1,
             INFO = 2,
@@ -17,32 +16,30 @@ namespace Chroma
             NEVER = 255
         }
 
-        public static IPALogger logger;
+        internal static IPALogger logger;
 
-        public static Level SoundLevel { get; set; } = Level.NEVER;
-
-        public static void Log(Exception e, Level level = Level.ERROR,
+        internal static void Log(Exception e, Level level = Level.ERROR,
             [CallerMemberName] string member = "",
             [CallerLineNumber] int line = 0)
         {
             Log(e.ToString(), level, member, line);
         }
 
-        public static void Log(object obj, Level level = Level.DEBUG,
+        internal static void Log(object obj, Level level = Level.DEBUG,
             [CallerMemberName] string member = "",
             [CallerLineNumber] int line = 0)
         {
             Log(obj.ToString(), level, member, line);
         }
 
-        public static void Log(string[] messages, Level level = Level.DEBUG,
+        internal static void Log(string[] messages, Level level = Level.DEBUG,
             [CallerMemberName] string member = "",
             [CallerLineNumber] int line = 0)
         {
             foreach (string s in messages) Log(s, level, member, line);
         }
 
-        public static void Log(string message, Level level = Level.DEBUG,
+        internal static void Log(string message, Level level = Level.DEBUG,
             [CallerMemberName] string member = "",
             [CallerLineNumber] int line = 0)
         {

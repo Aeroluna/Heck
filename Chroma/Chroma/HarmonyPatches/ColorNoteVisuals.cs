@@ -26,7 +26,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("HandleNoteControllerDidInitEvent")]
     internal class ColorNoteVisualsHandleNoteControllerDidInitEvent
     {
-        public static bool noteColoursActive;
+        internal static bool noteColoursActive;
 
         private static void Prefix(ref NoteController noteController, ref ColorManager ____colorManager)
         {

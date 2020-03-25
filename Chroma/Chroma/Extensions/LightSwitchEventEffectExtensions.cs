@@ -5,29 +5,29 @@ using UnityEngine;
 
 namespace Chroma.Extensions
 {
-    public static class LightSwitchEventEffectExtensions
+    internal static class LightSwitchEventEffectExtensions
     {
-        public static void Reset(this MonoBehaviour lse)
+        internal static void Reset(this MonoBehaviour lse)
         {
             LSEColourManager.GetLSEColourManager(lse)?.Reset();
         }
 
-        public static void SetLightingColours(this MonoBehaviour lse, Color? colourA, Color? colourB)
+        internal static void SetLightingColours(this MonoBehaviour lse, Color? colourA, Color? colourB)
         {
             LSEColourManager.GetLSEColourManager(lse)?.SetLightingColours(colourA, colourB);
         }
 
-        public static void SetLightingColours(this BeatmapEventType lse, Color? colourA, Color? colourB)
+        internal static void SetLightingColours(this BeatmapEventType lse, Color? colourA, Color? colourB)
         {
             LSEColourManager.GetLSEColourManager(lse)?.SetLightingColours(colourA, colourB);
         }
 
-        public static LightWithId[] GetLights(this LightSwitchEventEffect lse)
+        internal static LightWithId[] GetLights(this LightSwitchEventEffect lse)
         {
             return LSEColourManager.GetLSEColourManager(lse)?.lights.ToArray();
         }
 
-        public static LightWithId[][] GetLightsPropagationGrouped(this LightSwitchEventEffect lse)
+        internal static LightWithId[][] GetLightsPropagationGrouped(this LightSwitchEventEffect lse)
         {
             return LSEColourManager.GetLSEColourManager(lse)?.lightsPropagationGrouped;
         }
@@ -50,7 +50,7 @@ namespace Chroma.Extensions
 
         private class LSEColourManager
         {
-            public static LSEColourManager GetLSEColourManager(BeatmapEventType type)
+            internal static LSEColourManager GetLSEColourManager(BeatmapEventType type)
             {
                 for (int i = 0; i < LSEColourManagers.Count; i++)
                 {
@@ -59,7 +59,7 @@ namespace Chroma.Extensions
                 return null;
             }
 
-            public static LSEColourManager GetLSEColourManager(MonoBehaviour lse)
+            internal static LSEColourManager GetLSEColourManager(MonoBehaviour lse)
             {
                 for (int i = 0; i < LSEColourManagers.Count; i++)
                 {
@@ -68,7 +68,7 @@ namespace Chroma.Extensions
                 return null;
             }
 
-            public static LSEColourManager CreateLSEColourManager(MonoBehaviour lse, BeatmapEventType type)
+            internal static LSEColourManager CreateLSEColourManager(MonoBehaviour lse, BeatmapEventType type)
             {
                 LSEColourManager lsecm;
                 try
@@ -112,8 +112,8 @@ namespace Chroma.Extensions
             private MultipliedColorSO m_lightColor1;
             private MultipliedColorSO m_highlightColor1;
 
-            public List<LightWithId> lights { get; private set; }
-            public LightWithId[][] lightsPropagationGrouped { get; private set; }
+            internal List<LightWithId> lights { get; private set; }
+            internal LightWithId[][] lightsPropagationGrouped { get; private set; }
 
             private LSEColourManager(MonoBehaviour lse, BeatmapEventType type)
             {

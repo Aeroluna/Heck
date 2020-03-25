@@ -16,14 +16,17 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("Init")]
     internal class ObstacleControllerInit
     {
-        internal static SimpleColorSO DefaultObstacleColorSO {
+        internal static SimpleColorSO DefaultObstacleColorSO
+        {
             get
             {
                 if (defaultObstacleColor == null) defaultObstacleColor = Resources.FindObjectsOfTypeAll<ColorManager>().First().GetPrivateField<SimpleColorSO>("_obstaclesColor");
                 return defaultObstacleColor;
             }
         }
+
         private static SimpleColorSO defaultObstacleColor;
+
         internal static SimpleColorSO CustomObstacleColorSO
         {
             get
@@ -32,7 +35,9 @@ namespace Chroma.HarmonyPatches
                 return customObstacleColor;
             }
         }
+
         private static SimpleColorSO customObstacleColor;
+
         internal static void ClearObstacleColors()
         {
             defaultObstacleColor = null;

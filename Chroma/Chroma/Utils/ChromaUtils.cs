@@ -1,39 +1,25 @@
 ﻿using System.Linq;
-using System.Text;
 
 namespace Chroma.Utils
 {
-    public static class ChromaUtils
+    internal static class ChromaUtils
     {
-        public static bool IsModInstalled(string mod)
+        internal static bool IsModInstalled(string mod)
         {
             return IPA.Loader.PluginManager.AllPlugins.Any(x => x.Metadata.Id == mod);
         }
 
-        public static void SetSongCoreCapability(string capability, bool enabled = true)
+        internal static void SetSongCoreCapability(string capability, bool enabled = true)
         {
             // Gotta check for SongCore first
             if (!IsModInstalled("SongCore")) return;
             setCapability(capability, enabled);
         }
 
-        public static bool CheckLightingEventRequirement()
+        internal static bool CheckLightingEventRequirement()
         {
             if (!IsModInstalled("SongCore")) return Settings.ChromaConfig.CustomColourEventsEnabled;
             return checkLightingEventActivation() && Settings.ChromaConfig.CustomColourEventsEnabled;
-        }
-
-        public static string RemoveSpecialCharacters(this string str)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (char c in str)
-            {
-                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '.' || c == '_')
-                {
-                    sb.Append(c);
-                }
-            }
-            return sb.ToString();
         }
 
         private static void setCapability(string capability, bool enabled = true)

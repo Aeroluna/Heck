@@ -6,7 +6,7 @@ namespace Chroma.Misc
     internal static class Greetings
     {
         //Portal quotes, Doki-Doki Literature Club quotes, you know - Skynet type stuff, with the occasional wholesome comment thrown in
-        public static string[] GetGreeting(ulong id, string name)
+        private static string[] GetGreeting(ulong id, string name)
         {
             if (name.ToLower() == "cyansnow") return new string[] { "Cyan is a furry" };
 
@@ -147,7 +147,7 @@ namespace Chroma.Misc
             }
         }
 
-        public static void RegisterChromaSideMenu()
+        internal static void RegisterChromaSideMenu()
         {
             SidePanelUtil.RegisterTextPanel("chroma",
                 ResourceTextFiles.chromaNotes

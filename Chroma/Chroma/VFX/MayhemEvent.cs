@@ -8,24 +8,27 @@ namespace Chroma.VFX
     {
         internal static List<LightWithId>[] LightWithIdManager
         {
-            get {
+            get
+            {
                 if (manager == null) manager = GameObject.Find("LightWithIdManager").GetComponent<LightWithIdManager>().GetPrivateField<List<LightWithId>[]>("_lights");
                 return manager;
             }
         }
+
         private static List<LightWithId>[] manager;
+
         internal static void ClearManager()
         {
             manager = null;
         }
 
-        public static void ActivateTechnicolour(BeatmapEventData baseData, LightSwitchEventEffect lse)
+        internal static void ActivateTechnicolour(BeatmapEventData baseData, LightSwitchEventEffect lse)
         {
             LightWithId[] lights = LightWithIdManager[lse.LightsID].ToArray();
             for (int i = 0; i < lights.Length; i++) lights[i].ColorWasSet(ColourManager.GetTechnicolour(baseData.value > 3, baseData.time + lights[i].GetInstanceID(), Settings.ChromaConfig.TechnicolourLightsStyle));
         }
 
-        public static void ParticleTechnicolour(BeatmapEventData baseData, ParticleSystemEventEffect lse)
+        internal static void ParticleTechnicolour(BeatmapEventData baseData, ParticleSystemEventEffect lse)
         {
             ParticleSystem.MainModule _mainmodule = lse.GetPrivateField<ParticleSystem.MainModule>("_mainModule");
             ParticleSystem.Particle[] _particles = lse.GetPrivateField<ParticleSystem.Particle[]>("_particles");

@@ -7,7 +7,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("Start")]
     internal class SaberBurnMarkAreaStart
     {
-        public static void Postfix(ref SaberBurnMarkArea __instance)
+        private static void Postfix(ref SaberBurnMarkArea __instance)
         {
             Extensions.SaberColourizer.saberBurnMarkArea = __instance;
         }

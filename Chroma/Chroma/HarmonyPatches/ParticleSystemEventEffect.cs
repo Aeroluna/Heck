@@ -13,6 +13,7 @@ namespace Chroma.HarmonyPatches
     {
         private static void Postfix(ParticleSystemEventEffect __instance, ref BeatmapEventType ____colorEvent)
         {
+            if (!ChromaBehaviour.LightingRegistered) return;
             __instance.StartCoroutine(WaitThenStart(__instance, ____colorEvent));
         }
 
@@ -39,7 +40,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal class ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
-        public static void ResetRandom()
+        internal static void ResetRandom()
         {
             ChromaLogger.Log("Resetting techniLightRandom Random 408 (Particles)");
             techniLightRandom = new System.Random(408);

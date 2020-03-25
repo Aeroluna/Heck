@@ -2,7 +2,7 @@
 
 namespace Chroma.Utils
 {
-    public static class SidePanelUtil
+    internal static class SidePanelUtil
     {
         private const string defaultKey = "default";
         private static Dictionary<string, string> screenText = new Dictionary<string, string>();
@@ -10,22 +10,13 @@ namespace Chroma.Utils
         private static TextPageScrollView textPageScrollView;
 
         private static string currentKey = defaultKey;
-        private static string currentMessage = "";
-
-        /// <summary>
-        /// Revert the panel to default
-        /// </summary>
-        public static void ResetPanel()
-        {
-            SetPanel(defaultKey);
-        }
 
         /// <summary>
         /// Sets the panel to the text provided via RegisterTextPanel
         /// </summary>
         /// <param name="key">The key used in RegisterTextPanel</param>
         /// <returns>true if the key exists</returns>
-        public static bool SetPanel(string key)
+        internal static bool SetPanel(string key)
         {
             if (key == null) return false;
             if (screenText.TryGetValue(key, out string message))
@@ -41,7 +32,7 @@ namespace Chroma.Utils
         /// </summary>
         /// <param name="key">key to use for EnablePanel</param>
         /// <param name="message">Message to be shown</param>
-        public static void RegisterTextPanel(string key, string message)
+        internal static void RegisterTextPanel(string key, string message)
         {
             if (screenText.ContainsKey(key))
             {
@@ -57,17 +48,16 @@ namespace Chroma.Utils
         /// Sets the panel directly via message
         /// </summary>
         /// <param name="message">Message to be shown</param>
-        public static void SetPanelDirectly(string message, string key = null)
+        internal static void SetPanelDirectly(string message, string key = null)
         {
             currentKey = key;
-            currentMessage = message;
             textPageScrollView.SetText(message);
         }
 
         /// <summary>
         /// Reapplies the current key
         /// </summary>
-        public static void Update()
+        private static void Update()
         {
             SetPanel(currentKey);
         }
@@ -79,13 +69,12 @@ namespace Chroma.Utils
             {
                 screenText.Add(defaultKey, message);
                 currentKey = defaultKey;
-                currentMessage = message;
             }
             ReleaseInfoEnabledEvent?.Invoke();
         }
 
-        public delegate void ReleaseInfoEnabledDelegate();
+        internal delegate void ReleaseInfoEnabledDelegate();
 
-        public static event ReleaseInfoEnabledDelegate ReleaseInfoEnabledEvent;
+        internal static event ReleaseInfoEnabledDelegate ReleaseInfoEnabledEvent;
     }
 }

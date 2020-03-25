@@ -14,101 +14,42 @@ using UnityEngine.SceneManagement;
 
 namespace Chroma
 {
-    public class ChromaBehaviour : MonoBehaviour
+    internal class ChromaBehaviour : MonoBehaviour
     {
-        private static bool isLoadingSong = false;
+        private static ChromaBehaviour _instance = null;
 
-        public static bool IsLoadingSong
+        private static void ClearInstance()
         {
-            get { return isLoadingSong; }
-            set
+            if (_instance != null)
             {
-                if (value)
-                {
-                    LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
-                    ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
-                }
-                isLoadingSong = value;
-            }
-        }
-
-        public static ChromaBehaviour Instance { get; private set; } = null;
-
-        public static void ClearInstance()
-        {
-            if (Instance != null)
-            {
-                Destroy(Instance.gameObject);
-                Instance = null;
+                Destroy(_instance.gameObject);
+                _instance = null;
             }
         }
 
         internal static ChromaBehaviour CreateNewInstance()
         {
-            IsLoadingSong = true;
             ChromaLogger.Log("ChromaBehaviour attempting creation.", ChromaLogger.Level.DEBUG);
             ClearInstance();
 
-            //if (SceneUtils.IsTargetGameScene(SceneManager.GetActiveScene().buildIndex)) {
+            LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
+            ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
+
             GameObject instanceObject = new GameObject("ChromaBehaviour");
             ChromaBehaviour behaviour = instanceObject.AddComponent<ChromaBehaviour>();
-            Instance = behaviour;
+            _instance = behaviour;
             ChromaLogger.Log("ChromaBehaviour instantiated.", ChromaLogger.Level.DEBUG);
             return behaviour;
-            /*} else {
-                ChromaLogger.Log("Invalid scene index.");
-                return null;
-            }*/
         }
 
-        public PlayerController PlayerController { get; private set; }
-
-        /// <summary>
-        /// Called when CB is instantiated, used to attach extensions.
-        /// Extensions will be useless if not tracked.  Call ChromaBehaviour.AttachExtension to solve this.
-        /// </summary>
-        public static event ChromaBehaviourInstantiatedDelegate ChromaBehaviourInstantiated;
-
-        public delegate void ChromaBehaviourInstantiatedDelegate(ChromaBehaviour behaviour);
-
-        public event ChromaHandleNoteWasCut ChromaHandleNoteWasCutEvent;
-
-        public delegate void ChromaHandleNoteWasCut(BeatmapObjectSpawnController noteSpawnController, INoteController noteController, NoteCutInfo noteCutInfo);
-
-        public event ChromaHandleNoteWasMissed ChromaHandleNoteWasMissedEvent;
-
-        public delegate void ChromaHandleNoteWasMissed(BeatmapObjectSpawnController noteSpawnController, INoteController noteController);
-
-        public event ChromaHandleBarrierSpawned ChromaHandleBarrierSpawnedEvent;
-
-        public delegate void ChromaHandleBarrierSpawned(ref StretchableObstacle stretchableObstacle, ref BeatmapObjectSpawnController obstacleSpawnController, ref ObstacleController obstacleController);
-
-        public event ChromaHandleComboChange ChromaHandleComboChangeEvent;
-
-        public delegate void ChromaHandleComboChange(int newCombo);
-
-        //public event ChromaHandleNoteScaling ChromaHandleNoteScalingEvent;
-        //public delegate void ChromaHandleNoteScaling(int noteID, NoteType noteType, ref float tScale);
-
-        private BeatmapObjectSpawnController beatmapObjectSpawnController;
-        private ScoreController scoreController;
-
-        public static float songBPM = 120f;
-        public static AudioTimeSyncController ATSC;
-        public static bool LightingRegistered;
+        internal static float songBPM = 120f;
+        internal static AudioTimeSyncController ATSC;
+        internal static bool LightingRegistered;
 
         private void OnDestroy()
         {
             ChromaLogger.Log("ChromaBehaviour destroyed.", ChromaLogger.Level.DEBUG);
             StopAllCoroutines();
-
-            if (beatmapObjectSpawnController != null)
-            {
-                beatmapObjectSpawnController.obstacleDiStartMovementEvent -= HandleObstacleDidStartMovementEvent;
-                beatmapObjectSpawnController.noteWasCutEvent -= HandleNoteWasCutEvent;
-                beatmapObjectSpawnController.noteWasMissedEvent -= HandleNoteWasMissedEvent;
-            }
-            if (scoreController != null) scoreController.comboDidChangeEvent -= ComboChangedEvent;
         }
 
         private void Start()
@@ -120,37 +61,21 @@ namespace Chroma
         {
             yield return new WaitForSeconds(0f);
             LightingRegistered = ChromaUtils.CheckLightingEventRequirement();
-            ChromaBehaviourInstantiated?.Invoke(this);
-            beatmapObjectSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
-            if (beatmapObjectSpawnController != null)
-            {
-                songBPM = beatmapObjectSpawnController.GetPrivateField<float>("_beatsPerMinute");
-                ChromaLogger.Log("BPM Found : " + songBPM);
-                ATSC = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First();
-            }
+            ATSC = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First();
+            songBPM = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First().GetPrivateField<float>("_beatsPerMinute");
             BeatmapObjectCallbackController coreSetup = GetBeatmapObjectCallbackController();
             if (coreSetup != null)
             {
                 ChromaLogger.Log("Found BOCC properly!", ChromaLogger.Level.DEBUG);
                 try
                 {
-                    GCSSFound(SceneManager.GetActiveScene(), coreSetup);
+                    GCSSFound(coreSetup);
                 }
                 catch (Exception e)
                 {
                     ChromaLogger.Log(e);
                 }
             }
-
-            if (beatmapObjectSpawnController != null)
-            {
-                beatmapObjectSpawnController.obstacleDiStartMovementEvent += HandleObstacleDidStartMovementEvent;
-                beatmapObjectSpawnController.noteWasCutEvent += HandleNoteWasCutEvent;
-                beatmapObjectSpawnController.noteWasMissedEvent += HandleNoteWasMissedEvent;
-            }
-
-            scoreController = FindObjectsOfType<ScoreController>().FirstOrDefault();
-            if (scoreController != null) scoreController.comboDidChangeEvent += ComboChangedEvent;
 
             Saber[] sabers = FindObjectsOfType<Saber>();
             if (sabers != null)
@@ -159,8 +84,6 @@ namespace Chroma
             }
 
             VFX.TechnicolourController.InitializeGradients();
-
-            IsLoadingSong = false;
         }
 
         private BeatmapObjectCallbackController GetBeatmapObjectCallbackController()
@@ -173,26 +96,15 @@ namespace Chroma
             return s;
         }
 
-        private void GCSSFound(Scene scene, BeatmapObjectCallbackController gcss)
+        private void GCSSFound(BeatmapObjectCallbackController gcss)
         {
             ChromaLogger.Log("Found BOCC!", ChromaLogger.Level.DEBUG);
 
-            PlayerController = FindObjectOfType<PlayerController>();
-            if (PlayerController == null) ChromaLogger.Log("Player Controller not found!", ChromaLogger.Level.WARNING);
-
             if (gcss == null)
             {
-                ChromaLogger.Log("Failed to obtain MainGameSceneSetup", ChromaLogger.Level.WARNING);
+                ChromaLogger.Log("Failed to obtain BeatmapObjectCallbackController", ChromaLogger.Level.WARNING);
                 return;
             }
-
-            BS_Utils.Gameplay.LevelData levelData = BS_Utils.Plugin.LevelData;
-            if (!levelData.IsSet)
-            {
-                ChromaLogger.Log("BS_Utils LevelData is not set", ChromaLogger.Level.WARNING);
-                return;
-            }
-            PlayerSpecificSettings playerSettings = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.playerSpecificSettings;
 
             //Map
 
@@ -259,7 +171,7 @@ namespace Chroma
                 if (ChromaUtils.IsModInstalled("CustomEvents")) RegisterCustomEvents(gcss);
             }
         }
-        
+
         private static void RegisterCustomEvents(BeatmapObjectCallbackController gcss)
         {
             CustomEvents.CustomEventCallbackController cecc = gcss.GetComponentInParent<CustomEvents.CustomEventCallbackController>();
@@ -271,7 +183,7 @@ namespace Chroma
             }
         }
 
-        public static BeatmapData CreateTransformedData(BeatmapData beatmapData)
+        private static BeatmapData CreateTransformedData(BeatmapData beatmapData)
         {
             ColourManager.TechnicolourLightsForceDisabled = false;
             ColourManager.TechnicolourBlocksForceDisabled = false;
@@ -337,27 +249,6 @@ namespace Chroma
             }
 
             return beatmapData;
-        }
-
-        private void HandleObstacleDidStartMovementEvent(BeatmapObjectSpawnController obstacleSpawnController, ObstacleController obstacleController)
-        {
-            StretchableObstacle stretchableObstacle = ReflectionUtil.GetPrivateField<StretchableObstacle>(obstacleController, "_stretchableObstacle");
-            ChromaHandleBarrierSpawnedEvent?.Invoke(ref stretchableObstacle, ref obstacleSpawnController, ref obstacleController);
-        }
-
-        private void HandleNoteWasCutEvent(BeatmapObjectSpawnController noteSpawnController, INoteController noteController, NoteCutInfo noteCutInfo)
-        {
-            ChromaHandleNoteWasCutEvent?.Invoke(noteSpawnController, noteController, noteCutInfo);
-        }
-
-        private void HandleNoteWasMissedEvent(BeatmapObjectSpawnController noteSpawnController, INoteController noteController)
-        {
-            ChromaHandleNoteWasMissedEvent?.Invoke(noteSpawnController, noteController);
-        }
-
-        private void ComboChangedEvent(int newCombo)
-        {
-            ChromaHandleComboChangeEvent?.Invoke(newCombo);
         }
     }
 }

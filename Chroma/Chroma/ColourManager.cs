@@ -1,31 +1,28 @@
 ﻿using Chroma.Extensions;
 using Chroma.Settings;
-using Chroma.Utils;
 using IPA.Utilities;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Xml.Serialization;
 using UnityEngine;
 
 namespace Chroma
 {
-    public static class ColourManager
+    internal static class ColourManager
     {
         private static Color?[] noteTypeColourOverrides = new Color?[] { null, null };
 
-        public static Color? GetNoteTypeColourOverride(NoteType noteType)
+        internal static Color? GetNoteTypeColourOverride(NoteType noteType)
         {
             return noteTypeColourOverrides[noteType == NoteType.NoteA ? 0 : 1];
         }
 
-        public static void SetNoteTypeColourOverride(NoteType noteType, Color color)
+        internal static void SetNoteTypeColourOverride(NoteType noteType, Color color)
         {
             noteTypeColourOverrides[noteType == NoteType.NoteA ? 0 : 1] = color;
         }
 
-        public static void RemoveNoteTypeColourOverride(NoteType noteType)
+        internal static void RemoveNoteTypeColourOverride(NoteType noteType)
         {
             noteTypeColourOverrides[noteType == NoteType.NoteA ? 0 : 1] = null;
         }
@@ -39,9 +36,9 @@ namespace Chroma
         private static Color[] _technicolourWarmPalette;
         private static Color[] _technicolourColdPalette;
 
-        public static Color[] TechnicolourCombinedPalette { get; private set; }
+        internal static Color[] TechnicolourCombinedPalette { get; private set; }
 
-        public static Color[] TechnicolourWarmPalette
+        internal static Color[] TechnicolourWarmPalette
         {
             get { return _technicolourWarmPalette; }
             set
@@ -51,7 +48,7 @@ namespace Chroma
             }
         }
 
-        public static Color[] TechnicolourColdPalette
+        internal static Color[] TechnicolourColdPalette
         {
             get { return _technicolourColdPalette; }
             set
@@ -72,7 +69,7 @@ namespace Chroma
             ChromaLogger.Log("Combined TC Palette formed : " + TechnicolourCombinedPalette.Length);
         }
 
-        public enum TechnicolourStyle
+        internal enum TechnicolourStyle
         {
             OFF = 0,
             WARM_COLD = 1,
@@ -81,25 +78,25 @@ namespace Chroma
             GRADIENT = 4
         }
 
-        public enum TechnicolourTransition
+        internal enum TechnicolourTransition
         {
             FLAT = 0,
             SMOOTH = 1,
         }
 
-        public enum TechnicolourLightsGrouping
+        internal enum TechnicolourLightsGrouping
         {
             STANDARD = 0,
             ISOLATED_GROUP = 1,
             ISOLATED = 2
         }
 
-        public static bool TechnicolourLightsForceDisabled { get; set; } = false;
-        public static bool TechnicolourBlocksForceDisabled { get; set; } = false;
-        public static bool TechnicolourBarriersForceDisabled { get; set; } = false;
-        public static bool TechnicolourBombsForceDisabled { get; set; } = false;
+        internal static bool TechnicolourLightsForceDisabled { get; set; } = false;
+        internal static bool TechnicolourBlocksForceDisabled { get; set; } = false;
+        internal static bool TechnicolourBarriersForceDisabled { get; set; } = false;
+        internal static bool TechnicolourBombsForceDisabled { get; set; } = false;
 
-        public static bool TechnicolourLights
+        internal static bool TechnicolourLights
         {
             get
             {
@@ -107,27 +104,27 @@ namespace Chroma
             }
         }
 
-        public static bool TechnicolourSabers
+        internal static bool TechnicolourSabers
         {
             get { return ChromaConfig.TechnicolourEnabled && !TechnicolourBlocksForceDisabled && ChromaConfig.TechnicolourSabersStyle != TechnicolourStyle.OFF; }
         }
 
-        public static bool TechnicolourBlocks
+        internal static bool TechnicolourBlocks
         {
             get { return ChromaConfig.TechnicolourEnabled && !TechnicolourBlocksForceDisabled && ChromaConfig.TechnicolourBlocksStyle != TechnicolourStyle.OFF; }
         }
 
-        public static bool TechnicolourBarriers
+        internal static bool TechnicolourBarriers
         {
             get { return ChromaConfig.TechnicolourEnabled && !TechnicolourBarriersForceDisabled && ChromaConfig.TechnicolourWallsStyle != TechnicolourStyle.OFF; }
         }
 
-        public static bool TechnicolourBombs
+        internal static bool TechnicolourBombs
         {
             get { return ChromaConfig.TechnicolourEnabled && !TechnicolourBombsForceDisabled && ChromaConfig.TechnicolourBombsStyle != TechnicolourStyle.OFF; }
         }
 
-        public static Color GetTechnicolour(bool warm, float time, TechnicolourStyle style, TechnicolourTransition transition = TechnicolourTransition.FLAT)
+        internal static Color GetTechnicolour(bool warm, float time, TechnicolourStyle style, TechnicolourTransition transition = TechnicolourTransition.FLAT)
         {
             switch (style)
             {
@@ -144,7 +141,7 @@ namespace Chroma
             }
         }
 
-        public static Color GetEitherTechnicolour(float time, TechnicolourTransition transition)
+        internal static Color GetEitherTechnicolour(float time, TechnicolourTransition transition)
         {
             switch (transition)
             {
@@ -159,7 +156,7 @@ namespace Chroma
             }
         }
 
-        public static Color GetWarmTechnicolour(float time, TechnicolourTransition transition)
+        internal static Color GetWarmTechnicolour(float time, TechnicolourTransition transition)
         {
             switch (transition)
             {
@@ -174,7 +171,7 @@ namespace Chroma
             }
         }
 
-        public static Color GetColdTechnicolour(float time, TechnicolourTransition transition)
+        internal static Color GetColdTechnicolour(float time, TechnicolourTransition transition)
         {
             switch (transition)
             {
@@ -189,13 +186,13 @@ namespace Chroma
             }
         }
 
-        public static Color GetRandomFromArray(Color[] colors, float time, float seedMult = 8)
+        internal static Color GetRandomFromArray(Color[] colors, float time, float seedMult = 8)
         {
             System.Random rand = new System.Random(Mathf.FloorToInt(seedMult * time));
             return colors[rand.Next(0, colors.Length)];
         }
 
-        public static Color GetLerpedFromArray(Color[] colors, float time)
+        internal static Color GetLerpedFromArray(Color[] colors, float time)
         {
             float tm = Mathf.Repeat(time, colors.Length);
             int t0 = Mathf.FloorToInt(tm);
@@ -210,101 +207,82 @@ namespace Chroma
          * COLORS
          */
 
-        public static Color? LaserPointerColour { get; set; } = null; //B;
+        internal static Color? LaserPointerColour { get; set; } = null; //B;
 
-        public static Color? SignA { get; set; } = null; //LightA;
+        internal static Color? SignA { get; set; } = null; //LightA;
 
-        public static Color? SignB { get; set; } = null; //LightB;
+        internal static Color? SignB { get; set; } = null; //LightB;
 
-        public static Color? Platform { get; set; } = null;
+        internal static Color? Platform { get; set; } = null;
 
-        public static Color ColourFromString(string colorString)
+        private static LightSwitchEventEffect[] LightSwitches
         {
-            Color color = Color.black;
-            try
+            get
             {
-                string[] split = colorString.Split(';');
-                if (split.Length > 2)
-                {
-                    color.r = float.Parse(split[0]) / 255f;
-                    color.g = float.Parse(split[1]) / 255f;
-                    color.b = float.Parse(split[2]) / 255f;
-                    if (split.Length > 3)
-                        color.a = float.Parse(split[3]) / 255f;
-                }
+                if (_lightSwitches == null) _lightSwitches = Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>();
+                return _lightSwitches;
             }
-            catch (Exception) { }
-            return color;
-        }
-
-        public static LightSwitchEventEffect[] GetAllLightSwitches()
-        {
-            if (_lightSwitches == null) _lightSwitches = Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>();
-            return _lightSwitches;
         }
 
         private static LightSwitchEventEffect[] _lightSwitches = null;
 
-        public static ParticleSystemEventEffect[] GetAllParticleSystems()
+        private static ParticleSystemEventEffect[] ParticleSystems
         {
-            if (_particleSystems == null) _particleSystems = Resources.FindObjectsOfTypeAll<ParticleSystemEventEffect>();
-            return _particleSystems;
+            get
+            {
+                if (_particleSystems == null) _particleSystems = Resources.FindObjectsOfTypeAll<ParticleSystemEventEffect>();
+                return _particleSystems;
+            }
         }
 
         private static ParticleSystemEventEffect[] _particleSystems = null;
 
-        public static void ResetAllLights()
+        private static void ResetAllLights()
         {
-            LightSwitchEventEffect[] lights = GetAllLightSwitches();
-            foreach (LightSwitchEventEffect light in lights) light.Reset();
-            ParticleSystemEventEffect[] particles = GetAllParticleSystems();
-            foreach (ParticleSystemEventEffect particle in particles) particle.Reset();
+            foreach (LightSwitchEventEffect light in LightSwitches) light.Reset();
+            foreach (ParticleSystemEventEffect particle in ParticleSystems) particle.Reset();
             _lightSwitches = null;
             _particleSystems = null;
         }
 
-        public static void RecolourAllLights(Color? red, Color? blue)
+        internal static void RecolourAllLights(Color? red, Color? blue)
         {
-            MonoBehaviour[] lights = GetAllLightSwitches();
-            RecolourLights(ref lights, red, blue);
-            MonoBehaviour[] particles = GetAllParticleSystems();
-            RecolourLights(ref particles, red, blue);
+            RecolourLights(LightSwitches, red, blue);
+            RecolourLights(ParticleSystems, red, blue);
         }
 
-        public static void RecolourLights(ref MonoBehaviour[] lights, Color? red, Color? blue)
+        private static void RecolourLights(MonoBehaviour[] lights, Color? red, Color? blue)
         {
             for (int i = 0; i < lights.Length; i++)
             {
                 lights[i].SetLightingColours(red, blue);
             }
-        }\
+        }
 
-        public static Dictionary<BeatmapEventType, LightSwitchEventEffect> LightSwitchs
+        internal static Dictionary<BeatmapEventType, LightSwitchEventEffect> LightSwitchDictionary
         {
             get
             {
-                if (_lightSwitchs == null)
+                if (_lightSwitchDictionary == null)
                 {
-                    _lightSwitchs = new Dictionary<BeatmapEventType, LightSwitchEventEffect>();
+                    _lightSwitchDictionary = new Dictionary<BeatmapEventType, LightSwitchEventEffect>();
                     foreach (LightSwitchEventEffect l in Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>())
                     {
-                        _lightSwitchs.Add(l.GetPrivateField<BeatmapEventType>("_event"), l);
+                        _lightSwitchDictionary.Add(l.GetPrivateField<BeatmapEventType>("_event"), l);
                     }
                 }
-                return _lightSwitchs;
-            }
-            set
-            {
-                if (_lightSwitchs != null)
-                {
-                    _lightSwitchs = null;
-                }
+                return _lightSwitchDictionary;
             }
         }
 
-        private static Dictionary<BeatmapEventType, LightSwitchEventEffect> _lightSwitchs;
+        private static Dictionary<BeatmapEventType, LightSwitchEventEffect> _lightSwitchDictionary;
 
-        public static void RecolourMenuStuff(Color? platformLight, Color? laser)
+        internal static void ClearLightSwitches()
+        {
+            _lightSwitchDictionary = null;
+        }
+
+        internal static void RecolourMenuStuff(Color? platformLight, Color? laser)
         {
             Renderer[] rends2 = UnityEngine.Object.FindObjectsOfType<Renderer>();
 
@@ -345,23 +323,7 @@ namespace Chroma
             //ChromaLogger.Log("Colourizing menustuff");
         }
 
-        private static Dictionary<LightWithId, Color> _originalLightColors = new Dictionary<LightWithId, Color>();
-
-        public static void RecolourAmbientLights(Color? color)
-        {
-            if (!color.HasValue) return;
-            try
-            {
-                HashSet<BloomPrePassBGLight> bls = new HashSet<BloomPrePassBGLight>(BloomPrePassBGLight.bloomBGLightList);
-                foreach (BloomPrePassBGLight light in bls) light.color = color.Value;
-            }
-            catch (Exception e)
-            {
-                ChromaLogger.Log(e);
-            }
-        }
-
-        public static void RecolourNeonSign(Color? colorA, Color? colorB)
+        internal static void RecolourNeonSign(Color? colorA, Color? colorB)
         {
             bool Aclear = (colorA == null);
             bool Bclear = (colorB == null);
@@ -401,7 +363,7 @@ namespace Chroma
             //ChromaLogger.Log("Sign recoloured A:"+colorA.ToString() + " B:"+colorB.ToString());
         }
 
-        public static void RefreshLights()
+        internal static void RefreshLights()
         {
             try
             {

@@ -8,10 +8,10 @@ namespace Chroma.Events
 {
     internal class ChromaLightColourEvent
     {
-        public static Dictionary<BeatmapEventType, Dictionary<float, Color>> CustomLightColours = new Dictionary<BeatmapEventType, Dictionary<float, Color>>();
+        internal static Dictionary<BeatmapEventType, Dictionary<float, Color>> CustomLightColours = new Dictionary<BeatmapEventType, Dictionary<float, Color>>();
 
         // Creates dictionary loaded with all _lightRGB custom events and indexs them with the event's time and type
-        public static void Activate(List<CustomEventData> eventData)
+        internal static void Activate(List<CustomEventData> eventData)
         {
             foreach (CustomEventData d in eventData)
             {

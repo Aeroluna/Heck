@@ -1,15 +1,14 @@
 ﻿using Chroma.Events;
 using Chroma.Utils;
 using System;
-using System.Linq;
 using UnityEngine;
 using static Chroma.ColourManager;
 
 namespace Chroma.Settings
 {
-    public static class ChromaConfig
+    internal static class ChromaConfig
     {
-        public enum LoadSettingsType
+        internal enum LoadSettingsType
         {
             INITIAL,
             MANUAL,
@@ -21,7 +20,7 @@ namespace Chroma.Settings
         /// <summary>
         /// Returns the player selected ini file for preferences
         /// </summary>
-        public static BS_Utils.Utilities.Config IniProfile
+        internal static BS_Utils.Utilities.Config IniProfile
         {
             get
             {
@@ -38,16 +37,12 @@ namespace Chroma.Settings
             }
         }
 
-        public static int TimesLaunched { get; private set; } = 0;
-
-        public static MainSettingsModelSO MainSettingsModel { get; private set; }
-
-        public static bool oldHaptics = true;
+        internal static int TimesLaunched { get; private set; } = 0;
 
         /// <summary>
         /// Enables debug features.  Significant performance cost.
         /// </summary>
-        public static bool DebugMode
+        internal static bool DebugMode
         {
             get { return debugMode; }
             set
@@ -59,10 +54,10 @@ namespace Chroma.Settings
 
         private static bool debugMode = false;
 
-        public static string Username { get; private set; } = "Unknown";
-        public static ulong UserID { get; private set; } = 0;
+        internal static string Username { get; private set; } = "Unknown";
+        internal static ulong UserID { get; private set; } = 0;
 
-        public static ChromaSettingsUI.SidePanelEnum SidePanel
+        internal static ChromaSettingsUI.SidePanelEnum SidePanel
         {
             get { return sidePanel; }
             set
@@ -74,7 +69,7 @@ namespace Chroma.Settings
 
         private static ChromaSettingsUI.SidePanelEnum sidePanel = ChromaSettingsUI.SidePanelEnum.Default;
 
-        public static bool CustomColourEventsEnabled
+        internal static bool CustomColourEventsEnabled
         {
             get { return customColourEventsEnabled; }
             set
@@ -86,7 +81,7 @@ namespace Chroma.Settings
 
         private static bool customColourEventsEnabled = true;
 
-        public static bool NoteColourEventsEnabled
+        internal static bool NoteColourEventsEnabled
         {
             get { return noteColourEventsEnabled; }
             set
@@ -99,39 +94,9 @@ namespace Chroma.Settings
         private static bool noteColourEventsEnabled = true;
 
         /// <summary>
-        /// Global multiplier for audio sources used by Chroma
-        /// </summary>
-        public static float MasterVolume
-        {
-            get { return masterVolume; }
-            set
-            {
-                masterVolume = value;
-                SetFloat("Audio", "masterVolume", masterVolume);
-            }
-        }
-
-        private static float masterVolume = 1f;
-
-        /// <summary>
-        /// Global multiplier for audio sources used by Chroma
-        /// </summary>
-        public static float SaberTrailStrength
-        {
-            get { return saberTrailStrength; }
-            set
-            {
-                saberTrailStrength = value;
-                SetFloat("Aesthetics", "saberTrailStrength", saberTrailStrength);
-            }
-        }
-
-        private static float saberTrailStrength = 1f;
-
-        /// <summary>
         /// Required for any features that may cause dizziness, disorientation, nausea, seizures, or other forms of discomfort.
         /// </summary>
-        public static bool WaiverRead
+        internal static bool WaiverRead
         {
             get { return waiverRead; }
             set
@@ -148,7 +113,7 @@ namespace Chroma.Settings
 
         #region modifiers
 
-        public static bool LightshowModifier
+        internal static bool LightshowModifier
         {
             get { return lightshowModifier; }
             set
@@ -164,7 +129,7 @@ namespace Chroma.Settings
 
         #region technicolour
 
-        public static bool TechnicolourEnabled
+        internal static bool TechnicolourEnabled
         {
             get { return technicolourEnabled; }
             set
@@ -176,7 +141,7 @@ namespace Chroma.Settings
 
         private static bool technicolourEnabled = false;
 
-        public static TechnicolourStyle TechnicolourLightsStyle
+        internal static TechnicolourStyle TechnicolourLightsStyle
         {
             get
             {
@@ -191,7 +156,7 @@ namespace Chroma.Settings
 
         private static TechnicolourStyle technicolourLightsStyle = TechnicolourStyle.OFF;
 
-        public static TechnicolourLightsGrouping TechnicolourLightsGrouping
+        internal static TechnicolourLightsGrouping TechnicolourLightsGrouping
         {
             get { return technicolourLightsGrouping; }
             set
@@ -203,7 +168,7 @@ namespace Chroma.Settings
 
         private static TechnicolourLightsGrouping technicolourLightsGrouping = TechnicolourLightsGrouping.STANDARD;
 
-        public static float TechnicolourLightsFrequency
+        internal static float TechnicolourLightsFrequency
         {
             get { return technicolourLightsFrequency; }
             set
@@ -215,7 +180,7 @@ namespace Chroma.Settings
 
         private static float technicolourLightsFrequency = 0.1f;
 
-        public static TechnicolourStyle TechnicolourSabersStyle
+        internal static TechnicolourStyle TechnicolourSabersStyle
         {
             get
             {
@@ -230,7 +195,7 @@ namespace Chroma.Settings
 
         private static TechnicolourStyle technicolourSabersStyle = TechnicolourStyle.OFF;
 
-        public static TechnicolourStyle TechnicolourBlocksStyle
+        internal static TechnicolourStyle TechnicolourBlocksStyle
         {
             get
             {
@@ -245,7 +210,7 @@ namespace Chroma.Settings
 
         private static TechnicolourStyle technicolourBlocksStyle = TechnicolourStyle.OFF;
 
-        public static TechnicolourStyle TechnicolourWallsStyle
+        internal static TechnicolourStyle TechnicolourWallsStyle
         {
             get
             {
@@ -260,7 +225,7 @@ namespace Chroma.Settings
 
         private static TechnicolourStyle technicolourWallsStyle = TechnicolourStyle.OFF;
 
-        public static TechnicolourStyle TechnicolourBombsStyle
+        internal static TechnicolourStyle TechnicolourBombsStyle
         {
             get
             {
@@ -275,7 +240,7 @@ namespace Chroma.Settings
 
         private static TechnicolourStyle technicolourBombsStyle = TechnicolourStyle.OFF;
 
-        public static bool MatchTechnicolourSabers
+        internal static bool MatchTechnicolourSabers
         {
             get { return matchTechnicolourSabers; }
             set
@@ -293,7 +258,7 @@ namespace Chroma.Settings
 
         /// Secret stuffs
         ///
-        public static bool LightshowMenu
+        internal static bool LightshowMenu
         {
             get { return lightshowMenu; }
             set
@@ -308,7 +273,7 @@ namespace Chroma.Settings
 
         private static bool lightshowMenu = false;
 
-        public static bool PlayersPlace
+        internal static bool PlayersPlace
         {
             get { return playersPlace; }
             set
@@ -320,7 +285,7 @@ namespace Chroma.Settings
 
         private static bool playersPlace = false;
 
-        public static bool Spectrograms
+        internal static bool Spectrograms
         {
             get { return spectrograms; }
             set
@@ -332,7 +297,7 @@ namespace Chroma.Settings
 
         private static bool spectrograms = false;
 
-        public static bool BackColumns
+        internal static bool BackColumns
         {
             get { return backColumns; }
             set
@@ -344,7 +309,7 @@ namespace Chroma.Settings
 
         private static bool backColumns = false;
 
-        public static bool Buildings
+        internal static bool Buildings
         {
             get { return buildings; }
             set
@@ -361,9 +326,9 @@ namespace Chroma.Settings
         /// <summary>
         /// Called when Chroma reloads the config files.
         /// </summary>
-        public static event LoadSettingsDelegate LoadSettingsEvent;
+        internal static event LoadSettingsDelegate LoadSettingsEvent;
 
-        public delegate void LoadSettingsDelegate(BS_Utils.Utilities.Config iniProfile, LoadSettingsType type);
+        internal delegate void LoadSettingsDelegate(BS_Utils.Utilities.Config iniProfile, LoadSettingsType type);
 
         internal static void Init()
         {
@@ -410,7 +375,7 @@ namespace Chroma.Settings
             ChromaGradientEvent.Clear();
             VFX.TechnicolourController.Clear();
 
-            LightSwitchs = null;
+            ClearLightSwitches();
 
             VFX.MayhemEvent.ClearManager();
         }
@@ -472,26 +437,8 @@ namespace Chroma.Settings
                     matchTechnicolourSabers = GetBool("Technicolour", "matchTechnicolourSabers", false);
                 }
 
-                string[] technicolourColdString = GetString("Technicolour", "technicolourB", "0;128;255;255-0;255;0;255-0;0;255;255-0;255;204;255").Split('-');
-                string[] technicolourWarmString = GetString("Technicolour", "technicolourA", "255;0;0;255-255;0;255;255-255;153;0;255-255;0;102;255").Split('-');
-
-                Color[] technicolourCold = new Color[technicolourColdString.Length];
-                Color[] technicolourWarm = new Color[technicolourWarmString.Length];
-
-                for (int i = 0; i < Mathf.Max(technicolourCold.Length, technicolourWarm.Length); i++)
-                {
-                    if (i < technicolourCold.Length)
-                    {
-                        technicolourCold[i] = ColourFromString(technicolourColdString[i]);
-                    }
-                    if (i < technicolourWarm.Length)
-                    {
-                        technicolourWarm[i] = ColourFromString(technicolourWarmString[i]);
-                    }
-                }
-
-                TechnicolourWarmPalette = technicolourWarm;
-                TechnicolourColdPalette = technicolourCold;
+                TechnicolourWarmPalette = new Color[4] { new Color(0, 0.501f, 1), new Color(0, 1, 0), new Color(0, 0, 1), new Color(0, 1, 0.8f) };
+                TechnicolourColdPalette = new Color[4] { new Color(1, 0, 0), new Color(1, 0, 1), new Color(1, 0.6f, 0), new Color(1, 0, 0.4f) };
 
                 /*
                  * AESTHETICS
@@ -536,54 +483,44 @@ namespace Chroma.Settings
             }
         }
 
-        public static void LoadSettingsModel()
-        {
-            MainSettingsModel = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().FirstOrDefault();
-            if (MainSettingsModel)
-            {
-                ChromaLogger.Log("Found settings model", ChromaLogger.Level.DEBUG);
-                oldHaptics = MainSettingsModel.controllersRumbleEnabled;
-            }
-        }
-
         #region configshortcuts
 
-        public static void SetBool(string category, string name, bool value)
+        internal static void SetBool(string category, string name, bool value)
         {
             IniProfile.SetBool(category, name, value);
         }
 
-        public static void SetFloat(string category, string name, float value)
+        internal static void SetFloat(string category, string name, float value)
         {
             IniProfile.SetFloat(category, name, value);
         }
 
-        public static void SetInt(string category, string name, int value)
+        internal static void SetInt(string category, string name, int value)
         {
             IniProfile.SetInt(category, name, value);
         }
 
-        public static void SetString(string category, string name, string value)
+        internal static void SetString(string category, string name, string value)
         {
             IniProfile.SetString(category, name, value);
         }
 
-        public static bool GetBool(string category, string name, bool def = false, bool autoSave = true)
+        internal static bool GetBool(string category, string name, bool def = false, bool autoSave = true)
         {
             return IniProfile.GetBool(category, name, def, autoSave);
         }
 
-        public static float GetFloat(string category, string name, float def, bool autoSave = true)
+        internal static float GetFloat(string category, string name, float def, bool autoSave = true)
         {
             return IniProfile.GetFloat(category, name, def, autoSave);
         }
 
-        public static int GetInt(string category, string name, int def, bool autoSave = true)
+        internal static int GetInt(string category, string name, int def, bool autoSave = true)
         {
             return IniProfile.GetInt(category, name, def, autoSave);
         }
 
-        public static string GetString(string category, string name, string def, bool autoSave = true)
+        internal static string GetString(string category, string name, string def, bool autoSave = true)
         {
             return IniProfile.GetString(category, name, def, autoSave);
         }

@@ -9,11 +9,11 @@ namespace Chroma.Events
 {
     internal class ChromaNoteColourEvent
     {
-        public static Dictionary<NoteType, Dictionary<float, Color>> CustomNoteColours = new Dictionary<NoteType, Dictionary<float, Color>>();
-        public static Dictionary<INoteController, Color> SavedNoteColours = new Dictionary<INoteController, Color>();
+        internal static Dictionary<NoteType, Dictionary<float, Color>> CustomNoteColours = new Dictionary<NoteType, Dictionary<float, Color>>();
+        internal static Dictionary<INoteController, Color> SavedNoteColours = new Dictionary<INoteController, Color>();
 
         // Creates dictionary loaded with all _noteColor custom events and indexs them with the event's time
-        public static void Activate(List<CustomEventData> eventData)
+        internal static void Activate(List<CustomEventData> eventData)
         {
             foreach (CustomEventData d in eventData)
             {
@@ -47,7 +47,7 @@ namespace Chroma.Events
             }
         }
 
-        public static void SaberColour(NoteController noteController, NoteCutInfo noteCutInfo)
+        internal static void SaberColour(NoteController noteController, NoteCutInfo noteCutInfo)
         {
             Color color;
             bool noteType = noteController.noteData.noteType == NoteType.NoteA;

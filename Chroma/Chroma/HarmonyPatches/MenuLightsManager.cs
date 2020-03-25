@@ -8,7 +8,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("SetColorsFromPreset")]
     internal class MenuLightsManagerSetColorsFromPreset
     {
-        public static void Postfix()
+        private static void Postfix()
         {
             ColourManager.RefreshLights();
         }

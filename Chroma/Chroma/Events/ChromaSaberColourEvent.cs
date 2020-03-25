@@ -9,7 +9,7 @@ namespace Chroma.Events
 {
     internal class ChromaSaberColourEvent
     {
-        public static void Callback(CustomEventData eventData)
+        internal static void Callback(CustomEventData eventData)
         {
             try
             {

@@ -1,18 +1,18 @@
-﻿using CustomJSONData;
+﻿using Chroma.Extensions;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using IPA.Utilities;
 using System;
 using System.Collections.Generic;
-using Chroma.Extensions;
 using UnityEngine;
 
 namespace Chroma.Events
 {
     internal class ChromaGradientEvent : MonoBehaviour
     {
-        public static Dictionary<BeatmapEventType, ChromaGradientEvent> CustomGradients = new Dictionary<BeatmapEventType, ChromaGradientEvent>();
+        internal static Dictionary<BeatmapEventType, ChromaGradientEvent> CustomGradients = new Dictionary<BeatmapEventType, ChromaGradientEvent>();
 
-        public static GameObject Instance
+        private static GameObject Instance
         {
             get
             {
@@ -23,7 +23,7 @@ namespace Chroma.Events
 
         private static GameObject _instance;
 
-        public static void Clear()
+        internal static void Clear()
         {
             if (_instance != null) Destroy(_instance);
             _instance = null;
@@ -47,8 +47,8 @@ namespace Chroma.Events
             {
                 Color c = Color.Lerp(_initcolor, _endcolor, _time / _duration);
                 _event.SetLightingColours(c, c);
-                if (ColourManager.LightSwitchs[_event].GetPrivateField<bool>("_lightIsOn"))
-                    ColourManager.LightSwitchs[_event].SetColor(c);
+                if (ColourManager.LightSwitchDictionary[_event].GetPrivateField<bool>("_lightIsOn"))
+                    ColourManager.LightSwitchDictionary[_event].SetColor(c);
             }
             else
             {

@@ -93,11 +93,10 @@ namespace Chroma
             ChromaLogger.Log("Chroma finished initializing.");
         }
 
-        public void ReleaseInfoEnabled()
+        private void ReleaseInfoEnabled()
         {
             SidePanelUtil.SetPanel(ChromaSettingsUI.floatToPanel((float)ChromaConfig.SidePanel));
         }
-
 
         public void Init(object thisIsNull, IPALogger pluginLogger)
         {
@@ -128,7 +127,6 @@ namespace Chroma
             if (scene.name == "MenuViewControllers")
             {
                 ChromaSettingsUI.InitializeMenu();
-                BSMLSettings.instance.AddSettingsMenu("Chroma", "Chroma.Settings.settings.bsml", ChromaSettingsUI.instance);
             }
         }
 

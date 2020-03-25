@@ -6,7 +6,7 @@ namespace Chroma.Extensions
 {
     internal class SaberColourizer
     {
-        public bool warm;
+        internal bool warm;
 
         private SetSaberGlowColor[] glowColors;
         private MeshRenderer[] meshRenderers;
@@ -15,12 +15,12 @@ namespace Chroma.Extensions
 
         private List<Material> customMats = new List<Material>();
 
-        public static SaberBurnMarkArea saberBurnMarkArea = null;
+        internal static SaberBurnMarkArea saberBurnMarkArea = null;
 
-        public static Color? currentAColor = null;
-        public static Color? currentBColor = null;
+        internal static Color? currentAColor = null;
+        internal static Color? currentBColor = null;
 
-        public SaberColourizer(Saber saber)
+        private SaberColourizer(Saber saber)
         {
             warm = saber.saberType == Saber.SaberType.SaberA;
 
@@ -56,9 +56,9 @@ namespace Chroma.Extensions
             }
         }
 
-        public static SaberColourizer[] saberColourizers;
+        internal static SaberColourizer[] saberColourizers { get; private set; }
 
-        public static void InitializeSabers(Saber[] sabers)
+        internal static void InitializeSabers(Saber[] sabers)
         {
             saberColourizers = new SaberColourizer[sabers.Length];
             for (int i = 0; i < sabers.Length; i++)
@@ -67,7 +67,7 @@ namespace Chroma.Extensions
             }
         }
 
-        public void Colourize(Color color)
+        internal void Colourize(Color color)
         {
             if (warm) currentAColor = color;
             else currentBColor = color;

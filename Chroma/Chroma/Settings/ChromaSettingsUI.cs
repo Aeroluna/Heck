@@ -9,12 +9,12 @@ using static Chroma.ColourManager;
 
 namespace Chroma.Settings
 {
-    public class ChromaSettingsUI : PersistentSingleton<ChromaSettingsUI>
+    internal class ChromaSettingsUI : PersistentSingleton<ChromaSettingsUI>
     {
         [UIValue("sidepanelchoices")]
         private List<object> _sidePanelChoices = (new object[] { SidePanelEnum.Default, SidePanelEnum.Chroma, SidePanelEnum.ChromaWaiver }).ToList();
 
-        public enum SidePanelEnum
+        internal enum SidePanelEnum
         {
             Default = 0,
             Chroma = 1,
@@ -43,13 +43,13 @@ namespace Chroma.Settings
         private List<object> _colours = colourToObject();
 
         [UIAction("colourformat")]
-        public string colourFormat(NamedColor col)
+        private string colourFormat(NamedColor col)
         {
             return col.name;
         }
 
         [UIAction("sidepanelform")]
-        public string sidePanelFormat(SidePanelEnum f)
+        private string sidePanelFormat(SidePanelEnum f)
         {
             switch (f)
             {
@@ -66,7 +66,7 @@ namespace Chroma.Settings
         }
 
         [UIAction("techlightform")]
-        public string techlightFormat(TechnicolourStyle t)
+        private string techlightFormat(TechnicolourStyle t)
         {
             switch (t)
             {
@@ -89,7 +89,7 @@ namespace Chroma.Settings
         }
 
         [UIAction("techgroupform")]
-        public string techgroupingFormat(TechnicolourLightsGrouping t)
+        private string techgroupingFormat(TechnicolourLightsGrouping t)
         {
             switch (t)
             {
@@ -106,13 +106,13 @@ namespace Chroma.Settings
         }
 
         [UIAction("percent")]
-        public string percentDisplay(float percent)
+        private string percentDisplay(float percent)
         {
             return $"{percent * 100f}%";
         }
 
         [UIAction("percentfreq")]
-        public string percentfreqDisplay(float percent)
+        private string percentfreqDisplay(float percent)
         {
             return percentDisplay(percent) + (percent == 0.1f ? " (Def)" : "");
         }
@@ -424,7 +424,7 @@ namespace Chroma.Settings
             return t;
         }
 
-        public static string floatToPanel(float f)
+        internal static string floatToPanel(float f)
         {
             switch (f)
             {
@@ -440,23 +440,23 @@ namespace Chroma.Settings
             }
         }
 
-        public static void OnReloadClick()
+        private static void OnReloadClick()
         {
             ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.MANUAL);
         }
 
-        public static void InitializeMenu()
+        internal static void InitializeMenu()
         {
             InitializePresetList();
 
             MenuButtons.instance.RegisterButton(new MenuButton("Reload Chroma", "", OnReloadClick, true));
 
-            BSMLSettings.instance.AddSettingsMenu("Chroma", "Chroma.Settings.settings.bsml", ChromaSettingsUI.instance);
+            BSMLSettings.instance.AddSettingsMenu("Chroma", "Chroma.Settings.settings.bsml", instance);
         }
 
         private static List<NamedColor> colourPresets = null;// = new List<NamedColour>();
 
-        public static Color? GetColor(string name, Color? defaultColor)
+        internal static Color? GetColor(string name, Color? defaultColor)
         {
             if (colourPresets == null) InitializePresetList();
             foreach (NamedColor t in colourPresets)

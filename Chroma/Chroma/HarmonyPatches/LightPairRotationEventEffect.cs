@@ -13,7 +13,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal class LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
-        public static BeatmapEventData lastLightPairRotationEventEffectData;
+        internal static BeatmapEventData lastLightPairRotationEventEffectData;
 
         //Laser rotation
         private static void Prefix(ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____eventL, ref BeatmapEventType ____eventR)

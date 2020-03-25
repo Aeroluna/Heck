@@ -22,7 +22,7 @@ namespace Chroma {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class ResourceTextFiles {
+    internal class ResourceTextFiles {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Chroma {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Resources.ResourceManager ResourceManager {
+        internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Chroma.ResourceTextFiles", typeof(ResourceTextFiles).Assembly);
@@ -51,7 +51,7 @@ namespace Chroma {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Globalization.CultureInfo Culture {
+        internal static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -59,7 +59,7 @@ namespace Chroma {
                 resourceCulture = value;
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to &lt;size=6&gt;&lt;align=&quot;center&quot;&gt;&lt;mspace=4&gt;CHROMA&lt;/mspace&gt; %VER%&lt;/align&gt;&lt;/size&gt;
         ///
@@ -71,12 +71,12 @@ namespace Chroma {
         ///
         ///Embrace a cacophony of Technicolour lightwaves, or if you want to paint it all bla [rest of string was truncated]&quot;;.
         /// </summary>
-        public static string chromaNotes {
+        internal static string chromaNotes {
             get {
                 return ResourceManager.GetString("chromaNotes", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to &lt;size=6&gt;&lt;mspace=4&gt;&lt;align=&quot;center&quot;&gt;SAFETY WAIVER&lt;/align&gt;&lt;/mspace&gt;&lt;/size&gt;
         ///
@@ -87,7 +87,7 @@ namespace Chroma {
         ///
         ///Below are the features explicitly blocked unless the safety waiver has been signed.  Not all of these features ar [rest of string was truncated]&quot;;.
         /// </summary>
-        public static string safetyWaiver {
+        internal static string safetyWaiver {
             get {
                 return ResourceManager.GetString("safetyWaiver", resourceCulture);
             }

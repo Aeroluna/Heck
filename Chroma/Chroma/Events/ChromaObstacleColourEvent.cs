@@ -8,10 +8,10 @@ namespace Chroma.Events
 {
     internal class ChromaObstacleColourEvent
     {
-        public static Dictionary<float, Color> CustomObstacleColours = new Dictionary<float, Color>();
+        internal static Dictionary<float, Color> CustomObstacleColours = new Dictionary<float, Color>();
 
         // Creates dictionary loaded with all _obstacleColor custom events and indexs them with the event's time
-        public static void Activate(List<CustomEventData> eventData)
+        internal static void Activate(List<CustomEventData> eventData)
         {
             foreach (CustomEventData d in eventData)
             {

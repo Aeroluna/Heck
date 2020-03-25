@@ -7,14 +7,14 @@ using UnityEngine;
 
 namespace Chroma.VFX
 {
-    public class TechnicolourController : MonoBehaviour
+    internal class TechnicolourController : MonoBehaviour
     {
-        public static bool Instantiated()
+        internal static bool Instantiated()
         {
             return _instance != null;
         }
 
-        public static TechnicolourController Instance
+        internal static TechnicolourController Instance
         {
             get
             {
@@ -34,7 +34,7 @@ namespace Chroma.VFX
 
         private static TechnicolourController _instance;
 
-        public static void Clear()
+        internal static void Clear()
         {
             if (_instance != null) Destroy(_instance.gameObject);
             _instance = null;
@@ -47,19 +47,19 @@ namespace Chroma.VFX
         private float bpm;
         private float secondsPerBeat = 0.5f;
 
-        public Color gradientColor { get; private set; }
-        public Color gradientLeftColor { get; private set; }
-        public Color gradientRightColor { get; private set; }
+        internal Color gradientColor { get; private set; }
+        internal Color gradientLeftColor { get; private set; }
+        internal Color gradientRightColor { get; private set; }
 
-        public Color?[] rainbowSaberColours = new Color?[] { null, null };
+        internal Color?[] rainbowSaberColours = new Color?[] { null, null };
 
-        public List<ColorNoteVisuals> _colorNoteVisuals = new List<ColorNoteVisuals>();
-        public List<StretchableObstacle> _stretchableObstacles = new List<StretchableObstacle>();
-        public Dictionary<LightSwitchEventEffect, int> _lightSwitchLastValue = new Dictionary<LightSwitchEventEffect, int>();
-        public Dictionary<ParticleSystemEventEffect, int> _particleSystemLastValue = new Dictionary<ParticleSystemEventEffect, int>();
-        public List<NoteController> _bombControllers = new List<NoteController>();
+        internal List<ColorNoteVisuals> _colorNoteVisuals = new List<ColorNoteVisuals>();
+        internal List<StretchableObstacle> _stretchableObstacles = new List<StretchableObstacle>();
+        internal Dictionary<LightSwitchEventEffect, int> _lightSwitchLastValue = new Dictionary<LightSwitchEventEffect, int>();
+        internal Dictionary<ParticleSystemEventEffect, int> _particleSystemLastValue = new Dictionary<ParticleSystemEventEffect, int>();
+        internal List<NoteController> _bombControllers = new List<NoteController>();
 
-        public static void InitializeGradients()
+        internal static void InitializeGradients()
         {
             if (ColourManager.TechnicolourLights && (ChromaConfig.TechnicolourLightsStyle == ColourManager.TechnicolourStyle.GRADIENT))
                 Instance.UpdateTechnicolourEvent += Instance.RainbowLights;
