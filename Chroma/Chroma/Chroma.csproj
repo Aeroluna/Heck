@@ -35,6 +35,7 @@
   <ItemGroup>
     <Compile Include="Events\ChromaSaberColourEvent.cs" />
     <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />
+    <Compile Include="HarmonyPatches\StandardLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="VFX\MayhemEvent.cs" />
     <Compile Include="Events\ChromaBombColourEvent.cs" />
     <Compile Include="Events\ChromaGradientEvent.cs" />

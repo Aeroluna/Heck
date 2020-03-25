@@ -16,24 +16,10 @@ namespace Chroma.Utils
             setCapability(capability, enabled);
         }
 
-        internal static bool CheckLightingEventRequirement()
-        {
-            if (!IsModInstalled("SongCore")) return Settings.ChromaConfig.CustomColourEventsEnabled;
-            return checkLightingEventActivation() && Settings.ChromaConfig.CustomColourEventsEnabled;
-        }
-
         private static void setCapability(string capability, bool enabled = true)
         {
             if (enabled) SongCore.Collections.RegisterCapability(capability);
             else SongCore.Collections.DeregisterizeCapability(capability);
-        }
-
-        private static bool checkLightingEventActivation()
-        {
-            var diff = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap;
-            var songData = SongCore.Collections.RetrieveDifficultyData(diff);
-            return ((songData?.additionalDifficultyData._suggestions.Contains(Plugin.REQUIREMENT_NAME) ?? false) ||
-                songData.additionalDifficultyData._requirements.Contains(Plugin.REQUIREMENT_NAME));
         }
     }
 }

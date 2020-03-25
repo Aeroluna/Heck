@@ -60,7 +60,6 @@ namespace Chroma
         private IEnumerator DelayedStart()
         {
             yield return new WaitForSeconds(0f);
-            LightingRegistered = ChromaUtils.CheckLightingEventRequirement();
             ATSC = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First();
             songBPM = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First().GetPrivateField<float>("_beatsPerMinute");
             BeatmapObjectCallbackController coreSetup = GetBeatmapObjectCallbackController();
