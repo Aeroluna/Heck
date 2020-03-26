@@ -10,7 +10,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Chroma
 {
@@ -45,6 +44,7 @@ namespace Chroma
         internal static float songBPM = 120f;
         internal static AudioTimeSyncController ATSC;
         internal static bool LightingRegistered;
+        internal static bool LegacyOverride;
 
         private void OnDestroy()
         {
@@ -169,6 +169,9 @@ namespace Chroma
                 // TODO: decide what i'm gonna do with simplecustomevents
                 if (ChromaUtils.IsModInstalled("CustomEvents")) RegisterCustomEvents(gcss);
             }
+
+            // Legacy Chroma Events are handled by just sliding them in as if they were a normal rgb light event
+            ChromaLegacyRGBEvent.Activate(beatmapData.beatmapEventData);
         }
 
         private static void RegisterCustomEvents(BeatmapObjectCallbackController gcss)
@@ -218,7 +221,7 @@ namespace Chroma
                             continue;
                         }
                     }
-                    if (b.value >= 2000000000) ColourManager.TechnicolourLightsForceDisabled = true;
+                    if (b.value >= ChromaLegacyRGBEvent.RGB_INT_OFFSET) ColourManager.TechnicolourLightsForceDisabled = true;
                 }
 
                 BeatmapLineData[] bData = beatmapData.beatmapLinesData;

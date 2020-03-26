@@ -13,8 +13,7 @@ namespace Chroma.HarmonyPatches
     {
         private static void Postfix(ParticleSystemEventEffect __instance, ref BeatmapEventType ____colorEvent)
         {
-            if (!ChromaBehaviour.LightingRegistered) return;
-            __instance.StartCoroutine(WaitThenStart(__instance, ____colorEvent));
+            if (ChromaBehaviour.LightingRegistered || ChromaBehaviour.LegacyOverride) __instance.StartCoroutine(WaitThenStart(__instance, ____colorEvent));
         }
 
         private static IEnumerator WaitThenStart(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)

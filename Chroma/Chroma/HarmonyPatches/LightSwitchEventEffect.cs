@@ -18,8 +18,7 @@ namespace Chroma.HarmonyPatches
     {
         private static void Postfix(LightSwitchEventEffect __instance, ref BeatmapEventType ____event)
         {
-            if (!ChromaBehaviour.LightingRegistered) return;
-            __instance.StartCoroutine(WaitThenStart(__instance, ____event));
+            if (ChromaBehaviour.LightingRegistered || ChromaBehaviour.LegacyOverride) __instance.StartCoroutine(WaitThenStart(__instance, ____event));
         }
 
         private static IEnumerator WaitThenStart(LightSwitchEventEffect __instance, BeatmapEventType ____event)

@@ -1,18 +1,16 @@
-﻿using System;
+﻿using CustomJSONData;
+using Harmony;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Harmony;
-using System.Text;
-using System.Threading.Tasks;
-using CustomJSONData;
 
 namespace Chroma.HarmonyPatches
 {
-    [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO), 
+    [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO),
         new Type[] { typeof(IDifficultyBeatmap), typeof(OverrideEnvironmentSettings), typeof(ColorScheme), typeof(GameplayModifiers),
             typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(string), typeof(bool)})]
     [HarmonyPatch("Init")]
-    class StandardLevelScenesTransitionSetupDataSOInit
+    internal class StandardLevelScenesTransitionSetupDataSOInit
     {
         private static void Postfix(IDifficultyBeatmap difficultyBeatmap)
         {
@@ -22,6 +20,8 @@ namespace Chroma.HarmonyPatches
                 IEnumerable<string> suggestions = ((List<object>)Trees.at(customBeatmapData.beatmapCustomData, "_suggestions"))?.Cast<string>();
                 ChromaBehaviour.LightingRegistered = (requirements?.Contains(Plugin.REQUIREMENT_NAME) ?? false) || (suggestions?.Contains(Plugin.REQUIREMENT_NAME) ?? false);
             }
+
+            ChromaBehaviour.LegacyOverride = difficultyBeatmap.beatmapData.beatmapEventData.Any(n => n.value >= Events.ChromaLegacyRGBEvent.RGB_INT_OFFSET);
         }
     }
 }
