@@ -71,27 +71,12 @@ namespace Chroma.Extensions
             internal static LSEColourManager CreateLSEColourManager(MonoBehaviour lse, BeatmapEventType type)
             {
                 LSEColourManager lsecm;
-                try
-                {
-                    lsecm = GetLSEColourManager(type);
-                }
-                catch (Exception e)
-                {
-                    ChromaLogger.Log(e);
-                    return null;
-                }
-                try
-                {
-                    lsecm = new LSEColourManager(lse, type);
-                    lsecm.Initialize(lse, type);
-                    LSEColourManagers.Add(lsecm);
-                    return lsecm;
-                }
-                catch (Exception e)
-                {
-                    ChromaLogger.Log(e);
-                    return lsecm;
-                }
+                lsecm = GetLSEColourManager(type);
+
+                lsecm = new LSEColourManager(lse, type);
+                lsecm.Initialize(lse, type);
+                LSEColourManagers.Add(lsecm);
+                return lsecm;
             }
 
             private MonoBehaviour lse;

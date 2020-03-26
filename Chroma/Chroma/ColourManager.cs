@@ -365,17 +365,9 @@ namespace Chroma
 
         internal static void RefreshLights()
         {
-            try
-            {
-                ResetAllLights();
-                RecolourNeonSign(SignA, SignB);
-                RecolourMenuStuff(Platform, LaserPointerColour);
-            }
-            catch (Exception e)
-            {
-                ChromaLogger.Log("Error refreshing lights!");
-                ChromaLogger.Log(e, ChromaLogger.Level.WARNING);
-            }
+            ResetAllLights();
+            RecolourNeonSign(SignA, SignB);
+            RecolourMenuStuff(Platform, LaserPointerColour);
         }
     }
 }

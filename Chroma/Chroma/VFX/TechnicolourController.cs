@@ -101,21 +101,14 @@ namespace Chroma.VFX
         private void Update()
         {
             secondsPerBeat = (60f / bpm);
-            try
-            {
-                float timeMult = 0.1f;
-                float timeGlobalMult = 0.2f;
-                gradientColor = Color.HSVToRGB(Mathf.Repeat((Time.time * timeGlobalMult) / secondsPerBeat, 1f), 1f, 1f);
-                gradientLeftColor = Color.HSVToRGB(Mathf.Repeat(((Time.time * timeMult) / secondsPerBeat) + mismatchSpeedOffset, 1f), 1f, 1f);
-                gradientRightColor = Color.HSVToRGB(Mathf.Repeat((Time.time * timeMult) / secondsPerBeat, 1f), 1f, 1f);
 
-                UpdateTechnicolourEvent?.Invoke();
-            }
-            catch (Exception e)
-            {
-                ChromaLogger.Log(e);
-                StopAllCoroutines();
-            }
+            float timeMult = 0.1f;
+            float timeGlobalMult = 0.2f;
+            gradientColor = Color.HSVToRGB(Mathf.Repeat((Time.time * timeGlobalMult) / secondsPerBeat, 1f), 1f, 1f);
+            gradientLeftColor = Color.HSVToRGB(Mathf.Repeat(((Time.time * timeMult) / secondsPerBeat) + mismatchSpeedOffset, 1f), 1f, 1f);
+            gradientRightColor = Color.HSVToRGB(Mathf.Repeat((Time.time * timeMult) / secondsPerBeat, 1f), 1f, 1f);
+
+            UpdateTechnicolourEvent?.Invoke();
         }
 
         private bool match;
@@ -184,7 +177,7 @@ namespace Chroma.VFX
             {
                 if (n.Value == 0) continue;
 
-                String warm;
+                string warm;
                 switch (n.Value)
                 {
                     case 1:

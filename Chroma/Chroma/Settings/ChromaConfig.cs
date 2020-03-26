@@ -390,97 +390,89 @@ namespace Chroma.Settings
 
         private static void OnLoadSettingsEvent(BS_Utils.Utilities.Config iniProfile, LoadSettingsType type)
         {
-            try
+            ChromaLogger.Log("Loading settings [" + type.ToString() + "]", ChromaLogger.Level.INFO);
+
+            string iniName = "settings";
+            IniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);
+
+            ChromaLogger.Log("--- From file " + iniName);
+
+            BS_Utils.Gameplay.GetUserInfo.UpdateUserInfo();
+            Username = BS_Utils.Gameplay.GetUserInfo.GetUserName();
+            UserID = BS_Utils.Gameplay.GetUserInfo.GetUserID();
+
+            if (DebugMode) ChromaLogger.Log("=== YOUR ID : " + UserID.ToString());
+
+            if (type == LoadSettingsType.INITIAL)
             {
-                ChromaLogger.Log("Loading settings [" + type.ToString() + "]", ChromaLogger.Level.INFO);
-
-                string iniName = "settings";
-                IniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);
-
-                ChromaLogger.Log("--- From file " + iniName);
-
-                BS_Utils.Gameplay.GetUserInfo.UpdateUserInfo();
-                Username = BS_Utils.Gameplay.GetUserInfo.GetUserName();
-                UserID = BS_Utils.Gameplay.GetUserInfo.GetUserID();
-
-                if (DebugMode) ChromaLogger.Log("=== YOUR ID : " + UserID.ToString());
-
-                if (type == LoadSettingsType.INITIAL)
-                {
-                    TimesLaunched = GetInt("Other", "timesLaunched", 0) + 1;
-                    SetInt("Other", "timesLaunched", TimesLaunched);
-                }
-
-                /*
-                 * MAP
-                 */
-
-                customColourEventsEnabled = GetBool("Map", "customColourEventsEnabled", true);
-                noteColourEventsEnabled = GetBool("Map", "noteColourEventsEnabled", true);
-                ChromaUtils.SetSongCoreCapability(Plugin.REQUIREMENT_NAME, CustomColourEventsEnabled);
-
-                /*
-                 * TECHNICOLOUR
-                 */
-
-                if (type == LoadSettingsType.INITIAL)
-                {
-                    technicolourEnabled = GetBool("Technicolour", "technicolourEnabled", false);
-
-                    technicolourLightsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourLightsStyle", 1);
-                    technicolourLightsGrouping = (TechnicolourLightsGrouping)GetInt("Technicolour", "technicolourLightsGrouping", 1);
-                    technicolourLightsFrequency = GetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
-                    technicolourSabersStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourSabersStyle", 0);
-                    technicolourBlocksStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourBlocksStyle", 0);
-                    technicolourWallsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourWallsStyle", 0);
-                    technicolourBombsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourBombsStyle", 0);
-                    matchTechnicolourSabers = GetBool("Technicolour", "matchTechnicolourSabers", false);
-                }
-
-                TechnicolourWarmPalette = new Color[4] { new Color(0, 0.501f, 1), new Color(0, 1, 0), new Color(0, 0, 1), new Color(0, 1, 0.8f) };
-                TechnicolourColdPalette = new Color[4] { new Color(1, 0, 0), new Color(1, 0, 1), new Color(1, 0.6f, 0), new Color(1, 0, 0.4f) };
-
-                /*
-                 * AESTHETICS
-                 */
-
-                LaserPointerColour = ChromaSettingsUI.GetColor(GetString("Aesthetics", "laserPointerColour", "DEFAULT"), null);
-                SignA = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourA", "DEFAULT"), null);
-                SignB = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourB", "DEFAULT"), null);
-                Platform = ChromaSettingsUI.GetColor(GetString("Aesthetics", "platformAccoutrements", "DEFAULT"), null);
-
-                /*
-                 * MODIFIERS
-                 */
-                lightshowModifier = GetBool("Modifiers", "lightshowModifier", false);
-
-                /*
-                 * OTHER
-                 */
-
-                sidePanel = (ChromaSettingsUI.SidePanelEnum)GetFloat("Other", "sidePanel", 0);
-
-                debugMode = GetBool("Other", "debugMode", false);
-
-                waiverRead = GetInt("Other", "safetyWaiver", 0) == 51228;
-
-                /*
-                 * LIGHTSHOW
-                 */
-
-                lightshowMenu = GetInt("Lightshow", "lightshowMenu", 0, false) == 6777;
-                playersPlace = GetBool("Lightshow", "playersPlace", false, false);
-                spectrograms = GetBool("Lightshow", "spectrograms", false, false);
-                backColumns = GetBool("Lightshow", "backColumns", false, false);
-                buildings = GetBool("Lightshow", "buildings", false, false);
-
-                RefreshLights();
+                TimesLaunched = GetInt("Other", "timesLaunched", 0) + 1;
+                SetInt("Other", "timesLaunched", TimesLaunched);
             }
-            catch (Exception e)
+
+            /*
+                * MAP
+                */
+
+            customColourEventsEnabled = GetBool("Map", "customColourEventsEnabled", true);
+            noteColourEventsEnabled = GetBool("Map", "noteColourEventsEnabled", true);
+            ChromaUtils.SetSongCoreCapability(Plugin.REQUIREMENT_NAME, CustomColourEventsEnabled);
+
+            /*
+                * TECHNICOLOUR
+                */
+
+            if (type == LoadSettingsType.INITIAL)
             {
-                ChromaLogger.Log("Error loading Chroma configs!  Waduhek", ChromaLogger.Level.ERROR);
-                ChromaLogger.Log(e);
+                technicolourEnabled = GetBool("Technicolour", "technicolourEnabled", false);
+
+                technicolourLightsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourLightsStyle", 1);
+                technicolourLightsGrouping = (TechnicolourLightsGrouping)GetInt("Technicolour", "technicolourLightsGrouping", 1);
+                technicolourLightsFrequency = GetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
+                technicolourSabersStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourSabersStyle", 0);
+                technicolourBlocksStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourBlocksStyle", 0);
+                technicolourWallsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourWallsStyle", 0);
+                technicolourBombsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourBombsStyle", 0);
+                matchTechnicolourSabers = GetBool("Technicolour", "matchTechnicolourSabers", false);
             }
+
+            TechnicolourWarmPalette = new Color[4] { new Color(0, 0.501f, 1), new Color(0, 1, 0), new Color(0, 0, 1), new Color(0, 1, 0.8f) };
+            TechnicolourColdPalette = new Color[4] { new Color(1, 0, 0), new Color(1, 0, 1), new Color(1, 0.6f, 0), new Color(1, 0, 0.4f) };
+
+            /*
+                * AESTHETICS
+                */
+
+            LaserPointerColour = ChromaSettingsUI.GetColor(GetString("Aesthetics", "laserPointerColour", "DEFAULT"), null);
+            SignA = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourA", "DEFAULT"), null);
+            SignB = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourB", "DEFAULT"), null);
+            Platform = ChromaSettingsUI.GetColor(GetString("Aesthetics", "platformAccoutrements", "DEFAULT"), null);
+
+            /*
+                * MODIFIERS
+                */
+            lightshowModifier = GetBool("Modifiers", "lightshowModifier", false);
+
+            /*
+                * OTHER
+                */
+
+            sidePanel = (ChromaSettingsUI.SidePanelEnum)GetFloat("Other", "sidePanel", 0);
+
+            debugMode = GetBool("Other", "debugMode", false);
+
+            waiverRead = GetInt("Other", "safetyWaiver", 0) == 51228;
+
+            /*
+                * LIGHTSHOW
+                */
+
+            lightshowMenu = GetInt("Lightshow", "lightshowMenu", 0, false) == 6777;
+            playersPlace = GetBool("Lightshow", "playersPlace", false, false);
+            spectrograms = GetBool("Lightshow", "spectrograms", false, false);
+            backColumns = GetBool("Lightshow", "backColumns", false, false);
+            buildings = GetBool("Lightshow", "buildings", false, false);
+
+            RefreshLights();
         }
 
         #region configshortcuts

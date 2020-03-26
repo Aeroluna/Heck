@@ -66,14 +66,7 @@ namespace Chroma
             if (coreSetup != null)
             {
                 ChromaLogger.Log("Found BOCC properly!", ChromaLogger.Level.DEBUG);
-                try
-                {
-                    GCSSFound(coreSetup);
-                }
-                catch (Exception e)
-                {
-                    ChromaLogger.Log(e);
-                }
+                GCSSFound(coreSetup);
             }
 
             Saber[] sabers = FindObjectsOfType<Saber>();

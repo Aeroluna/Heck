@@ -36,58 +36,27 @@ namespace Chroma
 
         public void OnApplicationStart()
         {
-            try
-            {
-                try
-                {
-                    Directory.CreateDirectory(Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma");
-                }
-                catch (Exception e)
-                {
-                    ChromaLogger.Log("Error " + e.Message + " while trying to create Chroma directory", ChromaLogger.Level.WARNING);
-                }
+            Directory.CreateDirectory(Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma");
 
-                ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
-                ChromaLogger.Log("Initializing Chroma [" + Version + "]", ChromaLogger.Level.INFO);
-                ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
+            ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
+            ChromaLogger.Log("Initializing Chroma [" + Version + "]", ChromaLogger.Level.INFO);
+            ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
 
-                //Harmony patches
-                var harmony = HarmonyInstance.Create("net.binaryelement.chroma");
-                harmony.PatchAll(Assembly.GetExecutingAssembly());
+            //Harmony patches
+            var harmony = HarmonyInstance.Create("net.binaryelement.chroma");
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
 
-                //Configuration Files
-                try
-                {
-                    ChromaLogger.Log("Initializing Configuration");
-                    ChromaConfig.Init();
-                    ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.INITIAL);
-                    GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
-                    if (ChromaConfig.LightshowMenu) GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", ChromaSettingsUI.instance);
-                }
-                catch (Exception e)
-                {
-                    ChromaLogger.Log("Error loading Chroma configuration", ChromaLogger.Level.ERROR);
-                    throw e;
-                }
+            //Configuration Files
+            ChromaLogger.Log("Initializing Configuration");
+            ChromaConfig.Init();
+            ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.INITIAL);
+            GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
+            if (ChromaConfig.LightshowMenu) GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", ChromaSettingsUI.instance);
 
-                //Side panel
-                try
-                {
-                    ChromaLogger.Log("Stealing Patch Notes Panel");
-                    Greetings.RegisterChromaSideMenu();
-                    SidePanelUtil.ReleaseInfoEnabledEvent += ReleaseInfoEnabled;
-                }
-                catch (Exception e)
-                {
-                    ChromaLogger.Log("Error handling UI side panel", ChromaLogger.Level.ERROR);
-                    throw e;
-                }
-            }
-            catch (Exception e)
-            {
-                ChromaLogger.Log("Failed to initialize ChromaPlugin!  Major error!", ChromaLogger.Level.ERROR);
-                ChromaLogger.Log(e);
-            }
+            //Side panel
+            ChromaLogger.Log("Stealing Patch Notes Panel");
+            Greetings.RegisterChromaSideMenu();
+            SidePanelUtil.ReleaseInfoEnabledEvent += ReleaseInfoEnabled;
 
             ChromaLogger.Log("Chroma finished initializing.");
         }
