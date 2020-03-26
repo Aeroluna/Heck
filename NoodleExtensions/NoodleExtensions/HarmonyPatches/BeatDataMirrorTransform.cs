@@ -1,6 +1,6 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using Harmony;
+using HarmonyLib;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches

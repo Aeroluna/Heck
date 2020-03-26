@@ -1,7 +1,7 @@
 ﻿using BS_Utils.Utilities;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using Harmony;
+using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -25,10 +25,10 @@ namespace NoodleExtensions.HarmonyPatches
                 float? _startRow = _position?.ElementAtOrDefault(0);
                 float? _startHeight = _position?.ElementAtOrDefault(1);
 
-                float _globalJumpOffsetY = beatmapObjectSpawnController.GetField<float>("_globalJumpOffsetY");
-                float _moveDistance = beatmapObjectSpawnController.GetField<float>("_moveDistance");
-                float _jumpDistance = beatmapObjectSpawnController.GetField<float>("_jumpDistance");
-                float _noteJumpMovementSpeed = beatmapObjectSpawnController.GetField<float>("_noteJumpMovementSpeed");
+                float _globalJumpOffsetY = beatmapObjectSpawnMovementData.GetPrivateField<float>("_globalJumpOffsetY");
+                float _moveDistance = beatmapObjectSpawnMovementData.GetPrivateField<float>("_moveDistance");
+                float _jumpDistance = beatmapObjectSpawnMovementData.GetPrivateField<float>("_jumpDistance");
+                float _noteJumpMovementSpeed = beatmapObjectSpawnMovementData.GetPrivateField<float>("_noteJumpMovementSpeed");
 
                 Vector3 forward2 = beatmapObjectSpawnController.transform.forward;
                 Vector3 a4 = beatmapObjectSpawnController.transform.position;
@@ -58,7 +58,7 @@ namespace NoodleExtensions.HarmonyPatches
                 float lineYPos = LineYPosForLineLayer(noteData, _startHeight);
                 // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
                 float highestJump = _startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + _globalJumpOffsetY :
-                    beatmapObjectSpawnController.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
+                    beatmapObjectSpawnMovementData.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
                 jumpGravity = 2f * (highestJump - lineYPos) /
                     Mathf.Pow(_jumpDistance / _noteJumpMovementSpeed * 0.5f, 2f);
 

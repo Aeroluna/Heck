@@ -1,13 +1,12 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using Harmony;
+using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
-    [HarmonyPriority(Priority.Normal)]
     [HarmonyPatch(typeof(NoteData))]
     [HarmonyPatch("MirrorLineIndex")]
     internal class NoteDataMirrorLineIndex
@@ -30,7 +29,6 @@ namespace NoodleExtensions.HarmonyPatches
         }
     }
 
-    [HarmonyPriority(Priority.Normal)]
     [HarmonyPatch(typeof(NoteData))]
     [HarmonyPatch("MirrorTransformCutDirection")]
     internal class NoteDataMirrorTransformCutDirection

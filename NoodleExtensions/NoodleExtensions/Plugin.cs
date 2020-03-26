@@ -1,5 +1,5 @@
 ﻿using BS_Utils.Utilities;
-using Harmony;
+using HarmonyLib;
 using IPA;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,8 @@ using IPALogger = IPA.Logging.Logger;
 
 namespace NoodleExtensions
 {
-    public class Plugin : IBeatSaberPlugin
+    [Plugin(RuntimeOptions.SingleStartInit)]
+    internal class Plugin
     {
         // All objects
         internal const string POSITION = "_position";
@@ -44,16 +45,30 @@ namespace NoodleExtensions
 
         private static BeatmapObjectSpawnController _bosc;
 
-        public void Init(object thisIsNull, IPALogger pluginLogger)
+        internal static BeatmapObjectSpawnMovementData beatmapObjectSpawnMovementData
+        {
+            get
+            {
+                if (_bosmd == null) _bosmd = beatmapObjectSpawnController.GetPrivateField< BeatmapObjectSpawnMovementData>("_beatmapObjectSpawnMovementData");
+                return _bosmd;
+            }
+        }
+
+        private static BeatmapObjectSpawnMovementData _bosmd;
+
+        [Init]
+        public void Init(IPALogger pluginLogger)
         {
             Logger.logger = pluginLogger;
         }
 
+        [OnStart]
         public void OnApplicationStart()
         {
             SongCore.Collections.RegisterCapability("Noodle Extensions");
-            var harmony = HarmonyInstance.Create("com.noodle.BeatSaber.NoodleExtensions");
+            var harmony = new Harmony("com.noodle.BeatSaber.NoodleExtensions");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
+            SceneManager.activeSceneChanged += OnActiveSceneChanged;
         }
 
         public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
@@ -74,11 +89,11 @@ namespace NoodleExtensions
 
         internal static Vector3 GetNoteOffset(BeatmapObjectData beatmapObjectData, float? _startRow, float? _startHeight)
         {
-            float _noteLinesCount = beatmapObjectSpawnController.GetField<float>("_noteLinesCount");
-            float _noteLinesDistance = beatmapObjectSpawnController.GetField<float>("_noteLinesDistance");
+            float _noteLinesCount = beatmapObjectSpawnController.GetPrivateField<float>("_noteLinesCount");
+            float _noteLinesDistance = beatmapObjectSpawnMovementData.noteLinesDistance;
 
             float distance = -(_noteLinesCount - 1) * 0.5f + (_startRow.HasValue ? _noteLinesCount / 2 : 0); // Add last part to simulate https://github.com/spookyGh0st/beatwalls/#wall
-            float lineIndex = _startRow.GetValueOrDefault(beatmapObjectData.lineIndex); // i should not be allowed to use ternary operators
+            float lineIndex = _startRow.GetValueOrDefault(beatmapObjectData.lineIndex);
             distance = (distance + lineIndex) * _noteLinesDistance;
 
             return beatmapObjectSpawnController.transform.right * distance
@@ -87,8 +102,8 @@ namespace NoodleExtensions
 
         internal static float LineYPosForLineLayer(BeatmapObjectData beatmapObjectData, float? height)
         {
-            float _noteLinesDistance = beatmapObjectSpawnController.GetField<float>("_noteLinesDistance");
-            float _baseLinesYPos = beatmapObjectSpawnController.GetField<float>("_baseLinesYPos");
+            float _noteLinesDistance = beatmapObjectSpawnMovementData.noteLinesDistance;
+            float _baseLinesYPos = beatmapObjectSpawnController.GetPrivateField<float>("_baseLinesYPos");
             float ypos = 0;
             if (height.HasValue)
             {
@@ -96,33 +111,9 @@ namespace NoodleExtensions
             }
             else if (beatmapObjectData is NoteData noteData)
             {
-                ypos = beatmapObjectSpawnController.LineYPosForLineLayer(noteData.startNoteLineLayer);
+                ypos = beatmapObjectSpawnMovementData.LineYPosForLineLayer(noteData.startNoteLineLayer);
             }
             return ypos;
         }
-
-        #region Unused
-
-        public void OnApplicationQuit()
-        {
-        }
-
-        public void OnFixedUpdate()
-        {
-        }
-
-        public void OnUpdate()
-        {
-        }
-
-        public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
-        {
-        }
-
-        public void OnSceneUnloaded(Scene scene)
-        {
-        }
-
-        #endregion Unused
     }
 }

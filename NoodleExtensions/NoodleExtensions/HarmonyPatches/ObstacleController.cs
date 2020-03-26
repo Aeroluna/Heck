@@ -1,7 +1,7 @@
 ﻿using BS_Utils.Utilities;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using Harmony;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,11 +38,11 @@ namespace NoodleExtensions.HarmonyPatches
                 {
                     if (_startX.HasValue || _startY.HasValue)
                     {
-                        float _topObstaclePosY = beatmapObjectSpawnController.GetField<float>("_topObstaclePosY");
-                        float _globalJumpOffsetY = beatmapObjectSpawnController.GetField<float>("_globalJumpOffsetY");
-                        float _verticalObstaclePosY = beatmapObjectSpawnController.GetField<float>("_verticalObstaclePosY");
-                        float _moveDistance = beatmapObjectSpawnController.GetField<float>("_moveDistance");
-                        float _jumpDistance = beatmapObjectSpawnController.GetField<float>("_jumpDistance");
+                        float _topObstaclePosY = beatmapObjectSpawnMovementData.GetField<float>("_topObstaclePosY");
+                        float _globalJumpOffsetY = beatmapObjectSpawnMovementData.GetField<float>("_globalJumpOffsetY");
+                        float _verticalObstaclePosY = beatmapObjectSpawnMovementData.GetField<float>("_verticalObstaclePosY");
+                        float _moveDistance = beatmapObjectSpawnMovementData.GetField<float>("_moveDistance");
+                        float _jumpDistance = beatmapObjectSpawnMovementData.GetField<float>("_jumpDistance");
 
                         Vector3 forward = beatmapObjectSpawnController.transform.forward;
                         Vector3 a = beatmapObjectSpawnController.transform.position;
