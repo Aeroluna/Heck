@@ -1,6 +1,7 @@
 ﻿using Chroma.Events;
 using Chroma.Extensions;
 using Chroma.Settings;
+using Chroma.Utils;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Harmony;
@@ -145,8 +146,7 @@ namespace Chroma.HarmonyPatches
             // CustomLightColours
             if (ChromaLightColourEvent.CustomLightColours.Count > 0)
             {
-                Dictionary<float, Color> dictionaryID;
-                if (ChromaLightColourEvent.CustomLightColours.TryGetValue(_event, out dictionaryID))
+                if (ChromaLightColourEvent.CustomLightColours.TryGetValue(_event, out Dictionary<float, Color> dictionaryID))
                 {
                     foreach (KeyValuePair<float, Color> d in dictionaryID)
                     {
@@ -187,36 +187,18 @@ namespace Chroma.HarmonyPatches
                         {
                             // GRADIENT
                             float duration = (float)Trees.at(gradient, "_duration");
-                            List<object> initcolor = Trees.at(gradient, "_startColor");
-                            List<object> endcolor = Trees.at(gradient, "_endColor");
+                            Color initcolor = ChromaUtils.GetColorFromData(gradient, true, "_startColor");
+                            Color endcolor = ChromaUtils.GetColorFromData(gradient, true, "_endColor");
 
-                            float initr = Convert.ToSingle(initcolor[0]);
-                            float initg = Convert.ToSingle(initcolor[1]);
-                            float initb = Convert.ToSingle(initcolor[2]);
-                            float endr = Convert.ToSingle(endcolor[0]);
-                            float endg = Convert.ToSingle(endcolor[1]);
-                            float endb = Convert.ToSingle(endcolor[2]);
-
-                            Color initc = new Color(initr, initg, initb);
-                            Color endc = new Color(endr, endg, endb);
-                            if (initcolor.Count > 3) initc = initc.ColorWithAlpha(Convert.ToSingle(initcolor[3]));
-                            if (endcolor.Count > 3) endc = endc.ColorWithAlpha(Convert.ToSingle(endcolor[3]));
-
-                            c = ChromaGradientEvent.AddGradient(beatmapEventData.type, initc, endc, customData.time, duration);
+                            c = ChromaGradientEvent.AddGradient(beatmapEventData.type, initcolor, endcolor, customData.time, duration);
                         }
                     }
 
                     // RGB
-                    List<object> color = Trees.at(dynData, "_color");
+                    Color? color = ChromaUtils.GetColorFromData(dynData);
                     if (color != null)
                     {
-                        float r = Convert.ToSingle(color[0]);
-                        float g = Convert.ToSingle(color[1]);
-                        float b = Convert.ToSingle(color[2]);
-
-                        c = new Color(r, g, b);
-                        if (color.Count > 3) c = c.Value.ColorWithAlpha(Convert.ToSingle(color[3]));
-
+                        c = color;
                         // Clear any active gradient
                         if (ChromaGradientEvent.CustomGradients.TryGetValue(_event, out ChromaGradientEvent gradient))
                         {

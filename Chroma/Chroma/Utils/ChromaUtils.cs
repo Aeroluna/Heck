@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace Chroma.Utils
 {
@@ -14,6 +17,13 @@ namespace Chroma.Utils
             // Gotta check for SongCore first
             if (!IsModInstalled("SongCore")) return;
             setCapability(capability, enabled);
+        }
+
+        internal static Color? GetColorFromData(dynamic data, bool alpha = true, string member = "_color")
+        {
+            float[] color = ((List<object>)CustomJSONData.Trees.at(data, member))?.Select(n => Convert.ToSingle(n)).ToArray();
+            if (color == null) return null;
+            return new Color(color[0], color[1], color[2], color.Length > 3 && alpha ? color[3] : 1);
         }
 
         private static void setCapability(string capability, bool enabled = true)

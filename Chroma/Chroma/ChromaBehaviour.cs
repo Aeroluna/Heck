@@ -137,8 +137,12 @@ namespace Chroma
                     if (objectsToKill != null)
                     {
                         GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-                        objectsToKill?.Cast<string>()?.ToList()?.ForEach(s => gameObjects.Where(obj => obj.name.Contains(s)
-                        && obj.scene.name.Contains("Environment"))?.ToList()?.ForEach(n => n.SetActive(false)));
+                        foreach (string s in objectsToKill?.Cast<string>())
+                        {
+                            foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s) && obj.scene.name.Contains("Environment"))) {
+                                n.SetActive(false);
+                            }
+                        }
                     }
 
                     Dictionary<string, List<CustomEventData>> _customEventData = _customBeatmap.customEventData;

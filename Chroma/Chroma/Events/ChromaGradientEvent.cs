@@ -1,4 +1,5 @@
 ﻿using Chroma.Extensions;
+using Chroma.Utils;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using IPA.Utilities;
@@ -88,23 +89,12 @@ namespace Chroma.Events
                 dynamic dynData = eventData.data;
                 int intid = (int)Trees.at(dynData, "_event");
                 float duration = (float)Trees.at(dynData, "_duration");
-                List<object> initcolor = Trees.at(dynData, "_startColor");
-                List<object> endcolor = Trees.at(dynData, "_endColor");
-
-                float initr = Convert.ToSingle(initcolor[0]);
-                float initg = Convert.ToSingle(initcolor[1]);
-                float initb = Convert.ToSingle(initcolor[2]);
-                float endr = Convert.ToSingle(endcolor[0]);
-                float endg = Convert.ToSingle(endcolor[1]);
-                float endb = Convert.ToSingle(endcolor[2]);
+                Color initcolor = ChromaUtils.GetColorFromData(dynData, true, "_startColor");
+                Color endcolor = ChromaUtils.GetColorFromData(dynData, true, "_endColor");
 
                 BeatmapEventType id = (BeatmapEventType)intid;
-                Color initc = new Color(initr, initg, initb);
-                Color endc = new Color(endr, endg, endb);
-                if (initcolor.Count > 3) initc = initc.ColorWithAlpha(Convert.ToSingle(initcolor[3]));
-                if (endcolor.Count > 3) endc = endc.ColorWithAlpha(Convert.ToSingle(endcolor[3]));
 
-                AddGradient(id, initc, endc, eventData.time, duration);
+                AddGradient(id, initcolor, endcolor, eventData.time, duration);
             }
             catch (Exception e)
             {

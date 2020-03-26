@@ -1,4 +1,4 @@
-﻿using CustomJSONData;
+﻿using Chroma.Utils;
 using CustomJSONData.CustomBeatmap;
 using System;
 using System.Collections.Generic;
@@ -18,14 +18,7 @@ namespace Chroma.Events
                 try
                 {
                     dynamic dynData = d.data;
-
-                    List<object> color = Trees.at(dynData, "_color");
-
-                    float r = Convert.ToSingle(color[0]);
-                    float g = Convert.ToSingle(color[1]);
-                    float b = Convert.ToSingle(color[2]);
-
-                    Color c = new Color(r, g, b);
+                    Color c = ChromaUtils.GetColorFromData(dynData, false);
                     CustomBombColours.Add(d.time, c);
 
                     ColourManager.TechnicolourBombsForceDisabled = true;

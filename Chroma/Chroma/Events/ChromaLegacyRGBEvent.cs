@@ -5,15 +5,15 @@ namespace Chroma.Events
 {
     internal class ChromaLegacyRGBEvent
     {
-        public const int RGB_INT_OFFSET = 2000000000;
+        internal const int RGB_INT_OFFSET = 2000000000;
 
-        public static Color ColourFromInt(int rgb)
+        private static Color ColourFromInt(int rgb)
         {
             rgb = rgb - RGB_INT_OFFSET;
             int red = (rgb >> 16) & 0x0ff;
             int green = (rgb >> 8) & 0x0ff;
             int blue = (rgb) & 0x0ff;
-            return new Color(red / 255f, green / 255f, blue / 255f, 1);
+            return new Color(red / 255f, green / 255f, blue / 255f);
         }
 
         internal static void Activate(BeatmapEventData[] eventData)

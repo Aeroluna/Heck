@@ -1,6 +1,6 @@
 ﻿using Chroma.Events;
 using Chroma.Settings;
-using CustomJSONData;
+using Chroma.Utils;
 using CustomJSONData.CustomBeatmap;
 using Harmony;
 using System;
@@ -37,28 +37,17 @@ namespace Chroma.HarmonyPatches
             // Technicolour
             if (ColourManager.TechnicolourBlocks && ChromaConfig.TechnicolourBlocksStyle != ColourManager.TechnicolourStyle.GRADIENT)
             {
-                try
-                {
-                    c = ColourManager.GetTechnicolour(noteData.noteType == NoteType.NoteA, noteData.time + noteData.lineIndex + (int)noteData.noteLineLayer, ChromaConfig.TechnicolourBlocksStyle);
-                }
-                catch (Exception e)
-                {
-                    ChromaLogger.Log(e);
-                }
+                c = ColourManager.GetTechnicolour(noteData.noteType == NoteType.NoteA, noteData.time + noteData.lineIndex + (int)noteData.noteLineLayer, ChromaConfig.TechnicolourBlocksStyle);
             }
 
             // CustomLightColours
             if (ChromaNoteColourEvent.CustomNoteColours.Count > 0)
             {
-                Dictionary<float, Color> dictionaryID;
-                if (ChromaNoteColourEvent.CustomNoteColours.TryGetValue(noteData.noteType, out dictionaryID))
+                if (ChromaNoteColourEvent.CustomNoteColours.TryGetValue(noteData.noteType, out Dictionary<float, Color> dictionaryID))
                 {
                     foreach (KeyValuePair<float, Color> d in dictionaryID)
                     {
-                        if (d.Key <= noteData.time)
-                        {
-                            c = d.Value;
-                        }
+                        if (d.Key <= noteData.time) c = d.Value;
                     }
                 }
             }
@@ -69,16 +58,7 @@ namespace Chroma.HarmonyPatches
                 if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered && ChromaConfig.NoteColourEventsEnabled)
                 {
                     dynamic dynData = customData.customData;
-
-                    List<object> color = Trees.at(dynData, "_color");
-                    if (color != null)
-                    {
-                        float r = Convert.ToSingle(color[0]);
-                        float g = Convert.ToSingle(color[1]);
-                        float b = Convert.ToSingle(color[2]);
-
-                        c = new Color(r, g, b);
-                    }
+                    c = ChromaUtils.GetColorFromData(dynData, false) ?? c;
                 }
             }
             catch (Exception e)

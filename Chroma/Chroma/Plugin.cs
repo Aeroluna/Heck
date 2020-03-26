@@ -1,5 +1,4 @@
 ﻿using BeatSaberMarkupLanguage.GameplaySetup;
-using BeatSaberMarkupLanguage.Settings;
 using Chroma.Misc;
 using Chroma.Settings;
 using Chroma.Utils;

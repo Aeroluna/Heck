@@ -1,6 +1,6 @@
 ﻿using Chroma.Events;
 using Chroma.Settings;
-using CustomJSONData;
+using Chroma.Utils;
 using CustomJSONData.CustomBeatmap;
 using Harmony;
 using IPA.Utilities;
@@ -71,16 +71,7 @@ namespace Chroma.HarmonyPatches
                 {
                     dynamic dynData = customData.customData;
 
-                    List<object> color = Trees.at(dynData, "_color");
-                    if (color != null)
-                    {
-                        float r = Convert.ToSingle(color[0]);
-                        float g = Convert.ToSingle(color[1]);
-                        float b = Convert.ToSingle(color[2]);
-
-                        c = new Color(r, g, b);
-                        if (color.Count > 3) c = c.Value.ColorWithAlpha(Convert.ToSingle(color[3]));
-                    }
+                    c = ChromaUtils.GetColorFromData(dynData) ?? c;
                 }
             }
             catch (Exception e)
