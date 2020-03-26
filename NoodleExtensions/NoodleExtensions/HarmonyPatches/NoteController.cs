@@ -4,20 +4,20 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static NoodleExtensions.Plugin;
 using static NoodleExtensions.NoodleController;
 using static NoodleExtensions.NoodleController.BeatmapObjectSpawnMovementDataVariables;
+using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
-    [HarmonyPatch(typeof(NoteController))]
-    [HarmonyPatch("Init")]
+    [NoodlePatch(typeof(NoteController))]
+    [NoodlePatch("Init")]
     internal class NoteControllerInit
     {
-        private static void Prefix(NoteController __instance, NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos,
+        private static void Prefix(NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos,
             ref float jumpGravity, ref float worldRotation, ref float? __state)
         {
-            if (NoodleExtensionsActive && !MappingExtensionsActive && noteData is CustomNoteData customData)
+            if (noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
                 IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
@@ -42,7 +42,7 @@ namespace NoodleExtensions.HarmonyPatches
                     moveEndPos = _moveEndPos + noteOffset;
                 }
 
-                    float lineYPos = LineYPosForLineLayer(noteData, _startHeight);
+                float lineYPos = LineYPosForLineLayer(noteData, _startHeight);
                 // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
                 float highestJump = _startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + _jumpOffsetY :
                     beatmapObjectSpawnMovementData.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
@@ -64,7 +64,7 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static void Postfix(NoteController __instance, NoteData noteData, float? __state)
         {
-            if (NoodleExtensionsActive && !MappingExtensionsActive && noteData is CustomNoteData customData)
+            if (noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
                 float? _rot = (float?)Trees.at(dynData, CUTDIRECTION);
@@ -80,7 +80,7 @@ namespace NoodleExtensions.HarmonyPatches
                 noteJump.Field("_middleRotation").SetValue(midrotation);
 
                 // Reset flipYSide after Prefix
-                if (__state.HasValue) typeof(NoteData).GetProperty("flipYSide").SetValue(noteData ,__state.Value);
+                if (__state.HasValue) typeof(NoteData).GetProperty("flipYSide").SetValue(noteData, __state.Value);
             }
         }
     }

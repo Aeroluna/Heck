@@ -1,18 +1,17 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static NoodleExtensions.Plugin;
 using static NoodleExtensions.NoodleController;
 using static NoodleExtensions.NoodleController.BeatmapObjectSpawnMovementDataVariables;
+using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
-    [HarmonyPatch(typeof(ObstacleController))]
-    [HarmonyPatch("Init")]
+    [NoodlePatch(typeof(ObstacleController))]
+    [NoodlePatch("Init")]
     internal class ObstacleControllerInit
     {
         private static void Postfix(ObstacleController __instance, ObstacleData obstacleData, Vector3 startPos, Vector3 midPos, Vector3 endPos, float move2Duration,
@@ -20,7 +19,7 @@ namespace NoodleExtensions.HarmonyPatches
             StretchableObstacle ____stretchableObstacle, ref Bounds ____bounds, SimpleColorSO ____color, float height, ref Quaternion ____worldRotation,
             ref Quaternion ____inverseWorldRotation)
         {
-            if (NoodleExtensionsActive && !MappingExtensionsActive && obstacleData is CustomObstacleData customData)
+            if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
                 IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());

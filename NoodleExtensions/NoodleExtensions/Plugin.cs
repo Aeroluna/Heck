@@ -1,10 +1,6 @@
 ﻿using HarmonyLib;
 using IPA;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
 
 namespace NoodleExtensions
@@ -13,6 +9,8 @@ namespace NoodleExtensions
     internal class Plugin
     {
         internal const string CAPABILITY = "Noodle Extensions";
+        internal const string HARMONYID_CORE = "com.noodle.BeatSaber.NoodleExtensionsCore";
+        internal const string HARMONYID = "com.noodle.BeatSaber.NoodleExtensions";
 
         // All objects
         internal const string POSITION = "_position";
@@ -35,13 +33,16 @@ namespace NoodleExtensions
             Logger.logger = pluginLogger;
         }
 
+        internal static Harmony coreharmony = new Harmony(HARMONYID_CORE);
+        internal static Harmony harmony = new Harmony(HARMONYID);
+
         [OnStart]
         public void OnApplicationStart()
         {
             SongCore.Collections.RegisterCapability("Noodle Extensions");
-            var harmony = new Harmony("com.noodle.BeatSaber.NoodleExtensions");
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
-            HarmonyPatches.BeatmapDataLoaderProcessBasicNotesInTimeRow.PatchBeatmapDataLoader(harmony);
+            coreharmony.PatchAll(Assembly.GetExecutingAssembly());
+            HarmonyPatches.BeatmapDataLoaderProcessBasicNotesInTimeRow.PatchBeatmapDataLoader(coreharmony);
+            NoodleController.InitNoodlePatches();
         }
     }
 }

@@ -17,7 +17,7 @@ namespace NoodleExtensions.HarmonyPatches
             if (difficultyBeatmap.beatmapData is CustomJSONData.CustomBeatmap.CustomBeatmapData customBeatmapData)
             {
                 IEnumerable<string> requirements = ((List<object>)Trees.at(customBeatmapData.beatmapCustomData, "_requirements"))?.Cast<string>();
-                NoodleController.NoodleExtensionsActive = requirements?.Contains(Plugin.CAPABILITY) ?? false;
+                NoodleController.ToggleNoodlePatches(requirements?.Contains(Plugin.CAPABILITY) ?? false);
             }
         }
     }

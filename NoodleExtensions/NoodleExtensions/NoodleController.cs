@@ -1,20 +1,15 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 using UnityEngine;
-using HarmonyLib;
 using static NoodleExtensions.NoodleController.BeatmapObjectSpawnMovementDataVariables;
 
 namespace NoodleExtensions
 {
     internal static class NoodleController
     {
-        internal static bool MappingExtensionsActive = false;
-        internal static bool NoodleExtensionsActive = false;
-
         internal static Vector3 GetNoteOffset(BeatmapObjectData beatmapObjectData, float? _startRow, float? _startHeight)
         {
             float distance = -(_noteLinesCount - 1) * 0.5f + (_startRow.HasValue ? _noteLinesCount / 2 : 0); // Add last part to simulate https://github.com/spookyGh0st/beatwalls/#wall
@@ -39,15 +34,54 @@ namespace NoodleExtensions
             return ypos;
         }
 
+        // poof random extension
+        internal static float? ToNullableFloat(this object @this)
+        {
+            if (@this == null || @this == DBNull.Value) return null;
+            return Convert.ToSingle(@this);
+        }
+
+        internal static void InitNoodlePatches()
+        {
+            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+            {
+                object[] noodleattributes = type.GetCustomAttributes(typeof(NoodlePatch), true);
+                if (noodleattributes.Length > 0)
+                {
+                    Type declaringType = null;
+                    string methodName = null;
+                    foreach (NoodlePatch n in noodleattributes)
+                    {
+                        if (n.declaringType != null) declaringType = n.declaringType;
+                        if (n.methodName != null) methodName = n.methodName;
+                    }
+                    if (declaringType == null || methodName == null) throw new ArgumentException("Type or Method Name not described");
+
+                    MethodInfo original = declaringType.GetMethod(methodName);
+                    MethodInfo prefix = AccessTools.Method(type, "Prefix");
+                    MethodInfo postfix = AccessTools.Method(type, "Postfix");
+
+                    NoodlePatches.Add(new NoodlePatchData(original, prefix, postfix));
+                }
+            }
+        }
+
+        private static List<NoodlePatchData> NoodlePatches = new List<NoodlePatchData>();
+
+        internal static void ToggleNoodlePatches(bool value)
+        {
+            if (value && !Harmony.HasAnyPatches(Plugin.HARMONYID))
+                NoodlePatches.ForEach(n => Plugin.harmony.Patch(n.originalMethod, n.prefix != null ? new HarmonyMethod(n.prefix) : null, n.postfix != null ? new HarmonyMethod(n.postfix) : null));
+            else Plugin.harmony.UnpatchAll(Plugin.HARMONYID);
+        }
+
         internal static void InitBeatmapObjectSpawnController(BeatmapObjectSpawnController bosc)
         {
             BeatmapObjectSpawnMovementData bosmd = Traverse.Create(bosc).Field("_beatmapObjectSpawnMovementData").GetValue<BeatmapObjectSpawnMovementData>();
-            //Logger.Log("BeatmapObjectSpawnMovementData Found");
             beatmapObjectSpawnMovementData = bosmd;
             var bosmdTraversal = new Traverse(bosmd);
             foreach (FieldInfo f in typeof(BeatmapObjectSpawnMovementDataVariables).GetFields(BindingFlags.NonPublic | BindingFlags.Static).Where(n => n.Name != "beatmapObjectSpawnMovementData"))
             {
-                //Logger.Log(f.Name);
                 f.SetValue(null, bosmdTraversal.Field(f.Name).GetValue());
             }
         }
@@ -55,7 +89,7 @@ namespace NoodleExtensions
         internal static class BeatmapObjectSpawnMovementDataVariables
         {
             internal static BeatmapObjectSpawnMovementData beatmapObjectSpawnMovementData;
-            #pragma warning disable 0649
+#pragma warning disable 0649
             internal static float _topObstaclePosY;
             internal static float _jumpOffsetY;
             internal static float _verticalObstaclePosY;
@@ -68,7 +102,7 @@ namespace NoodleExtensions
             internal static Vector3 _jumpEndPos;
             internal static float _noteLinesCount;
             internal static Vector3 _rightVec;
-            #pragma warning restore 0649
+#pragma warning restore 0649
         }
     }
 }

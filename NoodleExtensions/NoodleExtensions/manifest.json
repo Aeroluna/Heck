@@ -8,7 +8,6 @@
   "version": "0.2.0",
   "dependsOn": {
     "SongCore": "^2.9.0",
-    "BS Utils": "^1.4.3",
     "CustomJSONData": "^0.1.0"
   }
 }
