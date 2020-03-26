@@ -1,11 +1,12 @@
-﻿using BS_Utils.Utilities;
-using CustomJSONData;
+﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static NoodleExtensions.Plugin;
+using static NoodleExtensions.NoodleController;
+using static NoodleExtensions.NoodleController.BeatmapObjectSpawnMovementDataVariables;
 
 namespace NoodleExtensions.HarmonyPatches
 {
@@ -13,7 +14,7 @@ namespace NoodleExtensions.HarmonyPatches
     [HarmonyPatch("Init")]
     internal class NoteControllerInit
     {
-        private static void Prefix(ref NoteController __instance, NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos,
+        private static void Prefix(NoteController __instance, NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos,
             ref float jumpGravity, ref float worldRotation, ref float? __state)
         {
             if (NoodleExtensionsActive && !MappingExtensionsActive && noteData is CustomNoteData customData)
@@ -25,37 +26,23 @@ namespace NoodleExtensions.HarmonyPatches
                 float? _startRow = _position?.ElementAtOrDefault(0);
                 float? _startHeight = _position?.ElementAtOrDefault(1);
 
-                float _jumpOffsetY = beatmapObjectSpawnMovementData.GetPrivateField<float>("_jumpOffsetY");
-                float _moveDistance = beatmapObjectSpawnMovementData.GetPrivateField<float>("_moveDistance");
-                float _jumpDistance = beatmapObjectSpawnMovementData.GetPrivateField<float>("_jumpDistance");
-                float _noteJumpMovementSpeed = beatmapObjectSpawnMovementData.GetPrivateField<float>("_noteJumpMovementSpeed");
+                Vector3 noteOffset = GetNoteOffset(noteData, _startRow, _startHeight);
 
-                Vector3 forward2 = beatmapObjectSpawnController.transform.forward;
-                Vector3 a4 = beatmapObjectSpawnController.transform.position;
-                a4 += forward2 * (_moveDistance + _jumpDistance * 0.5f);
-                Vector3 a5 = a4 - forward2 * _moveDistance;
-                Vector3 a6 = a4 - forward2 * (_moveDistance + _jumpDistance);
-
-                Vector3 noteOffset2 = GetNoteOffset(noteData, _startRow, _startHeight);
-
-                if (noteData.noteType == NoteType.Bomb)
-                {
-                    __instance.transform.SetPositionAndRotation(a4 + noteOffset2, Quaternion.identity);
-                    moveStartPos = a4 + noteOffset2;
-                    moveEndPos = a5 + noteOffset2;
-                    jumpEndPos = a6 + noteOffset2;
-                }
-                else if (noteData.noteType.IsBasicNote())
+                jumpEndPos = _jumpEndPos + noteOffset;
+                if (noteData.noteType.IsBasicNote())
                 {
                     float? flipLineIndex = (float?)Trees.at(dynData, "flipLineIndex");
-                    Vector3 noteOffset3 = GetNoteOffset(noteData, flipLineIndex ?? _startRow, _startHeight);
-                    __instance.transform.SetPositionAndRotation(a4 + noteOffset3, Quaternion.identity);
-                    moveStartPos = a4 + noteOffset3;
-                    moveEndPos = a5 + noteOffset3;
-                    jumpEndPos = a6 + noteOffset2;
+                    Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? _startRow, _startHeight);
+                    moveStartPos = _moveStartPos + noteOffset2;
+                    moveEndPos = _moveEndPos + noteOffset2;
+                }
+                else
+                {
+                    moveStartPos = _moveStartPos + noteOffset;
+                    moveEndPos = _moveEndPos + noteOffset;
                 }
 
-                float lineYPos = LineYPosForLineLayer(noteData, _startHeight);
+                    float lineYPos = LineYPosForLineLayer(noteData, _startHeight);
                 // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
                 float highestJump = _startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + _jumpOffsetY :
                     beatmapObjectSpawnMovementData.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
@@ -69,8 +56,8 @@ namespace NoodleExtensions.HarmonyPatches
                 float? flipYSide = (float?)Trees.at(dynData, "flipYSide");
                 if (flipYSide.HasValue)
                 {
-                    __state = customData.flipYSide;
-                    customData.SetProperty("flipYSide", flipYSide.Value, typeof(NoteData));
+                    __state = noteData.flipYSide;
+                    typeof(NoteData).GetProperty("flipYSide").SetValue(noteData, __state.Value);
                 }
             }
         }
@@ -83,18 +70,17 @@ namespace NoodleExtensions.HarmonyPatches
                 float? _rot = (float?)Trees.at(dynData, CUTDIRECTION);
                 if (!_rot.HasValue) return;
 
-                NoteMovement noteMovement = __instance.GetPrivateField<NoteMovement>("_noteMovement");
-                NoteJump noteJump = noteMovement.GetPrivateField<NoteJump>("_jump");
+                Traverse noteJump = new Traverse(Traverse.Create(Traverse.Create(__instance).Field("_noteMovement").GetValue()).Field("_jump").GetValue());
 
                 Quaternion rotation = Quaternion.Euler(0, 0, _rot.Value);
-                noteJump.SetPrivateField("_endRotation", rotation);
+                noteJump.Field("_endRotation").SetValue(rotation);
                 Vector3 vector = rotation.eulerAngles;
-                vector += noteJump.GetPrivateField<Vector3[]>("_randomRotations")[noteJump.GetPrivateField<int>("_randomRotationIdx")] * 20;
+                vector += ((Vector3[])noteJump.Field("_randomRotations").GetValue())[(int)noteJump.Field("_randomRotationIdx").GetValue()] * 20;
                 Quaternion midrotation = Quaternion.Euler(vector);
-                noteJump.SetPrivateField("_middleRotation", midrotation);
+                noteJump.Field("_middleRotation").SetValue(midrotation);
 
                 // Reset flipYSide after Prefix
-                if (__state.HasValue) customData.SetProperty("flipYSide", __state.Value, typeof(NoteData));
+                if (__state.HasValue) typeof(NoteData).GetProperty("flipYSide").SetValue(noteData ,__state.Value);
             }
         }
     }

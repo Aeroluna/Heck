@@ -1,5 +1,4 @@
-﻿using BS_Utils.Utilities;
-using CustomJSONData;
+﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using System;
@@ -7,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static NoodleExtensions.Plugin;
+using static NoodleExtensions.NoodleController;
+using static NoodleExtensions.NoodleController.BeatmapObjectSpawnMovementDataVariables;
 
 namespace NoodleExtensions.HarmonyPatches
 {
@@ -14,9 +15,9 @@ namespace NoodleExtensions.HarmonyPatches
     [HarmonyPatch("Init")]
     internal class ObstacleControllerInit
     {
-        private static void Postfix(ref ObstacleController __instance, ObstacleData obstacleData, Vector3 startPos, Vector3 midPos, Vector3 endPos, float move2Duration,
+        private static void Postfix(ObstacleController __instance, ObstacleData obstacleData, Vector3 startPos, Vector3 midPos, Vector3 endPos, float move2Duration,
             float singleLineWidth, ref Vector3 ____startPos, ref Vector3 ____endPos, ref Vector3 ____midPos,
-            ref StretchableObstacle ____stretchableObstacle, ref Bounds ____bounds, SimpleColorSO ____color, float height, ref Quaternion ____worldRotation,
+            StretchableObstacle ____stretchableObstacle, ref Bounds ____bounds, SimpleColorSO ____color, float height, ref Quaternion ____worldRotation,
             ref Quaternion ____inverseWorldRotation)
         {
             if (NoodleExtensionsActive && !MappingExtensionsActive && obstacleData is CustomObstacleData customData)
@@ -38,25 +39,13 @@ namespace NoodleExtensions.HarmonyPatches
                 {
                     if (_startX.HasValue || _startY.HasValue)
                     {
-                        float _topObstaclePosY = beatmapObjectSpawnMovementData.GetField<float>("_topObstaclePosY");
-                        float _jumpOffsetY = beatmapObjectSpawnMovementData.GetField<float>("_jumpOffsetY");
-                        float _verticalObstaclePosY = beatmapObjectSpawnMovementData.GetField<float>("_verticalObstaclePosY");
-                        float _moveDistance = beatmapObjectSpawnMovementData.GetField<float>("_moveDistance");
-                        float _jumpDistance = beatmapObjectSpawnMovementData.GetField<float>("_jumpDistance");
-
-                        Vector3 forward = beatmapObjectSpawnController.transform.forward;
-                        Vector3 a = beatmapObjectSpawnController.transform.position;
-                        a += forward * (_moveDistance + _jumpDistance * 0.5f);
-                        Vector3 a2 = a - forward * _moveDistance;
-                        Vector3 a3 = a - forward * (_moveDistance + _jumpDistance);
-
                         // Ripped from base game
                         Vector3 noteOffset = GetNoteOffset(obstacleData, _startX, null);
                         noteOffset.y = _startY.HasValue ? _verticalObstaclePosY : ((obstacleData.obstacleType == ObstacleType.Top)
                             ? (_topObstaclePosY + _jumpOffsetY) : _verticalObstaclePosY); // If _startY(_startHeight) is set, put wall on floor
-                        startPos = a + noteOffset;
-                        midPos = a2 + noteOffset;
-                        endPos = a3 + noteOffset;
+                        startPos = _moveStartPos + noteOffset;
+                        midPos = _moveEndPos + noteOffset;
+                        endPos = _jumpEndPos + noteOffset;
                     }
 
                     // Below ripped from base game
