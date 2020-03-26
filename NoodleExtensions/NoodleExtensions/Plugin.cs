@@ -68,6 +68,7 @@ namespace NoodleExtensions
             SongCore.Collections.RegisterCapability("Noodle Extensions");
             var harmony = new Harmony("com.noodle.BeatSaber.NoodleExtensions");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
+            HarmonyPatches.BeatmapDataLoaderProcessBasicNotesInTimeRow.PatchBeatmapDataLoader(harmony);
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
         }
 
@@ -89,7 +90,7 @@ namespace NoodleExtensions
 
         internal static Vector3 GetNoteOffset(BeatmapObjectData beatmapObjectData, float? _startRow, float? _startHeight)
         {
-            float _noteLinesCount = beatmapObjectSpawnController.GetPrivateField<float>("_noteLinesCount");
+            float _noteLinesCount = beatmapObjectSpawnMovementData.GetPrivateField<float>("_noteLinesCount");
             float _noteLinesDistance = beatmapObjectSpawnMovementData.noteLinesDistance;
 
             float distance = -(_noteLinesCount - 1) * 0.5f + (_startRow.HasValue ? _noteLinesCount / 2 : 0); // Add last part to simulate https://github.com/spookyGh0st/beatwalls/#wall
@@ -103,7 +104,7 @@ namespace NoodleExtensions
         internal static float LineYPosForLineLayer(BeatmapObjectData beatmapObjectData, float? height)
         {
             float _noteLinesDistance = beatmapObjectSpawnMovementData.noteLinesDistance;
-            float _baseLinesYPos = beatmapObjectSpawnController.GetPrivateField<float>("_baseLinesYPos");
+            float _baseLinesYPos = beatmapObjectSpawnMovementData.GetPrivateField<float>("_baseLinesYPos");
             float ypos = 0;
             if (height.HasValue)
             {

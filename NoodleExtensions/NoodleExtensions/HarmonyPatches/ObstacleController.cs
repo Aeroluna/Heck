@@ -39,7 +39,7 @@ namespace NoodleExtensions.HarmonyPatches
                     if (_startX.HasValue || _startY.HasValue)
                     {
                         float _topObstaclePosY = beatmapObjectSpawnMovementData.GetField<float>("_topObstaclePosY");
-                        float _globalJumpOffsetY = beatmapObjectSpawnMovementData.GetField<float>("_globalJumpOffsetY");
+                        float _jumpOffsetY = beatmapObjectSpawnMovementData.GetField<float>("_jumpOffsetY");
                         float _verticalObstaclePosY = beatmapObjectSpawnMovementData.GetField<float>("_verticalObstaclePosY");
                         float _moveDistance = beatmapObjectSpawnMovementData.GetField<float>("_moveDistance");
                         float _jumpDistance = beatmapObjectSpawnMovementData.GetField<float>("_jumpDistance");
@@ -53,7 +53,7 @@ namespace NoodleExtensions.HarmonyPatches
                         // Ripped from base game
                         Vector3 noteOffset = GetNoteOffset(obstacleData, _startX, null);
                         noteOffset.y = _startY.HasValue ? _verticalObstaclePosY : ((obstacleData.obstacleType == ObstacleType.Top)
-                            ? (_topObstaclePosY + _globalJumpOffsetY) : _verticalObstaclePosY); // If _startY(_startHeight) is set, put wall on floor
+                            ? (_topObstaclePosY + _jumpOffsetY) : _verticalObstaclePosY); // If _startY(_startHeight) is set, put wall on floor
                         startPos = a + noteOffset;
                         midPos = a2 + noteOffset;
                         endPos = a3 + noteOffset;

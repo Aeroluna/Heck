@@ -25,7 +25,7 @@ namespace NoodleExtensions.HarmonyPatches
                 float? _startRow = _position?.ElementAtOrDefault(0);
                 float? _startHeight = _position?.ElementAtOrDefault(1);
 
-                float _globalJumpOffsetY = beatmapObjectSpawnMovementData.GetPrivateField<float>("_globalJumpOffsetY");
+                float _jumpOffsetY = beatmapObjectSpawnMovementData.GetPrivateField<float>("_jumpOffsetY");
                 float _moveDistance = beatmapObjectSpawnMovementData.GetPrivateField<float>("_moveDistance");
                 float _jumpDistance = beatmapObjectSpawnMovementData.GetPrivateField<float>("_jumpDistance");
                 float _noteJumpMovementSpeed = beatmapObjectSpawnMovementData.GetPrivateField<float>("_noteJumpMovementSpeed");
@@ -57,7 +57,7 @@ namespace NoodleExtensions.HarmonyPatches
 
                 float lineYPos = LineYPosForLineLayer(noteData, _startHeight);
                 // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
-                float highestJump = _startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + _globalJumpOffsetY :
+                float highestJump = _startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + _jumpOffsetY :
                     beatmapObjectSpawnMovementData.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
                 jumpGravity = 2f * (highestJump - lineYPos) /
                     Mathf.Pow(_jumpDistance / _noteJumpMovementSpeed * 0.5f, 2f);

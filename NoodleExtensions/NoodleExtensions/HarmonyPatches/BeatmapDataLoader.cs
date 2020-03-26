@@ -1,19 +1,27 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+using System.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
-    [HarmonyPatch(typeof(BeatmapDataLoader))]
-    [HarmonyPatch("ProcessBasicNotesInTimeRow")]
     internal class BeatmapDataLoaderProcessBasicNotesInTimeRow
     {
-        private static void Postfix(List<NoteData> notes)
+        internal static void PatchBeatmapDataLoader(Harmony harmony)
         {
-            List<CustomNoteData> customNotes = Trees.tryNull(() => notes.Cast<CustomNoteData>().ToList());
+            Type NotesInTimeRowProcessor = Type.GetType("BeatmapDataLoader+NotesInTimeRowProcessor,Main");
+            MethodInfo original = NotesInTimeRowProcessor?.GetMethod("ProcessBasicNotesInTimeRow");
+            MethodInfo postfix = SymbolExtensions.GetMethodInfo(() => Postfix(null));
+            harmony.Patch(original, postfix: new HarmonyMethod(postfix));
+        }
+
+        public static void Postfix(List<NoteData> basicNotes)
+        {
+            List<CustomNoteData> customNotes = Trees.tryNull(() => basicNotes.Cast<CustomNoteData>().ToList());
             if (customNotes == null) return;
             for (int i = customNotes.Count - 1; i >= 0; i--)
             {
