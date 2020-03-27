@@ -72,28 +72,9 @@ namespace Chroma
         }
 
         [Init]
-        public void Init(object thisIsNull, IPALogger pluginLogger)
+        public void Init(IPALogger pluginLogger)
         {
             ChromaLogger.logger = pluginLogger;
-        }
-
-        public void OnUpdate()
-        {
-            if (Input.GetKeyDown(KeyCode.Backslash))
-            {
-                ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.MANUAL);
-            }
-
-            if (Input.GetKeyDown(KeyCode.Period) && ChromaConfig.DebugMode)
-            {
-                ChromaLogger.Log(" [[ Debug Info ]]");
-
-                if (ChromaConfig.TechnicolourEnabled)
-                {
-                    ChromaLogger.Log("TechnicolourStyles (Lights | Walls | Notes | Sabers) : " + ChromaConfig.TechnicolourLightsStyle + " | " + ChromaConfig.TechnicolourWallsStyle + " | " + ChromaConfig.TechnicolourBlocksStyle + " | " + ChromaConfig.TechnicolourSabersStyle);
-                    ChromaLogger.Log("Technicolour (Lights | Walls | Notes | Sabers) : " + ColourManager.TechnicolourLights + " | " + ColourManager.TechnicolourBarriers + " | " + ColourManager.TechnicolourBlocks + " | " + ColourManager.TechnicolourSabers);
-                }
-            }
         }
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)

@@ -1,5 +1,6 @@
 ﻿using Chroma.Extensions;
 using Chroma.Utils;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using System;
 using UnityEngine;
@@ -14,14 +15,14 @@ namespace Chroma.Events
             {
                 // Pull and assign all custom data
                 dynamic dynData = eventData.data;
-                Color? aColor = ChromaUtils.GetColorFromData(dynData, false, "_leftColor");
-                Color? bColor = ChromaUtils.GetColorFromData(dynData, false, "_rightColor");
+                int id = (int)Trees.at(dynData, "_id");
+                Color color = ChromaUtils.GetColorFromData(dynData, false);
 
                 foreach (SaberColourizer saber in SaberColourizer.saberColourizers)
                 {
-                    if (saber.warm ? aColor.HasValue : bColor.HasValue)
+                    if (saber.warm == (id == 0))
                     {
-                        saber.Colourize(saber.warm ? aColor.Value : bColor.Value);
+                        saber.Colourize(color);
                     }
                 }
             }

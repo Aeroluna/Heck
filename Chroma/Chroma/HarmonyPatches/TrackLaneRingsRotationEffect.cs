@@ -12,7 +12,9 @@ namespace Chroma.HarmonyPatches
     internal class TrackLaneRingsRotationEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
         //Ring rotation
-        private static bool Prefix(TrackLaneRingsRotationEffectSpawner __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____beatmapEventType, TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect, float ____rotationStep, int ____rotationPropagationSpeed, float ____rotationFlexySpeed)
+        private static bool Prefix(TrackLaneRingsRotationEffectSpawner __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____beatmapEventType,
+            TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect, float ____rotationStep, int ____rotationPropagationSpeed, float ____rotationFlexySpeed,
+            TrackLaneRingsRotationEffectSpawner.RotationStepType ____rotationStepType)
         {
             try
             {
@@ -20,6 +22,21 @@ namespace Chroma.HarmonyPatches
                 {
                     if (beatmapEventData is CustomBeatmapEventData customData)
                     {
+                        // Added in 1.8
+                        float step = 0f;
+                        switch (____rotationStepType)
+                        {
+                            case TrackLaneRingsRotationEffectSpawner.RotationStepType.Range0ToMax:
+                                step = UnityEngine.Random.Range(0f, ____rotationStep);
+                                break;
+                            case TrackLaneRingsRotationEffectSpawner.RotationStepType.Range:
+                                step = UnityEngine.Random.Range(-____rotationStep, ____rotationStep);
+                                break;
+                            case TrackLaneRingsRotationEffectSpawner.RotationStepType.MaxOr0:
+                                step = ((UnityEngine.Random.value < 0.5f) ? ____rotationStep : 0f);
+                                break;
+                        }
+
                         dynamic dynData = customData.customData;
 
                         string nameFilter = Trees.at(dynData, "_nameFilter");
@@ -61,7 +78,8 @@ namespace Chroma.HarmonyPatches
 
                         if (ChromaConfig.DebugMode) ChromaLogger.Log("[[CJD]] Ring Spin (" + __instance.name + "_" + beatmapEventData.time + ") - [Dir:" + (dir == -1 ? "random" : rotRight ? "right" : "left") + "] - [Step:" + stepMult + "] - [Prop:" + propMult + "] - [Speed:" + speedMult + "]");
 
-                        TriggerRotation(rotRight, __instance, ____trackLaneRingsRotationEffect, ____rotationStep, ____rotationPropagationSpeed, ____rotationFlexySpeed, stepMult.Value, propMult.Value, speedMult.Value);
+                        TriggerRotation(rotRight, __instance, ____trackLaneRingsRotationEffect, step, ____rotationPropagationSpeed, ____rotationFlexySpeed, stepMult.Value,
+                            propMult.Value, speedMult.Value);
                         return false;
                     }
                 }
@@ -75,12 +93,14 @@ namespace Chroma.HarmonyPatches
             return true;
         }
 
-        private static void TriggerRotation(bool rotRight, TrackLaneRingsRotationEffectSpawner __instance, TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect, float ____rotationStep, int ____rotationPropagationSpeed, float ____rotationFlexySpeed, float ringStepMult = 1f, float ringPropagationMult = 1f, float ringSpeedMult = 1f)
+        private static void TriggerRotation(bool rotRight, TrackLaneRingsRotationEffectSpawner __instance, TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect,
+            float ____rotationStep, int ____rotationPropagationSpeed, float ____rotationFlexySpeed, float ringStepMult = 1f, float ringPropagationMult = 1f, float ringSpeedMult = 1f)
         {
-            ____trackLaneRingsRotationEffect.AddRingRotationEffect(____trackLaneRingsRotationEffect.GetFirstRingDestinationRotationAngle() + (90 * (rotRight ? -1 : 1)), UnityEngine.Random.Range(0f, ____rotationStep * ringStepMult), (int)(____rotationPropagationSpeed * ringPropagationMult), ____rotationFlexySpeed * ringSpeedMult);
+            ____trackLaneRingsRotationEffect.AddRingRotationEffect(____trackLaneRingsRotationEffect.GetFirstRingDestinationRotationAngle() + (90 * (rotRight ? -1 : 1)), ____rotationStep * ringStepMult, (int)(____rotationPropagationSpeed * ringPropagationMult), ____rotationFlexySpeed * ringSpeedMult);
         }
 
-        private static void ResetRings(TrackLaneRingsRotationEffectSpawner __instance, TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect, float ____rotationStep, int ____rotationPropagationSpeed, float ____rotationFlexySpeed)
+        private static void ResetRings(TrackLaneRingsRotationEffectSpawner __instance, TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect, float ____rotationStep,
+            int ____rotationPropagationSpeed, float ____rotationFlexySpeed)
         {
             TriggerRotation(UnityEngine.Random.value < 0.5f, __instance, ____trackLaneRingsRotationEffect, ____rotationStep, ____rotationPropagationSpeed, ____rotationFlexySpeed, 0f, 116f, 116f);
         }
