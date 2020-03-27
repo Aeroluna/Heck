@@ -1,4 +1,4 @@
-﻿using Harmony;
+﻿using HarmonyLib;
 using UnityEngine;
 
 namespace Chroma.HarmonyPatches
@@ -25,9 +25,9 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("ColorForSaberType")]
     internal class ColorManagerColorForSaberType
     {
-        private static bool Prefix(ref Saber.SaberType type, ref Color __result)
+        private static bool Prefix(ref SaberType type, ref Color __result)
         {
-            bool warm = type == Saber.SaberType.SaberA;
+            bool warm = type == SaberType.SaberA;
 
             Color? color = warm ? Extensions.SaberColourizer.currentAColor : Extensions.SaberColourizer.currentBColor;
             if (color.HasValue)
@@ -45,7 +45,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("EffectsColorForSaberType")]
     internal class ColorManagerEffectsColorForSaberType
     {
-        private static bool Prefix(ColorManager __instance, ref Saber.SaberType type, ref Color __result)
+        private static bool Prefix(ColorManager __instance, ref SaberType type, ref Color __result)
         {
             Color rgbColor = __instance.ColorForSaberType(type);
             float h;

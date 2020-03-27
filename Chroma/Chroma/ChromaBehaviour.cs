@@ -4,7 +4,7 @@ using Chroma.Settings;
 using Chroma.Utils;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using IPA.Utilities;
+using BS_Utils.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -61,7 +61,7 @@ namespace Chroma
         {
             yield return new WaitForSeconds(0f);
             ATSC = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First();
-            songBPM = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First().GetPrivateField<float>("_beatsPerMinute");
+            songBPM = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First().currentBPM;
             BeatmapObjectCallbackController coreSetup = GetBeatmapObjectCallbackController();
             if (coreSetup != null)
             {

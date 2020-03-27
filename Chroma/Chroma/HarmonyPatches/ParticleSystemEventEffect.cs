@@ -1,6 +1,6 @@
 ﻿using Chroma.Extensions;
 using Chroma.Settings;
-using Harmony;
+using HarmonyLib;
 using System.Collections;
 using UnityEngine;
 

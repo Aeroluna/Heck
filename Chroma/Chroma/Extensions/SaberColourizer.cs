@@ -1,4 +1,4 @@
-﻿using IPA.Utilities;
+﻿using BS_Utils.Utilities;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,7 +22,7 @@ namespace Chroma.Extensions
 
         private SaberColourizer(Saber saber)
         {
-            warm = saber.saberType == Saber.SaberType.SaberA;
+            warm = saber.saberType == SaberType.SaberA;
 
             glowColors = saber.GetComponentsInChildren<SetSaberGlowColor>();
             meshRenderers = new MeshRenderer[glowColors.Length];

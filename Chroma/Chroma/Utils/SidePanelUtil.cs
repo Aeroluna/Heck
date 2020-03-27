@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HMUI;
+using System.Collections.Generic;
 
 namespace Chroma.Utils
 {

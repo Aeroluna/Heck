@@ -1,7 +1,7 @@
 ﻿using Chroma.Settings;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using Harmony;
+using HarmonyLib;
 using System;
 
 namespace Chroma.HarmonyPatches
@@ -77,7 +77,7 @@ namespace Chroma.HarmonyPatches
 
         private static void TriggerRotation(bool rotRight, TrackLaneRingsRotationEffectSpawner __instance, ref TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect, ref float ____rotationStep, ref float ____rotationPropagationSpeed, ref float ____rotationFlexySpeed, float ringStepMult = 1f, float ringPropagationMult = 1f, float ringSpeedMult = 1f)
         {
-            ____trackLaneRingsRotationEffect.AddRingRotationEffect(____trackLaneRingsRotationEffect.GetFirstRingDestinationRotationAngle() + (90 * (rotRight ? -1 : 1)), UnityEngine.Random.Range(0f, ____rotationStep * ringStepMult), ____rotationPropagationSpeed * ringPropagationMult, ____rotationFlexySpeed * ringSpeedMult);
+            ____trackLaneRingsRotationEffect.AddRingRotationEffect(____trackLaneRingsRotationEffect.GetFirstRingDestinationRotationAngle() + (90 * (rotRight ? -1 : 1)), UnityEngine.Random.Range(0f, ____rotationStep * ringStepMult), (int)(____rotationPropagationSpeed * ringPropagationMult), ____rotationFlexySpeed * ringSpeedMult);
         }
 
         private static void ResetRings(TrackLaneRingsRotationEffectSpawner __instance, ref TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect, ref float ____rotationStep, ref float ____rotationPropagationSpeed, ref float ____rotationFlexySpeed)

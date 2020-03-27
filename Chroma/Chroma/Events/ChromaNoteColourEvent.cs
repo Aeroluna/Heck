@@ -46,7 +46,7 @@ namespace Chroma.Events
         {
             Color color;
             bool noteType = noteController.noteData.noteType == NoteType.NoteA;
-            bool saberType = noteCutInfo.saberType == Saber.SaberType.SaberA;
+            bool saberType = noteCutInfo.saberType == SaberType.SaberA;
             if (noteType == saberType)
             {
                 if (ColourManager.TechnicolourBlocks && Settings.ChromaConfig.TechnicolourBlocksStyle == ColourManager.TechnicolourStyle.GRADIENT)

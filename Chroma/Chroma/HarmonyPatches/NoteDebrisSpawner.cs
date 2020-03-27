@@ -1,6 +1,6 @@
 ﻿using Chroma.Events;
 using Chroma.Settings;
-using Harmony;
+using HarmonyLib;
 using UnityEngine;
 
 namespace Chroma.HarmonyPatches

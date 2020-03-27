@@ -9,7 +9,7 @@ namespace Chroma.Utils
     {
         internal static bool IsModInstalled(string mod)
         {
-            return IPA.Loader.PluginManager.AllPlugins.Any(x => x.Metadata.Id == mod);
+            return IPA.Loader.PluginManager.AllPlugins.Any(x => x.Id == mod);
         }
 
         internal static void SetSongCoreCapability(string capability, bool enabled = true)

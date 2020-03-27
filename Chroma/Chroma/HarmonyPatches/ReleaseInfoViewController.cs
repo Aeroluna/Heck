@@ -1,5 +1,6 @@
 ﻿using Chroma.Utils;
-using Harmony;
+using HarmonyLib;
+using HMUI;
 using UnityEngine;
 
 namespace Chroma.HarmonyPatches

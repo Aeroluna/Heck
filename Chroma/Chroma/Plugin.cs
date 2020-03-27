@@ -2,7 +2,7 @@
 using Chroma.Misc;
 using Chroma.Settings;
 using Chroma.Utils;
-using Harmony;
+using HarmonyLib;
 using IPA;
 using System;
 using System.IO;
@@ -13,7 +13,8 @@ using IPALogger = IPA.Logging.Logger;
 
 namespace Chroma
 {
-    public class Plugin : IBeatSaberPlugin
+    [Plugin(RuntimeOptions.SingleStartInit)]
+    internal class Plugin
     {
         private static Version assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
         internal static string Version = assemblyVersion.Major + "." + assemblyVersion.Minor + "." + assemblyVersion.Build;
@@ -34,6 +35,7 @@ namespace Chroma
 
         internal delegate void SongSceneLoadedDelegate();
 
+        [OnStart]
         public void OnApplicationStart()
         {
             Directory.CreateDirectory(Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma");
@@ -42,8 +44,11 @@ namespace Chroma
             ChromaLogger.Log("Initializing Chroma [" + Version + "]", ChromaLogger.Level.INFO);
             ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
 
+            SceneManager.activeSceneChanged += OnActiveSceneChanged;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+
             //Harmony patches
-            var harmony = HarmonyInstance.Create("net.binaryelement.chroma");
+            var harmony = new Harmony("net.binaryelement.chroma");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
 
             //Configuration Files
@@ -66,6 +71,7 @@ namespace Chroma
             SidePanelUtil.SetPanel(ChromaSettingsUI.floatToPanel((float)ChromaConfig.SidePanel));
         }
 
+        [Init]
         public void Init(object thisIsNull, IPALogger pluginLogger)
         {
             ChromaLogger.logger = pluginLogger;
@@ -116,18 +122,6 @@ namespace Chroma
                     SongSceneLoadedEvent?.Invoke();
                 }
             }
-        }
-
-        public void OnFixedUpdate()
-        {
-        }
-
-        public void OnApplicationQuit()
-        {
-        }
-
-        public void OnSceneUnloaded(Scene scene)
-        {
         }
     }
 }

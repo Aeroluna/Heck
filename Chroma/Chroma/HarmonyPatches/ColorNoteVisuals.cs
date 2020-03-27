@@ -2,7 +2,7 @@
 using Chroma.Settings;
 using Chroma.Utils;
 using CustomJSONData.CustomBeatmap;
-using Harmony;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using UnityEngine;

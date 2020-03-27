@@ -4,7 +4,7 @@ using Chroma.Settings;
 using Chroma.Utils;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using Harmony;
+using HarmonyLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
