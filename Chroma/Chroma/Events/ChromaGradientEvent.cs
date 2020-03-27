@@ -79,28 +79,5 @@ namespace Chroma.Events
             }
             else return endc;
         }
-
-        // Instantiate self
-        internal static void Callback(CustomEventData eventData)
-        {
-            try
-            {
-                // Pull and assign all custom data
-                dynamic dynData = eventData.data;
-                int intid = (int)Trees.at(dynData, "_event");
-                float duration = (float)Trees.at(dynData, "_duration");
-                Color initcolor = ChromaUtils.GetColorFromData(dynData, true, "_startColor");
-                Color endcolor = ChromaUtils.GetColorFromData(dynData, true, "_endColor");
-
-                BeatmapEventType id = (BeatmapEventType)intid;
-
-                AddGradient(id, initcolor, endcolor, eventData.time, duration);
-            }
-            catch (Exception e)
-            {
-                ChromaLogger.Log("INVALID CUSTOM EVENT", ChromaLogger.Level.WARNING);
-                ChromaLogger.Log(e);
-            }
-        }
     }
 }

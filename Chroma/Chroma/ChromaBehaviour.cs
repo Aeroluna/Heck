@@ -161,25 +161,10 @@ namespace Chroma
                         }
                     }
                 }
-
-                // SimpleCustomEvents subscriptions
-                // TODO: decide what i'm gonna do with simplecustomevents
-                if (ChromaUtils.IsModInstalled("CustomEvents")) RegisterCustomEvents(gcss);
             }
 
             // Legacy Chroma Events are handled by just sliding them in as if they were a normal rgb light event
             ChromaLegacyRGBEvent.Activate(beatmapData.beatmapEventData);
-        }
-
-        private static void RegisterCustomEvents(BeatmapObjectCallbackController gcss)
-        {
-            CustomEvents.CustomEventCallbackController cecc = gcss.GetComponentInParent<CustomEvents.CustomEventCallbackController>();
-            if (cecc == null) return;
-            cecc.AddCustomEventCallback(ChromaGradientEvent.Callback, "AddGradient", 0);
-            if (ChromaConfig.NoteColourEventsEnabled)
-            {
-                cecc.AddCustomEventCallback(ChromaSaberColourEvent.Callback, "SetSaberColor", 0);
-            }
         }
 
         private static BeatmapData CreateTransformedData(BeatmapData beatmapData)
