@@ -44,7 +44,7 @@ namespace Chroma.HarmonyPatches
 
             // Thank you +1 Rabbit for providing this code
             // Since LightPairRotationEventEffect.RotationData is a private internal member, we need to get its type dynamically.
-            Type RotationData = Type.GetType("LightPairRotationEventEffect+RotationData,MainAssembly");
+            Type RotationData = Type.GetType("LightPairRotationEventEffect+RotationData,Main");
             // The reflection method to get the rotation data must have its generic method created dynamically, so as to use the dynamic type.
             MethodInfo GetPrivateFieldM = typeof(ReflectionUtil).GetMethod("GetPrivateField", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(object), typeof(string) }, null);
             GetPrivateFieldM = GetPrivateFieldM.MakeGenericMethod(RotationData);

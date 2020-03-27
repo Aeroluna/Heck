@@ -215,7 +215,7 @@ namespace Chroma.HarmonyPatches
             }
 
             if (c.HasValue) __monobehaviour.SetLightingColours(c.Value, c.Value);
-            else __monobehaviour.Reset();
+            else if (!ChromaGradientEvent.CustomGradients.TryGetValue(_event, out _)) __monobehaviour.Reset();
         }
     }
 }
