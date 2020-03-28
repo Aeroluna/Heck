@@ -28,16 +28,14 @@ namespace Chroma
 
         internal static ChromaBehaviour CreateNewInstance()
         {
-            ChromaLogger.Log("ChromaBehaviour attempting creation.", ChromaLogger.Level.DEBUG);
             ClearInstance();
 
             LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
             ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ResetRandom();
 
-            GameObject instanceObject = new GameObject("ChromaBehaviour");
+            GameObject instanceObject = new GameObject("Chroma_ChromaBehaviour");
             ChromaBehaviour behaviour = instanceObject.AddComponent<ChromaBehaviour>();
             _instance = behaviour;
-            ChromaLogger.Log("ChromaBehaviour instantiated.", ChromaLogger.Level.DEBUG);
             return behaviour;
         }
 
@@ -48,7 +46,6 @@ namespace Chroma
 
         private void OnDestroy()
         {
-            ChromaLogger.Log("ChromaBehaviour destroyed.", ChromaLogger.Level.DEBUG);
             StopAllCoroutines();
         }
 
@@ -62,63 +59,28 @@ namespace Chroma
             yield return new WaitForSeconds(0f);
             ATSC = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First();
             songBPM = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First().currentBPM;
-            BeatmapObjectCallbackController coreSetup = GetBeatmapObjectCallbackController();
-            if (coreSetup != null)
-            {
-                ChromaLogger.Log("Found BOCC properly!", ChromaLogger.Level.DEBUG);
-                GCSSFound(coreSetup);
-            }
-
-            Saber[] sabers = FindObjectsOfType<Saber>();
-            if (sabers != null)
-            {
-                Extensions.SaberColourizer.InitializeSabers(sabers);
-            }
-
-            VFX.TechnicolourController.InitializeGradients();
-        }
-
-        private BeatmapObjectCallbackController GetBeatmapObjectCallbackController()
-        {
-            BeatmapObjectCallbackController s = FindObjectOfType<BeatmapObjectCallbackController>();
-            if (s == null)
-            {
-                s = Resources.FindObjectsOfTypeAll<BeatmapObjectCallbackController>().FirstOrDefault();
-            }
-            return s;
-        }
-
-        private void GCSSFound(BeatmapObjectCallbackController gcss)
-        {
-            ChromaLogger.Log("Found BOCC!", ChromaLogger.Level.DEBUG);
-
-            if (gcss == null)
-            {
-                ChromaLogger.Log("Failed to obtain BeatmapObjectCallbackController", ChromaLogger.Level.WARNING);
-                return;
-            }
-
-            //Map
-
-            BeatmapData _beatmapData = gcss.GetPrivateField<BeatmapData>("_beatmapData");
-            if (_beatmapData == null) ChromaLogger.Log("{XXX} : NULL BEATMAP DATA", ChromaLogger.Level.ERROR);
-            BeatmapData beatmapData = CreateTransformedData(_beatmapData);
-            if (beatmapData != null) gcss.SetPrivateField("_beatmapData", beatmapData);
-
-            ColourManager.RefreshLights();
+            BeatmapObjectCallbackController coreSetup = Resources.FindObjectsOfTypeAll<BeatmapObjectCallbackController>().First();
+            BeatmapData beatmapData = coreSetup.GetPrivateField<BeatmapData>("_beatmapData");
+            CheckTechnicolour(beatmapData);
 
             if (ChromaConfig.LightshowModifier)
             {
+                foreach (BeatmapLineData b in beatmapData.beatmapLinesData)
+                {
+                    b.beatmapObjectsData = b.beatmapObjectsData.Where((source, index) => b.beatmapObjectsData[index].beatmapObjectType != BeatmapObjectType.Note).ToArray();
+                }
                 foreach (Saber saber in FindObjectsOfType<Saber>())
                 {
                     saber.gameObject.SetActive(false);
                 }
+                BS_Utils.Gameplay.ScoreSubmission.DisableSubmission("Chroma");
 
                 if (ChromaConfig.PlayersPlace) GameObject.Find("PlayersPlace")?.SetActive(false);
                 if (ChromaConfig.Spectrograms) GameObject.Find("Spectrograms")?.SetActive(false);
                 if (ChromaConfig.BackColumns) GameObject.Find("BackColumns")?.SetActive(false);
                 if (ChromaConfig.Buildings) GameObject.Find("Buildings")?.SetActive(false);
             }
+
 
             // CustomJSONData
             if (LightingRegistered)
@@ -132,7 +94,8 @@ namespace Chroma
                         GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
                         foreach (string s in objectsToKill?.Cast<string>())
                         {
-                            foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s) && obj.scene.name.Contains("Environment"))) {
+                            foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s) && obj.scene.name.Contains("Environment")))
+                            {
                                 n.SetActive(false);
                             }
                         }
@@ -165,36 +128,25 @@ namespace Chroma
 
             // Legacy Chroma Events are handled by just sliding them in as if they were a normal rgb light event
             ChromaLegacyRGBEvent.Activate(beatmapData.beatmapEventData);
+
+            Extensions.SaberColourizer.InitializeSabers(FindObjectsOfType<Saber>());
+
+            VFX.TechnicolourController.InitializeGradients();
         }
 
-        private static BeatmapData CreateTransformedData(BeatmapData beatmapData)
+        private void CheckTechnicolour(BeatmapData beatmapData)
         {
             ColourManager.TechnicolourLightsForceDisabled = false;
             ColourManager.TechnicolourBlocksForceDisabled = false;
             ColourManager.TechnicolourBarriersForceDisabled = false;
             ColourManager.TechnicolourBombsForceDisabled = false;
 
-            if (beatmapData == null) ChromaLogger.Log("Null beatmapData", ChromaLogger.Level.ERROR);
-
-            if (ChromaConfig.LightshowModifier)
-            {
-                foreach (BeatmapLineData b in beatmapData.beatmapLinesData)
-                {
-                    b.beatmapObjectsData = b.beatmapObjectsData.Where((source, index) => b.beatmapObjectsData[index].beatmapObjectType != BeatmapObjectType.Note).ToArray();
-                }
-                BS_Utils.Gameplay.ScoreSubmission.DisableSubmission("Chroma");
-            }
-
-            /*
-             * CHECK LIGHTING EVENTS
-             */
-
             if (ChromaConfig.CustomColourEventsEnabled)
             {
                 BeatmapEventData[] bevData = beatmapData.beatmapEventData;
                 foreach (BeatmapEventData b in bevData)
                 {
-                    if (LightingRegistered && b is CustomBeatmapEventData customData)
+                    if (b is CustomBeatmapEventData customData)
                     {
                         dynamic dynData = customData.customData;
                         if (Trees.at(dynData, "_color") != null)
@@ -211,28 +163,23 @@ namespace Chroma
                 {
                     foreach (BeatmapObjectData beatmapObjectsData in b.beatmapObjectsData)
                     {
-                        if (LightingRegistered)
+                        if (beatmapObjectsData is CustomNoteData customNoteData)
                         {
-                            if (beatmapObjectsData is CustomNoteData customNoteData)
+                            dynamic dynData = customNoteData.customData;
+                            if (Trees.at(dynData, "_color") != null)
                             {
-                                dynamic dynData = customNoteData.customData;
-                                if (Trees.at(dynData, "_color") != null)
-                                {
-                                    if (customNoteData.noteType == NoteType.Bomb) ColourManager.TechnicolourBombsForceDisabled = true;
-                                    else ColourManager.TechnicolourBlocksForceDisabled = ChromaConfig.NoteColourEventsEnabled;
-                                }
+                                if (customNoteData.noteType == NoteType.Bomb) ColourManager.TechnicolourBombsForceDisabled = true;
+                                else ColourManager.TechnicolourBlocksForceDisabled = ChromaConfig.NoteColourEventsEnabled;
                             }
-                            else if (beatmapObjectsData is CustomObstacleData customObstacleData)
-                            {
-                                dynamic dynData = customObstacleData.customData;
-                                if (Trees.at(dynData, "_color") != null) ColourManager.TechnicolourBarriersForceDisabled = true;
-                            }
+                        }
+                        else if (beatmapObjectsData is CustomObstacleData customObstacleData)
+                        {
+                            dynamic dynData = customObstacleData.customData;
+                            if (Trees.at(dynData, "_color") != null) ColourManager.TechnicolourBarriersForceDisabled = true;
                         }
                     }
                 }
             }
-
-            return beatmapData;
         }
     }
 }

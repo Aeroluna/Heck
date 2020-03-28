@@ -47,7 +47,6 @@ namespace Chroma.HarmonyPatches
                         bool? reset = Trees.at(dynData, "_reset");
                         if (reset.HasValue && reset == true)
                         {
-                            if (ChromaConfig.DebugMode) ChromaLogger.Log("Ring spin [RESET]");
                             ResetRings(__instance, ____trackLaneRingsRotationEffect, ____rotationStep, ____rotationPropagationSpeed, ____rotationFlexySpeed);
                             return false;
                         }
@@ -74,8 +73,6 @@ namespace Chroma.HarmonyPatches
                         {
                             if (__instance.name.ToLower().Contains("small")) rotRight = !rotRight;
                         }
-
-                        if (ChromaConfig.DebugMode) ChromaLogger.Log("[[CJD]] Ring Spin (" + __instance.name + "_" + beatmapEventData.time + ") - [Dir:" + (dir == -1 ? "random" : rotRight ? "right" : "left") + "] - [Step:" + stepMult + "] - [Prop:" + propMult + "] - [Speed:" + speedMult + "]");
 
                         TriggerRotation(rotRight, __instance, ____trackLaneRingsRotationEffect, step, ____rotationPropagationSpeed, ____rotationFlexySpeed, stepMult.Value,
                             propMult.Value, speedMult.Value);

@@ -22,6 +22,11 @@ namespace Chroma.Extensions
             LSEColourManager.GetLSEColourManager(lse)?.SetLightingColours(colourA, colourB);
         }
 
+        internal static void SetActiveColours(this MonoBehaviour lse, int value)
+        {
+            LSEColourManager.GetLSEColourManager(lse)?.SetActiveColours(value);
+        }
+
         internal static LightWithId[] GetLights(this LightSwitchEventEffect lse)
         {
             return LSEColourManager.GetLSEColourManager(lse)?.lights.ToArray();
@@ -194,6 +199,62 @@ namespace Chroma.Extensions
                     _lightColor1.SetColor(colourA.Value);
                     _highlightColor1.SetColor(colourA.Value);
                 }
+            }
+
+            internal void SetActiveColours(int value)
+            {
+                if (value == 0) return;
+
+                bool warm;
+                switch (value)
+                {
+                    case 1:
+                    case 2:
+                    case 3:
+                    default:
+                        warm = false;
+                        break;
+
+                    case 5:
+                    case 6:
+                    case 7:
+                        warm = true;
+                        break;
+                }
+
+                Color c;
+                switch (value)
+                {
+                    case 1:
+                    case 5:
+                    default:
+                        c = warm ? _lightColor0.color : _lightColor1.color;
+                        break;
+
+                    case 2:
+                    case 6:
+                    case 3:
+                    case 7:
+                        c = warm ? _highlightColor0.color : _highlightColor1.color;
+                        break;
+                }
+                if (lse.enabled)
+                {
+                    lse.SetPrivateField("_highlightColor", c);
+                    if (value == 3 || value == 7) lse.SetPrivateField("_afterHighlightColor", c.ColorWithAlpha(0f));
+                    else lse.SetPrivateField("_afterHighlightColor", c);
+                }
+                else
+                {
+                    if (value == 1 || value == 5 || value == 2 || value == 6)
+                    {
+                        if (lse is LightSwitchEventEffect mono)
+                            mono.SetColor(c);
+                        else
+                            lse.SetPrivateField("_particleColor", c);
+                    }
+                }
+                lse.SetPrivateField("_offColor", c.ColorWithAlpha(0f));
             }
         }
     }

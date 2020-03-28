@@ -66,7 +66,6 @@ namespace Chroma
             for (int i = 0; i < _technicolourWarmPalette.Length; i++) newCombined[_technicolourColdPalette.Length + i] = _technicolourWarmPalette[i];
             System.Random shuffleRandom = new System.Random();
             TechnicolourCombinedPalette = newCombined.OrderBy(x => shuffleRandom.Next()).ToArray();
-            ChromaLogger.Log("Combined TC Palette formed : " + TechnicolourCombinedPalette.Length);
         }
 
         internal enum TechnicolourStyle
@@ -319,8 +318,6 @@ namespace Chroma
                     if (rend.material.HasProperty("_Color")) rend.material.SetColor("_Color", platformLight.Value);
                 }
             }
-
-            //ChromaLogger.Log("Colourizing menustuff");
         }
 
         internal static void RecolourNeonSign(Color? colorA, Color? colorB)
@@ -359,12 +356,11 @@ namespace Chroma
                     flicker.Start();
                 }
             }
-
-            //ChromaLogger.Log("Sign recoloured A:"+colorA.ToString() + " B:"+colorB.ToString());
         }
 
         internal static void RefreshLights()
         {
+            ChromaLogger.Log("RERESFHIESRHIDGNDSGI");
             ResetAllLights();
             RecolourNeonSign(SignA, SignB);
             RecolourMenuStuff(Platform, LaserPointerColour);

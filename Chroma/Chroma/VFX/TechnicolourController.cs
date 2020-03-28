@@ -124,104 +124,13 @@ namespace Chroma.VFX
             // light switches
             foreach (KeyValuePair<LightSwitchEventEffect, int> n in _lightSwitchLastValue)
             {
-                if (n.Value == 0) continue;
-
-                string warm;
-                switch (n.Value)
-                {
-                    case 1:
-                    case 2:
-                    case 3:
-                    default:
-                        warm = "0";
-                        break;
-
-                    case 5:
-                    case 6:
-                    case 7:
-                        warm = "1";
-                        break;
-                }
-
-                Color c;
-                switch (n.Value)
-                {
-                    case 1:
-                    case 5:
-                    default:
-                        c = n.Key.GetPrivateField<MultipliedColorSO>("_lightColor" + warm).color;
-                        break;
-
-                    case 2:
-                    case 6:
-                    case 3:
-                    case 7:
-                        c = n.Key.GetPrivateField<MultipliedColorSO>("_highlightColor" + warm).color;
-                        break;
-                }
-                if (n.Key.enabled)
-                {
-                    n.Key.SetPrivateField("_highlightColor", c);
-                    if (n.Value == 3 || n.Value == 7) n.Key.SetPrivateField("_afterHighlightColor", c.ColorWithAlpha(0f));
-                    else n.Key.SetPrivateField("_afterHighlightColor", c);
-                }
-                else
-                {
-                    if (n.Value == 1 || n.Value == 5 || n.Value == 2 || n.Value == 6) n.Key.SetColor(c);
-                }
-                n.Key.SetPrivateField("_offColor", c.ColorWithAlpha(0f));
+                n.Key.SetActiveColours(n.Value);
             }
 
             // particles
             foreach (KeyValuePair<ParticleSystemEventEffect, int> n in _particleSystemLastValue)
             {
-                if (n.Value == 0) continue;
-
-                string warm;
-                switch (n.Value)
-                {
-                    case 1:
-                    case 2:
-                    case 3:
-                    default:
-                        warm = "0";
-                        break;
-
-                    case 5:
-                    case 6:
-                    case 7:
-                        warm = "1";
-                        break;
-                }
-
-                Color c;
-                switch (n.Value)
-                {
-                    case 1:
-                    case 5:
-                    default:
-                        c = n.Key.GetPrivateField<MultipliedColorSO>("_lightColor" + warm).color;
-                        break;
-
-                    case 2:
-                    case 6:
-                    case 3:
-                    case 7:
-                        c = n.Key.GetPrivateField<MultipliedColorSO>("_highlightColor" + warm).color;
-                        break;
-                }
-                if (n.Key.enabled)
-                {
-                    n.Key.SetPrivateField("_highlightColor", c);
-                    if (n.Value == 3 || n.Value == 7) n.Key.SetPrivateField("_afterHighlightColor", c.ColorWithAlpha(0f));
-                    else n.Key.SetPrivateField("_afterHighlightColor", c);
-                }
-                else
-                {
-                    if (n.Value == 1 || n.Value == 5 || n.Value == 2 || n.Value == 6) n.Key.SetPrivateField("_particleColor", c);
-                }
-                n.Key.SetPrivateField("_offColor", c.ColorWithAlpha(0f));
-                n.Key.RefreshParticles();
+                n.Key.SetActiveColours(n.Value);
             }
         }
 

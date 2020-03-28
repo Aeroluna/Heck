@@ -65,7 +65,6 @@ namespace Chroma.HarmonyPatches
     {
         internal static void ResetRandom()
         {
-            ChromaLogger.Log("Resetting techniLightRandom Random 408 (Light Switch)");
             techniLightRandom = new System.Random(408);
         }
 
