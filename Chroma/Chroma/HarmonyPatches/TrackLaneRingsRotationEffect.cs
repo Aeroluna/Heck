@@ -6,7 +6,6 @@ using System;
 
 namespace Chroma.HarmonyPatches
 {
-    [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(TrackLaneRingsRotationEffectSpawner))]
     [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal class TrackLaneRingsRotationEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger

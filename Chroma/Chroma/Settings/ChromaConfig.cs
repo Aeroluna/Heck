@@ -57,7 +57,9 @@ namespace Chroma.Settings
         internal static string Username { get; private set; } = "Unknown";
         internal static ulong UserID { get; private set; } = 0;
 
-        internal static ChromaSettingsUI.SidePanelEnum SidePanel
+        #region Settings
+
+        internal static SidePanelEnum SidePanel
         {
             get { return sidePanel; }
             set
@@ -67,7 +69,100 @@ namespace Chroma.Settings
             }
         }
 
-        private static ChromaSettingsUI.SidePanelEnum sidePanel = ChromaSettingsUI.SidePanelEnum.Default;
+        private static SidePanelEnum sidePanel = SidePanelEnum.DEFAULT;
+
+        internal enum SidePanelEnum
+        {
+            DEFAULT = 0,
+            CHROMA = 1,
+            CHROMAWAIVER = 2
+        }
+
+        /// <summary>
+        /// Required for any features that may cause dizziness, disorientation, nausea, seizures, or other forms of discomfort.
+        /// </summary>
+        internal static bool WaiverRead
+        {
+            get { return waiverRead; }
+            set
+            {
+                if (value)
+                {
+                    waiverRead = true;
+                    SetInt("Other", "safetyWaiver", 51228);
+                }
+            }
+        }
+
+        private static bool waiverRead = false;
+
+        #endregion
+
+        #region Aesthetics
+
+        internal static NamedColor NeonSignTop
+        {
+            get { return neonSignTop; }
+            set
+            {
+                neonSignTop = value;
+                SetString("Aesthetics", "signColourB", value.name);
+            }
+        }
+
+        private static NamedColor neonSignTop = ChromaSettingsUI.colourPresets[0];
+
+        internal static NamedColor NeonSignBottom
+        {
+            get { return neonSignBottom; }
+            set
+            {
+                neonSignBottom = value;
+                SetString("Aesthetics", "signColourA", value.name);
+            }
+        }
+
+        private static NamedColor neonSignBottom = ChromaSettingsUI.colourPresets[0];
+
+        internal static NamedColor LaserPointer
+        {
+            get { return laserPointer; }
+            set
+            {
+                laserPointer = value;
+                SetString("Aesthetics", "signColourA", value.name);
+            }
+        }
+
+        private static NamedColor laserPointer = ChromaSettingsUI.colourPresets[0];
+
+        internal static NamedColor PlatformAccoutrements
+        {
+            get { return platformAccoutrements; }
+            set
+            {
+                platformAccoutrements = value;
+                SetString("Aesthetics", "signColourA", value.name);
+            }
+        }
+
+        private static NamedColor platformAccoutrements = ChromaSettingsUI.colourPresets[0];
+
+        #endregion
+
+        #region Events
+
+        internal static bool LightshowModifier
+        {
+            get { return lightshowModifier; }
+            set
+            {
+                lightshowModifier = value;
+                SetBool("Modifiers", "lightshowModifier", lightshowModifier);
+            }
+        }
+
+        private static bool lightshowModifier;
 
         internal static bool CustomColourEventsEnabled
         {
@@ -93,41 +188,9 @@ namespace Chroma.Settings
 
         private static bool noteColourEventsEnabled = true;
 
-        /// <summary>
-        /// Required for any features that may cause dizziness, disorientation, nausea, seizures, or other forms of discomfort.
-        /// </summary>
-        internal static bool WaiverRead
-        {
-            get { return waiverRead; }
-            set
-            {
-                if (value)
-                {
-                    waiverRead = true;
-                    SetInt("Other", "safetyWaiver", 51228);
-                }
-            }
-        }
+        #endregion
 
-        private static bool waiverRead = false;
-
-        #region modifiers
-
-        internal static bool LightshowModifier
-        {
-            get { return lightshowModifier; }
-            set
-            {
-                lightshowModifier = value;
-                SetBool("Modifiers", "lightshowModifier", lightshowModifier);
-            }
-        }
-
-        private static bool lightshowModifier;
-
-        #endregion modifiers
-
-        #region technicolour
+        #region Technicolour
 
         internal static bool TechnicolourEnabled
         {
@@ -252,9 +315,9 @@ namespace Chroma.Settings
 
         private static bool matchTechnicolourSabers = true;
 
-        #endregion technicolour
+        #endregion
 
-        #region lightshow
+        #region Lightshow
 
         /// Secret stuffs
         ///
@@ -323,17 +386,8 @@ namespace Chroma.Settings
 
         #endregion lightshow
 
-        /// <summary>
-        /// Called when Chroma reloads the config files.
-        /// </summary>
-        internal static event LoadSettingsDelegate LoadSettingsEvent;
-
-        internal delegate void LoadSettingsDelegate(BS_Utils.Utilities.Config iniProfile, LoadSettingsType type);
-
         internal static void Init()
         {
-            LoadSettingsEvent += OnLoadSettingsEvent;
-
             Plugin.MainMenuLoadedEvent += OnMainMenuLoaded;
             Plugin.SongSceneLoadedEvent += OnSongLoaded;
 
@@ -382,20 +436,10 @@ namespace Chroma.Settings
 
         internal static void LoadSettings(LoadSettingsType type)
         {
-            string iniName = "settings";
-            IniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);
-
-            LoadSettingsEvent?.Invoke(IniProfile, type);
-        }
-
-        private static void OnLoadSettingsEvent(BS_Utils.Utilities.Config iniProfile, LoadSettingsType type)
-        {
             ChromaLogger.Log("Loading settings [" + type.ToString() + "]", ChromaLogger.Level.INFO);
 
             string iniName = "settings";
             IniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);
-
-            ChromaLogger.Log("--- From file " + iniName);
 
             BS_Utils.Gameplay.GetUserInfo.UpdateUserInfo();
             Username = BS_Utils.Gameplay.GetUserInfo.GetUserName();
@@ -403,68 +447,62 @@ namespace Chroma.Settings
 
             if (DebugMode) ChromaLogger.Log("=== YOUR ID : " + UserID.ToString());
 
-            if (type == LoadSettingsType.INITIAL)
-            {
-                TimesLaunched = GetInt("Other", "timesLaunched", 0) + 1;
-                SetInt("Other", "timesLaunched", TimesLaunched);
-            }
+            if (type == LoadSettingsType.INITIAL) SetInt("Other", "timesLaunched", GetInt("Other", "timesLaunched", 0) + 1);
 
             /*
-                * MAP
-                */
+            * MAP
+            */
 
             customColourEventsEnabled = GetBool("Map", "customColourEventsEnabled", true);
             noteColourEventsEnabled = GetBool("Map", "noteColourEventsEnabled", true);
             ChromaUtils.SetSongCoreCapability(Plugin.REQUIREMENT_NAME, CustomColourEventsEnabled);
 
             /*
-                * TECHNICOLOUR
-                */
+            * TECHNICOLOUR
+            */
 
-            if (type == LoadSettingsType.INITIAL)
-            {
-                technicolourEnabled = GetBool("Technicolour", "technicolourEnabled", false);
+            technicolourEnabled = GetBool("Technicolour", "technicolourEnabled", false);
 
-                technicolourLightsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourLightsStyle", 1);
-                technicolourLightsGrouping = (TechnicolourLightsGrouping)GetInt("Technicolour", "technicolourLightsGrouping", 1);
-                technicolourLightsFrequency = GetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
-                technicolourSabersStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourSabersStyle", 0);
-                technicolourBlocksStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourBlocksStyle", 0);
-                technicolourWallsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourWallsStyle", 0);
-                technicolourBombsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourBombsStyle", 0);
-                matchTechnicolourSabers = GetBool("Technicolour", "matchTechnicolourSabers", false);
-            }
+            technicolourLightsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourLightsStyle", 1);
+            technicolourLightsGrouping = (TechnicolourLightsGrouping)GetInt("Technicolour", "technicolourLightsGrouping", 1);
+            technicolourLightsFrequency = GetFloat("Technicolour", "technicolourLightsFrequency", technicolourLightsFrequency);
+            technicolourSabersStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourSabersStyle", 0);
+            technicolourBlocksStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourBlocksStyle", 0);
+            technicolourWallsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourWallsStyle", 0);
+            technicolourBombsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourBombsStyle", 0);
+            matchTechnicolourSabers = GetBool("Technicolour", "matchTechnicolourSabers", false);
 
             TechnicolourWarmPalette = new Color[4] { new Color(0, 0.501f, 1), new Color(0, 1, 0), new Color(0, 0, 1), new Color(0, 1, 0.8f) };
             TechnicolourColdPalette = new Color[4] { new Color(1, 0, 0), new Color(1, 0, 1), new Color(1, 0.6f, 0), new Color(1, 0, 0.4f) };
 
             /*
-                * AESTHETICS
-                */
+            * AESTHETICS
+            */
 
-            LaserPointerColour = ChromaSettingsUI.GetColor(GetString("Aesthetics", "laserPointerColour", "DEFAULT"), null);
-            SignA = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourA", "DEFAULT"), null);
-            SignB = ChromaSettingsUI.GetColor(GetString("Aesthetics", "signColourB", "DEFAULT"), null);
-            Platform = ChromaSettingsUI.GetColor(GetString("Aesthetics", "platformAccoutrements", "DEFAULT"), null);
+            LaserPointer = ChromaSettingsUI.StringToColour(GetString("Aesthetics", "laserPointerColour", "DEFAULT"));
+            NeonSignBottom = ChromaSettingsUI.StringToColour(GetString("Aesthetics", "signColourA", "DEFAULT"));
+            NeonSignTop = ChromaSettingsUI.StringToColour(GetString("Aesthetics", "signColourB", "DEFAULT"));
+            PlatformAccoutrements = ChromaSettingsUI.StringToColour(GetString("Aesthetics", "platformAccoutrements", "DEFAULT"));
 
             /*
-                * MODIFIERS
-                */
+            * MODIFIERS
+            */
+
             lightshowModifier = GetBool("Modifiers", "lightshowModifier", false);
 
             /*
-                * OTHER
-                */
+            * OTHER
+            */
 
-            sidePanel = (ChromaSettingsUI.SidePanelEnum)GetFloat("Other", "sidePanel", 0);
+            sidePanel = (SidePanelEnum)GetFloat("Other", "sidePanel", 0);
 
             debugMode = GetBool("Other", "debugMode", false);
 
             waiverRead = GetInt("Other", "safetyWaiver", 0) == 51228;
 
             /*
-                * LIGHTSHOW
-                */
+            * LIGHTSHOW
+            */
 
             lightshowMenu = GetInt("Lightshow", "lightshowMenu", 0, false) == 6777;
             playersPlace = GetBool("Lightshow", "playersPlace", false, false);

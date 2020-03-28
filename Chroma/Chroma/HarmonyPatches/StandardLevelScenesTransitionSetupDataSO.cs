@@ -18,7 +18,8 @@ namespace Chroma.HarmonyPatches
             {
                 IEnumerable<string> requirements = ((List<object>)Trees.at(customBeatmapData.beatmapCustomData, "_requirements"))?.Cast<string>();
                 IEnumerable<string> suggestions = ((List<object>)Trees.at(customBeatmapData.beatmapCustomData, "_suggestions"))?.Cast<string>();
-                ChromaBehaviour.LightingRegistered = (requirements?.Contains(Plugin.REQUIREMENT_NAME) ?? false) || (suggestions?.Contains(Plugin.REQUIREMENT_NAME) ?? false);
+                ChromaBehaviour.LightingRegistered = (requirements?.Contains(Plugin.REQUIREMENT_NAME) ?? false) || (suggestions?.Contains(Plugin.REQUIREMENT_NAME) ?? false)
+                    && Settings.ChromaConfig.CustomColourEventsEnabled;
             }
 
             ChromaBehaviour.LegacyOverride = difficultyBeatmap.beatmapData.beatmapEventData.Any(n => n.value >= Events.ChromaLegacyRGBEvent.RGB_INT_OFFSET);

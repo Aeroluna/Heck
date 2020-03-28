@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Chroma.HarmonyPatches
 {
-    [HarmonyPriority(Priority.Low)]
     [HarmonyPatch(typeof(ColorManager))]
     [HarmonyPatch("ColorForNoteType")]
     internal class ColorManagerColorForNoteType
@@ -20,7 +19,6 @@ namespace Chroma.HarmonyPatches
         }
     }
 
-    [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(ColorManager))]
     [HarmonyPatch("ColorForSaberType")]
     internal class ColorManagerColorForSaberType
@@ -40,7 +38,6 @@ namespace Chroma.HarmonyPatches
         }
     }
 
-    [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(ColorManager))]
     [HarmonyPatch("EffectsColorForSaberType")]
     internal class ColorManagerEffectsColorForSaberType

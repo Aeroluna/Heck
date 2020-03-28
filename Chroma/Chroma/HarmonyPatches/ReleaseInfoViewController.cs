@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Chroma.HarmonyPatches
 {
-    [HarmonyPriority(Priority.Low)]
     [HarmonyPatch(typeof(ReleaseInfoViewController))]
     [HarmonyPatch("DidActivate")]
     internal class ReleaseInfoViewControllerDidActivate

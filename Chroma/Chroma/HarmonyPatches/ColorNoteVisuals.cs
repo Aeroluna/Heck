@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace Chroma.HarmonyPatches
 {
-    [HarmonyPriority(Priority.Low)]
     [HarmonyPatch(typeof(ColorNoteVisuals))]
     [HarmonyPatch("Awake")]
     internal class ColorNoteVisualsAwake
@@ -21,7 +20,6 @@ namespace Chroma.HarmonyPatches
         }
     }
 
-    [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(ColorNoteVisuals))]
     [HarmonyPatch("HandleNoteControllerDidInitEvent")]
     internal class ColorNoteVisualsHandleNoteControllerDidInitEvent

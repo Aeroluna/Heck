@@ -11,7 +11,6 @@ using UnityEngine;
 
 namespace Chroma.HarmonyPatches
 {
-    [HarmonyPriority(Priority.Low)]
     [HarmonyPatch(typeof(ObstacleController))]
     [HarmonyPatch("Init")]
     internal class ObstacleControllerInit

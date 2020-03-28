@@ -12,7 +12,6 @@ using UnityEngine;
 
 namespace Chroma.HarmonyPatches
 {
-    [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(LightSwitchEventEffect))]
     [HarmonyPatch("Start")]
     internal class LightSwitchEventEffectStart
@@ -29,7 +28,6 @@ namespace Chroma.HarmonyPatches
         }
     }
 
-    [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(LightSwitchEventEffect))]
     [HarmonyPatch("OnDestroy")]
     internal class LightSwitchEventEffectOnDestroy
@@ -40,7 +38,6 @@ namespace Chroma.HarmonyPatches
         }
     }
 
-    [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(LightSwitchEventEffect))]
     [HarmonyPatch("SetColor")]
     internal class LightSwitchEventEffectSetColor
@@ -62,7 +59,6 @@ namespace Chroma.HarmonyPatches
         }
     }
 
-    [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(LightSwitchEventEffect))]
     [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal class LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger

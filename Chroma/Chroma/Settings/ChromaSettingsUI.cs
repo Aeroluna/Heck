@@ -2,6 +2,7 @@
 using BeatSaberMarkupLanguage.MenuButtons;
 using BeatSaberMarkupLanguage.Settings;
 using Chroma.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,14 +13,7 @@ namespace Chroma.Settings
     internal class ChromaSettingsUI : PersistentSingleton<ChromaSettingsUI>
     {
         [UIValue("sidepanelchoices")]
-        private List<object> _sidePanelChoices = (new object[] { SidePanelEnum.Default, SidePanelEnum.Chroma, SidePanelEnum.ChromaWaiver }).ToList();
-
-        internal enum SidePanelEnum
-        {
-            Default = 0,
-            Chroma = 1,
-            ChromaWaiver = 2
-        }
+        private List<object> _sidePanelChoices = (new object[] { ChromaConfig.SidePanelEnum.DEFAULT, ChromaConfig.SidePanelEnum.CHROMA, ChromaConfig.SidePanelEnum.CHROMAWAIVER }).ToList();
 
         [UIValue("mastervolumechoices")]
         private List<object> _masterVolumeChoices = new List<object>() { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1f };
@@ -40,7 +34,7 @@ namespace Chroma.Settings
         private List<object> _lightsfreqChoices = new List<object>() { 0.05f, 0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.55f, 0.6f, 0.65f, 0.7f, 0.75f, 0.8f, 0.85f, 0.9f, 0.95f, 1f };
 
         [UIValue("colours")]
-        private List<object> _colours = colourToObject();
+        private List<object> _colours = colourPresets.Cast<object>().ToList();
 
         [UIAction("colourformat")]
         private string colourFormat(NamedColor col)
@@ -49,17 +43,17 @@ namespace Chroma.Settings
         }
 
         [UIAction("sidepanelform")]
-        private string sidePanelFormat(SidePanelEnum f)
+        private string sidePanelFormat(ChromaConfig.SidePanelEnum f)
         {
             switch (f)
             {
-                case SidePanelEnum.ChromaWaiver:
-                    return "Safety Waiver";
-
-                case SidePanelEnum.Chroma:
+                case ChromaConfig.SidePanelEnum.CHROMA:
                     return "Chroma Notes";
 
-                case SidePanelEnum.Default:
+                case ChromaConfig.SidePanelEnum.CHROMAWAIVER:
+                    return "Safety Waiver";
+
+                case ChromaConfig.SidePanelEnum.DEFAULT:
                 default:
                     return "Release Notes";
             }
@@ -120,13 +114,13 @@ namespace Chroma.Settings
         #region Settings
 
         [UIValue("sidepanel")]
-        public SidePanelEnum SidePanel
+        public ChromaConfig.SidePanelEnum SidePanel
         {
             get => ChromaConfig.SidePanel;
             set
             {
                 ChromaConfig.SidePanel = value;
-                SidePanelUtil.SetPanel(floatToPanel((float)value));
+                SidePanelUtil.SetPanel(Enum.GetName(typeof(ChromaConfig.SidePanelEnum), ChromaConfig.SidePanel));
             }
         }
 
@@ -170,61 +164,47 @@ namespace Chroma.Settings
 
         #region Aesthetics
 
-        [UIValue("barriercolour")]
-        public NamedColor Barriers
-        {
-            get => stringToColour(ChromaConfig.GetString("Aesthetics", "barrierColour", "Barrier Red"));
-            set
-            {
-                ChromaConfig.SetString("Aesthetics", "barrierColour", value.name);
-            }
-        }
-
         [UIValue("signcolourb")]
         public NamedColor NeonSignTop
         {
-            get => stringToColour(ChromaConfig.GetString("Aesthetics", "signColourB", "DEFAULT"));
+            get => ChromaConfig.NeonSignTop;
             set
             {
-                SignB = value.color;
+                ChromaConfig.NeonSignTop = value;
                 RecolourNeonSign(SignA, SignB);
-                ChromaConfig.SetString("Aesthetics", "signColourB", value.name);
             }
         }
 
         [UIValue("signcoloura")]
         public NamedColor NeonSignBottom
         {
-            get => stringToColour(ChromaConfig.GetString("Aesthetics", "signColourA", "DEFAULT"));
+            get => ChromaConfig.NeonSignBottom;
             set
             {
-                SignA = value.color;
+                ChromaConfig.NeonSignBottom = value;
                 RecolourNeonSign(SignA, SignB);
-                ChromaConfig.SetString("Aesthetics", "signColourA", value.name);
             }
         }
 
         [UIValue("laserpointercolour")]
         public NamedColor LaserPointer
         {
-            get => stringToColour(ChromaConfig.GetString("Aesthetics", "laserPointerColour", "DEFAULT"));
+            get => ChromaConfig.LaserPointer;
             set
             {
-                LaserPointerColour = value.color;
+                ChromaConfig.LaserPointer = value;
                 RecolourMenuStuff(Platform, LaserPointerColour);
-                ChromaConfig.SetString("Aesthetics", "laserPointerColour", value.name);
             }
         }
 
         [UIValue("platformaccoutrements")]
         public NamedColor PlatformAccoutrements
         {
-            get => stringToColour(ChromaConfig.GetString("Aesthetics", "platformAccoutrements", "DEFAULT"));
+            get => ChromaConfig.PlatformAccoutrements;
             set
             {
-                Platform = value.color;
+                ChromaConfig.PlatformAccoutrements = value;
                 RecolourMenuStuff(Platform, LaserPointerColour);
-                ChromaConfig.SetString("Aesthetics", "platformAccoutrements", value.name);
             }
         }
 
@@ -403,34 +383,15 @@ namespace Chroma.Settings
 
         #endregion Lightshow
 
-        private static NamedColor stringToColour(string str)
+        internal static NamedColor StringToColour(string str)
         {
-            if (colourPresets == null) InitializePresetList();
-            foreach (NamedColor t in colourPresets)
-            {
-                if (t.name == str) return t;
-            }
-            return colourPresets[0];
-        }
-
-        private static List<object> colourToObject()
-        {
-            if (colourPresets == null) InitializePresetList();
-            List<object> t = new List<object>();
-            foreach (NamedColor i in colourPresets)
-            {
-                t.Add(i);
-            }
-            return t;
+            return colourPresets.FirstOrDefault(n => n.name == str);
         }
 
         internal static string floatToPanel(float f)
         {
             switch (f)
             {
-                case 2:
-                    return "chromaWaiver";
-
                 case 1:
                     return "chroma";
 
@@ -440,73 +401,38 @@ namespace Chroma.Settings
             }
         }
 
-        private static void OnReloadClick()
-        {
-            ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.MANUAL);
-        }
+        internal static List<NamedColor> colourPresets = new List<NamedColor> {
+            new NamedColor( "DEFAULT", null),
+            new NamedColor( "Notes Red", new Color(1, 0, 0, 1) ),
+            new NamedColor( "Notes Blue", new Color(0, 0.502f, 1, 1) ),
+            new NamedColor( "Notes Magenta", new Color(1, 0, 1, 1) ),
+            new NamedColor( "Notes Green", new Color(0, 1, 0, 1) ),
+            new NamedColor( "Notes Purple", new Color(1.05f, 0, 2.188f, 1) ),
+            new NamedColor( "Notes White", new Color(1, 1, 1, 1) ),
+            new NamedColor( "Notes Gold", new Color(1, 1, 0, 1) ),
 
-        internal static void InitializeMenu()
-        {
-            InitializePresetList();
+            new NamedColor( "Light Ambient", new Color(0, 0.706f, 1f, 1) ),
+            new NamedColor( "Light Red", new Color(1, 0.016f, 0.016f, 1) ),
+            new NamedColor( "Light Blue", new Color(0, 0.753f, 1, 1) ),
+            new NamedColor( "Light Magenta", new Color(1, 0.032f, 1, 1) ),
+            new NamedColor( "Light Green", new Color(0.016f, 1, 0.016f, 1) ),
+            new NamedColor( "Light White", new Color(1, 1, 1, 1) ),
+            new NamedColor( "Light Grey", new Color(0.6f, 0.6f, 0.6f, 1) ),
 
-            MenuButtons.instance.RegisterButton(new MenuButton("Reload Chroma", "", OnReloadClick, true));
+            new NamedColor( "Barrier Red", Color.red ),
 
-            BSMLSettings.instance.AddSettingsMenu("Chroma", "Chroma.Settings.settings.bsml", instance);
-        }
+            new NamedColor( "CC Elec. Blue", new Color(0, .98f, 2.157f) ),
+            new NamedColor( "CC Dark Blue", new Color(0f, 0.28000000000000003f, 0.55000000000000004f) ),
+            new NamedColor( "CC Purple", new Color(1.05f, 0, 2.188f) ),
+            new NamedColor( "CC Orange", new Color(2.157f ,.588f, 0) ),
+            new NamedColor( "CC Yellow", new Color(2.157f, 1.76f, 0) ),
+            new NamedColor( "CC Dark", new Color(0.3f, 0.3f, 0.3f) ),
+            new NamedColor( "CC Black", new Color(0f, 0f, 0f) ),
 
-        private static List<NamedColor> colourPresets = null;// = new List<NamedColour>();
-
-        internal static Color? GetColor(string name, Color? defaultColor)
-        {
-            if (colourPresets == null) InitializePresetList();
-            foreach (NamedColor t in colourPresets)
-            {
-                if (t.name == name) return t.color;
-            }
-            return defaultColor;
-        }
-
-        private static void InitializePresetList()
-        {
-            colourPresets = new List<NamedColor>() { new NamedColor("DEFAULT", null) };// new List<Tuple<string, Color>>();
-
-            // CC GitHub to steal colours from
-            // https://github.com/Kylemc1413/BeatSaber-CustomColors/blob/master/ColorsUI.cs
-            foreach (NamedColor t in new List<NamedColor> {
-                new NamedColor( "Notes Red", new Color(1, 0, 0, 1) ),
-                new NamedColor( "Notes Blue", new Color(0, 0.502f, 1, 1) ),
-                new NamedColor( "Notes Magenta", new Color(1, 0, 1, 1) ),
-                new NamedColor( "Notes Green", new Color(0, 1, 0, 1) ),
-                new NamedColor( "Notes Purple", new Color(1.05f, 0, 2.188f, 1) ),
-                new NamedColor( "Notes White", new Color(1, 1, 1, 1) ),
-                new NamedColor( "Notes Gold", new Color(1, 1, 0, 1) ),
-
-                new NamedColor( "Light Ambient", new Color(0, 0.706f, 1f, 1) ),
-                new NamedColor( "Light Red", new Color(1, 0.016f, 0.016f, 1) ),
-                new NamedColor( "Light Blue", new Color(0, 0.753f, 1, 1) ),
-                new NamedColor( "Light Magenta", new Color(1, 0.032f, 1, 1) ),
-                new NamedColor( "Light Green", new Color(0.016f, 1, 0.016f, 1) ),
-                new NamedColor( "Light White", new Color(1, 1, 1, 1) ),
-                new NamedColor( "Light Grey", new Color(0.6f, 0.6f, 0.6f, 1) ),
-
-                new NamedColor( "Barrier Red", Color.red ),
-
-                new NamedColor( "CC Elec. Blue", new Color(0, .98f, 2.157f) ),
-                new NamedColor( "CC Dark Blue", new Color(0f, 0.28000000000000003f, 0.55000000000000004f) ),
-                new NamedColor( "CC Purple", new Color(1.05f, 0, 2.188f) ),
-                new NamedColor( "CC Orange", new Color(2.157f ,.588f, 0) ),
-                new NamedColor( "CC Yellow", new Color(2.157f, 1.76f, 0) ),
-                new NamedColor( "CC Dark", new Color(0.3f, 0.3f, 0.3f) ),
-                new NamedColor( "CC Black", new Color(0f, 0f, 0f) ),
-
-                new NamedColor( "K/DA Orange", new Color(1.000f, 0.396f, 0.243f) ),
-                new NamedColor( "K/DA Purple", new Color(0.761f, 0.125f, 0.867f) ),
-                new NamedColor( "Klouder Blue", new Color(0.349f, 0.69f, 0.957f) ),
-                new NamedColor( "Miku", new Color(0.0352941176f, 0.929411765f, 0.764705882f) ),
-            })
-            {
-                colourPresets.Add(t);
-            }
-        }
+            new NamedColor( "K/DA Orange", new Color(1.000f, 0.396f, 0.243f) ),
+            new NamedColor( "K/DA Purple", new Color(0.761f, 0.125f, 0.867f) ),
+            new NamedColor( "Klouder Blue", new Color(0.349f, 0.69f, 0.957f) ),
+            new NamedColor( "Miku", new Color(0.0352941176f, 0.929411765f, 0.764705882f) ),
+        };
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BeatSaberMarkupLanguage.GameplaySetup;
+using BeatSaberMarkupLanguage.Settings;
 using Chroma.Misc;
 using Chroma.Settings;
 using Chroma.Utils;
@@ -40,35 +41,32 @@ namespace Chroma
         {
             Directory.CreateDirectory(Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma");
 
-            ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
             ChromaLogger.Log("Initializing Chroma [" + Version + "]", ChromaLogger.Level.INFO);
-            ChromaLogger.Log("************************************", ChromaLogger.Level.INFO);
 
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
             SceneManager.sceneLoaded += OnSceneLoaded;
 
-            //Harmony patches
+            // Harmony patches
             var harmony = new Harmony("net.binaryelement.chroma");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
-
-            //Configuration Files
-            ChromaLogger.Log("Initializing Configuration");
+            
+            // Configuration Files
             ChromaConfig.Init();
             ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.INITIAL);
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
             if (ChromaConfig.LightshowMenu) GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", ChromaSettingsUI.instance);
 
-            //Side panel
-            ChromaLogger.Log("Stealing Patch Notes Panel");
+            // Legacy support
+            ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");
+
+            // Side panel
             Greetings.RegisterChromaSideMenu();
             SidePanelUtil.ReleaseInfoEnabledEvent += ReleaseInfoEnabled;
-
-            ChromaLogger.Log("Chroma finished initializing.");
         }
 
         private void ReleaseInfoEnabled()
         {
-            SidePanelUtil.SetPanel(ChromaSettingsUI.floatToPanel((float)ChromaConfig.SidePanel));
+            SidePanelUtil.SetPanel(Enum.GetName(typeof(ChromaConfig.SidePanelEnum), ChromaConfig.SidePanel));
         }
 
         [Init]
@@ -79,10 +77,7 @@ namespace Chroma
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
         {
-            if (scene.name == "MenuViewControllers")
-            {
-                ChromaSettingsUI.InitializeMenu();
-            }
+            if (scene.name == "MenuViewControllers") BSMLSettings.instance.AddSettingsMenu("Chroma", "Chroma.Settings.settings.bsml", ChromaSettingsUI.instance);
         }
 
         public void OnActiveSceneChanged(Scene current, Scene next)
@@ -91,7 +86,6 @@ namespace Chroma
             {
                 if (next.name != "GameCore")
                 {
-                    Time.timeScale = 1f;
                     MainMenuLoadedEvent?.Invoke();
                 }
             }

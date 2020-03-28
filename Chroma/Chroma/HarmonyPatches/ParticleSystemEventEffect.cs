@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace Chroma.HarmonyPatches
 {
-    [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(ParticleSystemEventEffect))]
     [HarmonyPatch("Start")]
     internal class ParticleSystemEventEffectStart
@@ -23,7 +22,6 @@ namespace Chroma.HarmonyPatches
         }
     }
 
-    [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(ParticleSystemEventEffect))]
     [HarmonyPatch("OnDestroy")]
     internal class ParticleSystemEventEffectOnDestroy
@@ -34,7 +32,6 @@ namespace Chroma.HarmonyPatches
         }
     }
 
-    [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(ParticleSystemEventEffect))]
     [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal class ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger

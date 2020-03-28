@@ -5,7 +5,7 @@ namespace Chroma.Utils
 {
     internal static class SidePanelUtil
     {
-        private const string defaultKey = "default";
+        private const string defaultKey = "DEFAULT";
         private static Dictionary<string, string> screenText = new Dictionary<string, string>();
 
         private static TextPageScrollView textPageScrollView;

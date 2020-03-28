@@ -2,7 +2,6 @@
 
 namespace Chroma.HarmonyPatches
 {
-    [HarmonyPriority(Priority.Low)]
     [HarmonyPatch(typeof(SaberBurnMarkArea))]
     [HarmonyPatch("Start")]
     internal class SaberBurnMarkAreaStart

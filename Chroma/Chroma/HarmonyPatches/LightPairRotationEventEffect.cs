@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace Chroma.HarmonyPatches
 {
-    [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(LightPairRotationEventEffect))]
     [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal class LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
@@ -30,7 +29,6 @@ namespace Chroma.HarmonyPatches
         }
     }
 
-    [HarmonyPriority(Priority.High)]
     [HarmonyPatch(typeof(LightPairRotationEventEffect))]
     [HarmonyPatch("UpdateRotationData")]
     internal class LightPairRotationEventEffectUpdateRotationData

@@ -207,13 +207,13 @@ namespace Chroma
          * COLORS
          */
 
-        internal static Color? LaserPointerColour { get; set; } = null; //B;
+        internal static Color? LaserPointerColour { get => ChromaConfig.LaserPointer.color; }
 
-        internal static Color? SignA { get; set; } = null; //LightA;
+        internal static Color? SignA { get => ChromaConfig.NeonSignBottom.color; }
 
-        internal static Color? SignB { get; set; } = null; //LightB;
+        internal static Color? SignB { get => ChromaConfig.NeonSignTop.color; }
 
-        internal static Color? Platform { get; set; } = null;
+        internal static Color? Platform { get => ChromaConfig.PlatformAccoutrements.color; }
 
         private static LightSwitchEventEffect[] LightSwitches
         {
@@ -332,9 +332,9 @@ namespace Chroma
             {
                 if (prePassLight != null)
                 {
-                    if (prePassLight.name.Contains("SaberNeon"))
+                    if (prePassLight.name == "SaberNeon")
                         prePassLight.color = Aclear ? new Color(0.188f, 0.62f, 1f, 0.8f) : colorA.Value.ColorWithAlpha(0.8f);
-                    if (prePassLight.name.Contains("BATNeon") || prePassLight.name.Contains("ENeon"))
+                    if (prePassLight.name == "BATNeon" || prePassLight.name == "ENeon")
                         prePassLight.color = Bclear ? new Color(1f, 0.031f, 0.031f, 1f) : colorB.Value.ColorWithAlpha(1f);
                 }
             }

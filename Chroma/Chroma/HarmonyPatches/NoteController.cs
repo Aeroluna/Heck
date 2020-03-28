@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace Chroma.HarmonyPatches
 {
-    [HarmonyPriority(Priority.Low)]
     [HarmonyPatch(typeof(NoteController))]
     [HarmonyPatch("Init")]
     internal class NoteControllerInit

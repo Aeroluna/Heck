@@ -149,14 +149,14 @@ namespace Chroma.Misc
 
         internal static void RegisterChromaSideMenu()
         {
-            SidePanelUtil.RegisterTextPanel("chroma",
+            SidePanelUtil.RegisterTextPanel("CHROMA",
                 ResourceTextFiles.chromaNotes
                 .Replace("%VER%", Plugin.Version)
                 .Replace("%USERNAME%", ChromaConfig.Username)
                 .Replace("%GREETING%", string.Join("\n", GetGreeting(ChromaConfig.UserID, ChromaConfig.Username)))
                 );
 
-            SidePanelUtil.RegisterTextPanel("chromaWaiver", ResourceTextFiles.safetyWaiver);
+            SidePanelUtil.RegisterTextPanel("CHROMAWAIVER", ResourceTextFiles.safetyWaiver);
         }
     }
 }

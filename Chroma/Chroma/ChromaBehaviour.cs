@@ -186,7 +186,7 @@ namespace Chroma
             }
 
             /*
-             * LIGHTING EVENTS
+             * CHECK LIGHTING EVENTS
              */
 
             if (ChromaConfig.CustomColourEventsEnabled)
