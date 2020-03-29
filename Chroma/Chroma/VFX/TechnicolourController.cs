@@ -23,7 +23,6 @@ namespace Chroma.VFX
                     GameObject gameObject = new GameObject("Chroma_TechnicolourController");
                     _instance = gameObject.AddComponent<TechnicolourController>();
                     _instance.bpm = ChromaBehaviour.songBPM;
-                    ChromaLogger.Log("Technicolour Controller Created");
 
                     _instance.match = ChromaConfig.MatchTechnicolourSabers;
                     _instance.mismatchSpeedOffset = ChromaConfig.MatchTechnicolourSabers ? 0 : 0.5f;
@@ -55,8 +54,6 @@ namespace Chroma.VFX
 
         internal List<ColorNoteVisuals> _colorNoteVisuals = new List<ColorNoteVisuals>();
         internal List<StretchableObstacle> _stretchableObstacles = new List<StretchableObstacle>();
-        internal Dictionary<LightSwitchEventEffect, int> _lightSwitchLastValue = new Dictionary<LightSwitchEventEffect, int>();
-        internal Dictionary<ParticleSystemEventEffect, int> _particleSystemLastValue = new Dictionary<ParticleSystemEventEffect, int>();
         internal List<NoteController> _bombControllers = new List<NoteController>();
 
         internal static void InitializeGradients()
@@ -119,19 +116,8 @@ namespace Chroma.VFX
 
         private void RainbowLights()
         {
-            ColourManager.RecolourAllLights(gradientLeftColor, gradientRightColor);
-
-            // light switches
-            foreach (KeyValuePair<LightSwitchEventEffect, int> n in _lightSwitchLastValue)
-            {
-                n.Key.SetActiveColours(n.Value);
-            }
-
-            // particles
-            foreach (KeyValuePair<ParticleSystemEventEffect, int> n in _particleSystemLastValue)
-            {
-                n.Key.SetActiveColours(n.Value);
-            }
+            LightSwitchEventEffectExtensions.SetAllLightingColours(gradientLeftColor, gradientRightColor);
+            LightSwitchEventEffectExtensions.SetAllActiveColours();
         }
 
         private void RainbowNotes()

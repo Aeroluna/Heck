@@ -29,7 +29,6 @@ namespace Chroma.Events
                         ChromaLightColourEvent.CustomLightColours.Add(d.type, dictionaryID);
                     }
                     dictionaryID.Add(d.time, ColourFromInt(d.value));
-                    ChromaLogger.Log(d.value);
                 }
             }
         }

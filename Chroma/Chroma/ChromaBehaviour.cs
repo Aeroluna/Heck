@@ -127,7 +127,7 @@ namespace Chroma
             }
 
             // Legacy Chroma Events are handled by just sliding them in as if they were a normal rgb light event
-            ChromaLegacyRGBEvent.Activate(beatmapData.beatmapEventData);
+            if (LegacyOverride) ChromaLegacyRGBEvent.Activate(beatmapData.beatmapEventData);
 
             Extensions.SaberColourizer.InitializeSabers(FindObjectsOfType<Saber>());
 

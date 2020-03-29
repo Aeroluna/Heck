@@ -214,48 +214,9 @@ namespace Chroma
 
         internal static Color? Platform { get => ChromaConfig.PlatformAccoutrements.color; }
 
-        private static LightSwitchEventEffect[] LightSwitches
-        {
-            get
-            {
-                if (_lightSwitches == null) _lightSwitches = Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>();
-                return _lightSwitches;
-            }
-        }
-
-        private static LightSwitchEventEffect[] _lightSwitches = null;
-
-        private static ParticleSystemEventEffect[] ParticleSystems
-        {
-            get
-            {
-                if (_particleSystems == null) _particleSystems = Resources.FindObjectsOfTypeAll<ParticleSystemEventEffect>();
-                return _particleSystems;
-            }
-        }
-
-        private static ParticleSystemEventEffect[] _particleSystems = null;
-
         private static void ResetAllLights()
         {
-            foreach (LightSwitchEventEffect light in LightSwitches) light.Reset();
-            foreach (ParticleSystemEventEffect particle in ParticleSystems) particle.Reset();
-            _lightSwitches = null;
-            _particleSystems = null;
-        }
-
-        internal static void RecolourAllLights(Color? red, Color? blue)
-        {
-            RecolourLights(LightSwitches, red, blue);
-            RecolourLights(ParticleSystems, red, blue);
-        }
-
-        private static void RecolourLights(MonoBehaviour[] lights, Color? red, Color? blue)
-        {
-            for (int i = 0; i < lights.Length; i++)
-            {
-                lights[i].SetLightingColours(red, blue);
-            }
+            LightSwitchEventEffectExtensions.ResetAllLightingColours();
         }
 
         internal static Dictionary<BeatmapEventType, LightSwitchEventEffect> LightSwitchDictionary
@@ -360,7 +321,6 @@ namespace Chroma
 
         internal static void RefreshLights()
         {
-            ChromaLogger.Log("RERESFHIESRHIDGNDSGI");
             ResetAllLights();
             RecolourNeonSign(SignA, SignB);
             RecolourMenuStuff(Platform, LaserPointerColour);

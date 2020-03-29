@@ -445,8 +445,6 @@ namespace Chroma.Settings
             Username = BS_Utils.Gameplay.GetUserInfo.GetUserName();
             UserID = BS_Utils.Gameplay.GetUserInfo.GetUserID();
 
-            if (DebugMode) ChromaLogger.Log("=== YOUR ID : " + UserID.ToString());
-
             if (type == LoadSettingsType.INITIAL) SetInt("Other", "timesLaunched", GetInt("Other", "timesLaunched", 0) + 1);
 
             /*

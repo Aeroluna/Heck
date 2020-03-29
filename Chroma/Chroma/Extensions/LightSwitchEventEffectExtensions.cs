@@ -1,6 +1,7 @@
 ﻿using BS_Utils.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Chroma.Extensions
@@ -12,6 +13,11 @@ namespace Chroma.Extensions
             LSEColourManager.GetLSEColourManager(lse)?.Reset();
         }
 
+        internal static void ResetAllLightingColours()
+        {
+            LSEColourManagers.ForEach(n => n.Reset());
+        }
+
         internal static void SetLightingColours(this MonoBehaviour lse, Color? colourA, Color? colourB)
         {
             LSEColourManager.GetLSEColourManager(lse)?.SetLightingColours(colourA, colourB);
@@ -19,12 +25,33 @@ namespace Chroma.Extensions
 
         internal static void SetLightingColours(this BeatmapEventType lse, Color? colourA, Color? colourB)
         {
-            LSEColourManager.GetLSEColourManager(lse)?.SetLightingColours(colourA, colourB);
+            foreach (LSEColourManager l in LSEColourManager.GetLSEColourManager(lse))
+            {
+                l.SetLightingColours(colourA, colourB);
+            }
         }
 
-        internal static void SetActiveColours(this MonoBehaviour lse, int value)
+        internal static void SetAllLightingColours(Color? colourA, Color? colourB)
         {
-            LSEColourManager.GetLSEColourManager(lse)?.SetActiveColours(value);
+            LSEColourManagers.ForEach(n => n.SetLightingColours(colourA, colourB));
+        }
+
+        internal static void SetActiveColours(this BeatmapEventType lse)
+        {
+            foreach (LSEColourManager l in LSEColourManager.GetLSEColourManager(lse))
+            {
+                l.SetActiveColours();
+            }
+        }
+
+        internal static void SetAllActiveColours()
+        {
+            LSEColourManagers.ForEach(n => n.SetActiveColours());
+        }
+
+        internal static void SetLastValue(this MonoBehaviour lse, int value)
+        {
+            LSEColourManager.GetLSEColourManager(lse)?.SetLastValue(value);
         }
 
         internal static LightWithId[] GetLights(this LightSwitchEventEffect lse)
@@ -43,25 +70,25 @@ namespace Chroma.Extensions
 
         internal static void LSEStart(MonoBehaviour lse, BeatmapEventType type)
         {
-            LSEColourManager lsecm = LSEColourManager.CreateLSEColourManager(lse, type);
+            LSEColourManager.CreateLSEColourManager(lse, type);
         }
 
         internal static void LSEDestroy(MonoBehaviour lse, BeatmapEventType type)
         {
-            LSEColourManager.GetLSEColourManager(type)?.LSEDestroyed();
+            LSEColourManager[] managerList = LSEColourManager.GetLSEColourManager(type).ToArray();
+            for (int i = 0; i < managerList.Length; i++)
+            {
+                managerList[i].LSEDestroyed();
+            }
         }
 
         private static List<LSEColourManager> LSEColourManagers = new List<LSEColourManager>();
 
         private class LSEColourManager
         {
-            internal static LSEColourManager GetLSEColourManager(BeatmapEventType type)
+            internal static IEnumerable<LSEColourManager> GetLSEColourManager(BeatmapEventType type)
             {
-                for (int i = 0; i < LSEColourManagers.Count; i++)
-                {
-                    if (LSEColourManagers[i].type == type) return LSEColourManagers[i];
-                }
-                return null;
+                return LSEColourManagers.Where(n => n.type == type);
             }
 
             internal static LSEColourManager GetLSEColourManager(MonoBehaviour lse)
@@ -76,10 +103,7 @@ namespace Chroma.Extensions
             internal static LSEColourManager CreateLSEColourManager(MonoBehaviour lse, BeatmapEventType type)
             {
                 LSEColourManager lsecm;
-                lsecm = GetLSEColourManager(type);
-
                 lsecm = new LSEColourManager(lse, type);
-                lsecm.Initialize(lse, type);
                 LSEColourManagers.Add(lsecm);
                 return lsecm;
             }
@@ -102,15 +126,12 @@ namespace Chroma.Extensions
             private MultipliedColorSO m_lightColor1;
             private MultipliedColorSO m_highlightColor1;
 
+            private float _lastValue;
+
             internal List<LightWithId> lights { get; private set; }
             internal LightWithId[][] lightsPropagationGrouped { get; private set; }
 
-            private LSEColourManager(MonoBehaviour lse, BeatmapEventType type)
-            {
-                Initialize(lse, type);
-            }
-
-            private void Initialize(MonoBehaviour mono, BeatmapEventType type)
+            private LSEColourManager(MonoBehaviour mono, BeatmapEventType type)
             {
                 this.lse = mono;
                 this.type = type;
@@ -119,11 +140,7 @@ namespace Chroma.Extensions
                 InitializeSOs(mono, "_lightColor1", ref _lightColor1, ref _lightColor1_Original, ref m_lightColor1);
                 InitializeSOs(mono, "_highlightColor1", ref _highlightColor1, ref _highlightColor1_Original, ref m_highlightColor1);
 
-                if (!(mono is LightSwitchEventEffect))
-                {
-                    Reset();
-                    return;
-                }
+                if (!(mono is LightSwitchEventEffect)) return;
                 LightSwitchEventEffect lse = (LightSwitchEventEffect)mono;
                 lights = lse.GetPrivateField<LightWithIdManager>("_lightManager").GetPrivateField<List<LightWithId>[]>("_lights")[lse.LightsID];
                 Dictionary<int, List<LightWithId>> lightsPreGroup = new Dictionary<int, List<LightWithId>>();
@@ -149,8 +166,6 @@ namespace Chroma.Extensions
                     lightsPropagationGrouped[i] = lightList.ToArray();
                     i++;
                 }
-
-                Reset();
             }
 
             //We still need to do the first half of this even if the LSECM already exists as custom map colours exist and we need to be able to know the default colour
@@ -176,7 +191,7 @@ namespace Chroma.Extensions
 
             internal void LSEDestroyed()
             {
-                lse = null;
+                LSEColourManagers.Remove(this);
             }
 
             internal void Reset()
@@ -201,12 +216,17 @@ namespace Chroma.Extensions
                 }
             }
 
-            internal void SetActiveColours(int value)
+            internal void SetLastValue(int value)
             {
-                if (value == 0) return;
+                _lastValue = value;
+            }
+
+            internal void SetActiveColours()
+            {
+                if (_lastValue == 0) return;
 
                 bool warm;
-                switch (value)
+                switch (_lastValue)
                 {
                     case 1:
                     case 2:
@@ -223,30 +243,30 @@ namespace Chroma.Extensions
                 }
 
                 Color c;
-                switch (value)
+                switch (_lastValue)
                 {
                     case 1:
                     case 5:
                     default:
-                        c = warm ? _lightColor0.color : _lightColor1.color;
+                        c = warm ? m_lightColor0.color : m_lightColor1.color;
                         break;
 
                     case 2:
                     case 6:
                     case 3:
                     case 7:
-                        c = warm ? _highlightColor0.color : _highlightColor1.color;
+                        c = warm ? m_highlightColor0.color : m_highlightColor1.color;
                         break;
                 }
                 if (lse.enabled)
                 {
                     lse.SetPrivateField("_highlightColor", c);
-                    if (value == 3 || value == 7) lse.SetPrivateField("_afterHighlightColor", c.ColorWithAlpha(0f));
+                    if (_lastValue == 3 || _lastValue == 7) lse.SetPrivateField("_afterHighlightColor", c.ColorWithAlpha(0f));
                     else lse.SetPrivateField("_afterHighlightColor", c);
                 }
                 else
                 {
-                    if (value == 1 || value == 5 || value == 2 || value == 6)
+                    if (_lastValue == 1 || _lastValue == 5 || _lastValue == 2 || _lastValue == 6)
                     {
                         if (lse is LightSwitchEventEffect mono)
                             mono.SetColor(c);

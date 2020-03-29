@@ -36,7 +36,7 @@ namespace Chroma.Events
             gradient._initcolor = initc;
             gradient._endcolor = endc;
             gradient._start = start;
-            gradient._duration = (60 * dur) / ChromaBehaviour.songBPM;
+            gradient._duration = (60f * dur) / ChromaBehaviour.songBPM;
             gradient._event = type;
             return gradient;
         }
@@ -44,16 +44,19 @@ namespace Chroma.Events
         private void Update()
         {
             float _time = ChromaBehaviour.ATSC.songTime - _start;
-            if (_time < 0 || _time <= _duration)
+            if (_time > 0 && _time <= _duration)
             {
                 Color c = Color.Lerp(_initcolor, _endcolor, _time / _duration);
                 _event.SetLightingColours(c, c);
-                if (ColourManager.LightSwitchDictionary[_event].GetPrivateField<bool>("_lightIsOn"))
-                    ColourManager.LightSwitchDictionary[_event].SetColor(c);
+                _event.SetActiveColours();
             }
             else
             {
-                if (_time > _duration) _event.SetLightingColours(_endcolor, _endcolor);
+                if (_time > _duration)
+                {
+                    _event.SetLightingColours(_endcolor, _endcolor);
+                    _event.SetActiveColours();
+                }
                 CustomGradients.Remove(_event);
                 Destroy(this);
             }
@@ -67,7 +70,8 @@ namespace Chroma.Events
 
         internal static Color AddGradient(BeatmapEventType id, Color initc, Color endc, float time, float duration)
         {
-            if (ChromaBehaviour.ATSC.songTime - time < duration)
+            float _time = ChromaBehaviour.ATSC.songTime - time;
+            if (_time < duration)
             {
                 if (CustomGradients.TryGetValue(id, out ChromaGradientEvent gradient))
                 {
@@ -75,7 +79,7 @@ namespace Chroma.Events
                     CustomGradients.Remove(id);
                 }
                 CustomGradients.Add(id, Instantiate(initc, endc, time, duration, id));
-                return initc;
+                return Color.Lerp(initc, endc, _time / duration); ;
             }
             else return endc;
         }

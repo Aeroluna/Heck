@@ -12,7 +12,7 @@ namespace Chroma.HarmonyPatches
     {
         private static void Postfix(ParticleSystemEventEffect __instance, ref BeatmapEventType ____colorEvent)
         {
-            if (ChromaBehaviour.LightingRegistered || ChromaBehaviour.LegacyOverride) __instance.StartCoroutine(WaitThenStart(__instance, ____colorEvent));
+            __instance.StartCoroutine(WaitThenStart(__instance, ____colorEvent));
         }
 
         private static IEnumerator WaitThenStart(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)
@@ -57,11 +57,6 @@ namespace Chroma.HarmonyPatches
                         // ParticleSystem need only worry about mayhem
                         VFX.MayhemEvent.ParticleTechnicolour(beatmapEventData, __instance);
                         return false;
-                    }
-                    else if (ChromaConfig.TechnicolourLightsStyle != ColourManager.TechnicolourStyle.GRADIENT)
-                    {
-                        // This is for fun gradient stuff
-                        VFX.TechnicolourController.Instance._particleSystemLastValue[__instance] = beatmapEventData.value;
                     }
                 }
             }

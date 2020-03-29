@@ -22,7 +22,8 @@ namespace Chroma.HarmonyPatches
                     && Settings.ChromaConfig.CustomColourEventsEnabled;
             }
 
-            ChromaBehaviour.LegacyOverride = difficultyBeatmap.beatmapData.beatmapEventData.Any(n => n.value >= Events.ChromaLegacyRGBEvent.RGB_INT_OFFSET);
+            ChromaBehaviour.LegacyOverride = difficultyBeatmap.beatmapData.beatmapEventData.Any(n => n.value >= Events.ChromaLegacyRGBEvent.RGB_INT_OFFSET)
+                && Settings.ChromaConfig.CustomColourEventsEnabled;
         }
     }
 }

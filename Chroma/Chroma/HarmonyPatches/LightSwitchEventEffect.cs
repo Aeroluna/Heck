@@ -18,7 +18,7 @@ namespace Chroma.HarmonyPatches
     {
         private static void Postfix(LightSwitchEventEffect __instance, ref BeatmapEventType ____event)
         {
-            if (ChromaBehaviour.LightingRegistered || ChromaBehaviour.LegacyOverride) __instance.StartCoroutine(WaitThenStart(__instance, ____event));
+            __instance.StartCoroutine(WaitThenStart(__instance, ____event));
         }
 
         private static IEnumerator WaitThenStart(LightSwitchEventEffect __instance, BeatmapEventType ____event)
@@ -105,15 +105,10 @@ namespace Chroma.HarmonyPatches
                                 case ColourManager.TechnicolourLightsGrouping.STANDARD:
                                 default:
                                     Color? t = ColourManager.GetTechnicolour(!blue, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle);
-                                    ColourManager.RecolourAllLights(blue ? null : t, blue ? t : null);
+                                    LightSwitchEventEffectExtensions.SetAllLightingColours(blue ? null : t, blue ? t : null);
                                     break;
                             }
                         }
-                    }
-                    else
-                    {
-                        // This is for fun gradient stuff
-                        VFX.TechnicolourController.Instance._lightSwitchLastValue[__instance] = beatmapEventData.value;
                     }
                 }
             }
@@ -135,7 +130,8 @@ namespace Chroma.HarmonyPatches
 
         internal static void ColourLightSwitch(MonoBehaviour __monobehaviour, BeatmapEventData beatmapEventData, BeatmapEventType _event)
         {
-            // We slap this puppy in a function so that ParticleSystemEventEffect can use it too
+            __monobehaviour.SetLastValue(beatmapEventData.value);
+
             Color? c = null;
 
             // CustomLightColours

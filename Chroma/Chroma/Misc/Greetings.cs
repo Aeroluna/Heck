@@ -152,8 +152,8 @@ namespace Chroma.Misc
             SidePanelUtil.RegisterTextPanel("CHROMA",
                 ResourceTextFiles.chromaNotes
                 .Replace("%VER%", Plugin.Version)
-                .Replace("%USERNAME%", ChromaConfig.Username)
-                .Replace("%GREETING%", string.Join("\n", GetGreeting(ChromaConfig.UserID, ChromaConfig.Username)))
+                .Replace("%USERNAME%", ChromaConfig.Username ?? "null")
+                .Replace("%GREETING%", string.Join("\n", GetGreeting(ChromaConfig.UserID, ChromaConfig.Username ?? "null")))
                 );
 
             SidePanelUtil.RegisterTextPanel("CHROMAWAIVER", ResourceTextFiles.safetyWaiver);
