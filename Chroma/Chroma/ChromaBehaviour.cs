@@ -1,11 +1,9 @@
 ﻿using Chroma.Events;
 using Chroma.HarmonyPatches;
 using Chroma.Settings;
-using Chroma.Utils;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using BS_Utils.Utilities;
-using System;
+using IPA.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,7 +58,7 @@ namespace Chroma
             ATSC = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First();
             songBPM = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First().currentBPM;
             BeatmapObjectCallbackController coreSetup = Resources.FindObjectsOfTypeAll<BeatmapObjectCallbackController>().First();
-            BeatmapData beatmapData = coreSetup.GetPrivateField<BeatmapData>("_beatmapData");
+            BeatmapData beatmapData = coreSetup.GetField<BeatmapData, BeatmapObjectCallbackController>("_beatmapData");
             CheckTechnicolour(beatmapData);
 
             if (ChromaConfig.LightshowModifier)
@@ -80,7 +78,6 @@ namespace Chroma
                 if (ChromaConfig.BackColumns) GameObject.Find("BackColumns")?.SetActive(false);
                 if (ChromaConfig.Buildings) GameObject.Find("Buildings")?.SetActive(false);
             }
-
 
             // CustomJSONData
             if (LightingRegistered)

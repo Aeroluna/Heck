@@ -1,4 +1,4 @@
-﻿using BS_Utils.Utilities;
+﻿using IPA.Utilities;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,7 +10,7 @@ namespace Chroma.VFX
         {
             get
             {
-                if (manager == null) manager = GameObject.Find("LightWithIdManager").GetComponent<LightWithIdManager>().GetPrivateField<List<LightWithId>[]>("_lights");
+                if (manager == null) manager = GameObject.Find("LightWithIdManager").GetComponent<LightWithIdManager>().GetField<List<LightWithId>[], LightWithIdManager>("_lights");
                 return manager;
             }
         }
@@ -30,9 +30,9 @@ namespace Chroma.VFX
 
         internal static void ParticleTechnicolour(BeatmapEventData baseData, ParticleSystemEventEffect lse)
         {
-            ParticleSystem.MainModule _mainmodule = lse.GetPrivateField<ParticleSystem.MainModule>("_mainModule");
-            ParticleSystem.Particle[] _particles = lse.GetPrivateField<ParticleSystem.Particle[]>("_particles");
-            ParticleSystem _particleSystem = lse.GetPrivateField<ParticleSystem>("_particleSystem");
+            ParticleSystem.MainModule _mainmodule = lse.GetField<ParticleSystem.MainModule, ParticleSystemEventEffect>("_mainModule");
+            ParticleSystem.Particle[] _particles = lse.GetField<ParticleSystem.Particle[], ParticleSystemEventEffect>("_particles");
+            ParticleSystem _particleSystem = lse.GetField<ParticleSystem, ParticleSystemEventEffect>("_particleSystem");
             _mainmodule.startColor = ColourManager.GetTechnicolour(baseData.value > 3, baseData.time, Settings.ChromaConfig.TechnicolourLightsStyle);
             _particleSystem.GetParticles(_particles, _particles.Length);
             for (int i = 0; i < _particleSystem.particleCount; i++)

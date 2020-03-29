@@ -3,7 +3,7 @@ using Chroma.Settings;
 using Chroma.Utils;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
-using BS_Utils.Utilities;
+using IPA.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +19,7 @@ namespace Chroma.HarmonyPatches
         {
             get
             {
-                if (defaultObstacleColor == null) defaultObstacleColor = Resources.FindObjectsOfTypeAll<ColorManager>().First().GetPrivateField<SimpleColorSO>("_obstaclesColor");
+                if (defaultObstacleColor == null) defaultObstacleColor = Resources.FindObjectsOfTypeAll<ColorManager>().First().GetField<SimpleColorSO, ColorManager>("_obstaclesColor");
                 return defaultObstacleColor;
             }
         }
@@ -89,10 +89,11 @@ namespace Chroma.HarmonyPatches
                 ____color = DefaultObstacleColorSO;
             }
         }
+
         private static void Postfix(ObstacleController __instance)
         {
             if (!VFX.TechnicolourController.Instantiated()) return;
-            VFX.TechnicolourController.Instance._stretchableObstacles.Add(__instance.GetPrivateField<StretchableObstacle>("_stretchableObstacle"));
+            VFX.TechnicolourController.Instance._stretchableObstacles.Add(__instance.GetField<StretchableObstacle, ObstacleController>("_stretchableObstacle"));
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using BS_Utils.Utilities;
-using System;
+﻿using IPA.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -142,7 +141,7 @@ namespace Chroma.Extensions
 
                 if (!(mono is LightSwitchEventEffect)) return;
                 LightSwitchEventEffect lse = (LightSwitchEventEffect)mono;
-                lights = lse.GetPrivateField<LightWithIdManager>("_lightManager").GetPrivateField<List<LightWithId>[]>("_lights")[lse.LightsID];
+                lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<LightWithId>[], LightWithIdManager>("_lights")[lse.LightsID];
                 Dictionary<int, List<LightWithId>> lightsPreGroup = new Dictionary<int, List<LightWithId>>();
                 foreach (LightWithId light in lights)
                 {
@@ -171,22 +170,25 @@ namespace Chroma.Extensions
             //We still need to do the first half of this even if the LSECM already exists as custom map colours exist and we need to be able to know the default colour
             private void InitializeSOs(MonoBehaviour lse, string id, ref SimpleColorSO sColorSO, ref Color originalColour, ref MultipliedColorSO mColorSO)
             {
-                MultipliedColorSO lightMultSO = lse.GetPrivateField<MultipliedColorSO>(id);
-                Color multiplierColour = lightMultSO.GetPrivateField<Color>("_multiplierColor");
-                SimpleColorSO lightSO = lightMultSO.GetPrivateField<SimpleColorSO>("_baseColor");
+                MultipliedColorSO lightMultSO = null;
+                if (lse is LightSwitchEventEffect l1) lightMultSO = (MultipliedColorSO)l1.GetField<ColorSO, LightSwitchEventEffect>(id);
+                else if (lse is ParticleSystemEventEffect p1) lightMultSO = (MultipliedColorSO)p1.GetField<ColorSO, ParticleSystemEventEffect>(id);
+                Color multiplierColour = lightMultSO.GetField<Color, MultipliedColorSO>("_multiplierColor");
+                SimpleColorSO lightSO = lightMultSO.GetField<SimpleColorSO, MultipliedColorSO>("_baseColor");
                 originalColour = lightSO.color;
 
                 if (mColorSO == null)
                 {
                     mColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
-                    mColorSO.SetPrivateField("_multiplierColor", multiplierColour);
+                    mColorSO.SetField("_multiplierColor", multiplierColour);
 
                     sColorSO = ScriptableObject.CreateInstance<SimpleColorSO>();
                     sColorSO.SetColor(originalColour);
-                    mColorSO.SetPrivateField("_baseColor", sColorSO);
+                    mColorSO.SetField("_baseColor", sColorSO);
                 }
 
-                lse.SetPrivateField(id, mColorSO);
+                if (lse is LightSwitchEventEffect l2) l2.SetField<LightSwitchEventEffect, ColorSO>(id, mColorSO);
+                else if (lse is ParticleSystemEventEffect p2) p2.SetField<ParticleSystemEventEffect, ColorSO>(id, mColorSO);
             }
 
             internal void LSEDestroyed()
@@ -260,9 +262,18 @@ namespace Chroma.Extensions
                 }
                 if (lse.enabled)
                 {
-                    lse.SetPrivateField("_highlightColor", c);
-                    if (_lastValue == 3 || _lastValue == 7) lse.SetPrivateField("_afterHighlightColor", c.ColorWithAlpha(0f));
-                    else lse.SetPrivateField("_afterHighlightColor", c);
+                    if (lse is LightSwitchEventEffect l1) l1.SetField("_highlightColor", c);
+                    else if (lse is ParticleSystemEventEffect p1) p1.SetField("_highlightColor", c);
+                    if (_lastValue == 3 || _lastValue == 7)
+                    {
+                        if (lse is LightSwitchEventEffect l2) l2.SetField("_afterHighlightColor", c.ColorWithAlpha(0f));
+                        else if (lse is ParticleSystemEventEffect p2) p2.SetField("_afterHighlightColor", c.ColorWithAlpha(0f));
+                    }
+                    else
+                    {
+                        if (lse is LightSwitchEventEffect l3) l3.SetField("_afterHighlightColor", c);
+                        else if (lse is ParticleSystemEventEffect p3) p3.SetField("_afterHighlightColor", c);
+                    }
                 }
                 else
                 {
@@ -271,10 +282,11 @@ namespace Chroma.Extensions
                         if (lse is LightSwitchEventEffect mono)
                             mono.SetColor(c);
                         else
-                            lse.SetPrivateField("_particleColor", c);
+                            ((ParticleSystemEventEffect)lse).SetField("_particleColor", c);
                     }
                 }
-                lse.SetPrivateField("_offColor", c.ColorWithAlpha(0f));
+                if (lse is LightSwitchEventEffect l4) l4.SetField("_offColor", c.ColorWithAlpha(0f));
+                else if (lse is ParticleSystemEventEffect p4) p4.SetField("_offColor", c.ColorWithAlpha(0f));
             }
         }
     }

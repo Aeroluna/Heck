@@ -1,6 +1,5 @@
 ﻿using Chroma.Events;
 using Chroma.Utils;
-using System;
 using UnityEngine;
 using static Chroma.ColourManager;
 
@@ -96,7 +95,7 @@ namespace Chroma.Settings
 
         private static bool waiverRead = false;
 
-        #endregion
+        #endregion Settings
 
         #region Aesthetics
 
@@ -148,7 +147,7 @@ namespace Chroma.Settings
 
         private static NamedColor platformAccoutrements = ChromaSettingsUI.colourPresets[0];
 
-        #endregion
+        #endregion Aesthetics
 
         #region Events
 
@@ -188,7 +187,7 @@ namespace Chroma.Settings
 
         private static bool noteColourEventsEnabled = true;
 
-        #endregion
+        #endregion Events
 
         #region Technicolour
 
@@ -315,7 +314,7 @@ namespace Chroma.Settings
 
         private static bool matchTechnicolourSabers = true;
 
-        #endregion
+        #endregion Technicolour
 
         #region Lightshow
 
@@ -384,7 +383,7 @@ namespace Chroma.Settings
 
         private static bool buildings = false;
 
-        #endregion lightshow
+        #endregion Lightshow
 
         internal static void Init()
         {

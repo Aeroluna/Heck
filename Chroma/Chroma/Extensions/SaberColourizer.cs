@@ -1,4 +1,4 @@
-﻿using BS_Utils.Utilities;
+﻿using IPA.Utilities;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,15 +30,15 @@ namespace Chroma.Extensions
             tintPairs = new SetSaberGlowColor.PropertyTintColorPair[glowColors.Length][];
             for (int i = 0; i < glowColors.Length; i++)
             {
-                meshRenderers[i] = glowColors[i].GetPrivateField<MeshRenderer>("_meshRenderer");
+                meshRenderers[i] = glowColors[i].GetField<MeshRenderer, SetSaberGlowColor>("_meshRenderer");
 
-                blocks[i] = glowColors[i].GetPrivateField<MaterialPropertyBlock>("_materialPropertyBlock");
+                blocks[i] = glowColors[i].GetField<MaterialPropertyBlock, SetSaberGlowColor>("_materialPropertyBlock");
                 if (blocks[i] == null)
                 {
                     blocks[i] = new MaterialPropertyBlock();
-                    glowColors[i].SetPrivateField("_materialPropertyBlock", blocks[i]);
+                    glowColors[i].SetField("_materialPropertyBlock", blocks[i]);
                 }
-                tintPairs[i] = glowColors[i].GetPrivateField<SetSaberGlowColor.PropertyTintColorPair[]>("_propertyTintColorPairs");
+                tintPairs[i] = glowColors[i].GetField<SetSaberGlowColor.PropertyTintColorPair[], SetSaberGlowColor>("_propertyTintColorPairs");
                 meshRenderers[i].SetPropertyBlock(blocks[i], 0);
             }
 
@@ -89,7 +89,7 @@ namespace Chroma.Extensions
 
             if (saberBurnMarkArea != null)
             {
-                LineRenderer[] _lineRenderers = saberBurnMarkArea.GetPrivateField<LineRenderer[]>("_lineRenderers");
+                LineRenderer[] _lineRenderers = saberBurnMarkArea.GetField<LineRenderer[], SaberBurnMarkArea>("_lineRenderers");
                 _lineRenderers[warm ? 0 : 1].startColor = color;
                 _lineRenderers[warm ? 0 : 1].endColor = color;
             }

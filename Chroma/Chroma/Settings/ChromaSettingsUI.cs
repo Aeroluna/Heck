@@ -1,6 +1,4 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.MenuButtons;
-using BeatSaberMarkupLanguage.Settings;
 using Chroma.Utils;
 using System;
 using System.Collections.Generic;

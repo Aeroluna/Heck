@@ -2,6 +2,7 @@
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+using IPA.Utilities;
 using System;
 using System.Reflection;
 using UnityEngine;
@@ -33,21 +34,27 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("UpdateRotationData")]
     internal class LightPairRotationEventEffectUpdateRotationData
     {
-        //Laser rotation
+        private static MethodInfo GetPrivateFieldM = null;
+
+        private static void GetRotationData()
+        {
+            // Thank you +1 Rabbit for providing this code
+            // Since LightPairRotationEventEffect.RotationData is a private internal member, we need to get its type dynamically.
+            Type RotationData = Type.GetType("LightPairRotationEventEffect+RotationData,Main");
+            // The reflection method to get the rotation data must have its generic method created dynamically, so as to use the dynamic type.
+            GetPrivateFieldM = typeof(BS_Utils.Utilities.ReflectionUtil).GetMethod("GetPrivateField", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(object), typeof(string) }, null);
+            GetPrivateFieldM = GetPrivateFieldM.MakeGenericMethod(RotationData);
+        }
+
         private static bool Prefix(LightPairRotationEventEffect __instance, ref BeatmapEventType ____eventL, float startRotationOffset, float direction)
         {
             if (!ChromaBehaviour.LightingRegistered) return true;
 
             BeatmapEventData beatmapEventData = LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.lastLightPairRotationEventEffectData;
 
-            // Thank you +1 Rabbit for providing this code
-            // Since LightPairRotationEventEffect.RotationData is a private internal member, we need to get its type dynamically.
-            Type RotationData = Type.GetType("LightPairRotationEventEffect+RotationData,Main");
-            // The reflection method to get the rotation data must have its generic method created dynamically, so as to use the dynamic type.
-            MethodInfo GetPrivateFieldM = typeof(ReflectionUtil).GetMethod("GetPrivateField", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(object), typeof(string) }, null);
-            GetPrivateFieldM = GetPrivateFieldM.MakeGenericMethod(RotationData);
-
             string rotationName = beatmapEventData.type == ____eventL ? "_rotationDataL" : "_rotationDataR";
+
+            if (GetPrivateFieldM == null) GetRotationData();
 
             var _rotationData = GetPrivateFieldM.Invoke(null, new object[] { __instance, rotationName });
 
@@ -72,10 +79,10 @@ namespace Chroma.HarmonyPatches
                     //Actual lasering
                     Transform _transform = _rotationData.GetField<Transform>("transform");
                     Quaternion _startRotation = _rotationData.GetField<Quaternion>("startRotation");
-                    Vector3 _rotationVector = __instance.GetPrivateField<Vector3>("_rotationVector");
+                    Vector3 _rotationVector = __instance.GetField<Vector3, LightPairRotationEventEffect>("_rotationVector");
                     if (precisionSpeed == 0)
                     {
-                        _rotationData.SetPrivateField("enabled", false);
+                        _rotationData.SetField("enabled", false);
                         if (!lockPosition.Value)
                         {
                             _transform.localRotation = _startRotation;
@@ -83,8 +90,8 @@ namespace Chroma.HarmonyPatches
                     }
                     else
                     {
-                        _rotationData.SetPrivateField("enabled", true);
-                        _rotationData.SetPrivateField("rotationSpeed", precisionSpeed * 20f * direction);
+                        _rotationData.SetField("enabled", true);
+                        _rotationData.SetField("rotationSpeed", precisionSpeed * 20f * direction);
                         if (!lockPosition.Value)
                         {
                             _transform.localRotation = _startRotation;

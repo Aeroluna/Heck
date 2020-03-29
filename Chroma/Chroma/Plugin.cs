@@ -8,7 +8,6 @@ using IPA;
 using System;
 using System.IO;
 using System.Reflection;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
 
@@ -49,7 +48,7 @@ namespace Chroma
             // Harmony patches
             var harmony = new Harmony("net.binaryelement.chroma");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
-            
+
             // Configuration Files
             ChromaConfig.Init();
             ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.INITIAL);

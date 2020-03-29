@@ -1,5 +1,4 @@
-﻿using Chroma.Settings;
-using CustomJSONData;
+﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using System;
@@ -28,9 +27,11 @@ namespace Chroma.HarmonyPatches
                             case TrackLaneRingsRotationEffectSpawner.RotationStepType.Range0ToMax:
                                 step = UnityEngine.Random.Range(0f, ____rotationStep);
                                 break;
+
                             case TrackLaneRingsRotationEffectSpawner.RotationStepType.Range:
                                 step = UnityEngine.Random.Range(-____rotationStep, ____rotationStep);
                                 break;
+
                             case TrackLaneRingsRotationEffectSpawner.RotationStepType.MaxOr0:
                                 step = ((UnityEngine.Random.value < 0.5f) ? ____rotationStep : 0f);
                                 break;

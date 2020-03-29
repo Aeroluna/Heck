@@ -1,7 +1,6 @@
 ﻿using Chroma.Extensions;
 using Chroma.Settings;
-using BS_Utils.Utilities;
-using System;
+using IPA.Utilities;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -127,19 +126,19 @@ namespace Chroma.VFX
                 Color color;
                 try
                 {
-                    color = n.GetPrivateField<NoteController>("_noteController").noteData.noteType == NoteType.NoteA ? gradientLeftColor : gradientRightColor;
+                    color = n.GetField<NoteController, ColorNoteVisuals>("_noteController").noteData.noteType == NoteType.NoteA ? gradientLeftColor : gradientRightColor;
                 }
                 catch
                 {
                     color = gradientColor;
                 }
 
-                SpriteRenderer _arrowGlowSpriteRenderer = n.GetPrivateField<SpriteRenderer>("_arrowGlowSpriteRenderer");
-                SpriteRenderer _circleGlowSpriteRenderer = n.GetPrivateField<SpriteRenderer>("_circleGlowSpriteRenderer");
-                MaterialPropertyBlockController[] _materialPropertyBlockControllers = n.GetPrivateField<MaterialPropertyBlockController[]>("_materialPropertyBlockControllers");
+                SpriteRenderer _arrowGlowSpriteRenderer = n.GetField<SpriteRenderer, ColorNoteVisuals>("_arrowGlowSpriteRenderer");
+                SpriteRenderer _circleGlowSpriteRenderer = n.GetField<SpriteRenderer, ColorNoteVisuals>("_circleGlowSpriteRenderer");
+                MaterialPropertyBlockController[] _materialPropertyBlockControllers = n.GetField<MaterialPropertyBlockController[], ColorNoteVisuals>("_materialPropertyBlockControllers");
 
-                n.SetPrivateField("_noteColor", color);
-                _arrowGlowSpriteRenderer.color = color.ColorWithAlpha(n.GetPrivateField<float>("_arrowGlowIntensity"));
+                n.SetField("_noteColor", color);
+                _arrowGlowSpriteRenderer.color = color.ColorWithAlpha(n.GetField<float, ColorNoteVisuals>("_arrowGlowIntensity"));
                 _circleGlowSpriteRenderer.color = color;
                 foreach (MaterialPropertyBlockController materialPropertyBlockController in _materialPropertyBlockControllers)
                 {
@@ -155,10 +154,10 @@ namespace Chroma.VFX
         {
             foreach (StretchableObstacle n in _stretchableObstacles)
             {
-                ParametricBoxFrameController _obstacleFrame = n.GetPrivateField<ParametricBoxFrameController>("_obstacleFrame");
-                ParametricBoxFakeGlowController _obstacleFakeGlow = n.GetPrivateField<ParametricBoxFakeGlowController>("_obstacleFakeGlow");
-                MaterialPropertyBlockController[] _materialPropertyBlockControllers = n.GetPrivateField<MaterialPropertyBlockController[]>("_materialPropertyBlockControllers");
-                float _addColorMultiplier = n.GetPrivateField<float>("_addColorMultiplier");
+                ParametricBoxFrameController _obstacleFrame = n.GetField<ParametricBoxFrameController, StretchableObstacle>("_obstacleFrame");
+                ParametricBoxFakeGlowController _obstacleFakeGlow = n.GetField<ParametricBoxFakeGlowController, StretchableObstacle>("_obstacleFakeGlow");
+                MaterialPropertyBlockController[] _materialPropertyBlockControllers = n.GetField<MaterialPropertyBlockController[], StretchableObstacle>("_materialPropertyBlockControllers");
+                float _addColorMultiplier = n.GetField<float, StretchableObstacle>("_addColorMultiplier");
 
                 _obstacleFrame.color = gradientColor;
                 _obstacleFrame.Refresh();

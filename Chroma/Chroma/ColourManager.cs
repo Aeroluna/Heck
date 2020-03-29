@@ -1,7 +1,6 @@
 ﻿using Chroma.Extensions;
 using Chroma.Settings;
-using BS_Utils.Utilities;
-using System;
+using IPA.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -228,7 +227,7 @@ namespace Chroma
                     _lightSwitchDictionary = new Dictionary<BeatmapEventType, LightSwitchEventEffect>();
                     foreach (LightSwitchEventEffect l in Resources.FindObjectsOfTypeAll<LightSwitchEventEffect>())
                     {
-                        _lightSwitchDictionary.Add(l.GetPrivateField<BeatmapEventType>("_event"), l);
+                        _lightSwitchDictionary.Add(l.GetField<BeatmapEventType, LightSwitchEventEffect>("_event"), l);
                     }
                 }
                 return _lightSwitchDictionary;
