@@ -35,12 +35,13 @@ namespace Chroma.HarmonyPatches
     internal class LightPairRotationEventEffectUpdateRotationData
     {
         private static MethodInfo GetPrivateFieldM = null;
+        private static Type RotationData = null;
 
         private static void GetRotationData()
         {
             // Thank you +1 Rabbit for providing this code
             // Since LightPairRotationEventEffect.RotationData is a private internal member, we need to get its type dynamically.
-            Type RotationData = Type.GetType("LightPairRotationEventEffect+RotationData,Main");
+            RotationData = Type.GetType("LightPairRotationEventEffect+RotationData,Main");
             // The reflection method to get the rotation data must have its generic method created dynamically, so as to use the dynamic type.
             GetPrivateFieldM = typeof(BS_Utils.Utilities.ReflectionUtil).GetMethod("GetPrivateField", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(object), typeof(string) }, null);
             GetPrivateFieldM = GetPrivateFieldM.MakeGenericMethod(RotationData);
@@ -77,12 +78,12 @@ namespace Chroma.HarmonyPatches
                     else if (dir == 0) direction = beatmapEventData.type == ____eventL ? -1 : 1;
 
                     //Actual lasering
-                    Transform _transform = _rotationData.GetField<Transform>("transform");
-                    Quaternion _startRotation = _rotationData.GetField<Quaternion>("startRotation");
+                    Transform _transform = _rotationData.GetField<Transform>("transform", RotationData);
+                    Quaternion _startRotation = _rotationData.GetField<Quaternion>("startRotation", RotationData);
                     Vector3 _rotationVector = __instance.GetField<Vector3, LightPairRotationEventEffect>("_rotationVector");
-                    if (precisionSpeed == 0)
+                    if (beatmapEventData.value == 0)
                     {
-                        _rotationData.SetField("enabled", false);
+                        _rotationData.SetField("enabled", false, RotationData);
                         if (!lockPosition.Value)
                         {
                             _transform.localRotation = _startRotation;
@@ -90,8 +91,8 @@ namespace Chroma.HarmonyPatches
                     }
                     else
                     {
-                        _rotationData.SetField("enabled", true);
-                        _rotationData.SetField("rotationSpeed", precisionSpeed * 20f * direction);
+                        _rotationData.SetField("enabled", true, RotationData);
+                        _rotationData.SetField("rotationSpeed", precisionSpeed * 20f * direction, RotationData);
                         if (!lockPosition.Value)
                         {
                             _transform.localRotation = _startRotation;
