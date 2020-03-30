@@ -3,6 +3,7 @@ using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
+using IPA.Utilities;
 using UnityEngine;
 using static NoodleExtensions.NoodleController;
 using static NoodleExtensions.NoodleController.BeatmapObjectSpawnMovementDataVariables;
@@ -57,7 +58,7 @@ namespace NoodleExtensions.HarmonyPatches
                 if (flipYSide.HasValue)
                 {
                     __state = noteData.flipYSide;
-                    typeof(NoteData).GetProperty("flipYSide").SetValue(noteData, __state.Value);
+                    Traverse.Create(noteData).Field("<flipYSide>k__BackingField").SetValue(__state.Value);
                 }
             }
         }
@@ -80,7 +81,7 @@ namespace NoodleExtensions.HarmonyPatches
                 noteJump.Field("_middleRotation").SetValue(midrotation);
 
                 // Reset flipYSide after Prefix
-                if (__state.HasValue) typeof(NoteData).GetProperty("flipYSide").SetValue(noteData, __state.Value);
+                if (__state.HasValue) Traverse.Create(noteData).Field("<flipYSide>k__BackingField").SetValue(__state.Value);
             }
         }
     }
