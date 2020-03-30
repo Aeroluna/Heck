@@ -70,8 +70,11 @@ namespace NoodleExtensions
 
         internal static void ToggleNoodlePatches(bool value)
         {
-            if (value && !Harmony.HasAnyPatches(Plugin.HARMONYID))
-                NoodlePatches.ForEach(n => Plugin.harmony.Patch(n.originalMethod, n.prefix != null ? new HarmonyMethod(n.prefix) : null, n.postfix != null ? new HarmonyMethod(n.postfix) : null));
+            if (value)
+            {
+                if (!Harmony.HasAnyPatches(Plugin.HARMONYID))
+                    NoodlePatches.ForEach(n => Plugin.harmony.Patch(n.originalMethod, n.prefix != null ? new HarmonyMethod(n.prefix) : null, n.postfix != null ? new HarmonyMethod(n.postfix) : null));
+            }
             else Plugin.harmony.UnpatchAll(Plugin.HARMONYID);
         }
 
