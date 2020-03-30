@@ -180,8 +180,12 @@ namespace Chroma.HarmonyPatches
                             float duration = (float)Trees.at(gradient, "_duration");
                             Color initcolor = ChromaUtils.GetColorFromData(gradient, true, "_startColor");
                             Color endcolor = ChromaUtils.GetColorFromData(gradient, true, "_endColor");
+                            string easingstring = (string)Trees.at(gradient, "_easing");
+                            Easings.Functions easing;
+                            if (string.IsNullOrEmpty(easingstring)) easing = Easings.Functions.easeLinear;
+                            else easing = (Easings.Functions)Enum.Parse(typeof(Easings.Functions), easingstring);
 
-                            c = ChromaGradientEvent.AddGradient(beatmapEventData.type, initcolor, endcolor, customData.time, duration);
+                            c = ChromaGradientEvent.AddGradient(beatmapEventData.type, initcolor, endcolor, customData.time, duration, easing);
                         }
                     }
 

@@ -1,6 +1,7 @@
 ﻿using Chroma.Extensions;
 using System.Collections.Generic;
 using UnityEngine;
+using Chroma.Utils;
 
 namespace Chroma.Events
 {
@@ -25,7 +26,7 @@ namespace Chroma.Events
             _instance = null;
         }
 
-        private static ChromaGradientEvent Instantiate(Color initc, Color endc, float start, float dur, BeatmapEventType type)
+        private static ChromaGradientEvent Instantiate(Color initc, Color endc, float start, float dur, BeatmapEventType type, Easings.Functions easing)
         {
             ChromaGradientEvent gradient = Instance.AddComponent<ChromaGradientEvent>();
             gradient._initcolor = initc;
@@ -33,6 +34,7 @@ namespace Chroma.Events
             gradient._start = start;
             gradient._duration = (60f * dur) / ChromaBehaviour.songBPM;
             gradient._event = type;
+            gradient._easing = easing;
             return gradient;
         }
 
@@ -41,7 +43,7 @@ namespace Chroma.Events
             float _time = ChromaBehaviour.ATSC.songTime - _start;
             if (_time > 0 && _time <= _duration)
             {
-                Color c = Color.Lerp(_initcolor, _endcolor, _time / _duration);
+                Color c = Color.Lerp(_initcolor, _endcolor, Easings.Interpolate(_time / _duration, _easing));
                 _event.SetLightingColours(c, c);
                 _event.SetActiveColours();
             }
@@ -61,9 +63,10 @@ namespace Chroma.Events
         private Color _endcolor;
         private float _start;
         private float _duration;
+        private Easings.Functions _easing;
         private BeatmapEventType _event;
 
-        internal static Color AddGradient(BeatmapEventType id, Color initc, Color endc, float time, float duration)
+        internal static Color AddGradient(BeatmapEventType id, Color initc, Color endc, float time, float duration, Easings.Functions easing)
         {
             float _time = ChromaBehaviour.ATSC.songTime - time;
             if (_time < duration)
@@ -73,7 +76,7 @@ namespace Chroma.Events
                     Destroy(gradient);
                     CustomGradients.Remove(id);
                 }
-                CustomGradients.Add(id, Instantiate(initc, endc, time, duration, id));
+                CustomGradients.Add(id, Instantiate(initc, endc, time, duration, id, easing));
                 return Color.Lerp(initc, endc, _time / duration); ;
             }
             else return endc;

@@ -91,6 +91,15 @@ namespace Chroma
                         GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
                         foreach (string s in objectsToKill?.Cast<string>())
                         {
+                            if (s == "TrackLaneRing" || s == "BigTrackLaneRing")
+                            {
+                                foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s)))
+                                {
+                                    if (s == "TrackLaneRing" && n.name.Contains("Big")) continue;
+                                    n.SetActive(false);
+                                }
+                            }
+                            else
                             foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s) && obj.scene.name.Contains("Environment")))
                             {
                                 n.SetActive(false);
