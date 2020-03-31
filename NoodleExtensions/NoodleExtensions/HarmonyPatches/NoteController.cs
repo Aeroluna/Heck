@@ -1,9 +1,8 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
+using IPA.Utilities;
 using System.Collections.Generic;
 using System.Linq;
-using IPA.Utilities;
 using UnityEngine;
 using static NoodleExtensions.NoodleController;
 using static NoodleExtensions.NoodleController.BeatmapObjectSpawnMovementDataVariables;
@@ -58,12 +57,12 @@ namespace NoodleExtensions.HarmonyPatches
                 if (flipYSide.HasValue)
                 {
                     __state = noteData.flipYSide;
-                    Traverse.Create(noteData).Field("<flipYSide>k__BackingField").SetValue(__state.Value);
+                    if (__state.HasValue) noteData.SetField("<flipYSide>k__BackingField", flipYSide.Value);
                 }
             }
         }
 
-        private static void Postfix(NoteController __instance, NoteData noteData, float? __state)
+        private static void Postfix(NoteController __instance, NoteData noteData, float? __state, NoteMovement ____noteMovement)
         {
             if (noteData is CustomNoteData customData)
             {
@@ -71,17 +70,17 @@ namespace NoodleExtensions.HarmonyPatches
                 float? _rot = (float?)Trees.at(dynData, CUTDIRECTION);
                 if (!_rot.HasValue) return;
 
-                Traverse noteJump = new Traverse(Traverse.Create(Traverse.Create(__instance).Field("_noteMovement").GetValue()).Field("_jump").GetValue());
+                NoteJump noteJump = ____noteMovement.GetField<NoteJump, NoteMovement>("_jump");
 
                 Quaternion rotation = Quaternion.Euler(0, 0, _rot.Value);
-                noteJump.Field("_endRotation").SetValue(rotation);
+                noteJump.SetField("_endRotation", rotation);
                 Vector3 vector = rotation.eulerAngles;
-                vector += ((Vector3[])noteJump.Field("_randomRotations").GetValue())[(int)noteJump.Field("_randomRotationIdx").GetValue()] * 20;
+                vector += noteJump.GetField<Vector3[], NoteJump>("_randomRotations")[noteJump.GetField<int, NoteJump>("_randomRotationIdx")] * 20;
                 Quaternion midrotation = Quaternion.Euler(vector);
-                noteJump.Field("_middleRotation").SetValue(midrotation);
+                noteJump.SetField("_middleRotation", midrotation);
 
                 // Reset flipYSide after Prefix
-                if (__state.HasValue) Traverse.Create(noteData).Field("<flipYSide>k__BackingField").SetValue(__state.Value);
+                if (__state.HasValue) noteData.SetField("<flipYSide>k__BackingField", __state.Value);
             }
         }
     }

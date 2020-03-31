@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using IPA.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -80,9 +81,8 @@ namespace NoodleExtensions
 
         internal static void InitBeatmapObjectSpawnController(BeatmapObjectSpawnController bosc)
         {
-            BeatmapObjectSpawnMovementData bosmd = Traverse.Create(bosc).Field("_beatmapObjectSpawnMovementData").GetValue<BeatmapObjectSpawnMovementData>();
-            beatmapObjectSpawnMovementData = bosmd;
-            var bosmdTraversal = new Traverse(bosmd);
+            beatmapObjectSpawnMovementData = bosc.GetField<BeatmapObjectSpawnMovementData, BeatmapObjectSpawnController>("_beatmapObjectSpawnMovementData");
+            var bosmdTraversal = new Traverse(beatmapObjectSpawnMovementData);
             foreach (FieldInfo f in typeof(BeatmapObjectSpawnMovementDataVariables).GetFields(BindingFlags.NonPublic | BindingFlags.Static).Where(n => n.Name != "beatmapObjectSpawnMovementData"))
             {
                 f.SetValue(null, bosmdTraversal.Field(f.Name).GetValue());
