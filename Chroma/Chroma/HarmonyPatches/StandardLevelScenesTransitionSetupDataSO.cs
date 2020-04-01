@@ -22,8 +22,13 @@ namespace Chroma.HarmonyPatches
                     && Settings.ChromaConfig.CustomColourEventsEnabled;
             }
 
-            ChromaBehaviour.LegacyOverride = difficultyBeatmap.beatmapData.beatmapEventData.Any(n => n.value >= Events.ChromaLegacyRGBEvent.RGB_INT_OFFSET)
-                && Settings.ChromaConfig.CustomColourEventsEnabled;
+            ChromaBehaviour.LegacyOverride = Settings.ChromaConfig.CustomColourEventsEnabled
+                && difficultyBeatmap.beatmapData.beatmapEventData.Any(n => n.value >= Events.ChromaLegacyRGBEvent.RGB_INT_OFFSET);
+            if (ChromaBehaviour.LegacyOverride)
+            {
+                ChromaLogger.Log("Legacy Chroma Detected...");
+                ChromaLogger.Log("Please do not use Legacy Chroma for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed");
+            }
         }
     }
 }

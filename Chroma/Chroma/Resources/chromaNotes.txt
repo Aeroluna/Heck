@@ -14,10 +14,10 @@ And of course, all colours can be customized.  We didn't forget those of you who
 
 <size=6><mspace=4><align="center">CHANGE LOGS</align></mspace></size>
 
-<align="center">Version 1.4.0</align>
+<align="center">Version 2.0.0</align>
 It's been awhile, hasn't it?
 -<indent=3>SkyKiwi went missing, now I (Aeroluna) am in control!</indent>
--<indent=3>Update to Beat Saber 1.7.0!</indent>
+-<indent=3>Update to Beat Saber 1.8.0!</indent>
 -<indent=3>Replaced CustomUI with BSML</indent>
 -<indent=3>MASSIVE code rework</indent>
 -<indent=3>Say bye to lag on starting songs!</indent>
