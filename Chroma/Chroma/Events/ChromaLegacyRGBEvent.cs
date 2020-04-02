@@ -23,12 +23,12 @@ namespace Chroma.Events
                 if (d.value >= RGB_INT_OFFSET)
                 {
                     // Luckily I already had a system in place to replicate this functionality
-                    if (!ChromaLightColourEvent.CustomLightColours.TryGetValue(d.type, out Dictionary<float, Color> dictionaryID))
+                    if (!ChromaLightColourEvent.LightColours.TryGetValue(d.type, out List<TimedColor> dictionaryID))
                     {
-                        dictionaryID = new Dictionary<float, Color>();
-                        ChromaLightColourEvent.CustomLightColours.Add(d.type, dictionaryID);
+                        dictionaryID = new List<TimedColor>();
+                        ChromaLightColourEvent.LightColours.Add(d.type, dictionaryID);
                     }
-                    dictionaryID.Add(d.time, ColourFromInt(d.value));
+                    dictionaryID.Add(new TimedColor(d.time, ColourFromInt(d.value)));
                 }
             }
         }

@@ -100,10 +100,10 @@ namespace Chroma
                                 }
                             }
                             else
-                            foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s) && obj.scene.name.Contains("Environment")))
-                            {
-                                n.SetActive(false);
-                            }
+                                foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s) && obj.scene.name.Contains("Environment")))
+                                {
+                                    n.SetActive(false);
+                                }
                         }
                     }
 

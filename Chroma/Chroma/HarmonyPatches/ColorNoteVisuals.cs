@@ -5,6 +5,7 @@ using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Chroma.HarmonyPatches
@@ -26,7 +27,7 @@ namespace Chroma.HarmonyPatches
     {
         internal static bool noteColoursActive;
 
-        private static void Prefix(ref NoteController noteController, ref ColorManager ____colorManager)
+        private static void Prefix(NoteController noteController, ColorManager ____colorManager)
         {
             NoteData noteData = noteController.noteData;
             bool warm = noteData.noteType == NoteType.NoteA;
@@ -39,15 +40,10 @@ namespace Chroma.HarmonyPatches
             }
 
             // CustomLightColours
-            if (ChromaNoteColourEvent.CustomNoteColours.Count > 0)
+            if (ChromaNoteColourEvent.NoteColours.TryGetValue(noteData.noteType, out List<TimedColor> dictionaryID))
             {
-                if (ChromaNoteColourEvent.CustomNoteColours.TryGetValue(noteData.noteType, out Dictionary<float, Color> dictionaryID))
-                {
-                    foreach (KeyValuePair<float, Color> d in dictionaryID)
-                    {
-                        if (d.Key <= noteData.time) c = d.Value;
-                    }
-                }
+                List<TimedColor> colors = dictionaryID.Where(n => n.time <= noteData.time).ToList();
+                if (colors.Count > 0) c = colors.Last().color;
             }
 
             // CustomJSONData _customData individual color override

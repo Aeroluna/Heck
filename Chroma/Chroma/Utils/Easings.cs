@@ -152,7 +152,7 @@ namespace Chroma.Utils
             return f * f * f + 1;
         }
 
-        /// <summary>	
+        /// <summary>
         /// Modeled after the piecewise cubic
         /// y = (1/2)((2x)^3)       ; [0, 0.5)
         /// y = (1/2)((2x-2)^3 + 2) ; [0.5, 1]
@@ -280,7 +280,7 @@ namespace Chroma.Utils
             return Math.Sqrt((2 - p) * p);
         }
 
-        /// <summary>	
+        /// <summary>
         /// Modeled after the piecewise circ function
         /// y = (1/2)(1 - Math.Sqrt(1 - 4x^2))           ; [0, 0.5)
         /// y = (1/2)(Math.Sqrt(-(2x - 3)*(2x - 1)) + 1) ; [0.5, 1]
@@ -375,7 +375,7 @@ namespace Chroma.Utils
 
         /// <summary>
         /// Modeled after overshooting cubic y = 1-((1-x)^3-(1-x)*sin((1-x)*pi))
-        /// </summary>	
+        /// </summary>
         static internal float easeOutBack(float p)
         {
             float f = (1 - p);

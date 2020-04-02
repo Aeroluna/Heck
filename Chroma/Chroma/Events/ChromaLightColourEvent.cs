@@ -9,7 +9,7 @@ namespace Chroma.Events
 {
     internal class ChromaLightColourEvent
     {
-        internal static Dictionary<BeatmapEventType, Dictionary<float, Color>> CustomLightColours = new Dictionary<BeatmapEventType, Dictionary<float, Color>>();
+        internal static Dictionary<BeatmapEventType, List<TimedColor>> LightColours = new Dictionary<BeatmapEventType, List<TimedColor>>();
 
         // Creates dictionary loaded with all _lightRGB custom events and indexs them with the event's time and type
         internal static void Activate(List<CustomEventData> eventData)
@@ -23,12 +23,12 @@ namespace Chroma.Events
                     Color c = ChromaUtils.GetColorFromData(dynData);
 
                     // Dictionary of dictionaries!
-                    if (!CustomLightColours.TryGetValue((BeatmapEventType)id, out Dictionary<float, Color> dictionaryID))
+                    if (!LightColours.TryGetValue((BeatmapEventType)id, out List<TimedColor> dictionaryID))
                     {
-                        dictionaryID = new Dictionary<float, Color>();
-                        CustomLightColours.Add((BeatmapEventType)id, dictionaryID);
+                        dictionaryID = new List<TimedColor>();
+                        LightColours.Add((BeatmapEventType)id, dictionaryID);
                     }
-                    dictionaryID.Add(d.time, c);
+                    dictionaryID.Add(new TimedColor(d.time, c));
 
                     ColourManager.TechnicolourLightsForceDisabled = true;
                 }

@@ -64,7 +64,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ResourceTextFiles.resx</DependentUpon>
     </Compile>
-    <Compile Include="Settings\NamedColor.cs" />
+    <Compile Include="Utils\ColorStructs.cs" />
     <Compile Include="Settings\ChromaConfig.cs" />
     <Compile Include="Settings\ChromaSettingsUI.cs" />
     <Compile Include="Plugin.cs" />

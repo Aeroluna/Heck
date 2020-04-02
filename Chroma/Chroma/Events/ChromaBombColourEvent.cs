@@ -8,7 +8,7 @@ namespace Chroma.Events
 {
     internal class ChromaBombColourEvent
     {
-        internal static Dictionary<float, Color> CustomBombColours = new Dictionary<float, Color>();
+        internal static List<TimedColor> BombColours = new List<TimedColor>();
 
         // Creates dictionary loaded with all _bombColor custom events and indexs them with the event's time
         internal static void Activate(List<CustomEventData> eventData)
@@ -19,7 +19,7 @@ namespace Chroma.Events
                 {
                     dynamic dynData = d.data;
                     Color c = ChromaUtils.GetColorFromData(dynData, false);
-                    CustomBombColours.Add(d.time, c);
+                    BombColours.Add(new TimedColor(d.time, c));
 
                     ColourManager.TechnicolourBombsForceDisabled = true;
                 }

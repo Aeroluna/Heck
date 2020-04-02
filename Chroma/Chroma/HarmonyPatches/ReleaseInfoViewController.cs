@@ -9,7 +9,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("DidActivate")]
     internal class ReleaseInfoViewControllerDidActivate
     {
-        private static void Postfix(ReleaseInfoViewController __instance, ref MainSettingsModelSO ____mainSettingsModel, ref bool firstActivation, ref TextPageScrollView ____textPageScrollView, ref TextAsset ____releaseNotesTextAsset, ref TextAsset ____firstTextAsset)
+        private static void Postfix(ReleaseInfoViewController __instance, MainSettingsModelSO ____mainSettingsModel, bool firstActivation, TextPageScrollView ____textPageScrollView, TextAsset ____releaseNotesTextAsset, TextAsset ____firstTextAsset)
         {
             if (firstActivation)
             {

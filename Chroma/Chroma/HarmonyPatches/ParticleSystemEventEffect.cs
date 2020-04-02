@@ -10,9 +10,10 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("Start")]
     internal class ParticleSystemEventEffectStart
     {
-        private static void Postfix(ParticleSystemEventEffect __instance, ref BeatmapEventType ____colorEvent)
+        private static void Postfix(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)
         {
-            __instance.StartCoroutine(WaitThenStart(__instance, ____colorEvent));
+            if (ChromaBehaviour.LightingRegistered || ColourManager.TechnicolourLights || ChromaBehaviour.LegacyOverride)
+                __instance.StartCoroutine(WaitThenStart(__instance, ____colorEvent));
         }
 
         private static IEnumerator WaitThenStart(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)
@@ -26,7 +27,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("OnDestroy")]
     internal class ParticleSystemEventEffectOnDestroy
     {
-        private static void Postfix(ParticleSystemEventEffect __instance, ref BeatmapEventType ____colorEvent)
+        private static void Postfix(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)
         {
             LightSwitchEventEffectExtensions.LSEDestroy(__instance, ____colorEvent);
         }
@@ -43,7 +44,7 @@ namespace Chroma.HarmonyPatches
 
         private static System.Random techniLightRandom = new System.Random(408);
 
-        private static bool Prefix(ParticleSystemEventEffect __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____colorEvent)
+        private static bool Prefix(ParticleSystemEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____colorEvent)
         {
             if (beatmapEventData.type != ____colorEvent) return true;
 

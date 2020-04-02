@@ -9,7 +9,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("SpawnDebris")]
     internal class NoteDebrisSpawnerSpawnDebris
     {
-        private static void Prefix(ref INoteController noteController)
+        private static void Prefix(INoteController noteController)
         {
             if (!ColourManager.TechnicolourBlocks || ChromaConfig.TechnicolourBlocksStyle != ColourManager.TechnicolourStyle.GRADIENT)
             {
@@ -20,7 +20,7 @@ namespace Chroma.HarmonyPatches
             }
         }
 
-        private static void Postfix(ref INoteController noteController)
+        private static void Postfix(INoteController noteController)
         {
             ColourManager.RemoveNoteTypeColourOverride(noteController.noteData.noteType);
         }

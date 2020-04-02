@@ -412,12 +412,12 @@ namespace Chroma.Settings
 
         private static void CleanupSongEvents()
         {
-            ChromaObstacleColourEvent.CustomObstacleColours.Clear();
-            ChromaNoteColourEvent.CustomNoteColours.Clear();
+            ChromaObstacleColourEvent.ObstacleColours.Clear();
+            ChromaNoteColourEvent.NoteColours.Clear();
             ChromaNoteColourEvent.SavedNoteColours.Clear();
-            ChromaBombColourEvent.CustomBombColours.Clear();
-            ChromaLightColourEvent.CustomLightColours.Clear();
-            ChromaGradientEvent.CustomGradients.Clear();
+            ChromaBombColourEvent.BombColours.Clear();
+            ChromaLightColourEvent.LightColours.Clear();
+            ChromaGradientEvent.Gradients.Clear();
 
             HarmonyPatches.ColorNoteVisualsHandleNoteControllerDidInitEvent.noteColoursActive = false;
             HarmonyPatches.ObstacleControllerInit.ClearObstacleColors();

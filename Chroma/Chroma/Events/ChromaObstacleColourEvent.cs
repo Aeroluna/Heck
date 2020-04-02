@@ -8,7 +8,7 @@ namespace Chroma.Events
 {
     internal class ChromaObstacleColourEvent
     {
-        internal static Dictionary<float, Color> CustomObstacleColours = new Dictionary<float, Color>();
+        internal static List<TimedColor> ObstacleColours = new List<TimedColor>();
 
         // Creates dictionary loaded with all _obstacleColor custom events and indexs them with the event's time
         internal static void Activate(List<CustomEventData> eventData)
@@ -19,7 +19,7 @@ namespace Chroma.Events
                 {
                     dynamic dynData = d.data;
                     Color c = ChromaUtils.GetColorFromData(dynData);
-                    CustomObstacleColours.Add(d.time, c);
+                    ObstacleColours.Add(new TimedColor(d.time, c));
 
                     ColourManager.TechnicolourBarriersForceDisabled = true;
                 }

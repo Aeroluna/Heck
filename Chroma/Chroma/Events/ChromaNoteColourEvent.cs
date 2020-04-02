@@ -10,7 +10,7 @@ namespace Chroma.Events
 {
     internal class ChromaNoteColourEvent
     {
-        internal static Dictionary<NoteType, Dictionary<float, Color>> CustomNoteColours = new Dictionary<NoteType, Dictionary<float, Color>>();
+        internal static Dictionary<NoteType, List<TimedColor>> NoteColours = new Dictionary<NoteType, List<TimedColor>>();
         internal static Dictionary<INoteController, Color> SavedNoteColours = new Dictionary<INoteController, Color>();
 
         // Creates dictionary loaded with all _noteColor custom events and indexs them with the event's time
@@ -25,12 +25,12 @@ namespace Chroma.Events
                     Color c = ChromaUtils.GetColorFromData(dynData, false);
 
                     // Dictionary of dictionaries!
-                    if (!CustomNoteColours.TryGetValue((NoteType)id, out Dictionary<float, Color> dictionaryID))
+                    if (!NoteColours.TryGetValue((NoteType)id, out List<TimedColor> dictionaryID))
                     {
-                        dictionaryID = new Dictionary<float, Color>();
-                        CustomNoteColours.Add((NoteType)id, dictionaryID);
+                        dictionaryID = new List<TimedColor>();
+                        NoteColours.Add((NoteType)id, dictionaryID);
                     }
-                    dictionaryID.Add(d.time, c);
+                    dictionaryID.Add(new TimedColor(d.time, c));
 
                     ColourManager.TechnicolourBlocksForceDisabled = true;
                 }

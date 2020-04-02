@@ -16,7 +16,7 @@ namespace Chroma.HarmonyPatches
         internal static BeatmapEventData lastLightPairRotationEventEffectData;
 
         //Laser rotation
-        private static void Prefix(ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____eventL, ref BeatmapEventType ____eventR)
+        private static void Prefix(BeatmapEventData beatmapEventData, BeatmapEventType ____eventL, BeatmapEventType ____eventR)
         {
             if (beatmapEventData.type == ____eventL || beatmapEventData.type == ____eventR)
             {
@@ -47,7 +47,7 @@ namespace Chroma.HarmonyPatches
             GetPrivateFieldM = GetPrivateFieldM.MakeGenericMethod(RotationData);
         }
 
-        private static bool Prefix(LightPairRotationEventEffect __instance, ref BeatmapEventType ____eventL, float startRotationOffset, float direction)
+        private static bool Prefix(LightPairRotationEventEffect __instance, BeatmapEventType ____eventL, float startRotationOffset, float direction)
         {
             if (!ChromaBehaviour.LightingRegistered) return true;
 

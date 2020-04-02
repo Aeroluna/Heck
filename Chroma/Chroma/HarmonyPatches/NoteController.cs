@@ -5,6 +5,7 @@ using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Chroma.HarmonyPatches
@@ -29,14 +30,9 @@ namespace Chroma.HarmonyPatches
                     c = ColourManager.GetTechnicolour(true, Time.time + __instance.GetInstanceID(), ChromaConfig.TechnicolourBombsStyle);
                 }
 
-                // NoteScales
-                if (ChromaBombColourEvent.CustomBombColours.Count > 0)
-                {
-                    foreach (KeyValuePair<float, Color> d in ChromaBombColourEvent.CustomBombColours)
-                    {
-                        if (d.Key <= noteData.time) c = d.Value;
-                    }
-                }
+                // BombColours
+                List<TimedColor> colors = ChromaBombColourEvent.BombColours.Where(n => n.time <= noteData.time).ToList();
+                if (colors.Count > 0) c = colors.Last().color;
 
                 // CustomJSONData _customData individual scale override
                 try

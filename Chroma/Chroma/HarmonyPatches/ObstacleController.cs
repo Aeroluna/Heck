@@ -44,7 +44,7 @@ namespace Chroma.HarmonyPatches
             customObstacleColor = null;
         }
 
-        private static void Prefix(ObstacleController __instance, ref SimpleColorSO ____color, ref ObstacleData obstacleData)
+        private static void Prefix(ObstacleController __instance, ref SimpleColorSO ____color, ObstacleData obstacleData)
         {
             Color? c = null;
 
@@ -55,13 +55,8 @@ namespace Chroma.HarmonyPatches
             }
 
             // CustomObstacleColours
-            if (ChromaObstacleColourEvent.CustomObstacleColours.Count > 0)
-            {
-                foreach (KeyValuePair<float, Color> d in ChromaObstacleColourEvent.CustomObstacleColours)
-                {
-                    if (d.Key <= obstacleData.time) c = d.Value;
-                }
-            }
+            List<TimedColor> colors = ChromaObstacleColourEvent.ObstacleColours.Where(n => n.time <= obstacleData.time).ToList();
+            if (colors.Count > 0) c = colors.Last().color;
 
             // CustomJSONData _customData individual color override
             try

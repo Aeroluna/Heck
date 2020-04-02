@@ -8,6 +8,7 @@ using HarmonyLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Chroma.HarmonyPatches
@@ -16,9 +17,10 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("Start")]
     internal class LightSwitchEventEffectStart
     {
-        private static void Postfix(LightSwitchEventEffect __instance, ref BeatmapEventType ____event)
+        private static void Postfix(LightSwitchEventEffect __instance, BeatmapEventType ____event)
         {
-            __instance.StartCoroutine(WaitThenStart(__instance, ____event));
+            if (ChromaBehaviour.LightingRegistered || ColourManager.TechnicolourLights || ChromaBehaviour.LegacyOverride)
+                __instance.StartCoroutine(WaitThenStart(__instance, ____event));
         }
 
         private static IEnumerator WaitThenStart(LightSwitchEventEffect __instance, BeatmapEventType ____event)
@@ -32,7 +34,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("OnDestroy")]
     internal class LightSwitchEventEffectOnDestroy
     {
-        private static void Postfix(LightSwitchEventEffect __instance, ref BeatmapEventType ____event)
+        private static void Postfix(LightSwitchEventEffect __instance, BeatmapEventType ____event)
         {
             LightSwitchEventEffectExtensions.LSEDestroy(__instance, ____event);
         }
@@ -42,7 +44,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("SetColor")]
     internal class LightSwitchEventEffectSetColor
     {
-        private static bool Prefix(LightSwitchEventEffect __instance, ref Color color)
+        private static bool Prefix(LightSwitchEventEffect __instance, Color color)
         {
             if (LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.overrideLightWithIdActivation != null)
             {
@@ -76,7 +78,7 @@ namespace Chroma.HarmonyPatches
         //1 = blue on, 5 = red on
         //2 = blue flash, 6 = red flash
         //3 = blue fade, 7 = red fade
-        private static bool Prefix(LightSwitchEventEffect __instance, ref BeatmapEventData beatmapEventData, ref BeatmapEventType ____event)
+        private static bool Prefix(LightSwitchEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____event)
         {
             if (beatmapEventData.type != ____event) return true;
 
@@ -123,7 +125,7 @@ namespace Chroma.HarmonyPatches
             overrideLightWithIdActivation = lights;
         }
 
-        private static void Postfix(LightSwitchEventEffect __instance)
+        private static void Postfix()
         {
             overrideLightWithIdActivation = null;
         }
@@ -134,16 +136,11 @@ namespace Chroma.HarmonyPatches
 
             Color? c = null;
 
-            // CustomLightColours
-            if (ChromaLightColourEvent.CustomLightColours.Count > 0)
+            // LightColours
+            if (ChromaLightColourEvent.LightColours.TryGetValue(_event, out List<TimedColor> dictionaryID))
             {
-                if (ChromaLightColourEvent.CustomLightColours.TryGetValue(_event, out Dictionary<float, Color> dictionaryID))
-                {
-                    foreach (KeyValuePair<float, Color> d in dictionaryID)
-                    {
-                        if (d.Key <= beatmapEventData.time) c = d.Value;
-                    }
-                }
+                List<TimedColor> colors = dictionaryID.Where(n => n.time <= beatmapEventData.time).ToList();
+                if (colors.Count > 0) c = colors.Last().color;
             }
 
             // CustomJSONData _customData individual override
@@ -195,10 +192,10 @@ namespace Chroma.HarmonyPatches
                     {
                         c = color;
                         // Clear any active gradient
-                        if (ChromaGradientEvent.CustomGradients.TryGetValue(_event, out ChromaGradientEvent gradient))
+                        if (ChromaGradientEvent.Gradients.TryGetValue(_event, out ChromaGradientEvent gradient))
                         {
                             UnityEngine.Object.Destroy(gradient);
-                            ChromaGradientEvent.CustomGradients.Remove(_event);
+                            ChromaGradientEvent.Gradients.Remove(_event);
                         }
                     }
                 }
@@ -210,7 +207,7 @@ namespace Chroma.HarmonyPatches
             }
 
             if (c.HasValue) __monobehaviour.SetLightingColours(c.Value, c.Value);
-            else if (!ChromaGradientEvent.CustomGradients.TryGetValue(_event, out _)) __monobehaviour.Reset();
+            else if (!ChromaGradientEvent.Gradients.TryGetValue(_event, out _)) __monobehaviour.Reset();
         }
     }
 }

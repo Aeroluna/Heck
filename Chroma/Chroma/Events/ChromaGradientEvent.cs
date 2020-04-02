@@ -1,13 +1,13 @@
 ﻿using Chroma.Extensions;
+using Chroma.Utils;
 using System.Collections.Generic;
 using UnityEngine;
-using Chroma.Utils;
 
 namespace Chroma.Events
 {
     internal class ChromaGradientEvent : MonoBehaviour
     {
-        internal static Dictionary<BeatmapEventType, ChromaGradientEvent> CustomGradients = new Dictionary<BeatmapEventType, ChromaGradientEvent>();
+        internal static Dictionary<BeatmapEventType, ChromaGradientEvent> Gradients = new Dictionary<BeatmapEventType, ChromaGradientEvent>();
 
         private static GameObject Instance
         {
@@ -54,7 +54,7 @@ namespace Chroma.Events
                     _event.SetLightingColours(_endcolor, _endcolor);
                     _event.SetActiveColours();
                 }
-                CustomGradients.Remove(_event);
+                Gradients.Remove(_event);
                 Destroy(this);
             }
         }
@@ -71,12 +71,12 @@ namespace Chroma.Events
             float _time = ChromaBehaviour.ATSC.songTime - time;
             if (_time < duration)
             {
-                if (CustomGradients.TryGetValue(id, out ChromaGradientEvent gradient))
+                if (Gradients.TryGetValue(id, out ChromaGradientEvent gradient))
                 {
                     Destroy(gradient);
-                    CustomGradients.Remove(id);
+                    Gradients.Remove(id);
                 }
-                CustomGradients.Add(id, Instantiate(initc, endc, time, duration, id, easing));
+                Gradients.Add(id, Instantiate(initc, endc, time, duration, id, easing));
                 return Color.Lerp(initc, endc, _time / duration); ;
             }
             else return endc;

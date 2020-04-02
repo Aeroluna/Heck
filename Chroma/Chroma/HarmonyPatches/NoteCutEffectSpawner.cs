@@ -9,7 +9,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("SpawnNoteCutEffect")]
     internal class NoteCutEffectSpawnerSpawnNoteCutEffect
     {
-        private static void Prefix(ref NoteController noteController)
+        private static void Prefix(NoteController noteController)
         {
             if (!ColourManager.TechnicolourBlocks || ChromaConfig.TechnicolourBlocksStyle != ColourManager.TechnicolourStyle.GRADIENT)
             {
@@ -20,7 +20,7 @@ namespace Chroma.HarmonyPatches
             }
         }
 
-        private static void Postfix(ref NoteController noteController)
+        private static void Postfix(NoteController noteController)
         {
             ColourManager.RemoveNoteTypeColourOverride(noteController.noteData.noteType);
         }

@@ -7,7 +7,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("ColorForNoteType")]
     internal class ColorManagerColorForNoteType
     {
-        private static bool Prefix(ref Color __result, ref NoteType type)
+        private static bool Prefix(ref Color __result, NoteType type)
         {
             Color? c = ColourManager.GetNoteTypeColourOverride(type);
             if (c.HasValue)
@@ -23,7 +23,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("ColorForSaberType")]
     internal class ColorManagerColorForSaberType
     {
-        private static bool Prefix(ref SaberType type, ref Color __result)
+        private static bool Prefix(SaberType type, ref Color __result)
         {
             bool warm = type == SaberType.SaberA;
 
@@ -42,7 +42,7 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("EffectsColorForSaberType")]
     internal class ColorManagerEffectsColorForSaberType
     {
-        private static bool Prefix(ColorManager __instance, ref SaberType type, ref Color __result)
+        private static bool Prefix(ColorManager __instance, SaberType type, ref Color __result)
         {
             Color rgbColor = __instance.ColorForSaberType(type);
             float h;
