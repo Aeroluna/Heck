@@ -2,6 +2,8 @@
 
 This adds a host of new things you can do with your maps.
 
+### THIS MOD WILL NOT READ MAPS THAT USE MAPPING EXTENSIONS. YOU HAVE TO INSTALL MAPPING EXTENSIONS FOR THOSE. (You can have both of the mods installed at once)
+
 #### If you use any of these features, you MUST add "Noodle Extensions" as a requirement for your map for them to function, you can go [Here](https://github.com/Kylemc1413/SongCore/blob/master/README.md) to see how adding requirements to the info.dat works
 
 All of these cool features are done through CustomJSONData, from the "_customData" field
