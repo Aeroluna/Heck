@@ -96,10 +96,7 @@ namespace Chroma
 
         internal static bool TechnicolourLights
         {
-            get
-            {
-                return ChromaConfig.TechnicolourEnabled && !TechnicolourLightsForceDisabled && ChromaConfig.TechnicolourLightsStyle != TechnicolourStyle.OFF;
-            }
+            get { return ChromaConfig.TechnicolourEnabled && !TechnicolourLightsForceDisabled && ChromaConfig.TechnicolourLightsStyle != TechnicolourStyle.OFF; }
         }
 
         internal static bool TechnicolourSabers

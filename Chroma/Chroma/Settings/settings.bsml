@@ -14,7 +14,7 @@
         <dropdown-list-setting text='Neon Sign Top' value='signcolourb' formatter='colourformat' options='colours'></dropdown-list-setting>
         <dropdown-list-setting text='Neon Sign Bottom' value='signcoloura' formatter='colourformat' options='colours'></dropdown-list-setting>
         <dropdown-list-setting text='Laser Pointer' value='laserpointercolour' formatter='colourformat' options='colours'></dropdown-list-setting>
-        <dropdown-list-setting text='Platform Accoutrements' value='platformaccoutrements' formatter='colourformat' options='colours'></dropdown-list-setting>
+        <dropdown-list-setting text='Platform Accents' value='platformaccoutrements' formatter='colourformat' options='colours'></dropdown-list-setting>
       </settings-container>
     </settings-submenu>
     <settings-submenu text='Technicolour'>

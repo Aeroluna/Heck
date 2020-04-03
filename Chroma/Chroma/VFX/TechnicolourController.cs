@@ -138,8 +138,8 @@ namespace Chroma.VFX
                 MaterialPropertyBlockController[] _materialPropertyBlockControllers = n.GetField<MaterialPropertyBlockController[], ColorNoteVisuals>("_materialPropertyBlockControllers");
 
                 n.SetField("_noteColor", color);
-                _arrowGlowSpriteRenderer.color = color.ColorWithAlpha(n.GetField<float, ColorNoteVisuals>("_arrowGlowIntensity"));
-                _circleGlowSpriteRenderer.color = color;
+                _arrowGlowSpriteRenderer.color = color.ColorWithAlpha(_arrowGlowSpriteRenderer.color.a);
+                _circleGlowSpriteRenderer.color = color.ColorWithAlpha(_circleGlowSpriteRenderer.color.a);
                 foreach (MaterialPropertyBlockController materialPropertyBlockController in _materialPropertyBlockControllers)
                 {
                     materialPropertyBlockController.materialPropertyBlock.SetColor(Shader.PropertyToID("_Color"), color.ColorWithAlpha(1f));

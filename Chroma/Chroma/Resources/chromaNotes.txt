@@ -14,6 +14,17 @@ And of course, all colours can be customized.  We didn't forget those of you who
 
 <size=6><mspace=4><align="center">CHANGE LOGS</align></mspace></size>
 
+<align="center">Version 2.0.1</align>
+Woops
+-<indent=3>Fixed bug where laser pointer and platform accent color would not save correctly</indent>
+-<indent=3>Fixed bug where objects in the MenuEnvironment would get disabled</indent>
+-<indent=3>Fixed bug where custom events with the same time would throw an exception</indent>
+-<indent=3>Fixed bug where technicolour lights would immediately get reset</indent>
+-<indent=3>Fixed bug where technicolour style "Isolated" incorrectly colored lights</indent>
+-<indent=3>Fixed bug where technicolour style "Gradient" would cause the Disappearing Arrows modifier to not work</indent>
+-<indent=3>Renamed "Platform Accoutrements" to "Platform Accents" for clarity</indent>
+-<indent=3>The technicolour style "Mayhem" will now override the lights frequency option</indent>
+
 <align="center">Version 2.0.0</align>
 It's been awhile, hasn't it?
 -<indent=3>SkyKiwi went missing, now I (Aeroluna) am in control!</indent>

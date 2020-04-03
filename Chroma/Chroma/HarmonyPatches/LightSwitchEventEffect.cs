@@ -89,15 +89,16 @@ namespace Chroma.HarmonyPatches
                 {
                     if (ChromaConfig.TechnicolourLightsStyle != ColourManager.TechnicolourStyle.GRADIENT)
                     { //0-4 are actual lighting events, we don't want to bother with anything else like ring spins or custom events
-                        if (techniLightRandom.NextDouble() < ChromaConfig.TechnicolourLightsFrequency)
+                        if (ChromaConfig.TechnicolourLightsGrouping == ColourManager.TechnicolourLightsGrouping.ISOLATED)
+                        {
+                            VFX.MayhemEvent.ActivateTechnicolour(beatmapEventData, __instance);
+                            return false;
+                        }
+                        else if (techniLightRandom.NextDouble() < ChromaConfig.TechnicolourLightsFrequency)
                         {
                             bool blue = beatmapEventData.value <= 3; //Blue events are 1, 2 and 3
                             switch (ChromaConfig.TechnicolourLightsGrouping)
                             {
-                                case ColourManager.TechnicolourLightsGrouping.ISOLATED:
-                                    VFX.MayhemEvent.ActivateTechnicolour(beatmapEventData, __instance);
-                                    return false;
-
                                 case ColourManager.TechnicolourLightsGrouping.ISOLATED_GROUP:
                                     // ternary operator gore
                                     __instance.SetLightingColours(blue ? (Color?)ColourManager.GetTechnicolour(false, beatmapEventData.time, ChromaConfig.TechnicolourLightsStyle) : null,
@@ -207,7 +208,7 @@ namespace Chroma.HarmonyPatches
             }
 
             if (c.HasValue) __monobehaviour.SetLightingColours(c.Value, c.Value);
-            else if (!ChromaGradientEvent.Gradients.TryGetValue(_event, out _)) __monobehaviour.Reset();
+            else if (!ColourManager.TechnicolourLights && !ChromaGradientEvent.Gradients.TryGetValue(_event, out _)) __monobehaviour.Reset();
         }
     }
 }

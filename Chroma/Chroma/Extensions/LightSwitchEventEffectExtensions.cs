@@ -206,15 +206,15 @@ namespace Chroma.Extensions
 
             internal void SetLightingColours(Color? colourA, Color? colourB)
             {
-                if (colourB.HasValue)
-                {
-                    _lightColor0.SetColor(colourB.Value);
-                    _highlightColor0.SetColor(colourB.Value);
-                }
                 if (colourA.HasValue)
                 {
-                    _lightColor1.SetColor(colourA.Value);
-                    _highlightColor1.SetColor(colourA.Value);
+                    _lightColor0.SetColor(colourA.Value);
+                    _highlightColor0.SetColor(colourA.Value);
+                }
+                if (colourB.HasValue)
+                {
+                    _lightColor1.SetColor(colourB.Value);
+                    _highlightColor1.SetColor(colourB.Value);
                 }
             }
 
