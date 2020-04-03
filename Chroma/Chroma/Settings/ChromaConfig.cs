@@ -129,7 +129,7 @@ namespace Chroma.Settings
             set
             {
                 laserPointer = value;
-                SetString("Aesthetics", "signColourA", value.name);
+                SetString("Aesthetics", "laserPointerColour", value.name);
             }
         }
 
@@ -141,7 +141,7 @@ namespace Chroma.Settings
             set
             {
                 platformAccoutrements = value;
-                SetString("Aesthetics", "signColourA", value.name);
+                SetString("Aesthetics", "platformAccoutrements", value.name);
             }
         }
 
