@@ -241,6 +241,16 @@ namespace Chroma.Settings
             }
         }
 
+        [UIValue("platform")]
+        public bool EnvironmentEnhancementsEnabled
+        {
+            get => !ChromaConfig.EnvironmentEnhancementsEnabled;
+            set
+            {
+                ChromaConfig.EnvironmentEnhancementsEnabled = !value;
+            }
+        }
+
         #endregion Events
 
         #region Technicolour

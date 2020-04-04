@@ -187,6 +187,18 @@ namespace Chroma.Settings
 
         private static bool noteColourEventsEnabled = true;
 
+        internal static bool EnvironmentEnhancementsEnabled
+        {
+            get { return environmentEnhancementsEnabled; }
+            set
+            {
+                environmentEnhancementsEnabled = value;
+                SetBool("Map", "environmentEnhancementsEnabled", environmentEnhancementsEnabled);
+            }
+        }
+
+        private static bool environmentEnhancementsEnabled = true;
+
         #endregion Events
 
         #region Technicolour
@@ -452,6 +464,7 @@ namespace Chroma.Settings
 
             customColourEventsEnabled = GetBool("Map", "customColourEventsEnabled", true);
             noteColourEventsEnabled = GetBool("Map", "noteColourEventsEnabled", true);
+            environmentEnhancementsEnabled = GetBool("Map", "environmentEnhancementsEnabled", true);
             ChromaUtils.SetSongCoreCapability(Plugin.REQUIREMENT_NAME, CustomColourEventsEnabled);
 
             /*

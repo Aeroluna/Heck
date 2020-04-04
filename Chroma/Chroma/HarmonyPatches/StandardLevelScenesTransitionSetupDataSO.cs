@@ -1,4 +1,5 @@
-﻿using CustomJSONData;
+﻿using Chroma.Settings;
+using CustomJSONData;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -12,22 +13,24 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("Init")]
     internal class StandardLevelScenesTransitionSetupDataSOInit
     {
-        private static void Postfix(IDifficultyBeatmap difficultyBeatmap)
+        private static void Prefix(IDifficultyBeatmap difficultyBeatmap, ref OverrideEnvironmentSettings overrideEnvironmentSettings)
         {
             if (difficultyBeatmap.beatmapData is CustomJSONData.CustomBeatmap.CustomBeatmapData customBeatmapData)
             {
                 IEnumerable<string> requirements = ((List<object>)Trees.at(customBeatmapData.beatmapCustomData, "_requirements"))?.Cast<string>();
                 IEnumerable<string> suggestions = ((List<object>)Trees.at(customBeatmapData.beatmapCustomData, "_suggestions"))?.Cast<string>();
                 ChromaBehaviour.LightingRegistered = (requirements?.Contains(Plugin.REQUIREMENT_NAME) ?? false) || (suggestions?.Contains(Plugin.REQUIREMENT_NAME) ?? false)
-                    && Settings.ChromaConfig.CustomColourEventsEnabled;
+                    && ChromaConfig.CustomColourEventsEnabled;
+
+                if (ChromaConfig.EnvironmentEnhancementsEnabled && Trees.at(customBeatmapData.beatmapCustomData, "_environmentRemoval") != null) overrideEnvironmentSettings = null;
             }
 
-            ChromaBehaviour.LegacyOverride = Settings.ChromaConfig.CustomColourEventsEnabled
+            ChromaBehaviour.LegacyOverride = ChromaConfig.CustomColourEventsEnabled
                 && difficultyBeatmap.beatmapData.beatmapEventData.Any(n => n.value >= Events.ChromaLegacyRGBEvent.RGB_INT_OFFSET);
             if (ChromaBehaviour.LegacyOverride)
             {
-                ChromaLogger.Log("Legacy Chroma Detected...");
-                ChromaLogger.Log("Please do not use Legacy Chroma for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed");
+                ChromaLogger.Log("Legacy Chroma Detected...", ChromaLogger.Level.WARNING);
+                ChromaLogger.Log("Please do not use Legacy Chroma for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", ChromaLogger.Level.WARNING);
             }
         }
     }

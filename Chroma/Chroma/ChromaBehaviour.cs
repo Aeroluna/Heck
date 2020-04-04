@@ -84,26 +84,29 @@ namespace Chroma
             {
                 if (beatmapData is CustomBeatmapData _customBeatmap)
                 {
-                    dynamic dynData = _customBeatmap.beatmapCustomData;
-                    List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
-                    if (objectsToKill != null)
+                    if (ChromaConfig.EnvironmentEnhancementsEnabled)
                     {
-                        GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-                        foreach (string s in objectsToKill?.Cast<string>())
+                        dynamic dynData = _customBeatmap.beatmapCustomData;
+                        List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
+                        if (objectsToKill != null)
                         {
-                            if (s == "TrackLaneRing" || s == "BigTrackLaneRing")
+                            GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+                            foreach (string s in objectsToKill?.Cast<string>())
                             {
-                                foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s)))
+                                if (s == "TrackLaneRing" || s == "BigTrackLaneRing")
                                 {
-                                    if (s == "TrackLaneRing" && n.name.Contains("Big")) continue;
-                                    n.SetActive(false);
+                                    foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s)))
+                                    {
+                                        if (s == "TrackLaneRing" && n.name.Contains("Big")) continue;
+                                        n.SetActive(false);
+                                    }
                                 }
+                                else
+                                    foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s) && obj.scene.name.Contains("Environment") && !obj.scene.name.Contains("Menu")))
+                                    {
+                                        n.SetActive(false);
+                                    }
                             }
-                            else
-                                foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s) && obj.scene.name.Contains("Environment") && !obj.scene.name.Contains("Menu")))
-                                {
-                                    n.SetActive(false);
-                                }
                         }
                     }
 

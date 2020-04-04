@@ -4,6 +4,7 @@
       <scrollable-settings-container>
         <clickable-text text='Back' click-event='back'></clickable-text>
         <dropdown-list-setting text='Side Panel' value='sidepanel' formatter='sidepanelform' options='sidepanelchoices'></dropdown-list-setting>
+        <bool-setting text='Disable Note Color Events' value='notecolours' hover-hint='Disables the events to change note colors mid-song'></bool-setting>
         <bool-setting text='Debug Mode' value='debugmode' hover-hint='Very performance heavy - only do this if you are bug chasing.'></bool-setting>
         <string-setting text='Secrets' value='secrets' hover-hint='What could it mean?!?!'></string-setting>
       </scrollable-settings-container>
