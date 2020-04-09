@@ -22,9 +22,11 @@ namespace NoodleExtensions.HarmonyPatches
 
                 float? _startRow = _position?.ElementAtOrDefault(0);
 
-                if (_startRow.HasValue) dynData._startRow = ((_startRow.Value + 0.5f) * -1) - 0.5f;
+                IDictionary<string, object> dictdata = dynData as IDictionary<string, object>;
+
+                if (_startRow.HasValue) dictdata[POSITION] = new List<object>() { ((_startRow.Value + 0.5f) * -1) - 0.5f, _position.ElementAtOrDefault(1) };
                 if (flipLineIndex.HasValue) dynData.flipLineIndex = ((flipLineIndex.Value + 0.5f) * -1) - 0.5f;
-                if (_rotation.HasValue) dynData._rotation = _rotation * -1;
+                if (_rotation.HasValue) dictdata[ROTATION] = _rotation * -1;
             }
         }
     }

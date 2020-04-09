@@ -1,9 +1,9 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
@@ -19,23 +19,18 @@ namespace NoodleExtensions.HarmonyPatches
                 dynamic dynData = customData.customData;
                 IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
                 IEnumerable<float?> _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
-                Vector3? _localrot = Trees.getVector3(dynData, LOCALROTATION);
-                float? _rotation = Trees.at(dynData, ROTATION);
+                List<float> _localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n)).ToList();
+                float? _rotation = (float?)Trees.at(dynData, ROTATION);
 
                 float? _startX = _position?.ElementAtOrDefault(0);
                 float? _width = _scale?.ElementAtOrDefault(0);
 
+                IDictionary<string, object> dictdata = dynData as IDictionary<string, object>;
+
                 float width = _width.GetValueOrDefault(__instance.width);
-                if (_startX.HasValue) dynData._startX = (_startX.Value + width) * -1;
-
-                if (_localrot.HasValue)
-                {
-                    _localrot *= -1;
-                    List<object> rotation = new List<object>() { _localrot.Value.x, _localrot.Value.y, _localrot.Value.z };
-                    dynData._rotation = rotation;
-                }
-
-                if (_rotation.HasValue) dynData._rotation = _rotation * -1;
+                if (_startX.HasValue) dictdata[POSITION] = new List<object>() { (_startX.Value + width) * -1, _position.ElementAtOrDefault(1) };
+                if (_localrot != null) dictdata[LOCALROTATION] = _localrot.Select(n => n *= 1).Cast<object>().ToList();
+                if (_rotation.HasValue) dictdata[ROTATION] = _rotation * -1;
             }
         }
     }
