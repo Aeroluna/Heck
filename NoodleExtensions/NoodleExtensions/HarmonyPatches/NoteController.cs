@@ -45,6 +45,8 @@ namespace NoodleExtensions.HarmonyPatches
 
                 // Precision 360 on individual note
                 if (_rotation.HasValue) worldRotation = _rotation.Value;
+                Logger.Log(_rotation?.ToString() ?? "null");
+                Logger.Log(worldRotation);
 
                 // flipYSide stuff
                 float? flipYSide = (float?)Trees.at(dynData, "flipYSide");
@@ -56,7 +58,7 @@ namespace NoodleExtensions.HarmonyPatches
             }
         }
 
-        private static void Postfix(NoteController __instance, NoteData noteData, float? __state, NoteMovement ____noteMovement)
+        private static void Postfix(NoteData noteData, float? __state, NoteMovement ____noteMovement)
         {
             if (noteData is CustomNoteData customData)
             {

@@ -42,7 +42,9 @@ namespace NoodleExtensions.HarmonyPatches
                 dynamic dynData = customData.customData;
                 float? _rotation = (float?)Trees.at(dynData, CUTDIRECTION);
 
-                if (_rotation.HasValue) dynData._rotation = 360 - _rotation.Value;
+                IDictionary<string, object> dictdata = dynData as IDictionary<string, object>;
+
+                if (_rotation.HasValue) dictdata[CUTDIRECTION] = 360 - _rotation.Value;
             }
         }
     }
