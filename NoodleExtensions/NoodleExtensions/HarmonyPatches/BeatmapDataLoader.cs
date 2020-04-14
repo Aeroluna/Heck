@@ -9,20 +9,22 @@ using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
-    internal class BeatmapDataLoaderProcessBasicNotesInTimeRow
+    internal class BeatmapDataLoader
     {
         internal static void PatchBeatmapDataLoader(Harmony harmony)
         {
             Type NotesInTimeRowProcessor = Type.GetType("BeatmapDataLoader+NotesInTimeRowProcessor,Main");
-            MethodInfo original = NotesInTimeRowProcessor?.GetMethod("ProcessBasicNotesInTimeRow");
-            MethodInfo postfix = SymbolExtensions.GetMethodInfo(() => Postfix(null));
+            MethodInfo basicoriginal = NotesInTimeRowProcessor.GetMethod("ProcessBasicNotesInTimeRow");
+            MethodInfo basicpostfix = SymbolExtensions.GetMethodInfo(() => ProcessBasicNotesInTimeRow(null));
+            harmony.Patch(basicoriginal, postfix: new HarmonyMethod(basicpostfix));
+
+            MethodInfo original = NotesInTimeRowProcessor.GetMethod("ProcessNotesInTimeRow");
+            MethodInfo postfix = SymbolExtensions.GetMethodInfo(() => ProcessNotesInTimeRow(null));
             harmony.Patch(original, postfix: new HarmonyMethod(postfix));
         }
 
-        public static void Postfix(List<NoteData> basicNotes)
+        private static void ProcessFlipData(List<CustomNoteData> customNotes)
         {
-            List<CustomNoteData> customNotes = Trees.tryNull(() => basicNotes.Cast<CustomNoteData>().ToList());
-            if (customNotes == null) return;
             for (int i = customNotes.Count - 1; i >= 0; i--)
             {
                 dynamic dynData = customNotes[i].customData;
@@ -36,8 +38,15 @@ namespace NoodleExtensions.HarmonyPatches
                     customNotes.Remove(customNotes[i]);
                 }
             }
-
             customNotes.ForEach(c => c.customData.flipYSide = 0);
+        }
+
+        public static void ProcessBasicNotesInTimeRow(List<NoteData> basicNotes)
+        {
+            List<CustomNoteData> customNotes = Trees.tryNull(() => basicNotes.Cast<CustomNoteData>().ToList());
+            if (customNotes == null) return;
+
+            ProcessFlipData(customNotes);
 
             if (customNotes.Count == 2)
             {
@@ -72,6 +81,12 @@ namespace NoodleExtensions.HarmonyPatches
                     }
                 }
             }
+        }
+
+        public static void ProcessNotesInTimeRow(List<NoteData> notes)
+        {
+            List<CustomNoteData> customNotes = Trees.tryNull(() => notes.Cast<CustomNoteData>().ToList());
+            ProcessFlipData(customNotes);
         }
     }
 }

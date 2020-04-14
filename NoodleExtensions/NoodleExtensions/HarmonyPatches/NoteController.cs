@@ -29,18 +29,12 @@ namespace NoodleExtensions.HarmonyPatches
                 Vector3 noteOffset = GetNoteOffset(noteData, _startRow, _startHeight);
 
                 jumpEndPos = _jumpEndPos + noteOffset;
-                if (noteData.noteType.IsBasicNote())
-                {
-                    float? flipLineIndex = (float?)Trees.at(dynData, "flipLineIndex");
-                    Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? _startRow, _startHeight);
-                    moveStartPos = _moveStartPos + noteOffset2;
-                    moveEndPos = _moveEndPos + noteOffset2;
-                }
-                else
-                {
-                    moveStartPos = _moveStartPos + noteOffset;
-                    moveEndPos = _moveEndPos + noteOffset;
-                }
+
+                // IsBasicNote() check is skipped so bombs can flip too
+                float? flipLineIndex = (float?)Trees.at(dynData, "flipLineIndex");
+                Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? _startRow, _startHeight);
+                moveStartPos = _moveStartPos + noteOffset2;
+                moveEndPos = _moveEndPos + noteOffset2;
 
                 float lineYPos = LineYPosForLineLayer(noteData, _startHeight);
                 // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
