@@ -44,30 +44,34 @@ namespace NoodleExtensions
 
         internal static void InitNoodlePatches()
         {
-            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+            if (NoodlePatches == null)
             {
-                object[] noodleattributes = type.GetCustomAttributes(typeof(NoodlePatch), true);
-                if (noodleattributes.Length > 0)
+                NoodlePatches = new List<NoodlePatchData>();
+                foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
                 {
-                    Type declaringType = null;
-                    string methodName = null;
-                    foreach (NoodlePatch n in noodleattributes)
+                    object[] noodleattributes = type.GetCustomAttributes(typeof(NoodlePatch), true);
+                    if (noodleattributes.Length > 0)
                     {
-                        if (n.declaringType != null) declaringType = n.declaringType;
-                        if (n.methodName != null) methodName = n.methodName;
+                        Type declaringType = null;
+                        string methodName = null;
+                        foreach (NoodlePatch n in noodleattributes)
+                        {
+                            if (n.declaringType != null) declaringType = n.declaringType;
+                            if (n.methodName != null) methodName = n.methodName;
+                        }
+                        if (declaringType == null || methodName == null) throw new ArgumentException("Type or Method Name not described");
+
+                        MethodInfo original = declaringType.GetMethod(methodName);
+                        MethodInfo prefix = AccessTools.Method(type, "Prefix");
+                        MethodInfo postfix = AccessTools.Method(type, "Postfix");
+
+                        NoodlePatches.Add(new NoodlePatchData(original, prefix, postfix));
                     }
-                    if (declaringType == null || methodName == null) throw new ArgumentException("Type or Method Name not described");
-
-                    MethodInfo original = declaringType.GetMethod(methodName);
-                    MethodInfo prefix = AccessTools.Method(type, "Prefix");
-                    MethodInfo postfix = AccessTools.Method(type, "Postfix");
-
-                    NoodlePatches.Add(new NoodlePatchData(original, prefix, postfix));
                 }
             }
         }
 
-        private static List<NoodlePatchData> NoodlePatches = new List<NoodlePatchData>();
+        private static List<NoodlePatchData> NoodlePatches;
 
         internal static void ToggleNoodlePatches(bool value)
         {

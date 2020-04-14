@@ -5,7 +5,7 @@ using IPALogger = IPA.Logging.Logger;
 
 namespace NoodleExtensions
 {
-    [Plugin(RuntimeOptions.SingleStartInit)]
+    [Plugin(RuntimeOptions.DynamicInit)]
     internal class Plugin
     {
         internal const string CAPABILITY = "Noodle Extensions";
@@ -36,13 +36,21 @@ namespace NoodleExtensions
         internal static Harmony coreharmony = new Harmony(HARMONYID_CORE);
         internal static Harmony harmony = new Harmony(HARMONYID);
 
-        [OnStart]
-        public void OnApplicationStart()
+        [OnEnable]
+        public void OnEnable()
         {
-            SongCore.Collections.RegisterCapability("Noodle Extensions");
+            SongCore.Collections.RegisterCapability(CAPABILITY);
             coreharmony.PatchAll(Assembly.GetExecutingAssembly());
             HarmonyPatches.BeatmapDataLoader.PatchBeatmapDataLoader(coreharmony);
             NoodleController.InitNoodlePatches();
+        }
+
+        [OnDisable]
+        public void OnDisable()
+        {
+            SongCore.Collections.DeregisterizeCapability(CAPABILITY);
+            coreharmony.UnpatchAll(HARMONYID_CORE);
+            coreharmony.UnpatchAll(HARMONYID);
         }
     }
 }
