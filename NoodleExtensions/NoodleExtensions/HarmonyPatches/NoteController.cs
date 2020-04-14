@@ -45,8 +45,6 @@ namespace NoodleExtensions.HarmonyPatches
 
                 // Precision 360 on individual note
                 if (_rotation.HasValue) worldRotation = _rotation.Value;
-                Logger.Log(_rotation?.ToString() ?? "null");
-                Logger.Log(worldRotation);
 
                 // flipYSide stuff
                 float? flipYSide = (float?)Trees.at(dynData, "flipYSide");
