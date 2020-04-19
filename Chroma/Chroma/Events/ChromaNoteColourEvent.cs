@@ -65,9 +65,6 @@ namespace Chroma.Events
                     }
                 }
             }
-
-            // unsubscribe
-            noteController.noteWasCutEvent -= SaberColour;
         }
     }
 }
