@@ -482,8 +482,8 @@ namespace Chroma.Settings
             technicolourBombsStyle = (TechnicolourStyle)GetInt("Technicolour", "technicolourBombsStyle", 0);
             matchTechnicolourSabers = GetBool("Technicolour", "matchTechnicolourSabers", false);
 
-            TechnicolourWarmPalette = new Color[4] { new Color(0, 0.501f, 1), new Color(0, 1, 0), new Color(0, 0, 1), new Color(0, 1, 0.8f) };
-            TechnicolourColdPalette = new Color[4] { new Color(1, 0, 0), new Color(1, 0, 1), new Color(1, 0.6f, 0), new Color(1, 0, 0.4f) };
+            TechnicolourWarmPalette = new Color[4] { new Color(1, 0, 0), new Color(1, 0, 1), new Color(1, 0.6f, 0), new Color(1, 0, 0.4f) };
+            TechnicolourColdPalette = new Color[4] { new Color(0, 0.501f, 1), new Color(0, 1, 0), new Color(0, 0, 1), new Color(0, 1, 0.8f) };
 
             /*
             * AESTHETICS
