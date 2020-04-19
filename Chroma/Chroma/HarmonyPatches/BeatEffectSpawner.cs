@@ -1,6 +1,9 @@
 ﻿using Chroma.Events;
 using Chroma.Settings;
+using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+using System;
 using UnityEngine;
 
 namespace Chroma.HarmonyPatches
@@ -9,8 +12,23 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("HandleNoteDidStartJumpEvent")]
     internal class HandleNoteDidStartJumpEvent
     {
-        private static void Prefix(NoteController noteController)
+        private static bool Prefix(NoteController noteController)
         {
+            try
+            {
+                if (ChromaBehaviour.LightingRegistered && noteController.noteData is CustomNoteData customData)
+                {
+                    dynamic dynData = customData.customData;
+                    bool? reset = Trees.at(dynData, "_disableSpawnEffect");
+                    if (reset.HasValue && reset == true) return false;
+                }
+            }
+            catch (Exception e)
+            {
+                ChromaLogger.Log("INVALID _customData", ChromaLogger.Level.WARNING);
+                ChromaLogger.Log(e);
+            }
+
             if (!ColourManager.TechnicolourBlocks || ChromaConfig.TechnicolourBlocksStyle != ColourManager.TechnicolourStyle.GRADIENT)
             {
                 if (ChromaNoteColourEvent.SavedNoteColours.TryGetValue(noteController, out Color c))
@@ -18,6 +36,7 @@ namespace Chroma.HarmonyPatches
                     ColourManager.SetNoteTypeColourOverride(noteController.noteData.noteType, c);
                 }
             }
+            return true;
         }
 
         private static void Postfix(NoteController noteController)
