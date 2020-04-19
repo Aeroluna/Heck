@@ -35,6 +35,7 @@
   <ItemGroup>
     <Compile Include="Events\ChromaLegacyRGBEvent.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectManager.cs" />
+    <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />
     <Compile Include="HarmonyPatches\StandardLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="Utils\Easings.cs" />
