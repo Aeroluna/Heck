@@ -1,5 +1,6 @@
 ﻿using IPA.Utilities;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Chroma.Extensions
@@ -66,15 +67,11 @@ namespace Chroma.Extensions
             }
         }
 
-        internal static SaberColourizer[] saberColourizers { get; private set; }
+        internal static SaberColourizer[] saberColourizers { get; private set; } = new SaberColourizer[0];
 
         internal static void InitializeSabers(Saber[] sabers)
         {
-            saberColourizers = new SaberColourizer[sabers.Length];
-            for (int i = 0; i < sabers.Length; i++)
-            {
-                saberColourizers[i] = new SaberColourizer(sabers[i]);
-            }
+            saberColourizers = sabers.Select(n => new SaberColourizer(n)).ToArray();
         }
 
         internal void Colourize(Color color)
