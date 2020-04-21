@@ -48,9 +48,19 @@ namespace Chroma.Extensions
             {
                 foreach (Material material in renderers[i].materials)
                 {
-                    if ((material.HasProperty("_Glow") && material.GetFloat("_Glow") > 0f) || (material.HasProperty("_Bloom") && material.GetFloat("_Bloom") > 0f))
+                    if (material.HasProperty("_Color"))
                     {
-                        customMats.Add(material);
+                        if (material.HasProperty("_CustomColors"))
+                        {
+                            if (material.GetFloat("_CustomColors") > 0)
+                            {
+                                customMats.Add(material);
+                            }
+                        }
+                        else if ((material.HasProperty("_Glow") && material.GetFloat("_Glow") > 0) || (material.HasProperty("_Bloom") && material.GetFloat("_Bloom") > 0))
+                        {
+                            customMats.Add(material);
+                        }
                     }
                 }
             }
