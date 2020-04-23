@@ -51,7 +51,7 @@ namespace NoodleExtensions.HarmonyPatches
                 if (flipYSide.HasValue)
                 {
                     __state = noteData.flipYSide;
-                    if (__state.HasValue) noteData.SetField("<flipYSide>k__BackingField", flipYSide.Value);
+                    noteData.SetField("<flipYSide>k__BackingField", flipYSide.Value);
                 }
             }
         }

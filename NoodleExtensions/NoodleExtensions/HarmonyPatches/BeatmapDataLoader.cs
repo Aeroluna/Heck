@@ -23,7 +23,7 @@ namespace NoodleExtensions.HarmonyPatches
             harmony.Patch(original, postfix: new HarmonyMethod(postfix));
         }
 
-        private static void ProcessFlipData(List<CustomNoteData> customNotes)
+        private static void ProcessFlipData(List<CustomNoteData> customNotes, bool defaultFlip = true)
         {
             for (int i = customNotes.Count - 1; i >= 0; i--)
             {
@@ -38,7 +38,7 @@ namespace NoodleExtensions.HarmonyPatches
                     customNotes.Remove(customNotes[i]);
                 }
             }
-            customNotes.ForEach(c => c.customData.flipYSide = 0);
+            if (defaultFlip) customNotes.ForEach(c => c.customData.flipYSide = 0);
         }
 
         public static void ProcessBasicNotesInTimeRow(List<NoteData> basicNotes)
@@ -86,7 +86,7 @@ namespace NoodleExtensions.HarmonyPatches
         public static void ProcessNotesInTimeRow(List<NoteData> notes)
         {
             List<CustomNoteData> customNotes = Trees.tryNull(() => notes.Cast<CustomNoteData>().ToList());
-            ProcessFlipData(customNotes);
+            ProcessFlipData(customNotes, false);
         }
     }
 }
