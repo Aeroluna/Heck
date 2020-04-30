@@ -2,7 +2,9 @@
 
 This adds a host of new things you can do with your maps.
 
-### THIS MOD WILL NOT READ MAPS THAT USE MAPPING EXTENSIONS. YOU HAVE TO INSTALL MAPPING EXTENSIONS FOR THOSE. (You can have both of the mods installed at once)
+### MAPPERS: EITHER USE MAPPING EXTENSIONS OR NOODLE EXTENSIONS, DO NOT USE BOTH AT THE SAME TIME. Noodle Extensions is meant to completely replace Mapping Extensions, as they both do the same thing (but Noodle Extensions does it better and will actually overwrite Mapping Extensions). Having both requirements will limit the users who can play your map for no reason.
+
+### NOODLE EXTENSIONS WILL NOT READ MAPS THAT USE MAPPING EXTENSIONS. YOU HAVE TO INSTALL MAPPING EXTENSIONS FOR THOSE. (You can have both of the mods installed at once)
 
 #### If you use any of these features, you MUST add "Noodle Extensions" as a requirement for your map for them to function, you can go [Here](https://github.com/Kylemc1413/SongCore/blob/master/README.md) to see how adding requirements to the info.dat works
 
