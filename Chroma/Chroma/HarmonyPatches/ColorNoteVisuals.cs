@@ -16,8 +16,19 @@ namespace Chroma.HarmonyPatches
     {
         private static void Postfix(ColorNoteVisuals __instance)
         {
-            if (ColourManager.TechnicolourBlocks && ChromaConfig.TechnicolourBlocksStyle == ColourManager.TechnicolourStyle.GRADIENT)
+            if (VFX.TechnicolourController.Instantiated())
                 VFX.TechnicolourController.Instance._colorNoteVisuals.Add(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(ColorNoteVisuals))]
+    [HarmonyPatch("OnDestroy")]
+    internal class ColorNoteVisualsOnDestroy
+    {
+        private static void Postfix(ColorNoteVisuals __instance)
+        {
+            if (VFX.TechnicolourController.Instantiated())
+                VFX.TechnicolourController.Instance._colorNoteVisuals.Remove(__instance);
         }
     }
 

@@ -52,7 +52,7 @@ namespace Chroma.VFX
         internal Color?[] rainbowSaberColours = new Color?[] { null, null };
 
         internal List<ColorNoteVisuals> _colorNoteVisuals = new List<ColorNoteVisuals>();
-        internal List<StretchableObstacle> _stretchableObstacles = new List<StretchableObstacle>();
+        internal List<ObstacleController> _obstacleControllers = new List<ObstacleController>();
         internal List<NoteController> _bombControllers = new List<NoteController>();
 
         internal static void InitializeGradients()
@@ -152,8 +152,9 @@ namespace Chroma.VFX
 
         private void RainbowWalls()
         {
-            foreach (StretchableObstacle n in _stretchableObstacles)
+            foreach (ObstacleController c in _obstacleControllers)
             {
+                StretchableObstacle n = c.GetField<StretchableObstacle, ObstacleController>("_stretchableObstacle");
                 ParametricBoxFrameController _obstacleFrame = n.GetField<ParametricBoxFrameController, StretchableObstacle>("_obstacleFrame");
                 ParametricBoxFakeGlowController _obstacleFakeGlow = n.GetField<ParametricBoxFakeGlowController, StretchableObstacle>("_obstacleFakeGlow");
                 MaterialPropertyBlockController[] _materialPropertyBlockControllers = n.GetField<MaterialPropertyBlockController[], StretchableObstacle>("_materialPropertyBlockControllers");

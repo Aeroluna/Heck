@@ -88,7 +88,7 @@ namespace Chroma.HarmonyPatches
         private static void Postfix(ObstacleController __instance)
         {
             if (!VFX.TechnicolourController.Instantiated()) return;
-            VFX.TechnicolourController.Instance._stretchableObstacles.Add(__instance.GetField<StretchableObstacle, ObstacleController>("_stretchableObstacle"));
+            VFX.TechnicolourController.Instance._obstacleControllers.Add(__instance);
         }
     }
 }
