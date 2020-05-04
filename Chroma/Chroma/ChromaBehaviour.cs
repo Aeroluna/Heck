@@ -90,7 +90,7 @@ namespace Chroma
                         List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
                         if (objectsToKill != null)
                         {
-                            GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+                            GameObject[] gameObjects = FindObjectsOfType<GameObject>();
                             foreach (string s in objectsToKill?.Cast<string>())
                             {
                                 if (s == "TrackLaneRing" || s == "BigTrackLaneRing")
