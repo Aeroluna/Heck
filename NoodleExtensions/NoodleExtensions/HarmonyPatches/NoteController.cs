@@ -1,6 +1,7 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using IPA.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -21,7 +22,6 @@ namespace NoodleExtensions.HarmonyPatches
             {
                 dynamic dynData = customData.customData;
                 IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
-                float? _rotation = (float?)Trees.at(dynData, ROTATION);
 
                 float? _startRow = _position?.ElementAtOrDefault(0);
                 float? _startHeight = _position?.ElementAtOrDefault(1);
@@ -43,9 +43,6 @@ namespace NoodleExtensions.HarmonyPatches
                 jumpGravity = 2f * (highestJump - lineYPos) /
                     Mathf.Pow(_jumpDistance / _noteJumpMovementSpeed * 0.5f, 2f);
 
-                // Precision 360 on individual note
-                if (_rotation.HasValue) worldRotation = _rotation.Value;
-
                 // flipYSide stuff
                 float? flipYSide = (float?)Trees.at(dynData, "flipYSide");
                 if (flipYSide.HasValue)
@@ -61,17 +58,42 @@ namespace NoodleExtensions.HarmonyPatches
             if (noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                float? _rot = (float?)Trees.at(dynData, CUTDIRECTION);
-                if (!_rot.HasValue) return;
+                float? _cutDir = (float?)Trees.at(dynData, CUTDIRECTION);
+
+                dynamic _rotation = Trees.at(dynData, ROTATION);
 
                 NoteJump noteJump = ____noteMovement.GetField<NoteJump, NoteMovement>("_jump");
+                NoteFloorMovement floorMovement = ____noteMovement.GetField<NoteFloorMovement, NoteMovement>("_floorMovement");
 
-                Quaternion rotation = Quaternion.Euler(0, 0, _rot.Value);
-                noteJump.SetField("_endRotation", rotation);
-                Vector3 vector = rotation.eulerAngles;
-                vector += noteJump.GetField<Vector3[], NoteJump>("_randomRotations")[noteJump.GetField<int, NoteJump>("_randomRotationIdx")] * 20;
-                Quaternion midrotation = Quaternion.Euler(vector);
-                noteJump.SetField("_middleRotation", midrotation);
+                if (_cutDir.HasValue)
+                {
+                    Quaternion rotation = Quaternion.Euler(0, 0, _cutDir.Value);
+                    noteJump.SetField("_endRotation", rotation);
+                    Vector3 vector = rotation.eulerAngles;
+                    vector += noteJump.GetField<Vector3[], NoteJump>("_randomRotations")[noteJump.GetField<int, NoteJump>("_randomRotationIdx")] * 20;
+                    Quaternion midrotation = Quaternion.Euler(vector);
+                    noteJump.SetField("_middleRotation", midrotation);
+                }
+
+                if (_rotation != null)
+                {
+                    Quaternion _worldRotation;
+                    if (_rotation is long l)
+                    {
+                        _worldRotation = Quaternion.Euler(0, l, 0);
+                    }
+                    else
+                    {
+                        IEnumerable<float> _rot = ((List<object>)_rotation)?.Select(n => Convert.ToSingle(n));
+                        _worldRotation = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
+                    }
+                    Quaternion _inverseWorldRotation = Quaternion.Inverse(_worldRotation);
+                    noteJump.SetField("_worldRotation", _worldRotation);
+                    noteJump.SetField("_inverseWorldRotation", _inverseWorldRotation);
+                    floorMovement.SetField("_worldRotation", _worldRotation);
+                    floorMovement.SetField("_inverseWorldRotation", _inverseWorldRotation);
+                    floorMovement.SetToStart();
+                }
 
                 // Reset flipYSide after Prefix
                 if (__state.HasValue) noteData.SetField("<flipYSide>k__BackingField", __state.Value);

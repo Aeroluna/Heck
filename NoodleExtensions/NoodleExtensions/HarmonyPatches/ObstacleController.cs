@@ -25,7 +25,8 @@ namespace NoodleExtensions.HarmonyPatches
                 IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
                 IEnumerable<float?> _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
                 IEnumerable<float> _localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
-                float? _rotation = (float?)Trees.at(dynData, ROTATION);
+
+                dynamic _rotation = Trees.at(dynData, ROTATION);
 
                 float? _startX = _position?.ElementAtOrDefault(0);
                 float? _startY = _position?.ElementAtOrDefault(1);
@@ -61,10 +62,20 @@ namespace NoodleExtensions.HarmonyPatches
                 }
 
                 // Precision 360 on individual wall
-                if (_rotation.HasValue)
+                if (_rotation != null)
                 {
-                    ____worldRotation = Quaternion.Euler(0, _rotation.Value, 0);
-                    ____inverseWorldRotation = Quaternion.Euler(0, -_rotation.Value, 0);
+                    Quaternion _worldRotation;
+                    if (_rotation is long l)
+                    {
+                        _worldRotation = Quaternion.Euler(0, l, 0);
+                    }
+                    else
+                    {
+                        IEnumerable<float> _rot = ((List<object>)_rotation)?.Select(n => Convert.ToSingle(n));
+                        _worldRotation = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
+                    }
+                    ____worldRotation = _worldRotation;
+                    ____inverseWorldRotation = Quaternion.Inverse(_worldRotation);
                     __instance.transform.localRotation = ____worldRotation;
                 }
 
