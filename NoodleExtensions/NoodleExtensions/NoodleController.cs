@@ -1,10 +1,7 @@
-﻿using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
+﻿using HarmonyLib;
 using IPA.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using static NoodleExtensions.NoodleController.BeatmapObjectSpawnMovementDataVariables;
@@ -64,7 +61,7 @@ namespace NoodleExtensions
                         }
                         if (declaringType == null || methodName == null) throw new ArgumentException("Type or Method Name not described");
 
-                        MethodInfo original = declaringType.GetMethod(methodName);
+                        MethodInfo original = AccessTools.Method(declaringType, methodName);
                         MethodInfo prefix = AccessTools.Method(type, "Prefix");
                         MethodInfo postfix = AccessTools.Method(type, "Postfix");
                         MethodInfo transpiler = AccessTools.Method(type, "Transpiler");
@@ -82,7 +79,7 @@ namespace NoodleExtensions
             if (value)
             {
                 if (!Harmony.HasAnyPatches(HARMONYID))
-                    NoodlePatches.ForEach(n => harmony.Patch(n.originalMethod, n.prefix != null ? new HarmonyMethod(n.prefix) : null, 
+                    NoodlePatches.ForEach(n => harmony.Patch(n.originalMethod, n.prefix != null ? new HarmonyMethod(n.prefix) : null,
                         n.postfix != null ? new HarmonyMethod(n.postfix) : null,
                         n.transpiler != null ? new HarmonyMethod(n.transpiler) : null));
             }
@@ -92,30 +89,35 @@ namespace NoodleExtensions
         internal static void InitBeatmapObjectSpawnController(BeatmapObjectSpawnMovementData beatmapObjectSpawnMovementData)
         {
             BeatmapObjectSpawnMovementDataVariables.beatmapObjectSpawnMovementData = beatmapObjectSpawnMovementData;
-            var bosmdTraversal = new Traverse(beatmapObjectSpawnMovementData);
-            foreach (FieldInfo f in typeof(BeatmapObjectSpawnMovementDataVariables).GetFields(BindingFlags.NonPublic | BindingFlags.Static).Where(n => n.Name != "beatmapObjectSpawnMovementData"))
-            {
-                f.SetValue(null, bosmdTraversal.Field(f.Name).GetValue());
-            }
         }
 
         internal static class BeatmapObjectSpawnMovementDataVariables
         {
             internal static BeatmapObjectSpawnMovementData beatmapObjectSpawnMovementData;
-#pragma warning disable 0649
-            internal static float _topObstaclePosY;
-            internal static float _jumpOffsetY;
-            internal static float _verticalObstaclePosY;
-            internal static float _jumpDistance;
-            internal static float _noteJumpMovementSpeed;
-            internal static float _noteLinesDistance;
-            internal static float _baseLinesYPos;
-            internal static Vector3 _moveStartPos;
-            internal static Vector3 _moveEndPos;
-            internal static Vector3 _jumpEndPos;
-            internal static float _noteLinesCount;
-            internal static Vector3 _rightVec;
-#pragma warning restore 0649
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _topObstaclePosYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_topObstaclePosY");
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _jumpOffsetYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_jumpOffsetY");
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _verticalObstaclePosYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_verticalObstaclePosY");
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _jumpDistanceAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_jumpDistance");
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _noteJumpMovementSpeedAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_noteJumpMovementSpeed");
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _noteLinesDistanceAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_noteLinesDistance");
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _baseLinesYPosAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_baseLinesYPos");
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.Accessor _moveStartPosAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.GetAccessor("_moveStartPos");
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.Accessor _moveEndPosAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.GetAccessor("_moveEndPos");
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.Accessor _jumpEndPosAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.GetAccessor("_jumpEndPos");
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _noteLinesCountAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_noteLinesCount");
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.Accessor _rightVecAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.GetAccessor("_rightVec");
+            internal static float _topObstaclePosY { get => _topObstaclePosYAccessor(ref beatmapObjectSpawnMovementData); }
+            internal static float _jumpOffsetY { get => _jumpOffsetYAccessor(ref beatmapObjectSpawnMovementData); }
+            internal static float _verticalObstaclePosY { get => _verticalObstaclePosYAccessor(ref beatmapObjectSpawnMovementData); }
+            internal static float _jumpDistance { get => _jumpDistanceAccessor(ref beatmapObjectSpawnMovementData); }
+            internal static float _noteJumpMovementSpeed { get => _noteJumpMovementSpeedAccessor(ref beatmapObjectSpawnMovementData); }
+            internal static float _noteLinesDistance { get => _noteLinesDistanceAccessor(ref beatmapObjectSpawnMovementData); }
+            internal static float _baseLinesYPos { get => _baseLinesYPosAccessor(ref beatmapObjectSpawnMovementData); }
+            internal static Vector3 _moveStartPos { get => _moveStartPosAccessor(ref beatmapObjectSpawnMovementData); }
+            internal static Vector3 _moveEndPos { get => _moveEndPosAccessor(ref beatmapObjectSpawnMovementData); }
+            internal static Vector3 _jumpEndPos { get => _jumpEndPosAccessor(ref beatmapObjectSpawnMovementData); }
+            internal static float _noteLinesCount { get => _noteLinesCountAccessor(ref beatmapObjectSpawnMovementData); }
+            internal static Vector3 _rightVec { get => _rightVecAccessor(ref beatmapObjectSpawnMovementData); }
         }
     }
 }

@@ -14,11 +14,11 @@ namespace NoodleExtensions.HarmonyPatches
         internal static void PatchBeatmapDataLoader(Harmony harmony)
         {
             Type NotesInTimeRowProcessor = Type.GetType("BeatmapDataLoader+NotesInTimeRowProcessor,Main");
-            MethodInfo basicoriginal = NotesInTimeRowProcessor.GetMethod("ProcessBasicNotesInTimeRow");
+            MethodInfo basicoriginal = AccessTools.Method(NotesInTimeRowProcessor, "ProcessBasicNotesInTimeRow");
             MethodInfo basicpostfix = SymbolExtensions.GetMethodInfo(() => ProcessBasicNotesInTimeRow(null));
             harmony.Patch(basicoriginal, postfix: new HarmonyMethod(basicpostfix));
 
-            MethodInfo original = NotesInTimeRowProcessor.GetMethod("ProcessNotesInTimeRow");
+            MethodInfo original = AccessTools.Method(NotesInTimeRowProcessor, "ProcessNotesInTimeRow");
             MethodInfo postfix = SymbolExtensions.GetMethodInfo(() => ProcessNotesInTimeRow(null));
             harmony.Patch(original, postfix: new HarmonyMethod(postfix));
         }

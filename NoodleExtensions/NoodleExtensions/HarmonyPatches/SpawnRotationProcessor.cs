@@ -10,9 +10,7 @@ namespace NoodleExtensions.HarmonyPatches
     {
         private static bool Prefix(BeatmapEventData beatmapEventData, ref float ____rotation)
         {
-            if (!beatmapEventData.type.IsRotationEvent()) return true;
-
-            if (beatmapEventData is CustomBeatmapEventData customData)
+            if (beatmapEventData.type.IsRotationEvent() && beatmapEventData is CustomBeatmapEventData customData)
             {
                 dynamic dynData = customData.customData;
                 float? _rotation = (float?)Trees.at(dynData, ROTATION);

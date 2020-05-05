@@ -7,8 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
-using static NoodleExtensions.NoodleController;
-using static NoodleExtensions.NoodleController.BeatmapObjectSpawnMovementDataVariables;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
@@ -36,6 +34,7 @@ namespace NoodleExtensions.HarmonyPatches
         private static readonly MethodInfo customWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(null, 0));
         private static readonly MethodInfo worldRotation = SymbolExtensions.GetMethodInfo(() => GetWorldRotation(null, 0));
         private static readonly MethodInfo inverseQuaternion = SymbolExtensions.GetMethodInfo(() => Quaternion.Inverse(Quaternion.identity));
+
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
@@ -58,7 +57,7 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList[i + 2] = new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ObstacleController), "_worldRotation"));
                     instructionList[i + 3] = new CodeInstruction(OpCodes.Call, inverseQuaternion);
                 }
-                if (!foundWidth && 
+                if (!foundWidth &&
                     instructionList[i].opcode == OpCodes.Callvirt &&
                     ((MethodInfo)instructionList[i].operand).Name == "get_width")
                 {
@@ -79,7 +78,7 @@ namespace NoodleExtensions.HarmonyPatches
             {
                 dynamic dynData = customData.customData;
                 dynamic _rotation = Trees.at(dynData, ROTATION);
-                
+
                 if (_rotation != null)
                 {
                     if (_rotation is List<object> list)
