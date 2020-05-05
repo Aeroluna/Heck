@@ -33,8 +33,9 @@ namespace NoodleExtensions.HarmonyPatches
             }
         }
 
-        private static MethodInfo customWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(null, 0));
-        private static MethodInfo worldRotation = SymbolExtensions.GetMethodInfo(() => GetWorldRotation(null, 0));
+        private static readonly MethodInfo customWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(null, 0));
+        private static readonly MethodInfo worldRotation = SymbolExtensions.GetMethodInfo(() => GetWorldRotation(null, 0));
+        private static readonly MethodInfo inverseQuaternion = SymbolExtensions.GetMethodInfo(() => Quaternion.Inverse(Quaternion.identity));
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
@@ -47,9 +48,15 @@ namespace NoodleExtensions.HarmonyPatches
                     ((FieldInfo)instructionList[i].operand).Name == "_worldRotation")
                 {
                     foundRotation = true;
+
                     instructionList[i - 1] = new CodeInstruction(OpCodes.Call, worldRotation);
                     instructionList[i - 4] = new CodeInstruction(OpCodes.Ldarg_1);
                     instructionList.RemoveAt(i - 2);
+
+                    instructionList.RemoveRange(i + 1, 2);
+                    instructionList[i + 1] = new CodeInstruction(OpCodes.Ldarg_0);
+                    instructionList[i + 2] = new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ObstacleController), "_worldRotation"));
+                    instructionList[i + 3] = new CodeInstruction(OpCodes.Call, inverseQuaternion);
                 }
                 if (!foundWidth && 
                     instructionList[i].opcode == OpCodes.Callvirt &&
@@ -67,7 +74,23 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
         {
-            return NoodleController.GetWorldRotation(obstacleData as CustomObstacleData, @default);
+            Quaternion _worldRotation = Quaternion.Euler(0, @default, 0);
+            if (obstacleData is CustomObstacleData customData)
+            {
+                dynamic dynData = customData.customData;
+                dynamic _rotation = Trees.at(dynData, ROTATION);
+                
+                if (_rotation != null)
+                {
+                    if (_rotation is List<object> list)
+                    {
+                        IEnumerable<float> _rot = (list)?.Select(n => Convert.ToSingle(n));
+                        _worldRotation = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
+                    }
+                    else _worldRotation = Quaternion.Euler(0, (float)_rotation, 0);
+                }
+            }
+            return _worldRotation;
         }
 
         private static float GetCustomWidth(ObstacleData obstacleData, float @default)

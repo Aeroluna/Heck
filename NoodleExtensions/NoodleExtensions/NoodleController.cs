@@ -38,24 +38,6 @@ namespace NoodleExtensions
             return ypos;
         }
 
-        internal static Quaternion GetWorldRotation(dynamic customData, float @default)
-        {
-            dynamic dynData = customData.customData;
-            dynamic _rotation = Trees.at(dynData, ROTATION);
-            Quaternion _worldRotation;
-            if (_rotation != null)
-            {
-                if (_rotation is List<object> list)
-                {
-                    IEnumerable<float> _rot = (list)?.Select(n => Convert.ToSingle(n));
-                    _worldRotation = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
-                }
-                else _worldRotation = Quaternion.Euler(0, (float)_rotation, 0);
-            }
-            else _worldRotation = Quaternion.Euler(0, @default, 0);
-            return _worldRotation;
-        }
-
         // poof random extension
         internal static float? ToNullableFloat(this object @this)
         {
@@ -109,6 +91,7 @@ namespace NoodleExtensions
 
         internal static void InitBeatmapObjectSpawnController(BeatmapObjectSpawnMovementData beatmapObjectSpawnMovementData)
         {
+            BeatmapObjectSpawnMovementDataVariables.beatmapObjectSpawnMovementData = beatmapObjectSpawnMovementData;
             var bosmdTraversal = new Traverse(beatmapObjectSpawnMovementData);
             foreach (FieldInfo f in typeof(BeatmapObjectSpawnMovementDataVariables).GetFields(BindingFlags.NonPublic | BindingFlags.Static).Where(n => n.Name != "beatmapObjectSpawnMovementData"))
             {

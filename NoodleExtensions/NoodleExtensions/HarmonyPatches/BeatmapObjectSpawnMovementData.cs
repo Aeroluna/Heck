@@ -57,4 +57,41 @@ namespace NoodleExtensions.HarmonyPatches
             }
         }
     }
+
+    [NoodlePatch(typeof(BeatmapObjectSpawnMovementData))]
+    [NoodlePatch("GetNoteSpawnMovementData")]
+    internal class BeatmapObjectSpawnMovementDataGetNoteSpawnMovementData
+    {
+        private static void Postfix(NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float jumpGravity)
+        {
+            if (noteData is CustomNoteData customData)
+            {
+                dynamic dynData = customData.customData;
+                IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
+                float? flipLineIndex = (float?)Trees.at(dynData, "flipLineIndex");
+
+                float? _startRow = _position?.ElementAtOrDefault(0);
+                float? _startHeight = _position?.ElementAtOrDefault(1);
+
+                if (_position != null || flipLineIndex != null)
+                {
+                    Vector3 noteOffset = GetNoteOffset(noteData, _startRow, _startHeight);
+
+                    float lineYPos = LineYPosForLineLayer(noteData, _startHeight);
+                    // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
+                    float highestJump = _startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + _jumpOffsetY :
+                        beatmapObjectSpawnMovementData.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
+                    jumpGravity = 2f * (highestJump - lineYPos) /
+                        Mathf.Pow(_jumpDistance / _noteJumpMovementSpeed * 0.5f, 2f);
+
+                    jumpEndPos = _jumpEndPos + noteOffset;
+
+                    // IsBasicNote() check is skipped so bombs can flip too
+                    Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? _startRow, _startHeight);
+                    moveStartPos = _moveStartPos + noteOffset2;
+                    moveEndPos = _moveEndPos + noteOffset2;
+                }
+            }
+        }
+    }
 }
