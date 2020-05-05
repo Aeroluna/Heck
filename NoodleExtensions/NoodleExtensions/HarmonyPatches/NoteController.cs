@@ -16,7 +16,7 @@ namespace NoodleExtensions.HarmonyPatches
     internal class NoteControllerInit
     {
         private static void Prefix(NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos,
-            ref float jumpGravity, ref float worldRotation, ref float? __state)
+            ref float jumpGravity, ref float? __state)
         {
             if (noteData is CustomNoteData customData)
             {

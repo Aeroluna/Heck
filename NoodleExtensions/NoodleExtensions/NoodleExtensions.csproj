@@ -66,9 +66,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
     <Compile Include="HarmonyPatches\NoteController.cs" />
+    <Compile Include="HarmonyPatches\BeatmapObjectSpawnMovementData.cs" />
     <Compile Include="HarmonyPatches\ObstacleData.cs" />
     <Compile Include="HarmonyPatches\NoteData.cs" />
     <Compile Include="HarmonyPatches\BeatDataMirrorTransform.cs" />

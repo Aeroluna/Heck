@@ -1,4 +1,6 @@
-﻿using HarmonyLib;
+﻿using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
+using HarmonyLib;
 using IPA.Utilities;
 using System;
 using System.Collections.Generic;
@@ -6,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using static NoodleExtensions.NoodleController.BeatmapObjectSpawnMovementDataVariables;
+using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions
 {
@@ -33,6 +36,24 @@ namespace NoodleExtensions
                 ypos = beatmapObjectSpawnMovementData.LineYPosForLineLayer(noteData.startNoteLineLayer);
             }
             return ypos;
+        }
+
+        internal static Quaternion GetWorldRotation(dynamic customData, float @default)
+        {
+            dynamic dynData = customData.customData;
+            dynamic _rotation = Trees.at(dynData, ROTATION);
+            Quaternion _worldRotation;
+            if (_rotation != null)
+            {
+                if (_rotation is List<object> list)
+                {
+                    IEnumerable<float> _rot = (list)?.Select(n => Convert.ToSingle(n));
+                    _worldRotation = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
+                }
+                else _worldRotation = Quaternion.Euler(0, (float)_rotation, 0);
+            }
+            else _worldRotation = Quaternion.Euler(0, @default, 0);
+            return _worldRotation;
         }
 
         // poof random extension
@@ -64,8 +85,9 @@ namespace NoodleExtensions
                         MethodInfo original = declaringType.GetMethod(methodName);
                         MethodInfo prefix = AccessTools.Method(type, "Prefix");
                         MethodInfo postfix = AccessTools.Method(type, "Postfix");
+                        MethodInfo transpiler = AccessTools.Method(type, "Transpiler");
 
-                        NoodlePatches.Add(new NoodlePatchData(original, prefix, postfix));
+                        NoodlePatches.Add(new NoodlePatchData(original, prefix, postfix, transpiler));
                     }
                 }
             }
@@ -77,15 +99,16 @@ namespace NoodleExtensions
         {
             if (value)
             {
-                if (!Harmony.HasAnyPatches(Plugin.HARMONYID))
-                    NoodlePatches.ForEach(n => Plugin.harmony.Patch(n.originalMethod, n.prefix != null ? new HarmonyMethod(n.prefix) : null, n.postfix != null ? new HarmonyMethod(n.postfix) : null));
+                if (!Harmony.HasAnyPatches(HARMONYID))
+                    NoodlePatches.ForEach(n => harmony.Patch(n.originalMethod, n.prefix != null ? new HarmonyMethod(n.prefix) : null, 
+                        n.postfix != null ? new HarmonyMethod(n.postfix) : null,
+                        n.transpiler != null ? new HarmonyMethod(n.transpiler) : null));
             }
-            else Plugin.harmony.UnpatchAll(Plugin.HARMONYID);
+            else harmony.UnpatchAll(HARMONYID);
         }
 
-        internal static void InitBeatmapObjectSpawnController(BeatmapObjectSpawnController bosc)
+        internal static void InitBeatmapObjectSpawnController(BeatmapObjectSpawnMovementData beatmapObjectSpawnMovementData)
         {
-            beatmapObjectSpawnMovementData = bosc.GetField<BeatmapObjectSpawnMovementData, BeatmapObjectSpawnController>("_beatmapObjectSpawnMovementData");
             var bosmdTraversal = new Traverse(beatmapObjectSpawnMovementData);
             foreach (FieldInfo f in typeof(BeatmapObjectSpawnMovementDataVariables).GetFields(BindingFlags.NonPublic | BindingFlags.Static).Where(n => n.Name != "beatmapObjectSpawnMovementData"))
             {

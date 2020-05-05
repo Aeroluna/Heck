@@ -28,15 +28,17 @@ namespace NoodleExtensions
 
     internal struct NoodlePatchData
     {
-        internal NoodlePatchData(MethodInfo orig, MethodInfo pre, MethodInfo post)
+        internal NoodlePatchData(MethodInfo orig, MethodInfo pre, MethodInfo post, MethodInfo tran)
         {
             originalMethod = orig;
             prefix = pre;
             postfix = post;
+            transpiler = tran;
         }
 
-        internal MethodInfo originalMethod { get; private set; }
-        internal MethodInfo prefix { get; private set; }
-        internal MethodInfo postfix { get; private set; }
+        internal MethodInfo originalMethod { get; }
+        internal MethodInfo prefix { get; }
+        internal MethodInfo postfix { get; }
+        internal MethodInfo transpiler { get; }
     }
 }
