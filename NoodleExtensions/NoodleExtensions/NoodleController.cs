@@ -74,7 +74,7 @@ namespace NoodleExtensions
 
         private static List<NoodlePatchData> NoodlePatches;
 
-        internal static void ToggleNoodlePatches(bool value)
+        public static void ToggleNoodlePatches(bool value)
         {
             if (value)
             {
