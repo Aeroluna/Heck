@@ -6,8 +6,8 @@ namespace NoodleExtensions
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     internal class NoodlePatch : Attribute
     {
-        internal Type declaringType { get; private set; }
-        internal string methodName { get; private set; }
+        internal Type declaringType { get; }
+        internal string methodName { get; }
 
         internal NoodlePatch(Type declaringType)
         {

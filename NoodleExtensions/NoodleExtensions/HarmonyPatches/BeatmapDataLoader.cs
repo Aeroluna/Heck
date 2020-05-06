@@ -41,7 +41,7 @@ namespace NoodleExtensions.HarmonyPatches
             if (defaultFlip) customNotes.ForEach(c => c.customData.flipYSide = 0);
         }
 
-        public static void ProcessBasicNotesInTimeRow(List<NoteData> basicNotes)
+        private static void ProcessBasicNotesInTimeRow(List<NoteData> basicNotes)
         {
             List<CustomNoteData> customNotes = Trees.tryNull(() => basicNotes.Cast<CustomNoteData>().ToList());
             if (customNotes == null) return;
@@ -83,13 +83,14 @@ namespace NoodleExtensions.HarmonyPatches
             }
         }
 
-        public static void ProcessNotesInTimeRow(List<NoteData> notes)
+        private static void ProcessNotesInTimeRow(List<NoteData> notes)
         {
             List<CustomNoteData> customNotes = Trees.tryNull(() => notes.Cast<CustomNoteData>().ToList());
             ProcessFlipData(customNotes, false);
         }
     }
 
+    // TODO: THIS IS JANK
     [HarmonyPatch(typeof(CustomLevelLoader))]
     [HarmonyPatch("LoadBeatmapDataBeatmapData")]
     internal class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
@@ -104,6 +105,8 @@ namespace NoodleExtensions.HarmonyPatches
                     if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData) customData = beatmapObjectData;
                     else continue;
                     dynamic dynData = customData.customData;
+                    // JANK JANK JANK
+                    // TODO: REWRITE CJD SO I DONT HAVE TO DO THIS JANK
                     dynData.bpm = standardLevelInfoSaveData.beatsPerMinute;
                 }
             }

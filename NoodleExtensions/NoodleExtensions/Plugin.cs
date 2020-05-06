@@ -37,8 +37,8 @@ namespace NoodleExtensions
             NoodleController.InitNoodlePatches();
         }
 
-        internal static Harmony coreharmony = new Harmony(HARMONYID_CORE);
-        internal static Harmony harmony = new Harmony(HARMONYID);
+        internal static readonly Harmony coreharmony = new Harmony(HARMONYID_CORE);
+        internal static readonly Harmony harmony = new Harmony(HARMONYID);
 
         [OnEnable]
         public void OnEnable()
