@@ -17,6 +17,9 @@ namespace NoodleExtensions
 
         internal const string ROTATION = "_rotation"; // Rotation events included
 
+        internal const string NOTEJUMPSPEED = "_noteJumpMovementSpeed";
+        internal const string SPAWNOFFSET = "_noteJumpStartBeatOffset";
+
         // Wall exclusives
         internal const string LOCALROTATION = "_localRotation";
 

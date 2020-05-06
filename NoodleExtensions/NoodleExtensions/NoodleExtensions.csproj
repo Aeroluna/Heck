@@ -67,6 +67,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
+    <Compile Include="HarmonyPatches\BeatmapObjectCallBackController.cs" />
+    <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnMovementData.cs" />
     <Compile Include="HarmonyPatches\ObstacleData.cs" />

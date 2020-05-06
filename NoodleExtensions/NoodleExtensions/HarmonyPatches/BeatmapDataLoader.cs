@@ -89,4 +89,24 @@ namespace NoodleExtensions.HarmonyPatches
             ProcessFlipData(customNotes, false);
         }
     }
+
+    [HarmonyPatch(typeof(CustomLevelLoader))]
+    [HarmonyPatch("LoadBeatmapDataBeatmapData")]
+    internal class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
+    {
+        private static void Postfix(BeatmapData __result, StandardLevelInfoSaveData standardLevelInfoSaveData)
+        {
+            foreach (BeatmapLineData beatmapLineData in __result.beatmapLinesData)
+            {
+                foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
+                {
+                    dynamic customData;
+                    if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData) customData = beatmapObjectData;
+                    else continue;
+                    dynamic dynData = customData.customData;
+                    dynData.aheadTime = standardLevelInfoSaveData.beatsPerMinute;
+                }
+            }
+        }
+    }
 }
