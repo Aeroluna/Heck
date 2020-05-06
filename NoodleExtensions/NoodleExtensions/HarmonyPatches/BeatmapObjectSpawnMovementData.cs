@@ -37,43 +37,22 @@ namespace NoodleExtensions.HarmonyPatches
                 float? _startX = _position?.ElementAtOrDefault(0);
                 float? _startY = _position?.ElementAtOrDefault(1);
 
-                float? _width = _scale?.ElementAtOrDefault(0);
                 float? _height = _scale?.ElementAtOrDefault(1);
 
-                float _localNoteJumpMovementSpeed = _njs ?? _noteJumpMovementSpeed;
-                float _localNoteJumpStartBeatOffset = _spawnoffset ?? _noteJumpStartBeatOffset;
-                float num = 60f / _startBPM;
-                float num2 = _startHalfJumpDurationInBeats;
-                while (_localNoteJumpMovementSpeed * num * num2 > _maxHalfJumpDistance)
-                {
-                    num2 /= 2f;
-                }
-                num2 += _localNoteJumpStartBeatOffset;
-                if (num2 < 1f)
-                {
-                    num2 = 1f;
-                }
-                float _localJumpDuration = num * num2 * 2f;
-                float _localJumpDistance = _localNoteJumpMovementSpeed * _localJumpDuration;
-                Vector3 _localMoveStartPos = _centerPos + _forwardVec * (_moveDistance + _localJumpDistance * 0.5f);
-                Vector3 _localMoveEndPos = _centerPos + _forwardVec * _localJumpDistance * 0.5f;
-                Vector3 _localJumpEndPos = _centerPos - _forwardVec * _localJumpDistance * 0.5f;
-
                 // Actual wall stuff
-                if (_startX.HasValue || _startY.HasValue || _width.HasValue || _height.HasValue || _njs.HasValue || _spawnoffset.HasValue)
+                if (_startX.HasValue || _startY.HasValue || _njs.HasValue || _spawnoffset.HasValue)
                 {
-                    if (_startX.HasValue || _startY.HasValue || _njs.HasValue || _spawnoffset.HasValue)
-                    {
-                        // Ripped from base game
-                        Vector3 noteOffset = GetNoteOffset(obstacleData, _startX, null);
-                        noteOffset.y = _startY.HasValue ? _verticalObstaclePosY + _startY.GetValueOrDefault(0) * _noteLinesDistance : ((obstacleData.obstacleType == ObstacleType.Top)
-                            ? (_topObstaclePosY + _jumpOffsetY) : _verticalObstaclePosY); // If _startY(_startHeight) is set, put wall on floor
-                        moveStartPos = _localMoveStartPos + noteOffset;
-                        moveEndPos = _localMoveEndPos + noteOffset;
-                        jumpEndPos = _localJumpEndPos + noteOffset;
-                    }
-                    if (_height.HasValue) obstacleHeight = _height.Value * _noteLinesDistance;
+                    GetNoteJumpValues(_njs, _spawnoffset, out float _, out float _, out Vector3 _localMoveStartPos, out Vector3 _localMoveEndPos, out Vector3 _localJumpEndPos);
+
+                    // Ripped from base game
+                    Vector3 noteOffset = GetNoteOffset(obstacleData, _startX, null);
+                    noteOffset.y = _startY.HasValue ? _verticalObstaclePosY + _startY.GetValueOrDefault(0) * _noteLinesDistance : ((obstacleData.obstacleType == ObstacleType.Top)
+                        ? (_topObstaclePosY + _jumpOffsetY) : _verticalObstaclePosY); // If _startY(_startHeight) is set, put wall on floor
+                    moveStartPos = _localMoveStartPos + noteOffset;
+                    moveEndPos = _localMoveEndPos + noteOffset;
+                    jumpEndPos = _localJumpEndPos + noteOffset;
                 }
+                if (_height.HasValue) obstacleHeight = _height.Value * _noteLinesDistance;
             }
         }
     }
@@ -97,24 +76,9 @@ namespace NoodleExtensions.HarmonyPatches
 
                 if (_position != null || flipLineIndex != null || _njs.HasValue || _spawnoffset.HasValue)
                 {
+                    GetNoteJumpValues(_njs, _spawnoffset, out float _, out float _localJumpDistance, out Vector3 _localMoveStartPos, out Vector3 _localMoveEndPos, out Vector3 _localJumpEndPos);
+
                     float _localNoteJumpMovementSpeed = _njs ?? _noteJumpMovementSpeed;
-                    float _localNoteJumpStartBeatOffset = _spawnoffset ?? _noteJumpStartBeatOffset;
-                    float num = 60f / _startBPM;
-                    float num2 = _startHalfJumpDurationInBeats;
-                    while (_localNoteJumpMovementSpeed * num * num2 > _maxHalfJumpDistance)
-                    {
-                        num2 /= 2f;
-                    }
-                    num2 += _localNoteJumpStartBeatOffset;
-                    if (num2 < 1f)
-                    {
-                        num2 = 1f;
-                    }
-                    float _localJumpDuration = num * num2 * 2f;
-                    float _localJumpDistance = _localNoteJumpMovementSpeed * _localJumpDuration;
-                    Vector3 _localMoveStartPos = _centerPos + _forwardVec * (_moveDistance + _localJumpDistance * 0.5f);
-                    Vector3 _localMoveEndPos = _centerPos + _forwardVec * _localJumpDistance * 0.5f;
-                    Vector3 _localJumpEndPos = _centerPos - _forwardVec * _localJumpDistance * 0.5f;
 
                     Vector3 noteOffset = GetNoteOffset(noteData, _startRow, _startHeight);
 

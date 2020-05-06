@@ -34,6 +34,7 @@ namespace NoodleExtensions
         public void Init(IPALogger pluginLogger)
         {
             Logger.logger = pluginLogger;
+            NoodleController.InitNoodlePatches();
         }
 
         internal static Harmony coreharmony = new Harmony(HARMONYID_CORE);
@@ -44,8 +45,8 @@ namespace NoodleExtensions
         {
             SongCore.Collections.RegisterCapability(CAPABILITY);
             coreharmony.PatchAll(Assembly.GetExecutingAssembly());
-            HarmonyPatches.BeatmapDataLoader.PatchBeatmapDataLoader(coreharmony);
-            NoodleController.InitNoodlePatches();
+            HarmonyPatches.BeatmapDataLoaderProcessNotesInTimeRow.PatchBeatmapDataLoader(coreharmony);
+            HarmonyPatches.BeatmapObjectSpawnControllerSpawnObject.PatchBeatmapObjectSpawnController(coreharmony);
         }
 
         [OnDisable]

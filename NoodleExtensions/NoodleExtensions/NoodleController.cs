@@ -35,6 +35,29 @@ namespace NoodleExtensions
             return ypos;
         }
 
+        internal static void GetNoteJumpValues(float? _inputNoteJumpMovementSpeed, float? _inputNoteJumpStartBeatOffset, out float _localJumpDuration,
+            out float _localJumpDistance, out Vector3 _localMoveStartPos, out Vector3 _localMoveEndPos, out Vector3 _localJumpEndPos)
+        {
+            float _localNoteJumpMovementSpeed = _inputNoteJumpMovementSpeed ?? _noteJumpMovementSpeed;
+            float _localNoteJumpStartBeatOffset = _inputNoteJumpStartBeatOffset ?? _noteJumpStartBeatOffset;
+            float num = 60f / _startBPM;
+            float num2 = _startHalfJumpDurationInBeats;
+            while (_localNoteJumpMovementSpeed * num * num2 > _maxHalfJumpDistance)
+            {
+                num2 /= 2f;
+            }
+            num2 += _localNoteJumpStartBeatOffset;
+            if (num2 < 1f)
+            {
+                num2 = 1f;
+            }
+            _localJumpDuration = num * num2 * 2f;
+            _localJumpDistance = _localNoteJumpMovementSpeed * _localJumpDuration;
+            _localMoveStartPos = _centerPos + _forwardVec * (_moveDistance + _localJumpDistance * 0.5f);
+            _localMoveEndPos = _centerPos + _forwardVec * _localJumpDistance * 0.5f;
+            _localJumpEndPos = _centerPos - _forwardVec * _localJumpDistance * 0.5f;
+        }
+
         // poof random extension
         internal static float? ToNullableFloat(this object @this)
         {
@@ -100,6 +123,7 @@ namespace NoodleExtensions
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _verticalObstaclePosYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_verticalObstaclePosY");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _moveDistanceAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_moveDistance");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _jumpDistanceAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_jumpDistance");
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _jumpDurationAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_jumpDuration");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _noteJumpMovementSpeedAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_noteJumpMovementSpeed");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _noteJumpStartBeatOffsetAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_noteJumpStartBeatOffset");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _noteLinesDistanceAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_noteLinesDistance");
@@ -119,6 +143,7 @@ namespace NoodleExtensions
             internal static float _verticalObstaclePosY { get => _verticalObstaclePosYAccessor(ref beatmapObjectSpawnMovementData); }
             internal static float _moveDistance { get => _moveDistanceAccessor(ref beatmapObjectSpawnMovementData); }
             internal static float _jumpDistance { get => _jumpDistanceAccessor(ref beatmapObjectSpawnMovementData); }
+            internal static float _jumpDuration { get => _jumpDurationAccessor(ref beatmapObjectSpawnMovementData); }
             internal static float _noteJumpMovementSpeed { get => _noteJumpMovementSpeedAccessor(ref beatmapObjectSpawnMovementData); }
             internal static float _noteJumpStartBeatOffset { get => _noteJumpStartBeatOffsetAccessor(ref beatmapObjectSpawnMovementData); }
             internal static float _noteLinesDistance { get => _noteLinesDistanceAccessor(ref beatmapObjectSpawnMovementData); }

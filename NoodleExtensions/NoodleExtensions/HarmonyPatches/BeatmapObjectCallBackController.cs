@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using CustomJSONData;
+﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NoodleExtensions.HarmonyPatches
 {
@@ -16,6 +13,7 @@ namespace NoodleExtensions.HarmonyPatches
     internal class BeatmapObjectCallBackControllerLateUpdate
     {
         private static readonly MethodInfo aheadTime = SymbolExtensions.GetMethodInfo(() => GetAheadTime(null, 0));
+
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
@@ -38,7 +36,8 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static float GetAheadTime(BeatmapObjectData beatmapObjectData, float @default)
         {
-            if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData) {
+            if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData)
+            {
                 dynamic dynData = ((dynamic)beatmapObjectData).customData;
                 float? aheadTime = (float)Trees.at(dynData, "aheadTime");
                 if (aheadTime.HasValue) return aheadTime.Value;

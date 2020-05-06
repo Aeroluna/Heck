@@ -9,7 +9,7 @@ using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
-    internal class BeatmapDataLoader
+    internal class BeatmapDataLoaderProcessNotesInTimeRow
     {
         internal static void PatchBeatmapDataLoader(Harmony harmony)
         {
@@ -104,7 +104,7 @@ namespace NoodleExtensions.HarmonyPatches
                     if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData) customData = beatmapObjectData;
                     else continue;
                     dynamic dynData = customData.customData;
-                    dynData.aheadTime = standardLevelInfoSaveData.beatsPerMinute;
+                    dynData.bpm = standardLevelInfoSaveData.beatsPerMinute;
                 }
             }
         }

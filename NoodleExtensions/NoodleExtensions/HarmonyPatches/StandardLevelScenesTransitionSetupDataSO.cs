@@ -37,7 +37,7 @@ namespace NoodleExtensions.HarmonyPatches
                     float _noteJumpMovementSpeed = (float?)Trees.at(dynData, NOTEJUMPSPEED) ?? difficultyBeatmap.noteJumpMovementSpeed;
                     float _noteJumpStartBeatOffset = (float?)Trees.at(dynData, SPAWNOFFSET) ?? difficultyBeatmap.noteJumpStartBeatOffset;
 
-                    float num = 60f / (float)Trees.at(dynData, "aheadTime");
+                    float num = 60f / (float)Trees.at(dynData, "bpm");
                     float num2 = _startHalfJumpDurationInBeats;
                     while (_noteJumpMovementSpeed * num * num2 > _maxHalfJumpDistance)
                     {
@@ -51,7 +51,6 @@ namespace NoodleExtensions.HarmonyPatches
                     float _jumpDuration = num * num2 * 2f;
                     dynData.aheadTime = _moveDuration + _jumpDuration * 0.5f;
                 }
-
                 beatmapLineData.beatmapObjectsData = beatmapLineData.beatmapObjectsData.OrderBy(n => n.time - (float)((dynamic)n).customData.aheadTime).ToArray();
             }
         }
