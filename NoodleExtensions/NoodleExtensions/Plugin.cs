@@ -46,7 +46,6 @@ namespace NoodleExtensions
             SongCore.Collections.RegisterCapability(CAPABILITY);
             coreharmony.PatchAll(Assembly.GetExecutingAssembly());
             HarmonyPatches.BeatmapDataLoaderProcessNotesInTimeRow.PatchBeatmapDataLoader(coreharmony);
-            HarmonyPatches.BeatmapObjectSpawnControllerSpawnObject.PatchBeatmapObjectSpawnController(coreharmony);
         }
 
         [OnDisable]

@@ -2,6 +2,7 @@
 using IPA.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using static NoodleExtensions.NoodleController.BeatmapObjectSpawnMovementDataVariables;
@@ -76,20 +77,19 @@ namespace NoodleExtensions
                     if (noodleattributes.Length > 0)
                     {
                         Type declaringType = null;
-                        string methodName = null;
+                        List<string> methodNames = new List<string>();
                         foreach (NoodlePatch n in noodleattributes)
                         {
                             if (n.declaringType != null) declaringType = n.declaringType;
-                            if (n.methodName != null) methodName = n.methodName;
+                            if (n.methodName != null) methodNames.Add(n.methodName);
                         }
-                        if (declaringType == null || methodName == null) throw new ArgumentException("Type or Method Name not described");
+                        if (declaringType == null || !methodNames.Any()) throw new ArgumentException("Type or Method Name not described");
 
-                        MethodInfo original = AccessTools.Method(declaringType, methodName);
                         MethodInfo prefix = AccessTools.Method(type, "Prefix");
                         MethodInfo postfix = AccessTools.Method(type, "Postfix");
                         MethodInfo transpiler = AccessTools.Method(type, "Transpiler");
 
-                        NoodlePatches.Add(new NoodlePatchData(original, prefix, postfix, transpiler));
+                        methodNames.ForEach(n => NoodlePatches.Add(new NoodlePatchData(AccessTools.Method(declaringType, n), prefix, postfix, transpiler)));
                     }
                 }
             }

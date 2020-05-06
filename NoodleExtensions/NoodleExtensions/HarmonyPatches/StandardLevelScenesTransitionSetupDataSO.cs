@@ -23,35 +23,38 @@ namespace NoodleExtensions.HarmonyPatches
             if (difficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
             {
                 IEnumerable<string> requirements = ((List<object>)Trees.at(customBeatmapData.beatmapCustomData, "_requirements"))?.Cast<string>();
-                NoodleController.ToggleNoodlePatches(requirements?.Contains(CAPABILITY) ?? false);
-            }
-
-            foreach (BeatmapLineData beatmapLineData in difficultyBeatmap.beatmapData.beatmapLinesData)
-            {
-                foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
+                bool noodleRequirement = requirements?.Contains(CAPABILITY) ?? false;
+                NoodleController.ToggleNoodlePatches(noodleRequirement);
+                if (noodleRequirement)
                 {
-                    dynamic customData;
-                    if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData) customData = beatmapObjectData;
-                    else return;
-                    dynamic dynData = customData.customData;
-                    float _noteJumpMovementSpeed = (float?)Trees.at(dynData, NOTEJUMPSPEED) ?? difficultyBeatmap.noteJumpMovementSpeed;
-                    float _noteJumpStartBeatOffset = (float?)Trees.at(dynData, SPAWNOFFSET) ?? difficultyBeatmap.noteJumpStartBeatOffset;
+                    foreach (BeatmapLineData beatmapLineData in difficultyBeatmap.beatmapData.beatmapLinesData)
+                    {
+                        foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
+                        {
+                            dynamic customData;
+                            if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData) customData = beatmapObjectData;
+                            else return;
+                            dynamic dynData = customData.customData;
+                            float _noteJumpMovementSpeed = (float?)Trees.at(dynData, NOTEJUMPSPEED) ?? difficultyBeatmap.noteJumpMovementSpeed;
+                            float _noteJumpStartBeatOffset = (float?)Trees.at(dynData, SPAWNOFFSET) ?? difficultyBeatmap.noteJumpStartBeatOffset;
 
-                    float num = 60f / (float)Trees.at(dynData, "bpm");
-                    float num2 = _startHalfJumpDurationInBeats;
-                    while (_noteJumpMovementSpeed * num * num2 > _maxHalfJumpDistance)
-                    {
-                        num2 /= 2f;
+                            float num = 60f / (float)Trees.at(dynData, "bpm");
+                            float num2 = _startHalfJumpDurationInBeats;
+                            while (_noteJumpMovementSpeed * num * num2 > _maxHalfJumpDistance)
+                            {
+                                num2 /= 2f;
+                            }
+                            num2 += _noteJumpStartBeatOffset;
+                            if (num2 < 1f)
+                            {
+                                num2 = 1f;
+                            }
+                            float _jumpDuration = num * num2 * 2f;
+                            dynData.aheadTime = _moveDuration + _jumpDuration * 0.5f;
+                        }
+                        beatmapLineData.beatmapObjectsData = beatmapLineData.beatmapObjectsData.OrderBy(n => n.time - (float)((dynamic)n).customData.aheadTime).ToArray();
                     }
-                    num2 += _noteJumpStartBeatOffset;
-                    if (num2 < 1f)
-                    {
-                        num2 = 1f;
-                    }
-                    float _jumpDuration = num * num2 * 2f;
-                    dynData.aheadTime = _moveDuration + _jumpDuration * 0.5f;
                 }
-                beatmapLineData.beatmapObjectsData = beatmapLineData.beatmapObjectsData.OrderBy(n => n.time - (float)((dynamic)n).customData.aheadTime).ToArray();
             }
         }
     }

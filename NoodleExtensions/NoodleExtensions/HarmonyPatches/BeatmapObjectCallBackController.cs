@@ -8,8 +8,8 @@ using System.Reflection.Emit;
 
 namespace NoodleExtensions.HarmonyPatches
 {
-    [HarmonyPatch(typeof(BeatmapObjectCallbackController))]
-    [HarmonyPatch("LateUpdate")]
+    [NoodlePatch(typeof(BeatmapObjectCallbackController))]
+    [NoodlePatch("LateUpdate")]
     internal class BeatmapObjectCallBackControllerLateUpdate
     {
         private static readonly MethodInfo aheadTime = SymbolExtensions.GetMethodInfo(() => GetAheadTime(null, 0));

@@ -10,17 +10,11 @@ using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
+    [NoodlePatch(typeof(BeatmapObjectSpawnController))]
+    [NoodlePatch("SpawnObstacle")]
+    [NoodlePatch("SpawnNote")]
     internal class BeatmapObjectSpawnControllerSpawnObject
     {
-        internal static void PatchBeatmapObjectSpawnController(Harmony harmony)
-        {
-            MethodInfo notes = AccessTools.Method(typeof(BeatmapObjectSpawnController), "SpawnObstacle");
-            MethodInfo obstacles = AccessTools.Method(typeof(BeatmapObjectSpawnController), "SpawnNote");
-            MethodInfo transpiler = SymbolExtensions.GetMethodInfo(() => Transpiler(null));
-            harmony.Patch(notes, transpiler: new HarmonyMethod(transpiler));
-            harmony.Patch(obstacles, transpiler: new HarmonyMethod(transpiler));
-        }
-
         private static readonly MethodInfo jumpDuration = SymbolExtensions.GetMethodInfo(() => GetJumpDuration(null, 0));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
