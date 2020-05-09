@@ -13,6 +13,7 @@ namespace Chroma.Extensions
         private MeshRenderer[] meshRenderers;
         private MaterialPropertyBlock[] blocks;
         private SetSaberGlowColor.PropertyTintColorPair[][] tintPairs;
+        private Xft.XWeaponTrail weaponTrail;
 
         private List<Material> customMats = new List<Material>();
 
@@ -65,6 +66,8 @@ namespace Chroma.Extensions
                     }
                 }
             }
+
+            weaponTrail = saber.gameObject.GetComponentInChildren<Xft.XWeaponTrail>();
         }
 
         internal static SaberColourizer[] saberColourizers { get; private set; } = new SaberColourizer[0];
@@ -100,6 +103,8 @@ namespace Chroma.Extensions
                 _lineRenderers[warm ? 0 : 1].startColor = color;
                 _lineRenderers[warm ? 0 : 1].endColor = color;
             }
+
+            weaponTrail.color = color;
         }
     }
 }
