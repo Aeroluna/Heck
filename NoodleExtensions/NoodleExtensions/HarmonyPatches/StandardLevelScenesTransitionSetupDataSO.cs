@@ -16,9 +16,9 @@ namespace NoodleExtensions.HarmonyPatches
     {
         private const float _startHalfJumpDurationInBeats = 4;
         private const float _maxHalfJumpDistance = 18;
-        private const float _moveDuration = 1;
+        private const float _moveDuration = 0.5f;
 
-        private static void Prefix(IDifficultyBeatmap difficultyBeatmap)
+        private static void Postfix(IDifficultyBeatmap difficultyBeatmap)
         {
             if (difficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
             {

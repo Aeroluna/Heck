@@ -55,7 +55,7 @@ namespace NoodleExtensions.HarmonyPatches
                     Quaternion _worldRotation;
                     if (_rotation is List<object> list)
                     {
-                        IEnumerable<float> _rot = (list)?.Select(n => Convert.ToSingle(n));
+                        IEnumerable<float> _rot = (list)?.Select(Convert.ToSingle);
                         _worldRotation = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
                     }
                     else _worldRotation = Quaternion.Euler(0, (float)_rotation, 0);

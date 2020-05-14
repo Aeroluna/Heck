@@ -102,7 +102,8 @@ namespace NoodleExtensions
             if (value)
             {
                 if (!Harmony.HasAnyPatches(HARMONYID))
-                    NoodlePatches.ForEach(n => harmony.Patch(n.originalMethod, n.prefix != null ? new HarmonyMethod(n.prefix) : null,
+                    NoodlePatches.ForEach(n => harmony.Patch(n.originalMethod,
+                        n.prefix != null ? new HarmonyMethod(n.prefix) : null,
                         n.postfix != null ? new HarmonyMethod(n.postfix) : null,
                         n.transpiler != null ? new HarmonyMethod(n.transpiler) : null));
             }

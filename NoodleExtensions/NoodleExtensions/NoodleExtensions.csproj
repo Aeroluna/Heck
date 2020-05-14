@@ -66,6 +66,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Easings.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectCallBackController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
@@ -77,6 +78,8 @@
     <Compile Include="HarmonyPatches\SpawnRotationProcessor.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />
     <Compile Include="HarmonyPatches\StandardLevelScenesTransitionSetupDataSO.cs" />
+    <Compile Include="MovementData\RotationData.cs" />
+    <Compile Include="MovementData\MovementData.cs" />
     <Compile Include="NoodlePatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Logger.cs" />
