@@ -15,7 +15,7 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("Init")]
     internal class ObstacleControllerInit
     {
-        private static void Postfix(ObstacleController __instance, ObstacleData obstacleData, ref float ____passedAvoidedMarkTime, ref float ____finishMovementTime)
+        private static void Postfix(ObstacleController __instance, ObstacleData obstacleData, Quaternion ____worldRotation, ref float ____passedAvoidedMarkTime, ref float ____finishMovementTime)
         {
             if (obstacleData is CustomObstacleData customData)
             {
@@ -23,51 +23,61 @@ namespace NoodleExtensions.HarmonyPatches
                 IEnumerable<float> _localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(Convert.ToSingle);
 
                 // oh my god im actually adding rotation
+                Quaternion? localRotation = null;
                 if (_localrot != null)
                 {
                     Vector3 vector = new Vector3(_localrot.ElementAt(0), _localrot.ElementAt(1), _localrot.ElementAt(2));
+                    localRotation = Quaternion.Euler(vector);
                     __instance.transform.Rotate(vector);
                 }
 
-                List<object> movement = Trees.at(dynData, "_movement");
-                if (movement != null)
+                float? despawnTime = (float?)Trees.at(dynData, DESPAWNTIME);
+                float? despawnDuration = (float?)Trees.at(dynData, DESPAWNDURATION);
+                if (despawnTime.HasValue) ____passedAvoidedMarkTime = despawnTime.Value;
+                if (despawnDuration.HasValue) ____finishMovementTime = ____passedAvoidedMarkTime + despawnDuration.Value;
+
+                RotationData.savedRotation = ____worldRotation;
+
+                List<object> varRotation = Trees.at(dynData, VARIABLEROTATION);
+                if (varRotation != null)
                 {
-                    List<MovementData> movementData = new List<MovementData>();
+                    List<RotationData> rotationData = new List<RotationData>();
                     float dataTime = 0;
-                    foreach (object n in movement)
+                    foreach (object n in varRotation)
                     {
                         IDictionary<string, object> dictData = n as IDictionary<string, object>;
 
-                        float? doNothing = (float?)Trees.at(dictData, "_doNothingDuration");
-                        if (doNothing.HasValue)
-                        {
-                            movementData.Add(new DoNothingData(dataTime, doNothing.Value));
+                        IEnumerable<float> startrot = ((List<object>)Trees.at(dictData, "_startRotation"))?.Select(Convert.ToSingle);
+                        IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, "_endRotation"))?.Select(Convert.ToSingle);
 
-                            dataTime += doNothing.Value;
-                            continue;
-                        }
+                        float duration = (float)Trees.at(dictData, "_duration");
+                        string easing = (string)Trees.at(dictData, "_easing");
+                        rotationData.Add(new RotationData(dataTime, duration, startrot, endrot, easing));
+                        dataTime += duration;
+                    }
+                    dynData.varRotation = rotationData;
+                }
 
-                        float? despawnOffset = (float?)Trees.at(dictData, "_despawnOffset");
-                        if (despawnOffset.HasValue)
-                        {
-                            ____passedAvoidedMarkTime = dataTime;
-                            ____finishMovementTime = dataTime + despawnOffset.Value;
-                            continue;
-                        }
+                RotationData.savedRotation = ____worldRotation * localRotation.GetValueOrDefault(Quaternion.identity);
+
+                List<object> varLocalRotation = Trees.at(dynData, VARIABLELOCALROTATION);
+                if (varLocalRotation != null)
+                {
+                    List<RotationData> rotationData = new List<RotationData>();
+                    float dataTime = 0;
+                    foreach (object n in varLocalRotation)
+                    {
+                        IDictionary<string, object> dictData = n as IDictionary<string, object>;
 
                         IEnumerable<float> startrot = ((List<object>)Trees.at(dictData, "_startRotation"))?.Select(Convert.ToSingle);
                         IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, "_endRotation"))?.Select(Convert.ToSingle);
-                        if (startrot != null || endrot != null)
-                        {
-                            float duration = (float)Trees.at(dictData, "_duration");
-                            string easing = (string)Trees.at(dictData, "_easing");
-                            movementData.Add(new RotationData(dataTime, duration, startrot, endrot, easing));
 
-                            dataTime += duration;
-                            continue;
-                        }
+                        float duration = (float)Trees.at(dictData, "_duration");
+                        string easing = (string)Trees.at(dictData, "_easing");
+                        rotationData.Add(new RotationData(dataTime, duration, startrot, endrot, easing));
+                        dataTime += duration;
                     }
-                    dynData.movement = movementData;
+                    dynData.varLocalRotation = rotationData;
                 }
             }
         }
@@ -146,8 +156,8 @@ namespace NoodleExtensions.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(ObstacleController))]
-    [HarmonyPatch("GetPosForTime")]
+    [NoodlePatch(typeof(ObstacleController))]
+    [NoodlePatch("GetPosForTime")]
     internal class ObstacleControllerGetPosForTime
     {
         private static void Postfix(float time, ObstacleController __instance, ObstacleData ____obstacleData, ref Quaternion ____worldRotation,
@@ -155,17 +165,37 @@ namespace NoodleExtensions.HarmonyPatches
         {
             if (____obstacleData is CustomObstacleData customData) {
                 dynamic dynData = customData.customData;
-                List<MovementData> movement = Trees.at(dynData, "movement");
-                if (movement == null) return;
-                MovementData truncatedMovement = movement.Where(n => n.time < time).Last();
-                if (truncatedMovement == null) return;
-                if (truncatedMovement is RotationData rotationData)
+
+                List<RotationData> rotationData = Trees.at(dynData, "varRotation");
+                if (rotationData != null)
                 {
-                    Quaternion rotation = Quaternion.Lerp(rotationData.startRotation, rotationData.endRotation, Easings.Interpolate((time - rotationData.time) / rotationData.duration, rotationData.easing));
-                    ____worldRotation = rotation;
-                    ____inverseWorldRotation = Quaternion.Inverse(rotation);
-                    __instance.transform.localRotation = rotation;
+                    RotationData truncatedRotation = rotationData
+                        .Where(n => n.time < time)
+                        .Where(n => n.time + n.duration > time)
+                        .LastOrDefault();
+                    if (truncatedRotation != null)
+                    {
+                        Quaternion rotation = Quaternion.Lerp(truncatedRotation.startRotation, truncatedRotation.endRotation, 
+                            Easings.Interpolate((time - truncatedRotation.time) / truncatedRotation.duration, truncatedRotation.easing));
+                        ____worldRotation = rotation;
+                        ____inverseWorldRotation = Quaternion.Inverse(rotation);
+                    }
                 }
+
+                Quaternion? localRotation = null;
+                List<RotationData> localRotationData = Trees.at(dynData, "varLocalRotation");
+                if (localRotationData != null)
+                {
+                    RotationData truncatedRotation = localRotationData
+                        .Where(n => n.time < time)
+                        .Where(n => n.time + n.duration > time)
+                        .LastOrDefault();
+                    if (truncatedRotation != null)
+                        localRotation = Quaternion.Lerp(truncatedRotation.startRotation, truncatedRotation.endRotation, 
+                            Easings.Interpolate((time - truncatedRotation.time) / truncatedRotation.duration, truncatedRotation.easing));
+                }
+
+                __instance.transform.localRotation = ____worldRotation * localRotation.GetValueOrDefault(Quaternion.identity);
             }
         }
     }
