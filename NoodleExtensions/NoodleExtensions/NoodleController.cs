@@ -1,4 +1,6 @@
-﻿using HarmonyLib;
+﻿using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
+using HarmonyLib;
 using IPA.Utilities;
 using System;
 using System.Collections.Generic;
@@ -26,13 +28,9 @@ namespace NoodleExtensions
         {
             float ypos = 0;
             if (height.HasValue)
-            {
                 ypos = (height.Value * _noteLinesDistance) + _baseLinesYPos; // offset by 0.25
-            }
             else if (beatmapObjectData is NoteData noteData)
-            {
                 ypos = beatmapObjectSpawnMovementData.LineYPosForLineLayer(noteData.startNoteLineLayer);
-            }
             return ypos;
         }
 
@@ -48,10 +46,7 @@ namespace NoodleExtensions
                 num2 /= 2f;
             }
             num2 += _localNoteJumpStartBeatOffset;
-            if (num2 < 1f)
-            {
-                num2 = 1f;
-            }
+            if (num2 < 1f) num2 = 1f;
             _localJumpDuration = num * num2 * 2f;
             _localJumpDistance = _localNoteJumpMovementSpeed * _localJumpDuration;
             _localMoveStartPos = _centerPos + _forwardVec * (_moveDistance + _localJumpDistance * 0.5f);
@@ -97,7 +92,7 @@ namespace NoodleExtensions
 
         private static List<NoodlePatchData> NoodlePatches;
 
-        public static void ToggleNoodlePatches(bool value)
+        public static void ToggleNoodlePatches(bool value, BeatmapData beatmapData, float noteJumpMovementSpeed, float noteJumpStartBeatOffset)
         {
             if (value)
             {
@@ -106,6 +101,39 @@ namespace NoodleExtensions
                         n.prefix != null ? new HarmonyMethod(n.prefix) : null,
                         n.postfix != null ? new HarmonyMethod(n.postfix) : null,
                         n.transpiler != null ? new HarmonyMethod(n.transpiler) : null));
+
+                // var njs/spawn offset stuff below
+
+                // there is some ambiguity with these variables but who frikkin cares
+                float _startHalfJumpDurationInBeats = 4;
+                float _maxHalfJumpDistance = 18;
+                float _moveDuration = 0.5f;
+
+                foreach (BeatmapLineData beatmapLineData in beatmapData.beatmapLinesData)
+                {
+                    foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
+                    {
+                        dynamic customData;
+                        if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData) customData = beatmapObjectData;
+                        else return;
+                        dynamic dynData = customData.customData;
+                        float _noteJumpMovementSpeed = (float?)Trees.at(dynData, NOTEJUMPSPEED) ?? noteJumpMovementSpeed;
+                        float _noteJumpStartBeatOffset = (float?)Trees.at(dynData, SPAWNOFFSET) ?? noteJumpStartBeatOffset;
+
+                        // how do i not repeat this in a reasonable way
+                        float num = 60f / (float)Trees.at(dynData, "bpm");
+                        float num2 = _startHalfJumpDurationInBeats;
+                        while (_noteJumpMovementSpeed * num * num2 > _maxHalfJumpDistance)
+                        {
+                            num2 /= 2f;
+                        }
+                        num2 += _noteJumpStartBeatOffset;
+                        if (num2 < 1f) num2 = 1f;
+                        float _jumpDuration = num * num2 * 2f;
+                        dynData.aheadTime = _moveDuration + _jumpDuration * 0.5f;
+                    }
+                    beatmapLineData.beatmapObjectsData = beatmapLineData.beatmapObjectsData.OrderBy(n => n.time - (float)((dynamic)n).customData.aheadTime).ToArray();
+                }
             }
             else harmony.UnpatchAll(HARMONYID);
         }
