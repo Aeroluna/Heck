@@ -78,6 +78,7 @@
     <Compile Include="HarmonyPatches\SpawnRotationProcessor.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />
     <Compile Include="HarmonyPatches\StandardLevelScenesTransitionSetupDataSO.cs" />
+    <Compile Include="MovementData\PositionData.cs" />
     <Compile Include="MovementData\RotationData.cs" />
     <Compile Include="MovementData\MovementData.cs" />
     <Compile Include="NoodlePatch.cs" />

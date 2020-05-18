@@ -13,6 +13,7 @@ namespace NoodleExtensions
         internal const string HARMONYID = "com.noodle.BeatSaber.NoodleExtensions";
 
         #region All Objects
+
         internal const string POSITION = "_position";
         internal const string ROTATION = "_rotation"; // Rotation events included
 
@@ -21,19 +22,35 @@ namespace NoodleExtensions
 
         internal const string DESPAWNTIME = "_despawnTime";
         internal const string DESPAWNDURATION = "_despawnDuration";
+
         internal const string VARIABLEROTATION = "_variableRotation";
-        internal const string VARIABLELOCALROTATION = "_variableLocalRotation";
-        #endregion
+        internal const string VARIABLEPOSITION = "_variablePosition";
+
+        internal const string VARIABLETIME = "_time";
+        internal const string VARIABLEDURATION = "_duration";
+        internal const string VARIABLEEASING = "_easing";
+        internal const string VARIABLESTARTROT = "_startRotation";
+        internal const string VARIABLEENDROT = "_endRotation";
+        internal const string VARIABLESTARTPOS = "_startPosition";
+        internal const string VARIABLEENDPOS = "_endPosition";
+
+        #endregion All Objects
 
         #region Wall Exclusive
+
         internal const string LOCALROTATION = "_localRotation";
         internal const string SCALE = "_scale";
-        #endregion
+
+        internal const string VARIABLELOCALROTATION = "_variableLocalRotation";
+
+        #endregion Wall Exclusive
 
         #region Note Exclusive
+
         internal const string CUTDIRECTION = "_cutDirection";
         internal const string FLIP = "_flip";
-        #endregion
+
+        #endregion Note Exclusive
 
         [Init]
         public void Init(IPALogger pluginLogger)

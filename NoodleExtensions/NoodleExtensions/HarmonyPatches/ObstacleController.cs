@@ -36,24 +36,42 @@ namespace NoodleExtensions.HarmonyPatches
                 if (despawnTime.HasValue) ____passedAvoidedMarkTime = despawnTime.Value;
                 if (despawnDuration.HasValue) ____finishMovementTime = ____passedAvoidedMarkTime + despawnDuration.Value;
 
+                List<object> varPosition = Trees.at(dynData, VARIABLEPOSITION);
+                if (varPosition != null)
+                {
+                    List<PositionData> positionData = new List<PositionData>();
+                    foreach (object n in varPosition)
+                    {
+                        IDictionary<string, object> dictData = n as IDictionary<string, object>;
+
+                        IEnumerable<float> startpos = ((List<object>)Trees.at(dictData, VARIABLESTARTPOS))?.Select(Convert.ToSingle);
+                        IEnumerable<float> endpos = ((List<object>)Trees.at(dictData, VARIABLEENDPOS))?.Select(Convert.ToSingle);
+
+                        float time = (float)Trees.at(dictData, VARIABLETIME);
+                        float duration = (float)Trees.at(dictData, VARIABLEDURATION);
+                        string easing = (string)Trees.at(dictData, VARIABLEEASING);
+                        positionData.Add(new PositionData(time, duration, startpos, endpos, easing));
+                    }
+                    dynData.varPosition = positionData;
+                }
+
                 RotationData.savedRotation = ____worldRotation;
 
                 List<object> varRotation = Trees.at(dynData, VARIABLEROTATION);
                 if (varRotation != null)
                 {
                     List<RotationData> rotationData = new List<RotationData>();
-                    float dataTime = 0;
                     foreach (object n in varRotation)
                     {
                         IDictionary<string, object> dictData = n as IDictionary<string, object>;
 
-                        IEnumerable<float> startrot = ((List<object>)Trees.at(dictData, "_startRotation"))?.Select(Convert.ToSingle);
-                        IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, "_endRotation"))?.Select(Convert.ToSingle);
+                        IEnumerable<float> startrot = ((List<object>)Trees.at(dictData, VARIABLESTARTROT))?.Select(Convert.ToSingle);
+                        IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, VARIABLEENDROT))?.Select(Convert.ToSingle);
 
-                        float duration = (float)Trees.at(dictData, "_duration");
-                        string easing = (string)Trees.at(dictData, "_easing");
-                        rotationData.Add(new RotationData(dataTime, duration, startrot, endrot, easing));
-                        dataTime += duration;
+                        float time = (float)Trees.at(dictData, VARIABLETIME);
+                        float duration = (float)Trees.at(dictData, VARIABLEDURATION);
+                        string easing = (string)Trees.at(dictData, VARIABLEEASING);
+                        rotationData.Add(new RotationData(time, duration, startrot, endrot, easing));
                     }
                     dynData.varRotation = rotationData;
                 }
@@ -64,18 +82,17 @@ namespace NoodleExtensions.HarmonyPatches
                 if (varLocalRotation != null)
                 {
                     List<RotationData> rotationData = new List<RotationData>();
-                    float dataTime = 0;
                     foreach (object n in varLocalRotation)
                     {
                         IDictionary<string, object> dictData = n as IDictionary<string, object>;
 
-                        IEnumerable<float> startrot = ((List<object>)Trees.at(dictData, "_startRotation"))?.Select(Convert.ToSingle);
-                        IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, "_endRotation"))?.Select(Convert.ToSingle);
+                        IEnumerable<float> startrot = ((List<object>)Trees.at(dictData, VARIABLESTARTROT))?.Select(Convert.ToSingle);
+                        IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, VARIABLEENDROT))?.Select(Convert.ToSingle);
 
-                        float duration = (float)Trees.at(dictData, "_duration");
-                        string easing = (string)Trees.at(dictData, "_easing");
-                        rotationData.Add(new RotationData(dataTime, duration, startrot, endrot, easing));
-                        dataTime += duration;
+                        float time = (float)Trees.at(dictData, VARIABLETIME);
+                        float duration = (float)Trees.at(dictData, VARIABLEDURATION);
+                        string easing = (string)Trees.at(dictData, VARIABLEEASING);
+                        rotationData.Add(new RotationData(time, duration, startrot, endrot, easing));
                     }
                     dynData.varLocalRotation = rotationData;
                 }
@@ -160,11 +177,86 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("GetPosForTime")]
     internal class ObstacleControllerGetPosForTime
     {
-        private static void Postfix(float time, ObstacleController __instance, ObstacleData ____obstacleData, ref Quaternion ____worldRotation,
-            ref Quaternion ____inverseWorldRotation)
+        private static void Prefix(ref VectorState? __state, ref float time, ObstacleData ____obstacleData, ref Vector3 ____startPos, ref Vector3 ____midPos, ref Vector3 ____endPos)
         {
-            if (____obstacleData is CustomObstacleData customData) {
+            if (____obstacleData is CustomObstacleData customData)
+            {
                 dynamic dynData = customData.customData;
+
+                List<PositionData> positionData = Trees.at(dynData, "varPosition");
+                if (positionData != null)
+                {
+                    Vector3 _startPos = ____startPos;
+                    Vector3 _midPos = ____midPos;
+                    Vector3 _endPos = ____endPos;
+
+                    float timeCopy = time;
+                    IEnumerable<PositionData> truncatedPosition = positionData
+                        .Where(n => n.time < timeCopy);
+
+                    float movementTime = 0;
+                    PositionData activePositionData = null;
+                    foreach (PositionData pos in truncatedPosition)
+                    {
+                        if (pos.time + pos.duration < time)
+                        {
+                            movementTime += pos.duration;
+                            ____startPos += pos.endPosition;
+                            ____midPos += pos.endPosition;
+                            ____endPos += pos.endPosition;
+                        }
+                        else
+                        {
+                            movementTime += time - pos.time;
+                            activePositionData = pos;
+                        }
+                    }
+
+                    __state = new VectorState(_startPos, _midPos, _endPos, timeCopy, activePositionData);
+                    time -= movementTime;
+                }
+            }
+        }
+
+        private struct VectorState
+        {
+            internal Vector3 _startPos { get; }
+            internal Vector3 _midPos { get; }
+            internal Vector3 _endPos { get; }
+            internal float time { get; }
+            internal PositionData activePositionData { get; }
+
+            internal VectorState(Vector3 _startPos, Vector3 _midPos, Vector3 _endPos, float time, PositionData activePositionData)
+            {
+                this._startPos = _startPos;
+                this._midPos = _midPos;
+                this._endPos = _endPos;
+                this.time = time;
+                this.activePositionData = activePositionData;
+            }
+        }
+
+        private static void Postfix(ref Vector3 __result, VectorState? __state, float time, ObstacleController __instance, ObstacleData ____obstacleData, ref Quaternion ____worldRotation,
+            ref Quaternion ____inverseWorldRotation, ref Vector3 ____startPos, ref Vector3 ____midPos, ref Vector3 ____endPos)
+        {
+            if (____obstacleData is CustomObstacleData customData)
+            {
+                dynamic dynData = customData.customData;
+
+                if (__state.HasValue)
+                {
+                    VectorState vectorState = __state.Value;
+                    ____startPos = vectorState._startPos;
+                    ____midPos = vectorState._midPos;
+                    ____endPos = vectorState._endPos;
+                    time = vectorState.time;
+                    PositionData pos = vectorState.activePositionData;
+                    if (pos != null)
+                    {
+                        __result += Vector3.Lerp(pos.startPosition, pos.endPosition,
+                                Easings.Interpolate((time - pos.time) / pos.duration, pos.easing));
+                    }
+                }
 
                 List<RotationData> rotationData = Trees.at(dynData, "varRotation");
                 if (rotationData != null)
@@ -175,7 +267,7 @@ namespace NoodleExtensions.HarmonyPatches
                         .LastOrDefault();
                     if (truncatedRotation != null)
                     {
-                        Quaternion rotation = Quaternion.Lerp(truncatedRotation.startRotation, truncatedRotation.endRotation, 
+                        Quaternion rotation = Quaternion.Lerp(truncatedRotation.startRotation, truncatedRotation.endRotation,
                             Easings.Interpolate((time - truncatedRotation.time) / truncatedRotation.duration, truncatedRotation.easing));
                         ____worldRotation = rotation;
                         ____inverseWorldRotation = Quaternion.Inverse(rotation);
@@ -191,7 +283,7 @@ namespace NoodleExtensions.HarmonyPatches
                         .Where(n => n.time + n.duration > time)
                         .LastOrDefault();
                     if (truncatedRotation != null)
-                        localRotation = Quaternion.Lerp(truncatedRotation.startRotation, truncatedRotation.endRotation, 
+                        localRotation = Quaternion.Lerp(truncatedRotation.startRotation, truncatedRotation.endRotation,
                             Easings.Interpolate((time - truncatedRotation.time) / truncatedRotation.duration, truncatedRotation.easing));
                 }
 

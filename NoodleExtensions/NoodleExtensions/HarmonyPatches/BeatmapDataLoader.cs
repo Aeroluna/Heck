@@ -43,8 +43,7 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static void ProcessBasicNotesInTimeRow(List<NoteData> basicNotes)
         {
-            List<CustomNoteData> customNotes = Trees.tryNull(() => basicNotes.Cast<CustomNoteData>().ToList());
-            if (customNotes == null) return;
+            List<CustomNoteData> customNotes = basicNotes.Cast<CustomNoteData>().ToList();
 
             ProcessFlipData(customNotes);
 
@@ -85,7 +84,7 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static void ProcessNotesInTimeRow(List<NoteData> notes)
         {
-            List<CustomNoteData> customNotes = Trees.tryNull(() => notes.Cast<CustomNoteData>().ToList());
+            List<CustomNoteData> customNotes = notes.Cast<CustomNoteData>().ToList();
             ProcessFlipData(customNotes, false);
         }
     }
