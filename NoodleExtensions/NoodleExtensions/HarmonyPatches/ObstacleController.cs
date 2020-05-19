@@ -35,67 +35,6 @@ namespace NoodleExtensions.HarmonyPatches
                 float? despawnDuration = (float?)Trees.at(dynData, DESPAWNDURATION);
                 if (despawnTime.HasValue) ____passedAvoidedMarkTime = despawnTime.Value;
                 if (despawnDuration.HasValue) ____finishMovementTime = ____passedAvoidedMarkTime + despawnDuration.Value;
-
-                List<object> varPosition = Trees.at(dynData, VARIABLEPOSITION);
-                if (varPosition != null)
-                {
-                    List<PositionData> positionData = new List<PositionData>();
-                    foreach (object n in varPosition)
-                    {
-                        IDictionary<string, object> dictData = n as IDictionary<string, object>;
-
-                        IEnumerable<float> startpos = ((List<object>)Trees.at(dictData, VARIABLESTARTPOS))?.Select(Convert.ToSingle);
-                        IEnumerable<float> endpos = ((List<object>)Trees.at(dictData, VARIABLEENDPOS))?.Select(Convert.ToSingle);
-
-                        float time = (float)Trees.at(dictData, VARIABLETIME);
-                        float duration = (float)Trees.at(dictData, VARIABLEDURATION);
-                        string easing = (string)Trees.at(dictData, VARIABLEEASING);
-                        positionData.Add(new PositionData(time, duration, startpos, endpos, easing));
-                    }
-                    dynData.varPosition = positionData;
-                }
-
-                RotationData.savedRotation = ____worldRotation;
-
-                List<object> varRotation = Trees.at(dynData, VARIABLEROTATION);
-                if (varRotation != null)
-                {
-                    List<RotationData> rotationData = new List<RotationData>();
-                    foreach (object n in varRotation)
-                    {
-                        IDictionary<string, object> dictData = n as IDictionary<string, object>;
-
-                        IEnumerable<float> startrot = ((List<object>)Trees.at(dictData, VARIABLESTARTROT))?.Select(Convert.ToSingle);
-                        IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, VARIABLEENDROT))?.Select(Convert.ToSingle);
-
-                        float time = (float)Trees.at(dictData, VARIABLETIME);
-                        float duration = (float)Trees.at(dictData, VARIABLEDURATION);
-                        string easing = (string)Trees.at(dictData, VARIABLEEASING);
-                        rotationData.Add(new RotationData(time, duration, startrot, endrot, easing));
-                    }
-                    dynData.varRotation = rotationData;
-                }
-
-                RotationData.savedRotation = ____worldRotation * localRotation.GetValueOrDefault(Quaternion.identity);
-
-                List<object> varLocalRotation = Trees.at(dynData, VARIABLELOCALROTATION);
-                if (varLocalRotation != null)
-                {
-                    List<RotationData> rotationData = new List<RotationData>();
-                    foreach (object n in varLocalRotation)
-                    {
-                        IDictionary<string, object> dictData = n as IDictionary<string, object>;
-
-                        IEnumerable<float> startrot = ((List<object>)Trees.at(dictData, VARIABLESTARTROT))?.Select(Convert.ToSingle);
-                        IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, VARIABLEENDROT))?.Select(Convert.ToSingle);
-
-                        float time = (float)Trees.at(dictData, VARIABLETIME);
-                        float duration = (float)Trees.at(dictData, VARIABLEDURATION);
-                        string easing = (string)Trees.at(dictData, VARIABLEEASING);
-                        rotationData.Add(new RotationData(time, duration, startrot, endrot, easing));
-                    }
-                    dynData.varLocalRotation = rotationData;
-                }
             }
         }
 
@@ -200,14 +139,14 @@ namespace NoodleExtensions.HarmonyPatches
                     {
                         if (pos.time + pos.duration < time)
                         {
-                            movementTime += pos.duration;
+                            if (!pos.relative) movementTime += pos.duration;
                             ____startPos += pos.endPosition;
                             ____midPos += pos.endPosition;
                             ____endPos += pos.endPosition;
                         }
                         else
                         {
-                            movementTime += time - pos.time;
+                            if (!pos.relative) movementTime += time - pos.time;
                             activePositionData = pos;
                         }
                     }
@@ -254,7 +193,7 @@ namespace NoodleExtensions.HarmonyPatches
                     if (pos != null)
                     {
                         __result += Vector3.Lerp(pos.startPosition, pos.endPosition,
-                                Easings.Interpolate((time - pos.time) / pos.duration, pos.easing));
+                                Easings.Interpolate((time - pos.time) / pos.duration, pos.easing)) * NoodleController.BeatmapObjectSpawnMovementDataVariables._noteLinesDistance;
                     }
                 }
 

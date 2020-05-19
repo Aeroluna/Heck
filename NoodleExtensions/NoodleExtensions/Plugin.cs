@@ -28,6 +28,7 @@ namespace NoodleExtensions
 
         internal const string VARIABLETIME = "_time";
         internal const string VARIABLEDURATION = "_duration";
+        internal const string VARIABLERELATIVE = "_relative";
         internal const string VARIABLEEASING = "_easing";
         internal const string VARIABLESTARTROT = "_startRotation";
         internal const string VARIABLEENDROT = "_endRotation";
