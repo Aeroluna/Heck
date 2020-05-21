@@ -7,6 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
+using static NoodleExtensions.HarmonyPatches.ObjectAnimationHelper;
+using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
@@ -15,21 +17,11 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("Init")]
     internal class ObstacleControllerInit
     {
-        private static void Postfix(ObstacleController __instance, ObstacleData obstacleData, Quaternion ____worldRotation, ref float ____passedAvoidedMarkTime, ref float ____finishMovementTime)
+        private static void Postfix(ObstacleController __instance, ObstacleData obstacleData, ref float ____passedAvoidedMarkTime, ref float ____finishMovementTime)
         {
             if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
-                IEnumerable<float> _localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(Convert.ToSingle);
-
-                // oh my god im actually adding rotation
-                Quaternion? localRotation = null;
-                if (_localrot != null)
-                {
-                    Vector3 vector = new Vector3(_localrot.ElementAt(0), _localrot.ElementAt(1), _localrot.ElementAt(2));
-                    localRotation = Quaternion.Euler(vector);
-                    __instance.transform.Rotate(vector);
-                }
 
                 float? despawnTime = (float?)Trees.at(dynData, DESPAWNTIME);
                 float? despawnDuration = (float?)Trees.at(dynData, DESPAWNDURATION);
@@ -39,7 +31,6 @@ namespace NoodleExtensions.HarmonyPatches
         }
 
         private static readonly MethodInfo customWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(null, 0));
-        private static readonly MethodInfo worldRotation = SymbolExtensions.GetMethodInfo(() => GetWorldRotation(null, 0));
         private static readonly MethodInfo inverseQuaternion = SymbolExtensions.GetMethodInfo(() => Quaternion.Inverse(Quaternion.identity));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -49,21 +40,6 @@ namespace NoodleExtensions.HarmonyPatches
             bool foundWidth = false;
             for (int i = 0; i < instructionList.Count; i++)
             {
-                if (!foundRotation &&
-                    instructionList[i].opcode == OpCodes.Stfld &&
-                    ((FieldInfo)instructionList[i].operand).Name == "_worldRotation")
-                {
-                    foundRotation = true;
-
-                    instructionList[i - 1] = new CodeInstruction(OpCodes.Call, worldRotation);
-                    instructionList[i - 4] = new CodeInstruction(OpCodes.Ldarg_1);
-                    instructionList.RemoveAt(i - 2);
-
-                    instructionList.RemoveRange(i + 1, 2);
-                    instructionList[i + 1] = new CodeInstruction(OpCodes.Ldarg_0);
-                    instructionList[i + 2] = new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ObstacleController), "_worldRotation"));
-                    instructionList[i + 3] = new CodeInstruction(OpCodes.Call, inverseQuaternion);
-                }
                 if (!foundWidth &&
                     instructionList[i].opcode == OpCodes.Callvirt &&
                     ((MethodInfo)instructionList[i].operand).Name == "get_width")
@@ -76,27 +52,6 @@ namespace NoodleExtensions.HarmonyPatches
             if (!foundRotation) Logger.Log("Failed to find _worldRotation stfld, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
             if (!foundWidth) Logger.Log("Failed to find get_width call, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
             return instructionList.AsEnumerable();
-        }
-
-        private static Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
-        {
-            Quaternion _worldRotation = Quaternion.Euler(0, @default, 0);
-            if (obstacleData is CustomObstacleData customData)
-            {
-                dynamic dynData = customData.customData;
-                dynamic _rotation = Trees.at(dynData, ROTATION);
-
-                if (_rotation != null)
-                {
-                    if (_rotation is List<object> list)
-                    {
-                        IEnumerable<float> _rot = (list)?.Select(Convert.ToSingle);
-                        _worldRotation = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
-                    }
-                    else _worldRotation = Quaternion.Euler(0, (float)_rotation, 0);
-                }
-            }
-            return _worldRotation;
         }
 
         private static float GetCustomWidth(ObstacleData obstacleData, float @default)
@@ -116,12 +71,25 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("GetPosForTime")]
     internal class ObstacleControllerGetPosForTime
     {
-        private static void Prefix(ref VectorState? __state, ref float time, ObstacleData ____obstacleData, ref Vector3 ____startPos, ref Vector3 ____midPos, ref Vector3 ____endPos)
+        private static void Prefix(ObstacleController __instance, ref VectorState? __state, ref float time, ObstacleData ____obstacleData,
+            ref Vector3 ____startPos, ref Vector3 ____midPos, ref Vector3 ____endPos, ref Quaternion ____worldRotation, ref Quaternion ____inverseWorldRotation)
         {
             if (____obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
 
+                Quaternion? rotation = GetWorldRotation(dynData, time);
+                if (rotation.HasValue)
+                {
+                    ____worldRotation = rotation.Value;
+                    ____inverseWorldRotation = Quaternion.Inverse(rotation.Value);
+                }
+
+                Quaternion? localRotation = GetLocalRotation(dynData, time);
+
+                __instance.transform.localRotation = ____worldRotation * localRotation.GetValueOrDefault(Quaternion.identity);
+
+                // fucky wucky
                 List<PositionData> positionData = Trees.at(dynData, "varPosition");
                 if (positionData != null)
                 {
@@ -140,9 +108,9 @@ namespace NoodleExtensions.HarmonyPatches
                         if (pos.time + pos.duration < time)
                         {
                             if (!pos.relative) movementTime += pos.duration;
-                            ____startPos += pos.endPosition;
-                            ____midPos += pos.endPosition;
-                            ____endPos += pos.endPosition;
+                            ____startPos += (pos.endPosition * _noteLinesDistance);
+                            ____midPos += (pos.endPosition * _noteLinesDistance);
+                            ____endPos += (pos.endPosition * _noteLinesDistance);
                         }
                         else
                         {
@@ -175,58 +143,21 @@ namespace NoodleExtensions.HarmonyPatches
             }
         }
 
-        private static void Postfix(ref Vector3 __result, VectorState? __state, float time, ObstacleController __instance, ObstacleData ____obstacleData, ref Quaternion ____worldRotation,
-            ref Quaternion ____inverseWorldRotation, ref Vector3 ____startPos, ref Vector3 ____midPos, ref Vector3 ____endPos)
+        private static void Postfix(ref Vector3 __result, VectorState? __state, ref Vector3 ____startPos, ref Vector3 ____midPos, ref Vector3 ____endPos)
         {
-            if (____obstacleData is CustomObstacleData customData)
+            // variable position kinda wacky
+            if (__state.HasValue)
             {
-                dynamic dynData = customData.customData;
-
-                if (__state.HasValue)
+                VectorState vectorState = __state.Value;
+                ____startPos = vectorState._startPos;
+                ____midPos = vectorState._midPos;
+                ____endPos = vectorState._endPos;
+                PositionData pos = vectorState.activePositionData;
+                if (pos != null)
                 {
-                    VectorState vectorState = __state.Value;
-                    ____startPos = vectorState._startPos;
-                    ____midPos = vectorState._midPos;
-                    ____endPos = vectorState._endPos;
-                    time = vectorState.time;
-                    PositionData pos = vectorState.activePositionData;
-                    if (pos != null)
-                    {
-                        __result += Vector3.Lerp(pos.startPosition, pos.endPosition,
-                                Easings.Interpolate((time - pos.time) / pos.duration, pos.easing)) * NoodleController.BeatmapObjectSpawnMovementDataVariables._noteLinesDistance;
-                    }
+                    __result += Vector3.Lerp(pos.startPosition, pos.endPosition,
+                            Easings.Interpolate((vectorState.time - pos.time) / pos.duration, pos.easing)) * _noteLinesDistance;
                 }
-
-                List<RotationData> rotationData = Trees.at(dynData, "varRotation");
-                if (rotationData != null)
-                {
-                    RotationData truncatedRotation = rotationData
-                        .Where(n => n.time < time)
-                        .Where(n => n.time + n.duration > time)
-                        .LastOrDefault();
-                    if (truncatedRotation != null)
-                    {
-                        Quaternion rotation = Quaternion.Lerp(truncatedRotation.startRotation, truncatedRotation.endRotation,
-                            Easings.Interpolate((time - truncatedRotation.time) / truncatedRotation.duration, truncatedRotation.easing));
-                        ____worldRotation = rotation;
-                        ____inverseWorldRotation = Quaternion.Inverse(rotation);
-                    }
-                }
-
-                Quaternion? localRotation = null;
-                List<RotationData> localRotationData = Trees.at(dynData, "varLocalRotation");
-                if (localRotationData != null)
-                {
-                    RotationData truncatedRotation = localRotationData
-                        .Where(n => n.time < time)
-                        .Where(n => n.time + n.duration > time)
-                        .LastOrDefault();
-                    if (truncatedRotation != null)
-                        localRotation = Quaternion.Lerp(truncatedRotation.startRotation, truncatedRotation.endRotation,
-                            Easings.Interpolate((time - truncatedRotation.time) / truncatedRotation.duration, truncatedRotation.easing));
-                }
-
-                __instance.transform.localRotation = ____worldRotation * localRotation.GetValueOrDefault(Quaternion.identity);
             }
         }
     }

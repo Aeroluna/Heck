@@ -44,7 +44,7 @@ namespace NoodleExtensions.HarmonyPatches
                 dynamic dynData = ((dynamic)beatmapObjectData).customData;
                 float? njs = (float?)Trees.at(dynData, NOTEJUMPSPEED);
                 float? spawnoffset = (float?)Trees.at(dynData, SPAWNOFFSET);
-                NoodleController.GetNoteJumpValues(njs, spawnoffset, out float _localJumpDuration, out float _, out Vector3 _, out Vector3 _, out Vector3 _);
+                SpawnDataHelper.GetNoteJumpValues(njs, spawnoffset, out float _localJumpDuration, out float _, out Vector3 _, out Vector3 _, out Vector3 _);
                 return _localJumpDuration;
             }
             return @default;

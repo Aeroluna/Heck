@@ -93,7 +93,7 @@ namespace NoodleExtensions.HarmonyPatches
     // TODO: THIS IS JANK
     [HarmonyPatch(typeof(CustomLevelLoader))]
     [HarmonyPatch("LoadBeatmapDataBeatmapData")]
-    internal class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
+    internal class CustomLevelLoaderLoadBeatmapDataBeatmapData
     {
         private static void Postfix(BeatmapData __result, StandardLevelInfoSaveData standardLevelInfoSaveData)
         {
@@ -123,7 +123,7 @@ namespace NoodleExtensions.HarmonyPatches
                             IEnumerable<float> endpos = ((List<object>)Trees.at(dictData, VARIABLEENDPOS))?.Select(Convert.ToSingle);
 
                             float time = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLETIME), bpm);
-                            float duration = (float)Trees.at(dictData, VARIABLEDURATION);
+                            float duration = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLEDURATION), bpm);
                             string easing = (string)Trees.at(dictData, VARIABLEEASING);
                             bool? relative = (bool?)Trees.at(dictData, VARIABLERELATIVE);
                             positionData.Add(new PositionData(time, duration, startpos, endpos, easing, relative));
@@ -145,7 +145,7 @@ namespace NoodleExtensions.HarmonyPatches
                             IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, VARIABLEENDROT))?.Select(Convert.ToSingle);
 
                             float time = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLETIME), bpm);
-                            float duration = (float)Trees.at(dictData, VARIABLEDURATION);
+                            float duration = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLEDURATION), bpm);
                             string easing = (string)Trees.at(dictData, VARIABLEEASING);
                             rotationData.Add(new RotationData(time, duration, startrot, endrot, easing));
                         }
@@ -166,7 +166,7 @@ namespace NoodleExtensions.HarmonyPatches
                             IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, VARIABLEENDROT))?.Select(Convert.ToSingle);
 
                             float time = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLETIME), bpm);
-                            float duration = (float)Trees.at(dictData, VARIABLEDURATION);
+                            float duration = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLEDURATION), bpm);
                             string easing = (string)Trees.at(dictData, VARIABLEEASING);
                             rotationData.Add(new RotationData(time, duration, startrot, endrot, easing));
                         }

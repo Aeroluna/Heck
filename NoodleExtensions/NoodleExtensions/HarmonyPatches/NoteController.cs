@@ -13,6 +13,17 @@ using static NoodleExtensions.Plugin;
 namespace NoodleExtensions.HarmonyPatches
 {
     [NoodlePatch(typeof(NoteController))]
+    [NoodlePatch("Update")]
+    internal class NoteControllerUpdate
+    {
+        internal static NoteData cachedNoteData;
+        private static void Prefix(NoteData ____noteData)
+        {
+            cachedNoteData = ____noteData;
+        }
+    }
+
+    [NoodlePatch(typeof(NoteController))]
     [NoodlePatch("Init")]
     internal class NoteControllerInit
     {
@@ -29,11 +40,12 @@ namespace NoodleExtensions.HarmonyPatches
         private static readonly FieldAccessor<NoteFloorMovement, Quaternion>.Accessor _worldRotationFloorAccessor = FieldAccessor<NoteFloorMovement, Quaternion>.GetAccessor("_worldRotation");
         private static readonly FieldAccessor<NoteFloorMovement, Quaternion>.Accessor _inverseWorldRotationFloorAccessor = FieldAccessor<NoteFloorMovement, Quaternion>.GetAccessor("_inverseWorldRotation");
 
-        private static void Postfix(NoteData noteData, NoteMovement ____noteMovement)
+        private static void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement)
         {
             if (noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
+
                 float? _cutDir = (float?)Trees.at(dynData, CUTDIRECTION);
 
                 NoteJump noteJump = _noteJumpAccessor(ref ____noteMovement);
@@ -47,24 +59,6 @@ namespace NoodleExtensions.HarmonyPatches
                     vector += _randomRotationsAccessor(ref noteJump)[_randomRotationIdxAccessor(ref noteJump)] * 20;
                     Quaternion midrotation = Quaternion.Euler(vector);
                     _middleRotationAccessor(ref noteJump) = midrotation;
-                }
-
-                dynamic _rotation = Trees.at(dynData, ROTATION);
-                if (_rotation != null)
-                {
-                    Quaternion _worldRotation;
-                    if (_rotation is List<object> list)
-                    {
-                        IEnumerable<float> _rot = (list)?.Select(Convert.ToSingle);
-                        _worldRotation = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
-                    }
-                    else _worldRotation = Quaternion.Euler(0, (float)_rotation, 0);
-                    Quaternion _inverseWorldRotation = Quaternion.Inverse(_worldRotation);
-                    _worldRotationJumpAccessor(ref noteJump) = _worldRotation;
-                    _inverseWorldRotationJumpAccessor(ref noteJump) = _inverseWorldRotation;
-                    _worldRotationFloorAccessor(ref floorMovement) = _worldRotation;
-                    _inverseWorldRotationFloorAccessor(ref floorMovement) = _inverseWorldRotation;
-                    floorMovement.SetToStart();
                 }
             }
         }

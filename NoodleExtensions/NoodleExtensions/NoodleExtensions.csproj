@@ -72,9 +72,13 @@
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnMovementData.cs" />
-    <Compile Include="HarmonyPatches\ObstacleData.cs" />
-    <Compile Include="HarmonyPatches\NoteData.cs" />
-    <Compile Include="HarmonyPatches\BeatDataMirrorTransform.cs" />
+    <Compile Include="HarmonyPatches\Mirroring\ObstacleData.cs" />
+    <Compile Include="HarmonyPatches\Mirroring\NoteData.cs" />
+    <Compile Include="HarmonyPatches\Mirroring\BeatDataMirrorTransform.cs" />
+    <Compile Include="HarmonyPatches\NoteFloorMovement.cs" />
+    <Compile Include="HarmonyPatches\NoteJump.cs" />
+    <Compile Include="HarmonyPatches\ObjectAnimationHelper.cs" />
+    <Compile Include="HarmonyPatches\SpawnDataHelper.cs" />
     <Compile Include="HarmonyPatches\SpawnRotationProcessor.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />
     <Compile Include="HarmonyPatches\StandardLevelScenesTransitionSetupDataSO.cs" />

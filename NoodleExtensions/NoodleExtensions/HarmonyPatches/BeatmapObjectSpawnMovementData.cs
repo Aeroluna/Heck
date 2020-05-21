@@ -4,8 +4,8 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static NoodleExtensions.NoodleController;
-using static NoodleExtensions.NoodleController.BeatmapObjectSpawnMovementDataVariables;
+using static NoodleExtensions.HarmonyPatches.SpawnDataHelper;
+using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches

@@ -20,9 +20,6 @@ namespace NoodleExtensions
         internal const string NOTEJUMPSPEED = "_noteJumpMovementSpeed";
         internal const string SPAWNOFFSET = "_noteJumpStartBeatOffset";
 
-        internal const string DESPAWNTIME = "_despawnTime";
-        internal const string DESPAWNDURATION = "_despawnDuration";
-
         internal const string VARIABLEROTATION = "_variableRotation";
         internal const string VARIABLEPOSITION = "_variablePosition";
 
@@ -41,6 +38,9 @@ namespace NoodleExtensions
 
         internal const string LOCALROTATION = "_localRotation";
         internal const string SCALE = "_scale";
+
+        internal const string DESPAWNTIME = "_despawnTime";
+        internal const string DESPAWNDURATION = "_despawnDuration";
 
         internal const string VARIABLELOCALROTATION = "_variableLocalRotation";
 
