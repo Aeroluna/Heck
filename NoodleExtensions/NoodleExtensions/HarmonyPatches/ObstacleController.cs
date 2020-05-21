@@ -29,13 +29,14 @@ namespace NoodleExtensions.HarmonyPatches
             }
         }
 
-        private static readonly MethodInfo _customWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(null, 0));
+        private static readonly MethodInfo _getCustomWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(0, null));
+        private static readonly MethodInfo _getCustomLength = SymbolExtensions.GetMethodInfo(() => GetCustomLength(0, null));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
-            bool foundRotation = false;
             bool foundWidth = false;
+            bool foundLength = false;
             for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundWidth &&
@@ -43,23 +44,42 @@ namespace NoodleExtensions.HarmonyPatches
                     ((MethodInfo)instructionList[i].operand).Name == "get_width")
                 {
                     foundWidth = true;
-                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Call, _customWidth));
-                    instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldarg_1));
+                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Ldarg_1));
+                    instructionList.Insert(i + 3, new CodeInstruction(OpCodes.Call, _getCustomWidth));
+                }
+                if (!foundLength &&
+                    instructionList[i].opcode == OpCodes.Stloc_2)
+                {
+                    foundLength = true;
+                    instructionList.Insert(i, new CodeInstruction(OpCodes.Ldarg_1));
+                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _getCustomLength));
                 }
             }
-            if (!foundRotation) Logger.Log("Failed to find _worldRotation stfld, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
             if (!foundWidth) Logger.Log("Failed to find get_width call, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
+            if (!foundLength) Logger.Log("Failed to find stloc.2, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
             return instructionList.AsEnumerable();
         }
 
-        private static float GetCustomWidth(ObstacleData obstacleData, float @default)
+        private static float GetCustomWidth(float @default, ObstacleData obstacleData)
         {
             if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
-                IEnumerable<float?> _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
-                float? width = _scale?.ElementAtOrDefault(0);
+                IEnumerable<float?> scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
+                float? width = scale?.ElementAtOrDefault(0);
                 if (width.HasValue) return width.Value;
+            }
+            return @default;
+        }
+
+        private static float GetCustomLength(float @default, ObstacleData obstacleData)
+        {
+            if (obstacleData is CustomObstacleData customData)
+            {
+                dynamic dynData = customData.customData;
+                IEnumerable<float?> scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
+                float? length = scale?.ElementAtOrDefault(2);
+                if (length.HasValue) return length.Value * _noteLinesDistance;
             }
             return @default;
         }
