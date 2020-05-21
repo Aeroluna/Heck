@@ -1,12 +1,8 @@
-﻿using System;
+﻿using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
-using HarmonyLib;
-using System.Text;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
-using UnityEngine;
 
 namespace NoodleExtensions.HarmonyPatches
 {
@@ -14,8 +10,9 @@ namespace NoodleExtensions.HarmonyPatches
     [HarmonyPatch("ManualUpdate")]
     internal class NoteFloorMovementManualUpdate
     {
-        private static readonly FieldInfo WorldRotationField = AccessTools.Field(typeof(NoteFloorMovement), "_worldRotation");
-        private static readonly FieldInfo InverseWorldRotationField = AccessTools.Field(typeof(NoteFloorMovement), "_inverseWorldRotation");
+        private static readonly FieldInfo _worldRotationField = AccessTools.Field(typeof(NoteFloorMovement), "_worldRotation");
+        private static readonly FieldInfo _inverseWorldRotationField = AccessTools.Field(typeof(NoteFloorMovement), "_inverseWorldRotation");
+
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
@@ -29,25 +26,25 @@ namespace NoodleExtensions.HarmonyPatches
                     ((FieldInfo)instructionList[i].operand).Name == "_endPos"))
                 {
                     foundPosition = true;
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, ObjectAnimationHelper.AddComposite));
+                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, ObjectAnimationHelper._addCompositePos));
                 }
                 if (!foundTime &&
                     instructionList[i].opcode == OpCodes.Stloc_0)
                 {
                     foundTime = true;
                     instructionList.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldflda, WorldRotationField));
+                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldflda, _worldRotationField));
                     instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Ldarg_0));
-                    instructionList.Insert(i + 3, new CodeInstruction(OpCodes.Ldflda, InverseWorldRotationField));
+                    instructionList.Insert(i + 3, new CodeInstruction(OpCodes.Ldflda, _inverseWorldRotationField));
                     instructionList.Insert(i + 4, new CodeInstruction(OpCodes.Ldarg_0));
-                    instructionList.Insert(i + 5, new CodeInstruction(OpCodes.Call, ObjectAnimationHelper.HandleNote));
+                    instructionList.Insert(i + 5, new CodeInstruction(OpCodes.Call, ObjectAnimationHelper._handleNoteAnimation));
                 }
                 if (!foundFinalPosition &&
                     instructionList[i].opcode == OpCodes.Stfld &&
                     ((FieldInfo)instructionList[i].operand).Name == "_localPosition")
                 {
                     foundFinalPosition = true;
-                    instructionList.Insert(i, new CodeInstruction(OpCodes.Call, ObjectAnimationHelper.AddFinalPos));
+                    instructionList.Insert(i, new CodeInstruction(OpCodes.Call, ObjectAnimationHelper._addActivePosition));
                 }
             }
             if (!foundPosition) Logger.Log("Failed to find _startPos or _endPos ldfld, ping Aeroluna!", IPA.Logging.Logger.Level.Error);

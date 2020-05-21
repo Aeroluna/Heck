@@ -1,12 +1,10 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
-using IPA.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnityEngine;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions
@@ -50,7 +48,7 @@ namespace NoodleExtensions
 
         private static List<NoodlePatchData> NoodlePatches;
 
-        public static void ToggleNoodlePatches(bool value, BeatmapData beatmapData, float noteJumpMovementSpeed, float noteJumpStartBeatOffset)
+        public static void ToggleNoodlePatches(bool value, BeatmapData beatmapData, float defaultNoteJumpMovementSpeed, float defaultNoteJumpStartBeatOffset)
         {
             if (value)
             {
@@ -75,17 +73,17 @@ namespace NoodleExtensions
                         if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData) customData = beatmapObjectData;
                         else return;
                         dynamic dynData = customData.customData;
-                        float _noteJumpMovementSpeed = (float?)Trees.at(dynData, NOTEJUMPSPEED) ?? noteJumpMovementSpeed;
-                        float _noteJumpStartBeatOffset = (float?)Trees.at(dynData, SPAWNOFFSET) ?? noteJumpStartBeatOffset;
+                        float noteJumpMovementSpeed = (float?)Trees.at(dynData, NOTEJUMPSPEED) ?? defaultNoteJumpMovementSpeed;
+                        float noteJumpStartBeatOffset = (float?)Trees.at(dynData, SPAWNOFFSET) ?? defaultNoteJumpStartBeatOffset;
 
                         // how do i not repeat this in a reasonable way
                         float num = 60f / (float)Trees.at(dynData, "bpm");
                         float num2 = _startHalfJumpDurationInBeats;
-                        while (_noteJumpMovementSpeed * num * num2 > _maxHalfJumpDistance)
+                        while (noteJumpMovementSpeed * num * num2 > _maxHalfJumpDistance)
                         {
                             num2 /= 2f;
                         }
-                        num2 += _noteJumpStartBeatOffset;
+                        num2 += noteJumpStartBeatOffset;
                         if (num2 < 1f) num2 = 1f;
                         float _jumpDuration = num * num2 * 2f;
                         dynData.aheadTime = _moveDuration + _jumpDuration * 0.5f;

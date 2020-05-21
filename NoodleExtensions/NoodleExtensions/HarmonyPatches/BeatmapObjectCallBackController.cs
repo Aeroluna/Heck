@@ -12,7 +12,7 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("LateUpdate")]
     internal class BeatmapObjectCallBackControllerLateUpdate
     {
-        private static readonly MethodInfo aheadTime = SymbolExtensions.GetMethodInfo(() => GetAheadTime(null, 0));
+        private static readonly MethodInfo _getAheadTime = SymbolExtensions.GetMethodInfo(() => GetAheadTime(null, 0));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -26,7 +26,7 @@ namespace NoodleExtensions.HarmonyPatches
                 {
                     foundAheadTime = true;
 
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, aheadTime));
+                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _getAheadTime));
                     instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldloc_3));
                 }
             }

@@ -17,20 +17,20 @@ namespace NoodleExtensions.HarmonyPatches
             if (__instance is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
-                IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
-                IEnumerable<float?> _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
-                List<float> _localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n)).ToList();
-                float? _rotation = (float?)Trees.at(dynData, ROTATION);
+                IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
+                IEnumerable<float?> scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
+                List<float> localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n)).ToList();
+                float? rotation = (float?)Trees.at(dynData, ROTATION);
 
-                float? _startX = _position?.ElementAtOrDefault(0);
-                float? _width = _scale?.ElementAtOrDefault(0);
+                float? startX = position?.ElementAtOrDefault(0);
+                float? scaleX = scale?.ElementAtOrDefault(0);
 
                 IDictionary<string, object> dictdata = dynData as IDictionary<string, object>;
 
-                float width = _width.GetValueOrDefault(__instance.width);
-                if (_startX.HasValue) dictdata[POSITION] = new List<object>() { (_startX.Value + width) * -1, _position.ElementAtOrDefault(1) };
-                if (_localrot != null) dictdata[LOCALROTATION] = _localrot.Select(n => n *= 1).Cast<object>().ToList();
-                if (_rotation.HasValue) dictdata[ROTATION] = _rotation * -1;
+                float width = scaleX.GetValueOrDefault(__instance.width);
+                if (startX.HasValue) dictdata[POSITION] = new List<object>() { (startX.Value + width) * -1, position.ElementAtOrDefault(1) };
+                if (localrot != null) dictdata[LOCALROTATION] = localrot.Select(n => n *= 1).Cast<object>().ToList();
+                if (rotation.HasValue) dictdata[ROTATION] = rotation * -1;
             }
         }
     }

@@ -1,36 +1,35 @@
-﻿using System;
+﻿using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
+using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using UnityEngine;
-using CustomJSONData.CustomBeatmap;
-using CustomJSONData;
-using System.Threading.Tasks;
 using System.Reflection;
-using HarmonyLib;
-using static NoodleExtensions.Plugin;
+using UnityEngine;
 using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
+using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
 {
     internal class ObjectAnimationHelper
     {
-        internal static readonly MethodInfo AddComposite = SymbolExtensions.GetMethodInfo(() => AddCompositePos(new Vector3()));
-        internal static readonly MethodInfo AddCompositeX = SymbolExtensions.GetMethodInfo(() => AddCompositePosX(0));
-        internal static readonly MethodInfo AddCompositeY = SymbolExtensions.GetMethodInfo(() => AddCompositePosY(0));
-        internal static readonly MethodInfo AddCompositeZ = SymbolExtensions.GetMethodInfo(() => AddCompositePosZ(0));
+        internal static readonly MethodInfo _addCompositePos = SymbolExtensions.GetMethodInfo(() => AddCompositePos(new Vector3()));
+        internal static readonly MethodInfo _addCompositeX = SymbolExtensions.GetMethodInfo(() => AddCompositeX(0));
+        internal static readonly MethodInfo _addCompositeY = SymbolExtensions.GetMethodInfo(() => AddCompositeY(0));
+        internal static readonly MethodInfo _addCompositeZ = SymbolExtensions.GetMethodInfo(() => AddCompositeZ(0));
         private static Quaternion _; // this is literally just for the line below
-        internal static readonly MethodInfo HandleNote = SymbolExtensions.GetMethodInfo(() => HandleNoteAnimation(0, ref _, ref _, null));
-        internal static readonly MethodInfo AddFinalPos = SymbolExtensions.GetMethodInfo(() => AddActivePosition(new Vector3()));
-        private static Vector3 compositePos;
-        private static PositionData activePositionData;
-        private static float trueTime;
-        private static float HandleNoteAnimation(float time, ref Quaternion _worldRotation, ref Quaternion _inverseWorldRotation, MonoBehaviour monoBehaviour)
+        internal static readonly MethodInfo _handleNoteAnimation = SymbolExtensions.GetMethodInfo(() => HandleNoteAnimation(0, ref _, ref _, null));
+        internal static readonly MethodInfo _addActivePosition = SymbolExtensions.GetMethodInfo(() => AddActivePosition(new Vector3()));
+        private static Vector3 _compositePos;
+        private static PositionData _activePositionData;
+        private static float _trueTime;
+
+        private static float HandleNoteAnimation(float time, ref Quaternion worldRotation, ref Quaternion inverseWorldRotation, MonoBehaviour monoBehaviour)
         {
-            compositePos = new Vector3();
-            activePositionData = null;
-            trueTime = time;
-            NoteData noteData = NoteControllerUpdate.cachedNoteData;
+            _compositePos = new Vector3();
+            _activePositionData = null;
+            _trueTime = time;
+            NoteData noteData = NoteControllerUpdate._cachedNoteData;
             if (noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
@@ -38,13 +37,13 @@ namespace NoodleExtensions.HarmonyPatches
                 Quaternion? rotation = GetWorldRotation(dynData, time);
                 if (rotation.HasValue)
                 {
-                    _worldRotation = rotation.Value;
-                    _inverseWorldRotation = Quaternion.Inverse(rotation.Value);
+                    worldRotation = rotation.Value;
+                    inverseWorldRotation = Quaternion.Inverse(rotation.Value);
                 }
 
                 Quaternion? localRotation = GetLocalRotation(dynData, time);
 
-                monoBehaviour.transform.localRotation = _worldRotation * localRotation.GetValueOrDefault(Quaternion.identity);
+                monoBehaviour.transform.localRotation = worldRotation * localRotation.GetValueOrDefault(Quaternion.identity);
 
                 List<PositionData> positionData = Trees.at(dynData, "varPosition");
                 if (positionData != null)
@@ -58,12 +57,12 @@ namespace NoodleExtensions.HarmonyPatches
                         if (pos.time + pos.duration < time)
                         {
                             if (!pos.relative) movementTime += pos.duration;
-                            compositePos += pos.endPosition * _noteLinesDistance;
+                            _compositePos += pos.endPosition * _noteLinesDistance;
                         }
                         else
                         {
                             if (!pos.relative) movementTime += time - pos.time;
-                            activePositionData = pos;
+                            _activePositionData = pos;
                         }
                     }
                     return time - movementTime;
@@ -74,28 +73,28 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static Vector3 AddCompositePos(Vector3 original)
         {
-            return original + compositePos;
+            return original + _compositePos;
         }
 
-        private static float AddCompositePosX(float x)
+        private static float AddCompositeX(float x)
         {
-            return x + compositePos.x;
+            return x + _compositePos.x;
         }
 
-        private static float AddCompositePosY(float y)
+        private static float AddCompositeY(float y)
         {
-            return y + compositePos.y;
+            return y + _compositePos.y;
         }
 
-        private static float AddCompositePosZ(float z)
+        private static float AddCompositeZ(float z)
         {
-            return z + compositePos.z;
+            return z + _compositePos.z;
         }
 
         private static Vector3 AddActivePosition(Vector3 original)
         {
-            if (activePositionData != null) return original + Vector3.Lerp(activePositionData.startPosition, activePositionData.endPosition,
-                            Easings.Interpolate((trueTime - activePositionData.time) / activePositionData.duration, activePositionData.easing)) * _noteLinesDistance;
+            if (_activePositionData != null) return original + Vector3.Lerp(_activePositionData.startPosition, _activePositionData.endPosition,
+                            Easings.Interpolate((_trueTime - _activePositionData.time) / _activePositionData.duration, _activePositionData.easing)) * _noteLinesDistance;
             return original;
         }
 
@@ -103,15 +102,15 @@ namespace NoodleExtensions.HarmonyPatches
         {
             Quaternion? worldRotation = null;
 
-            dynamic _rotation = Trees.at(dynData, ROTATION);
-            if (_rotation != null)
+            dynamic rotation = Trees.at(dynData, ROTATION);
+            if (rotation != null)
             {
-                if (_rotation is List<object> list)
+                if (rotation is List<object> list)
                 {
                     IEnumerable<float> _rot = (list)?.Select(Convert.ToSingle);
                     worldRotation = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
                 }
-                else worldRotation = Quaternion.Euler(0, (float)_rotation, 0);
+                else worldRotation = Quaternion.Euler(0, (float)rotation, 0);
             }
 
             List<RotationData> rotationData = Trees.at(dynData, "varRotation");
@@ -132,11 +131,10 @@ namespace NoodleExtensions.HarmonyPatches
 
         internal static Quaternion? GetLocalRotation(dynamic dynData, float time)
         {
-
             Quaternion? localRotation = null;
 
-            IEnumerable<float> _localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(Convert.ToSingle);
-            if (_localrot != null) localRotation = Quaternion.Euler(_localrot.ElementAt(0), _localrot.ElementAt(1), _localrot.ElementAt(2));
+            IEnumerable<float> localRotRaw = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(Convert.ToSingle);
+            if (localRotRaw != null) localRotation = Quaternion.Euler(localRotRaw.ElementAt(0), localRotRaw.ElementAt(1), localRotRaw.ElementAt(2));
 
             List<RotationData> localRotationData = Trees.at(dynData, "varLocalRotation");
             if (localRotationData != null)

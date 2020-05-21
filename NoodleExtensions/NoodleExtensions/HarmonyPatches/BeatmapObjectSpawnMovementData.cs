@@ -29,30 +29,30 @@ namespace NoodleExtensions.HarmonyPatches
             if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
-                IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
-                IEnumerable<float?> _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
-                float? _njs = (float?)Trees.at(dynData, NOTEJUMPSPEED);
-                float? _spawnoffset = (float?)Trees.at(dynData, SPAWNOFFSET);
+                IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
+                IEnumerable<float?> scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
+                float? njs = (float?)Trees.at(dynData, NOTEJUMPSPEED);
+                float? spawnoffset = (float?)Trees.at(dynData, SPAWNOFFSET);
 
-                float? _startX = _position?.ElementAtOrDefault(0);
-                float? _startY = _position?.ElementAtOrDefault(1);
+                float? startX = position?.ElementAtOrDefault(0);
+                float? startY = position?.ElementAtOrDefault(1);
 
-                float? _height = _scale?.ElementAtOrDefault(1);
+                float? height = scale?.ElementAtOrDefault(1);
 
                 // Actual wall stuff
-                if (_startX.HasValue || _startY.HasValue || _njs.HasValue || _spawnoffset.HasValue)
+                if (startX.HasValue || startY.HasValue || njs.HasValue || spawnoffset.HasValue)
                 {
-                    GetNoteJumpValues(_njs, _spawnoffset, out float _, out float _, out Vector3 _localMoveStartPos, out Vector3 _localMoveEndPos, out Vector3 _localJumpEndPos);
+                    GetNoteJumpValues(njs, spawnoffset, out float _, out float _, out Vector3 _localMoveStartPos, out Vector3 _localMoveEndPos, out Vector3 _localJumpEndPos);
 
                     // Ripped from base game
-                    Vector3 noteOffset = GetNoteOffset(obstacleData, _startX, null);
-                    noteOffset.y = _startY.HasValue ? _verticalObstaclePosY + _startY.GetValueOrDefault(0) * _noteLinesDistance : ((obstacleData.obstacleType == ObstacleType.Top)
+                    Vector3 noteOffset = GetNoteOffset(obstacleData, startX, null);
+                    noteOffset.y = startY.HasValue ? _verticalObstaclePosY + startY.GetValueOrDefault(0) * _noteLinesDistance : ((obstacleData.obstacleType == ObstacleType.Top)
                         ? (_topObstaclePosY + _jumpOffsetY) : _verticalObstaclePosY); // If _startY(_startHeight) is set, put wall on floor
                     moveStartPos = _localMoveStartPos + noteOffset;
                     moveEndPos = _localMoveEndPos + noteOffset;
                     jumpEndPos = _localJumpEndPos + noteOffset;
                 }
-                if (_height.HasValue) obstacleHeight = _height.Value * _noteLinesDistance;
+                if (height.HasValue) obstacleHeight = height.Value * _noteLinesDistance;
             }
         }
     }
@@ -66,25 +66,25 @@ namespace NoodleExtensions.HarmonyPatches
             if (noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
+                IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
                 float? flipLineIndex = (float?)Trees.at(dynData, "flipLineIndex");
-                float? _njs = (float?)Trees.at(dynData, NOTEJUMPSPEED);
-                float? _spawnoffset = (float?)Trees.at(dynData, SPAWNOFFSET);
+                float? njs = (float?)Trees.at(dynData, NOTEJUMPSPEED);
+                float? spawnoffset = (float?)Trees.at(dynData, SPAWNOFFSET);
 
-                float? _startRow = _position?.ElementAtOrDefault(0);
-                float? _startHeight = _position?.ElementAtOrDefault(1);
+                float? startRow = position?.ElementAtOrDefault(0);
+                float? startHeight = position?.ElementAtOrDefault(1);
 
-                if (_position != null || flipLineIndex != null || _njs.HasValue || _spawnoffset.HasValue)
+                if (position != null || flipLineIndex != null || njs.HasValue || spawnoffset.HasValue)
                 {
-                    GetNoteJumpValues(_njs, _spawnoffset, out float _, out float _localJumpDistance, out Vector3 _localMoveStartPos, out Vector3 _localMoveEndPos, out Vector3 _localJumpEndPos);
+                    GetNoteJumpValues(njs, spawnoffset, out float _, out float _localJumpDistance, out Vector3 _localMoveStartPos, out Vector3 _localMoveEndPos, out Vector3 _localJumpEndPos);
 
-                    float _localNoteJumpMovementSpeed = _njs ?? _noteJumpMovementSpeed;
+                    float _localNoteJumpMovementSpeed = njs ?? _noteJumpMovementSpeed;
 
-                    Vector3 noteOffset = GetNoteOffset(noteData, _startRow, _startHeight);
+                    Vector3 noteOffset = GetNoteOffset(noteData, startRow, startHeight);
 
-                    float lineYPos = LineYPosForLineLayer(noteData, _startHeight);
+                    float lineYPos = LineYPosForLineLayer(noteData, startHeight);
                     // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
-                    float highestJump = _startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + _jumpOffsetY :
+                    float highestJump = startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + _jumpOffsetY :
                         beatmapObjectSpawnMovementData.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
                     jumpGravity = 2f * (highestJump - lineYPos) /
                         Mathf.Pow(_localJumpDistance / _localNoteJumpMovementSpeed * 0.5f, 2f);
@@ -92,7 +92,7 @@ namespace NoodleExtensions.HarmonyPatches
                     jumpEndPos = _localJumpEndPos + noteOffset;
 
                     // IsBasicNote() check is skipped so bombs can flip too
-                    Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? _startRow, _startHeight);
+                    Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? startRow, startHeight);
                     moveStartPos = _localMoveStartPos + noteOffset2;
                     moveEndPos = _localMoveEndPos + noteOffset2;
                 }

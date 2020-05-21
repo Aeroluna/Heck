@@ -15,7 +15,7 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("SpawnNote")]
     internal class BeatmapObjectSpawnControllerSpawnObject
     {
-        private static readonly MethodInfo jumpDuration = SymbolExtensions.GetMethodInfo(() => GetJumpDuration(null, 0));
+        private static readonly MethodInfo _getJumpDuration = SymbolExtensions.GetMethodInfo(() => GetJumpDuration(null, 0));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -29,7 +29,7 @@ namespace NoodleExtensions.HarmonyPatches
                 {
                     foundJumpDuration = true;
 
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, jumpDuration));
+                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _getJumpDuration));
                     instructionList.Insert(i - 2, new CodeInstruction(OpCodes.Ldarg_1));
                 }
             }
@@ -44,8 +44,8 @@ namespace NoodleExtensions.HarmonyPatches
                 dynamic dynData = ((dynamic)beatmapObjectData).customData;
                 float? njs = (float?)Trees.at(dynData, NOTEJUMPSPEED);
                 float? spawnoffset = (float?)Trees.at(dynData, SPAWNOFFSET);
-                SpawnDataHelper.GetNoteJumpValues(njs, spawnoffset, out float _localJumpDuration, out float _, out Vector3 _, out Vector3 _, out Vector3 _);
-                return _localJumpDuration;
+                SpawnDataHelper.GetNoteJumpValues(njs, spawnoffset, out float localJumpDuration, out float _, out Vector3 _, out Vector3 _, out Vector3 _);
+                return localJumpDuration;
             }
             return @default;
         }

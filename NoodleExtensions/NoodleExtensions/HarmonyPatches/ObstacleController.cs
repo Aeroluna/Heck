@@ -1,7 +1,6 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -17,7 +16,7 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("Init")]
     internal class ObstacleControllerInit
     {
-        private static void Postfix(ObstacleController __instance, ObstacleData obstacleData, ref float ____passedAvoidedMarkTime, ref float ____finishMovementTime)
+        private static void Postfix(ObstacleData obstacleData, ref float ____passedAvoidedMarkTime, ref float ____finishMovementTime)
         {
             if (obstacleData is CustomObstacleData customData)
             {
@@ -30,8 +29,7 @@ namespace NoodleExtensions.HarmonyPatches
             }
         }
 
-        private static readonly MethodInfo customWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(null, 0));
-        private static readonly MethodInfo inverseQuaternion = SymbolExtensions.GetMethodInfo(() => Quaternion.Inverse(Quaternion.identity));
+        private static readonly MethodInfo _customWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(null, 0));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -45,7 +43,7 @@ namespace NoodleExtensions.HarmonyPatches
                     ((MethodInfo)instructionList[i].operand).Name == "get_width")
                 {
                     foundWidth = true;
-                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Call, customWidth));
+                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Call, _customWidth));
                     instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldarg_1));
                 }
             }
@@ -60,8 +58,8 @@ namespace NoodleExtensions.HarmonyPatches
             {
                 dynamic dynData = customData.customData;
                 IEnumerable<float?> _scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
-                float? _width = _scale?.ElementAtOrDefault(0);
-                if (_width.HasValue) return _width.Value;
+                float? width = _scale?.ElementAtOrDefault(0);
+                if (width.HasValue) return width.Value;
             }
             return @default;
         }
@@ -93,9 +91,9 @@ namespace NoodleExtensions.HarmonyPatches
                 List<PositionData> positionData = Trees.at(dynData, "varPosition");
                 if (positionData != null)
                 {
-                    Vector3 _startPos = ____startPos;
-                    Vector3 _midPos = ____midPos;
-                    Vector3 _endPos = ____endPos;
+                    Vector3 startPos = ____startPos;
+                    Vector3 midPos = ____midPos;
+                    Vector3 endPos = ____endPos;
 
                     float timeCopy = time;
                     IEnumerable<PositionData> truncatedPosition = positionData
@@ -119,7 +117,7 @@ namespace NoodleExtensions.HarmonyPatches
                         }
                     }
 
-                    __state = new VectorState(_startPos, _midPos, _endPos, timeCopy, activePositionData);
+                    __state = new VectorState(startPos, midPos, endPos, timeCopy, activePositionData);
                     time -= movementTime;
                 }
             }
@@ -127,17 +125,17 @@ namespace NoodleExtensions.HarmonyPatches
 
         private struct VectorState
         {
-            internal Vector3 _startPos { get; }
-            internal Vector3 _midPos { get; }
-            internal Vector3 _endPos { get; }
+            internal Vector3 startPos { get; }
+            internal Vector3 midPos { get; }
+            internal Vector3 endPos { get; }
             internal float time { get; }
             internal PositionData activePositionData { get; }
 
-            internal VectorState(Vector3 _startPos, Vector3 _midPos, Vector3 _endPos, float time, PositionData activePositionData)
+            internal VectorState(Vector3 startPos, Vector3 midPos, Vector3 endPos, float time, PositionData activePositionData)
             {
-                this._startPos = _startPos;
-                this._midPos = _midPos;
-                this._endPos = _endPos;
+                this.startPos = startPos;
+                this.midPos = midPos;
+                this.endPos = endPos;
                 this.time = time;
                 this.activePositionData = activePositionData;
             }
@@ -149,9 +147,9 @@ namespace NoodleExtensions.HarmonyPatches
             if (__state.HasValue)
             {
                 VectorState vectorState = __state.Value;
-                ____startPos = vectorState._startPos;
-                ____midPos = vectorState._midPos;
-                ____endPos = vectorState._endPos;
+                ____startPos = vectorState.startPos;
+                ____midPos = vectorState.midPos;
+                ____endPos = vectorState.endPos;
                 PositionData pos = vectorState.activePositionData;
                 if (pos != null)
                 {

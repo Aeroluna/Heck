@@ -16,17 +16,17 @@ namespace NoodleExtensions.HarmonyPatches
             if (__instance is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
+                IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
                 float? flipLineIndex = (float?)Trees.at(dynData, "flipLineIndex");
-                float? _rotation = (float?)Trees.at(dynData, ROTATION);
+                float? rotation = (float?)Trees.at(dynData, ROTATION);
 
-                float? _startRow = _position?.ElementAtOrDefault(0);
+                float? startRow = position?.ElementAtOrDefault(0);
 
                 IDictionary<string, object> dictdata = dynData as IDictionary<string, object>;
 
-                if (_startRow.HasValue) dictdata[POSITION] = new List<object>() { ((_startRow.Value + 0.5f) * -1) - 0.5f, _position.ElementAtOrDefault(1) };
+                if (startRow.HasValue) dictdata[POSITION] = new List<object>() { ((startRow.Value + 0.5f) * -1) - 0.5f, position.ElementAtOrDefault(1) };
                 if (flipLineIndex.HasValue) dynData.flipLineIndex = ((flipLineIndex.Value + 0.5f) * -1) - 0.5f;
-                if (_rotation.HasValue) dictdata[ROTATION] = _rotation * -1;
+                if (rotation.HasValue) dictdata[ROTATION] = rotation * -1;
             }
         }
     }
@@ -40,11 +40,11 @@ namespace NoodleExtensions.HarmonyPatches
             if (__instance is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                float? _rotation = (float?)Trees.at(dynData, CUTDIRECTION);
+                float? rotation = (float?)Trees.at(dynData, CUTDIRECTION);
 
                 IDictionary<string, object> dictdata = dynData as IDictionary<string, object>;
 
-                if (_rotation.HasValue) dictdata[CUTDIRECTION] = 360 - _rotation.Value;
+                if (rotation.HasValue) dictdata[CUTDIRECTION] = 360 - rotation.Value;
             }
         }
     }

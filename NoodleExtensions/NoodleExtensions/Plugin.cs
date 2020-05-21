@@ -17,11 +17,13 @@ namespace NoodleExtensions
         internal const string POSITION = "_position";
         internal const string ROTATION = "_rotation"; // Rotation events included
 
+        internal const string LOCALROTATION = "_localRotation";
         internal const string NOTEJUMPSPEED = "_noteJumpMovementSpeed";
         internal const string SPAWNOFFSET = "_noteJumpStartBeatOffset";
 
         internal const string VARIABLEROTATION = "_variableRotation";
         internal const string VARIABLEPOSITION = "_variablePosition";
+        internal const string VARIABLELOCALROTATION = "_variableLocalRotation";
 
         internal const string VARIABLETIME = "_time";
         internal const string VARIABLEDURATION = "_duration";
@@ -36,13 +38,10 @@ namespace NoodleExtensions
 
         #region Wall Exclusive
 
-        internal const string LOCALROTATION = "_localRotation";
         internal const string SCALE = "_scale";
 
         internal const string DESPAWNTIME = "_despawnTime";
         internal const string DESPAWNDURATION = "_despawnDuration";
-
-        internal const string VARIABLELOCALROTATION = "_variableLocalRotation";
 
         #endregion Wall Exclusive
 

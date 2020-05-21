@@ -29,13 +29,13 @@ namespace NoodleExtensions.HarmonyPatches
             for (int i = customNotes.Count - 1; i >= 0; i--)
             {
                 dynamic dynData = customNotes[i].customData;
-                IEnumerable<float?> _flip = ((List<object>)Trees.at(dynData, FLIP))?.Select(n => n.ToNullableFloat());
-                float? _flipX = _flip?.ElementAtOrDefault(0);
-                float? _flipY = _flip?.ElementAtOrDefault(1);
-                if (_flipX.HasValue || _flipY.HasValue)
+                IEnumerable<float?> flip = ((List<object>)Trees.at(dynData, FLIP))?.Select(n => n.ToNullableFloat());
+                float? flipX = flip?.ElementAtOrDefault(0);
+                float? flipY = flip?.ElementAtOrDefault(1);
+                if (flipX.HasValue || flipY.HasValue)
                 {
-                    if (_flipX.HasValue) dynData.flipLineIndex = _flipX.Value;
-                    if (_flipY.HasValue) dynData.flipYSide = _flipY.Value;
+                    if (flipX.HasValue) dynData.flipLineIndex = flipX.Value;
+                    if (flipY.HasValue) dynData.flipYSide = flipY.Value;
                     customNotes.Remove(customNotes[i]);
                 }
             }
@@ -56,11 +56,11 @@ namespace NoodleExtensions.HarmonyPatches
                 {
                     dynamic dynData = customNotes[i].customData;
                     IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
-                    float? _startRow = _position?.ElementAtOrDefault(0);
-                    float? _startHeight = _position?.ElementAtOrDefault(1);
+                    float? startRow = _position?.ElementAtOrDefault(0);
+                    float? startHeight = _position?.ElementAtOrDefault(1);
 
-                    lineIndexes[i] = _startRow.GetValueOrDefault(customNotes[i].lineIndex - 2);
-                    lineLayers[i] = _startHeight.GetValueOrDefault((float)customNotes[i].noteLineLayer);
+                    lineIndexes[i] = startRow.GetValueOrDefault(customNotes[i].lineIndex - 2);
+                    lineLayers[i] = startHeight.GetValueOrDefault((float)customNotes[i].noteLineLayer);
                 }
                 if (customNotes[0].noteType != customNotes[1].noteType && ((customNotes[0].noteType == NoteType.NoteA && lineIndexes[0] > lineIndexes[1]) ||
                     (customNotes[0].noteType == NoteType.NoteB && lineIndexes[0] < lineIndexes[1])))

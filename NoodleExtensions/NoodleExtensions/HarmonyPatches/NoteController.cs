@@ -2,7 +2,6 @@
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using IPA.Utilities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -16,10 +15,11 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("Update")]
     internal class NoteControllerUpdate
     {
-        internal static NoteData cachedNoteData;
+        internal static NoteData _cachedNoteData;
+
         private static void Prefix(NoteData ____noteData)
         {
-            cachedNoteData = ____noteData;
+            _cachedNoteData = ____noteData;
         }
     }
 
@@ -46,14 +46,14 @@ namespace NoodleExtensions.HarmonyPatches
             {
                 dynamic dynData = customData.customData;
 
-                float? _cutDir = (float?)Trees.at(dynData, CUTDIRECTION);
+                float? cutDir = (float?)Trees.at(dynData, CUTDIRECTION);
 
                 NoteJump noteJump = _noteJumpAccessor(ref ____noteMovement);
                 NoteFloorMovement floorMovement = _noteFloorMovementAccessor(ref ____noteMovement);
 
-                if (_cutDir.HasValue)
+                if (cutDir.HasValue)
                 {
-                    Quaternion rotation = Quaternion.Euler(0, 0, _cutDir.Value);
+                    Quaternion rotation = Quaternion.Euler(0, 0, cutDir.Value);
                     _endRotationAccessor(ref noteJump) = rotation;
                     Vector3 vector = rotation.eulerAngles;
                     vector += _randomRotationsAccessor(ref noteJump)[_randomRotationIdxAccessor(ref noteJump)] * 20;
@@ -63,7 +63,7 @@ namespace NoodleExtensions.HarmonyPatches
             }
         }
 
-        private static readonly MethodInfo getFlipYSide = SymbolExtensions.GetMethodInfo(() => GetFlipYSide(null, 0));
+        private static readonly MethodInfo _getFlipYSide = SymbolExtensions.GetMethodInfo(() => GetFlipYSide(null, 0));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -77,7 +77,7 @@ namespace NoodleExtensions.HarmonyPatches
                 {
                     foundFlipYSide = true;
 
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, getFlipYSide));
+                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _getFlipYSide));
                     instructionList.Insert(i - 2, new CodeInstruction(OpCodes.Ldarg_0));
                     instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(NoteController), "_noteData")));
                 }
@@ -88,15 +88,15 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static float GetFlipYSide(NoteData noteData, float @default)
         {
-            float _flipYSide = @default;
+            float output = @default;
             if (noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
 
                 float? flipYSide = (float?)Trees.at(dynData, "flipYSide");
-                if (flipYSide.HasValue) _flipYSide = flipYSide.Value;
+                if (flipYSide.HasValue) output = flipYSide.Value;
             }
-            return _flipYSide;
+            return output;
         }
     }
 }

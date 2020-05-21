@@ -1,24 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using IPA.Utilities;
 using UnityEngine;
-using IPA.Utilities;
 using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 
 namespace NoodleExtensions.HarmonyPatches
 {
     internal class SpawnDataHelper
     {
-        internal static Vector3 GetNoteOffset(BeatmapObjectData beatmapObjectData, float? _startRow, float? _startHeight)
+        internal static Vector3 GetNoteOffset(BeatmapObjectData beatmapObjectData, float? startRow, float? startHeight)
         {
-            float distance = -(_noteLinesCount - 1) * 0.5f + (_startRow.HasValue ? _noteLinesCount / 2 : 0); // Add last part to simulate https://github.com/spookyGh0st/beatwalls/#wall
-            float lineIndex = _startRow.GetValueOrDefault(beatmapObjectData.lineIndex);
+            float distance = -(_noteLinesCount - 1) * 0.5f + (startRow.HasValue ? _noteLinesCount / 2 : 0); // Add last part to simulate https://github.com/spookyGh0st/beatwalls/#wall
+            float lineIndex = startRow.GetValueOrDefault(beatmapObjectData.lineIndex);
             distance = (distance + lineIndex) * _noteLinesDistance;
 
             return _rightVec * distance
-                + new Vector3(0, LineYPosForLineLayer(beatmapObjectData, _startHeight), 0);
+                + new Vector3(0, LineYPosForLineLayer(beatmapObjectData, startHeight), 0);
         }
 
         internal static float LineYPosForLineLayer(BeatmapObjectData beatmapObjectData, float? height)
@@ -31,26 +26,25 @@ namespace NoodleExtensions.HarmonyPatches
             return ypos;
         }
 
-        internal static void GetNoteJumpValues(float? _inputNoteJumpMovementSpeed, float? _inputNoteJumpStartBeatOffset, out float _localJumpDuration,
-            out float _localJumpDistance, out Vector3 _localMoveStartPos, out Vector3 _localMoveEndPos, out Vector3 _localJumpEndPos)
+        internal static void GetNoteJumpValues(float? inputNoteJumpMovementSpeed, float? inputNoteJumpStartBeatOffset, out float localJumpDuration,
+            out float localJumpDistance, out Vector3 localMoveStartPos, out Vector3 localMoveEndPos, out Vector3 localJumpEndPos)
         {
-            float _localNoteJumpMovementSpeed = _inputNoteJumpMovementSpeed ?? _noteJumpMovementSpeed;
-            float _localNoteJumpStartBeatOffset = _inputNoteJumpStartBeatOffset ?? _noteJumpStartBeatOffset;
+            float localNoteJumpMovementSpeed = inputNoteJumpMovementSpeed ?? _noteJumpMovementSpeed;
+            float localNoteJumpStartBeatOffset = inputNoteJumpStartBeatOffset ?? _noteJumpStartBeatOffset;
             float num = 60f / _startBPM;
             float num2 = _startHalfJumpDurationInBeats;
-            while (_localNoteJumpMovementSpeed * num * num2 > _maxHalfJumpDistance)
+            while (localNoteJumpMovementSpeed * num * num2 > _maxHalfJumpDistance)
             {
                 num2 /= 2f;
             }
-            num2 += _localNoteJumpStartBeatOffset;
+            num2 += localNoteJumpStartBeatOffset;
             if (num2 < 1f) num2 = 1f;
-            _localJumpDuration = num * num2 * 2f;
-            _localJumpDistance = _localNoteJumpMovementSpeed * _localJumpDuration;
-            _localMoveStartPos = _centerPos + _forwardVec * (_moveDistance + _localJumpDistance * 0.5f);
-            _localMoveEndPos = _centerPos + _forwardVec * _localJumpDistance * 0.5f;
-            _localJumpEndPos = _centerPos - _forwardVec * _localJumpDistance * 0.5f;
+            localJumpDuration = num * num2 * 2f;
+            localJumpDistance = localNoteJumpMovementSpeed * localJumpDuration;
+            localMoveStartPos = _centerPos + _forwardVec * (_moveDistance + localJumpDistance * 0.5f);
+            localMoveEndPos = _centerPos + _forwardVec * localJumpDistance * 0.5f;
+            localJumpEndPos = _centerPos - _forwardVec * localJumpDistance * 0.5f;
         }
-
 
         internal static void InitBeatmapObjectSpawnController(BeatmapObjectSpawnMovementData beatmapObjectSpawnMovementData)
         {
