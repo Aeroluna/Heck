@@ -8,7 +8,7 @@ namespace NoodleExtensions.HarmonyPatches
     {
         internal static Vector3 GetNoteOffset(BeatmapObjectData beatmapObjectData, float? startRow, float? startHeight)
         {
-            float distance = -(_noteLinesCount - 1) * 0.5f + (startRow.HasValue ? _noteLinesCount / 2 : 0); // Add last part to simulate https://github.com/spookyGh0st/beatwalls/#wall
+            float distance = -(_noteLinesCount - 1f) * 0.5f + (startRow.HasValue ? _noteLinesCount / 2f : 0); // Add last part to simulate https://github.com/spookyGh0st/beatwalls/#wall
             float lineIndex = startRow.GetValueOrDefault(beatmapObjectData.lineIndex);
             distance = (distance + lineIndex) * _noteLinesDistance;
 
@@ -18,11 +18,11 @@ namespace NoodleExtensions.HarmonyPatches
 
         internal static float LineYPosForLineLayer(BeatmapObjectData beatmapObjectData, float? height)
         {
-            float ypos = 0;
+            float ypos = _baseLinesYPos;
             if (height.HasValue)
                 ypos = (height.Value * _noteLinesDistance) + _baseLinesYPos; // offset by 0.25
             else if (beatmapObjectData is NoteData noteData)
-                ypos = beatmapObjectSpawnMovementData.LineYPosForLineLayer(noteData.startNoteLineLayer);
+                ypos = beatmapObjectSpawnMovementData.LineYPosForLineLayer(noteData.noteLineLayer);
             return ypos;
         }
 

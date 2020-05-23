@@ -86,6 +86,7 @@ namespace NoodleExtensions.HarmonyPatches
         private static void ProcessNotesInTimeRow(List<NoteData> notes)
         {
             List<CustomNoteData> customNotes = notes.Cast<CustomNoteData>().ToList();
+
             ProcessFlipData(customNotes, false);
         }
     }
@@ -97,6 +98,7 @@ namespace NoodleExtensions.HarmonyPatches
     {
         private static void Postfix(BeatmapData __result, StandardLevelInfoSaveData standardLevelInfoSaveData)
         {
+            if (__result == null) return;
             foreach (BeatmapLineData beatmapLineData in __result.beatmapLinesData)
             {
                 foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)

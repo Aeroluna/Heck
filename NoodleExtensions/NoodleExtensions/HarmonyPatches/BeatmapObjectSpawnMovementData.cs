@@ -47,7 +47,7 @@ namespace NoodleExtensions.HarmonyPatches
                     // Ripped from base game
                     Vector3 noteOffset = GetNoteOffset(obstacleData, startX, null);
                     noteOffset.y = startY.HasValue ? _verticalObstaclePosY + startY.GetValueOrDefault(0) * _noteLinesDistance : ((obstacleData.obstacleType == ObstacleType.Top)
-                        ? (_topObstaclePosY + _jumpOffsetY) : _verticalObstaclePosY); // If _startY(_startHeight) is set, put wall on floor
+                        ? (_topObstaclePosY + _jumpOffsetY) : _verticalObstaclePosY);
                     moveStartPos = _localMoveStartPos + noteOffset;
                     moveEndPos = _localMoveEndPos + noteOffset;
                     jumpEndPos = _localJumpEndPos + noteOffset;
@@ -74,27 +74,34 @@ namespace NoodleExtensions.HarmonyPatches
                 float? startRow = position?.ElementAtOrDefault(0);
                 float? startHeight = position?.ElementAtOrDefault(1);
 
+                Vector3 movestartposcopy = moveStartPos;
+                Vector3 moveendposcopy = moveEndPos;
+                Vector3 jumpendposcopy = jumpEndPos;
+
                 if (position != null || flipLineIndex != null || njs.HasValue || spawnoffset.HasValue)
                 {
-                    GetNoteJumpValues(njs, spawnoffset, out float _, out float _localJumpDistance, out Vector3 _localMoveStartPos, out Vector3 _localMoveEndPos, out Vector3 _localJumpEndPos);
+                    GetNoteJumpValues(njs, spawnoffset, out float _, out float localJumpDistance, out Vector3 localMoveStartPos, out Vector3 localMoveEndPos, out Vector3 localJumpEndPos);
 
-                    float _localNoteJumpMovementSpeed = njs ?? _noteJumpMovementSpeed;
+                    float localNoteJumpMovementSpeed = njs ?? _noteJumpMovementSpeed;
 
-                    Vector3 noteOffset = GetNoteOffset(noteData, startRow, startHeight);
+                    // NoteLineLayer.Base == noteData.startNoteLineLayer
+                    // we avoid some math where the base game avoids spawning stacked notes together
+                    Vector3 noteOffset = GetNoteOffset(noteData, startRow, (float)NoteLineLayer.Base);
 
+                    float startLayerLineYPos = beatmapObjectSpawnMovementData.LineYPosForLineLayer(NoteLineLayer.Base);
                     float lineYPos = LineYPosForLineLayer(noteData, startHeight);
                     // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
                     float highestJump = startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + _jumpOffsetY :
                         beatmapObjectSpawnMovementData.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
-                    jumpGravity = 2f * (highestJump - lineYPos) /
-                        Mathf.Pow(_localJumpDistance / _localNoteJumpMovementSpeed * 0.5f, 2f);
+                    jumpGravity = 2f * (highestJump - startLayerLineYPos) /
+                        Mathf.Pow(localJumpDistance / localNoteJumpMovementSpeed * 0.5f, 2f);
 
-                    jumpEndPos = _localJumpEndPos + noteOffset;
+                    jumpEndPos = localJumpEndPos + noteOffset;
 
                     // IsBasicNote() check is skipped so bombs can flip too
-                    Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? startRow, startHeight);
-                    moveStartPos = _localMoveStartPos + noteOffset2;
-                    moveEndPos = _localMoveEndPos + noteOffset2;
+                    Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? startRow, (float)NoteLineLayer.Base);
+                    moveStartPos = localMoveStartPos + noteOffset2;
+                    moveEndPos = localMoveEndPos + noteOffset2;
                 }
             }
         }
