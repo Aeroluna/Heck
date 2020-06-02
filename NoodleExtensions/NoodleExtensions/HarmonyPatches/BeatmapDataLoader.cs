@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnityEngine;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
@@ -111,77 +110,8 @@ namespace NoodleExtensions.HarmonyPatches
                     // TODO: REWRITE CJD SO I DONT HAVE TO DO THIS JANK
                     float bpm = standardLevelInfoSaveData.beatsPerMinute;
                     dynData.bpm = bpm;
-
-                    // VARIABLE FUN FUN TIME YAY SO FUN YAYYYY
-                    List<object> varPosition = Trees.at(dynData, VARIABLEPOSITION);
-                    if (varPosition != null)
-                    {
-                        List<PositionData> positionData = new List<PositionData>();
-                        foreach (object n in varPosition)
-                        {
-                            IDictionary<string, object> dictData = n as IDictionary<string, object>;
-
-                            IEnumerable<float> startpos = ((List<object>)Trees.at(dictData, VARIABLESTARTPOS))?.Select(Convert.ToSingle);
-                            IEnumerable<float> endpos = ((List<object>)Trees.at(dictData, VARIABLEENDPOS))?.Select(Convert.ToSingle);
-
-                            float time = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLETIME), bpm);
-                            float duration = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLEDURATION), bpm);
-                            string easing = (string)Trees.at(dictData, VARIABLEEASING);
-                            bool? relative = (bool?)Trees.at(dictData, VARIABLERELATIVE);
-                            positionData.Add(new PositionData(time, duration, startpos, endpos, easing, relative));
-                        }
-                        dynData.varPosition = positionData;
-                    }
-
-                    RotationData.savedRotation = Quaternion.identity;
-
-                    List<object> varRotation = Trees.at(dynData, VARIABLEROTATION);
-                    if (varRotation != null)
-                    {
-                        List<RotationData> rotationData = new List<RotationData>();
-                        foreach (object n in varRotation)
-                        {
-                            IDictionary<string, object> dictData = n as IDictionary<string, object>;
-
-                            IEnumerable<float> startrot = ((List<object>)Trees.at(dictData, VARIABLESTARTROT))?.Select(Convert.ToSingle);
-                            IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, VARIABLEENDROT))?.Select(Convert.ToSingle);
-
-                            float time = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLETIME), bpm);
-                            float duration = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLEDURATION), bpm);
-                            string easing = (string)Trees.at(dictData, VARIABLEEASING);
-                            rotationData.Add(new RotationData(time, duration, startrot, endrot, easing));
-                        }
-                        dynData.varRotation = rotationData;
-                    }
-
-                    RotationData.savedRotation = Quaternion.identity;
-
-                    List<object> varLocalRotation = Trees.at(dynData, VARIABLELOCALROTATION);
-                    if (varLocalRotation != null)
-                    {
-                        List<RotationData> rotationData = new List<RotationData>();
-                        foreach (object n in varLocalRotation)
-                        {
-                            IDictionary<string, object> dictData = n as IDictionary<string, object>;
-
-                            IEnumerable<float> startrot = ((List<object>)Trees.at(dictData, VARIABLESTARTROT))?.Select(Convert.ToSingle);
-                            IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, VARIABLEENDROT))?.Select(Convert.ToSingle);
-
-                            float time = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLETIME), bpm);
-                            float duration = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLEDURATION), bpm);
-                            string easing = (string)Trees.at(dictData, VARIABLEEASING);
-                            rotationData.Add(new RotationData(time, duration, startrot, endrot, easing));
-                        }
-                        dynData.varLocalRotation = rotationData;
-                    }
                 }
             }
-        }
-
-        // TODO: use base game method
-        private static float GetRealTimeFromBPMTime(float bpmTime, float bpm)
-        {
-            return bpmTime / bpm * 60f;
         }
     }
 }
