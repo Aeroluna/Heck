@@ -21,27 +21,11 @@ namespace NoodleExtensions
         internal const string NOTEJUMPSPEED = "_noteJumpMovementSpeed";
         internal const string SPAWNOFFSET = "_noteJumpStartBeatOffset";
 
-        internal const string VARIABLEROTATION = "_variableRotation";
-        internal const string VARIABLEPOSITION = "_variablePosition";
-        internal const string VARIABLELOCALROTATION = "_variableLocalRotation";
-
-        internal const string VARIABLETIME = "_time";
-        internal const string VARIABLEDURATION = "_duration";
-        internal const string VARIABLERELATIVE = "_relative";
-        internal const string VARIABLEEASING = "_easing";
-        internal const string VARIABLESTARTROT = "_startRotation";
-        internal const string VARIABLEENDROT = "_endRotation";
-        internal const string VARIABLESTARTPOS = "_startPosition";
-        internal const string VARIABLEENDPOS = "_endPosition";
-
         #endregion All Objects
 
         #region Wall Exclusive
 
         internal const string SCALE = "_scale";
-
-        internal const string DESPAWNTIME = "_despawnTime";
-        internal const string DESPAWNDURATION = "_despawnDuration";
 
         #endregion Wall Exclusive
 
@@ -68,6 +52,8 @@ namespace NoodleExtensions
             SongCore.Collections.RegisterCapability(CAPABILITY);
             coreharmony.PatchAll(Assembly.GetExecutingAssembly());
             HarmonyPatches.BeatmapDataLoaderProcessNotesInTimeRow.PatchBeatmapDataLoader(coreharmony);
+
+            CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit += Animation.AnimationController.CustomEventCallbackInit;
         }
 
         [OnDisable]

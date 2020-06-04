@@ -1,6 +1,6 @@
 using Math = UnityEngine.Mathf;
 
-namespace NoodleExtensions
+namespace NoodleExtensions.Animation
 {
     static internal class Easings
     {

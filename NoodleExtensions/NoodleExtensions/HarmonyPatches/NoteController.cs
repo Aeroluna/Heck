@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
+using NoodleExtensions.Animation;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
@@ -16,8 +17,8 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("Init")]
     internal class NoteControllerInit
     {
-        private static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
-        private static readonly FieldAccessor<NoteMovement, NoteFloorMovement>.Accessor _noteFloorMovementAccessor = FieldAccessor<NoteMovement, NoteFloorMovement>.GetAccessor("_floorMovement");
+        internal static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
+        internal static readonly FieldAccessor<NoteMovement, NoteFloorMovement>.Accessor _noteFloorMovementAccessor = FieldAccessor<NoteMovement, NoteFloorMovement>.GetAccessor("_floorMovement");
 
         private static readonly FieldAccessor<NoteJump, Quaternion>.Accessor _endRotationAccessor = FieldAccessor<NoteJump, Quaternion>.GetAccessor("_endRotation");
         private static readonly FieldAccessor<NoteJump, Quaternion>.Accessor _middleRotationAccessor = FieldAccessor<NoteJump, Quaternion>.GetAccessor("_middleRotation");
@@ -29,7 +30,7 @@ namespace NoodleExtensions.HarmonyPatches
         private static readonly FieldAccessor<NoteFloorMovement, Quaternion>.Accessor _worldRotationFloorAccessor = FieldAccessor<NoteFloorMovement, Quaternion>.GetAccessor("_worldRotation");
         private static readonly FieldAccessor<NoteFloorMovement, Quaternion>.Accessor _inverseWorldRotationFloorAccessor = FieldAccessor<NoteFloorMovement, Quaternion>.GetAccessor("_inverseWorldRotation");
 
-        private static void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement)
+        private static void Postfix(NoteData noteData, NoteMovement ____noteMovement, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
         {
             if (noteData is CustomNoteData customData)
             {
@@ -67,6 +68,10 @@ namespace NoodleExtensions.HarmonyPatches
                     _inverseWorldRotationFloorAccessor(ref floorMovement) = _inverseWorldRotation;
                     floorMovement.SetToStart();
                 }
+
+                dynData.moveStartPos = moveStartPos;
+                dynData.moveEndPos = moveEndPos;
+                dynData.jumpEndPos = jumpEndPos;
             }
         }
 
@@ -104,6 +109,39 @@ namespace NoodleExtensions.HarmonyPatches
                 if (flipYSide.HasValue) output = flipYSide.Value;
             }
             return output;
+        }
+    }
+
+    [NoodlePatch(typeof(NoteController))]
+    [NoodlePatch("Update")]
+    internal class NoteControllerUpdate
+    {
+        private static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorStartPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_startPos");
+        private static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorEndPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_endPos");
+        private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpStartPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_startPos");
+        private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpEndPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_endPos");
+        private static void Prefix(NoteData ____noteData, NoteMovement ____noteMovement)
+        {
+            if (____noteData is CustomNoteData customData)
+            {
+                dynamic dynData = customData.customData;
+
+                Track track = Trees.at(dynData, "track");
+                if (track != null)
+                {
+                    NoteJump noteJump = NoteControllerInit._noteJumpAccessor(ref ____noteMovement);
+                    NoteFloorMovement floorMovement = NoteControllerInit._noteFloorMovementAccessor(ref ____noteMovement);
+
+                    Vector3 moveStartPos = Trees.at(dynData, "moveStartPos");
+                    Vector3 moveEndPos = Trees.at(dynData, "moveEndPos");
+                    Vector3 jumpEndPos = Trees.at(dynData, "jumpEndPos");
+
+                    _floorStartPosAccessor(ref floorMovement) = moveStartPos + track.position;
+                    _floorEndPosAccessor(ref floorMovement) = moveEndPos + track.position;
+                    _jumpStartPosAccessor(ref noteJump) = moveEndPos + track.position;
+                    _jumpEndPosAccessor(ref noteJump) = jumpEndPos + track.position;
+                }
+            }
         }
     }
 }

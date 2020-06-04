@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using static NoodleExtensions.Plugin;
+using NoodleExtensions.Animation;
+using UnityEngine;
 
 namespace NoodleExtensions.HarmonyPatches
 {
@@ -90,27 +92,57 @@ namespace NoodleExtensions.HarmonyPatches
         }
     }
 
-    // TODO: THIS IS JANK
-    [HarmonyPatch(typeof(CustomLevelLoader))]
-    [HarmonyPatch("LoadBeatmapDataBeatmapData")]
-    internal class CustomLevelLoaderLoadBeatmapDataBeatmapData
+    [HarmonyPatch(typeof(BeatmapDataLoader))]
+    [HarmonyPatch("GetBeatmapDataFromBeatmapSaveData")]
+    internal class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
     {
-        private static void Postfix(BeatmapData __result, StandardLevelInfoSaveData standardLevelInfoSaveData)
+        // TODO: account for base game bpm changes
+        private static void Postfix(BeatmapData __result, float startBPM)
         {
             if (__result == null) return;
-            foreach (BeatmapLineData beatmapLineData in __result.beatmapLinesData)
+
+            if (__result is CustomBeatmapData customBeatmapData)
             {
-                foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
+                TrackManager trackManager = new TrackManager();
+                foreach (BeatmapLineData beatmapLineData in __result.beatmapLinesData)
                 {
-                    dynamic customData;
-                    if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData) customData = beatmapObjectData;
-                    else continue;
-                    dynamic dynData = customData.customData;
-                    // JANK JANK JANK
-                    // TODO: REWRITE CJD SO I DONT HAVE TO DO THIS JANK
-                    float bpm = standardLevelInfoSaveData.beatsPerMinute;
-                    dynData.bpm = bpm;
+                    foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
+                    {
+                        dynamic customData;
+                        if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData) customData = beatmapObjectData;
+                        else continue;
+                        dynamic dynData = customData.customData;
+                        // for per object njs and spawn offset
+                        float bpm = startBPM;
+                        dynData.bpm = bpm;
+
+                        // for epic tracks thing that i totally didnt rip off
+                        string trackName = Trees.at(dynData, "_track");
+                        if (trackName != null) dynData.track = trackManager.AddToTrack(trackName, beatmapObjectData);
+                    }
                 }
+                customBeatmapData.customData.tracks = trackManager._tracks;
+
+                IEnumerable<dynamic> pointDefinitions = (IEnumerable<dynamic>)Trees.at(customBeatmapData.customData, "_pointDefinitions");
+                if (pointDefinitions == null) return;
+                PointDataManager pointDataManager = new PointDataManager();
+                foreach (dynamic pointDefintion in pointDefinitions)
+                {
+                    string pointName = Trees.at(pointDefintion, "_name");
+                    if (pointName == null) continue;
+                    IEnumerable<IEnumerable<float>> points = ((IEnumerable<object>)Trees.at(pointDefintion, "_points"))
+                        ?.Cast<IEnumerable<object>>()
+                        .Select(n => n.Select(Convert.ToSingle));
+                    if (points == null) continue;
+
+                    PointData pointData = new PointData();
+                    foreach (IEnumerable<float> rawPoint in points)
+                    {
+                        pointData.Add(new Vector3(rawPoint.ElementAt(0), rawPoint.ElementAt(1), rawPoint.ElementAt(2)));
+                    }
+                    pointDataManager.AddPoint(pointName, pointData);
+                }
+                customBeatmapData.customData.pointDefinitions = pointDataManager._pointData;
             }
         }
     }
