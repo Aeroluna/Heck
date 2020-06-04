@@ -8,6 +8,7 @@ using System.Reflection;
 using static NoodleExtensions.Plugin;
 using NoodleExtensions.Animation;
 using UnityEngine;
+using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 
 namespace NoodleExtensions.HarmonyPatches
 {

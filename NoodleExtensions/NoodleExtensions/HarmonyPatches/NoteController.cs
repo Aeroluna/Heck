@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 using NoodleExtensions.Animation;
+using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.HarmonyPatches
@@ -162,10 +163,10 @@ namespace NoodleExtensions.HarmonyPatches
                     Vector3 scaleOffset = track.defineScale?.Interpolate(normalTime) ?? Vector3.one;
                     Vector3 localRotationOffset = track.defineLocalRotation?.Interpolate(normalTime) ?? Vector3.zero;
 
-                    _floorStartPosAccessor(ref floorMovement) = moveStartPos + track.position + positionOffset;
-                    _floorEndPosAccessor(ref floorMovement) = moveEndPos + track.position + positionOffset;
-                    _jumpStartPosAccessor(ref noteJump) = moveEndPos + track.position + positionOffset;
-                    _jumpEndPosAccessor(ref noteJump) = jumpEndPos + track.position + positionOffset;
+                    _floorStartPosAccessor(ref floorMovement) = moveStartPos + ((track.position + positionOffset) *_noteLinesDistance);
+                    _floorEndPosAccessor(ref floorMovement) = moveEndPos + ((track.position + positionOffset) *_noteLinesDistance);
+                    _jumpStartPosAccessor(ref noteJump) = moveEndPos + ((track.position + positionOffset) *_noteLinesDistance);
+                    _jumpEndPosAccessor(ref noteJump) = jumpEndPos + ((track.position + positionOffset) *_noteLinesDistance);
 
                     Quaternion worldRotationQuatnerion = Quaternion.Euler(worldRotation + track.rotation + rotationOffset);
                     Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);

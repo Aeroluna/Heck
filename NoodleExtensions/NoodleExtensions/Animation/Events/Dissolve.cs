@@ -14,7 +14,7 @@ namespace NoodleExtensions.Animation
 {
     internal static class Dissolve
     {
-        private static Coroutine _activeCoroutine;
+        private static Dictionary<Track, Coroutine> _activeCoroutines = new Dictionary<Track, Coroutine>();
         private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
         private static readonly FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.Accessor _obstacleCutoutAnimateEffectAccessor = FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
         internal static void Callback(CustomEventData customEventData)
@@ -42,13 +42,14 @@ namespace NoodleExtensions.Animation
                         cutoutAnimateEffects.Add(_obstacleCutoutAnimateEffectAccessor(ref obstacleDissolve));
                     }
 
-                    if (_activeCoroutine != null) _instance.StopCoroutine(_activeCoroutine);
-                    _activeCoroutine = _instance.StartCoroutine(DissolveCoroutine(start, end, duration, customEventData.time, cutoutAnimateEffects, easing));
+                    if (_activeCoroutines.TryGetValue(track, out Coroutine coroutine) && coroutine != null) _instance.StopCoroutine(coroutine);
+                    _activeCoroutines[track] = _instance.StartCoroutine(DissolveCoroutine(start, end, duration, customEventData.time, cutoutAnimateEffects, easing, track));
                 }
             }
         }
 
-        private static IEnumerator DissolveCoroutine(float cutoutStart, float cutoutEnd, float duration, float startTime, List<CutoutAnimateEffect> cutoutAnimateEffects, Easings.Functions easing)
+        private static IEnumerator DissolveCoroutine(float cutoutStart, float cutoutEnd, float duration, float startTime,
+            List<CutoutAnimateEffect> cutoutAnimateEffects, Easings.Functions easing, Track track)
         {
             float elapsedTime = 0f;
             while (elapsedTime < duration)
@@ -60,7 +61,7 @@ namespace NoodleExtensions.Animation
                 yield return null;
             }
             cutoutAnimateEffects.ForEach(n => n.SetCutout(1 - cutoutEnd));
-            _activeCoroutine = null;
+            _activeCoroutines.Remove(track);
             yield break;
         }
     }

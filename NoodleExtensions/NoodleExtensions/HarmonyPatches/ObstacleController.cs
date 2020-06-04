@@ -176,9 +176,9 @@ namespace NoodleExtensions.HarmonyPatches
                     Vector3 scaleOffset = track.defineScale?.Interpolate(normalTime) ?? Vector3.one;
                     Vector3 localRotationOffset = track.defineLocalRotation?.Interpolate(normalTime) ?? Vector3.zero;
 
-                    _startPosAccessor(ref __instance) = startPos + track.position + positionOffset;
-                    _midPosAccessor(ref __instance) = midPos + track.position + positionOffset;
-                    _endPosAccessor(ref __instance) = endPos + track.position + positionOffset;
+                    _startPosAccessor(ref __instance) = startPos + ((track.position + positionOffset) * _noteLinesDistance);
+                    _midPosAccessor(ref __instance) = midPos + ((track.position + positionOffset) *_noteLinesDistance);
+                    _endPosAccessor(ref __instance) = endPos + ((track.position + positionOffset) *_noteLinesDistance);
 
                     Quaternion worldRotationQuatnerion = Quaternion.Euler(worldRotation + track.rotation + rotationOffset);
                     Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
