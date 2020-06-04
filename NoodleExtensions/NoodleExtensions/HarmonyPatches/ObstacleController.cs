@@ -16,6 +16,21 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("Init")]
     internal class ObstacleControllerInit
     {
+        private static void Postfix(ObstacleController __instance, ObstacleData obstacleData)
+        {
+            if (obstacleData is CustomObstacleData customData)
+            {
+                dynamic dynData = customData.customData;
+                IEnumerable<float> localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
+
+                if (localrot != null)
+                {
+                    Vector3 vector = new Vector3(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
+                    __instance.transform.Rotate(vector);
+                }
+            }
+        }
+
         private static readonly MethodInfo _getCustomWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(0, null));
         private static readonly MethodInfo _getWorldRotation = SymbolExtensions.GetMethodInfo(() => GetWorldRotation(null, 0));
         private static readonly MethodInfo _getCustomLength = SymbolExtensions.GetMethodInfo(() => GetCustomLength(0, null));
@@ -68,23 +83,23 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
         {
-            Quaternion _worldRotation = Quaternion.Euler(0, @default, 0);
+            Quaternion worldRotation = Quaternion.Euler(0, @default, 0);
             if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
-                dynamic _rotation = Trees.at(dynData, ROTATION);
+                dynamic rotation = Trees.at(dynData, ROTATION);
 
-                if (_rotation != null)
+                if (rotation != null)
                 {
-                    if (_rotation is List<object> list)
+                    if (rotation is List<object> list)
                     {
                         IEnumerable<float> _rot = (list)?.Select(n => Convert.ToSingle(n));
-                        _worldRotation = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
+                        worldRotation = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
                     }
-                    else _worldRotation = Quaternion.Euler(0, (float)_rotation, 0);
+                    else worldRotation = Quaternion.Euler(0, (float)rotation, 0);
                 }
             }
-            return _worldRotation;
+            return worldRotation;
         }
 
         private static float GetCustomWidth(float @default, ObstacleData obstacleData)

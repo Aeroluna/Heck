@@ -19,15 +19,15 @@ namespace NoodleExtensions.Animation
         {
             if (customEventData.type == "Dissolve")
             {
-                float start = (float?)Trees.at(customEventData.data, "_start") ?? 0f;
-                float end = (float?)Trees.at(customEventData.data, "_end") ?? 1f;
-                float duration = (float?)Trees.at(customEventData.data, "_duration") ?? 1.4f;
-                string easingString = Trees.at(customEventData.data, "_easing");
-                Easings.Functions easing = string.IsNullOrEmpty(easingString) ? Easings.Functions.easeLinear : (Easings.Functions)Enum.Parse(typeof(Easings.Functions), easingString);
-
                 Track track = GetTrack(customEventData);
                 if (track != null)
                 {
+                    float start = (float?)Trees.at(customEventData.data, "_start") ?? 0f;
+                    float end = (float?)Trees.at(customEventData.data, "_end") ?? 1f;
+                    float duration = (float?)Trees.at(customEventData.data, "_duration") ?? 1.4f;
+                    string easingString = Trees.at(customEventData.data, "_easing");
+                    Easings.Functions easing = string.IsNullOrEmpty(easingString) ? Easings.Functions.easeLinear : (Easings.Functions)Enum.Parse(typeof(Easings.Functions), easingString);
+
                     foreach (NoteController noteController in GetActiveBasicNotes(track))
                     {
                         BaseNoteVisuals baseNoteVisuals = noteController.gameObject.GetComponent<BaseNoteVisuals>();

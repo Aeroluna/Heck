@@ -16,36 +16,45 @@ namespace NoodleExtensions.Animation
         {
             if (customEventData.type == "AnimateTrack")
             {
-                string position = (string)Trees.at(customEventData.data, "_position");
-                float duration = (float?)Trees.at(customEventData.data, "_duration") ?? 1f;
+                Track track = GetTrack(customEventData);
+                if (track != null)
+                {
+                    string positionString = (string)Trees.at(customEventData.data, "_position");
+                    string rotationString = (string)Trees.at(customEventData.data, "_rotation");
+                    string scaleString = (string)Trees.at(customEventData.data, "_scale");
+                    string localRotationString = (string)Trees.at(customEventData.data, "_localRotation");
+                    float duration = (float?)Trees.at(customEventData.data, "_duration") ?? 1f;
 
-                Dictionary<string, PointData> pointDefintions = ((CustomBeatmapData)_customEventCallbackController._beatmapData).customData.pointDefinitions;
-                foreach (KeyValuePair<string, PointData> kvp in pointDefintions)
-                {
-                    Logger.Log($"Key = {kvp.Key}, Value = {kvp.Value}");
-                }
-                if (pointDefintions.TryGetValue(position, out PointData pointData))
-                {
-                    Track track = GetTrack(customEventData);
-                    if (track != null)
-                    {
-                        _instance.StartCoroutine(AnimateTrackCoroutine(pointData, duration, customEventData.time, track));
-                    }
+                    Dictionary<string, PointData> pointDefintions = ((CustomBeatmapData)_customEventCallbackController._beatmapData).customData.pointDefinitions;
+
+                    PointData position = null;
+                    PointData rotation = null;
+                    PointData scale = null;
+                    PointData localRotation = null;
+                    if (positionString != null) pointDefintions.TryGetValue(positionString, out position);
+                    if (rotationString != null) pointDefintions.TryGetValue(rotationString, out rotation);
+                    if (scaleString != null) pointDefintions.TryGetValue(scaleString, out scale);
+                    if (localRotationString != null) pointDefintions.TryGetValue(localRotationString, out localRotation);
+                    _instance.StartCoroutine(AnimateTrackCoroutine(position, rotation, scale, localRotation, duration, customEventData.time, track));
                 }
             }
         }
 
-        private static IEnumerator AnimateTrackCoroutine(PointData pointData, float duration, float startTime, Track track)
+        private static IEnumerator AnimateTrackCoroutine(PointData position, PointData rotation, PointData scale, PointData localRotation,
+            float duration, float startTime, Track track)
         {
             float elapsedTime = 0f;
             while (elapsedTime < duration)
             {
                 elapsedTime = _customEventCallbackController._audioTimeSource.songTime - startTime;
                 float time = elapsedTime / duration;
-                track.position = pointData.Interpolate(time);
+                if (position != null) track.position = position.Interpolate(time);
+                if (rotation != null) track.rotation = rotation.Interpolate(time);
+                if (scale != null) track.scale = scale.Interpolate(time);
+                if (localRotation != null) track.localRotation = localRotation.Interpolate(time);
                 yield return null;
             }
-            track.position = pointData.Interpolate(1);
+            if (position != null) track.position = position.Interpolate(1);
             yield break;
         }
     }

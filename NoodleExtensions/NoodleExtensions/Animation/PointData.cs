@@ -26,19 +26,19 @@ namespace NoodleExtensions.Animation
 
     internal class PointData
     {
-        private List<Vector3> _points = new List<Vector3>();
+        private List<Vector4> _points = new List<Vector4>();
 
-        internal void Add(Vector3 point) => _points.Add(point);
+        internal void Add(Vector4 point) => _points.Add(point);
 
         internal Vector3 Interpolate(float time)
         {
-            if (_points == null || _points.Count == 0) return new Vector3();
+            if (_points == null || _points.Count == 0) return new Vector4();
             for (int i = 0; i < _points.Count; i++)
             {
-                if (_points[i].z > time)
+                if (_points[i].w > time)
                 {
                     if (i == 0) return _points.First();
-                    return Vector3.Lerp(_points[i - 1], _points[i], (time - _points[i - 1].z) / (_points[i].z - _points[i - 1].z));
+                    return Vector3.Lerp(_points[i - 1], _points[i], (time - _points[i - 1].w) / (_points[i].w - _points[i - 1].w));
                 }
             }
             return _points.Last();

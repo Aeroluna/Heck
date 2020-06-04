@@ -26,5 +26,8 @@ namespace NoodleExtensions.Animation
     internal class Track
     {
         internal Vector3 position;
+        internal Vector3 rotation;
+        internal Vector3 scale = Vector3.one;
+        internal Vector3 localRotation;
     }
 }

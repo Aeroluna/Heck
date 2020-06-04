@@ -138,7 +138,7 @@ namespace NoodleExtensions.HarmonyPatches
                     PointData pointData = new PointData();
                     foreach (IEnumerable<float> rawPoint in points)
                     {
-                        pointData.Add(new Vector3(rawPoint.ElementAt(0), rawPoint.ElementAt(1), rawPoint.ElementAt(2)));
+                        pointData.Add(new Vector4(rawPoint.ElementAt(0), rawPoint.ElementAt(1), rawPoint.ElementAt(2), rawPoint.ElementAt(3)));
                     }
                     pointDataManager.AddPoint(pointName, pointData);
                 }
