@@ -7,6 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
+using IPA.Utilities;
+using NoodleExtensions.Animation;
 using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 using static NoodleExtensions.Plugin;
 
@@ -16,18 +18,24 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("Init")]
     internal class ObstacleControllerInit
     {
-        private static void Postfix(ObstacleController __instance, ObstacleData obstacleData)
+        private static void Postfix(ObstacleController __instance, ObstacleData obstacleData, Vector3 startPos, Vector3 midPos, Vector3 endPos)
         {
             if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
                 IEnumerable<float> localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
 
+                Vector3 localRotation = Vector3.zero;
                 if (localrot != null)
                 {
-                    Vector3 vector = new Vector3(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
-                    __instance.transform.Rotate(vector);
+                    localRotation = new Vector3(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
+                    __instance.transform.Rotate(localRotation);
                 }
+
+                dynData.startPos = startPos;
+                dynData.midPos = midPos;
+                dynData.endPos = endPos;
+                dynData.localRotation = localRotation;
             }
         }
 
@@ -83,7 +91,7 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
         {
-            Quaternion worldRotation = Quaternion.Euler(0, @default, 0);
+            Vector3 worldRotation = new Vector3(0, @default, 0);
             if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
@@ -94,12 +102,13 @@ namespace NoodleExtensions.HarmonyPatches
                     if (rotation is List<object> list)
                     {
                         IEnumerable<float> _rot = (list)?.Select(n => Convert.ToSingle(n));
-                        worldRotation = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
+                        worldRotation = new Vector3(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
                     }
-                    else worldRotation = Quaternion.Euler(0, (float)rotation, 0);
+                    else worldRotation = new Vector3(0, (float)rotation, 0);
                 }
+                dynData.worldRotation = worldRotation;
             }
-            return worldRotation;
+            return Quaternion.Euler(worldRotation);
         }
 
         private static float GetCustomWidth(float @default, ObstacleData obstacleData)
@@ -124,6 +133,63 @@ namespace NoodleExtensions.HarmonyPatches
                 if (length.HasValue) return length.Value * _noteLinesDistance;
             }
             return @default;
+        }
+    }
+
+    [NoodlePatch(typeof(ObstacleController))]
+    [NoodlePatch("Update")]
+    internal class ObstacleControllerUpdate
+    {
+        private static readonly FieldAccessor<ObstacleController, Vector3>.Accessor _startPosAccessor = FieldAccessor<ObstacleController, Vector3>.GetAccessor("_startPos");
+        private static readonly FieldAccessor<ObstacleController, Vector3>.Accessor _midPosAccessor = FieldAccessor<ObstacleController, Vector3>.GetAccessor("_midPos");
+        private static readonly FieldAccessor<ObstacleController, Vector3>.Accessor _endPosAccessor = FieldAccessor<ObstacleController, Vector3>.GetAccessor("_endPos");
+
+        private static readonly FieldAccessor<ObstacleController, AudioTimeSyncController>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<ObstacleController, AudioTimeSyncController>.GetAccessor("_audioTimeSyncController");
+        private static readonly FieldAccessor<ObstacleController, float>.Accessor _jumpDurationAccessor = FieldAccessor<ObstacleController, float>.GetAccessor("_move2Duration");
+        private static readonly FieldAccessor<ObstacleController, float>.Accessor _startTimeOffsetAccessor = FieldAccessor<ObstacleController, float>.GetAccessor("_startTimeOffset");
+
+        private static readonly FieldAccessor<ObstacleController, Quaternion>.Accessor _worldRotationAccessor = FieldAccessor<ObstacleController, Quaternion>.GetAccessor("_worldRotation");
+        private static readonly FieldAccessor<ObstacleController, Quaternion>.Accessor _inverseWorldRotationAccessor = FieldAccessor<ObstacleController, Quaternion>.GetAccessor("_inverseWorldRotation");
+        private static void Prefix(ObstacleController __instance, ObstacleData ____obstacleData)
+        {
+            if (____obstacleData is CustomObstacleData customData)
+            {
+                dynamic dynData = customData.customData;
+
+                Track track = Trees.at(dynData, "track");
+                if (track != null)
+                {
+                    Vector3 startPos = Trees.at(dynData, "startPos");
+                    Vector3 midPos = Trees.at(dynData, "midPos");
+                    Vector3 endPos = Trees.at(dynData, "endPos");
+
+                    Vector3 localRotation = Trees.at(dynData, "localRotation");
+                    Vector3 worldRotation = Trees.at(dynData, "worldRotation");
+
+                    // idk i just copied base game time
+                    float jumpDuration = _jumpDurationAccessor(ref __instance);
+                    float elapsedTime = _audioTimeSyncControllerAccessor(ref __instance).songTime - _startTimeOffsetAccessor(ref __instance);
+                    float normalTime = elapsedTime / jumpDuration;
+
+                    Vector3 positionOffset = track.definePosition?.Interpolate(normalTime) ?? Vector3.zero;
+                    Vector3 rotationOffset = track.defineRotation?.Interpolate(normalTime) ?? Vector3.zero;
+                    Vector3 scaleOffset = track.defineScale?.Interpolate(normalTime) ?? Vector3.one;
+                    Vector3 localRotationOffset = track.defineLocalRotation?.Interpolate(normalTime) ?? Vector3.zero;
+
+                    _startPosAccessor(ref __instance) = startPos + track.position + positionOffset;
+                    _midPosAccessor(ref __instance) = midPos + track.position + positionOffset;
+                    _endPosAccessor(ref __instance) = endPos + track.position + positionOffset;
+
+                    Quaternion worldRotationQuatnerion = Quaternion.Euler(worldRotation + track.rotation + rotationOffset);
+                    Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
+                    _worldRotationAccessor(ref __instance) = worldRotationQuatnerion;
+                    _inverseWorldRotationAccessor(ref __instance) = inverseWorldRotation;
+                    __instance.transform.rotation = worldRotationQuatnerion;
+                    __instance.transform.Rotate(localRotation + track.localRotation + localRotationOffset);
+
+                    __instance.transform.localScale = Vector3.Scale(track.scale, scaleOffset);
+                }
+            }
         }
     }
 }

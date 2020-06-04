@@ -42,6 +42,7 @@ namespace NoodleExtensions.Animation
         private static readonly FieldAccessor<BeatmapObjectManager, NoteController.Pool>.Accessor _noteAPoolAccessor = FieldAccessor<BeatmapObjectManager, NoteController.Pool>.GetAccessor("_noteAPool");
         private static readonly FieldAccessor<BeatmapObjectManager, NoteController.Pool>.Accessor _noteBPoolAccessor = FieldAccessor<BeatmapObjectManager, NoteController.Pool>.GetAccessor("_noteBPool");
         private static readonly FieldAccessor<BeatmapObjectManager, NoteController.Pool>.Accessor _bombNotePoolAccessor = FieldAccessor<BeatmapObjectManager, NoteController.Pool>.GetAccessor("_bombNotePool");
+        private static readonly FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.Accessor _obstaclePoolAccessor = FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.GetAccessor("_obstaclePool");
 
         internal static Track GetTrack(CustomEventData customEventData)
         {
@@ -57,17 +58,25 @@ namespace NoodleExtensions.Animation
             }
         }
 
-        internal static bool CompareTrack(NoteController noteController, Track track)
+        internal static bool CompareTrack(BeatmapObjectData beatmapObjectData, Track track)
         {
-            return Trees.at(((CustomNoteData)noteController.noteData).customData, "track") == track;
+            return Trees.at(((dynamic)beatmapObjectData).customData, "track") == track;
         }
 
         internal static IEnumerable<NoteController> GetActiveBasicNotes(Track track)
         {
             BeatmapObjectManager objectManager = beatmapObjectManager;
             IEnumerable<NoteController> activeBasicNotes = _noteAPoolAccessor(ref objectManager).activeItems
-                .Union(_noteBPoolAccessor(ref objectManager).activeItems);
-            return activeBasicNotes.Where(n => CompareTrack(n, track));
+                .Union(_noteBPoolAccessor(ref objectManager).activeItems)
+                .Union(_bombNotePoolAccessor(ref objectManager).activeItems);
+            return activeBasicNotes.Where(n => CompareTrack(n.noteData, track));
+        }
+
+        internal static IEnumerable<ObstacleController> GetActiveObstacles(Track track)
+        {
+            BeatmapObjectManager objectManager = beatmapObjectManager;
+            IEnumerable<ObstacleController> activeObstacles = _obstaclePoolAccessor(ref objectManager).activeItems;
+            return activeObstacles.Where(n => CompareTrack(n.obstacleData, track));
         }
     }
 }

@@ -70,7 +70,7 @@ namespace NoodleExtensions.HarmonyPatches
                     __instance.transform.rotation = worldRotationQuatnerion;
                 }
 
-                dynamic localRotRaw = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
+                IEnumerable<float> localRotRaw = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
                 Vector3 localRotation = Vector3.zero;
                 if (localRotRaw != null)
                 {
@@ -159,7 +159,7 @@ namespace NoodleExtensions.HarmonyPatches
 
                     Vector3 positionOffset = track.definePosition?.Interpolate(normalTime) ?? Vector3.zero;
                     Vector3 rotationOffset = track.defineRotation?.Interpolate(normalTime) ?? Vector3.zero;
-                    Vector3 scaleOffset = track.defineScale?.Interpolate(normalTime) ?? Vector3.zero;
+                    Vector3 scaleOffset = track.defineScale?.Interpolate(normalTime) ?? Vector3.one;
                     Vector3 localRotationOffset = track.defineLocalRotation?.Interpolate(normalTime) ?? Vector3.zero;
 
                     _floorStartPosAccessor(ref floorMovement) = moveStartPos + track.position + positionOffset;
@@ -167,7 +167,7 @@ namespace NoodleExtensions.HarmonyPatches
                     _jumpStartPosAccessor(ref noteJump) = moveEndPos + track.position + positionOffset;
                     _jumpEndPosAccessor(ref noteJump) = jumpEndPos + track.position + positionOffset;
 
-                    Quaternion worldRotationQuatnerion = Quaternion.Euler(worldRotation + track.rotation);
+                    Quaternion worldRotationQuatnerion = Quaternion.Euler(worldRotation + track.rotation + rotationOffset);
                     Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
                     NoteControllerInit._worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
                     NoteControllerInit._inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;

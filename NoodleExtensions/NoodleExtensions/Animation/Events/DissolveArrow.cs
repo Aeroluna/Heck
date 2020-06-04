@@ -14,7 +14,7 @@ namespace NoodleExtensions.Animation
 {
     internal static class DissolveArrow
     {
-        private static Dictionary<DisappearingArrowController, Coroutine> _activeCoroutines = new Dictionary<DisappearingArrowController, Coroutine>();
+        private static Coroutine _activeCoroutine;
         internal static void Callback(CustomEventData customEventData)
         {
             if (customEventData.type == "DissolveArrow")
@@ -22,34 +22,38 @@ namespace NoodleExtensions.Animation
                 Track track = GetTrack(customEventData);
                 if (track != null)
                 {
-                    float start = (float?)Trees.at(customEventData.data, "_start") ?? 0f;
-                    float end = (float?)Trees.at(customEventData.data, "_end") ?? 1f;
+                    float start = (float?)Trees.at(customEventData.data, "_start") ?? 1f;
+                    float end = (float?)Trees.at(customEventData.data, "_end") ?? 0f;
                     float duration = (float?)Trees.at(customEventData.data, "_duration") ?? 1.4f;
                     string easingString = Trees.at(customEventData.data, "_easing");
                     Easings.Functions easing = string.IsNullOrEmpty(easingString) ? Easings.Functions.easeLinear : (Easings.Functions)Enum.Parse(typeof(Easings.Functions), easingString);
 
+                    List<DisappearingArrowController> disappearingArrowControllers = new List<DisappearingArrowController>();
                     foreach (NoteController noteController in GetActiveBasicNotes(track))
                     {
                         DisappearingArrowController disappearingArrowController = noteController.gameObject.GetComponent<DisappearingArrowController>();
-                        if (_activeCoroutines.TryGetValue(disappearingArrowController, out Coroutine coroutine)) _instance.StopCoroutine(coroutine);
-                        _activeCoroutines.Add(disappearingArrowController, _instance.StartCoroutine(DissolveArrowCoroutine(start, end, duration, customEventData.time, disappearingArrowController, easing)));
+                        disappearingArrowControllers.Add(disappearingArrowController);
                     }
+
+                    if (_activeCoroutine != null) _instance.StopCoroutine(_activeCoroutine);
+                    _activeCoroutine = _instance.StartCoroutine(DissolveArrowCoroutine(start, end, duration, customEventData.time, disappearingArrowControllers, easing));
                 }
             }
         }
 
-        private static IEnumerator DissolveArrowCoroutine(float cutoutStart, float cutoutEnd, float duration, float startTime, DisappearingArrowController disappearingArrowController, Easings.Functions easing)
+        private static IEnumerator DissolveArrowCoroutine(float cutoutStart, float cutoutEnd, float duration, float startTime, List<DisappearingArrowController> disappearingArrowControllers, Easings.Functions easing)
         {
             float elapsedTime = 0f;
             while (elapsedTime < duration)
             {
                 elapsedTime = _customEventCallbackController._audioTimeSource.songTime - startTime;
                 float time = elapsedTime / duration;
-                disappearingArrowController.SetArrowTransparency(Mathf.Lerp(cutoutStart, cutoutEnd, Easings.Interpolate(time, easing)));
+                float cutout = Mathf.Lerp(cutoutStart, cutoutEnd, Easings.Interpolate(time, easing));
+                disappearingArrowControllers.ForEach(n => n.SetArrowTransparency(cutout));
                 yield return null;
             }
-            disappearingArrowController.SetArrowTransparency(cutoutEnd);
-            _activeCoroutines.Remove(disappearingArrowController);
+            disappearingArrowControllers.ForEach(n => n.SetArrowTransparency(cutoutEnd));
+            _activeCoroutine = null;
             yield break;
         }
     }
