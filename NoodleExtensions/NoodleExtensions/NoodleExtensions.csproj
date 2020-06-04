@@ -72,9 +72,10 @@
   <ItemGroup>
     <Compile Include="Animation\AnimationController.cs" />
     <Compile Include="Animation\Easings.cs" />
+    <Compile Include="Animation\Events\AssignAnimation.cs" />
     <Compile Include="Animation\Events\Dissolve.cs" />
     <Compile Include="Animation\Events\DissolveArrow.cs" />
-    <Compile Include="Animation\Events\TrackMovement.cs" />
+    <Compile Include="Animation\Events\AnimateTrack.cs" />
     <Compile Include="Animation\PointData.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectCallBackController.cs" />

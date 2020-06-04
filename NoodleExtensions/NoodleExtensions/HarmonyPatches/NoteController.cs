@@ -131,6 +131,9 @@ namespace NoodleExtensions.HarmonyPatches
         private static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorEndPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_endPos");
         private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpStartPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_startPos");
         private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpEndPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_endPos");
+
+        private static readonly FieldAccessor<NoteJump, AudioTimeSyncController>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<NoteJump, AudioTimeSyncController>.GetAccessor("_audioTimeSyncController");
+        private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
         private static void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
             if (____noteData is CustomNoteData customData)
@@ -146,26 +149,34 @@ namespace NoodleExtensions.HarmonyPatches
                     Vector3 moveEndPos = Trees.at(dynData, "moveEndPos");
                     Vector3 jumpEndPos = Trees.at(dynData, "jumpEndPos");
 
-                    _floorStartPosAccessor(ref floorMovement) = moveStartPos + track.position;
-                    _floorEndPosAccessor(ref floorMovement) = moveEndPos + track.position;
-                    _jumpStartPosAccessor(ref noteJump) = moveEndPos + track.position;
-                    _jumpEndPosAccessor(ref noteJump) = jumpEndPos + track.position;
-
                     Vector3 localRotation = Trees.at(dynData, "localRotation");
                     Vector3 worldRotation = Trees.at(dynData, "worldRotation");
 
-                    localRotation += track.localRotation;
-                    worldRotation += track.rotation;
-                    Quaternion worldRotationQuatnerion = Quaternion.Euler(worldRotation);
+                    // idk i just copied base game time
+                    float jumpDuration = _jumpDurationAccessor(ref noteJump);
+                    float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - jumpDuration * 0.5f);
+                    float normalTime = elapsedTime / jumpDuration;
+
+                    Vector3 positionOffset = track.definePosition?.Interpolate(normalTime) ?? Vector3.zero;
+                    Vector3 rotationOffset = track.defineRotation?.Interpolate(normalTime) ?? Vector3.zero;
+                    Vector3 scaleOffset = track.defineScale?.Interpolate(normalTime) ?? Vector3.zero;
+                    Vector3 localRotationOffset = track.defineLocalRotation?.Interpolate(normalTime) ?? Vector3.zero;
+
+                    _floorStartPosAccessor(ref floorMovement) = moveStartPos + track.position + positionOffset;
+                    _floorEndPosAccessor(ref floorMovement) = moveEndPos + track.position + positionOffset;
+                    _jumpStartPosAccessor(ref noteJump) = moveEndPos + track.position + positionOffset;
+                    _jumpEndPosAccessor(ref noteJump) = jumpEndPos + track.position + positionOffset;
+
+                    Quaternion worldRotationQuatnerion = Quaternion.Euler(worldRotation + track.rotation);
                     Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
                     NoteControllerInit._worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
                     NoteControllerInit._inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
                     NoteControllerInit._worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
                     NoteControllerInit._inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
                     __instance.transform.rotation = worldRotationQuatnerion;
-                    __instance.transform.Rotate(localRotation);
+                    __instance.transform.Rotate(localRotation + track.localRotation + localRotationOffset);
 
-                    __instance.transform.localScale = track.scale;
+                    __instance.transform.localScale = Vector3.Scale(track.scale, scaleOffset);
                 }
             }
         }

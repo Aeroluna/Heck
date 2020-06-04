@@ -19,9 +19,10 @@ namespace NoodleExtensions.Animation
         internal static void CustomEventCallbackInit(CustomEventCallbackController customEventCallbackController)
         {
             _customEventCallbackController = customEventCallbackController;
-            _customEventCallbackController.AddCustomEventCallback(Dissolve.Callback, 0, false);
-            _customEventCallbackController.AddCustomEventCallback(DissolveArrow.Callback, 0, false);
-            _customEventCallbackController.AddCustomEventCallback(TrackMovement.Callback, 0, false);
+            _customEventCallbackController.AddCustomEventCallback(Dissolve.Callback);
+            _customEventCallbackController.AddCustomEventCallback(DissolveArrow.Callback);
+            _customEventCallbackController.AddCustomEventCallback(AnimateTrack.Callback);
+            _customEventCallbackController.AddCustomEventCallback(AssignAnimation.Callback);
 
             if (_instance != null) Destroy(_instance);
             _instance = _customEventCallbackController.gameObject.AddComponent<AnimationController>();

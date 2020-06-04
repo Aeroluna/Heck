@@ -32,7 +32,8 @@ namespace NoodleExtensions.Animation
 
         internal Vector3 Interpolate(float time)
         {
-            if (_points == null || _points.Count == 0) return new Vector4();
+            if (_points == null || _points.Count == 0) return Vector3.zero;
+            if (time <= 0) return _points.First();
             for (int i = 0; i < _points.Count; i++)
             {
                 if (_points[i].w > time)

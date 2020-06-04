@@ -14,6 +14,7 @@ namespace NoodleExtensions.Animation
 {
     internal static class Dissolve
     {
+        private static Dictionary<CutoutAnimateEffect, Coroutine> _activeCoroutines = new Dictionary<CutoutAnimateEffect, Coroutine>();
         private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _cutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
         internal static void Callback(CustomEventData customEventData)
         {
@@ -32,7 +33,8 @@ namespace NoodleExtensions.Animation
                     {
                         BaseNoteVisuals baseNoteVisuals = noteController.gameObject.GetComponent<BaseNoteVisuals>();
                         CutoutAnimateEffect cutoutAnimateEffect = _cutoutAnimateEffectAccessor(ref baseNoteVisuals);
-                        _instance.StartCoroutine(DissolveCoroutine(start, end, duration, customEventData.time, cutoutAnimateEffect, easing));
+                        if (_activeCoroutines.TryGetValue(cutoutAnimateEffect, out Coroutine coroutine)) _instance.StopCoroutine(coroutine);
+                        _activeCoroutines.Add(cutoutAnimateEffect, _instance.StartCoroutine(DissolveCoroutine(start, end, duration, customEventData.time, cutoutAnimateEffect, easing)));
                     }
                 }
             }
@@ -49,6 +51,7 @@ namespace NoodleExtensions.Animation
                 yield return null;
             }
             cutoutAnimateEffect.SetCutout(1 - cutoutEnd);
+            _activeCoroutines.Remove(cutoutAnimateEffect);
             yield break;
         }
     }

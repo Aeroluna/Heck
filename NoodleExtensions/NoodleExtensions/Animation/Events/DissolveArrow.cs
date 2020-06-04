@@ -14,6 +14,7 @@ namespace NoodleExtensions.Animation
 {
     internal static class DissolveArrow
     {
+        private static Dictionary<DisappearingArrowController, Coroutine> _activeCoroutines = new Dictionary<DisappearingArrowController, Coroutine>();
         internal static void Callback(CustomEventData customEventData)
         {
             if (customEventData.type == "DissolveArrow")
@@ -30,7 +31,8 @@ namespace NoodleExtensions.Animation
                     foreach (NoteController noteController in GetActiveBasicNotes(track))
                     {
                         DisappearingArrowController disappearingArrowController = noteController.gameObject.GetComponent<DisappearingArrowController>();
-                        _instance.StartCoroutine(DissolveArrowCoroutine(start, end, duration, customEventData.time, disappearingArrowController, easing));
+                        if (_activeCoroutines.TryGetValue(disappearingArrowController, out Coroutine coroutine)) _instance.StopCoroutine(coroutine);
+                        _activeCoroutines.Add(disappearingArrowController, _instance.StartCoroutine(DissolveArrowCoroutine(start, end, duration, customEventData.time, disappearingArrowController, easing)));
                     }
                 }
             }
@@ -47,6 +49,7 @@ namespace NoodleExtensions.Animation
                 yield return null;
             }
             disappearingArrowController.SetArrowTransparency(cutoutEnd);
+            _activeCoroutines.Remove(disappearingArrowController);
             yield break;
         }
     }

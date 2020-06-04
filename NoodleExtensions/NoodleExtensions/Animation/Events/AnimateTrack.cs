@@ -6,12 +6,14 @@ using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using System.Threading.Tasks;
 using System.Collections;
+using UnityEngine;
 using static NoodleExtensions.Animation.AnimationController;
 
 namespace NoodleExtensions.Animation
 {
-    internal class TrackMovement
+    internal class AnimateTrack
     {
+        private static Coroutine _activeCoroutine;
         internal static void Callback(CustomEventData customEventData)
         {
             if (customEventData.type == "AnimateTrack")
@@ -35,7 +37,8 @@ namespace NoodleExtensions.Animation
                     if (rotationString != null) pointDefintions.TryGetValue(rotationString, out rotation);
                     if (scaleString != null) pointDefintions.TryGetValue(scaleString, out scale);
                     if (localRotationString != null) pointDefintions.TryGetValue(localRotationString, out localRotation);
-                    _instance.StartCoroutine(AnimateTrackCoroutine(position, rotation, scale, localRotation, duration, customEventData.time, track));
+                    if (_activeCoroutine != null) _instance.StopCoroutine(_activeCoroutine);
+                    _activeCoroutine = _instance.StartCoroutine(AnimateTrackCoroutine(position, rotation, scale, localRotation, duration, customEventData.time, track));
                 }
             }
         }
@@ -55,6 +58,7 @@ namespace NoodleExtensions.Animation
                 yield return null;
             }
             if (position != null) track.position = position.Interpolate(1);
+            _activeCoroutine = null;
             yield break;
         }
     }
