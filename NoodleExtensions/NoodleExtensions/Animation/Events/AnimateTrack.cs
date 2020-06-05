@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CustomJSONData;
+﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using System.Threading.Tasks;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using static NoodleExtensions.Animation.AnimationController;
+using static NoodleExtensions.Animation.AnimationHelper;
 using static NoodleExtensions.Plugin;
-using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 
 namespace NoodleExtensions.Animation
 {
     internal class AnimateTrack
     {
         private static Dictionary<Track, Coroutine> _activeCoroutines = new Dictionary<Track, Coroutine>();
+
         internal static void Callback(CustomEventData customEventData)
         {
             if (customEventData.type == "AnimateTrack")
@@ -23,28 +20,10 @@ namespace NoodleExtensions.Animation
                 Track track = GetTrack(customEventData);
                 if (track != null)
                 {
-                    dynamic positionString = Trees.at(customEventData.data, POSITION);
-                    dynamic rotationString = Trees.at(customEventData.data, ROTATION);
-                    dynamic scaleString = Trees.at(customEventData.data, SCALE);
-                    dynamic localRotationString = Trees.at(customEventData.data, LOCALROTATION);
                     float duration = (float)Trees.at(customEventData.data, DURATION);
 
-                    PointData position;
-                    PointData rotation;
-                    PointData scale;
-                    PointData localRotation;
+                    GetPointData(customEventData, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation);
 
-                    Dictionary<string, PointData> pointDefintions = Trees.at(((CustomBeatmapData)_customEventCallbackController._beatmapData).customData, "pointDefinitions");
-
-                    // TODO: error message if pointData not found from string
-                    if (positionString is string) pointDefintions.TryGetValue(positionString, out position);
-                    else position = DynamicToPointData(positionString);
-                    if (rotationString is string) pointDefintions.TryGetValue(rotationString, out rotation);
-                    else rotation = DynamicToPointData(rotationString);
-                    if (scaleString is string) pointDefintions.TryGetValue(scaleString, out scale);
-                    else scale = DynamicToPointData(scaleString);
-                    if (localRotationString is string) pointDefintions.TryGetValue(localRotationString, out localRotation);
-                    else localRotation = DynamicToPointData(localRotationString);
                     if (_activeCoroutines.TryGetValue(track, out Coroutine coroutine) && coroutine != null) _instance.StopCoroutine(coroutine);
                     _activeCoroutines[track] = _instance.StartCoroutine(AnimateTrackCoroutine(position, rotation, scale, localRotation, duration, customEventData.time, track));
                 }

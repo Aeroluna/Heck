@@ -1,14 +1,14 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+using IPA.Utilities;
+using NoodleExtensions.Animation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
-using IPA.Utilities;
-using NoodleExtensions.Animation;
 using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 using static NoodleExtensions.Plugin;
 
@@ -150,6 +150,7 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static readonly FieldAccessor<ObstacleController, Quaternion>.Accessor _worldRotationAccessor = FieldAccessor<ObstacleController, Quaternion>.GetAccessor("_worldRotation");
         private static readonly FieldAccessor<ObstacleController, Quaternion>.Accessor _inverseWorldRotationAccessor = FieldAccessor<ObstacleController, Quaternion>.GetAccessor("_inverseWorldRotation");
+
         private static void Prefix(ObstacleController __instance, ObstacleData ____obstacleData)
         {
             if (____obstacleData is CustomObstacleData customData)
@@ -177,8 +178,8 @@ namespace NoodleExtensions.HarmonyPatches
                     Vector3 localRotationOffset = track.defineLocalRotation?.Interpolate(normalTime) ?? Vector3.zero;
 
                     _startPosAccessor(ref __instance) = startPos + ((track.position + positionOffset) * _noteLinesDistance);
-                    _midPosAccessor(ref __instance) = midPos + ((track.position + positionOffset) *_noteLinesDistance);
-                    _endPosAccessor(ref __instance) = endPos + ((track.position + positionOffset) *_noteLinesDistance);
+                    _midPosAccessor(ref __instance) = midPos + ((track.position + positionOffset) * _noteLinesDistance);
+                    _endPosAccessor(ref __instance) = endPos + ((track.position + positionOffset) * _noteLinesDistance);
 
                     Quaternion worldRotationQuatnerion = Quaternion.Euler(worldRotation + track.rotation + rotationOffset);
                     Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);

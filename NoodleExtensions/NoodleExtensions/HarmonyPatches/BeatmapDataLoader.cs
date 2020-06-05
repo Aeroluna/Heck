@@ -1,14 +1,12 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+using NoodleExtensions.Animation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using static NoodleExtensions.Plugin;
-using NoodleExtensions.Animation;
-using UnityEngine;
-using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 
 namespace NoodleExtensions.HarmonyPatches
 {
@@ -130,7 +128,7 @@ namespace NoodleExtensions.HarmonyPatches
                 foreach (dynamic pointDefintion in pointDefinitions)
                 {
                     string pointName = Trees.at(pointDefintion, NAME);
-                    PointData pointData = Animation.AnimationController.DynamicToPointData(Trees.at(pointDefintion, POINTS));
+                    PointData pointData = AnimationHelper.DynamicToPointData(Trees.at(pointDefintion, POINTS));
                     pointDataManager.AddPoint(pointName, pointData);
                 }
                 customBeatmapData.customData.pointDefinitions = pointDataManager._pointData;

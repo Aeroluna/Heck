@@ -36,7 +36,7 @@ namespace NoodleExtensions
 
         internal const string TRACK = "_track";
 
-        #endregion
+        #endregion fun notes
 
         [Init]
         public void Init(IPALogger pluginLogger)

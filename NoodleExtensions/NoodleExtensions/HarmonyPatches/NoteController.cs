@@ -2,13 +2,13 @@
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using IPA.Utilities;
+using NoodleExtensions.Animation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
-using NoodleExtensions.Animation;
 using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 using static NoodleExtensions.Plugin;
 
@@ -135,6 +135,7 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static readonly FieldAccessor<NoteJump, AudioTimeSyncController>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<NoteJump, AudioTimeSyncController>.GetAccessor("_audioTimeSyncController");
         private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
+
         private static void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
             //TODO: merge with obstaclecontroller
@@ -164,10 +165,10 @@ namespace NoodleExtensions.HarmonyPatches
                     Vector3 scaleOffset = track.defineScale?.Interpolate(normalTime) ?? Vector3.one;
                     Vector3 localRotationOffset = track.defineLocalRotation?.Interpolate(normalTime) ?? Vector3.zero;
 
-                    _floorStartPosAccessor(ref floorMovement) = moveStartPos + ((track.position + positionOffset) *_noteLinesDistance);
-                    _floorEndPosAccessor(ref floorMovement) = moveEndPos + ((track.position + positionOffset) *_noteLinesDistance);
-                    _jumpStartPosAccessor(ref noteJump) = moveEndPos + ((track.position + positionOffset) *_noteLinesDistance);
-                    _jumpEndPosAccessor(ref noteJump) = jumpEndPos + ((track.position + positionOffset) *_noteLinesDistance);
+                    _floorStartPosAccessor(ref floorMovement) = moveStartPos + ((track.position + positionOffset) * _noteLinesDistance);
+                    _floorEndPosAccessor(ref floorMovement) = moveEndPos + ((track.position + positionOffset) * _noteLinesDistance);
+                    _jumpStartPosAccessor(ref noteJump) = moveEndPos + ((track.position + positionOffset) * _noteLinesDistance);
+                    _jumpEndPosAccessor(ref noteJump) = jumpEndPos + ((track.position + positionOffset) * _noteLinesDistance);
 
                     Quaternion worldRotationQuatnerion = Quaternion.Euler(worldRotation + track.rotation + rotationOffset);
                     Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);

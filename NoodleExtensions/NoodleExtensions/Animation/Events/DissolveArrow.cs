@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using IPA.Utilities;
-using CustomJSONData;
+﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using System.Threading.Tasks;
-using static NoodleExtensions.Animation.AnimationController;
-using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using static NoodleExtensions.Animation.AnimationController;
+using static NoodleExtensions.Animation.AnimationHelper;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.Animation
@@ -16,6 +12,7 @@ namespace NoodleExtensions.Animation
     internal static class DissolveArrow
     {
         private static Dictionary<Track, Coroutine> _activeCoroutines = new Dictionary<Track, Coroutine>();
+
         internal static void Callback(CustomEventData customEventData)
         {
             if (customEventData.type == "DissolveArrow")
@@ -27,7 +24,7 @@ namespace NoodleExtensions.Animation
                     float end = (float?)Trees.at(customEventData.data, END) ?? 0f;
                     float duration = (float?)Trees.at(customEventData.data, DURATION) ?? 1.4f;
                     string easingString = Trees.at(customEventData.data, EASING);
-                    Easings.Functions easing = string.IsNullOrEmpty(easingString) ? Easings.Functions.easeLinear : (Easings.Functions)Enum.Parse(typeof(Easings.Functions), easingString);
+                    Easings.Functions easing = Easings.InterprateString(easingString);
 
                     List<DisappearingArrowController> disappearingArrowControllers = new List<DisappearingArrowController>();
                     foreach (NoteController noteController in GetActiveNotes(track))

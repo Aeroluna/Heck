@@ -1,3 +1,4 @@
+using System;
 using Math = UnityEngine.Mathf;
 
 namespace NoodleExtensions.Animation
@@ -50,6 +51,11 @@ namespace NoodleExtensions.Animation
             easeInBounce,
             easeOutBounce,
             easeInOutBounce
+        }
+
+        internal static Functions InterprateString(string easingString)
+        {
+            return string.IsNullOrEmpty(easingString) ? Functions.easeLinear : (Functions)Enum.Parse(typeof(Functions), easingString);
         }
 
         /// <summary>

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace NoodleExtensions.Animation
@@ -13,14 +11,8 @@ namespace NoodleExtensions.Animation
 
         internal void AddPoint(string pointDataName, PointData pointData)
         {
-            if (!_pointData.TryGetValue(pointDataName, out _))
-            {
-                _pointData.Add(pointDataName, pointData);
-            }
-            else
-            {
-                Logger.Log($"Duplicate point defintion name, {pointDataName} could not be registered!", IPA.Logging.Logger.Level.Error);
-            }
+            if (!_pointData.TryGetValue(pointDataName, out _)) _pointData.Add(pointDataName, pointData);
+            else Logger.Log($"Duplicate point defintion name, {pointDataName} could not be registered!", IPA.Logging.Logger.Level.Error);
         }
     }
 

@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using IPA.Utilities;
-using CustomJSONData;
+﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using System.Threading.Tasks;
-using static NoodleExtensions.Animation.AnimationController;
-using UnityEngine;
+using IPA.Utilities;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using static NoodleExtensions.Animation.AnimationController;
+using static NoodleExtensions.Animation.AnimationHelper;
 using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.Animation
@@ -18,6 +15,7 @@ namespace NoodleExtensions.Animation
         private static Dictionary<Track, Coroutine> _activeCoroutines = new Dictionary<Track, Coroutine>();
         private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
         private static readonly FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.Accessor _obstacleCutoutAnimateEffectAccessor = FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
+
         internal static void Callback(CustomEventData customEventData)
         {
             if (customEventData.type == "Dissolve")
@@ -29,7 +27,7 @@ namespace NoodleExtensions.Animation
                     float end = (float?)Trees.at(customEventData.data, END) ?? 0f;
                     float duration = (float?)Trees.at(customEventData.data, DURATION) ?? 1.4f;
                     string easingString = Trees.at(customEventData.data, EASING);
-                    Easings.Functions easing = string.IsNullOrEmpty(easingString) ? Easings.Functions.easeLinear : (Easings.Functions)Enum.Parse(typeof(Easings.Functions), easingString);
+                    Easings.Functions easing = Easings.InterprateString(easingString);
 
                     List<CutoutAnimateEffect> cutoutAnimateEffects = new List<CutoutAnimateEffect>();
                     foreach (NoteController noteController in GetActiveNotes(track))

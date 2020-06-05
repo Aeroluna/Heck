@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
-using System.Threading.Tasks;
-using System.Collections;
-using UnityEngine;
-using static NoodleExtensions.Animation.AnimationController;
-using static NoodleExtensions.Plugin;
+﻿using CustomJSONData.CustomBeatmap;
+using static NoodleExtensions.Animation.AnimationHelper;
 
 namespace NoodleExtensions.Animation
 {
@@ -21,31 +12,12 @@ namespace NoodleExtensions.Animation
                 Track track = GetTrack(customEventData);
                 if (track != null)
                 {
-                    dynamic positionString = Trees.at(customEventData.data, POSITION);
-                    dynamic rotationString = Trees.at(customEventData.data, ROTATION);
-                    dynamic scaleString = Trees.at(customEventData.data, SCALE);
-                    dynamic localRotationString = Trees.at(customEventData.data, LOCALROTATION);
+                    GetPointData(customEventData, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation);
 
-                    Dictionary<string, PointData> pointDefintions = Trees.at(((CustomBeatmapData)_customEventCallbackController._beatmapData).customData, "pointDefinitions");
-
-                    PointData position;
-                    PointData rotation;
-                    PointData scale;
-                    PointData localRotation;
-
-                    if (positionString is string) pointDefintions.TryGetValue(positionString, out position);
-                    else position = DynamicToPointData(positionString);
-                    if (rotationString is string) pointDefintions.TryGetValue(rotationString, out rotation);
-                    else rotation = DynamicToPointData(rotationString);
-                    if (scaleString is string) pointDefintions.TryGetValue(scaleString, out scale);
-                    else scale = DynamicToPointData(scaleString);
-                    if (localRotationString is string) pointDefintions.TryGetValue(localRotationString, out localRotation);
-                    else localRotation = DynamicToPointData(localRotationString);
-
-                    if (positionString != null) track.definePosition = position;
-                    if (rotationString != null) track.defineRotation = rotation;
-                    if (scaleString != null) track.defineScale = scale;
-                    if (localRotationString != null) track.defineLocalRotation = localRotation;
+                    if (position != null) track.definePosition = position;
+                    if (rotation != null) track.defineRotation = rotation;
+                    if (scale != null) track.defineScale = scale;
+                    if (localRotation != null) track.defineLocalRotation = localRotation;
                 }
             }
         }
