@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using static NoodleExtensions.Animation.AnimationController;
 using UnityEngine;
 using System.Collections;
+using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.Animation
 {
@@ -22,14 +23,14 @@ namespace NoodleExtensions.Animation
                 Track track = GetTrack(customEventData);
                 if (track != null)
                 {
-                    float start = (float?)Trees.at(customEventData.data, "_start") ?? 1f;
-                    float end = (float?)Trees.at(customEventData.data, "_end") ?? 0f;
-                    float duration = (float?)Trees.at(customEventData.data, "_duration") ?? 1.4f;
-                    string easingString = Trees.at(customEventData.data, "_easing");
+                    float start = (float?)Trees.at(customEventData.data, START) ?? 1f;
+                    float end = (float?)Trees.at(customEventData.data, END) ?? 0f;
+                    float duration = (float?)Trees.at(customEventData.data, DURATION) ?? 1.4f;
+                    string easingString = Trees.at(customEventData.data, EASING);
                     Easings.Functions easing = string.IsNullOrEmpty(easingString) ? Easings.Functions.easeLinear : (Easings.Functions)Enum.Parse(typeof(Easings.Functions), easingString);
 
                     List<DisappearingArrowController> disappearingArrowControllers = new List<DisappearingArrowController>();
-                    foreach (NoteController noteController in GetActiveBasicNotes(track))
+                    foreach (NoteController noteController in GetActiveNotes(track))
                     {
                         DisappearingArrowController disappearingArrowController = noteController.gameObject.GetComponent<DisappearingArrowController>();
                         disappearingArrowControllers.Add(disappearingArrowController);

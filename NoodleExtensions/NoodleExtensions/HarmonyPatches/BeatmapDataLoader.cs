@@ -118,19 +118,19 @@ namespace NoodleExtensions.HarmonyPatches
                         dynData.bpm = bpm;
 
                         // for epic tracks thing that i totally didnt rip off
-                        string trackName = Trees.at(dynData, "_track");
+                        string trackName = Trees.at(dynData, TRACK);
                         if (trackName != null) dynData.track = trackManager.AddToTrack(trackName, beatmapObjectData);
                     }
                 }
                 customBeatmapData.customData.tracks = trackManager._tracks;
 
-                IEnumerable<dynamic> pointDefinitions = (IEnumerable<dynamic>)Trees.at(customBeatmapData.customData, "_pointDefinitions");
+                IEnumerable<dynamic> pointDefinitions = (IEnumerable<dynamic>)Trees.at(customBeatmapData.customData, POINTDEFINITIONS);
                 if (pointDefinitions == null) return;
                 PointDataManager pointDataManager = new PointDataManager();
                 foreach (dynamic pointDefintion in pointDefinitions)
                 {
-                    string pointName = Trees.at(pointDefintion, "_name");
-                    PointData pointData = Animation.AnimationController.DynamicToPointData(Trees.at(pointDefintion, "_points"));
+                    string pointName = Trees.at(pointDefintion, NAME);
+                    PointData pointData = Animation.AnimationController.DynamicToPointData(Trees.at(pointDefintion, POINTS));
                     pointDataManager.AddPoint(pointName, pointData);
                 }
                 customBeatmapData.customData.pointDefinitions = pointDataManager._pointData;

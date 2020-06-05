@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using UnityEngine;
 using static NoodleExtensions.Animation.AnimationController;
+using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.Animation
 {
@@ -20,10 +21,10 @@ namespace NoodleExtensions.Animation
                 Track track = GetTrack(customEventData);
                 if (track != null)
                 {
-                    dynamic positionString = Trees.at(customEventData.data, "_position");
-                    dynamic rotationString = Trees.at(customEventData.data, "_rotation");
-                    dynamic scaleString = Trees.at(customEventData.data, "_scale");
-                    dynamic localRotationString = Trees.at(customEventData.data, "_localRotation");
+                    dynamic positionString = Trees.at(customEventData.data, POSITION);
+                    dynamic rotationString = Trees.at(customEventData.data, ROTATION);
+                    dynamic scaleString = Trees.at(customEventData.data, SCALE);
+                    dynamic localRotationString = Trees.at(customEventData.data, LOCALROTATION);
 
                     Dictionary<string, PointData> pointDefintions = Trees.at(((CustomBeatmapData)_customEventCallbackController._beatmapData).customData, "pointDefinitions");
 

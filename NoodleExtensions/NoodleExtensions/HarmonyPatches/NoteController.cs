@@ -137,6 +137,7 @@ namespace NoodleExtensions.HarmonyPatches
         private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
         private static void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
+            //TODO: merge with obstaclecontroller
             if (____noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;

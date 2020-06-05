@@ -30,6 +30,11 @@ namespace NoodleExtensions.Animation
         internal Vector3 scale = Vector3.one;
         internal Vector3 localRotation;
 
+        internal Vector3 visualPosition;
+        internal Vector3 visualRotation;
+        internal Vector3 visualScale = Vector3.one;
+        internal Vector3 visualLocalRotation;
+
         internal PointData definePosition;
         internal PointData defineRotation;
         internal PointData defineScale;

@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="Animation\AnimationController.cs" />
     <Compile Include="Animation\Easings.cs" />
+    <Compile Include="Animation\Events\AnimateVisualTrack.cs" />
     <Compile Include="Animation\Events\AssignAnimation.cs" />
     <Compile Include="Animation\Events\Dissolve.cs" />
     <Compile Include="Animation\Events\DissolveArrow.cs" />

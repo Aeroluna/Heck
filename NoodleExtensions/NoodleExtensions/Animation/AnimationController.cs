@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IPA.Utilities;
 using UnityEngine;
+using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.Animation
 {
@@ -46,7 +47,7 @@ namespace NoodleExtensions.Animation
 
         internal static Track GetTrack(CustomEventData customEventData)
         {
-            string trackName = Trees.at(customEventData.data, "_track");
+            string trackName = Trees.at(customEventData.data, TRACK);
             if (_tracks.TryGetValue(trackName, out Track track))
             {
                 return track;
@@ -63,20 +64,22 @@ namespace NoodleExtensions.Animation
             return Trees.at(((dynamic)beatmapObjectData).customData, "track") == track;
         }
 
-        internal static IEnumerable<NoteController> GetActiveBasicNotes(Track track)
+        internal static IEnumerable<NoteController> GetActiveNotes(Track track = null)
         {
             BeatmapObjectManager objectManager = beatmapObjectManager;
-            IEnumerable<NoteController> activeBasicNotes = _noteAPoolAccessor(ref objectManager).activeItems
+            IEnumerable<NoteController> activeNotes = _noteAPoolAccessor(ref objectManager).activeItems
                 .Union(_noteBPoolAccessor(ref objectManager).activeItems)
                 .Union(_bombNotePoolAccessor(ref objectManager).activeItems);
-            return activeBasicNotes.Where(n => CompareTrack(n.noteData, track));
+            if (track != null) return activeNotes.Where(n => CompareTrack(n.noteData, track));
+            return activeNotes;
         }
 
-        internal static IEnumerable<ObstacleController> GetActiveObstacles(Track track)
+        internal static IEnumerable<ObstacleController> GetActiveObstacles(Track track = null)
         {
             BeatmapObjectManager objectManager = beatmapObjectManager;
             IEnumerable<ObstacleController> activeObstacles = _obstaclePoolAccessor(ref objectManager).activeItems;
-            return activeObstacles.Where(n => CompareTrack(n.obstacleData, track));
+            if (track != null) return activeObstacles.Where(n => CompareTrack(n.obstacleData, track));
+            return activeObstacles;
         }
 
         internal static PointData DynamicToPointData(dynamic dyn)
