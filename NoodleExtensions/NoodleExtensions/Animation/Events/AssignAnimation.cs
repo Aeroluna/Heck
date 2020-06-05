@@ -20,17 +20,31 @@ namespace NoodleExtensions.Animation
                 Track track = GetTrack(customEventData);
                 if (track != null)
                 {
-                    string positionString = (string)Trees.at(customEventData.data, "_position");
-                    string rotationString = (string)Trees.at(customEventData.data, "_rotation");
-                    string scaleString = (string)Trees.at(customEventData.data, "_scale");
-                    string localRotationString = (string)Trees.at(customEventData.data, "_localRotation");
+                    dynamic positionString = Trees.at(customEventData.data, "_position");
+                    dynamic rotationString = Trees.at(customEventData.data, "_rotation");
+                    dynamic scaleString = Trees.at(customEventData.data, "_scale");
+                    dynamic localRotationString = Trees.at(customEventData.data, "_localRotation");
 
-                    Dictionary<string, PointData> pointDefintions = ((CustomBeatmapData)_customEventCallbackController._beatmapData).customData.pointDefinitions;
+                    Dictionary<string, PointData> pointDefintions = Trees.at(((CustomBeatmapData)_customEventCallbackController._beatmapData).customData, "pointDefinitions");
 
-                    if (positionString != null && pointDefintions.TryGetValue(positionString, out PointData position)) track.definePosition = position;
-                    if (rotationString != null && pointDefintions.TryGetValue(rotationString, out PointData rotation)) track.defineRotation = rotation;
-                    if (scaleString != null && pointDefintions.TryGetValue(scaleString, out PointData scale)) track.defineScale = scale;
-                    if (localRotationString != null && pointDefintions.TryGetValue(localRotationString, out PointData localRotation)) track.defineLocalRotation = localRotation;
+                    PointData position;
+                    PointData rotation;
+                    PointData scale;
+                    PointData localRotation;
+
+                    if (positionString is string) pointDefintions.TryGetValue(positionString, out position);
+                    else position = DynamicToPointData(positionString);
+                    if (rotationString is string) pointDefintions.TryGetValue(rotationString, out rotation);
+                    else rotation = DynamicToPointData(rotationString);
+                    if (scaleString is string) pointDefintions.TryGetValue(scaleString, out scale);
+                    else scale = DynamicToPointData(scaleString);
+                    if (localRotationString is string) pointDefintions.TryGetValue(localRotationString, out localRotation);
+                    else localRotation = DynamicToPointData(localRotationString);
+
+                    if (positionString != null) track.definePosition = position;
+                    if (rotationString != null) track.defineRotation = rotation;
+                    if (scaleString != null) track.defineScale = scale;
+                    if (localRotationString != null) track.defineLocalRotation = localRotation;
                 }
             }
         }

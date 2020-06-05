@@ -26,12 +26,12 @@ namespace NoodleExtensions.Animation
                     dynamic rotationString = Trees.at(customEventData.data, "_rotation");
                     dynamic scaleString = Trees.at(customEventData.data, "_scale");
                     dynamic localRotationString = Trees.at(customEventData.data, "_localRotation");
-                    float duration = (float?)Trees.at(customEventData.data, "_duration") ?? 1f;
+                    float duration = (float)Trees.at(customEventData.data, "_duration");
 
-                    PointData position = null;
-                    PointData rotation = null;
-                    PointData scale = null;
-                    PointData localRotation = null;
+                    PointData position;
+                    PointData rotation;
+                    PointData scale;
+                    PointData localRotation;
 
                     Dictionary<string, PointData> pointDefintions = Trees.at(((CustomBeatmapData)_customEventCallbackController._beatmapData).customData, "pointDefinitions");
 
@@ -47,21 +47,6 @@ namespace NoodleExtensions.Animation
                     _activeCoroutines[track] = _instance.StartCoroutine(AnimateTrackCoroutine(position, rotation, scale, localRotation, duration, customEventData.time, track));
                 }
             }
-        }
-
-        private static PointData DynamicToPointData(dynamic dyn)
-        {
-            IEnumerable<IEnumerable<float>> points = ((IEnumerable<object>)dyn)
-                        ?.Cast<IEnumerable<object>>()
-                        .Select(n => n.Select(Convert.ToSingle));
-            if (points == null) return null;
-
-            PointData pointData = new PointData();
-            foreach (IEnumerable<float> rawPoint in points)
-            {
-                pointData.Add(new Vector4(rawPoint.ElementAt(0), rawPoint.ElementAt(1), rawPoint.ElementAt(2), rawPoint.ElementAt(3)));
-            }
-            return pointData;
         }
 
         private static IEnumerator AnimateTrackCoroutine(PointData position, PointData rotation, PointData scale, PointData localRotation,

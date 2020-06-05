@@ -130,17 +130,7 @@ namespace NoodleExtensions.HarmonyPatches
                 foreach (dynamic pointDefintion in pointDefinitions)
                 {
                     string pointName = Trees.at(pointDefintion, "_name");
-                    if (pointName == null) continue;
-                    IEnumerable<IEnumerable<float>> points = ((IEnumerable<object>)Trees.at(pointDefintion, "_points"))
-                        ?.Cast<IEnumerable<object>>()
-                        .Select(n => n.Select(Convert.ToSingle));
-                    if (points == null) continue;
-
-                    PointData pointData = new PointData();
-                    foreach (IEnumerable<float> rawPoint in points)
-                    {
-                        pointData.Add(new Vector4(rawPoint.ElementAt(0), rawPoint.ElementAt(1), rawPoint.ElementAt(2), rawPoint.ElementAt(3)));
-                    }
+                    PointData pointData = Animation.AnimationController.DynamicToPointData(Trees.at(pointDefintion, "_points"));
                     pointDataManager.AddPoint(pointName, pointData);
                 }
                 customBeatmapData.customData.pointDefinitions = pointDataManager._pointData;

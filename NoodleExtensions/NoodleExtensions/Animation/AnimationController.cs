@@ -58,7 +58,7 @@ namespace NoodleExtensions.Animation
             }
         }
 
-        internal static bool CompareTrack(BeatmapObjectData beatmapObjectData, Track track)
+        private static bool CompareTrack(BeatmapObjectData beatmapObjectData, Track track)
         {
             return Trees.at(((dynamic)beatmapObjectData).customData, "track") == track;
         }
@@ -77,6 +77,21 @@ namespace NoodleExtensions.Animation
             BeatmapObjectManager objectManager = beatmapObjectManager;
             IEnumerable<ObstacleController> activeObstacles = _obstaclePoolAccessor(ref objectManager).activeItems;
             return activeObstacles.Where(n => CompareTrack(n.obstacleData, track));
+        }
+
+        internal static PointData DynamicToPointData(dynamic dyn)
+        {
+            IEnumerable<IEnumerable<float>> points = ((IEnumerable<object>)dyn)
+                        ?.Cast<IEnumerable<object>>()
+                        .Select(n => n.Select(Convert.ToSingle));
+            if (points == null) return null;
+
+            PointData pointData = new PointData();
+            foreach (IEnumerable<float> rawPoint in points)
+            {
+                pointData.Add(new Vector4(rawPoint.ElementAt(0), rawPoint.ElementAt(1), rawPoint.ElementAt(2), rawPoint.ElementAt(3)));
+            }
+            return pointData;
         }
     }
 }
