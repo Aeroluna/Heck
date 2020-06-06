@@ -136,9 +136,10 @@ namespace NoodleExtensions.HarmonyPatches
         private static readonly FieldAccessor<NoteJump, AudioTimeSyncController>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<NoteJump, AudioTimeSyncController>.GetAccessor("_audioTimeSyncController");
         private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
 
+        private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
+
         private static void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
-            //TODO: merge with obstaclecontroller
             if (____noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
@@ -177,6 +178,13 @@ namespace NoodleExtensions.HarmonyPatches
                     __instance.transform.Rotate(localRotation + track.localRotation + localRotationOffset);
 
                     __instance.transform.localScale = Vector3.Scale(track.scale, scaleOffset);
+
+                    BaseNoteVisuals baseNoteVisuals = __instance.gameObject.GetComponent<BaseNoteVisuals>();
+                    _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals).SetCutout(track.dissolve);
+                    
+                    // null checked because bombs do not have a DisappearingArrowController
+                    DisappearingArrowController disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowController>();
+                    disappearingArrowController?.SetArrowTransparency(track.dissolveArrow);
                 }
             }
         }

@@ -40,26 +40,12 @@ namespace NoodleExtensions.Animation
                 elapsedTime = _customEventCallbackController._audioTimeSource.songTime - startTime;
                 float time = elapsedTime / duration;
                 float cutout = Mathf.Lerp(cutoutStart, cutoutEnd, Easings.Interpolate(time, easing));
-                DissolveActiveArrow(cutout, track);
+                track.dissolveArrow = cutout;
                 yield return null;
             }
-            DissolveActiveArrow(cutoutEnd, track);
+            track.dissolveArrow = cutoutEnd;
             _activeCoroutines.Remove(track);
             yield break;
-        }
-
-        private static void DissolveActiveArrow(float time, Track track)
-        {
-            HashSet<DisappearingArrowController> disappearingArrowControllers = new HashSet<DisappearingArrowController>();
-            foreach (NoteController noteController in GetActiveNotes(track))
-            {
-                DisappearingArrowController disappearingArrowController = noteController.gameObject.GetComponent<DisappearingArrowController>();
-                disappearingArrowControllers.Add(disappearingArrowController);
-            }
-            foreach(DisappearingArrowController disappearingArrowController in disappearingArrowControllers)
-            {
-                disappearingArrowController.SetArrowTransparency(time);
-            }
         }
     }
 }

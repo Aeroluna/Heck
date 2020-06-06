@@ -151,6 +151,8 @@ namespace NoodleExtensions.HarmonyPatches
         private static readonly FieldAccessor<ObstacleController, Quaternion>.Accessor _worldRotationAccessor = FieldAccessor<ObstacleController, Quaternion>.GetAccessor("_worldRotation");
         private static readonly FieldAccessor<ObstacleController, Quaternion>.Accessor _inverseWorldRotationAccessor = FieldAccessor<ObstacleController, Quaternion>.GetAccessor("_inverseWorldRotation");
 
+        private static readonly FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.Accessor _obstacleCutoutAnimateEffectAccessor = FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
+
         private static void Prefix(ObstacleController __instance, ObstacleData ____obstacleData)
         {
             if (____obstacleData is CustomObstacleData customData)
@@ -186,6 +188,9 @@ namespace NoodleExtensions.HarmonyPatches
                     __instance.transform.Rotate(localRotation + track.localRotation + localRotationOffset);
 
                     __instance.transform.localScale = Vector3.Scale(track.scale, scaleOffset);
+
+                    ObstacleDissolve obstacleDissolve = __instance.gameObject.GetComponent<ObstacleDissolve>();
+                    _obstacleCutoutAnimateEffectAccessor(ref obstacleDissolve).SetCutout(track.dissolve);
                 }
             }
         }

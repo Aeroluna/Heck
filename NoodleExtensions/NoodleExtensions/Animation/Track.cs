@@ -21,6 +21,9 @@ namespace NoodleExtensions.Animation
 
     internal class Track
     {
+        internal float dissolve = 1;
+        internal float dissolveArrow = 1;
+
         internal Vector3 position;
         internal Vector3 rotation;
         internal Vector3 scale = Vector3.one;

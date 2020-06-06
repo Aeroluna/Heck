@@ -13,8 +13,6 @@ namespace NoodleExtensions.Animation
     internal static class Dissolve
     {
         private static Dictionary<Track, Coroutine> _activeCoroutines = new Dictionary<Track, Coroutine>();
-        private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
-        private static readonly FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.Accessor _obstacleCutoutAnimateEffectAccessor = FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
 
         internal static void Callback(CustomEventData customEventData)
         {
@@ -42,32 +40,12 @@ namespace NoodleExtensions.Animation
             {
                 elapsedTime = _customEventCallbackController._audioTimeSource.songTime - startTime;
                 float time = elapsedTime / duration;
-                float cutout = 1 - Mathf.Lerp(cutoutStart, cutoutEnd, Easings.Interpolate(time, easing));
-                DissolveActiveObjects(cutout, track);
+                track.dissolve = 1 - Mathf.Lerp(cutoutStart, cutoutEnd, Easings.Interpolate(time, easing));
                 yield return null;
             }
-            DissolveActiveObjects(1 - cutoutEnd, track);
+            track.dissolve = 1 - cutoutEnd;
             _activeCoroutines.Remove(track);
             yield break;
-        }
-
-        private static void DissolveActiveObjects(float time, Track track)
-        {
-            HashSet<CutoutAnimateEffect> cutoutAnimateEffects = new HashSet<CutoutAnimateEffect>();
-            foreach (NoteController noteController in GetActiveNotes(track))
-            {
-                BaseNoteVisuals baseNoteVisuals = noteController.gameObject.GetComponent<BaseNoteVisuals>();
-                cutoutAnimateEffects.Add(_noteCutoutAnimateEffectAccessor(ref baseNoteVisuals));
-            }
-            foreach (ObstacleController obstacleController in GetActiveObstacles(track))
-            {
-                ObstacleDissolve obstacleDissolve = obstacleController.gameObject.GetComponent<ObstacleDissolve>();
-                cutoutAnimateEffects.Add(_obstacleCutoutAnimateEffectAccessor(ref obstacleDissolve));
-            }
-            foreach(CutoutAnimateEffect cutoutAnimateEffect in cutoutAnimateEffects)
-            {
-                cutoutAnimateEffect.SetCutout(time);
-            }
         }
     }
 }
