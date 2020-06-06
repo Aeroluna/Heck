@@ -29,32 +29,39 @@ namespace NoodleExtensions.Animation
         private static readonly FieldAccessor<BeatmapObjectManager, NoteController.Pool>.Accessor _bombNotePoolAccessor = FieldAccessor<BeatmapObjectManager, NoteController.Pool>.GetAccessor("_bombNotePool");
         private static readonly FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.Accessor _obstaclePoolAccessor = FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.GetAccessor("_obstaclePool");
 
-        internal static void GetPointData(CustomEventData customEventData, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation)
+        internal static void GetObjectOffset(dynamic customData, Track track, float time, out Vector3 positionOffset, out Vector3 rotationOffset, out Vector3 scaleOffset, out Vector3 localRotationOffset)
         {
-            dynamic positionString = Trees.at(customEventData.data, POSITION);
-            dynamic rotationString = Trees.at(customEventData.data, ROTATION);
-            dynamic scaleString = Trees.at(customEventData.data, SCALE);
-            dynamic localRotationString = Trees.at(customEventData.data, LOCALROTATION);
+            AnimationHelper.GetPointData(customData, out PointData pathPosition, out PointData pathRotation, out PointData pathScale, out PointData pathLocalRotation);
+
+            positionOffset = pathPosition?.Interpolate(time) ?? track.definePosition?.Interpolate(time) ?? Vector3.zero;
+            rotationOffset = pathRotation?.Interpolate(time) ?? track.defineRotation?.Interpolate(time) ?? Vector3.zero;
+            scaleOffset = pathScale?.Interpolate(time) ?? track.defineScale?.Interpolate(time) ?? Vector3.one;
+            localRotationOffset = pathLocalRotation?.Interpolate(time) ?? track.defineLocalRotation?.Interpolate(time) ?? Vector3.zero;
+        }
+
+        internal static void GetPointData(dynamic customData, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation)
+        {
+            dynamic positionString = Trees.at(customData, POSITION);
+            dynamic rotationString = Trees.at(customData, ROTATION);
+            dynamic scaleString = Trees.at(customData, SCALE);
+            dynamic localRotationString = Trees.at(customData, LOCALROTATION);
 
             Dictionary<string, PointData> pointDefinitions = Trees.at(((CustomBeatmapData)AnimationController._customEventCallbackController._beatmapData).customData, "pointDefinitions");
 
-            if (positionString is string) TryGetPointData(pointDefinitions, positionString, out position);
-            else position = DynamicToPointData(positionString);
-            if (rotationString is string) TryGetPointData(pointDefinitions, rotationString, out rotation);
-            else rotation = DynamicToPointData(rotationString);
-            if (scaleString is string) TryGetPointData(pointDefinitions, scaleString, out scale);
-            else scale = DynamicToPointData(scaleString);
-            if (localRotationString is string) TryGetPointData(pointDefinitions, localRotationString, out localRotation);
-            else localRotation = DynamicToPointData(localRotationString);
+            TryGetPointData(pointDefinitions, positionString, out position);
+            TryGetPointData(pointDefinitions, rotationString, out rotation);
+            TryGetPointData(pointDefinitions, scaleString, out scale);
+            TryGetPointData(pointDefinitions, localRotationString, out localRotation);
         }
 
-        private static void TryGetPointData(Dictionary<string, PointData> pointDefinitions, string pointString, out PointData pointData)
+        private static void TryGetPointData(Dictionary<string, PointData> pointDefinitions, dynamic pointString, out PointData pointData)
         {
-            if (!pointDefinitions.TryGetValue(pointString, out pointData))
+            if (pointString is string && !pointDefinitions.TryGetValue(pointString, out pointData))
             {
                 Logger.Log($"Could not find point definition {pointString}!", IPA.Logging.Logger.Level.Error);
                 pointData = null;
             }
+            else pointData = DynamicToPointData(pointString);
         }
 
         internal static PointData DynamicToPointData(dynamic dyn)

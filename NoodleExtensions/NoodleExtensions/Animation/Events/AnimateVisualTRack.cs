@@ -23,7 +23,7 @@ namespace NoodleExtensions.Animation
                 {
                     float duration = (float)Trees.at(customEventData.data, DURATION);
 
-                    GetPointData(customEventData, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation);
+                    GetPointData(customEventData.data, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation);
 
                     if (_activeCoroutines.TryGetValue(track, out Coroutine coroutine) && coroutine != null) _instance.StopCoroutine(coroutine);
                     _activeCoroutines[track] = _instance.StartCoroutine(AnimateVisualTrackCoroutine(position, rotation, scale, localRotation, duration, customEventData.time, track));

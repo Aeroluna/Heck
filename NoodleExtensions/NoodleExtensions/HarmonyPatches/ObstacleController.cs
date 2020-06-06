@@ -172,10 +172,7 @@ namespace NoodleExtensions.HarmonyPatches
                     float elapsedTime = _audioTimeSyncControllerAccessor(ref __instance).songTime - _startTimeOffsetAccessor(ref __instance);
                     float normalTime = elapsedTime / jumpDuration;
 
-                    Vector3 positionOffset = track.definePosition?.Interpolate(normalTime) ?? Vector3.zero;
-                    Vector3 rotationOffset = track.defineRotation?.Interpolate(normalTime) ?? Vector3.zero;
-                    Vector3 scaleOffset = track.defineScale?.Interpolate(normalTime) ?? Vector3.one;
-                    Vector3 localRotationOffset = track.defineLocalRotation?.Interpolate(normalTime) ?? Vector3.zero;
+                    AnimationHelper.GetObjectOffset(dynData, track, normalTime, out Vector3 positionOffset, out Vector3 rotationOffset, out Vector3 scaleOffset, out Vector3 localRotationOffset);
 
                     _startPosAccessor(ref __instance) = startPos + ((track.position + positionOffset) * _noteLinesDistance);
                     _midPosAccessor(ref __instance) = midPos + ((track.position + positionOffset) * _noteLinesDistance);

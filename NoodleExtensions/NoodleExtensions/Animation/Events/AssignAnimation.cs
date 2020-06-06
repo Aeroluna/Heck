@@ -12,7 +12,7 @@ namespace NoodleExtensions.Animation
                 Track track = GetTrack(customEventData);
                 if (track != null)
                 {
-                    GetPointData(customEventData, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation);
+                    GetPointData(customEventData.data, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation);
 
                     if (position != null) track.definePosition = position;
                     if (rotation != null) track.defineRotation = rotation;
