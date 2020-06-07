@@ -18,7 +18,7 @@ namespace NoodleExtensions.Animation
         {
             if (customEventData.type == "AnimateVisualTrack")
             {
-                Track track = GetTrack(customEventData);
+                Track track = GetTrack(customEventData.data);
                 if (track != null)
                 {
                     float duration = (float)Trees.at(customEventData.data, DURATION);

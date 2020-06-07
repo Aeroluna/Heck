@@ -129,7 +129,7 @@ namespace NoodleExtensions.HarmonyPatches
     internal class NoteControllerUpdate
     {
         private static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorStartPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_startPos");
-        private static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorEndPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_endPos");
+        internal static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorEndPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_endPos");
         private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpStartPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_startPos");
         private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpEndPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_endPos");
 
@@ -138,10 +138,14 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
 
+        internal static CustomNoteData _customNoteData;
+
         private static void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
             if (____noteData is CustomNoteData customData)
             {
+                _customNoteData = customData;
+
                 dynamic dynData = customData.customData;
 
                 Track track = Trees.at(dynData, "track");
@@ -161,8 +165,10 @@ namespace NoodleExtensions.HarmonyPatches
                     float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - jumpDuration * 0.5f);
                     float normalTime = elapsedTime / jumpDuration;
 
-                    AnimationHelper.GetObjectOffset(dynData, track, normalTime, out Vector3 positionOffset, out Vector3 rotationOffset, out Vector3 scaleOffset, out Vector3 localRotationOffset);
+                    dynamic animationObject = Trees.at(dynData, "_animation");
+                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3 positionOffset, out Vector3 rotationOffset, out Vector3 scaleOffset, out Vector3 localRotationOffset);
 
+                    // TODO: all of this setting stuff, only excute when there is a change
                     _floorStartPosAccessor(ref floorMovement) = moveStartPos + ((track.position + positionOffset) * _noteLinesDistance);
                     _floorEndPosAccessor(ref floorMovement) = moveEndPos + ((track.position + positionOffset) * _noteLinesDistance);
                     _jumpStartPosAccessor(ref noteJump) = moveEndPos + ((track.position + positionOffset) * _noteLinesDistance);
@@ -174,14 +180,16 @@ namespace NoodleExtensions.HarmonyPatches
                     NoteControllerInit._inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
                     NoteControllerInit._worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
                     NoteControllerInit._inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
+                    // TODO: cache transform
                     __instance.transform.rotation = worldRotationQuatnerion;
                     __instance.transform.Rotate(localRotation + track.localRotation + localRotationOffset);
 
                     __instance.transform.localScale = Vector3.Scale(track.scale, scaleOffset);
 
+                    // TODO: cache getcomponent maybe?
                     BaseNoteVisuals baseNoteVisuals = __instance.gameObject.GetComponent<BaseNoteVisuals>();
                     _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals).SetCutout(track.dissolve);
-                    
+
                     // null checked because bombs do not have a DisappearingArrowController
                     DisappearingArrowController disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowController>();
                     disappearingArrowController?.SetArrowTransparency(track.dissolveArrow);

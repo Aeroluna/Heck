@@ -87,6 +87,8 @@
     <Compile Include="HarmonyPatches\Mirroring\ObstacleData.cs" />
     <Compile Include="HarmonyPatches\Mirroring\NoteData.cs" />
     <Compile Include="HarmonyPatches\Mirroring\BeatDataMirrorTransform.cs" />
+    <Compile Include="HarmonyPatches\NoteFloorMovement.cs" />
+    <Compile Include="HarmonyPatches\NoteJump.cs" />
     <Compile Include="HarmonyPatches\SpawnDataHelper.cs" />
     <Compile Include="HarmonyPatches\SpawnRotationProcessor.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />

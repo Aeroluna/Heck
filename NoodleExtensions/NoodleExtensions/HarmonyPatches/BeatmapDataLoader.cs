@@ -115,7 +115,7 @@ namespace NoodleExtensions.HarmonyPatches
                         float bpm = startBPM;
                         dynData.bpm = bpm;
 
-                        // for epic tracks thing that i totally didnt rip off
+                        // for epic tracks thing
                         string trackName = Trees.at(dynData, TRACK);
                         if (trackName != null) dynData.track = trackManager.AddToTrack(trackName, beatmapObjectData);
                     }

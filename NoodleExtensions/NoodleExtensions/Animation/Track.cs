@@ -38,5 +38,7 @@ namespace NoodleExtensions.Animation
         internal PointData defineRotation;
         internal PointData defineScale;
         internal PointData defineLocalRotation;
+
+        internal PointData definitePosition;
     }
 }

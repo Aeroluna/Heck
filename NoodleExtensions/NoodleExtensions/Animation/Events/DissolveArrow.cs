@@ -17,7 +17,7 @@ namespace NoodleExtensions.Animation
         {
             if (customEventData.type == "DissolveArrow")
             {
-                Track track = GetTrack(customEventData);
+                Track track = GetTrack(customEventData.data);
                 if (track != null)
                 {
                     float start = (float?)Trees.at(customEventData.data, START) ?? 1f;

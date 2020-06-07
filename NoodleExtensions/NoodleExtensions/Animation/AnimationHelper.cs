@@ -12,6 +12,7 @@ namespace NoodleExtensions.Animation
     internal static class AnimationHelper
     {
         private static Dictionary<string, Track> _tracks { get => ((CustomBeatmapData)AnimationController._customEventCallbackController._beatmapData).customData.tracks; }
+        private static Dictionary<string, PointData> _pointDefinitions { get => Trees.at(((CustomBeatmapData)AnimationController._customEventCallbackController._beatmapData).customData, "pointDefinitions"); }
 
         private static BeatmapObjectManager _beatmapObjectManager;
 
@@ -29,10 +30,22 @@ namespace NoodleExtensions.Animation
         private static readonly FieldAccessor<BeatmapObjectManager, NoteController.Pool>.Accessor _bombNotePoolAccessor = FieldAccessor<BeatmapObjectManager, NoteController.Pool>.GetAccessor("_bombNotePool");
         private static readonly FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.Accessor _obstaclePoolAccessor = FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.GetAccessor("_obstaclePool");
 
+        internal static void GetDefinitePosition(dynamic customData, out PointData position)
+        {
+            Track track = GetTrack(customData);
+
+            dynamic positionString = Trees.at(customData, DEFINITEPOSITION);
+
+            TryGetPointData(_pointDefinitions, positionString, out position);
+            position = position ?? track.definitePosition;
+        }
+
         internal static void GetObjectOffset(dynamic customData, Track track, float time, out Vector3 positionOffset, out Vector3 rotationOffset, out Vector3 scaleOffset, out Vector3 localRotationOffset)
         {
+            // TODO: Recode this to cache the PointData if one is created
             AnimationHelper.GetPointData(customData, out PointData pathPosition, out PointData pathRotation, out PointData pathScale, out PointData pathLocalRotation);
 
+            // TODO: Replace Vector3.zero with null
             positionOffset = pathPosition?.Interpolate(time) ?? track.definePosition?.Interpolate(time) ?? Vector3.zero;
             rotationOffset = pathRotation?.Interpolate(time) ?? track.defineRotation?.Interpolate(time) ?? Vector3.zero;
             scaleOffset = pathScale?.Interpolate(time) ?? track.defineScale?.Interpolate(time) ?? Vector3.one;
@@ -46,7 +59,7 @@ namespace NoodleExtensions.Animation
             dynamic scaleString = Trees.at(customData, SCALE);
             dynamic localRotationString = Trees.at(customData, LOCALROTATION);
 
-            Dictionary<string, PointData> pointDefinitions = Trees.at(((CustomBeatmapData)AnimationController._customEventCallbackController._beatmapData).customData, "pointDefinitions");
+            Dictionary<string, PointData> pointDefinitions = _pointDefinitions;
 
             TryGetPointData(pointDefinitions, positionString, out position);
             TryGetPointData(pointDefinitions, rotationString, out rotation);
@@ -79,9 +92,9 @@ namespace NoodleExtensions.Animation
             return pointData;
         }
 
-        internal static Track GetTrack(CustomEventData customEventData)
+        internal static Track GetTrack(dynamic customData)
         {
-            string trackName = Trees.at(customEventData.data, TRACK);
+            string trackName = Trees.at(customData, TRACK);
             if (_tracks.TryGetValue(trackName, out Track track))
             {
                 return track;

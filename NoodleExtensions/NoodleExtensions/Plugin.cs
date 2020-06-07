@@ -26,6 +26,8 @@ namespace NoodleExtensions
         internal const string END = "_end";
         internal const string EASING = "_easing";
 
+        internal const string DEFINITEPOSITION = "_definitePosition";
+
         internal const string POINTDEFINITIONS = "_pointDefinitions";
         internal const string NAME = "_name";
         internal const string POINTS = "_points";
