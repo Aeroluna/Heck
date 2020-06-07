@@ -39,15 +39,15 @@ namespace NoodleExtensions.Animation
                 elapsedTime = _customEventCallbackController._audioTimeSource.songTime - startTime;
                 float time = elapsedTime / duration;
                 if (position != null) track.position = position.Interpolate(time);
-                if (rotation != null) track.rotation = rotation.Interpolate(time);
+                if (rotation != null) track.rotation = rotation.InterpolateAsQuaternion(time);
                 if (scale != null) track.scale = scale.Interpolate(time);
-                if (localRotation != null) track.localRotation = localRotation.Interpolate(time);
+                if (localRotation != null) track.localRotation = localRotation.InterpolateAsQuaternion(time);
                 yield return null;
             }
             if (position != null) track.position = position.Interpolate(1);
-            if (rotation != null) track.rotation = rotation.Interpolate(1);
+            if (rotation != null) track.rotation = rotation.InterpolateAsQuaternion(1);
             if (scale != null) track.scale = scale.Interpolate(1);
-            if (localRotation != null) track.localRotation = localRotation.Interpolate(1);
+            if (localRotation != null) track.localRotation = localRotation.InterpolateAsQuaternion(1);
             _activeCoroutines.Remove(track);
             yield break;
         }

@@ -174,23 +174,51 @@ namespace NoodleExtensions.HarmonyPatches
                     float elapsedTime = _audioTimeSyncControllerAccessor(ref __instance).songTime - _startTimeOffsetAccessor(ref __instance);
                     float normalTime = elapsedTime / jumpDuration;
 
-                    AnimationHelper.GetObjectOffset(dynData, track, normalTime, out Vector3 positionOffset, out Vector3 rotationOffset, out Vector3 scaleOffset, out Vector3 localRotationOffset);
+                    dynamic animationObject = Trees.at(dynData, "_animation");
+                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Vector3? rotationOffset, out Vector3? scaleOffset, out Vector3? localRotationOffset);
 
-                    _startPosAccessor(ref __instance) = startPos + ((track.position + positionOffset) * _noteLinesDistance);
-                    _midPosAccessor(ref __instance) = midPos + ((track.position + positionOffset) * _noteLinesDistance);
-                    _endPosAccessor(ref __instance) = endPos + ((track.position + positionOffset) * _noteLinesDistance);
+                    if (positionOffset.HasValue)
+                    {
+                        Vector3 offset = positionOffset.Value;
+                        _startPosAccessor(ref __instance) = startPos + offset;
+                        _midPosAccessor(ref __instance) = midPos + offset;
+                        _endPosAccessor(ref __instance) = endPos + offset;
+                    }
 
-                    Quaternion worldRotationQuatnerion = Quaternion.Euler(worldRotation + track.rotation + rotationOffset);
-                    Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
-                    _worldRotationAccessor(ref __instance) = worldRotationQuatnerion;
-                    _inverseWorldRotationAccessor(ref __instance) = inverseWorldRotation;
-                    __instance.transform.rotation = worldRotationQuatnerion;
-                    __instance.transform.Rotate(localRotation + track.localRotation + localRotationOffset);
+                    Transform transform = __instance.transform;
 
-                    __instance.transform.localScale = Vector3.Scale(track.scale, scaleOffset);
+                    if (rotationOffset.HasValue || localRotationOffset.HasValue)
+                    {
+                        Quaternion worldRotationQuatnerion;
+                        if (rotationOffset.HasValue)
+                        {
+                            worldRotationQuatnerion = Quaternion.Euler(worldRotation + rotationOffset.Value);
+                            Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
+                            _worldRotationAccessor(ref __instance) = worldRotationQuatnerion;
+                            _inverseWorldRotationAccessor(ref __instance) = inverseWorldRotation;
+                        }
+                        else
+                        {
+                            worldRotationQuatnerion = Quaternion.Euler(worldRotation);
+                        }
 
-                    ObstacleDissolve obstacleDissolve = __instance.gameObject.GetComponent<ObstacleDissolve>();
-                    _obstacleCutoutAnimateEffectAccessor(ref obstacleDissolve).SetCutout(track.dissolve);
+                        Vector3? localRotationSum = AnimationHelper.SumVectorNullables(localRotation, localRotationOffset);
+
+                        if (localRotationSum.HasValue) worldRotationQuatnerion *= Quaternion.Euler(localRotation + localRotationOffset.Value);
+
+                        transform.rotation = worldRotationQuatnerion;
+                    }
+
+                    if (scaleOffset.HasValue) transform.localScale = scaleOffset.Value;
+
+                    CutoutAnimateEffect cutoutAnimateEffect = Trees.at(dynData, "cutoutAnimateEffect");
+                    if (cutoutAnimateEffect == null)
+                    {
+                        ObstacleDissolve obstacleDissolve = __instance.gameObject.GetComponent<ObstacleDissolve>();
+                        cutoutAnimateEffect = _obstacleCutoutAnimateEffectAccessor(ref obstacleDissolve);
+                        dynData.cutoutAnimateEffect = cutoutAnimateEffect;
+                    }
+                    cutoutAnimateEffect.SetCutout(track.dissolve);
                 }
             }
         }

@@ -15,7 +15,7 @@ namespace NoodleExtensions.Animation
             _customEventCallbackController.AddCustomEventCallback(Dissolve.Callback);
             _customEventCallbackController.AddCustomEventCallback(DissolveArrow.Callback);
             _customEventCallbackController.AddCustomEventCallback(AnimateTrack.Callback);
-            _customEventCallbackController.AddCustomEventCallback(AssignAnimation.Callback);
+            _customEventCallbackController.AddCustomEventCallback(AssignPathAnimation.Callback);
 
             if (_instance != null) Destroy(_instance);
             _instance = _customEventCallbackController.gameObject.AddComponent<AnimationController>();

@@ -70,7 +70,7 @@ namespace NoodleExtensions.HarmonyPatches
                     _inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
                     __instance.transform.rotation = worldRotationQuatnerion;
                 }
-
+                //TODO: fix local rot to only modify transform once
                 IEnumerable<float> localRotRaw = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
                 Vector3 localRotation = Vector3.zero;
                 if (localRotRaw != null)
@@ -156,7 +156,7 @@ namespace NoodleExtensions.HarmonyPatches
                     Vector3 moveStartPos = Trees.at(dynData, "moveStartPos");
                     Vector3 moveEndPos = Trees.at(dynData, "moveEndPos");
                     Vector3 jumpEndPos = Trees.at(dynData, "jumpEndPos");
-
+                    // TODO: allow local rotation to be null
                     Vector3 localRotation = Trees.at(dynData, "localRotation");
                     Vector3 worldRotation = Trees.at(dynData, "worldRotation");
 
@@ -166,33 +166,64 @@ namespace NoodleExtensions.HarmonyPatches
                     float normalTime = elapsedTime / jumpDuration;
 
                     dynamic animationObject = Trees.at(dynData, "_animation");
-                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3 positionOffset, out Vector3 rotationOffset, out Vector3 scaleOffset, out Vector3 localRotationOffset);
+                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Vector3? rotationOffset, out Vector3? scaleOffset, out Vector3? localRotationOffset);
 
-                    // TODO: all of this setting stuff, only excute when there is a change
-                    _floorStartPosAccessor(ref floorMovement) = moveStartPos + ((track.position + positionOffset) * _noteLinesDistance);
-                    _floorEndPosAccessor(ref floorMovement) = moveEndPos + ((track.position + positionOffset) * _noteLinesDistance);
-                    _jumpStartPosAccessor(ref noteJump) = moveEndPos + ((track.position + positionOffset) * _noteLinesDistance);
-                    _jumpEndPosAccessor(ref noteJump) = jumpEndPos + ((track.position + positionOffset) * _noteLinesDistance);
+                    if (positionOffset.HasValue)
+                    {
+                        Vector3 offset = positionOffset.Value;
+                        _floorStartPosAccessor(ref floorMovement) = moveStartPos + offset;
+                        _floorEndPosAccessor(ref floorMovement) = moveEndPos + offset;
+                        _jumpStartPosAccessor(ref noteJump) = moveEndPos + offset;
+                        _jumpEndPosAccessor(ref noteJump) = jumpEndPos + offset;
+                    }
 
-                    Quaternion worldRotationQuatnerion = Quaternion.Euler(worldRotation + track.rotation + rotationOffset);
-                    Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
-                    NoteControllerInit._worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
-                    NoteControllerInit._inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
-                    NoteControllerInit._worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
-                    NoteControllerInit._inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
-                    // TODO: cache transform
-                    __instance.transform.rotation = worldRotationQuatnerion;
-                    __instance.transform.Rotate(localRotation + track.localRotation + localRotationOffset);
+                    Transform transform = __instance.transform;
 
-                    __instance.transform.localScale = Vector3.Scale(track.scale, scaleOffset);
+                    if (rotationOffset.HasValue || localRotationOffset.HasValue)
+                    {
+                        Quaternion worldRotationQuatnerion;
+                        if (rotationOffset.HasValue)
+                        {
+                            worldRotationQuatnerion = Quaternion.Euler(worldRotation + rotationOffset.Value);
+                            Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
+                            NoteControllerInit._worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
+                            NoteControllerInit._inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
+                            NoteControllerInit._worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
+                            NoteControllerInit._inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
+                        }
+                        else
+                        {
+                            worldRotationQuatnerion = Quaternion.Euler(worldRotation);
+                        }
 
-                    // TODO: cache getcomponent maybe?
-                    BaseNoteVisuals baseNoteVisuals = __instance.gameObject.GetComponent<BaseNoteVisuals>();
-                    _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals).SetCutout(track.dissolve);
+                        Vector3? localRotationSum = AnimationHelper.SumVectorNullables(localRotation, localRotationOffset);
+
+                        if (localRotationSum.HasValue) worldRotationQuatnerion *= Quaternion.Euler(localRotation + localRotationOffset.Value);
+
+                        transform.rotation = worldRotationQuatnerion;
+                    }
+
+                    if (scaleOffset.HasValue) transform.localScale = scaleOffset.Value;
+
+                    // TODO: integrate dissolve into path feature
+                    // TODO: null all track defaults
+                    CutoutAnimateEffect cutoutAnimateEffect = Trees.at(dynData, "cutoutAnimateEffect");
+                    if (cutoutAnimateEffect == null)
+                    {
+                        BaseNoteVisuals baseNoteVisuals = __instance.gameObject.GetComponent<BaseNoteVisuals>();
+                        cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
+                        dynData.cutoutAnimateEffect = cutoutAnimateEffect;
+                    }
+                    cutoutAnimateEffect.SetCutout(track.dissolve);
 
                     // null checked because bombs do not have a DisappearingArrowController
-                    DisappearingArrowController disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowController>();
-                    disappearingArrowController?.SetArrowTransparency(track.dissolveArrow);
+                    DisappearingArrowController disappearingArrowController = Trees.at(dynData, "disappearingArrowController");
+                    if (disappearingArrowController == null)
+                    {
+                        disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowController>();
+                        dynData.disappearingArrowController = disappearingArrowController;
+                    }
+                    disappearingArrowController?.SetArrowTransparency(1 - track.dissolveArrow);
                 }
             }
         }

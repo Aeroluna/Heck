@@ -41,8 +41,10 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static Vector3 DefiniteNoteJump(Vector3 original, float time)
         {
-            dynamic animationObject = Trees.at(NoteControllerUpdate._customNoteData.customData, "_animation");
-            AnimationHelper.GetDefinitePosition(animationObject, out PointData position);
+            dynamic dynData = NoteControllerUpdate._customNoteData.customData;
+            dynamic animationObject = Trees.at(dynData, "_animation");
+            Track track = AnimationHelper.GetTrack(dynData);
+            AnimationHelper.GetDefinitePosition(animationObject, track, out PointData position);
             if (position != null) return position.Interpolate(time) * _noteLinesDistance;
             else return original;
         }

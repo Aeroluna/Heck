@@ -37,6 +37,24 @@ namespace NoodleExtensions.Animation
             return _points.Last();
         }
 
+        internal Vector3 InterpolateAsQuaternion(float time)
+        {
+            if (_points == null || _points.Count == 0) return Vector3.zero;
+            if (time <= 0) return _points.First();
+            for (int i = 0; i < _points.Count; i++)
+            {
+                if (_points[i].w > time)
+                {
+                    if (i == 0) return _points.First();
+                    Quaternion quaternionOne = Quaternion.Euler(_points[i - 1]);
+                    Quaternion quaternionTwo = Quaternion.Euler(_points[i]);
+                    Quaternion quaternionFinal = Quaternion.Lerp(quaternionOne, quaternionTwo, (time - _points[i - 1].w) / (_points[i].w - _points[i - 1].w));
+                    return quaternionFinal.eulerAngles;
+                }
+            }
+            return _points.Last();
+        }
+
         public override string ToString()
         {
             StringBuilder stringBuilder = new StringBuilder("{ ");

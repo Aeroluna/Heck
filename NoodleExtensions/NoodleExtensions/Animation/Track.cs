@@ -21,23 +21,18 @@ namespace NoodleExtensions.Animation
 
     internal class Track
     {
-        internal float dissolve = 1;
-        internal float dissolveArrow = 1;
+        internal float dissolve = 0;
+        internal float dissolveArrow = 0;
 
         internal Vector3 position;
         internal Vector3 rotation;
         internal Vector3 scale = Vector3.one;
         internal Vector3 localRotation;
 
-        internal Vector3 visualPosition;
-        internal Vector3 visualRotation;
-        internal Vector3 visualScale = Vector3.one;
-        internal Vector3 visualLocalRotation;
-
-        internal PointData definePosition;
-        internal PointData defineRotation;
-        internal PointData defineScale;
-        internal PointData defineLocalRotation;
+        internal PointData pathPosition;
+        internal PointData pathRotation;
+        internal PointData pathScale;
+        internal PointData pathLocalRotation;
 
         internal PointData definitePosition;
     }

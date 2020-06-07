@@ -39,8 +39,10 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static Vector3 DefiniteNoteFloorMovement(Vector3 original, NoteFloorMovement noteFloorMovement)
         {
-            dynamic animationObject = Trees.at(NoteControllerUpdate._customNoteData.customData, "_animation");
-            AnimationHelper.GetDefinitePosition(animationObject, out PointData position);
+            dynamic dynData = NoteControllerUpdate._customNoteData.customData;
+            dynamic animationObject = Trees.at(dynData, "_animation");
+            Track track = AnimationHelper.GetTrack(dynData);
+            AnimationHelper.GetDefinitePosition(animationObject, track, out PointData position);
             if (position != null)
             {
                 Vector3 endPos = NoteControllerUpdate._floorEndPosAccessor(ref noteFloorMovement);
