@@ -53,37 +53,41 @@ namespace NoodleExtensions.HarmonyPatches
                 }
 
                 dynamic rotation = Trees.at(dynData, ROTATION);
-                Vector3 worldRotation = Vector3.zero;
-                if (rotation != null)
+                IEnumerable<float> localRotation = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
+
+                Transform transform = __instance.transform;
+
+                if (rotation != null || localRotation != null)
                 {
-                    if (rotation is List<object> list)
+                    Quaternion worldRotationQuatnerion;
+                    if (rotation != null)
                     {
-                        IEnumerable<float> _rot = (list)?.Select(n => Convert.ToSingle(n));
-                        worldRotation = new Vector3(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
+                        if (rotation is List<object> list)
+                        {
+                            IEnumerable<float> _rot = (list)?.Select(n => Convert.ToSingle(n));
+                            worldRotationQuatnerion = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
+                        }
+                        else worldRotationQuatnerion = Quaternion.Euler(0, (float)rotation, 0);
+                        Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
+                        _worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
+                        _inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
+                        _worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
+                        _inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
+
+                        if (localRotation != null) worldRotationQuatnerion *= Quaternion.Euler(localRotation.ElementAt(0), localRotation.ElementAt(1), localRotation.ElementAt(2));
+
+                        transform.rotation = worldRotationQuatnerion;
                     }
-                    else worldRotation = new Vector3(0, (float)rotation, 0);
-                    Quaternion worldRotationQuatnerion = Quaternion.Euler(worldRotation);
-                    Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
-                    _worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
-                    _inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
-                    _worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
-                    _inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
-                    __instance.transform.rotation = worldRotationQuatnerion;
-                }
-                //TODO: fix local rot to only modify transform once
-                IEnumerable<float> localRotRaw = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
-                Vector3 localRotation = Vector3.zero;
-                if (localRotRaw != null)
-                {
-                    localRotation = new Vector3(localRotRaw.ElementAt(0), localRotRaw.ElementAt(1), localRotRaw.ElementAt(2));
-                    __instance.transform.Rotate(localRotation);
+                    else
+                    {
+                        transform.Rotate(localRotation.ElementAt(0), localRotation.ElementAt(1), localRotation.ElementAt(2));
+                    }
                 }
 
                 dynData.moveStartPos = moveStartPos;
                 dynData.moveEndPos = moveEndPos;
                 dynData.jumpEndPos = jumpEndPos;
-                dynData.localRotation = localRotation;
-                dynData.worldRotation = worldRotation;
+                dynData.worldRotation = _worldRotationJumpAccessor(ref noteJump);
             }
         }
 
@@ -93,7 +97,8 @@ namespace NoodleExtensions.HarmonyPatches
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundFlipYSide = false;
-            for (int i = 0; i < instructionList.Count; i++)
+            int instructionListCount = instructionList.Count;
+            for (int i = 0; i < instructionListCount; i++)
             {
                 if (!foundFlipYSide &&
                     instructionList[i].opcode == OpCodes.Callvirt &&
@@ -156,9 +161,7 @@ namespace NoodleExtensions.HarmonyPatches
                     Vector3 moveStartPos = Trees.at(dynData, "moveStartPos");
                     Vector3 moveEndPos = Trees.at(dynData, "moveEndPos");
                     Vector3 jumpEndPos = Trees.at(dynData, "jumpEndPos");
-                    // TODO: allow local rotation to be null
-                    Vector3 localRotation = Trees.at(dynData, "localRotation");
-                    Vector3 worldRotation = Trees.at(dynData, "worldRotation");
+                    Quaternion worldRotation = Trees.at(dynData, "worldRotation");
 
                     // idk i just copied base game time
                     float jumpDuration = _jumpDurationAccessor(ref noteJump);
@@ -181,24 +184,18 @@ namespace NoodleExtensions.HarmonyPatches
 
                     if (rotationOffset.HasValue || localRotationOffset.HasValue)
                     {
-                        Quaternion worldRotationQuatnerion;
+                        Quaternion worldRotationQuatnerion = worldRotation;
                         if (rotationOffset.HasValue)
                         {
-                            worldRotationQuatnerion = Quaternion.Euler(worldRotation + rotationOffset.Value);
+                            worldRotationQuatnerion *= Quaternion.Euler(rotationOffset.Value);
                             Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
                             NoteControllerInit._worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
                             NoteControllerInit._inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
                             NoteControllerInit._worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
                             NoteControllerInit._inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
                         }
-                        else
-                        {
-                            worldRotationQuatnerion = Quaternion.Euler(worldRotation);
-                        }
 
-                        Vector3? localRotationSum = AnimationHelper.SumVectorNullables(localRotation, localRotationOffset);
-
-                        if (localRotationSum.HasValue) worldRotationQuatnerion *= Quaternion.Euler(localRotation + localRotationOffset.Value);
+                        if (localRotationOffset.HasValue) worldRotationQuatnerion *= Quaternion.Euler(localRotationOffset.Value);
 
                         transform.rotation = worldRotationQuatnerion;
                     }
@@ -206,24 +203,29 @@ namespace NoodleExtensions.HarmonyPatches
                     if (scaleOffset.HasValue) transform.localScale = scaleOffset.Value;
 
                     // TODO: integrate dissolve into path feature
-                    // TODO: null all track defaults
-                    CutoutAnimateEffect cutoutAnimateEffect = Trees.at(dynData, "cutoutAnimateEffect");
-                    if (cutoutAnimateEffect == null)
+                    if (track.dissolve.HasValue)
                     {
-                        BaseNoteVisuals baseNoteVisuals = __instance.gameObject.GetComponent<BaseNoteVisuals>();
-                        cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
-                        dynData.cutoutAnimateEffect = cutoutAnimateEffect;
+                        CutoutAnimateEffect cutoutAnimateEffect = Trees.at(dynData, "cutoutAnimateEffect");
+                        if (cutoutAnimateEffect == null)
+                        {
+                            BaseNoteVisuals baseNoteVisuals = __instance.gameObject.GetComponent<BaseNoteVisuals>();
+                            cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
+                            dynData.cutoutAnimateEffect = cutoutAnimateEffect;
+                        }
+                        cutoutAnimateEffect.SetCutout(track.dissolve.Value);
                     }
-                    cutoutAnimateEffect.SetCutout(track.dissolve);
 
-                    // null checked because bombs do not have a DisappearingArrowController
-                    DisappearingArrowController disappearingArrowController = Trees.at(dynData, "disappearingArrowController");
-                    if (disappearingArrowController == null)
+                    if (track.dissolveArrow.HasValue)
                     {
-                        disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowController>();
-                        dynData.disappearingArrowController = disappearingArrowController;
+                        DisappearingArrowController disappearingArrowController = Trees.at(dynData, "disappearingArrowController");
+                        if (disappearingArrowController == null)
+                        {
+                            disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowController>();
+                            dynData.disappearingArrowController = disappearingArrowController;
+                        }
+                        // null checked because bombs do not have a DisappearingArrowController
+                        disappearingArrowController?.SetArrowTransparency(1 - track.dissolveArrow.Value);
                     }
-                    disappearingArrowController?.SetArrowTransparency(1 - track.dissolveArrow);
                 }
             }
         }

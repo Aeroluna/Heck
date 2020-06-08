@@ -26,7 +26,8 @@ namespace NoodleExtensions.Animation
         {
             if (_points == null || _points.Count == 0) return Vector3.zero;
             if (time <= 0) return _points.First();
-            for (int i = 0; i < _points.Count; i++)
+            int pointsCount = _points.Count;
+            for (int i = 0; i < pointsCount; i++)
             {
                 if (_points[i].w > time)
                 {
@@ -41,7 +42,8 @@ namespace NoodleExtensions.Animation
         {
             if (_points == null || _points.Count == 0) return Vector3.zero;
             if (time <= 0) return _points.First();
-            for (int i = 0; i < _points.Count; i++)
+            int pointsCount = _points.Count;
+            for (int i = 0; i < pointsCount; i++)
             {
                 if (_points[i].w > time)
                 {

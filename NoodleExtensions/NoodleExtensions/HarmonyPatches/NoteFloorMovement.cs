@@ -21,8 +21,8 @@ namespace NoodleExtensions.HarmonyPatches
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundFinalPosition = false;
-            // TODO: cache
-            for (int i = 0; i < instructionList.Count; i++)
+            int instructionListCount = instructionList.Count;
+            for (int i = 0; i < instructionListCount; i++)
             {
                 if (!foundFinalPosition &&
                     instructionList[i].opcode == OpCodes.Stfld &&
@@ -42,7 +42,8 @@ namespace NoodleExtensions.HarmonyPatches
             dynamic dynData = NoteControllerUpdate._customNoteData.customData;
             dynamic animationObject = Trees.at(dynData, "_animation");
             Track track = AnimationHelper.GetTrack(dynData);
-            AnimationHelper.GetDefinitePosition(animationObject, track, out PointData position);
+            AnimationHelper.GetDefinitePosition(animationObject, out PointData position);
+            position = position ?? track?.definitePosition;
             if (position != null)
             {
                 Vector3 endPos = NoteControllerUpdate._floorEndPosAccessor(ref noteFloorMovement);

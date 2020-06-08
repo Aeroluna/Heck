@@ -13,11 +13,13 @@ namespace NoodleExtensions.Animation
                 if (track != null)
                 {
                     GetPointData(customEventData.data, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation);
+                    GetDefinitePosition(customEventData.data, out PointData definitePosition);
 
                     if (position != null) track.pathPosition = position;
                     if (rotation != null) track.pathRotation = rotation;
                     if (scale != null) track.pathScale = scale;
                     if (localRotation != null) track.pathLocalRotation = localRotation;
+                    if (definitePosition != null) track.definitePosition = definitePosition;
                 }
             }
         }

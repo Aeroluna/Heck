@@ -26,7 +26,8 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static void ProcessFlipData(List<CustomNoteData> customNotes, bool defaultFlip = true)
         {
-            for (int i = customNotes.Count - 1; i >= 0; i--)
+            int customNoteCount = customNotes.Count;
+            for (int i = customNoteCount - 1; i >= 0; i--)
             {
                 dynamic dynData = customNotes[i].customData;
                 IEnumerable<float?> flip = ((List<object>)Trees.at(dynData, FLIP))?.Select(n => n.ToNullableFloat());
@@ -48,11 +49,12 @@ namespace NoodleExtensions.HarmonyPatches
 
             ProcessFlipData(customNotes);
 
-            if (customNotes.Count == 2)
+            int customNoteCount = customNotes.Count;
+            if (customNoteCount == 2)
             {
                 float[] lineIndexes = new float[2];
                 float[] lineLayers = new float[2];
-                for (int i = 0; i < customNotes.Count; i++)
+                for (int i = 0; i < customNoteCount; i++)
                 {
                     dynamic dynData = customNotes[i].customData;
                     IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
@@ -65,7 +67,7 @@ namespace NoodleExtensions.HarmonyPatches
                 if (customNotes[0].noteType != customNotes[1].noteType && ((customNotes[0].noteType == NoteType.NoteA && lineIndexes[0] > lineIndexes[1]) ||
                     (customNotes[0].noteType == NoteType.NoteB && lineIndexes[0] < lineIndexes[1])))
                 {
-                    for (int i = 0; i < customNotes.Count; i++)
+                    for (int i = 0; i < customNoteCount; i++)
                     {
                         // apparently I can use customData to store my own variables in noteData, neat
                         dynamic dynData = customNotes[i].customData;

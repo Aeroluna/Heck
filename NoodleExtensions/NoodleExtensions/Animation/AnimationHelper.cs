@@ -17,8 +17,6 @@ namespace NoodleExtensions.Animation
 
         private static BeatmapObjectManager _beatmapObjectManager;
 
-        private static readonly Vector3 _vectorZero = Vector3.zero;
-
         private static BeatmapObjectManager beatmapObjectManager
         {
             get
@@ -33,16 +31,16 @@ namespace NoodleExtensions.Animation
         private static readonly FieldAccessor<BeatmapObjectManager, NoteController.Pool>.Accessor _bombNotePoolAccessor = FieldAccessor<BeatmapObjectManager, NoteController.Pool>.GetAccessor("_bombNotePool");
         private static readonly FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.Accessor _obstaclePoolAccessor = FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.GetAccessor("_obstaclePool");
 
-        internal static void GetDefinitePosition(dynamic customData, Track track, out PointData position)
+        internal static void GetDefinitePosition(dynamic customData, out PointData position)
         {
             dynamic positionString = Trees.at(customData, DEFINITEPOSITION);
 
             TryGetPointData(_pointDefinitions, positionString, out position);
-            position = position ?? track?.definitePosition;
         }
 
         internal static void GetObjectOffset(dynamic customData, Track track, float time, out Vector3? positionOffset, out Vector3? rotationOffset, out Vector3? scaleOffset, out Vector3? localRotationOffset)
         {
+            // TODO: Recode all rotation stuff to quaternion
             // TODO: Recode this to cache the PointData if one is created
             AnimationHelper.GetPointData(customData, out PointData localPosition, out PointData localRotation, out PointData localScale, out PointData localLocalRotation);
 
@@ -53,8 +51,7 @@ namespace NoodleExtensions.Animation
 
             positionOffset = SumVectorNullables(pathPosition, track.position) * _noteLinesDistance;
             rotationOffset = SumVectorNullables(pathRotation, track.rotation);
-            if (pathScale.HasValue) scaleOffset = Vector3.Scale(track.scale, pathScale.Value);
-            else scaleOffset = track.scale;
+            scaleOffset = MultVectorNullables(pathScale, track.scale);
             localRotationOffset = SumVectorNullables(pathLocalRotation, track.localRotation);
         }
 
@@ -146,6 +143,19 @@ namespace NoodleExtensions.Animation
             if (vectorOne.HasValue) total += vectorOne.Value;
             if (vectorTwo.HasValue) total += vectorTwo.Value;
             return total;
+        }
+        internal static Vector3? MultVectorNullables(Vector3? vectorOne, Vector3? vectorTwo)
+        {
+            if (vectorOne.HasValue)
+            {
+                if (vectorTwo.HasValue) return Vector3.Scale(vectorOne.Value, vectorTwo.Value);
+                else return vectorOne.Value;
+            }
+            else if (vectorTwo.HasValue)
+            {
+                return vectorTwo.Value;
+            }
+            return null;
         }
     }
 }

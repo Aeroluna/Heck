@@ -2,6 +2,7 @@
 using IPA;
 using System.Reflection;
 using IPALogger = IPA.Logging.Logger;
+using UnityEngine;
 
 namespace NoodleExtensions
 {
@@ -39,6 +40,9 @@ namespace NoodleExtensions
         internal const string TRACK = "_track";
 
         #endregion fun notes
+
+        internal static readonly Vector3 _vectorZero = Vector3.zero;
+        internal static readonly Quaternion _quaternionIdentity = Quaternion.identity;
 
         [Init]
         public void Init(IPALogger pluginLogger)

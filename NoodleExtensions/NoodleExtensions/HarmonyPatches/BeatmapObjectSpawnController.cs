@@ -21,7 +21,8 @@ namespace NoodleExtensions.HarmonyPatches
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundJumpDuration = false;
-            for (int i = 0; i < instructionList.Count; i++)
+            int instructionListCount = instructionList.Count;
+            for (int i = 0; i < instructionListCount; i++)
             {
                 if (!foundJumpDuration &&
                     instructionList[i].opcode == OpCodes.Callvirt &&

@@ -18,7 +18,8 @@ namespace NoodleExtensions.HarmonyPatches
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundAheadTime = false;
-            for (int i = 0; i < instructionList.Count; i++)
+            int instructionListCount = instructionList.Count;
+            for (int i = 0; i < instructionListCount; i++)
             {
                 if (!foundAheadTime &&
                     instructionList[i].opcode == OpCodes.Ldfld &&

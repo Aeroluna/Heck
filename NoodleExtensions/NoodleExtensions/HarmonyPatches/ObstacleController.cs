@@ -24,8 +24,7 @@ namespace NoodleExtensions.HarmonyPatches
             {
                 dynamic dynData = customData.customData;
                 IEnumerable<float> localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
-
-                Vector3 localRotation = Vector3.zero;
+                Vector3 localRotation = _vectorZero;
                 if (localrot != null)
                 {
                     localRotation = new Vector3(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
@@ -35,7 +34,6 @@ namespace NoodleExtensions.HarmonyPatches
                 dynData.startPos = startPos;
                 dynData.midPos = midPos;
                 dynData.endPos = endPos;
-                dynData.localRotation = localRotation;
             }
         }
 
@@ -50,7 +48,8 @@ namespace NoodleExtensions.HarmonyPatches
             bool foundRotation = false;
             bool foundWidth = false;
             bool foundLength = false;
-            for (int i = 0; i < instructionList.Count; i++)
+            int instructrionListCount = instructionList.Count;
+            for (int i = 0; i < instructrionListCount; i++)
             {
                 if (!foundRotation &&
                        instructionList[i].opcode == OpCodes.Stfld &&
@@ -91,7 +90,7 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
         {
-            Vector3 worldRotation = new Vector3(0, @default, 0);
+            Quaternion worldRotation = Quaternion.Euler(0, @default, 0);
             if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
@@ -101,14 +100,17 @@ namespace NoodleExtensions.HarmonyPatches
                 {
                     if (rotation is List<object> list)
                     {
-                        IEnumerable<float> _rot = (list)?.Select(n => Convert.ToSingle(n));
-                        worldRotation = new Vector3(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
+                        IEnumerable<float> _rot = list.Select(n => Convert.ToSingle(n));
+                        Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
                     }
-                    else worldRotation = new Vector3(0, (float)rotation, 0);
+                    else
+                    {
+                        worldRotation = Quaternion.Euler(0, (float)rotation, 0);
+                    }
                 }
                 dynData.worldRotation = worldRotation;
             }
-            return Quaternion.Euler(worldRotation);
+            return worldRotation;
         }
 
         private static float GetCustomWidth(float @default, ObstacleData obstacleData)
@@ -166,8 +168,7 @@ namespace NoodleExtensions.HarmonyPatches
                     Vector3 midPos = Trees.at(dynData, "midPos");
                     Vector3 endPos = Trees.at(dynData, "endPos");
 
-                    Vector3 localRotation = Trees.at(dynData, "localRotation");
-                    Vector3 worldRotation = Trees.at(dynData, "worldRotation");
+                    Quaternion worldRotation = Trees.at(dynData, "worldRotation");
 
                     // idk i just copied base game time
                     float jumpDuration = _jumpDurationAccessor(ref __instance);
@@ -189,36 +190,33 @@ namespace NoodleExtensions.HarmonyPatches
 
                     if (rotationOffset.HasValue || localRotationOffset.HasValue)
                     {
-                        Quaternion worldRotationQuatnerion;
+                        Quaternion worldRotationQuatnerion = worldRotation;
                         if (rotationOffset.HasValue)
                         {
-                            worldRotationQuatnerion = Quaternion.Euler(worldRotation + rotationOffset.Value);
+                            worldRotationQuatnerion *= Quaternion.Euler(rotationOffset.Value);
                             Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
                             _worldRotationAccessor(ref __instance) = worldRotationQuatnerion;
                             _inverseWorldRotationAccessor(ref __instance) = inverseWorldRotation;
                         }
-                        else
-                        {
-                            worldRotationQuatnerion = Quaternion.Euler(worldRotation);
-                        }
 
-                        Vector3? localRotationSum = AnimationHelper.SumVectorNullables(localRotation, localRotationOffset);
-
-                        if (localRotationSum.HasValue) worldRotationQuatnerion *= Quaternion.Euler(localRotation + localRotationOffset.Value);
+                        if (localRotationOffset.HasValue) worldRotationQuatnerion *= Quaternion.Euler(localRotationOffset.Value);
 
                         transform.rotation = worldRotationQuatnerion;
                     }
 
                     if (scaleOffset.HasValue) transform.localScale = scaleOffset.Value;
 
-                    CutoutAnimateEffect cutoutAnimateEffect = Trees.at(dynData, "cutoutAnimateEffect");
-                    if (cutoutAnimateEffect == null)
+                    if (track.dissolve.HasValue)
                     {
-                        ObstacleDissolve obstacleDissolve = __instance.gameObject.GetComponent<ObstacleDissolve>();
-                        cutoutAnimateEffect = _obstacleCutoutAnimateEffectAccessor(ref obstacleDissolve);
-                        dynData.cutoutAnimateEffect = cutoutAnimateEffect;
+                        CutoutAnimateEffect cutoutAnimateEffect = Trees.at(dynData, "cutoutAnimateEffect");
+                        if (cutoutAnimateEffect == null)
+                        {
+                            ObstacleDissolve obstacleDissolve = __instance.gameObject.GetComponent<ObstacleDissolve>();
+                            cutoutAnimateEffect = _obstacleCutoutAnimateEffectAccessor(ref obstacleDissolve);
+                            dynData.cutoutAnimateEffect = cutoutAnimateEffect;
+                        }
+                        cutoutAnimateEffect.SetCutout(track.dissolve.Value);
                     }
-                    cutoutAnimateEffect.SetCutout(track.dissolve);
                 }
             }
         }

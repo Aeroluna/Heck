@@ -21,7 +21,8 @@ namespace NoodleExtensions.HarmonyPatches
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundPosition = false;
-            for (int i = 0; i < instructionList.Count; i++)
+            int instructionListCount = instructionList.Count;
+            for (int i = 0; i < instructionListCount; i++)
             {
                 if (!foundPosition &&
                     instructionList[i].opcode == OpCodes.Stind_R4)
@@ -44,7 +45,8 @@ namespace NoodleExtensions.HarmonyPatches
             dynamic dynData = NoteControllerUpdate._customNoteData.customData;
             dynamic animationObject = Trees.at(dynData, "_animation");
             Track track = AnimationHelper.GetTrack(dynData);
-            AnimationHelper.GetDefinitePosition(animationObject, track, out PointData position);
+            AnimationHelper.GetDefinitePosition(animationObject, out PointData position);
+            position = position ?? track?.definitePosition;
             if (position != null) return position.Interpolate(time) * _noteLinesDistance;
             else return original;
         }
