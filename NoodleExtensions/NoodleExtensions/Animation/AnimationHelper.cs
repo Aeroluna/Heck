@@ -33,46 +33,48 @@ namespace NoodleExtensions.Animation
 
         internal static void GetDefinitePosition(dynamic customData, out PointData position)
         {
-            dynamic positionString = Trees.at(customData, DEFINITEPOSITION);
-
-            TryGetPointData(_pointDefinitions, positionString, out position);
+            TryGetPointData(_pointDefinitions, customData, DEFINITEPOSITION, out position);
         }
 
-        internal static void GetObjectOffset(dynamic customData, Track track, float time, out Vector3? positionOffset, out Vector3? rotationOffset, out Vector3? scaleOffset, out Vector3? localRotationOffset)
+        internal static void GetObjectOffset(dynamic customData, Track track, float time, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow)
         {
-            // TODO: Recode all rotation stuff to quaternion
-            // TODO: Recode this to cache the PointData if one is created
-            AnimationHelper.GetPointData(customData, out PointData localPosition, out PointData localRotation, out PointData localScale, out PointData localLocalRotation);
+            AnimationHelper.GetAllPointData(customData, out PointData localPosition, out PointData localRotation, out PointData localScale, out PointData localLocalRotation, out PointData localDissolve, out PointData localDissolveArrow);
 
             Vector3? pathPosition = localPosition?.Interpolate(time) ?? track.pathPosition?.Interpolate(time);
-            Vector3? pathRotation = localRotation?.InterpolateAsQuaternion(time) ?? track.pathRotation?.InterpolateAsQuaternion(time);
+            Quaternion? pathRotation = localRotation?.InterpolateQuaternion(time) ?? track.pathRotation?.InterpolateQuaternion(time);
             Vector3? pathScale = localScale?.Interpolate(time) ?? track.pathScale?.Interpolate(time);
-            Vector3? pathLocalRotation = localLocalRotation?.InterpolateAsQuaternion(time) ?? track.pathLocalRotation?.InterpolateAsQuaternion(time);
+            Quaternion? pathLocalRotation = localLocalRotation?.InterpolateQuaternion(time) ?? track.pathLocalRotation?.InterpolateQuaternion(time);
+            float? pathDissolve = localDissolve?.InterpolateLinear(time) ?? track.pathDissolve?.InterpolateLinear(time);
+            float? pathDissolveArrow = localDissolveArrow?.InterpolateLinear(time) ?? track.pathDissolveArrow?.InterpolateLinear(time);
 
             positionOffset = SumVectorNullables(pathPosition, track.position) * _noteLinesDistance;
-            rotationOffset = SumVectorNullables(pathRotation, track.rotation);
+            rotationOffset = MultQuaternionNullables(pathRotation, track.rotation);
             scaleOffset = MultVectorNullables(pathScale, track.scale);
-            localRotationOffset = SumVectorNullables(pathLocalRotation, track.localRotation);
+            localRotationOffset = MultQuaternionNullables(pathLocalRotation, track.localRotation);
+            dissolve = MultFloatNullables(pathDissolve, track.dissolve);
+            dissolveArrow = MultFloatNullables(pathDissolveArrow, track.dissolveArrow);
         }
 
-        internal static void GetPointData(dynamic customData, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation)
+        internal static void GetAllPointData(dynamic customData, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation, out PointData dissolve, out PointData dissolveArrow)
         {
-            dynamic positionString = Trees.at(customData, POSITION);
-            dynamic rotationString = Trees.at(customData, ROTATION);
-            dynamic scaleString = Trees.at(customData, SCALE);
-            dynamic localRotationString = Trees.at(customData, LOCALROTATION);
-
             Dictionary<string, PointData> pointDefinitions = _pointDefinitions;
 
-            TryGetPointData(pointDefinitions, positionString, out position);
-            TryGetPointData(pointDefinitions, rotationString, out rotation);
-            TryGetPointData(pointDefinitions, scaleString, out scale);
-            TryGetPointData(pointDefinitions, localRotationString, out localRotation);
+            TryGetPointData(pointDefinitions, customData, POSITION, out position);
+            TryGetPointData(pointDefinitions, customData, ROTATION, out rotation);
+            TryGetPointData(pointDefinitions, customData, SCALE, out scale);
+            TryGetPointData(pointDefinitions, customData, LOCALROTATION, out localRotation);
+            TryGetPointData(pointDefinitions, customData, DISSOLVE, out dissolve);
+            TryGetPointData(pointDefinitions, customData, DISSOLVEARROW, out dissolveArrow);
         }
 
-        private static void TryGetPointData(Dictionary<string, PointData> pointDefinitions, dynamic pointString, out PointData pointData)
+        private static void TryGetPointData(Dictionary<string, PointData> pointDefinitions, dynamic customData, string pointName, out PointData pointData)
         {
-            if (pointString is string)
+            dynamic pointString = Trees.at(customData, pointName);
+            if (pointString is PointData castedData)
+            {
+                pointData = castedData;
+            }
+            else if (pointString is string)
             {
                 if (!pointDefinitions.TryGetValue(pointString, out pointData))
                 {
@@ -80,7 +82,11 @@ namespace NoodleExtensions.Animation
                     pointData = null;
                 }
             }
-            else pointData = DynamicToPointData(pointString);
+            else
+            {
+                pointData = DynamicToPointData(pointString);
+                if (pointData != null) ((IDictionary<string, object>)customData)[pointName] = pointData;
+            }
         }
 
         internal static PointData DynamicToPointData(dynamic dyn)
@@ -93,7 +99,8 @@ namespace NoodleExtensions.Animation
             PointData pointData = new PointData();
             foreach (IEnumerable<float> rawPoint in points)
             {
-                pointData.Add(new Vector4(rawPoint.ElementAt(0), rawPoint.ElementAt(1), rawPoint.ElementAt(2), rawPoint.ElementAt(3)));
+                if (rawPoint.Count() == 2) pointData.LinearAdd(new Vector2(rawPoint.ElementAt(0), rawPoint.ElementAt(1)));
+                else pointData.Add(new Vector4(rawPoint.ElementAt(0), rawPoint.ElementAt(1), rawPoint.ElementAt(2), rawPoint.ElementAt(3)));
             }
             return pointData;
         }
@@ -118,24 +125,6 @@ namespace NoodleExtensions.Animation
             return Trees.at(((dynamic)beatmapObjectData).customData, "track") == track;
         }
 
-        internal static IEnumerable<NoteController> GetActiveNotes(Track track = null)
-        {
-            BeatmapObjectManager objectManager = beatmapObjectManager;
-            IEnumerable<NoteController> activeNotes = _noteAPoolAccessor(ref objectManager).activeItems
-                .Union(_noteBPoolAccessor(ref objectManager).activeItems)
-                .Union(_bombNotePoolAccessor(ref objectManager).activeItems);
-            if (track != null) return activeNotes.Where(n => CompareTrack(n.noteData, track));
-            return activeNotes;
-        }
-
-        internal static IEnumerable<ObstacleController> GetActiveObstacles(Track track = null)
-        {
-            BeatmapObjectManager objectManager = beatmapObjectManager;
-            IEnumerable<ObstacleController> activeObstacles = _obstaclePoolAccessor(ref objectManager).activeItems;
-            if (track != null) return activeObstacles.Where(n => CompareTrack(n.obstacleData, track));
-            return activeObstacles;
-        }
-
         internal static Vector3? SumVectorNullables(Vector3? vectorOne, Vector3? vectorTwo)
         {
             if (!vectorOne.HasValue && !vectorTwo.HasValue) return null;
@@ -154,6 +143,32 @@ namespace NoodleExtensions.Animation
             else if (vectorTwo.HasValue)
             {
                 return vectorTwo.Value;
+            }
+            return null;
+        }
+        internal static Quaternion? MultQuaternionNullables(Quaternion? quaternionOne, Quaternion? quaternionTwo)
+        {
+            if (quaternionOne.HasValue)
+            {
+                if (quaternionTwo.HasValue) return quaternionOne.Value * quaternionTwo.Value;
+                else return quaternionOne.Value;
+            }
+            else if (quaternionTwo.HasValue)
+            {
+                return quaternionTwo.Value;
+            }
+            return null;
+        }
+        internal static float? MultFloatNullables(float? floatOne, float? floatTwo)
+        {
+            if (floatOne.HasValue)
+            {
+                if (floatTwo.HasValue) return floatOne.Value * floatTwo.Value;
+                else return floatOne.Value;
+            }
+            else if (floatTwo.HasValue)
+            {
+                return floatTwo.Value;
             }
             return null;
         }

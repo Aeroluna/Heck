@@ -176,7 +176,7 @@ namespace NoodleExtensions.HarmonyPatches
                     float normalTime = elapsedTime / jumpDuration;
 
                     dynamic animationObject = Trees.at(dynData, "_animation");
-                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Vector3? rotationOffset, out Vector3? scaleOffset, out Vector3? localRotationOffset);
+                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _);
 
                     if (positionOffset.HasValue)
                     {
@@ -193,20 +193,20 @@ namespace NoodleExtensions.HarmonyPatches
                         Quaternion worldRotationQuatnerion = worldRotation;
                         if (rotationOffset.HasValue)
                         {
-                            worldRotationQuatnerion *= Quaternion.Euler(rotationOffset.Value);
+                            worldRotationQuatnerion *= rotationOffset.Value;
                             Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
                             _worldRotationAccessor(ref __instance) = worldRotationQuatnerion;
                             _inverseWorldRotationAccessor(ref __instance) = inverseWorldRotation;
                         }
 
-                        if (localRotationOffset.HasValue) worldRotationQuatnerion *= Quaternion.Euler(localRotationOffset.Value);
+                        if (localRotationOffset.HasValue) worldRotationQuatnerion *= localRotationOffset.Value;
 
                         transform.rotation = worldRotationQuatnerion;
                     }
 
                     if (scaleOffset.HasValue) transform.localScale = scaleOffset.Value;
 
-                    if (track.dissolve.HasValue)
+                    if (dissolve.HasValue)
                     {
                         CutoutAnimateEffect cutoutAnimateEffect = Trees.at(dynData, "cutoutAnimateEffect");
                         if (cutoutAnimateEffect == null)
@@ -215,7 +215,7 @@ namespace NoodleExtensions.HarmonyPatches
                             cutoutAnimateEffect = _obstacleCutoutAnimateEffectAccessor(ref obstacleDissolve);
                             dynData.cutoutAnimateEffect = cutoutAnimateEffect;
                         }
-                        cutoutAnimateEffect.SetCutout(track.dissolve.Value);
+                        cutoutAnimateEffect.SetCutout(dissolve.Value);
                     }
                 }
             }

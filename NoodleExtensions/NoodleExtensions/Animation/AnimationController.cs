@@ -12,8 +12,6 @@ namespace NoodleExtensions.Animation
         internal static void CustomEventCallbackInit(CustomEventCallbackController customEventCallbackController)
         {
             _customEventCallbackController = customEventCallbackController;
-            _customEventCallbackController.AddCustomEventCallback(Dissolve.Callback);
-            _customEventCallbackController.AddCustomEventCallback(DissolveArrow.Callback);
             _customEventCallbackController.AddCustomEventCallback(AnimateTrack.Callback);
             _customEventCallbackController.AddCustomEventCallback(AssignPathAnimation.Callback);
 

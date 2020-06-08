@@ -169,7 +169,7 @@ namespace NoodleExtensions.HarmonyPatches
                     float normalTime = elapsedTime / jumpDuration;
 
                     dynamic animationObject = Trees.at(dynData, "_animation");
-                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Vector3? rotationOffset, out Vector3? scaleOffset, out Vector3? localRotationOffset);
+                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow);
 
                     if (positionOffset.HasValue)
                     {
@@ -187,7 +187,7 @@ namespace NoodleExtensions.HarmonyPatches
                         Quaternion worldRotationQuatnerion = worldRotation;
                         if (rotationOffset.HasValue)
                         {
-                            worldRotationQuatnerion *= Quaternion.Euler(rotationOffset.Value);
+                            worldRotationQuatnerion *= rotationOffset.Value;
                             Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
                             NoteControllerInit._worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
                             NoteControllerInit._inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
@@ -195,15 +195,14 @@ namespace NoodleExtensions.HarmonyPatches
                             NoteControllerInit._inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
                         }
 
-                        if (localRotationOffset.HasValue) worldRotationQuatnerion *= Quaternion.Euler(localRotationOffset.Value);
+                        if (localRotationOffset.HasValue) worldRotationQuatnerion *= localRotationOffset.Value;
 
                         transform.rotation = worldRotationQuatnerion;
                     }
 
                     if (scaleOffset.HasValue) transform.localScale = scaleOffset.Value;
 
-                    // TODO: integrate dissolve into path feature
-                    if (track.dissolve.HasValue)
+                    if (dissolve.HasValue)
                     {
                         CutoutAnimateEffect cutoutAnimateEffect = Trees.at(dynData, "cutoutAnimateEffect");
                         if (cutoutAnimateEffect == null)
@@ -212,10 +211,10 @@ namespace NoodleExtensions.HarmonyPatches
                             cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
                             dynData.cutoutAnimateEffect = cutoutAnimateEffect;
                         }
-                        cutoutAnimateEffect.SetCutout(track.dissolve.Value);
+                        cutoutAnimateEffect.SetCutout(dissolve.Value);
                     }
 
-                    if (track.dissolveArrow.HasValue)
+                    if (dissolveArrow.HasValue)
                     {
                         DisappearingArrowController disappearingArrowController = Trees.at(dynData, "disappearingArrowController");
                         if (disappearingArrowController == null)
@@ -224,7 +223,7 @@ namespace NoodleExtensions.HarmonyPatches
                             dynData.disappearingArrowController = disappearingArrowController;
                         }
                         // null checked because bombs do not have a DisappearingArrowController
-                        disappearingArrowController?.SetArrowTransparency(1 - track.dissolveArrow.Value);
+                        disappearingArrowController?.SetArrowTransparency(1 - dissolveArrow.Value);
                     }
                 }
             }

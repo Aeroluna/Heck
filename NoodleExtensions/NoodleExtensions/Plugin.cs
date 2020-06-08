@@ -28,6 +28,8 @@ namespace NoodleExtensions
         internal const string EASING = "_easing";
 
         internal const string DEFINITEPOSITION = "_definitePosition";
+        internal const string DISSOLVE = "_dissolve";
+        internal const string DISSOLVEARROW = "_dissolveArrow";
 
         internal const string POINTDEFINITIONS = "_pointDefinitions";
         internal const string NAME = "_name";
