@@ -40,6 +40,7 @@ namespace NoodleExtensions.HarmonyPatches
                 if (instructionList[i].opcode == OpCodes.Callvirt &&
                   ((MethodInfo)instructionList[i].operand).Name == "get_up")
                 {
+                    foundTransformUp = true;
                     instructionList[i] = new CodeInstruction(OpCodes.Call, _convertToLocalSpace);
                 }
             }
@@ -59,6 +60,8 @@ namespace NoodleExtensions.HarmonyPatches
             else return original;
         }
 
+        // This method is necessary in order to rotate the parent transform without screwing with the rotateObject's up
+        // (This is something that beat games should be doing tbh)
         private static Vector3 ConvertToLocalSpace(Transform rotatedObject)
         {
             return rotatedObject.parent.InverseTransformDirection(rotatedObject.up); ;
