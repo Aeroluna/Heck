@@ -16,11 +16,13 @@ namespace NoodleExtensions.HarmonyPatches
     {
         private static readonly FieldInfo _localPositionField = AccessTools.Field(typeof(NoteJump), "_localPosition");
         private static readonly MethodInfo _definiteNoteJump = SymbolExtensions.GetMethodInfo(() => DefiniteNoteJump(Vector3.zero, 0));
+        private static readonly MethodInfo _convertToLocalSpace = SymbolExtensions.GetMethodInfo(() => ConvertToLocalSpace(null));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundPosition = false;
+            bool foundTransformUp = false;
             int instructionListCount = instructionList.Count;
             for (int i = 0; i < instructionListCount; i++)
             {
@@ -35,8 +37,14 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList.Insert(i + 6, new CodeInstruction(OpCodes.Call, _definiteNoteJump));
                     instructionList.Insert(i + 7, new CodeInstruction(OpCodes.Stfld, _localPositionField));
                 }
+                if (instructionList[i].opcode == OpCodes.Callvirt &&
+                  ((MethodInfo)instructionList[i].operand).Name == "get_up")
+                {
+                    instructionList[i] = new CodeInstruction(OpCodes.Call, _convertToLocalSpace);
+                }
             }
             if (!foundPosition) Logger.Log("Failed to find stind.r4, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
+            if (!foundTransformUp) Logger.Log("Failed to find call to get_up, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
             return instructionList.AsEnumerable();
         }
 
@@ -49,6 +57,11 @@ namespace NoodleExtensions.HarmonyPatches
             position = position ?? track?.definitePosition;
             if (position != null) return position.Interpolate(time) * _noteLinesDistance;
             else return original;
+        }
+
+        private static Vector3 ConvertToLocalSpace(Transform rotatedObject)
+        {
+            return rotatedObject.parent.InverseTransformDirection(rotatedObject.up); ;
         }
     }
 }

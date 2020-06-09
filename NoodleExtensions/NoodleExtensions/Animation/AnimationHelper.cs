@@ -47,12 +47,12 @@ namespace NoodleExtensions.Animation
             float? pathDissolve = localDissolve?.InterpolateLinear(time) ?? track.pathDissolve?.InterpolateLinear(time);
             float? pathDissolveArrow = localDissolveArrow?.InterpolateLinear(time) ?? track.pathDissolveArrow?.InterpolateLinear(time);
 
-            positionOffset = SumVectorNullables(pathPosition, track.position) * _noteLinesDistance;
-            rotationOffset = MultQuaternionNullables(pathRotation, track.rotation);
-            scaleOffset = MultVectorNullables(pathScale, track.scale);
-            localRotationOffset = MultQuaternionNullables(pathLocalRotation, track.localRotation);
-            dissolve = MultFloatNullables(pathDissolve, track.dissolve);
-            dissolveArrow = MultFloatNullables(pathDissolveArrow, track.dissolveArrow);
+            positionOffset = SumVectorNullables(track.position, pathPosition) * _noteLinesDistance;
+            rotationOffset = MultQuaternionNullables(track.rotation, pathRotation);
+            scaleOffset = MultVectorNullables(track.scale, pathScale);
+            localRotationOffset = MultQuaternionNullables(track.localRotation, pathLocalRotation);
+            dissolve = MultFloatNullables(track.dissolve, pathDissolve);
+            dissolveArrow = MultFloatNullables(track.dissolveArrow, pathDissolveArrow);
         }
 
         internal static void GetAllPointData(dynamic customData, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation, out PointData dissolve, out PointData dissolveArrow)
@@ -138,11 +138,11 @@ namespace NoodleExtensions.Animation
             if (vectorOne.HasValue)
             {
                 if (vectorTwo.HasValue) return Vector3.Scale(vectorOne.Value, vectorTwo.Value);
-                else return vectorOne.Value;
+                else return vectorOne;
             }
             else if (vectorTwo.HasValue)
             {
-                return vectorTwo.Value;
+                return vectorTwo;
             }
             return null;
         }
@@ -151,11 +151,11 @@ namespace NoodleExtensions.Animation
             if (quaternionOne.HasValue)
             {
                 if (quaternionTwo.HasValue) return quaternionOne.Value * quaternionTwo.Value;
-                else return quaternionOne.Value;
+                else return quaternionOne;
             }
             else if (quaternionTwo.HasValue)
             {
-                return quaternionTwo.Value;
+                return quaternionTwo;
             }
             return null;
         }
@@ -164,11 +164,11 @@ namespace NoodleExtensions.Animation
             if (floatOne.HasValue)
             {
                 if (floatTwo.HasValue) return floatOne.Value * floatTwo.Value;
-                else return floatOne.Value;
+                else return floatOne;
             }
             else if (floatTwo.HasValue)
             {
-                return floatTwo.Value;
+                return floatTwo;
             }
             return null;
         }
