@@ -10,8 +10,8 @@ using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnM
 
 namespace NoodleExtensions.HarmonyPatches
 {
-    [HarmonyPatch(typeof(NoteJump))]
-    [HarmonyPatch("ManualUpdate")]
+    [NoodlePatch(typeof(NoteJump))]
+    [NoodlePatch("ManualUpdate")]
     internal class NoteJumpManualUpdate
     {
         private static readonly FieldInfo _localPositionField = AccessTools.Field(typeof(NoteJump), "_localPosition");
@@ -55,8 +55,11 @@ namespace NoodleExtensions.HarmonyPatches
             dynamic animationObject = Trees.at(dynData, "_animation");
             Track track = AnimationHelper.GetTrack(dynData);
             AnimationHelper.GetDefinitePosition(animationObject, out PointData position);
-            position = position ?? track?.definitePosition;
-            if (position != null) return position.Interpolate(time) * _noteLinesDistance;
+            if (position != null || track?._pathDefinitePosition._basePointData != null)
+            {
+                Vector3 definitePosition = position?.Interpolate(time) ?? track._pathDefinitePosition.Interpolate(time).Value;
+                return definitePosition * _noteLinesDistance;
+            }
             else return original;
         }
 

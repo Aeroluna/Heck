@@ -12,7 +12,7 @@ namespace NoodleExtensions
             [CallerMemberName] string member = "",
             [CallerLineNumber] int line = 0)
         {
-            Log(e.ToString(), level);
+            Log(e.ToString(), level, member, line);
         }
 
         internal static void Log(object obj, IPALogger.Level level = IPALogger.Level.Debug,

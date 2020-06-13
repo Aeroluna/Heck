@@ -92,4 +92,47 @@ namespace NoodleExtensions.Animation
             return stringBuilder.ToString();
         }
     }
+
+    internal class PointDataInterpolation
+    {
+        internal PointData _basePointData;
+        internal PointData _previousPointData;
+        internal Track _track;
+
+        internal PointDataInterpolation(Track track)
+        {
+            _track = track;
+        }
+
+        internal Vector3? Interpolate(float time)
+        {
+            if (_basePointData == null) return null;
+            if (_previousPointData == null) return _basePointData.Interpolate(time);
+            return Vector3.Lerp(_previousPointData.Interpolate(time), _basePointData.Interpolate(time), _track._pathInterpolationTime);
+        }
+        internal Quaternion? InterpolateQuaternion(float time)
+        {
+            if (_basePointData == null) return null;
+            if (_previousPointData == null) return _basePointData.InterpolateQuaternion(time);
+            return Quaternion.Lerp(_previousPointData.InterpolateQuaternion(time), _basePointData.InterpolateQuaternion(time), _track._pathInterpolationTime);
+        }
+
+        internal float? InterpolateLinear(float time)
+        {
+            if (_basePointData == null) return null;
+            if (_previousPointData == null) return _basePointData.InterpolateLinear(time);
+            return Mathf.Lerp(_previousPointData.InterpolateLinear(time), _basePointData.InterpolateLinear(time), _track._pathInterpolationTime);
+        }
+
+        internal void Init(PointData newPointData)
+        {
+            _previousPointData = _basePointData ?? new PointData();
+            _basePointData = newPointData;
+        }
+
+        internal void Finish()
+        {
+            _previousPointData = null;
+        }
+    }
 }

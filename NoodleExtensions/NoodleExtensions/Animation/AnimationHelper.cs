@@ -40,19 +40,19 @@ namespace NoodleExtensions.Animation
         {
             AnimationHelper.GetAllPointData(customData, out PointData localPosition, out PointData localRotation, out PointData localScale, out PointData localLocalRotation, out PointData localDissolve, out PointData localDissolveArrow);
 
-            Vector3? pathPosition = localPosition?.Interpolate(time) ?? track.pathPosition?.Interpolate(time);
-            Quaternion? pathRotation = localRotation?.InterpolateQuaternion(time) ?? track.pathRotation?.InterpolateQuaternion(time);
-            Vector3? pathScale = localScale?.Interpolate(time) ?? track.pathScale?.Interpolate(time);
-            Quaternion? pathLocalRotation = localLocalRotation?.InterpolateQuaternion(time) ?? track.pathLocalRotation?.InterpolateQuaternion(time);
-            float? pathDissolve = localDissolve?.InterpolateLinear(time) ?? track.pathDissolve?.InterpolateLinear(time);
-            float? pathDissolveArrow = localDissolveArrow?.InterpolateLinear(time) ?? track.pathDissolveArrow?.InterpolateLinear(time);
+            Vector3? pathPosition = localPosition?.Interpolate(time) ?? track._pathPosition.Interpolate(time);
+            Quaternion? pathRotation = localRotation?.InterpolateQuaternion(time) ?? track._pathRotation.InterpolateQuaternion(time);
+            Vector3? pathScale = localScale?.Interpolate(time) ?? track._pathScale.Interpolate(time);
+            Quaternion? pathLocalRotation = localLocalRotation?.InterpolateQuaternion(time) ?? track._pathLocalRotation.InterpolateQuaternion(time);
+            float? pathDissolve = localDissolve?.InterpolateLinear(time) ?? track._pathDissolve.InterpolateLinear(time);
+            float? pathDissolveArrow = localDissolveArrow?.InterpolateLinear(time) ?? track._pathDissolveArrow.InterpolateLinear(time);
 
-            positionOffset = SumVectorNullables(track.position, pathPosition) * _noteLinesDistance;
-            rotationOffset = MultQuaternionNullables(track.rotation, pathRotation);
-            scaleOffset = MultVectorNullables(track.scale, pathScale);
-            localRotationOffset = MultQuaternionNullables(track.localRotation, pathLocalRotation);
-            dissolve = MultFloatNullables(track.dissolve, pathDissolve);
-            dissolveArrow = MultFloatNullables(track.dissolveArrow, pathDissolveArrow);
+            positionOffset = SumVectorNullables(track._position, pathPosition) * _noteLinesDistance;
+            rotationOffset = MultQuaternionNullables(track._rotation, pathRotation);
+            scaleOffset = MultVectorNullables(track._scale, pathScale);
+            localRotationOffset = MultQuaternionNullables(track._localRotation, pathLocalRotation);
+            dissolve = MultFloatNullables(track._dissolve, pathDissolve);
+            dissolveArrow = MultFloatNullables(track._dissolveArrow, pathDissolveArrow);
         }
 
         internal static void GetAllPointData(dynamic customData, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation, out PointData dissolve, out PointData dissolveArrow)

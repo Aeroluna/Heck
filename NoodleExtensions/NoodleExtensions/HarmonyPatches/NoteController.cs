@@ -53,18 +53,21 @@ namespace NoodleExtensions.HarmonyPatches
                 }
 
                 dynamic rotation = Trees.at(dynData, ROTATION);
-                IEnumerable<float> localRotation = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
+                IEnumerable<float> localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
 
                 Transform transform = __instance.transform;
 
+                Quaternion localRotation = _quaternionIdentity;
                 if (rotation != null || localRotation != null)
                 {
+                    if (localrot != null) localRotation = Quaternion.Euler(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
+
                     Quaternion worldRotationQuatnerion;
                     if (rotation != null)
                     {
                         if (rotation is List<object> list)
                         {
-                            IEnumerable<float> _rot = (list)?.Select(n => Convert.ToSingle(n));
+                            IEnumerable<float> _rot = list?.Select(n => Convert.ToSingle(n));
                             worldRotationQuatnerion = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
                         }
                         else worldRotationQuatnerion = Quaternion.Euler(0, (float)rotation, 0);
@@ -74,20 +77,21 @@ namespace NoodleExtensions.HarmonyPatches
                         _worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
                         _inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
 
-                        if (localRotation != null) worldRotationQuatnerion *= Quaternion.Euler(localRotation.ElementAt(0), localRotation.ElementAt(1), localRotation.ElementAt(2));
+                        worldRotationQuatnerion *= localRotation;
 
                         transform.rotation = worldRotationQuatnerion;
                     }
                     else
                     {
-                        transform.Rotate(localRotation.ElementAt(0), localRotation.ElementAt(1), localRotation.ElementAt(2));
+                        transform.rotation *= localRotation;
                     }
                 }
 
                 dynData.moveStartPos = moveStartPos;
                 dynData.moveEndPos = moveEndPos;
                 dynData.jumpEndPos = jumpEndPos;
-                dynData.worldRotation = _worldRotationJumpAccessor(ref noteJump);
+                dynData.worldRotation = __instance.worldRotation;
+                dynData.localRotation = localRotation;
             }
         }
 
@@ -158,10 +162,6 @@ namespace NoodleExtensions.HarmonyPatches
                 {
                     NoteJump noteJump = NoteControllerInit._noteJumpAccessor(ref ____noteMovement);
                     NoteFloorMovement floorMovement = NoteControllerInit._noteFloorMovementAccessor(ref ____noteMovement);
-                    Vector3 moveStartPos = Trees.at(dynData, "moveStartPos");
-                    Vector3 moveEndPos = Trees.at(dynData, "moveEndPos");
-                    Vector3 jumpEndPos = Trees.at(dynData, "jumpEndPos");
-                    Quaternion worldRotation = Trees.at(dynData, "worldRotation");
 
                     // idk i just copied base game time
                     float jumpDuration = _jumpDurationAccessor(ref noteJump);
@@ -173,6 +173,10 @@ namespace NoodleExtensions.HarmonyPatches
 
                     if (positionOffset.HasValue)
                     {
+                        Vector3 moveStartPos = Trees.at(dynData, "moveStartPos");
+                        Vector3 moveEndPos = Trees.at(dynData, "moveEndPos");
+                        Vector3 jumpEndPos = Trees.at(dynData, "jumpEndPos");
+
                         Vector3 offset = positionOffset.Value;
                         _floorStartPosAccessor(ref floorMovement) = moveStartPos + offset;
                         _floorEndPosAccessor(ref floorMovement) = moveEndPos + offset;
@@ -184,6 +188,9 @@ namespace NoodleExtensions.HarmonyPatches
 
                     if (rotationOffset.HasValue || localRotationOffset.HasValue)
                     {
+                        Quaternion worldRotation = Trees.at(dynData, "worldRotation");
+                        Quaternion localRotation = Trees.at(dynData, "localRotation");
+
                         Quaternion worldRotationQuatnerion = worldRotation;
                         if (rotationOffset.HasValue)
                         {
@@ -194,6 +201,8 @@ namespace NoodleExtensions.HarmonyPatches
                             NoteControllerInit._worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
                             NoteControllerInit._inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
                         }
+
+                        worldRotationQuatnerion *= localRotation;
 
                         if (localRotationOffset.HasValue) worldRotationQuatnerion *= localRotationOffset.Value;
 

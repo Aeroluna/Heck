@@ -40,7 +40,7 @@ namespace NoodleExtensions.HarmonyPatches
             if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData)
             {
                 dynamic dynData = ((dynamic)beatmapObjectData).customData;
-                float? aheadTime = (float)Trees.at(dynData, "aheadTime");
+                float? aheadTime = (float?)Trees.at(dynData, "aheadTime");
                 if (aheadTime.HasValue) return aheadTime.Value;
             }
             return @default;

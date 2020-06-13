@@ -21,20 +21,31 @@ namespace NoodleExtensions.Animation
 
     internal class Track
     {
-        internal Vector3? position;
-        internal Quaternion? rotation;
-        internal Vector3? scale;
-        internal Quaternion? localRotation;
-        internal float? dissolve;
-        internal float? dissolveArrow;
+        internal Vector3? _position;
+        internal Quaternion? _rotation;
+        internal Vector3? _scale;
+        internal Quaternion? _localRotation;
+        internal float? _dissolve;
+        internal float? _dissolveArrow;
 
-        internal PointData pathPosition;
-        internal PointData pathRotation;
-        internal PointData pathScale;
-        internal PointData pathLocalRotation;
-        internal PointData pathDissolve;
-        internal PointData pathDissolveArrow;
+        internal float _pathInterpolationTime = 0;
+        internal PointDataInterpolation _pathPosition;
+        internal PointDataInterpolation _pathRotation;
+        internal PointDataInterpolation _pathScale;
+        internal PointDataInterpolation _pathLocalRotation;
+        internal PointDataInterpolation _pathDefinitePosition;
+        internal PointDataInterpolation _pathDissolve;
+        internal PointDataInterpolation _pathDissolveArrow;
 
-        internal PointData definitePosition;
+        internal Track()
+        {
+            _pathPosition = new PointDataInterpolation(this);
+            _pathRotation = new PointDataInterpolation(this);
+            _pathScale = new PointDataInterpolation(this);
+            _pathLocalRotation = new PointDataInterpolation(this);
+            _pathDefinitePosition = new PointDataInterpolation(this);
+            _pathDissolve = new PointDataInterpolation(this);
+            _pathDissolveArrow = new PointDataInterpolation(this);
+        }
     }
 }

@@ -11,8 +11,8 @@ using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnM
 
 namespace NoodleExtensions.HarmonyPatches
 {
-    [HarmonyPatch(typeof(NoteFloorMovement))]
-    [HarmonyPatch("ManualUpdate")]
+    [NoodlePatch(typeof(NoteFloorMovement))]
+    [NoodlePatch("ManualUpdate")]
     internal class NoteFloorMovementManualUpdate
     {
         private static readonly MethodInfo _definiteNoteFloorMovement = SymbolExtensions.GetMethodInfo(() => DefiniteNoteFloorMovement(Vector3.zero, null));
@@ -43,11 +43,11 @@ namespace NoodleExtensions.HarmonyPatches
             dynamic animationObject = Trees.at(dynData, "_animation");
             Track track = AnimationHelper.GetTrack(dynData);
             AnimationHelper.GetDefinitePosition(animationObject, out PointData position);
-            position = position ?? track?.definitePosition;
-            if (position != null)
+            if (position != null || track?._pathDefinitePosition._basePointData != null)
             {
                 Vector3 endPos = NoteControllerUpdate._floorEndPosAccessor(ref noteFloorMovement);
-                return original + ((position.Interpolate(0) * _noteLinesDistance) - endPos);
+                Vector3 definitePosition = position?.Interpolate(0) ?? track._pathDefinitePosition.Interpolate(0).Value;
+                return original + ((definitePosition * _noteLinesDistance) - endPos);
             }
             else return original;
         }
