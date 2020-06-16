@@ -130,7 +130,7 @@ namespace NoodleExtensions.HarmonyPatches
                 foreach (dynamic pointDefintion in pointDefinitions)
                 {
                     string pointName = Trees.at(pointDefintion, NAME);
-                    PointData pointData = AnimationHelper.DynamicToPointData(Trees.at(pointDefintion, POINTS));
+                    PointData pointData = PointData.DynamicToPointData(Trees.at(pointDefintion, POINTS));
                     pointDataManager.AddPoint(pointName, pointData);
                 }
                 customBeatmapData.customData.pointDefinitions = pointDataManager._pointData;

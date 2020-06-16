@@ -158,7 +158,8 @@ namespace NoodleExtensions.HarmonyPatches
                 dynamic dynData = customData.customData;
 
                 Track track = Trees.at(dynData, "track");
-                if (track != null)
+                dynamic animationObject = Trees.at(dynData, "_animation");
+                if (track != null || animationObject != null)
                 {
                     NoteJump noteJump = NoteControllerInit._noteJumpAccessor(ref ____noteMovement);
                     NoteFloorMovement floorMovement = NoteControllerInit._noteFloorMovementAccessor(ref ____noteMovement);
@@ -168,7 +169,6 @@ namespace NoodleExtensions.HarmonyPatches
                     float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - jumpDuration * 0.5f);
                     float normalTime = elapsedTime / jumpDuration;
 
-                    dynamic animationObject = Trees.at(dynData, "_animation");
                     AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow);
 
                     if (positionOffset.HasValue)

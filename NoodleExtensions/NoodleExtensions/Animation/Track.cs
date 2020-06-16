@@ -21,6 +21,7 @@ namespace NoodleExtensions.Animation
 
     internal class Track
     {
+        // TODO: maybe properly parent notes/obstacles to the track
         internal Vector3? _position;
         internal Quaternion? _rotation;
         internal Vector3? _scale;
@@ -33,7 +34,7 @@ namespace NoodleExtensions.Animation
         internal PointDataInterpolation _pathRotation;
         internal PointDataInterpolation _pathScale;
         internal PointDataInterpolation _pathLocalRotation;
-        internal PointDataInterpolation _pathDefinitePosition;
+        internal PointDataInterpolation _pathDefinitePosition; // TODO: fix definiteposition
         internal PointDataInterpolation _pathDissolve;
         internal PointDataInterpolation _pathDissolveArrow;
 

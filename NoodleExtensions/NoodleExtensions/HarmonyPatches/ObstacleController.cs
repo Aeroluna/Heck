@@ -163,7 +163,8 @@ namespace NoodleExtensions.HarmonyPatches
                 dynamic dynData = customData.customData;
 
                 Track track = Trees.at(dynData, "track");
-                if (track != null)
+                dynamic animationObject = Trees.at(dynData, "_animation");
+                if (track != null || animationObject != null)
                 {
 
                     // idk i just copied base game time
@@ -171,7 +172,6 @@ namespace NoodleExtensions.HarmonyPatches
                     float elapsedTime = _audioTimeSyncControllerAccessor(ref __instance).songTime - _startTimeOffsetAccessor(ref __instance);
                     float normalTime = elapsedTime / jumpDuration;
 
-                    dynamic animationObject = Trees.at(dynData, "_animation");
                     AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _);
 
                     if (positionOffset.HasValue)
@@ -224,6 +224,28 @@ namespace NoodleExtensions.HarmonyPatches
                     }
                 }
             }
+        }
+    }
+
+    [NoodlePatch(typeof(ObstacleController))]
+    [NoodlePatch("GetPosForTime")]
+    internal class ObstacleControllerGetPosForTime
+    {
+        private static bool Prefix(ref Vector3 __result, ObstacleData ____obstacleData, float time) {
+            if (____obstacleData is CustomObstacleData customObstacleData)
+            {
+                dynamic dynData = customObstacleData.customData;
+                dynamic animationObject = Trees.at(dynData, "_animation");
+                Track track = AnimationHelper.GetTrack(dynData);
+                AnimationHelper.GetDefinitePosition(animationObject, out PointData position);
+                if (position != null || track?._pathDefinitePosition._basePointData != null)
+                {
+                    Vector3 definitePosition = position?.Interpolate(time) ?? track._pathDefinitePosition.Interpolate(time).Value;
+                    __result = definitePosition * _noteLinesDistance;
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

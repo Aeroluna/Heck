@@ -40,19 +40,19 @@ namespace NoodleExtensions.Animation
         {
             AnimationHelper.GetAllPointData(customData, out PointData localPosition, out PointData localRotation, out PointData localScale, out PointData localLocalRotation, out PointData localDissolve, out PointData localDissolveArrow);
 
-            Vector3? pathPosition = localPosition?.Interpolate(time) ?? track._pathPosition.Interpolate(time);
-            Quaternion? pathRotation = localRotation?.InterpolateQuaternion(time) ?? track._pathRotation.InterpolateQuaternion(time);
-            Vector3? pathScale = localScale?.Interpolate(time) ?? track._pathScale.Interpolate(time);
-            Quaternion? pathLocalRotation = localLocalRotation?.InterpolateQuaternion(time) ?? track._pathLocalRotation.InterpolateQuaternion(time);
-            float? pathDissolve = localDissolve?.InterpolateLinear(time) ?? track._pathDissolve.InterpolateLinear(time);
-            float? pathDissolveArrow = localDissolveArrow?.InterpolateLinear(time) ?? track._pathDissolveArrow.InterpolateLinear(time);
+            Vector3? pathPosition = localPosition?.Interpolate(time) ?? track?._pathPosition.Interpolate(time);
+            Quaternion? pathRotation = localRotation?.InterpolateQuaternion(time) ?? track?._pathRotation.InterpolateQuaternion(time);
+            Vector3? pathScale = localScale?.Interpolate(time) ?? track?._pathScale.Interpolate(time);
+            Quaternion? pathLocalRotation = localLocalRotation?.InterpolateQuaternion(time) ?? track?._pathLocalRotation.InterpolateQuaternion(time);
+            float? pathDissolve = localDissolve?.InterpolateLinear(time) ?? track?._pathDissolve.InterpolateLinear(time);
+            float? pathDissolveArrow = localDissolveArrow?.InterpolateLinear(time) ?? track?._pathDissolveArrow.InterpolateLinear(time);
 
-            positionOffset = SumVectorNullables(track._position, pathPosition) * _noteLinesDistance;
-            rotationOffset = MultQuaternionNullables(track._rotation, pathRotation);
-            scaleOffset = MultVectorNullables(track._scale, pathScale);
-            localRotationOffset = MultQuaternionNullables(track._localRotation, pathLocalRotation);
-            dissolve = MultFloatNullables(track._dissolve, pathDissolve);
-            dissolveArrow = MultFloatNullables(track._dissolveArrow, pathDissolveArrow);
+            positionOffset = SumVectorNullables(track?._position, pathPosition) * _noteLinesDistance;
+            rotationOffset = MultQuaternionNullables(track?._rotation, pathRotation);
+            scaleOffset = MultVectorNullables(track?._scale, pathScale);
+            localRotationOffset = MultQuaternionNullables(track?._localRotation, pathLocalRotation);
+            dissolve = MultFloatNullables(track?._dissolve, pathDissolve);
+            dissolveArrow = MultFloatNullables(track?._dissolveArrow, pathDissolveArrow);
         }
 
         internal static void GetAllPointData(dynamic customData, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation, out PointData dissolve, out PointData dissolveArrow)
@@ -84,25 +84,9 @@ namespace NoodleExtensions.Animation
             }
             else
             {
-                pointData = DynamicToPointData(pointString);
+                pointData = PointData.DynamicToPointData(pointString);
                 if (pointData != null) ((IDictionary<string, object>)customData)[pointName] = pointData;
             }
-        }
-
-        internal static PointData DynamicToPointData(dynamic dyn)
-        {
-            IEnumerable<IEnumerable<float>> points = ((IEnumerable<object>)dyn)
-                        ?.Cast<IEnumerable<object>>()
-                        .Select(n => n.Select(Convert.ToSingle));
-            if (points == null) return null;
-
-            PointData pointData = new PointData();
-            foreach (IEnumerable<float> rawPoint in points)
-            {
-                if (rawPoint.Count() == 2) pointData.LinearAdd(new Vector2(rawPoint.ElementAt(0), rawPoint.ElementAt(1)));
-                else pointData.Add(new Vector4(rawPoint.ElementAt(0), rawPoint.ElementAt(1), rawPoint.ElementAt(2), rawPoint.ElementAt(3)));
-            }
-            return pointData;
         }
 
         internal static Track GetTrack(dynamic customData)
@@ -118,11 +102,6 @@ namespace NoodleExtensions.Animation
                 Logger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
                 return null;
             }
-        }
-
-        private static bool CompareTrack(BeatmapObjectData beatmapObjectData, Track track)
-        {
-            return Trees.at(((dynamic)beatmapObjectData).customData, "track") == track;
         }
 
         internal static Vector3? SumVectorNullables(Vector3? vectorOne, Vector3? vectorTwo)
