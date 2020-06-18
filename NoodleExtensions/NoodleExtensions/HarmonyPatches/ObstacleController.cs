@@ -143,20 +143,10 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("Update")]
     internal class ObstacleControllerUpdate
     {
-        private static readonly FieldAccessor<ObstacleController, Vector3>.Accessor _startPosAccessor = FieldAccessor<ObstacleController, Vector3>.GetAccessor("_startPos");
-        private static readonly FieldAccessor<ObstacleController, Vector3>.Accessor _midPosAccessor = FieldAccessor<ObstacleController, Vector3>.GetAccessor("_midPos");
-        private static readonly FieldAccessor<ObstacleController, Vector3>.Accessor _endPosAccessor = FieldAccessor<ObstacleController, Vector3>.GetAccessor("_endPos");
-
-        private static readonly FieldAccessor<ObstacleController, AudioTimeSyncController>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<ObstacleController, AudioTimeSyncController>.GetAccessor("_audioTimeSyncController");
-        private static readonly FieldAccessor<ObstacleController, float>.Accessor _jumpDurationAccessor = FieldAccessor<ObstacleController, float>.GetAccessor("_move2Duration");
-        private static readonly FieldAccessor<ObstacleController, float>.Accessor _startTimeOffsetAccessor = FieldAccessor<ObstacleController, float>.GetAccessor("_startTimeOffset");
-
-        private static readonly FieldAccessor<ObstacleController, Quaternion>.Accessor _worldRotationAccessor = FieldAccessor<ObstacleController, Quaternion>.GetAccessor("_worldRotation");
-        private static readonly FieldAccessor<ObstacleController, Quaternion>.Accessor _inverseWorldRotationAccessor = FieldAccessor<ObstacleController, Quaternion>.GetAccessor("_inverseWorldRotation");
-
         private static readonly FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.Accessor _obstacleCutoutAnimateEffectAccessor = FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
 
-        private static void Prefix(ObstacleController __instance, ObstacleData ____obstacleData)
+        private static void Prefix(ObstacleController __instance, ObstacleData ____obstacleData, AudioTimeSyncController ____audioTimeSyncController, float ____startTimeOffset,
+            ref Vector3 ____startPos, ref Vector3 ____midPos, ref Vector3 ____endPos, float ____move1Duration, float ____move2Duration, Quaternion ____worldRotation, Quaternion ____inverseWorldRotation)
         {
             if (____obstacleData is CustomObstacleData customData)
             {
@@ -166,11 +156,10 @@ namespace NoodleExtensions.HarmonyPatches
                 dynamic animationObject = Trees.at(dynData, "_animation");
                 if (track != null || animationObject != null)
                 {
-
                     // idk i just copied base game time
-                    float jumpDuration = _jumpDurationAccessor(ref __instance);
-                    float elapsedTime = _audioTimeSyncControllerAccessor(ref __instance).songTime - _startTimeOffsetAccessor(ref __instance);
-                    float normalTime = elapsedTime / jumpDuration;
+                    float jumpDuration = ____move2Duration;
+                    float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
+                    float normalTime = (elapsedTime - ____move1Duration) / jumpDuration;
 
                     AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _);
 
@@ -181,9 +170,9 @@ namespace NoodleExtensions.HarmonyPatches
                         Vector3 endPos = Trees.at(dynData, "endPos");
 
                         Vector3 offset = positionOffset.Value;
-                        _startPosAccessor(ref __instance) = startPos + offset;
-                        _midPosAccessor(ref __instance) = midPos + offset;
-                        _endPosAccessor(ref __instance) = endPos + offset;
+                        ____startPos = startPos + offset;
+                        ____midPos = midPos + offset;
+                        ____endPos = endPos + offset;
                     }
 
                     Transform transform = __instance.transform;
@@ -198,8 +187,8 @@ namespace NoodleExtensions.HarmonyPatches
                         {
                             worldRotationQuatnerion *= rotationOffset.Value;
                             Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
-                            _worldRotationAccessor(ref __instance) = worldRotationQuatnerion;
-                            _inverseWorldRotationAccessor(ref __instance) = inverseWorldRotation;
+                            ____worldRotation = worldRotationQuatnerion;
+                            ____inverseWorldRotation = inverseWorldRotation;
                         }
 
                         worldRotationQuatnerion *= localRotation;
@@ -231,17 +220,29 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("GetPosForTime")]
     internal class ObstacleControllerGetPosForTime
     {
-        private static bool Prefix(ref Vector3 __result, ObstacleData ____obstacleData, float time) {
+        private static bool Prefix(ref Vector3 __result, ObstacleData ____obstacleData, Vector3 ____startPos, Vector3 ____midPos,
+            float ____move1Duration, float ____move2Duration, float time) {
             if (____obstacleData is CustomObstacleData customObstacleData)
             {
                 dynamic dynData = customObstacleData.customData;
                 dynamic animationObject = Trees.at(dynData, "_animation");
                 Track track = AnimationHelper.GetTrack(dynData);
                 AnimationHelper.GetDefinitePosition(animationObject, out PointData position);
+
+                float jumpTime = Mathf.Clamp((time - ____move1Duration) / ____move2Duration, 0, 1);
+
                 if (position != null || track?._pathDefinitePosition._basePointData != null)
                 {
-                    Vector3 definitePosition = position?.Interpolate(time) ?? track._pathDefinitePosition.Interpolate(time).Value;
-                    __result = definitePosition * _noteLinesDistance;
+                    Vector3 definitePosition = (position?.Interpolate(jumpTime) ?? track._pathDefinitePosition.Interpolate(jumpTime).Value) * _noteLinesDistance;
+                    if (time < ____move1Duration)
+                    {
+                        __result = Vector3.LerpUnclamped(____startPos, ____midPos, time / ____move1Duration);
+                        __result += definitePosition - ____midPos;
+                    }
+                    else
+                    {
+                        __result = definitePosition;
+                    }
                     return false;
                 }
             }
