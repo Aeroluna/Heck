@@ -34,7 +34,7 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList.Insert(i - 2, new CodeInstruction(OpCodes.Ldarg_1));
                 }
             }
-            if (!foundJumpDuration) Logger.Log("Failed to find get_jumpDuration call, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
+            if (!foundJumpDuration) Logger.Log("Failed to find get_jumpDuration call!", IPA.Logging.Logger.Level.Error);
             return instructionList.AsEnumerable();
         }
 

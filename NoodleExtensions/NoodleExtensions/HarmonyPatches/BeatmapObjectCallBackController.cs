@@ -33,7 +33,7 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldloc_1));
                 }
             }
-            if (!foundAheadTime) Logger.Log("Failed to find aheadTime ldfld, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
+            if (!foundAheadTime) Logger.Log("Failed to find aheadTime ldfld!", IPA.Logging.Logger.Level.Error);
             return instructionList.AsEnumerable();
         }
 

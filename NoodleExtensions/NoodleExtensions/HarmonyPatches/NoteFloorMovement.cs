@@ -33,7 +33,7 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _definiteNoteFloorMovement));
                 }
             }
-            if (!foundFinalPosition) Logger.Log("Failed to find _localPosition stfld, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
+            if (!foundFinalPosition) Logger.Log("Failed to find _localPosition stfld!", IPA.Logging.Logger.Level.Error);
             return instructionList.AsEnumerable();
         }
 

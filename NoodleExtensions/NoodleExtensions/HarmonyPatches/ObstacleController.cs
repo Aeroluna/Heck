@@ -83,9 +83,9 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _getCustomLength));
                 }
             }
-            if (!foundRotation) Logger.Log("Failed to find _worldRotation stfld, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
-            if (!foundWidth) Logger.Log("Failed to find get_width call, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
-            if (!foundLength) Logger.Log("Failed to find stloc.2, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
+            if (!foundRotation) Logger.Log("Failed to find _worldRotation stfld!", IPA.Logging.Logger.Level.Error);
+            if (!foundWidth) Logger.Log("Failed to find get_width call!", IPA.Logging.Logger.Level.Error);
+            if (!foundLength) Logger.Log("Failed to find stloc.2!", IPA.Logging.Logger.Level.Error);
             return instructionList.AsEnumerable();
         }
 

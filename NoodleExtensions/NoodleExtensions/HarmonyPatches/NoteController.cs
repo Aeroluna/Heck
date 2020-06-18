@@ -115,7 +115,7 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(NoteController), "_noteData")));
                 }
             }
-            if (!foundFlipYSide) Logger.Log("Failed to find Get_flipYSide call, ping Aeroluna!", IPA.Logging.Logger.Level.Error);
+            if (!foundFlipYSide) Logger.Log("Failed to find Get_flipYSide call!", IPA.Logging.Logger.Level.Error);
             return instructionList.AsEnumerable();
         }
 
