@@ -21,6 +21,7 @@ namespace NoodleExtensions.Animation
                 if (track != null)
                 {
                     float duration = (float?)Trees.at(customEventData.data, DURATION) ?? 0f;
+                    duration = (60f * duration) / instance.beatmapObjectSpawnController.currentBPM; // Convert to real time
 
                     GetAllPointData(customEventData.data, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation, out PointData dissolve, out PointData dissolveArrow);
                     GetDefinitePosition(customEventData.data, out PointData definitePosition);
@@ -33,8 +34,8 @@ namespace NoodleExtensions.Animation
                     if (dissolve != null) track._pathDissolve.Init(dissolve);
                     if (dissolveArrow != null) track._pathDissolveArrow.Init(dissolveArrow);
 
-                    if (_activeCoroutines.TryGetValue(track, out Coroutine coroutine) && coroutine != null) _instance.StopCoroutine(coroutine);
-                    _activeCoroutines[track] = _instance.StartCoroutine(AssignPathAnimationCoroutine(position, rotation, scale, localRotation, definitePosition, dissolve, dissolveArrow, duration, customEventData.time, track));
+                    if (_activeCoroutines.TryGetValue(track, out Coroutine coroutine) && coroutine != null) instance.StopCoroutine(coroutine);
+                    _activeCoroutines[track] = instance.StartCoroutine(AssignPathAnimationCoroutine(position, rotation, scale, localRotation, definitePosition, dissolve, dissolveArrow, duration, customEventData.time, track));
                 }
             }
         }
@@ -45,7 +46,7 @@ namespace NoodleExtensions.Animation
             float elapsedTime = -1;
             while (elapsedTime < duration)
             {
-                elapsedTime = _customEventCallbackController._audioTimeSource.songTime - startTime;
+                elapsedTime = instance.customEventCallbackController._audioTimeSource.songTime - startTime;
                 track._pathInterpolationTime = Mathf.Min(elapsedTime / duration, 1f);
                 yield return null;
             }

@@ -61,7 +61,6 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Brtrue_S, instructionList[i].operand));
                 }
             }
-            instructionList.ForEach(n => Logger.Log(n));
             if (!foundPosition) Logger.Log("Failed to find stind.r4!", IPA.Logging.Logger.Level.Error);
             if (!foundTransformUp) Logger.Log("Failed to find call to get_up!", IPA.Logging.Logger.Level.Error);
             if (!foundZOffset) Logger.Log("Failed to find brfalse.s to Label21!", IPA.Logging.Logger.Level.Error);

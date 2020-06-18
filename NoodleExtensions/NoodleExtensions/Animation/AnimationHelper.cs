@@ -12,8 +12,8 @@ namespace NoodleExtensions.Animation
 {
     internal static class AnimationHelper
     {
-        private static Dictionary<string, Track> _tracks { get => ((CustomBeatmapData)AnimationController._customEventCallbackController._beatmapData).customData.tracks; }
-        private static Dictionary<string, PointData> _pointDefinitions { get => Trees.at(((CustomBeatmapData)AnimationController._customEventCallbackController._beatmapData).customData, "pointDefinitions"); }
+        private static Dictionary<string, Track> _tracks { get => ((CustomBeatmapData)AnimationController.instance.customEventCallbackController._beatmapData).customData.tracks; }
+        private static Dictionary<string, PointData> _pointDefinitions { get => Trees.at(((CustomBeatmapData)AnimationController.instance.customEventCallbackController._beatmapData).customData, "pointDefinitions"); }
 
         private static BeatmapObjectManager _beatmapObjectManager;
 
