@@ -1,11 +1,11 @@
-﻿using HarmonyLib;
+﻿using CustomJSONData;
+using HarmonyLib;
+using NoodleExtensions.Animation;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnityEngine;
 using System.Reflection.Emit;
-using NoodleExtensions.Animation;
-using CustomJSONData;
+using UnityEngine;
 using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 
 namespace NoodleExtensions.HarmonyPatches
@@ -51,7 +51,7 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList[i] = new CodeInstruction(OpCodes.Call, _convertToLocalSpace);
                 }
                 if (!foundZOffset &&
-                    instructionList[i].operand is Label && 
+                    instructionList[i].operand is Label &&
                     instructionList[i].operand.GetHashCode() == 21) // is there a better way of checking labels?
                 {
                     foundZOffset = true;

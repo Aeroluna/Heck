@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System;
 using UnityEngine;
 using static NoodleExtensions.Plugin;
 
@@ -209,6 +209,7 @@ namespace NoodleExtensions.Animation
             if (_previousPointData == null) return _basePointData.Interpolate(time);
             return Vector3.Lerp(_previousPointData.Interpolate(time), _basePointData.Interpolate(time), _track._pathInterpolationTime);
         }
+
         internal Quaternion? InterpolateQuaternion(float time)
         {
             if (_basePointData == null) return null;

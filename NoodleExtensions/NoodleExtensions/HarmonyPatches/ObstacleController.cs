@@ -221,7 +221,8 @@ namespace NoodleExtensions.HarmonyPatches
     internal class ObstacleControllerGetPosForTime
     {
         private static bool Prefix(ref Vector3 __result, ObstacleData ____obstacleData, Vector3 ____startPos, Vector3 ____midPos,
-            float ____move1Duration, float ____move2Duration, float time) {
+            float ____move1Duration, float ____move2Duration, float time)
+        {
             if (____obstacleData is CustomObstacleData customObstacleData)
             {
                 dynamic dynData = customObstacleData.customData;

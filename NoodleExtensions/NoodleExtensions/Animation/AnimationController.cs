@@ -9,18 +9,20 @@ namespace NoodleExtensions.Animation
         internal static AnimationController instance { get; private set; }
 
         internal CustomEventCallbackController customEventCallbackController { get; private set; }
+
         internal BeatmapObjectSpawnController beatmapObjectSpawnController
         {
-            get {
+            get
+            {
                 if (_beatmapObjectSpawnController == null) _beatmapObjectSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
                 return _beatmapObjectSpawnController;
             }
         }
+
         private BeatmapObjectSpawnController _beatmapObjectSpawnController;
 
         internal static void CustomEventCallbackInit(CustomEventCallbackController customEventCallbackController)
         {
-
             if (instance != null) Destroy(instance);
             instance = customEventCallbackController.gameObject.AddComponent<AnimationController>();
 

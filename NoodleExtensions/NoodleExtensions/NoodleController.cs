@@ -1,6 +1,7 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+using NoodleExtensions.Animation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,6 +90,18 @@ namespace NoodleExtensions
                         dynData.aheadTime = _moveDuration + _jumpDuration * 0.5f;
                     }
                     beatmapLineData.beatmapObjectsData = beatmapLineData.beatmapObjectsData.OrderBy(n => n.time - (float)((dynamic)n).customData.aheadTime).ToArray();
+                }
+
+                if (beatmapData is CustomBeatmapData customBeatmapData)
+                {
+                    Dictionary<string, Track> tracks = Trees.at(customBeatmapData.customData, "tracks");
+                    if (tracks != null)
+                    {
+                        foreach (KeyValuePair<string, Track> track in tracks)
+                        {
+                            track.Value.ResetVariables();
+                        }
+                    }
                 }
             }
             else harmony.UnpatchAll(HARMONYID);

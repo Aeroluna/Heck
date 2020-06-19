@@ -23,6 +23,7 @@ namespace NoodleExtensions.Animation
     {
         // TODO: maybe properly parent notes/obstacles to the track
         internal Vector3? _position;
+
         internal Quaternion? _rotation;
         internal Vector3? _scale;
         internal Quaternion? _localRotation;
@@ -40,6 +41,24 @@ namespace NoodleExtensions.Animation
 
         internal Track()
         {
+            _pathPosition = new PointDataInterpolation(this);
+            _pathRotation = new PointDataInterpolation(this);
+            _pathScale = new PointDataInterpolation(this);
+            _pathLocalRotation = new PointDataInterpolation(this);
+            _pathDefinitePosition = new PointDataInterpolation(this);
+            _pathDissolve = new PointDataInterpolation(this);
+            _pathDissolveArrow = new PointDataInterpolation(this);
+        }
+
+        internal void ResetVariables()
+        {
+            _position = null;
+            _rotation = null;
+            _scale = null;
+            _localRotation = null;
+            _dissolve = null;
+            _dissolveArrow = null;
+            _pathInterpolationTime = 0;
             _pathPosition = new PointDataInterpolation(this);
             _pathRotation = new PointDataInterpolation(this);
             _pathScale = new PointDataInterpolation(this);

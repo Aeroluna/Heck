@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
 using IPA;
 using System.Reflection;
-using IPALogger = IPA.Logging.Logger;
 using UnityEngine;
+using IPALogger = IPA.Logging.Logger;
 
 namespace NoodleExtensions
 {

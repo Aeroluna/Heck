@@ -1,12 +1,11 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using IPA.Utilities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static NoodleExtensions.Plugin;
 using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
+using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.Animation
 {
@@ -112,6 +111,7 @@ namespace NoodleExtensions.Animation
             if (vectorTwo.HasValue) total += vectorTwo.Value;
             return total;
         }
+
         internal static Vector3? MultVectorNullables(Vector3? vectorOne, Vector3? vectorTwo)
         {
             if (vectorOne.HasValue)
@@ -125,6 +125,7 @@ namespace NoodleExtensions.Animation
             }
             return null;
         }
+
         internal static Quaternion? MultQuaternionNullables(Quaternion? quaternionOne, Quaternion? quaternionTwo)
         {
             if (quaternionOne.HasValue)
@@ -138,6 +139,7 @@ namespace NoodleExtensions.Animation
             }
             return null;
         }
+
         internal static float? MultFloatNullables(float? floatOne, float? floatTwo)
         {
             if (floatOne.HasValue)
