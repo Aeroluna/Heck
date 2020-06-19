@@ -39,6 +39,7 @@ namespace NoodleExtensions.HarmonyPatches
 
                 float? height = scale?.ElementAtOrDefault(1);
 
+                Vector3? finalNoteOffset = null;
                 // Actual wall stuff
                 if (startX.HasValue || startY.HasValue || njs.HasValue || spawnoffset.HasValue)
                 {
@@ -48,11 +49,23 @@ namespace NoodleExtensions.HarmonyPatches
                     Vector3 noteOffset = GetNoteOffset(obstacleData, startX, null);
                     noteOffset.y = startY.HasValue ? _verticalObstaclePosY + startY.GetValueOrDefault(0) * _noteLinesDistance : ((obstacleData.obstacleType == ObstacleType.Top)
                         ? (_topObstaclePosY + _jumpOffsetY) : _verticalObstaclePosY);
+
+                    finalNoteOffset = noteOffset;
+
                     moveStartPos = _localMoveStartPos + noteOffset;
                     moveEndPos = _localMoveEndPos + noteOffset;
                     jumpEndPos = _localJumpEndPos + noteOffset;
                 }
                 if (height.HasValue) obstacleHeight = height.Value * _noteLinesDistance;
+
+                if (!finalNoteOffset.HasValue)
+                {
+                    Vector3 noteOffset = GetNoteOffset(obstacleData, startX, null);
+                    noteOffset.y = ((obstacleData.obstacleType == ObstacleType.Top) ? (_topObstaclePosY + _jumpOffsetY) : _verticalObstaclePosY);
+                    finalNoteOffset = noteOffset;
+                }
+
+                dynData.noteOffset = finalNoteOffset.Value;
             }
         }
     }
@@ -73,10 +86,6 @@ namespace NoodleExtensions.HarmonyPatches
 
                 float? startRow = position?.ElementAtOrDefault(0);
                 float? startHeight = position?.ElementAtOrDefault(1);
-
-                Vector3 movestartposcopy = moveStartPos;
-                Vector3 moveendposcopy = moveEndPos;
-                Vector3 jumpendposcopy = jumpEndPos;
 
                 if (position != null || flipLineIndex != null || njs.HasValue || spawnoffset.HasValue)
                 {
@@ -103,6 +112,8 @@ namespace NoodleExtensions.HarmonyPatches
                     moveStartPos = localMoveStartPos + noteOffset2;
                     moveEndPos = localMoveEndPos + noteOffset2;
                 }
+
+                dynData.noteOffset = GetNoteOffset(noteData, startRow, startHeight);
             }
         }
     }

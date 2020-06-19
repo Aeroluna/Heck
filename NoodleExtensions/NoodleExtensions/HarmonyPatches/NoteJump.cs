@@ -25,7 +25,6 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            Logger.Log(_definitePositionField.GetValue(null));
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundPosition = false;
             bool foundTransformUp = false;
@@ -75,9 +74,10 @@ namespace NoodleExtensions.HarmonyPatches
             AnimationHelper.GetDefinitePosition(animationObject, out PointData position);
             if (position != null || track?._pathDefinitePosition._basePointData != null)
             {
+                Vector3 noteOffset = Trees.at(dynData, "noteOffset");
                 Vector3 definitePosition = position?.Interpolate(time) ?? track._pathDefinitePosition.Interpolate(time).Value;
                 _definitePosition = true;
-                return definitePosition * _noteLinesDistance;
+                return definitePosition * _noteLinesDistance + noteOffset;
             }
             else
             {

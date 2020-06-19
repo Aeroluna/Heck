@@ -233,7 +233,8 @@ namespace NoodleExtensions.HarmonyPatches
 
                 if (position != null || track?._pathDefinitePosition._basePointData != null)
                 {
-                    Vector3 definitePosition = (position?.Interpolate(jumpTime) ?? track._pathDefinitePosition.Interpolate(jumpTime).Value) * _noteLinesDistance;
+                    Vector3 noteOffset = Trees.at(dynData, "noteOffset");
+                    Vector3 definitePosition = (position?.Interpolate(jumpTime) ?? track._pathDefinitePosition.Interpolate(jumpTime).Value) * _noteLinesDistance + noteOffset;
                     if (time < ____move1Duration)
                     {
                         __result = Vector3.LerpUnclamped(____startPos, ____midPos, time / ____move1Duration);
