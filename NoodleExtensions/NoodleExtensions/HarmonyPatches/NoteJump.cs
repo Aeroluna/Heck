@@ -70,14 +70,13 @@ namespace NoodleExtensions.HarmonyPatches
         {
             dynamic dynData = NoteControllerUpdate._customNoteData.customData;
             dynamic animationObject = Trees.at(dynData, "_animation");
-            Track track = AnimationHelper.GetTrack(dynData);
-            AnimationHelper.GetDefinitePosition(animationObject, out PointData position);
-            if (position != null || track?._pathDefinitePosition._basePointData != null)
+            Track track = Trees.at(dynData, "track");
+            AnimationHelper.GetDefinitePositionOffset(animationObject, track, time, out Vector3? position);
+            if (position.HasValue)
             {
                 Vector3 noteOffset = Trees.at(dynData, "noteOffset");
-                Vector3 definitePosition = position?.Interpolate(time) ?? track._pathDefinitePosition.Interpolate(time).Value;
                 _definitePosition = true;
-                return definitePosition * _noteLinesDistance + noteOffset;
+                return position.Value + noteOffset;
             }
             else
             {

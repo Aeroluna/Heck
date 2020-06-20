@@ -146,7 +146,7 @@ namespace NoodleExtensions.HarmonyPatches
         private static readonly FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.Accessor _obstacleCutoutAnimateEffectAccessor = FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
 
         private static void Prefix(ObstacleController __instance, ObstacleData ____obstacleData, AudioTimeSyncController ____audioTimeSyncController, float ____startTimeOffset,
-            ref Vector3 ____startPos, ref Vector3 ____midPos, ref Vector3 ____endPos, float ____move1Duration, float ____move2Duration, Quaternion ____worldRotation, Quaternion ____inverseWorldRotation)
+            ref Vector3 ____startPos, ref Vector3 ____midPos, ref Vector3 ____endPos, float ____move1Duration, float ____move2Duration, float ____obstacleDuration, ref Quaternion ____worldRotation, ref Quaternion ____inverseWorldRotation)
         {
             if (____obstacleData is CustomObstacleData customData)
             {
@@ -159,7 +159,7 @@ namespace NoodleExtensions.HarmonyPatches
                     // idk i just copied base game time
                     float jumpDuration = ____move2Duration;
                     float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
-                    float normalTime = (elapsedTime - ____move1Duration) / jumpDuration;
+                    float normalTime = (elapsedTime - ____move1Duration) / (jumpDuration + ____obstacleDuration);
 
                     AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _);
 
@@ -227,15 +227,16 @@ namespace NoodleExtensions.HarmonyPatches
             {
                 dynamic dynData = customObstacleData.customData;
                 dynamic animationObject = Trees.at(dynData, "_animation");
-                Track track = AnimationHelper.GetTrack(dynData);
-                AnimationHelper.GetDefinitePosition(animationObject, out PointData position);
+                Track track = Trees.at(dynData, "track");
 
                 float jumpTime = Mathf.Clamp((time - ____move1Duration) / ____move2Duration, 0, 1);
+                AnimationHelper.GetDefinitePositionOffset(animationObject, track, jumpTime, out Vector3? position);
 
-                if (position != null || track?._pathDefinitePosition._basePointData != null)
+                if (position.HasValue)
                 {
                     Vector3 noteOffset = Trees.at(dynData, "noteOffset");
-                    Vector3 definitePosition = (position?.Interpolate(jumpTime) ?? track._pathDefinitePosition.Interpolate(jumpTime).Value) * _noteLinesDistance + noteOffset;
+                    Vector3 definitePosition = position.Value + noteOffset;
+                    definitePosition.x += Trees.at(dynData, "xOffset");
                     if (time < ____move1Duration)
                     {
                         __result = Vector3.LerpUnclamped(____startPos, ____midPos, time / ____move1Duration);

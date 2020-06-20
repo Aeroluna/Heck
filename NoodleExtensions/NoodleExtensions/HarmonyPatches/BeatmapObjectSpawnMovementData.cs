@@ -66,6 +66,8 @@ namespace NoodleExtensions.HarmonyPatches
                 }
 
                 dynData.noteOffset = finalNoteOffset.Value;
+                float? width = scale?.ElementAtOrDefault(0);
+                dynData.xOffset = (width.GetValueOrDefault(obstacleData.lineIndex) / 2f - 0.5f) * _noteLinesDistance;
             }
         }
     }

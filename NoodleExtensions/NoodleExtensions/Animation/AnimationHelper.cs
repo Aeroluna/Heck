@@ -30,14 +30,19 @@ namespace NoodleExtensions.Animation
         private static readonly FieldAccessor<BeatmapObjectManager, NoteController.Pool>.Accessor _bombNotePoolAccessor = FieldAccessor<BeatmapObjectManager, NoteController.Pool>.GetAccessor("_bombNotePool");
         private static readonly FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.Accessor _obstaclePoolAccessor = FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.GetAccessor("_obstaclePool");
 
-        internal static void GetDefinitePosition(dynamic customData, out PointData position)
+        internal static void GetDefinitePositionOffset(dynamic customData, Track track, float time, out Vector3? definitePosition)
         {
-            TryGetPointData(_pointDefinitions, customData, DEFINITEPOSITION, out position);
+            GetDefinitePosition(customData, out PointData localDefinitePosition);
+
+            Vector3? pathDefinitePosition = localDefinitePosition?.Interpolate(time) ?? track?._pathDefinitePosition.Interpolate(time);
+
+            if (pathDefinitePosition.HasValue) definitePosition = SumVectorNullables(track?._position, pathDefinitePosition) * _noteLinesDistance;
+            else definitePosition = null;
         }
 
         internal static void GetObjectOffset(dynamic customData, Track track, float time, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow)
         {
-            AnimationHelper.GetAllPointData(customData, out PointData localPosition, out PointData localRotation, out PointData localScale, out PointData localLocalRotation, out PointData localDissolve, out PointData localDissolveArrow);
+            GetAllPointData(customData, out PointData localPosition, out PointData localRotation, out PointData localScale, out PointData localLocalRotation, out PointData localDissolve, out PointData localDissolveArrow);
 
             Vector3? pathPosition = localPosition?.Interpolate(time) ?? track?._pathPosition.Interpolate(time);
             Quaternion? pathRotation = localRotation?.InterpolateQuaternion(time) ?? track?._pathRotation.InterpolateQuaternion(time);
@@ -52,6 +57,11 @@ namespace NoodleExtensions.Animation
             localRotationOffset = MultQuaternionNullables(track?._localRotation, pathLocalRotation);
             dissolve = MultFloatNullables(track?._dissolve, pathDissolve);
             dissolveArrow = MultFloatNullables(track?._dissolveArrow, pathDissolveArrow);
+        }
+
+        internal static void GetDefinitePosition(dynamic customData, out PointData definitePosition)
+        {
+            TryGetPointData(_pointDefinitions, customData, DEFINITEPOSITION, out definitePosition);
         }
 
         internal static void GetAllPointData(dynamic customData, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation, out PointData dissolve, out PointData dissolveArrow)
