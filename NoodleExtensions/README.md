@@ -48,7 +48,7 @@ Example of `_customEvents`:
   * `"_notes"`/`"_obstacles"` -> `"_customData"`
     * `"_position"`: `[x, y]` (float) Should be self explanatory. Will override `_lineIndex` and `_lineLayer` NOTE: All positions are based off [Beatwalls system](https://camo.githubusercontent.com/295a4c05e569c99c6bf07cfabda8d80afdec1b7d/68747470733a2f2f692e696d6775722e636f6d2f557a37614944672e706e673d31303078313030).
     * `"_rotation"`: `[x, y, z]` (float) Also known as "world rotation". Think the `360Degree` Characteristic but way more options. This field can also be just a single float (`"_rotation": 90`) and it will be interpreted as [0, x, 0] (`"_rotation": [0, 90, 0]`). [0, 0, 0] will always be the initial position the player is facing at the beginning of the song.
-    * `"_localRotation"`: `[x, y, z]` (float) Allows you to [rotate the object](https://cdn.discordapp.com/attachments/642393483000283146/695698691943825559/unknown.png). This won't affect the direction it spawns from or the path it takes. THIS MAY HAVE SOME STRANGE EFFECTS ON NOTES.
+    * `"_localRotation"`: `[x, y, z]` (float) Allows you to [rotate the object](https://cdn.discordapp.com/attachments/642393483000283146/695698691943825559/unknown.png). This won't affect the direction it spawns from or the path it takes. The origin for walls is the front bottom center, [as illustrated by spooky](https://cdn.discordapp.com/attachments/642393483000283146/725065831850967150/unknown.png). THIS MAY HAVE SOME STRANGE EFFECTS ON NOTES.
     * `"_noteJumpMovementSpeed"`: (float) Set the NJS of an individual object.
     * `"_noteJumpStartBeatOffset"`: (float) Set the spawn offset of an individual object.
     * `"_track"`: (string) This adds the object to the specified track. Tracks are used by custom events.
@@ -83,6 +83,7 @@ Example of `_customEvents`:
       * `"_data"`:
         * `"_track"`: (string) Name of the track to affect.
         * `"_duration"`: (float) How long it takes to assign the animation in beats. Will default to 0 if not specified.
+        * `"_easing":`: (string) Refer to https://easings.net/en.
         * `"_position"`: (Point Definition) Will be relative to base game movement.
         * `"_rotation"`: (Point Definition)
         * `"_scale"`: (Point Definition) [Yeah....](https://cdn.discordapp.com/attachments/443569023951568906/719503041883144192/unknown.png)
@@ -95,6 +96,7 @@ Example of `_customEvents`:
       * `"_data"`:
         * `"_track"`: (string) See Above.
         * `"_duration"`: (float) How long it takes to complete the animation in beats. Will default to 0 if not specified.
+        * `"_easing":`: (string) See above.
         * `"_position"`: (Point Definition) See above.
         * `"_rotation"`: (Point Definition) See above.
         * `"_scale"`: (Point Definition) See above.
@@ -167,7 +169,7 @@ Example for [this](https://streamable.com/uuz00f) (Map by Skeelie):
 	  "_customEvents": [
 	    {
 	      "_time": 3.0,
-	      "_type": "_AssignPathAnimation",
+	      "_type": "AssignPathAnimation",
 	      "_data": {
 	        "_track": "BounceTrack",
 	        "_position": "DropFromAbove",
