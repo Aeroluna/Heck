@@ -1,5 +1,6 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,6 +24,10 @@ namespace NoodleExtensions.Animation
                     float duration = (float?)Trees.at(customEventData.data, DURATION) ?? 0f;
                     duration = (60f * duration) / instance.beatmapObjectSpawnController.currentBPM; // Convert to real time
 
+                    string easingString = (string)Trees.at(customEventData.data, EASING);
+                    Functions easing = Functions.easeLinear;
+                    if (easingString != null) easing = (Functions)Enum.Parse(typeof(Functions), easingString);
+
                     GetAllPointData(customEventData.data, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation, out PointData dissolve, out PointData dissolveArrow);
                     GetDefinitePosition(customEventData.data, out PointData definitePosition);
 
@@ -35,20 +40,21 @@ namespace NoodleExtensions.Animation
                     if (dissolveArrow != null) track._pathDissolveArrow.Init(dissolveArrow);
 
                     if (_activeCoroutines.TryGetValue(track, out Coroutine coroutine) && coroutine != null) instance.StopCoroutine(coroutine);
-                    _activeCoroutines[track] = instance.StartCoroutine(AssignPathAnimationCoroutine(position, rotation, scale, localRotation, definitePosition, dissolve, dissolveArrow, duration, customEventData.time, track));
+                    _activeCoroutines[track] = instance.StartCoroutine(AssignPathAnimationCoroutine(position, rotation, scale, localRotation, definitePosition, dissolve, dissolveArrow, duration, customEventData.time, track, easing));
                 }
             }
         }
 
         private static IEnumerator AssignPathAnimationCoroutine(PointData position, PointData rotation, PointData scale, PointData localRotation, PointData definitePosition, PointData dissolve, PointData dissolveArrow,
-            float duration, float startTime, Track track)
+            float duration, float startTime, Track track, Functions easing)
         {
-            float elapsedTime = -1;
-            while (elapsedTime < duration)
+            while(true)
             {
-                elapsedTime = instance.customEventCallbackController._audioTimeSource.songTime - startTime;
-                track._pathInterpolationTime = Mathf.Min(elapsedTime / duration, 1f);
-                yield return null;
+                float elapsedTime = instance.customEventCallbackController._audioTimeSource.songTime - startTime;
+                track._pathInterpolationTime = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
+
+                if (elapsedTime < duration) yield return null;
+                else break;
             }
 
             if (position != null) track._pathPosition.Finish();
@@ -58,8 +64,6 @@ namespace NoodleExtensions.Animation
             if (definitePosition != null) track._pathDefinitePosition.Finish();
             if (dissolve != null) track._pathDissolve.Finish();
             if (dissolveArrow != null) track._pathDissolveArrow.Finish();
-            _activeCoroutines.Remove(track);
-            yield break;
         }
     }
 }

@@ -209,7 +209,7 @@ namespace NoodleExtensions.HarmonyPatches
                             cutoutAnimateEffect = _obstacleCutoutAnimateEffectAccessor(ref obstacleDissolve);
                             dynData.cutoutAnimateEffect = cutoutAnimateEffect;
                         }
-                        cutoutAnimateEffect.SetCutout(dissolve.Value);
+                        cutoutAnimateEffect.SetCutout(1 - dissolve.Value);
                     }
                 }
             }

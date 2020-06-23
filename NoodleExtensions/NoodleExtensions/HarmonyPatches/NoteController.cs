@@ -86,6 +86,8 @@ namespace NoodleExtensions.HarmonyPatches
                     }
                 }
 
+                transform.localScale = Vector3.one; // This is a fix for animation due to notes being recycled
+
                 dynData.moveStartPos = moveStartPos;
                 dynData.moveEndPos = moveEndPos;
                 dynData.jumpEndPos = jumpEndPos;
@@ -219,10 +221,10 @@ namespace NoodleExtensions.HarmonyPatches
                             cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
                             dynData.cutoutAnimateEffect = cutoutAnimateEffect;
                         }
-                        cutoutAnimateEffect.SetCutout(dissolve.Value);
+                        cutoutAnimateEffect.SetCutout(1 - dissolve.Value);
                     }
 
-                    if (dissolveArrow.HasValue)
+                    if (dissolveArrow.HasValue && __instance.noteData.noteType != NoteType.Bomb)
                     {
                         DisappearingArrowController disappearingArrowController = Trees.at(dynData, "disappearingArrowController");
                         if (disappearingArrowController == null)
@@ -230,8 +232,7 @@ namespace NoodleExtensions.HarmonyPatches
                             disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowController>();
                             dynData.disappearingArrowController = disappearingArrowController;
                         }
-                        // null checked because bombs do not have a DisappearingArrowController
-                        disappearingArrowController?.SetArrowTransparency(1 - dissolveArrow.Value);
+                        disappearingArrowController.SetArrowTransparency(dissolveArrow.Value);
                     }
                 }
             }

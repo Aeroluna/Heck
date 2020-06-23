@@ -96,7 +96,8 @@ namespace NoodleExtensions.Animation
         public override string ToString()
         {
             StringBuilder stringBuilder = new StringBuilder("{ ");
-            _points.ForEach(n => stringBuilder.Append($"{n.ToString()} "));
+            if (_points != null) _points.ForEach(n => stringBuilder.Append($"{n._point.ToString()} "));
+            else if (_linearPoints != null) _linearPoints.ForEach(n => stringBuilder.Append($"{n._linearPoint.ToString()} "));
             stringBuilder.Append("}");
             return stringBuilder.ToString();
         }
@@ -233,6 +234,11 @@ namespace NoodleExtensions.Animation
         internal void Finish()
         {
             _previousPointData = null;
+        }
+
+        public override string ToString()
+        {
+            return $"({_previousPointData?.ToString() ?? "null"}, {_basePointData?.ToString() ?? "null"})";
         }
     }
 }

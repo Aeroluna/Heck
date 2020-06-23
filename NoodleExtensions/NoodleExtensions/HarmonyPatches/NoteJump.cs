@@ -17,6 +17,7 @@ namespace NoodleExtensions.HarmonyPatches
         private static readonly FieldInfo _localPositionField = AccessTools.Field(typeof(NoteJump), "_localPosition");
         private static readonly MethodInfo _definiteNoteJump = SymbolExtensions.GetMethodInfo(() => DefiniteNoteJump(Vector3.zero, 0));
         private static readonly MethodInfo _convertToLocalSpace = SymbolExtensions.GetMethodInfo(() => ConvertToLocalSpace(null));
+        private static readonly MethodInfo _convertQuaternion = SymbolExtensions.GetMethodInfo(() => ConvertQuaternion(Quaternion.identity));
         private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), "_definitePosition");
 
 #pragma warning disable 0414
@@ -29,6 +30,7 @@ namespace NoodleExtensions.HarmonyPatches
             bool foundPosition = false;
             bool foundTransformUp = false;
             bool foundZOffset = false;
+            bool foundInverseRotation = false;
             int instructionListCount = instructionList.Count;
             for (int i = 0; i < instructionListCount; i++)
             {
@@ -49,6 +51,16 @@ namespace NoodleExtensions.HarmonyPatches
                 {
                     foundTransformUp = true;
                     instructionList[i] = new CodeInstruction(OpCodes.Call, _convertToLocalSpace);
+                }
+                if (instructionList[i].opcode == OpCodes.Ldfld &&
+                 ((FieldInfo)instructionList[i].operand).Name == "_inverseWorldRotation")
+                {
+                    if (!foundInverseRotation)
+                    {
+                        foundInverseRotation = true;
+                        continue;
+                    }
+                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _convertQuaternion));
                 }
                 if (!foundZOffset &&
                     instructionList[i].operand is Label &&
@@ -85,11 +97,18 @@ namespace NoodleExtensions.HarmonyPatches
             }
         }
 
-        // This method is necessary in order to rotate the parent transform without screwing with the rotateObject's up
+        // These methods are necessary in order to rotate the parent transform without screwing with the rotateObject's up
         // (This is something that beat games should be doing tbh)
         private static Vector3 ConvertToLocalSpace(Transform rotatedObject)
         {
-            return rotatedObject.parent.InverseTransformDirection(rotatedObject.up); ;
+            return rotatedObject.parent.InverseTransformDirection(rotatedObject.up);
+        }
+
+        private static Quaternion ConvertQuaternion(Quaternion source)
+        {
+            Vector3 euler = source.eulerAngles;
+            euler.z = 0;
+            return Quaternion.Euler(euler);
         }
     }
 }

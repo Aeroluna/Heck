@@ -1,5 +1,6 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,32 +24,36 @@ namespace NoodleExtensions.Animation
                     float duration = (float?)Trees.at(customEventData.data, DURATION) ?? 0f;
                     duration = (60f * duration) / instance.beatmapObjectSpawnController.currentBPM; // Convert to real time;
 
+                    string easingString = (string)Trees.at(customEventData.data, EASING);
+                    Functions easing = Functions.easeLinear;
+                    if (easingString != null) easing = (Functions)Enum.Parse(typeof(Functions), easingString);
+
                     GetAllPointData(customEventData.data, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation, out PointData dissolve, out PointData dissolveArrow);
 
                     if (_activeCoroutines.TryGetValue(track, out Coroutine coroutine) && coroutine != null) instance.StopCoroutine(coroutine);
-                    _activeCoroutines[track] = instance.StartCoroutine(AnimateTrackCoroutine(position, rotation, scale, localRotation, dissolve, dissolveArrow, duration, customEventData.time, track));
+                    _activeCoroutines[track] = instance.StartCoroutine(AnimateTrackCoroutine(position, rotation, scale, localRotation, dissolve, dissolveArrow, duration, customEventData.time, track, easing));
+                    // TODO: Implement better way of stopping active coroutines
                 }
             }
         }
 
         private static IEnumerator AnimateTrackCoroutine(PointData position, PointData rotation, PointData scale, PointData localRotation, PointData dissolve, PointData dissolveArrow,
-            float duration, float startTime, Track track)
+            float duration, float startTime, Track track, Functions easing)
         {
-            float elapsedTime = -1;
-            while (elapsedTime < duration)
+            while (true)
             {
-                elapsedTime = instance.customEventCallbackController._audioTimeSource.songTime - startTime;
-                float time = Mathf.Min(elapsedTime / duration, 1f);
+                float elapsedTime = instance.customEventCallbackController._audioTimeSource.songTime - startTime;
+                float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
                 if (position != null) track._position = position.Interpolate(time);
                 if (rotation != null) track._rotation = rotation.InterpolateQuaternion(time);
                 if (scale != null) track._scale = scale.Interpolate(time);
                 if (localRotation != null) track._localRotation = localRotation.InterpolateQuaternion(time);
                 if (dissolve != null) track._dissolve = dissolve.InterpolateLinear(time);
                 if (dissolveArrow != null) track._dissolveArrow = dissolveArrow.InterpolateLinear(time);
-                yield return null;
+
+                if (elapsedTime < duration) yield return null;
+                else break;
             }
-            _activeCoroutines.Remove(track);
-            yield break;
         }
     }
 }

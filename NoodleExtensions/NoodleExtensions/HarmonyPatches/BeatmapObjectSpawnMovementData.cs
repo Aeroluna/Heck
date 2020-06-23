@@ -24,7 +24,7 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("GetObstacleSpawnMovementData")]
     internal class BeatmapObjectSpawnMovementDataGetObstacleSpawnMovementData
     {
-        private static void Postfix(ObstacleData obstacleData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float obstacleHeight)
+        private static void Postfix(Vector3 ____centerPos, ObstacleData obstacleData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float obstacleHeight)
         {
             if (obstacleData is CustomObstacleData customData)
             {
@@ -65,7 +65,7 @@ namespace NoodleExtensions.HarmonyPatches
                     finalNoteOffset = noteOffset;
                 }
 
-                dynData.noteOffset = finalNoteOffset.Value;
+                dynData.noteOffset = ____centerPos + finalNoteOffset.Value;
                 float? width = scale?.ElementAtOrDefault(0);
                 dynData.xOffset = (width.GetValueOrDefault(obstacleData.lineIndex) / 2f - 0.5f) * _noteLinesDistance;
             }
@@ -76,7 +76,7 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("GetNoteSpawnMovementData")]
     internal class BeatmapObjectSpawnMovementDataGetNoteSpawnMovementData
     {
-        private static void Postfix(NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float jumpGravity)
+        private static void Postfix(BeatmapObjectSpawnMovementData __instance, Vector3 ____centerPos, float ____jumpDuration, NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float jumpGravity)
         {
             if (noteData is CustomNoteData customData)
             {
@@ -89,9 +89,12 @@ namespace NoodleExtensions.HarmonyPatches
                 float? startRow = position?.ElementAtOrDefault(0);
                 float? startHeight = position?.ElementAtOrDefault(1);
 
+                float jumpDuration = ____jumpDuration;
+
                 if (position != null || flipLineIndex != null || njs.HasValue || spawnoffset.HasValue)
                 {
-                    GetNoteJumpValues(njs, spawnoffset, out float _, out float localJumpDistance, out Vector3 localMoveStartPos, out Vector3 localMoveEndPos, out Vector3 localJumpEndPos);
+                    GetNoteJumpValues(njs, spawnoffset, out float localJumpDuration, out float localJumpDistance, out Vector3 localMoveStartPos, out Vector3 localMoveEndPos, out Vector3 localJumpEndPos);
+                    jumpDuration = localJumpDuration;
 
                     float localNoteJumpMovementSpeed = njs ?? _noteJumpMovementSpeed;
 
@@ -99,11 +102,11 @@ namespace NoodleExtensions.HarmonyPatches
                     // we avoid some math where the base game avoids spawning stacked notes together
                     Vector3 noteOffset = GetNoteOffset(noteData, startRow, (float)NoteLineLayer.Base);
 
-                    float startLayerLineYPos = beatmapObjectSpawnMovementData.LineYPosForLineLayer(NoteLineLayer.Base);
+                    float startLayerLineYPos = __instance.LineYPosForLineLayer(NoteLineLayer.Base);
                     float lineYPos = LineYPosForLineLayer(noteData, startHeight);
                     // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
                     float highestJump = startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + _jumpOffsetY :
-                        beatmapObjectSpawnMovementData.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
+                        __instance.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
                     jumpGravity = 2f * (highestJump - startLayerLineYPos) /
                         Mathf.Pow(localJumpDistance / localNoteJumpMovementSpeed * 0.5f, 2f);
 
@@ -115,7 +118,12 @@ namespace NoodleExtensions.HarmonyPatches
                     moveEndPos = localMoveEndPos + noteOffset2;
                 }
 
-                dynData.noteOffset = GetNoteOffset(noteData, startRow, startHeight);
+                // DEFINITE POSITION IS WEIRD, OK?
+                // ty reaxt
+                float startVerticalVelocity = jumpGravity * jumpDuration * 0.5f;
+                float num = jumpDuration * 0.5f;
+                float YOffset = startVerticalVelocity * num - jumpGravity * num * num * 0.5f;
+                dynData.noteOffset = ____centerPos + GetNoteOffset(noteData, startRow, (float)NoteLineLayer.Base) + new Vector3(0, YOffset, 0);
             }
         }
     }
