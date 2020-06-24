@@ -1,12 +1,7 @@
-﻿using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
-using System;
+﻿using CustomJSONData.CustomBeatmap;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using static NoodleExtensions.Animation.AnimationController;
-using static NoodleExtensions.Animation.AnimationHelper;
-using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.Animation
 {
@@ -26,14 +21,16 @@ namespace NoodleExtensions.Animation
             {
                 float elapsedTime = instance.customEventCallbackController._audioTimeSource.songTime - startTime;
                 float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
-                switch(property._propertyType)
+                switch (property._propertyType)
                 {
                     case PropertyType.Linear:
                         property._property = points.InterpolateLinear(time);
                         break;
+
                     case PropertyType.Vector3:
                         property._property = points.Interpolate(time);
                         break;
+
                     case PropertyType.Quaternion:
                         property._property = points.InterpolateQuaternion(time);
                         break;

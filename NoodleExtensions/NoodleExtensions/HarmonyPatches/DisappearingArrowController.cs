@@ -1,15 +1,4 @@
-﻿using CustomJSONData;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Linq;
-using CustomJSONData.CustomBeatmap;
-using static NoodleExtensions.Plugin;
-using HarmonyLib;
-
-namespace NoodleExtensions.HarmonyPatches
+﻿namespace NoodleExtensions.HarmonyPatches
 {
     [NoodlePatch(typeof(DisappearingArrowController))]
     [NoodlePatch("SetArrowTransparency")]

@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections;
+﻿using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static NoodleExtensions.Animation.AnimationController;
 using static NoodleExtensions.Animation.AnimationHelper;
 using static NoodleExtensions.Plugin;
-using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
 
 namespace NoodleExtensions.Animation
 {
@@ -40,9 +37,11 @@ namespace NoodleExtensions.Animation
                     case EventType.AnimateTrack:
                         properties = track._properties;
                         break;
+
                     case EventType.AssignPathAnimation:
                         properties = track._pathProperties;
                         break;
+
                     default:
                         return;
                 }
@@ -66,6 +65,7 @@ namespace NoodleExtensions.Animation
                             case EventType.AnimateTrack:
                                 property._coroutine = instance.StartCoroutine(AnimateTrack.AnimateTrackCoroutine(pointData, property, duration, customEventData.time, easing));
                                 break;
+
                             case EventType.AssignPathAnimation:
                                 ((PointDataInterpolation)property._property).Init(pointData);
                                 property._coroutine = instance.StartCoroutine(AssignPathAnimation.AssignPathAnimationCoroutine(property, duration, customEventData.time, easing));

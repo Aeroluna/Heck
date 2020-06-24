@@ -1,14 +1,12 @@
 ﻿using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using IPA.Utilities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static NoodleExtensions.NullableExtensions;
 using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
+using static NoodleExtensions.NullableExtensions;
 using static NoodleExtensions.Plugin;
-using static NoodleExtensions.Animation.AnimationController;
 
 namespace NoodleExtensions.Animation
 {
@@ -93,10 +91,13 @@ namespace NoodleExtensions.Animation
             {
                 case PropertyType.Linear:
                     return pointDataInterpolation.InterpolateLinear(time);
+
                 case PropertyType.Quaternion:
                     return pointDataInterpolation.InterpolateQuaternion(time);
+
                 case PropertyType.Vector3:
                     return pointDataInterpolation.Interpolate(time);
+
                 default:
                     return null;
             }

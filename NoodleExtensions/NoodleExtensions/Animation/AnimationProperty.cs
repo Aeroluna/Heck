@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace NoodleExtensions.Animation
 {
@@ -14,7 +9,8 @@ namespace NoodleExtensions.Animation
         Linear
     }
 
-    public class Property {
+    public class Property
+    {
         public PropertyType _propertyType;
         public Coroutine _coroutine;
         public object _property;

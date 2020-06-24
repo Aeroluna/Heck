@@ -90,7 +90,33 @@ namespace NoodleExtensions.HarmonyPatches
             List<CustomNoteData> customNotes = notes.Cast<CustomNoteData>().ToList();
 
             ProcessFlipData(customNotes, false);
+
+            _numberOfNotesInLines.Clear();
+            for (int i = 0; i < customNotes.Count; i++)
+            {
+                CustomNoteData noteData = customNotes[i];
+                dynamic dynData = noteData.customData;
+
+                IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
+                float lineIndex = position?.ElementAt(0) ?? noteData.lineIndex;
+                float lineLayer = position?.ElementAt(1) ?? (float)noteData.noteLineLayer;
+                if (_numberOfNotesInLines.TryGetValue(lineIndex, out float num))
+                {
+                    Dictionary<float, float> numberOfNotesInLines = _numberOfNotesInLines;
+                    float num2 = Math.Max(numberOfNotesInLines[lineIndex], 0) + Math.Min(lineLayer, 1);
+                    dynData.startNoteLineLayer = num2;
+                    numberOfNotesInLines[lineIndex] = num2;
+                }
+                else
+                {
+                    float startLineLayer = Math.Min(lineLayer, 0);
+                    _numberOfNotesInLines[lineIndex] = startLineLayer;
+                    dynData.startNoteLineLayer = startLineLayer;
+                }
+            }
         }
+
+        private static Dictionary<float, float> _numberOfNotesInLines = new Dictionary<float, float>();
     }
 
     [HarmonyPatch(typeof(BeatmapDataLoader))]

@@ -85,6 +85,7 @@ namespace NoodleExtensions.HarmonyPatches
                 float? flipLineIndex = (float?)Trees.at(dynData, "flipLineIndex");
                 float? njs = (float?)Trees.at(dynData, NOTEJUMPSPEED);
                 float? spawnoffset = (float?)Trees.at(dynData, SPAWNOFFSET);
+                float startlinelayer = (float?)Trees.at(dynData, "startNoteLineLayer") ?? (float)NoteLineLayer.Base;
 
                 float? startRow = position?.ElementAtOrDefault(0);
                 float? startHeight = position?.ElementAtOrDefault(1);
@@ -100,9 +101,9 @@ namespace NoodleExtensions.HarmonyPatches
 
                     // NoteLineLayer.Base == noteData.startNoteLineLayer
                     // we avoid some math where the base game avoids spawning stacked notes together
-                    Vector3 noteOffset = GetNoteOffset(noteData, startRow, (float)NoteLineLayer.Base);
+                    Vector3 noteOffset = GetNoteOffset(noteData, startRow, startlinelayer);
 
-                    float startLayerLineYPos = __instance.LineYPosForLineLayer(NoteLineLayer.Base);
+                    float startLayerLineYPos = LineYPosForLineLayer(noteData, startlinelayer);
                     float lineYPos = LineYPosForLineLayer(noteData, startHeight);
                     // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
                     float highestJump = startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + _jumpOffsetY :
@@ -113,7 +114,7 @@ namespace NoodleExtensions.HarmonyPatches
                     jumpEndPos = localJumpEndPos + noteOffset;
 
                     // IsBasicNote() check is skipped so bombs can flip too
-                    Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? startRow, (float)NoteLineLayer.Base);
+                    Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? startRow, startlinelayer);
                     moveStartPos = localMoveStartPos + noteOffset2;
                     moveEndPos = localMoveEndPos + noteOffset2;
                 }

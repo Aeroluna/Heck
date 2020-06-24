@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System;
-using System.Dynamic;
-using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
 
 namespace NoodleExtensions.Animation
 {

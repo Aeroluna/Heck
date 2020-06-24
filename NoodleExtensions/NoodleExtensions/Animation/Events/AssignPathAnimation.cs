@@ -1,12 +1,7 @@
-﻿using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
-using System;
+﻿using CustomJSONData.CustomBeatmap;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using static NoodleExtensions.Animation.AnimationController;
-using static NoodleExtensions.Animation.AnimationHelper;
-using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions.Animation
 {
@@ -23,7 +18,7 @@ namespace NoodleExtensions.Animation
         internal static IEnumerator AssignPathAnimationCoroutine(Property property, float duration, float startTime, Functions easing)
         {
             PointDataInterpolation pointDataInterpolation = property._property as PointDataInterpolation;
-            while(true)
+            while (true)
             {
                 float elapsedTime = instance.customEventCallbackController._audioTimeSource.songTime - startTime;
                 pointDataInterpolation._time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
