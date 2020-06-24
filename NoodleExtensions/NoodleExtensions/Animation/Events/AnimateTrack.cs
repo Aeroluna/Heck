@@ -12,44 +12,32 @@ namespace NoodleExtensions.Animation
 {
     internal class AnimateTrack
     {
-        private static Dictionary<Track, Coroutine> _activeCoroutines = new Dictionary<Track, Coroutine>();
-
         internal static void Callback(CustomEventData customEventData)
         {
             if (customEventData.type == "AnimateTrack")
             {
-                Track track = GetTrack(customEventData.data);
-                if (track != null)
-                {
-                    float duration = (float?)Trees.at(customEventData.data, DURATION) ?? 0f;
-                    duration = (60f * duration) / instance.beatmapObjectSpawnController.currentBPM; // Convert to real time;
-
-                    string easingString = (string)Trees.at(customEventData.data, EASING);
-                    Functions easing = Functions.easeLinear;
-                    if (easingString != null) easing = (Functions)Enum.Parse(typeof(Functions), easingString);
-
-                    GetAllPointData(customEventData.data, out PointData position, out PointData rotation, out PointData scale, out PointData localRotation, out PointData dissolve, out PointData dissolveArrow);
-
-                    if (_activeCoroutines.TryGetValue(track, out Coroutine coroutine) && coroutine != null) instance.StopCoroutine(coroutine);
-                    _activeCoroutines[track] = instance.StartCoroutine(AnimateTrackCoroutine(position, rotation, scale, localRotation, dissolve, dissolveArrow, duration, customEventData.time, track, easing));
-                    // TODO: Implement better way of stopping active coroutines
-                }
+                EventHelper.StartEventCoroutine(customEventData, EventType.AnimateTrack);
             }
         }
 
-        private static IEnumerator AnimateTrackCoroutine(PointData position, PointData rotation, PointData scale, PointData localRotation, PointData dissolve, PointData dissolveArrow,
-            float duration, float startTime, Track track, Functions easing)
+        internal static IEnumerator AnimateTrackCoroutine(PointData points, Property property, float duration, float startTime, Functions easing)
         {
             while (true)
             {
                 float elapsedTime = instance.customEventCallbackController._audioTimeSource.songTime - startTime;
                 float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
-                if (position != null) track._position = position.Interpolate(time);
-                if (rotation != null) track._rotation = rotation.InterpolateQuaternion(time);
-                if (scale != null) track._scale = scale.Interpolate(time);
-                if (localRotation != null) track._localRotation = localRotation.InterpolateQuaternion(time);
-                if (dissolve != null) track._dissolve = dissolve.InterpolateLinear(time);
-                if (dissolveArrow != null) track._dissolveArrow = dissolveArrow.InterpolateLinear(time);
+                switch(property._propertyType)
+                {
+                    case PropertyType.Linear:
+                        property._property = points.InterpolateLinear(time);
+                        break;
+                    case PropertyType.Vector3:
+                        property._property = points.Interpolate(time);
+                        break;
+                    case PropertyType.Quaternion:
+                        property._property = points.InterpolateQuaternion(time);
+                        break;
+                }
 
                 if (elapsedTime < duration) yield return null;
                 else break;

@@ -51,6 +51,8 @@ namespace NoodleExtensions
         {
             Logger.logger = pluginLogger;
             NoodleController.InitNoodlePatches();
+
+            Animation.TrackManager.trackWasCreated += Animation.AnimationHelper.AddTrackProperties;
         }
 
         internal static readonly Harmony coreharmony = new Harmony(HARMONYID_CORE);
@@ -72,6 +74,8 @@ namespace NoodleExtensions
             SongCore.Collections.DeregisterizeCapability(CAPABILITY);
             coreharmony.UnpatchAll(HARMONYID_CORE);
             coreharmony.UnpatchAll(HARMONYID);
+
+            CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit -= Animation.AnimationController.CustomEventCallbackInit;
         }
     }
 }

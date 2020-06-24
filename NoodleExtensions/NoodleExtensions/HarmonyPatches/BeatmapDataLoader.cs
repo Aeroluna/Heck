@@ -119,7 +119,7 @@ namespace NoodleExtensions.HarmonyPatches
 
                         // for epic tracks thing
                         string trackName = Trees.at(dynData, TRACK);
-                        if (trackName != null) dynData.track = trackManager.AddToTrack(trackName, beatmapObjectData);
+                        if (trackName != null) dynData.track = trackManager.AddToTrack(trackName);
                     }
                 }
                 customBeatmapData.customData.tracks = trackManager._tracks;

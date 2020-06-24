@@ -1,70 +1,44 @@
 ﻿using System.Collections.Generic;
+using System;
+using System.Dynamic;
 using UnityEngine;
 
 namespace NoodleExtensions.Animation
 {
-    internal class TrackManager
+    public class TrackManager
     {
+        public static event Action<Track> trackWasCreated;
+
         internal Dictionary<string, Track> _tracks { get; private set; } = new Dictionary<string, Track>();
 
-        internal Track AddToTrack(string trackName, BeatmapObjectData noteData)
+        internal Track AddToTrack(string trackName)
         {
             Track track;
             if (!_tracks.TryGetValue(trackName, out track))
             {
                 track = new Track();
+                trackWasCreated?.Invoke(track);
                 _tracks.Add(trackName, track);
             }
             return track;
         }
     }
 
-    internal class Track
+    public class Track
     {
-        internal Vector3? _position;
-
-        internal Quaternion? _rotation;
-        internal Vector3? _scale;
-        internal Quaternion? _localRotation;
-        internal float? _dissolve;
-        internal float? _dissolveArrow;
-
-        internal float _pathInterpolationTime = 0; // TODO: move this into PointDataInterpolation so that multiple AssignPathAnimation coroutines can run concurrently
-        internal PointDataInterpolation _pathPosition;
-        internal PointDataInterpolation _pathRotation;
-        internal PointDataInterpolation _pathScale;
-        internal PointDataInterpolation _pathLocalRotation;
-        internal PointDataInterpolation _pathDefinitePosition;
-        internal PointDataInterpolation _pathDissolve;
-        internal PointDataInterpolation _pathDissolveArrow;
-
-        internal Track()
-        {
-            _pathPosition = new PointDataInterpolation(this);
-            _pathRotation = new PointDataInterpolation(this);
-            _pathScale = new PointDataInterpolation(this);
-            _pathLocalRotation = new PointDataInterpolation(this);
-            _pathDefinitePosition = new PointDataInterpolation(this);
-            _pathDissolve = new PointDataInterpolation(this);
-            _pathDissolveArrow = new PointDataInterpolation(this);
-        }
+        public IDictionary<string, Property> _properties = new Dictionary<string, Property>();
+        public IDictionary<string, Property> _pathProperties = new Dictionary<string, Property>();
 
         internal void ResetVariables()
         {
-            _position = null;
-            _rotation = null;
-            _scale = null;
-            _localRotation = null;
-            _dissolve = null;
-            _dissolveArrow = null;
-            _pathInterpolationTime = 0;
-            _pathPosition = new PointDataInterpolation(this);
-            _pathRotation = new PointDataInterpolation(this);
-            _pathScale = new PointDataInterpolation(this);
-            _pathLocalRotation = new PointDataInterpolation(this);
-            _pathDefinitePosition = new PointDataInterpolation(this);
-            _pathDissolve = new PointDataInterpolation(this);
-            _pathDissolveArrow = new PointDataInterpolation(this);
+            foreach (KeyValuePair<string, Property> valuePair in _properties)
+            {
+                valuePair.Value._property = null;
+            }
+            foreach (KeyValuePair<string, Property> valuePair in _pathProperties)
+            {
+                valuePair.Value._property = new PointDataInterpolation();
+            }
         }
     }
 }

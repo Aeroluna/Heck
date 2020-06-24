@@ -10,14 +10,8 @@ using static NoodleExtensions.Plugin;
 
 namespace NoodleExtensions
 {
-    internal static class NoodleController
+    public static class NoodleController
     {
-        internal static float? ToNullableFloat(this object @this)
-        {
-            if (@this == null || @this == DBNull.Value) return null;
-            return Convert.ToSingle(@this);
-        }
-
         internal static void InitNoodlePatches()
         {
             if (NoodlePatches == null)

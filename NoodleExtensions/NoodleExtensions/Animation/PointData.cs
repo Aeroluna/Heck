@@ -18,7 +18,7 @@ namespace NoodleExtensions.Animation
         }
     }
 
-    internal class PointData
+    public class PointData
     {
         private List<Point> _points;
         private List<Point> _linearPoints;
@@ -48,7 +48,7 @@ namespace NoodleExtensions.Animation
                     float normalTime = (time - _points[i - 1]._point.w) / (_points[i]._point.w - _points[i - 1]._point.w);
                     normalTime = Easings.Interpolate(normalTime, _points[i]._easing);
                     if (_points[i]._smooth) return SmoothVectorLerp(_points, i - 1, i, normalTime);
-                    else return Vector3.Lerp(_points[i - 1]._point, _points[i]._point, normalTime);
+                    else return Vector3.LerpUnclamped(_points[i - 1]._point, _points[i]._point, normalTime);
                 }
             }
             return _points.Last()._point;
@@ -68,7 +68,7 @@ namespace NoodleExtensions.Animation
                     Quaternion quaternionTwo = Quaternion.Euler(_points[i]._point);
                     float normalTime = (time - _points[i - 1]._point.w) / (_points[i]._point.w - _points[i - 1]._point.w);
                     normalTime = Easings.Interpolate(normalTime, _points[i]._easing);
-                    return Quaternion.Lerp(quaternionOne, quaternionTwo, normalTime);
+                    return Quaternion.LerpUnclamped(quaternionOne, quaternionTwo, normalTime);
                 }
             }
             return Quaternion.Euler(_points.Last()._point);
@@ -87,7 +87,7 @@ namespace NoodleExtensions.Animation
                     if (i == 0) return _linearPoints.First()._linearPoint.x;
                     float normalTime = (time - _linearPoints[i - 1]._linearPoint.y) / (_linearPoints[i]._linearPoint.y - _linearPoints[i - 1]._linearPoint.y);
                     normalTime = Easings.Interpolate(normalTime, _linearPoints[i]._easing);
-                    return Mathf.Lerp(_linearPoints[i - 1]._linearPoint.x, _linearPoints[i]._linearPoint.x, normalTime);
+                    return Mathf.LerpUnclamped(_linearPoints[i - 1]._linearPoint.x, _linearPoints[i]._linearPoint.x, normalTime);
                 }
             }
             return _linearPoints.Last()._linearPoint.x;
@@ -196,37 +196,32 @@ namespace NoodleExtensions.Animation
     {
         internal PointData _basePointData;
         internal PointData _previousPointData;
-        internal Track _track;
-
-        // used to interpolate from one path animation to another
-        internal PointDataInterpolation(Track track)
-        {
-            _track = track;
-        }
+        internal float _time;
 
         internal Vector3? Interpolate(float time)
         {
             if (_basePointData == null) return null;
             if (_previousPointData == null) return _basePointData.Interpolate(time);
-            return Vector3.Lerp(_previousPointData.Interpolate(time), _basePointData.Interpolate(time), _track._pathInterpolationTime);
+            return Vector3.LerpUnclamped(_previousPointData.Interpolate(time), _basePointData.Interpolate(time), _time);
         }
 
         internal Quaternion? InterpolateQuaternion(float time)
         {
             if (_basePointData == null) return null;
             if (_previousPointData == null) return _basePointData.InterpolateQuaternion(time);
-            return Quaternion.Lerp(_previousPointData.InterpolateQuaternion(time), _basePointData.InterpolateQuaternion(time), _track._pathInterpolationTime);
+            return Quaternion.LerpUnclamped(_previousPointData.InterpolateQuaternion(time), _basePointData.InterpolateQuaternion(time), _time);
         }
 
         internal float? InterpolateLinear(float time)
         {
             if (_basePointData == null) return null;
             if (_previousPointData == null) return _basePointData.InterpolateLinear(time);
-            return Mathf.Lerp(_previousPointData.InterpolateLinear(time), _basePointData.InterpolateLinear(time), _track._pathInterpolationTime);
+            return Mathf.LerpUnclamped(_previousPointData.InterpolateLinear(time), _basePointData.InterpolateLinear(time), _time);
         }
 
         internal void Init(PointData newPointData)
         {
+            _time = 0;
             _previousPointData = _basePointData ?? new PointData();
             _basePointData = newPointData;
         }
