@@ -29,8 +29,8 @@ namespace Chroma.HarmonyPatches
                 && difficultyBeatmap.beatmapData.beatmapEventData.Any(n => n.value >= Events.ChromaLegacyRGBEvent.RGB_INT_OFFSET);
             if (ChromaBehaviour.LegacyOverride)
             {
-                ChromaLogger.Log("Legacy Chroma Detected...", ChromaLogger.Level.WARNING);
-                ChromaLogger.Log("Please do not use Legacy Chroma for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", ChromaLogger.Level.WARNING);
+                Logger.Log("Legacy Chroma Detected...", Logger.Level.WARNING);
+                Logger.Log("Please do not use Legacy Chroma for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", Logger.Level.WARNING);
             }
         }
     }

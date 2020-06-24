@@ -25,8 +25,8 @@ namespace Chroma.HarmonyPatches
             }
             catch (Exception e)
             {
-                ChromaLogger.Log("INVALID _customData", ChromaLogger.Level.WARNING);
-                ChromaLogger.Log(e);
+                Logger.Log("INVALID _customData", Logger.Level.WARNING);
+                Logger.Log(e);
             }
 
             if (!ColourManager.TechnicolourBlocks || ChromaConfig.TechnicolourBlocksStyle != ColourManager.TechnicolourStyle.GRADIENT)

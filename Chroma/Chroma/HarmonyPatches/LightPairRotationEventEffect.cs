@@ -83,7 +83,6 @@ namespace Chroma.HarmonyPatches
                     Vector3 _rotationVector = __instance.GetField<Vector3, LightPairRotationEventEffect>("_rotationVector");
                     if (beatmapEventData.value == 0)
                     {
-                        _rotationData.SetField("enabled", false, RotationData);
                         if (!lockPosition.Value)
                         {
                             _transform.localRotation = _startRotation;
@@ -91,8 +90,6 @@ namespace Chroma.HarmonyPatches
                     }
                     else
                     {
-                        _rotationData.SetField("enabled", true, RotationData);
-                        _rotationData.SetField("rotationSpeed", precisionSpeed * 20f * direction, RotationData);
                         if (!lockPosition.Value)
                         {
                             _transform.localRotation = _startRotation;
@@ -100,13 +97,23 @@ namespace Chroma.HarmonyPatches
                         }
                     }
 
+                    if (precisionSpeed == 0)
+                    {
+                        _rotationData.SetField("enabled", false, RotationData);
+                    }
+                    else
+                    {
+                        _rotationData.SetField("enabled", true, RotationData);
+                        _rotationData.SetField("rotationSpeed", precisionSpeed * 20f * direction, RotationData);
+                    }
+
                     return false;
                 }
             }
             catch (Exception e)
             {
-                ChromaLogger.Log("INVALID _customData", ChromaLogger.Level.WARNING);
-                ChromaLogger.Log(e);
+                Logger.Log("INVALID _customData", Logger.Level.WARNING);
+                Logger.Log(e);
             }
 
             return true;

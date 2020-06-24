@@ -68,8 +68,8 @@ namespace Chroma.HarmonyPatches
             }
             catch (Exception e)
             {
-                ChromaLogger.Log("INVALID _customData", ChromaLogger.Level.WARNING);
-                ChromaLogger.Log(e);
+                Logger.Log("INVALID _customData", Logger.Level.WARNING);
+                Logger.Log(e);
             }
 
             if (c.HasValue)

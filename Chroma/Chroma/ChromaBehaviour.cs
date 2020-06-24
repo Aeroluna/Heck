@@ -109,7 +109,7 @@ namespace Chroma
                             }
                         }
                     }
-
+                    /*
                     Dictionary<string, List<CustomEventData>> _customEventData = _customBeatmap.customEventData;
                     foreach (KeyValuePair<string, List<CustomEventData>> n in _customEventData)
                     {
@@ -131,7 +131,7 @@ namespace Chroma
                                 ChromaLightColourEvent.Activate(n.Value);
                                 break;
                         }
-                    }
+                    }*/
                 }
             }
 

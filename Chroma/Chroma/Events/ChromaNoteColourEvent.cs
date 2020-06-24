@@ -36,8 +36,8 @@ namespace Chroma.Events
                 }
                 catch (Exception e)
                 {
-                    ChromaLogger.Log("INVALID CUSTOM EVENT", ChromaLogger.Level.WARNING);
-                    ChromaLogger.Log(e);
+                    Logger.Log("INVALID CUSTOM EVENT", Logger.Level.WARNING);
+                    Logger.Log(e);
                 }
             }
         }
@@ -54,7 +54,7 @@ namespace Chroma.Events
                 else if (SavedNoteColours.TryGetValue(noteController, out Color c)) color = c;
                 else
                 {
-                    ChromaLogger.Log("SavedNoteColour not found!", ChromaLogger.Level.WARNING);
+                    Logger.Log("SavedNoteColour not found!", Logger.Level.WARNING);
                     return;
                 }
                 foreach (SaberColourizer saber in SaberColourizer.saberColourizers)

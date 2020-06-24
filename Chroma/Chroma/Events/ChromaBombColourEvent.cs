@@ -25,8 +25,8 @@ namespace Chroma.Events
                 }
                 catch (Exception e)
                 {
-                    ChromaLogger.Log("INVALID CUSTOM EVENT", ChromaLogger.Level.WARNING);
-                    ChromaLogger.Log(e);
+                    Logger.Log("INVALID CUSTOM EVENT", Logger.Level.WARNING);
+                    Logger.Log(e);
                 }
             }
         }

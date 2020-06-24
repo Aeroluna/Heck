@@ -109,9 +109,9 @@
     <Reference Include="Colors">
       <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Colors.dll</HintPath>
     </Reference>
-    <Reference Include="CustomJSONData, Version=0.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CustomJSONData, Version=0.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\CustomJSONData.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\CustomJSONData.dll</HintPath>
     </Reference>
     <Reference Include="HMLib">
       <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\HMLib.dll</HintPath>

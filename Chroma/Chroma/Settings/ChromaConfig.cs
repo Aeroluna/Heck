@@ -447,7 +447,7 @@ namespace Chroma.Settings
 
         internal static void LoadSettings(LoadSettingsType type)
         {
-            ChromaLogger.Log("Loading settings [" + type.ToString() + "]", ChromaLogger.Level.INFO);
+            Logger.Log("Loading settings [" + type.ToString() + "]", Logger.Level.INFO);
 
             string iniName = "settings";
             IniProfile = new BS_Utils.Utilities.Config("Chroma/Preferences/" + iniName);

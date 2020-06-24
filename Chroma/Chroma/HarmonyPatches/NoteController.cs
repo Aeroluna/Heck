@@ -46,15 +46,18 @@ namespace Chroma.HarmonyPatches
                 }
                 catch (Exception e)
                 {
-                    ChromaLogger.Log("INVALID _customData", ChromaLogger.Level.WARNING);
-                    ChromaLogger.Log(e);
+                    Logger.Log("INVALID _customData", Logger.Level.WARNING);
+                    Logger.Log(e);
                 }
 
-                if (c.HasValue)
+                if (!c.HasValue)
                 {
-                    Material mat = __instance.noteTransform.gameObject.GetComponent<Renderer>().material;
-                    mat.SetColor("_SimpleColor", c.Value);
+                    // I shouldn't hard code this... but i can't be bothered to not atm
+                    c = new Color(0.251f, 0.251f, 0.251f, 0);
                 }
+
+                Material mat = __instance.noteTransform.gameObject.GetComponent<Renderer>().material;
+                mat.SetColor("_SimpleColor", c.Value);
             }
         }
     }
