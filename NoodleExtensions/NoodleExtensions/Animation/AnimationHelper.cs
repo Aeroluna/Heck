@@ -72,25 +72,30 @@
             }
 
             dynamic pointString = Trees.at(customData, pointName);
-            if (pointString is PointDefinition castedData)
+            switch (pointString)
             {
-                pointData = castedData;
-            }
-            else if (pointString is string)
-            {
-                if (!pointDefinitions.TryGetValue(pointString, out pointData))
-                {
-                    NoodleLogger.Log($"Could not find point definition {pointString}!", IPA.Logging.Logger.Level.Error);
+                case null:
                     pointData = null;
-                }
-            }
-            else
-            {
-                pointData = PointDefinition.DynamicToPointData(pointString);
-                if (pointData != null)
-                {
-                    ((IDictionary<string, object>)customData)[pointName] = pointData;
-                }
+                    break;
+                case PointDefinition castedData:
+                    pointData = castedData;
+                    break;
+                case string castedString:
+                    if (!pointDefinitions.TryGetValue(castedString, out pointData))
+                    {
+                        NoodleLogger.Log($"Could not find point definition {castedString}!", IPA.Logging.Logger.Level.Error);
+                        pointData = null;
+                    }
+
+                    break;
+                default:
+                    pointData = PointDefinition.DynamicToPointData(pointString);
+                    if (pointData != null)
+                    {
+                        ((IDictionary<string, object>)customData)[pointName] = pointData;
+                    }
+
+                    break;
             }
         }
 

@@ -67,16 +67,32 @@
                             Instance.StopCoroutine(property.Coroutine);
                         }
 
-                        switch (eventType)
+                        if (pointData == null)
                         {
-                            case EventType.AnimateTrack:
-                                property.Coroutine = Instance.StartCoroutine(AnimateTrack.AnimateTrackCoroutine(pointData, property, duration, customEventData.time, easing));
-                                break;
+                            switch (eventType)
+                            {
+                                case EventType.AnimateTrack:
+                                    property.Value = null;
+                                    break;
 
-                            case EventType.AssignPathAnimation:
-                                ((PointDefinitionInterpolation)property.Value).Init(pointData);
-                                property.Coroutine = Instance.StartCoroutine(AssignPathAnimation.AssignPathAnimationCoroutine(property, duration, customEventData.time, easing));
-                                break;
+                                case EventType.AssignPathAnimation:
+                                    ((PointDefinitionInterpolation)property.Value).Init(null);
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            switch (eventType)
+                            {
+                                case EventType.AnimateTrack:
+                                    property.Coroutine = Instance.StartCoroutine(AnimateTrack.AnimateTrackCoroutine(pointData, property, duration, customEventData.time, easing));
+                                    break;
+
+                                case EventType.AssignPathAnimation:
+                                    ((PointDefinitionInterpolation)property.Value).Init(pointData);
+                                    property.Coroutine = Instance.StartCoroutine(AssignPathAnimation.AssignPathAnimationCoroutine(property, duration, customEventData.time, easing));
+                                    break;
+                            }
                         }
                     }
                 }
