@@ -1,15 +1,17 @@
-﻿using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
-using static NoodleExtensions.Plugin;
-
-namespace NoodleExtensions.HarmonyPatches
+﻿namespace NoodleExtensions.HarmonyPatches
 {
+    using CustomJSONData;
+    using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
+    using static NoodleExtensions.Plugin;
+
     [HarmonyPatch(typeof(BeatDataMirrorTransform))]
     [HarmonyPatch("CreateTransformedData")]
     internal class BeatDataMirrorTransformCreateTransformedData
     {
+#pragma warning disable SA1313
         private static void Postfix(BeatmapData __result)
+#pragma warning restore SA1313
         {
             for (int num5 = 0; num5 < __result.beatmapEventData.Length; num5++)
             {
@@ -21,7 +23,10 @@ namespace NoodleExtensions.HarmonyPatches
                         dynamic dynData = customData.customData;
                         float? rotation = (float?)Trees.at(dynData, ROTATION);
 
-                        if (rotation.HasValue) dynData._rotation = rotation * -1;
+                        if (rotation.HasValue)
+                        {
+                            dynData._rotation = rotation * -1;
+                        }
                     }
                 }
             }

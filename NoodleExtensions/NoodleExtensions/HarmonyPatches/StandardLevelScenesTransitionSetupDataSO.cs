@@ -1,16 +1,16 @@
-﻿using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static NoodleExtensions.Plugin;
-
-namespace NoodleExtensions.HarmonyPatches
+﻿namespace NoodleExtensions.HarmonyPatches
 {
-    [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO),
-        new Type[] { typeof(IDifficultyBeatmap), typeof(OverrideEnvironmentSettings), typeof(ColorScheme), typeof(GameplayModifiers),
-            typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(string), typeof(bool)})]
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using CustomJSONData;
+    using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
+    using static NoodleExtensions.Plugin;
+
+    [HarmonyPatch(
+        typeof(StandardLevelScenesTransitionSetupDataSO),
+        new Type[] { typeof(IDifficultyBeatmap), typeof(OverrideEnvironmentSettings), typeof(ColorScheme), typeof(GameplayModifiers), typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(string), typeof(bool) })]
     [HarmonyPatch("Init")]
     internal class StandardLevelScenesTransitionSetupDataSOInit
     {

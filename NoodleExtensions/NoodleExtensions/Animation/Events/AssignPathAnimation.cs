@@ -1,10 +1,10 @@
-﻿using CustomJSONData.CustomBeatmap;
-using System.Collections;
-using UnityEngine;
-using static NoodleExtensions.Animation.AnimationController;
-
-namespace NoodleExtensions.Animation
+﻿namespace NoodleExtensions.Animation
 {
+    using System.Collections;
+    using CustomJSONData.CustomBeatmap;
+    using UnityEngine;
+    using static NoodleExtensions.Animation.AnimationController;
+
     internal class AssignPathAnimation
     {
         internal static void Callback(CustomEventData customEventData)
@@ -17,14 +17,20 @@ namespace NoodleExtensions.Animation
 
         internal static IEnumerator AssignPathAnimationCoroutine(Property property, float duration, float startTime, Functions easing)
         {
-            PointDataInterpolation pointDataInterpolation = property._property as PointDataInterpolation;
+            PointDefinitionInterpolation pointDataInterpolation = property.Value as PointDefinitionInterpolation;
             while (true)
             {
-                float elapsedTime = instance.customEventCallbackController._audioTimeSource.songTime - startTime;
-                pointDataInterpolation._time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
+                float elapsedTime = Instance.CustomEventCallbackController._audioTimeSource.songTime - startTime;
+                pointDataInterpolation.Time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
 
-                if (elapsedTime < duration) yield return null;
-                else break;
+                if (elapsedTime < duration)
+                {
+                    yield return null;
+                }
+                else
+                {
+                    break;
+                }
             }
 
             pointDataInterpolation.Finish();

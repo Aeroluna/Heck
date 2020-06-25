@@ -1,19 +1,17 @@
-﻿using HarmonyLib;
-using IPA;
-using System.Reflection;
-using UnityEngine;
-using IPALogger = IPA.Logging.Logger;
-
-namespace NoodleExtensions
+﻿namespace NoodleExtensions
 {
+    using System.Reflection;
+    using HarmonyLib;
+    using IPA;
+    using UnityEngine;
+    using IPALogger = IPA.Logging.Logger;
+
     [Plugin(RuntimeOptions.DynamicInit)]
     internal class Plugin
     {
         internal const string CAPABILITY = "Noodle Extensions";
-        internal const string HARMONYID_CORE = "com.noodle.BeatSaber.NoodleExtensionsCore";
+        internal const string HARMONYIDCORE = "com.noodle.BeatSaber.NoodleExtensionsCore";
         internal const string HARMONYID = "com.noodle.BeatSaber.NoodleExtensions";
-
-        #region fun notes
 
         internal const string POSITION = "_position";
         internal const string ROTATION = "_rotation";
@@ -41,29 +39,27 @@ namespace NoodleExtensions
 
         internal const string TRACK = "_track";
 
-        #endregion fun notes
+        internal static readonly Vector3 VectorZero = Vector3.zero;
+        internal static readonly Quaternion QuaternionIdentity = Quaternion.identity;
 
-        internal static readonly Vector3 _vectorZero = Vector3.zero;
-        internal static readonly Quaternion _quaternionIdentity = Quaternion.identity;
+        internal static readonly Harmony HarmonyInstanceCore = new Harmony(HARMONYIDCORE);
+        internal static readonly Harmony HarmonyInstance = new Harmony(HARMONYID);
 
         [Init]
         public void Init(IPALogger pluginLogger)
         {
-            Logger.logger = pluginLogger;
+            NoodleLogger.IPAlogger = pluginLogger;
             NoodleController.InitNoodlePatches();
 
-            Animation.TrackManager.trackWasCreated += Animation.AnimationHelper.AddTrackProperties;
+            Animation.TrackManager.TrackWasCreated += Animation.AnimationHelper.AddTrackProperties;
         }
-
-        internal static readonly Harmony coreharmony = new Harmony(HARMONYID_CORE);
-        internal static readonly Harmony harmony = new Harmony(HARMONYID);
 
         [OnEnable]
         public void OnEnable()
         {
             SongCore.Collections.RegisterCapability(CAPABILITY);
-            coreharmony.PatchAll(Assembly.GetExecutingAssembly());
-            HarmonyPatches.BeatmapDataLoaderProcessNotesInTimeRow.PatchBeatmapDataLoader(coreharmony);
+            HarmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
+            HarmonyPatches.BeatmapDataLoaderProcessNotesInTimeRow.PatchBeatmapDataLoader(HarmonyInstanceCore);
 
             CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit += Animation.AnimationController.CustomEventCallbackInit;
         }
@@ -72,8 +68,8 @@ namespace NoodleExtensions
         public void OnDisable()
         {
             SongCore.Collections.DeregisterizeCapability(CAPABILITY);
-            coreharmony.UnpatchAll(HARMONYID_CORE);
-            coreharmony.UnpatchAll(HARMONYID);
+            HarmonyInstanceCore.UnpatchAll(HARMONYIDCORE);
+            HarmonyInstanceCore.UnpatchAll(HARMONYID);
 
             CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit -= Animation.AnimationController.CustomEventCallbackInit;
         }

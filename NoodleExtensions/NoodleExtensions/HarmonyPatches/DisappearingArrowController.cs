@@ -5,7 +5,9 @@
     internal class DisappearingArrowControllerSetArrowTransparency
     {
         // This makes _dissolveArrow work and I cannot figure out why
+#pragma warning disable SA1313
         private static void Postfix(CutoutEffect ____arrowCutoutEffect, float arrowTransparency)
+#pragma warning restore SA1313
         {
             ____arrowCutoutEffect.SetCutout(1f - arrowTransparency);
         }

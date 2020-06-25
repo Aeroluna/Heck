@@ -1,44 +1,48 @@
-﻿using System;
-using System.Reflection;
-
-namespace NoodleExtensions
+﻿namespace NoodleExtensions
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    internal class NoodlePatch : Attribute
-    {
-        internal Type declaringType { get; }
-        internal string methodName { get; }
-
-        internal NoodlePatch(Type declaringType)
-        {
-            this.declaringType = declaringType;
-        }
-
-        internal NoodlePatch(string methodName)
-        {
-            this.methodName = methodName;
-        }
-
-        internal NoodlePatch(Type declaringType, string methodName)
-        {
-            this.declaringType = declaringType;
-            this.methodName = methodName;
-        }
-    }
+    using System;
+    using System.Reflection;
 
     internal struct NoodlePatchData
     {
         internal NoodlePatchData(MethodInfo orig, MethodInfo pre, MethodInfo post, MethodInfo tran)
         {
-            originalMethod = orig;
-            prefix = pre;
-            postfix = post;
-            transpiler = tran;
+            OriginalMethod = orig;
+            Prefix = pre;
+            Postfix = post;
+            Transpiler = tran;
         }
 
-        internal MethodInfo originalMethod { get; }
-        internal MethodInfo prefix { get; }
-        internal MethodInfo postfix { get; }
-        internal MethodInfo transpiler { get; }
+        internal MethodInfo OriginalMethod { get; }
+
+        internal MethodInfo Prefix { get; }
+
+        internal MethodInfo Postfix { get; }
+
+        internal MethodInfo Transpiler { get; }
+    }
+
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    internal class NoodlePatch : Attribute
+    {
+        internal NoodlePatch(Type declaringType)
+        {
+            DeclaringType = declaringType;
+        }
+
+        internal NoodlePatch(string methodName)
+        {
+            MethodName = methodName;
+        }
+
+        internal NoodlePatch(Type declaringType, string methodName)
+        {
+            DeclaringType = declaringType;
+            MethodName = methodName;
+        }
+
+        internal Type DeclaringType { get; }
+
+        internal string MethodName { get; }
     }
 }

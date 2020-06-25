@@ -1,17 +1,19 @@
-﻿using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
-using System.Collections.Generic;
-using System.Linq;
-using static NoodleExtensions.Plugin;
-
-namespace NoodleExtensions.HarmonyPatches
+﻿namespace NoodleExtensions.HarmonyPatches
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using CustomJSONData;
+    using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
+    using static NoodleExtensions.Plugin;
+
     [HarmonyPatch(typeof(NoteData))]
     [HarmonyPatch("MirrorLineIndex")]
     internal class NoteDataMirrorLineIndex
     {
+#pragma warning disable SA1313
         private static void Postfix(NoteData __instance)
+#pragma warning restore SA1313
         {
             if (__instance is CustomNoteData customData)
             {
@@ -24,9 +26,20 @@ namespace NoodleExtensions.HarmonyPatches
 
                 IDictionary<string, object> dictdata = dynData as IDictionary<string, object>;
 
-                if (startRow.HasValue) dictdata[POSITION] = new List<object>() { ((startRow.Value + 0.5f) * -1) - 0.5f, position.ElementAtOrDefault(1) };
-                if (flipLineIndex.HasValue) dynData.flipLineIndex = ((flipLineIndex.Value + 0.5f) * -1) - 0.5f;
-                if (rotation.HasValue) dictdata[ROTATION] = rotation * -1;
+                if (startRow.HasValue)
+                {
+                    dictdata[POSITION] = new List<object>() { ((startRow.Value + 0.5f) * -1) - 0.5f, position.ElementAtOrDefault(1) };
+                }
+
+                if (flipLineIndex.HasValue)
+                {
+                    dynData.flipLineIndex = ((flipLineIndex.Value + 0.5f) * -1) - 0.5f;
+                }
+
+                if (rotation.HasValue)
+                {
+                    dictdata[ROTATION] = rotation * -1;
+                }
             }
         }
     }
@@ -35,7 +48,9 @@ namespace NoodleExtensions.HarmonyPatches
     [HarmonyPatch("MirrorTransformCutDirection")]
     internal class NoteDataMirrorTransformCutDirection
     {
+#pragma warning disable SA1313
         private static void Postfix(NoteData __instance)
+#pragma warning restore SA1313
         {
             if (__instance is CustomNoteData customData)
             {
@@ -44,7 +59,10 @@ namespace NoodleExtensions.HarmonyPatches
 
                 IDictionary<string, object> dictdata = dynData as IDictionary<string, object>;
 
-                if (rotation.HasValue) dictdata[CUTDIRECTION] = 360 - rotation.Value;
+                if (rotation.HasValue)
+                {
+                    dictdata[CUTDIRECTION] = 360 - rotation.Value;
+                }
             }
         }
     }

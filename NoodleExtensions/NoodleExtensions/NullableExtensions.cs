@@ -1,23 +1,39 @@
-﻿using System;
-using UnityEngine;
-using static NoodleExtensions.Plugin;
-
-namespace NoodleExtensions
+﻿namespace NoodleExtensions
 {
+    using System;
+    using UnityEngine;
+    using static NoodleExtensions.Plugin;
+
     public static class NullableExtensions
     {
         public static float? ToNullableFloat(this object @this)
         {
-            if (@this == null || @this == DBNull.Value) return null;
+            if (@this == null || @this == DBNull.Value)
+            {
+                return null;
+            }
+
             return Convert.ToSingle(@this);
         }
 
         public static Vector3? SumVectorNullables(Vector3? vectorOne, Vector3? vectorTwo)
         {
-            if (!vectorOne.HasValue && !vectorTwo.HasValue) return null;
-            Vector3 total = _vectorZero;
-            if (vectorOne.HasValue) total += vectorOne.Value;
-            if (vectorTwo.HasValue) total += vectorTwo.Value;
+            if (!vectorOne.HasValue && !vectorTwo.HasValue)
+            {
+                return null;
+            }
+
+            Vector3 total = VectorZero;
+            if (vectorOne.HasValue)
+            {
+                total += vectorOne.Value;
+            }
+
+            if (vectorTwo.HasValue)
+            {
+                total += vectorTwo.Value;
+            }
+
             return total;
         }
 
@@ -25,13 +41,20 @@ namespace NoodleExtensions
         {
             if (vectorOne.HasValue)
             {
-                if (vectorTwo.HasValue) return Vector3.Scale(vectorOne.Value, vectorTwo.Value);
-                else return vectorOne;
+                if (vectorTwo.HasValue)
+                {
+                    return Vector3.Scale(vectorOne.Value, vectorTwo.Value);
+                }
+                else
+                {
+                    return vectorOne;
+                }
             }
             else if (vectorTwo.HasValue)
             {
                 return vectorTwo;
             }
+
             return null;
         }
 
@@ -39,13 +62,20 @@ namespace NoodleExtensions
         {
             if (quaternionOne.HasValue)
             {
-                if (quaternionTwo.HasValue) return quaternionOne.Value * quaternionTwo.Value;
-                else return quaternionOne;
+                if (quaternionTwo.HasValue)
+                {
+                    return quaternionOne.Value * quaternionTwo.Value;
+                }
+                else
+                {
+                    return quaternionOne;
+                }
             }
             else if (quaternionTwo.HasValue)
             {
                 return quaternionTwo;
             }
+
             return null;
         }
 
@@ -53,13 +83,20 @@ namespace NoodleExtensions
         {
             if (floatOne.HasValue)
             {
-                if (floatTwo.HasValue) return floatOne.Value * floatTwo.Value;
-                else return floatOne;
+                if (floatTwo.HasValue)
+                {
+                    return floatOne.Value * floatTwo.Value;
+                }
+                else
+                {
+                    return floatOne;
+                }
             }
             else if (floatTwo.HasValue)
             {
                 return floatTwo;
             }
+
             return null;
         }
     }

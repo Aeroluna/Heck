@@ -1,41 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NoodleExtensions.Animation
+﻿namespace NoodleExtensions.Animation
 {
+    using System;
+    using System.Collections.Generic;
+
     public class TrackManager
     {
-        public static event Action<Track> trackWasCreated;
+        public static event Action<Track> TrackWasCreated;
 
-        internal Dictionary<string, Track> _tracks { get; private set; } = new Dictionary<string, Track>();
+        internal Dictionary<string, Track> Tracks { get; private set; } = new Dictionary<string, Track>();
 
         internal Track AddToTrack(string trackName)
         {
             Track track;
-            if (!_tracks.TryGetValue(trackName, out track))
+            if (!Tracks.TryGetValue(trackName, out track))
             {
                 track = new Track();
-                trackWasCreated?.Invoke(track);
-                _tracks.Add(trackName, track);
+                TrackWasCreated?.Invoke(track);
+                Tracks.Add(trackName, track);
             }
+
             return track;
         }
     }
 
     public class Track
     {
-        public IDictionary<string, Property> _properties = new Dictionary<string, Property>();
-        public IDictionary<string, Property> _pathProperties = new Dictionary<string, Property>();
+        public IDictionary<string, Property> Properties { get; } = new Dictionary<string, Property>();
+
+        public IDictionary<string, Property> PathProperties { get; } = new Dictionary<string, Property>();
 
         internal void ResetVariables()
         {
-            foreach (KeyValuePair<string, Property> valuePair in _properties)
+            foreach (KeyValuePair<string, Property> valuePair in Properties)
             {
-                valuePair.Value._property = null;
+                valuePair.Value.Value = null;
             }
-            foreach (KeyValuePair<string, Property> valuePair in _pathProperties)
+
+            foreach (KeyValuePair<string, Property> valuePair in PathProperties)
             {
-                valuePair.Value._property = new PointDataInterpolation();
+                valuePair.Value.Value = new PointDefinitionInterpolation();
             }
         }
     }

@@ -1,18 +1,18 @@
-﻿using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static NoodleExtensions.Animation.AnimationController;
-using static NoodleExtensions.Animation.AnimationHelper;
-using static NoodleExtensions.Plugin;
-
-namespace NoodleExtensions.Animation
+﻿namespace NoodleExtensions.Animation
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using CustomJSONData;
+    using CustomJSONData.CustomBeatmap;
+    using static NoodleExtensions.Animation.AnimationController;
+    using static NoodleExtensions.Animation.AnimationHelper;
+    using static NoodleExtensions.Plugin;
+
     internal enum EventType
     {
         AnimateTrack,
-        AssignPathAnimation
+        AssignPathAnimation,
     }
 
     internal static class EventHelper
@@ -23,11 +23,14 @@ namespace NoodleExtensions.Animation
             if (track != null)
             {
                 float duration = (float?)Trees.at(customEventData.data, DURATION) ?? 0f;
-                duration = (60f * duration) / instance.beatmapObjectSpawnController.currentBPM; // Convert to real time;
+                duration = (60f * duration) / Instance.BeatmapObjectSpawnController.currentBPM; // Convert to real time;
 
                 string easingString = (string)Trees.at(customEventData.data, EASING);
                 Functions easing = Functions.easeLinear;
-                if (easingString != null) easing = (Functions)Enum.Parse(typeof(Functions), easingString);
+                if (easingString != null)
+                {
+                    easing = (Functions)Enum.Parse(typeof(Functions), easingString);
+                }
 
                 List<string> excludedStrings = new List<string> { TRACK, DURATION, EASING };
                 IDictionary<string, object> eventData = new Dictionary<string, object>(customEventData.data as IDictionary<string, object>); // Shallow copy
@@ -35,11 +38,11 @@ namespace NoodleExtensions.Animation
                 switch (eventType)
                 {
                     case EventType.AnimateTrack:
-                        properties = track._properties;
+                        properties = track.Properties;
                         break;
 
                     case EventType.AssignPathAnimation:
-                        properties = track._pathProperties;
+                        properties = track.PathProperties;
                         break;
 
                     default:
@@ -53,22 +56,26 @@ namespace NoodleExtensions.Animation
                         Property property;
                         if (!properties.TryGetValue(valuePair.Key, out property))
                         {
-                            Logger.Log($"Could not find property {valuePair.Key}!", IPA.Logging.Logger.Level.Error);
+                            NoodleLogger.Log($"Could not find property {valuePair.Key}!", IPA.Logging.Logger.Level.Error);
                             continue;
                         }
 
-                        TryGetPointData(customEventData.data, valuePair.Key, out PointData pointData);
+                        TryGetPointData(customEventData.data, valuePair.Key, out PointDefinition pointData);
 
-                        if (property._coroutine != null) instance.StopCoroutine(property._coroutine);
+                        if (property.Coroutine != null)
+                        {
+                            Instance.StopCoroutine(property.Coroutine);
+                        }
+
                         switch (eventType)
                         {
                             case EventType.AnimateTrack:
-                                property._coroutine = instance.StartCoroutine(AnimateTrack.AnimateTrackCoroutine(pointData, property, duration, customEventData.time, easing));
+                                property.Coroutine = Instance.StartCoroutine(AnimateTrack.AnimateTrackCoroutine(pointData, property, duration, customEventData.time, easing));
                                 break;
 
                             case EventType.AssignPathAnimation:
-                                ((PointDataInterpolation)property._property).Init(pointData);
-                                property._coroutine = instance.StartCoroutine(AssignPathAnimation.AssignPathAnimationCoroutine(property, duration, customEventData.time, easing));
+                                ((PointDefinitionInterpolation)property.Value).Init(pointData);
+                                property.Coroutine = Instance.StartCoroutine(AssignPathAnimation.AssignPathAnimationCoroutine(property, duration, customEventData.time, easing));
                                 break;
                         }
                     }

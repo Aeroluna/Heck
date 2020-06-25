@@ -1,14 +1,14 @@
-﻿using CustomJSONData;
-using HarmonyLib;
-using NoodleExtensions.Animation;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using UnityEngine;
-
-namespace NoodleExtensions.HarmonyPatches
+﻿namespace NoodleExtensions.HarmonyPatches
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using System.Reflection.Emit;
+    using CustomJSONData;
+    using HarmonyLib;
+    using NoodleExtensions.Animation;
+    using UnityEngine;
+
     [NoodlePatch(typeof(NoteJump))]
     [NoodlePatch("ManualUpdate")]
     internal class NoteJumpManualUpdate
@@ -44,6 +44,7 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList.Insert(i + 6, new CodeInstruction(OpCodes.Call, _definiteNoteJump));
                     instructionList.Insert(i + 7, new CodeInstruction(OpCodes.Stfld, _localPositionField));
                 }
+
                 if (!foundTransformUp &&
                     instructionList[i].opcode == OpCodes.Callvirt &&
                   ((MethodInfo)instructionList[i].operand).Name == "get_up")
@@ -51,6 +52,7 @@ namespace NoodleExtensions.HarmonyPatches
                     foundTransformUp = true;
                     instructionList[i] = new CodeInstruction(OpCodes.Call, _convertToLocalSpace);
                 }
+
                 if (instructionList[i].opcode == OpCodes.Ldfld &&
                  ((FieldInfo)instructionList[i].operand).Name == "_inverseWorldRotation")
                 {
@@ -59,27 +61,44 @@ namespace NoodleExtensions.HarmonyPatches
                         foundInverseRotation = true;
                         continue;
                     }
+
                     instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _convertQuaternion));
                 }
+
+                // is there a better way of checking labels?
                 if (!foundZOffset &&
                     instructionList[i].operand is Label &&
-                    instructionList[i].operand.GetHashCode() == 21) // is there a better way of checking labels?
+                    instructionList[i].operand.GetHashCode() == 21)
                 {
                     foundZOffset = true;
+
                     // Add addition check to our quirky little variable to skip end position offset when we are using definitePosition
                     instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldsfld, _definitePositionField));
                     instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Brtrue_S, instructionList[i].operand));
                 }
             }
-            if (!foundPosition) Logger.Log("Failed to find stind.r4!", IPA.Logging.Logger.Level.Error);
-            if (!foundTransformUp) Logger.Log("Failed to find call to get_up!", IPA.Logging.Logger.Level.Error);
-            if (!foundZOffset) Logger.Log("Failed to find brfalse.s to Label21!", IPA.Logging.Logger.Level.Error);
+
+            if (!foundPosition)
+            {
+                NoodleLogger.Log("Failed to find stind.r4!", IPA.Logging.Logger.Level.Error);
+            }
+
+            if (!foundTransformUp)
+            {
+                NoodleLogger.Log("Failed to find call to get_up!", IPA.Logging.Logger.Level.Error);
+            }
+
+            if (!foundZOffset)
+            {
+                NoodleLogger.Log("Failed to find brfalse.s to Label21!", IPA.Logging.Logger.Level.Error);
+            }
+
             return instructionList.AsEnumerable();
         }
 
         private static Vector3 DefiniteNoteJump(Vector3 original, float time)
         {
-            dynamic dynData = NoteControllerUpdate._customNoteData.customData;
+            dynamic dynData = NoteControllerUpdate.CustomNoteData.customData;
             dynamic animationObject = Trees.at(dynData, "_animation");
             Track track = Trees.at(dynData, "track");
             AnimationHelper.GetDefinitePositionOffset(animationObject, track, time, out Vector3? position);

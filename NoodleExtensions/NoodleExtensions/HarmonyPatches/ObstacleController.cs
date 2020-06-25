@@ -1,43 +1,23 @@
-﻿using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
-using IPA.Utilities;
-using NoodleExtensions.Animation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using UnityEngine;
-using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
-using static NoodleExtensions.Plugin;
-
-namespace NoodleExtensions.HarmonyPatches
+﻿namespace NoodleExtensions.HarmonyPatches
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using System.Reflection.Emit;
+    using CustomJSONData;
+    using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
+    using IPA.Utilities;
+    using NoodleExtensions.Animation;
+    using UnityEngine;
+    using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
+    using static NoodleExtensions.Plugin;
+
     [NoodlePatch(typeof(ObstacleController))]
     [NoodlePatch("Init")]
     internal class ObstacleControllerInit
     {
-        private static void Postfix(ObstacleController __instance, ObstacleData obstacleData, Vector3 startPos, Vector3 midPos, Vector3 endPos)
-        {
-            if (obstacleData is CustomObstacleData customData)
-            {
-                dynamic dynData = customData.customData;
-                IEnumerable<float> localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
-                Quaternion localRotation = _quaternionIdentity;
-                if (localrot != null)
-                {
-                    localRotation = Quaternion.Euler(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
-                    __instance.transform.rotation *= localRotation;
-                }
-
-                dynData.startPos = startPos;
-                dynData.midPos = midPos;
-                dynData.endPos = endPos;
-                dynData.localRotation = localRotation;
-            }
-        }
-
         private static readonly MethodInfo _getCustomWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(0, null));
         private static readonly MethodInfo _getWorldRotation = SymbolExtensions.GetMethodInfo(() => GetWorldRotation(null, 0));
         private static readonly MethodInfo _getCustomLength = SymbolExtensions.GetMethodInfo(() => GetCustomLength(0, null));
@@ -67,6 +47,7 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList[i + 2] = new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ObstacleController), "_worldRotation"));
                     instructionList[i + 3] = new CodeInstruction(OpCodes.Call, _invertQuaternion);
                 }
+
                 if (!foundWidth &&
                     instructionList[i].opcode == OpCodes.Callvirt &&
                     ((MethodInfo)instructionList[i].operand).Name == "get_width")
@@ -75,6 +56,7 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Ldarg_1));
                     instructionList.Insert(i + 3, new CodeInstruction(OpCodes.Call, _getCustomWidth));
                 }
+
                 if (!foundLength &&
                     instructionList[i].opcode == OpCodes.Stloc_2)
                 {
@@ -83,10 +65,45 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _getCustomLength));
                 }
             }
-            if (!foundRotation) Logger.Log("Failed to find _worldRotation stfld!", IPA.Logging.Logger.Level.Error);
-            if (!foundWidth) Logger.Log("Failed to find get_width call!", IPA.Logging.Logger.Level.Error);
-            if (!foundLength) Logger.Log("Failed to find stloc.2!", IPA.Logging.Logger.Level.Error);
+
+            if (!foundRotation)
+            {
+                NoodleLogger.Log("Failed to find _worldRotation stfld!", IPA.Logging.Logger.Level.Error);
+            }
+
+            if (!foundWidth)
+            {
+                NoodleLogger.Log("Failed to find get_width call!", IPA.Logging.Logger.Level.Error);
+            }
+
+            if (!foundLength)
+            {
+                NoodleLogger.Log("Failed to find stloc.2!", IPA.Logging.Logger.Level.Error);
+            }
+
             return instructionList.AsEnumerable();
+        }
+
+#pragma warning disable SA1313
+        private static void Postfix(ObstacleController __instance, ObstacleData obstacleData, Vector3 startPos, Vector3 midPos, Vector3 endPos)
+#pragma warning restore SA1313
+        {
+            if (obstacleData is CustomObstacleData customData)
+            {
+                dynamic dynData = customData.customData;
+                IEnumerable<float> localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
+                Quaternion localRotation = QuaternionIdentity;
+                if (localrot != null)
+                {
+                    localRotation = Quaternion.Euler(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
+                    __instance.transform.rotation *= localRotation;
+                }
+
+                dynData.startPos = startPos;
+                dynData.midPos = midPos;
+                dynData.endPos = endPos;
+                dynData.localRotation = localRotation;
+            }
         }
 
         private static Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
@@ -101,16 +118,18 @@ namespace NoodleExtensions.HarmonyPatches
                 {
                     if (rotation is List<object> list)
                     {
-                        IEnumerable<float> _rot = list.Select(n => Convert.ToSingle(n));
-                        worldRotation = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
+                        IEnumerable<float> rot = list.Select(n => Convert.ToSingle(n));
+                        worldRotation = Quaternion.Euler(rot.ElementAt(0), rot.ElementAt(1), rot.ElementAt(2));
                     }
                     else
                     {
                         worldRotation = Quaternion.Euler(0, (float)rotation, 0);
                     }
                 }
+
                 dynData.worldRotation = worldRotation;
             }
+
             return worldRotation;
         }
 
@@ -121,8 +140,12 @@ namespace NoodleExtensions.HarmonyPatches
                 dynamic dynData = customData.customData;
                 IEnumerable<float?> scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
                 float? width = scale?.ElementAtOrDefault(0);
-                if (width.HasValue) return width.Value;
+                if (width.HasValue)
+                {
+                    return width.Value;
+                }
             }
+
             return @default;
         }
 
@@ -133,8 +156,12 @@ namespace NoodleExtensions.HarmonyPatches
                 dynamic dynData = customData.customData;
                 IEnumerable<float?> scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
                 float? length = scale?.ElementAtOrDefault(2);
-                if (length.HasValue) return length.Value * _noteLinesDistance;
+                if (length.HasValue)
+                {
+                    return length.Value * NoteLinesDistance;
+                }
             }
+
             return @default;
         }
     }
@@ -145,8 +172,21 @@ namespace NoodleExtensions.HarmonyPatches
     {
         private static readonly FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.Accessor _obstacleCutoutAnimateEffectAccessor = FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
 
-        private static void Prefix(ObstacleController __instance, ObstacleData ____obstacleData, AudioTimeSyncController ____audioTimeSyncController, float ____startTimeOffset,
-            ref Vector3 ____startPos, ref Vector3 ____midPos, ref Vector3 ____endPos, float ____move1Duration, float ____move2Duration, float ____obstacleDuration, ref Quaternion ____worldRotation, ref Quaternion ____inverseWorldRotation)
+#pragma warning disable SA1313
+        private static void Prefix(
+            ObstacleController __instance,
+            ObstacleData ____obstacleData,
+            AudioTimeSyncController ____audioTimeSyncController,
+            float ____startTimeOffset,
+            ref Vector3 ____startPos,
+            ref Vector3 ____midPos,
+            ref Vector3 ____endPos,
+            float ____move1Duration,
+            float ____move2Duration,
+            float ____obstacleDuration,
+            ref Quaternion ____worldRotation,
+            ref Quaternion ____inverseWorldRotation)
+#pragma warning restore SA1313
         {
             if (____obstacleData is CustomObstacleData customData)
             {
@@ -193,12 +233,18 @@ namespace NoodleExtensions.HarmonyPatches
 
                         worldRotationQuatnerion *= localRotation;
 
-                        if (localRotationOffset.HasValue) worldRotationQuatnerion *= localRotationOffset.Value;
+                        if (localRotationOffset.HasValue)
+                        {
+                            worldRotationQuatnerion *= localRotationOffset.Value;
+                        }
 
                         transform.rotation = worldRotationQuatnerion;
                     }
 
-                    if (scaleOffset.HasValue) transform.localScale = scaleOffset.Value;
+                    if (scaleOffset.HasValue)
+                    {
+                        transform.localScale = scaleOffset.Value;
+                    }
 
                     if (dissolve.HasValue)
                     {
@@ -209,6 +255,7 @@ namespace NoodleExtensions.HarmonyPatches
                             cutoutAnimateEffect = _obstacleCutoutAnimateEffectAccessor(ref obstacleDissolve);
                             dynData.cutoutAnimateEffect = cutoutAnimateEffect;
                         }
+
                         cutoutAnimateEffect.SetCutout(1 - dissolve.Value);
                     }
                 }
@@ -220,8 +267,16 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("GetPosForTime")]
     internal class ObstacleControllerGetPosForTime
     {
-        private static bool Prefix(ref Vector3 __result, ObstacleData ____obstacleData, Vector3 ____startPos, Vector3 ____midPos,
-            float ____move1Duration, float ____move2Duration, float time)
+#pragma warning disable SA1313
+        private static bool Prefix(
+            ref Vector3 __result,
+            ObstacleData ____obstacleData,
+            Vector3 ____startPos,
+            Vector3 ____midPos,
+            float ____move1Duration,
+            float ____move2Duration,
+            float time)
+#pragma warning restore SA1313
         {
             if (____obstacleData is CustomObstacleData customObstacleData)
             {
@@ -246,9 +301,11 @@ namespace NoodleExtensions.HarmonyPatches
                     {
                         __result = definitePosition;
                     }
+
                     return false;
                 }
             }
+
             return true;
         }
     }

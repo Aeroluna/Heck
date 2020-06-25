@@ -1,34 +1,42 @@
-﻿using CustomJSONData;
-using System.Linq;
-using UnityEngine;
-
-namespace NoodleExtensions.Animation
+﻿namespace NoodleExtensions.Animation
 {
+    using System.Linq;
+    using CustomJSONData;
+    using UnityEngine;
+
     internal class AnimationController : MonoBehaviour
     {
-        internal static AnimationController instance { get; private set; }
+        private BeatmapObjectSpawnController _beatmapObjectSpawnController;
 
-        internal CustomEventCallbackController customEventCallbackController { get; private set; }
+        internal static AnimationController Instance { get; private set; }
 
-        internal BeatmapObjectSpawnController beatmapObjectSpawnController
+        internal CustomEventCallbackController CustomEventCallbackController { get; private set; }
+
+        internal BeatmapObjectSpawnController BeatmapObjectSpawnController
         {
             get
             {
-                if (_beatmapObjectSpawnController == null) _beatmapObjectSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
+                if (_beatmapObjectSpawnController == null)
+                {
+                    _beatmapObjectSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
+                }
+
                 return _beatmapObjectSpawnController;
             }
         }
 
-        private BeatmapObjectSpawnController _beatmapObjectSpawnController;
-
         internal static void CustomEventCallbackInit(CustomEventCallbackController customEventCallbackController)
         {
-            if (instance != null) Destroy(instance);
-            instance = customEventCallbackController.gameObject.AddComponent<AnimationController>();
+            if (Instance != null)
+            {
+                Destroy(Instance);
+            }
 
-            instance.customEventCallbackController = customEventCallbackController;
-            instance.customEventCallbackController.AddCustomEventCallback(AnimateTrack.Callback);
-            instance.customEventCallbackController.AddCustomEventCallback(AssignPathAnimation.Callback);
+            Instance = customEventCallbackController.gameObject.AddComponent<AnimationController>();
+
+            Instance.CustomEventCallbackController = customEventCallbackController;
+            Instance.CustomEventCallbackController.AddCustomEventCallback(AnimateTrack.Callback);
+            Instance.CustomEventCallbackController.AddCustomEventCallback(AssignPathAnimation.Callback);
         }
     }
 }

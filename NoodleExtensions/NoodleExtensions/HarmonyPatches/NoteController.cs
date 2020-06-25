@@ -1,18 +1,18 @@
-﻿using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
-using IPA.Utilities;
-using NoodleExtensions.Animation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using UnityEngine;
-using static NoodleExtensions.Plugin;
-
-namespace NoodleExtensions.HarmonyPatches
+﻿namespace NoodleExtensions.HarmonyPatches
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using System.Reflection.Emit;
+    using CustomJSONData;
+    using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
+    using IPA.Utilities;
+    using NoodleExtensions.Animation;
+    using UnityEngine;
+    using static NoodleExtensions.Plugin;
+
     [NoodlePatch(typeof(NoteController))]
     [NoodlePatch("Init")]
     internal class NoteControllerInit
@@ -20,17 +20,21 @@ namespace NoodleExtensions.HarmonyPatches
         internal static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
         internal static readonly FieldAccessor<NoteMovement, NoteFloorMovement>.Accessor _noteFloorMovementAccessor = FieldAccessor<NoteMovement, NoteFloorMovement>.GetAccessor("_floorMovement");
 
+        internal static readonly FieldAccessor<NoteFloorMovement, Quaternion>.Accessor _worldRotationFloorAccessor = FieldAccessor<NoteFloorMovement, Quaternion>.GetAccessor("_worldRotation");
+        internal static readonly FieldAccessor<NoteFloorMovement, Quaternion>.Accessor _inverseWorldRotationFloorAccessor = FieldAccessor<NoteFloorMovement, Quaternion>.GetAccessor("_inverseWorldRotation");
+
+        internal static readonly FieldAccessor<NoteJump, Quaternion>.Accessor _worldRotationJumpAccessor = FieldAccessor<NoteJump, Quaternion>.GetAccessor("_worldRotation");
+        internal static readonly FieldAccessor<NoteJump, Quaternion>.Accessor _inverseWorldRotationJumpAccessor = FieldAccessor<NoteJump, Quaternion>.GetAccessor("_inverseWorldRotation");
         private static readonly FieldAccessor<NoteJump, Quaternion>.Accessor _endRotationAccessor = FieldAccessor<NoteJump, Quaternion>.GetAccessor("_endRotation");
         private static readonly FieldAccessor<NoteJump, Quaternion>.Accessor _middleRotationAccessor = FieldAccessor<NoteJump, Quaternion>.GetAccessor("_middleRotation");
         private static readonly FieldAccessor<NoteJump, Vector3[]>.Accessor _randomRotationsAccessor = FieldAccessor<NoteJump, Vector3[]>.GetAccessor("_randomRotations");
         private static readonly FieldAccessor<NoteJump, int>.Accessor _randomRotationIdxAccessor = FieldAccessor<NoteJump, int>.GetAccessor("_randomRotationIdx");
-        internal static readonly FieldAccessor<NoteJump, Quaternion>.Accessor _worldRotationJumpAccessor = FieldAccessor<NoteJump, Quaternion>.GetAccessor("_worldRotation");
-        internal static readonly FieldAccessor<NoteJump, Quaternion>.Accessor _inverseWorldRotationJumpAccessor = FieldAccessor<NoteJump, Quaternion>.GetAccessor("_inverseWorldRotation");
 
-        internal static readonly FieldAccessor<NoteFloorMovement, Quaternion>.Accessor _worldRotationFloorAccessor = FieldAccessor<NoteFloorMovement, Quaternion>.GetAccessor("_worldRotation");
-        internal static readonly FieldAccessor<NoteFloorMovement, Quaternion>.Accessor _inverseWorldRotationFloorAccessor = FieldAccessor<NoteFloorMovement, Quaternion>.GetAccessor("_inverseWorldRotation");
+        private static readonly MethodInfo _getFlipYSide = SymbolExtensions.GetMethodInfo(() => GetFlipYSide(null, 0));
 
+#pragma warning disable SA1313
         private static void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
+#pragma warning restore SA1313
         {
             if (noteData is CustomNoteData customData)
             {
@@ -56,20 +60,27 @@ namespace NoodleExtensions.HarmonyPatches
 
                 Transform transform = __instance.transform;
 
-                Quaternion localRotation = _quaternionIdentity;
+                Quaternion localRotation = QuaternionIdentity;
                 if (rotation != null || localRotation != null)
                 {
-                    if (localrot != null) localRotation = Quaternion.Euler(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
+                    if (localrot != null)
+                    {
+                        localRotation = Quaternion.Euler(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
+                    }
 
                     Quaternion worldRotationQuatnerion;
                     if (rotation != null)
                     {
                         if (rotation is List<object> list)
                         {
-                            IEnumerable<float> _rot = list?.Select(n => Convert.ToSingle(n));
-                            worldRotationQuatnerion = Quaternion.Euler(_rot.ElementAt(0), _rot.ElementAt(1), _rot.ElementAt(2));
+                            IEnumerable<float> rot = list?.Select(n => Convert.ToSingle(n));
+                            worldRotationQuatnerion = Quaternion.Euler(rot.ElementAt(0), rot.ElementAt(1), rot.ElementAt(2));
                         }
-                        else worldRotationQuatnerion = Quaternion.Euler(0, (float)rotation, 0);
+                        else
+                        {
+                            worldRotationQuatnerion = Quaternion.Euler(0, (float)rotation, 0);
+                        }
+
                         Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
                         _worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
                         _inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
@@ -96,8 +107,6 @@ namespace NoodleExtensions.HarmonyPatches
             }
         }
 
-        private static readonly MethodInfo _getFlipYSide = SymbolExtensions.GetMethodInfo(() => GetFlipYSide(null, 0));
-
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
@@ -116,7 +125,12 @@ namespace NoodleExtensions.HarmonyPatches
                     instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(NoteController), "_noteData")));
                 }
             }
-            if (!foundFlipYSide) Logger.Log("Failed to find Get_flipYSide call!", IPA.Logging.Logger.Level.Error);
+
+            if (!foundFlipYSide)
+            {
+                NoodleLogger.Log("Failed to find Get_flipYSide call!", IPA.Logging.Logger.Level.Error);
+            }
+
             return instructionList.AsEnumerable();
         }
 
@@ -128,8 +142,12 @@ namespace NoodleExtensions.HarmonyPatches
                 dynamic dynData = customData.customData;
 
                 float? flipYSide = (float?)Trees.at(dynData, "flipYSide");
-                if (flipYSide.HasValue) output = flipYSide.Value;
+                if (flipYSide.HasValue)
+                {
+                    output = flipYSide.Value;
+                }
             }
+
             return output;
         }
     }
@@ -138,8 +156,8 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("Update")]
     internal class NoteControllerUpdate
     {
-        private static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorStartPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_startPos");
         internal static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorEndPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_endPos");
+        private static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorStartPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_startPos");
         private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpStartPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_startPos");
         private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpEndPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_endPos");
 
@@ -148,13 +166,15 @@ namespace NoodleExtensions.HarmonyPatches
 
         private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
 
-        internal static CustomNoteData _customNoteData;
+        internal static CustomNoteData CustomNoteData { get; private set; }
 
+#pragma warning disable SA1313
         private static void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
+#pragma warning restore SA1313
         {
             if (____noteData is CustomNoteData customData)
             {
-                _customNoteData = customData;
+                CustomNoteData = customData;
 
                 dynamic dynData = customData.customData;
 
@@ -167,7 +187,7 @@ namespace NoodleExtensions.HarmonyPatches
 
                     // idk i just copied base game time
                     float jumpDuration = _jumpDurationAccessor(ref noteJump);
-                    float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - jumpDuration * 0.5f);
+                    float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - (jumpDuration * 0.5f));
                     float normalTime = elapsedTime / jumpDuration;
 
                     AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow);
@@ -205,12 +225,18 @@ namespace NoodleExtensions.HarmonyPatches
 
                         worldRotationQuatnerion *= localRotation;
 
-                        if (localRotationOffset.HasValue) worldRotationQuatnerion *= localRotationOffset.Value;
+                        if (localRotationOffset.HasValue)
+                        {
+                            worldRotationQuatnerion *= localRotationOffset.Value;
+                        }
 
                         transform.rotation = worldRotationQuatnerion;
                     }
 
-                    if (scaleOffset.HasValue) transform.localScale = scaleOffset.Value;
+                    if (scaleOffset.HasValue)
+                    {
+                        transform.localScale = scaleOffset.Value;
+                    }
 
                     if (dissolve.HasValue)
                     {
@@ -221,6 +247,7 @@ namespace NoodleExtensions.HarmonyPatches
                             cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
                             dynData.cutoutAnimateEffect = cutoutAnimateEffect;
                         }
+
                         cutoutAnimateEffect.SetCutout(1 - dissolve.Value);
                     }
 
@@ -232,6 +259,7 @@ namespace NoodleExtensions.HarmonyPatches
                             disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowController>();
                             dynData.disappearingArrowController = disappearingArrowController;
                         }
+
                         disappearingArrowController.SetArrowTransparency(dissolveArrow.Value);
                     }
                 }

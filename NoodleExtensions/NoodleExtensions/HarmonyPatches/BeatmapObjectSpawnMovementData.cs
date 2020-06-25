@@ -1,20 +1,22 @@
-﻿using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using static NoodleExtensions.HarmonyPatches.SpawnDataHelper;
-using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
-using static NoodleExtensions.Plugin;
-
-namespace NoodleExtensions.HarmonyPatches
+﻿namespace NoodleExtensions.HarmonyPatches
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using CustomJSONData;
+    using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
+    using UnityEngine;
+    using static NoodleExtensions.HarmonyPatches.SpawnDataHelper;
+    using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
+    using static NoodleExtensions.Plugin;
+
     [HarmonyPatch(typeof(BeatmapObjectSpawnMovementData))]
     [HarmonyPatch("Init")]
     internal class BeatmapObjectSpawnMovementDataInit
     {
+#pragma warning disable SA1313
         private static void Postfix(BeatmapObjectSpawnMovementData __instance)
+#pragma warning restore SA1313
         {
             InitBeatmapObjectSpawnController(__instance);
         }
@@ -24,7 +26,9 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("GetObstacleSpawnMovementData")]
     internal class BeatmapObjectSpawnMovementDataGetObstacleSpawnMovementData
     {
+#pragma warning disable SA1313
         private static void Postfix(Vector3 ____centerPos, ObstacleData obstacleData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float obstacleHeight)
+#pragma warning restore SA1313
         {
             if (obstacleData is CustomObstacleData customData)
             {
@@ -40,34 +44,39 @@ namespace NoodleExtensions.HarmonyPatches
                 float? height = scale?.ElementAtOrDefault(1);
 
                 Vector3? finalNoteOffset = null;
+
                 // Actual wall stuff
                 if (startX.HasValue || startY.HasValue || njs.HasValue || spawnoffset.HasValue)
                 {
-                    GetNoteJumpValues(njs, spawnoffset, out float _, out float _, out Vector3 _localMoveStartPos, out Vector3 _localMoveEndPos, out Vector3 _localJumpEndPos);
+                    GetNoteJumpValues(njs, spawnoffset, out float _, out float _, out Vector3 localMoveStartPos, out Vector3 localMoveEndPos, out Vector3 localJumpEndPos);
 
                     // Ripped from base game
                     Vector3 noteOffset = GetNoteOffset(obstacleData, startX, null);
-                    noteOffset.y = startY.HasValue ? _verticalObstaclePosY + startY.GetValueOrDefault(0) * _noteLinesDistance : ((obstacleData.obstacleType == ObstacleType.Top)
-                        ? (_topObstaclePosY + _jumpOffsetY) : _verticalObstaclePosY);
+                    noteOffset.y = startY.HasValue ? VerticalObstaclePosY + (startY.GetValueOrDefault(0) * NoteLinesDistance) : ((obstacleData.obstacleType == ObstacleType.Top)
+                        ? (TopObstaclePosY + JumpOffsetY) : VerticalObstaclePosY);
 
                     finalNoteOffset = noteOffset;
 
-                    moveStartPos = _localMoveStartPos + noteOffset;
-                    moveEndPos = _localMoveEndPos + noteOffset;
-                    jumpEndPos = _localJumpEndPos + noteOffset;
+                    moveStartPos = localMoveStartPos + noteOffset;
+                    moveEndPos = localMoveEndPos + noteOffset;
+                    jumpEndPos = localJumpEndPos + noteOffset;
                 }
-                if (height.HasValue) obstacleHeight = height.Value * _noteLinesDistance;
+
+                if (height.HasValue)
+                {
+                    obstacleHeight = height.Value * NoteLinesDistance;
+                }
 
                 if (!finalNoteOffset.HasValue)
                 {
                     Vector3 noteOffset = GetNoteOffset(obstacleData, startX, null);
-                    noteOffset.y = ((obstacleData.obstacleType == ObstacleType.Top) ? (_topObstaclePosY + _jumpOffsetY) : _verticalObstaclePosY);
+                    noteOffset.y = (obstacleData.obstacleType == ObstacleType.Top) ? (TopObstaclePosY + JumpOffsetY) : VerticalObstaclePosY;
                     finalNoteOffset = noteOffset;
                 }
 
                 dynData.noteOffset = ____centerPos + finalNoteOffset.Value;
                 float? width = scale?.ElementAtOrDefault(0);
-                dynData.xOffset = (width.GetValueOrDefault(obstacleData.lineIndex) / 2f - 0.5f) * _noteLinesDistance;
+                dynData.xOffset = ((width.GetValueOrDefault(obstacleData.lineIndex) / 2f) - 0.5f) * NoteLinesDistance;
             }
         }
     }
@@ -76,7 +85,9 @@ namespace NoodleExtensions.HarmonyPatches
     [NoodlePatch("GetNoteSpawnMovementData")]
     internal class BeatmapObjectSpawnMovementDataGetNoteSpawnMovementData
     {
+#pragma warning disable SA1313
         private static void Postfix(BeatmapObjectSpawnMovementData __instance, Vector3 ____centerPos, float ____jumpDuration, NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float jumpGravity)
+#pragma warning restore SA1313
         {
             if (noteData is CustomNoteData customData)
             {
@@ -97,7 +108,7 @@ namespace NoodleExtensions.HarmonyPatches
                     GetNoteJumpValues(njs, spawnoffset, out float localJumpDuration, out float localJumpDistance, out Vector3 localMoveStartPos, out Vector3 localMoveEndPos, out Vector3 localJumpEndPos);
                     jumpDuration = localJumpDuration;
 
-                    float localNoteJumpMovementSpeed = njs ?? _noteJumpMovementSpeed;
+                    float localNoteJumpMovementSpeed = njs ?? NoteJumpMovementSpeed;
 
                     // NoteLineLayer.Base == noteData.startNoteLineLayer
                     // we avoid some math where the base game avoids spawning stacked notes together
@@ -105,8 +116,9 @@ namespace NoodleExtensions.HarmonyPatches
 
                     float startLayerLineYPos = LineYPosForLineLayer(noteData, startlinelayer);
                     float lineYPos = LineYPosForLineLayer(noteData, startHeight);
+
                     // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
-                    float highestJump = startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + _jumpOffsetY :
+                    float highestJump = startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + JumpOffsetY :
                         __instance.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
                     jumpGravity = 2f * (highestJump - startLayerLineYPos) /
                         Mathf.Pow(localJumpDistance / localNoteJumpMovementSpeed * 0.5f, 2f);
@@ -123,8 +135,8 @@ namespace NoodleExtensions.HarmonyPatches
                 // ty reaxt
                 float startVerticalVelocity = jumpGravity * jumpDuration * 0.5f;
                 float num = jumpDuration * 0.5f;
-                float YOffset = startVerticalVelocity * num - jumpGravity * num * num * 0.5f;
-                dynData.noteOffset = ____centerPos + GetNoteOffset(noteData, startRow, (float)NoteLineLayer.Base) + new Vector3(0, YOffset, 0);
+                float yOffset = (startVerticalVelocity * num) - (jumpGravity * num * num * 0.5f);
+                dynData.noteOffset = ____centerPos + GetNoteOffset(noteData, startRow, (float)NoteLineLayer.Base) + new Vector3(0, yOffset, 0);
             }
         }
     }

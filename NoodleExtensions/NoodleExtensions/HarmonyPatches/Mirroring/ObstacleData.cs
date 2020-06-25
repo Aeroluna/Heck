@@ -1,18 +1,20 @@
-﻿using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static NoodleExtensions.Plugin;
-
-namespace NoodleExtensions.HarmonyPatches
+﻿namespace NoodleExtensions.HarmonyPatches
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using CustomJSONData;
+    using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
+    using static NoodleExtensions.Plugin;
+
     [HarmonyPatch(typeof(ObstacleData))]
     [HarmonyPatch("MirrorLineIndex")]
     internal class ObstacleDataMirrorLineIndex
     {
+#pragma warning disable SA1313
         private static void Postfix(ObstacleData __instance)
+#pragma warning restore SA1313
         {
             if (__instance is CustomObstacleData customData)
             {
@@ -28,9 +30,20 @@ namespace NoodleExtensions.HarmonyPatches
                 IDictionary<string, object> dictdata = dynData as IDictionary<string, object>;
 
                 float width = scaleX.GetValueOrDefault(__instance.width);
-                if (startX.HasValue) dictdata[POSITION] = new List<object>() { (startX.Value + width) * -1, position.ElementAtOrDefault(1) };
-                if (localrot != null) dictdata[LOCALROTATION] = localrot.Select(n => n *= 1).Cast<object>().ToList();
-                if (rotation.HasValue) dictdata[ROTATION] = rotation * -1;
+                if (startX.HasValue)
+                {
+                    dictdata[POSITION] = new List<object>() { (startX.Value + width) * -1, position.ElementAtOrDefault(1) };
+                }
+
+                if (localrot != null)
+                {
+                    dictdata[LOCALROTATION] = localrot.Select(n => n *= 1).Cast<object>().ToList();
+                }
+
+                if (rotation.HasValue)
+                {
+                    dictdata[ROTATION] = rotation * -1;
+                }
             }
         }
     }

@@ -1,10 +1,10 @@
-﻿using CustomJSONData.CustomBeatmap;
-using System.Collections;
-using UnityEngine;
-using static NoodleExtensions.Animation.AnimationController;
-
-namespace NoodleExtensions.Animation
+﻿namespace NoodleExtensions.Animation
 {
+    using System.Collections;
+    using CustomJSONData.CustomBeatmap;
+    using UnityEngine;
+    using static NoodleExtensions.Animation.AnimationController;
+
     internal class AnimateTrack
     {
         internal static void Callback(CustomEventData customEventData)
@@ -15,29 +15,35 @@ namespace NoodleExtensions.Animation
             }
         }
 
-        internal static IEnumerator AnimateTrackCoroutine(PointData points, Property property, float duration, float startTime, Functions easing)
+        internal static IEnumerator AnimateTrackCoroutine(PointDefinition points, Property property, float duration, float startTime, Functions easing)
         {
             while (true)
             {
-                float elapsedTime = instance.customEventCallbackController._audioTimeSource.songTime - startTime;
+                float elapsedTime = Instance.CustomEventCallbackController._audioTimeSource.songTime - startTime;
                 float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
-                switch (property._propertyType)
+                switch (property.PropertyType)
                 {
                     case PropertyType.Linear:
-                        property._property = points.InterpolateLinear(time);
+                        property.Value = points.InterpolateLinear(time);
                         break;
 
                     case PropertyType.Vector3:
-                        property._property = points.Interpolate(time);
+                        property.Value = points.Interpolate(time);
                         break;
 
                     case PropertyType.Quaternion:
-                        property._property = points.InterpolateQuaternion(time);
+                        property.Value = points.InterpolateQuaternion(time);
                         break;
                 }
 
-                if (elapsedTime < duration) yield return null;
-                else break;
+                if (elapsedTime < duration)
+                {
+                    yield return null;
+                }
+                else
+                {
+                    break;
+                }
             }
         }
     }

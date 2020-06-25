@@ -1,23 +1,25 @@
-﻿using UnityEngine;
-
-namespace NoodleExtensions.Animation
+﻿namespace NoodleExtensions.Animation
 {
+    using UnityEngine;
+
     public enum PropertyType
     {
         Vector3,
         Quaternion,
-        Linear
+        Linear,
     }
 
     public class Property
     {
-        public PropertyType _propertyType;
-        public Coroutine _coroutine;
-        public object _property;
-
         public Property(PropertyType propertyType)
         {
-            _propertyType = propertyType;
+            PropertyType = propertyType;
         }
+
+        public PropertyType PropertyType { get; set; }
+
+        public Coroutine Coroutine { get; set; }
+
+        public object Value { get; set; }
     }
 }
