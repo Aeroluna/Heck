@@ -103,16 +103,14 @@
 
                 float jumpDuration = ____jumpDuration;
 
+                Vector3 noteOffset = GetNoteOffset(noteData, startRow, startlinelayer);
+
                 if (position != null || flipLineIndex != null || njs.HasValue || spawnoffset.HasValue)
                 {
                     GetNoteJumpValues(njs, spawnoffset, out float localJumpDuration, out float localJumpDistance, out Vector3 localMoveStartPos, out Vector3 localMoveEndPos, out Vector3 localJumpEndPos);
                     jumpDuration = localJumpDuration;
 
                     float localNoteJumpMovementSpeed = njs ?? NoteJumpMovementSpeed;
-
-                    // NoteLineLayer.Base == noteData.startNoteLineLayer
-                    // we avoid some math where the base game avoids spawning stacked notes together
-                    Vector3 noteOffset = GetNoteOffset(noteData, startRow, startlinelayer);
 
                     float startLayerLineYPos = LineYPosForLineLayer(noteData, startlinelayer);
                     float lineYPos = LineYPosForLineLayer(noteData, startHeight);
@@ -136,7 +134,7 @@
                 float startVerticalVelocity = jumpGravity * jumpDuration * 0.5f;
                 float num = jumpDuration * 0.5f;
                 float yOffset = (startVerticalVelocity * num) - (jumpGravity * num * num * 0.5f);
-                dynData.noteOffset = ____centerPos + GetNoteOffset(noteData, startRow, (float)NoteLineLayer.Base) + new Vector3(0, yOffset, 0);
+                dynData.noteOffset = ____centerPos + noteOffset + new Vector3(0, yOffset, 0);
             }
         }
     }

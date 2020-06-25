@@ -92,7 +92,7 @@
             {
                 dynamic dynData = customData.customData;
                 IEnumerable<float> localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
-                Quaternion localRotation = QuaternionIdentity;
+                Quaternion localRotation = _quaternionIdentity;
                 if (localrot != null)
                 {
                     localRotation = Quaternion.Euler(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));

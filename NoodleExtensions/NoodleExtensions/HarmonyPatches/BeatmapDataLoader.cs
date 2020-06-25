@@ -12,7 +12,7 @@
 
     internal class BeatmapDataLoaderProcessNotesInTimeRow
     {
-        private static readonly Dictionary<float, float> NumberOfNotesInLines = new Dictionary<float, float>();
+        private static readonly Dictionary<float, float> _numberOfNotesInLines = new Dictionary<float, float>();
 
         internal static void PatchBeatmapDataLoader(Harmony harmony)
         {
@@ -107,7 +107,7 @@
 
             ProcessFlipData(customNotes, false);
 
-            NumberOfNotesInLines.Clear();
+            _numberOfNotesInLines.Clear();
             for (int i = 0; i < customNotes.Count; i++)
             {
                 CustomNoteData noteData = customNotes[i];
@@ -116,9 +116,9 @@
                 IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
                 float lineIndex = position?.ElementAt(0) ?? noteData.lineIndex;
                 float lineLayer = position?.ElementAt(1) ?? (float)noteData.noteLineLayer;
-                if (NumberOfNotesInLines.TryGetValue(lineIndex, out float num))
+                if (_numberOfNotesInLines.TryGetValue(lineIndex, out float num))
                 {
-                    Dictionary<float, float> numberOfNotesInLines = NumberOfNotesInLines;
+                    Dictionary<float, float> numberOfNotesInLines = _numberOfNotesInLines;
                     float num2 = Math.Max(numberOfNotesInLines[lineIndex], 0) + Math.Min(lineLayer, 1);
                     dynData.startNoteLineLayer = num2;
                     numberOfNotesInLines[lineIndex] = num2;
@@ -126,7 +126,7 @@
                 else
                 {
                     float startLineLayer = Math.Min(lineLayer, 0);
-                    NumberOfNotesInLines[lineIndex] = startLineLayer;
+                    _numberOfNotesInLines[lineIndex] = startLineLayer;
                     dynData.startNoteLineLayer = startLineLayer;
                 }
             }

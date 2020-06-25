@@ -13,7 +13,7 @@
     [NoodlePatch("ManualUpdate")]
     internal class NoteFloorMovementManualUpdate
     {
-        private static readonly MethodInfo DefiniteNoteFloorMovementMethod = SymbolExtensions.GetMethodInfo(() => DefiniteNoteFloorMovement(Vector3.zero, null));
+        private static readonly MethodInfo _definiteNoteFloorMovement = SymbolExtensions.GetMethodInfo(() => DefiniteNoteFloorMovement(Vector3.zero, null));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -28,7 +28,7 @@
                 {
                     foundFinalPosition = true;
                     instructionList.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, DefiniteNoteFloorMovementMethod));
+                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _definiteNoteFloorMovement));
                 }
             }
 

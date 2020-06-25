@@ -15,7 +15,7 @@
     [NoodlePatch("SpawnNote")]
     internal class BeatmapObjectSpawnControllerSpawnObject
     {
-        private static readonly MethodInfo GetJumpDurationMethod = SymbolExtensions.GetMethodInfo(() => GetJumpDuration(null, 0));
+        private static readonly MethodInfo _getJumpDuration = SymbolExtensions.GetMethodInfo(() => GetJumpDuration(null, 0));
 
         internal static float GetJumpDuration(BeatmapObjectData beatmapObjectData, float @default)
         {
@@ -44,7 +44,7 @@
                 {
                     foundJumpDuration = true;
 
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, GetJumpDurationMethod));
+                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _getJumpDuration));
                     instructionList.Insert(i - 2, new CodeInstruction(OpCodes.Ldarg_1));
                 }
             }

@@ -11,7 +11,7 @@
 
     public static class AnimationHelper
     {
-        private static BeatmapObjectManager beatmapObjectManager;
+        private static BeatmapObjectManager _beatmapObjectManager;
 
         private static Dictionary<string, Track> Tracks { get => ((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData.tracks; }
 
@@ -21,12 +21,12 @@
         {
             get
             {
-                if (beatmapObjectManager == null)
+                if (_beatmapObjectManager == null)
                 {
-                    beatmapObjectManager = Resources.FindObjectsOfTypeAll<BeatmapObjectManager>().First();
+                    _beatmapObjectManager = Resources.FindObjectsOfTypeAll<BeatmapObjectManager>().First();
                 }
 
-                return beatmapObjectManager;
+                return _beatmapObjectManager;
             }
         }
 

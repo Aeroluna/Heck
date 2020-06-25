@@ -97,7 +97,7 @@
         {
             if (_points == null || _points.Count == 0)
             {
-                return VectorZero;
+                return _vectorZero;
             }
 
             if (time <= 0)
@@ -135,7 +135,7 @@
         {
             if (_points == null || _points.Count == 0)
             {
-                return QuaternionIdentity;
+                return _quaternionIdentity;
             }
 
             if (time <= 0)

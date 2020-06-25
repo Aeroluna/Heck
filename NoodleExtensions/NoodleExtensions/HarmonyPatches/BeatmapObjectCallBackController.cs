@@ -12,8 +12,8 @@
     [NoodlePatch("LateUpdate")]
     internal class BeatmapObjectCallBackControllerLateUpdate
     {
-        private static readonly MethodInfo GetAheadTimeMethod = SymbolExtensions.GetMethodInfo(() => GetAheadTime(null, null, 0));
-        private static readonly MethodInfo BeatmapObjectSpawnControllerCallbackMethod = typeof(BeatmapObjectSpawnController).GetMethod("HandleBeatmapObjectCallback", BindingFlags.Public | BindingFlags.Instance);
+        private static readonly MethodInfo _getAheadTime = SymbolExtensions.GetMethodInfo(() => GetAheadTime(null, null, 0));
+        private static readonly MethodInfo _beatmapObjectSpawnControllerCallback = typeof(BeatmapObjectSpawnController).GetMethod("HandleBeatmapObjectCallback", BindingFlags.Public | BindingFlags.Instance);
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -28,7 +28,7 @@
                 {
                     foundAheadTime = true;
 
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, GetAheadTimeMethod));
+                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _getAheadTime));
                     instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldloc_3));
                     instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldloc_1));
                 }
@@ -44,7 +44,7 @@
 
         private static float GetAheadTime(BeatmapObjectCallbackController.BeatmapObjectCallbackData beatmapObjectCallbackData, BeatmapObjectData beatmapObjectData, float @default)
         {
-            if (beatmapObjectCallbackData.callback.Method == BeatmapObjectSpawnControllerCallbackMethod &&
+            if (beatmapObjectCallbackData.callback.Method == _beatmapObjectSpawnControllerCallback &&
                 (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData))
             {
                 dynamic dynData = ((dynamic)beatmapObjectData).customData;

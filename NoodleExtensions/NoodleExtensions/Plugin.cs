@@ -39,11 +39,11 @@
 
         internal const string TRACK = "_track";
 
-        internal static readonly Vector3 VectorZero = Vector3.zero;
-        internal static readonly Quaternion QuaternionIdentity = Quaternion.identity;
+        internal static readonly Vector3 _vectorZero = Vector3.zero;
+        internal static readonly Quaternion _quaternionIdentity = Quaternion.identity;
 
-        internal static readonly Harmony HarmonyInstanceCore = new Harmony(HARMONYIDCORE);
-        internal static readonly Harmony HarmonyInstance = new Harmony(HARMONYID);
+        internal static readonly Harmony _harmonyInstanceCore = new Harmony(HARMONYIDCORE);
+        internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
 
         [Init]
         public void Init(IPALogger pluginLogger)
@@ -58,8 +58,8 @@
         public void OnEnable()
         {
             SongCore.Collections.RegisterCapability(CAPABILITY);
-            HarmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
-            HarmonyPatches.BeatmapDataLoaderProcessNotesInTimeRow.PatchBeatmapDataLoader(HarmonyInstanceCore);
+            _harmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
+            HarmonyPatches.BeatmapDataLoaderProcessNotesInTimeRow.PatchBeatmapDataLoader(_harmonyInstanceCore);
 
             CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit += Animation.AnimationController.CustomEventCallbackInit;
         }
@@ -68,8 +68,8 @@
         public void OnDisable()
         {
             SongCore.Collections.DeregisterizeCapability(CAPABILITY);
-            HarmonyInstanceCore.UnpatchAll(HARMONYIDCORE);
-            HarmonyInstanceCore.UnpatchAll(HARMONYID);
+            _harmonyInstanceCore.UnpatchAll(HARMONYIDCORE);
+            _harmonyInstanceCore.UnpatchAll(HARMONYID);
 
             CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit -= Animation.AnimationController.CustomEventCallbackInit;
         }

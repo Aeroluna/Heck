@@ -12,7 +12,7 @@
 
     public static class NoodleController
     {
-        private static List<NoodlePatchData> noodlePatches;
+        private static List<NoodlePatchData> _noodlePatches;
 
         public static void ToggleNoodlePatches(bool value, BeatmapData beatmapData, float defaultNoteJumpMovementSpeed, float defaultNoteJumpStartBeatOffset)
         {
@@ -20,7 +20,7 @@
             {
                 if (!Harmony.HasAnyPatches(HARMONYID))
                 {
-                    noodlePatches.ForEach(n => HarmonyInstance.Patch(
+                    _noodlePatches.ForEach(n => _harmonyInstance.Patch(
                         n.OriginalMethod,
                         n.Prefix != null ? new HarmonyMethod(n.Prefix) : null,
                         n.Postfix != null ? new HarmonyMethod(n.Postfix) : null,
@@ -87,15 +87,15 @@
             }
             else
             {
-                HarmonyInstance.UnpatchAll(HARMONYID);
+                _harmonyInstance.UnpatchAll(HARMONYID);
             }
         }
 
         internal static void InitNoodlePatches()
         {
-            if (noodlePatches == null)
+            if (_noodlePatches == null)
             {
-                noodlePatches = new List<NoodlePatchData>();
+                _noodlePatches = new List<NoodlePatchData>();
                 foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
                 {
                     object[] noodleattributes = type.GetCustomAttributes(typeof(NoodlePatch), true);
@@ -125,7 +125,7 @@
                         MethodInfo postfix = AccessTools.Method(type, "Postfix");
                         MethodInfo transpiler = AccessTools.Method(type, "Transpiler");
 
-                        methodNames.ForEach(n => noodlePatches.Add(new NoodlePatchData(AccessTools.Method(declaringType, n), prefix, postfix, transpiler)));
+                        methodNames.ForEach(n => _noodlePatches.Add(new NoodlePatchData(AccessTools.Method(declaringType, n), prefix, postfix, transpiler)));
                     }
                 }
             }

@@ -23,7 +23,7 @@
                 return null;
             }
 
-            Vector3 total = VectorZero;
+            Vector3 total = _vectorZero;
             if (vectorOne.HasValue)
             {
                 total += vectorOne.Value;

@@ -60,7 +60,7 @@
 
                 Transform transform = __instance.transform;
 
-                Quaternion localRotation = QuaternionIdentity;
+                Quaternion localRotation = _quaternionIdentity;
                 if (rotation != null || localRotation != null)
                 {
                     if (localrot != null)
