@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet>..\..\NoodleExtensions\NoodleExtensions\NoodleExtensions.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -39,59 +40,35 @@
     <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />
     <Compile Include="HarmonyPatches\StandardLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="Utils\Easings.cs" />
-    <Compile Include="VFX\MayhemEvent.cs" />
-    <Compile Include="Events\ChromaBombColourEvent.cs" />
     <Compile Include="Events\ChromaGradientEvent.cs" />
     <Compile Include="Events\ChromaLightColourEvent.cs" />
     <Compile Include="Events\ChromaNoteColourEvent.cs" />
-    <Compile Include="Events\ChromaObstacleColourEvent.cs" />
     <Compile Include="ChromaBehaviour.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
     <Compile Include="Extensions\SaberColourizer.cs" />
     <Compile Include="HarmonyPatches\ColorNoteVisuals.cs" />
     <Compile Include="HarmonyPatches\NoteDebrisSpawner.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />
-    <Compile Include="HarmonyPatches\MenuLightsManager.cs" />
     <Compile Include="HarmonyPatches\LightPairRotationEventEffect.cs" />
     <Compile Include="HarmonyPatches\ParticleSystemEventEffect.cs" />
-    <Compile Include="HarmonyPatches\ReleaseInfoViewController.cs" />
     <Compile Include="HarmonyPatches\ColorManager.cs" />
     <Compile Include="HarmonyPatches\LightSwitchEventEffect.cs" />
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\NoteCutEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\TrackLaneRingsRotationEffect.cs" />
-    <Compile Include="Misc\Greetings.cs" />
-    <Compile Include="ResourceTextFiles.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ResourceTextFiles.resx</DependentUpon>
-    </Compile>
     <Compile Include="Utils\ColorStructs.cs" />
     <Compile Include="Settings\ChromaConfig.cs" />
     <Compile Include="Settings\ChromaSettingsUI.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ChromaLogger.cs" />
-    <Compile Include="ColourManager.cs" />
+    <Compile Include="ChromaColorManager.cs" />
     <Compile Include="Utils\ChromaUtils.cs" />
-    <Compile Include="Utils\SidePanelUtil.cs" />
-    <Compile Include="VFX\TechnicolourController.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="ResourceTextFiles.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>ResourceTextFiles.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
-    <None Include="Resources\safetyWaiver.txt" />
-    <EmbeddedResource Include="Settings\settings.bsml" />
     <EmbeddedResource Include="Settings\modifiers.bsml" />
     <EmbeddedResource Include="Settings\lightshow.bsml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\chromaNotes.txt" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\LightshowIcon.png" />
@@ -187,6 +164,13 @@
     <Reference Include="Zenject">
       <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Zenject.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

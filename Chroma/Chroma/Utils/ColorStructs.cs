@@ -1,29 +1,35 @@
-﻿using UnityEngine;
-
-namespace Chroma
+﻿namespace Chroma
 {
+    using UnityEngine;
+
     internal struct NamedColor
     {
-        internal string name { get; }
-        internal Color? color { get; }
-
         internal NamedColor(string name, Color? color)
         {
-            if (name.Length > 13) name = name.Substring(0, 13);
-            this.name = name;
-            this.color = color;
+            if (name.Length > 13)
+            {
+                name = name.Substring(0, 13);
+            }
+
+            Name = name;
+            Color = color;
         }
+
+        internal string Name { get; }
+
+        internal Color? Color { get; }
     }
 
     internal struct TimedColor
     {
-        internal float time { get; }
-        internal Color color { get; }
-
         internal TimedColor(float time, Color color)
         {
-            this.time = time;
-            this.color = color;
+            Time = time;
+            Color = color;
         }
+
+        internal float Time { get; }
+
+        internal Color Color { get; }
     }
 }

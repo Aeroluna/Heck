@@ -1,77 +1,64 @@
-﻿using Chroma.Events;
-using Chroma.Settings;
-using Chroma.Utils;
-using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
-using IPA.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-
-namespace Chroma.HarmonyPatches
+﻿namespace Chroma.HarmonyPatches
 {
+    using System.Linq;
+    using Chroma.Utils;
+    using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
+    using IPA.Utilities;
+    using UnityEngine;
+
     [HarmonyPatch(typeof(ObstacleController))]
     [HarmonyPatch("Init")]
     internal class ObstacleControllerInit
     {
+        private static SimpleColorSO _customObstacleColor;
+        private static SimpleColorSO _defaultObstacleColor;
+
         internal static SimpleColorSO DefaultObstacleColorSO
         {
             get
             {
-                if (defaultObstacleColor == null) defaultObstacleColor = Resources.FindObjectsOfTypeAll<ColorManager>().First().GetField<SimpleColorSO, ColorManager>("_obstaclesColor");
-                return defaultObstacleColor;
+                if (_defaultObstacleColor == null)
+                {
+                    _defaultObstacleColor = Resources.FindObjectsOfTypeAll<ColorManager>().First().GetField<SimpleColorSO, ColorManager>("_obstaclesColor");
+                }
+
+                return _defaultObstacleColor;
             }
         }
-
-        private static SimpleColorSO defaultObstacleColor;
 
         internal static SimpleColorSO CustomObstacleColorSO
         {
             get
             {
-                if (customObstacleColor == null) customObstacleColor = ScriptableObject.CreateInstance<SimpleColorSO>();
-                return customObstacleColor;
+                if (_customObstacleColor == null)
+                {
+                    _customObstacleColor = ScriptableObject.CreateInstance<SimpleColorSO>();
+                }
+
+                return _customObstacleColor;
             }
         }
-
-        private static SimpleColorSO customObstacleColor;
 
         internal static void ClearObstacleColors()
         {
-            defaultObstacleColor = null;
-            UnityEngine.Object.Destroy(customObstacleColor);
-            customObstacleColor = null;
+            _defaultObstacleColor = null;
+            Object.Destroy(_customObstacleColor);
+            _customObstacleColor = null;
         }
 
+#pragma warning disable SA1313
         private static void Prefix(ObstacleController __instance, ref SimpleColorSO ____color, ObstacleData obstacleData)
+#pragma warning restore SA1313
         {
             Color? c = null;
 
-            // Technicolour
-            if (ColourManager.TechnicolourBarriers && (ChromaConfig.TechnicolourWallsStyle != ColourManager.TechnicolourStyle.GRADIENT))
-            {
-                c = ColourManager.GetTechnicolour(true, Time.time + __instance.GetInstanceID(), ChromaConfig.TechnicolourWallsStyle);
-            }
-
-            // CustomObstacleColours
-            List<TimedColor> colors = ChromaObstacleColourEvent.ObstacleColours.Where(n => n.time <= obstacleData.time).ToList();
-            if (colors.Count > 0) c = colors.Last().color;
-
             // CustomJSONData _customData individual color override
-            try
+            if (obstacleData is CustomObstacleData customData && ChromaBehaviour.LightingRegistered)
             {
-                if (obstacleData is CustomObstacleData customData && ChromaBehaviour.LightingRegistered)
-                {
-                    dynamic dynData = customData.customData;
+                dynamic dynData = customData.customData;
 
-                    c = ChromaUtils.GetColorFromData(dynData) ?? c;
-                }
-            }
-            catch (Exception e)
-            {
-                ChromaLogger.Log("INVALID _customData", ChromaLogger.Level.WARNING);
-                ChromaLogger.Log(e);
+                c = ChromaUtils.GetColorFromData(dynData) ?? c;
             }
 
             if (c.HasValue)
@@ -83,12 +70,6 @@ namespace Chroma.HarmonyPatches
             {
                 ____color = DefaultObstacleColorSO;
             }
-        }
-
-        private static void Postfix(ObstacleController __instance)
-        {
-            if (!VFX.TechnicolourController.Instantiated()) return;
-            VFX.TechnicolourController.Instance._obstacleControllers.Add(__instance);
         }
     }
 }
