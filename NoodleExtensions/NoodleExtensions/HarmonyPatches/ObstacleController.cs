@@ -172,6 +172,56 @@
     {
         private static readonly FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.Accessor _obstacleCutoutAnimateEffectAccessor = FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
 
+        private static readonly FieldInfo _obstacleDataField = AccessTools.Field(typeof(ObstacleController), "_obstacleData");
+        private static readonly FieldInfo _move1DurationField = AccessTools.Field(typeof(ObstacleController), "_move1Duration");
+        private static readonly FieldInfo _finishMovementTime = AccessTools.Field(typeof(ObstacleController), "_finishMovementTime");
+        private static readonly MethodInfo _obstacleTimeAdjust = SymbolExtensions.GetMethodInfo(() => ObstacleTimeAdjust(0, null, 0, 0));
+
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            List<CodeInstruction> instructionList = instructions.ToList();
+            bool foundTime = false;
+            int instructionListCount = instructionList.Count;
+            for (int i = 0; i < instructionListCount; i++)
+            {
+                if (!foundTime &&
+                    instructionList[i].opcode == OpCodes.Stloc_0)
+                {
+                    foundTime = true;
+                    instructionList.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
+                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldfld, _obstacleDataField));
+                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Ldarg_0));
+                    instructionList.Insert(i + 3, new CodeInstruction(OpCodes.Ldfld, _move1DurationField));
+                    instructionList.Insert(i + 4, new CodeInstruction(OpCodes.Ldarg_0));
+                    instructionList.Insert(i + 5, new CodeInstruction(OpCodes.Ldfld, _finishMovementTime));
+                    instructionList.Insert(i + 6, new CodeInstruction(OpCodes.Call, _obstacleTimeAdjust));
+                }
+            }
+
+            if (!foundTime)
+            {
+                NoodleLogger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
+            }
+
+            return instructionList.AsEnumerable();
+        }
+
+        private static float ObstacleTimeAdjust(float original, ObstacleData obstacleData, float move1Duration, float finishMovementTime)
+        {
+            if (original > move1Duration)
+            {
+                dynamic dynData = ((CustomObstacleData)obstacleData).customData;
+                Track track = Trees.at(dynData, "track");
+                float? time = AnimationHelper.TryGetProperty(track, TIME);
+                if (time.HasValue)
+                {
+                    return (Mathf.Clamp(time.Value, 0, 1) * (finishMovementTime - move1Duration)) + move1Duration;
+                }
+            }
+
+            return original;
+        }
+
 #pragma warning disable SA1313
         private static void Prefix(
             ObstacleController __instance,

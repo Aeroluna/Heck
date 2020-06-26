@@ -13,6 +13,8 @@
     [NoodlePatch("ManualUpdate")]
     internal class NoteJumpManualUpdate
     {
+        private static readonly FieldInfo _jumpDurationField = AccessTools.Field(typeof(NoteJump), "_jumpDuration");
+        private static readonly MethodInfo _noteJumpTimeAdjust = SymbolExtensions.GetMethodInfo(() => NoteJumpTimeAdjust(0, 0));
         private static readonly FieldInfo _localPositionField = AccessTools.Field(typeof(NoteJump), "_localPosition");
         private static readonly MethodInfo _definiteNoteJump = SymbolExtensions.GetMethodInfo(() => DefiniteNoteJump(Vector3.zero, 0));
         private static readonly MethodInfo _convertToLocalSpace = SymbolExtensions.GetMethodInfo(() => ConvertToLocalSpace(null));
@@ -26,6 +28,7 @@
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
+            bool foundTime = false;
             bool foundPosition = false;
             bool foundTransformUp = false;
             bool foundZOffset = false;
@@ -33,6 +36,15 @@
             int instructionListCount = instructionList.Count;
             for (int i = 0; i < instructionListCount; i++)
             {
+                if (!foundTime &&
+                    instructionList[i].opcode == OpCodes.Stloc_0)
+                {
+                    foundTime = true;
+                    instructionList.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
+                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldfld, _jumpDurationField));
+                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Call, _noteJumpTimeAdjust));
+                }
+
                 if (!foundPosition &&
                     instructionList[i].opcode == OpCodes.Stind_R4)
                 {
@@ -78,6 +90,11 @@
                 }
             }
 
+            if (!foundTime)
+            {
+                NoodleLogger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
+            }
+
             if (!foundPosition)
             {
                 NoodleLogger.Log("Failed to find stind.r4!", IPA.Logging.Logger.Level.Error);
@@ -94,6 +111,21 @@
             }
 
             return instructionList.AsEnumerable();
+        }
+
+        private static float NoteJumpTimeAdjust(float original, float jumpDuration)
+        {
+            dynamic dynData = NoteControllerUpdate.CustomNoteData.customData;
+            Track track = Trees.at(dynData, "track");
+            float? time = AnimationHelper.TryGetProperty(track, NoodleExtensions.Plugin.TIME);
+            if (time.HasValue)
+            {
+                return Mathf.Clamp(time.Value, 0, 1) * jumpDuration;
+            }
+            else
+            {
+                return original;
+            }
         }
 
         private static Vector3 DefiniteNoteJump(Vector3 original, float time)

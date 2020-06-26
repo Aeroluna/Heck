@@ -118,6 +118,7 @@
             }
         }
 
+        // NE Specific properties below
         internal static void AddTrackProperties(Track track)
         {
             IDictionary<string, Property> properties = track.Properties;
@@ -127,6 +128,7 @@
             properties.Add(LOCALROTATION, new Property(PropertyType.Quaternion));
             properties.Add(DISSOLVE, new Property(PropertyType.Linear));
             properties.Add(DISSOLVEARROW, new Property(PropertyType.Linear));
+            properties.Add(TIME, new Property(PropertyType.Linear));
 
             IDictionary<string, Property> pathProperties = track.PathProperties;
             pathProperties.Add(POSITION, new Property(PropertyType.Vector3));

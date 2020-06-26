@@ -28,6 +28,7 @@
         internal const string DEFINITEPOSITION = "_definitePosition";
         internal const string DISSOLVE = "_dissolve";
         internal const string DISSOLVEARROW = "_dissolveArrow";
+        internal const string TIME = "_time";
 
         internal const string POINTDEFINITIONS = "_pointDefinitions";
         internal const string NAME = "_name";
