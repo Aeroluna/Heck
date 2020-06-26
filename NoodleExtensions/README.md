@@ -89,7 +89,7 @@ Example of `_customEvents`:
         * `"_scale"`: (Point Definition) [Yeah....](https://cdn.discordapp.com/attachments/443569023951568906/719503041883144192/unknown.png)
         * `"_localRotation"`: (Point Definition) 
         * `"_definitePosition"`: (Point Definition) Defines the exact position an object should be at. Completely overwrites base game movement. Will still respect `_lineIndex` and `_lineLayer`.
-        * `"_dissolve"`: (Point Definition) Transparency. `0` is fully opaque and `1` is fully transparent. NOTE: Unlike other point definitions that take four numbers per point, `_dissolve` and `_dissolveArrow` only take two (transparency and time).
+        * `"_dissolve"`: (Point Definition) Transparency. `1` is fully opaque and `0` is fully transparent. NOTE: Unlike other point definitions that take four numbers per point, `_dissolve` and `_dissolveArrow` only take two (transparency and time).
         * `"_dissolveArrow"`: (Point Definition) (Note Only) Transparency of the arrow on notes. Think the `Disappearing Arrows` Modifier.
     * `"_type"`: `"AnimateTrack"` 
       * Defines a set offset to apply to all objects of a track.
