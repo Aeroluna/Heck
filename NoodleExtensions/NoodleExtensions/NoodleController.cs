@@ -14,6 +14,9 @@
     {
         private static List<NoodlePatchData> _noodlePatches;
 
+        // used by tracks
+        public static bool LeftHandedMode { get; set; }
+
         public static void ToggleNoodlePatches(bool value, BeatmapData beatmapData, float defaultNoteJumpMovementSpeed, float defaultNoteJumpStartBeatOffset)
         {
             if (value)

@@ -14,7 +14,7 @@
     [HarmonyPatch("Init")]
     internal class StandardLevelScenesTransitionSetupDataSOInit
     {
-        private static void Postfix(IDifficultyBeatmap difficultyBeatmap)
+        private static void Postfix(IDifficultyBeatmap difficultyBeatmap, PlayerSpecificSettings playerSpecificSettings)
         {
             if (difficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
             {
@@ -22,6 +22,8 @@
                 bool noodleRequirement = requirements?.Contains(CAPABILITY) ?? false;
                 NoodleController.ToggleNoodlePatches(noodleRequirement, customBeatmapData, difficultyBeatmap.noteJumpMovementSpeed, difficultyBeatmap.noteJumpStartBeatOffset);
             }
+
+            NoodleController.LeftHandedMode = playerSpecificSettings.leftHanded;
         }
     }
 }

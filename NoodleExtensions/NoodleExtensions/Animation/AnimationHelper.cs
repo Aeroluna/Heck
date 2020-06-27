@@ -149,6 +149,11 @@
             if (pathDefinitePosition.HasValue)
             {
                 definitePosition = SumVectorNullables(TryGetProperty(track, POSITION), pathDefinitePosition) * NoteLinesDistance;
+
+                if (NoodleController.LeftHandedMode)
+                {
+                    MirrorVectorNullable(ref definitePosition);
+                }
             }
             else
             {
@@ -173,6 +178,13 @@
             localRotationOffset = MultQuaternionNullables(TryGetProperty(track, LOCALROTATION), pathLocalRotation);
             dissolve = MultFloatNullables(TryGetProperty(track, DISSOLVE), pathDissolve);
             dissolveArrow = MultFloatNullables(TryGetProperty(track, DISSOLVEARROW), pathDissolveArrow);
+
+            if (NoodleController.LeftHandedMode)
+            {
+                MirrorVectorNullable(ref positionOffset);
+                MirrorQuaternionNullable(ref rotationOffset);
+                MirrorQuaternionNullable(ref localRotationOffset);
+            }
         }
 
         internal static void GetAllPointData(dynamic customData, out PointDefinition position, out PointDefinition rotation, out PointDefinition scale, out PointDefinition localRotation, out PointDefinition dissolve, out PointDefinition dissolveArrow)
