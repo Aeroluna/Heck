@@ -4,7 +4,7 @@
     {
         public static ChromaConfig Instance { get; set; }
 
-        public bool LightshowModifier { get; set; } = true;
+        public bool LightshowModifier { get; set; } = false;
 
         public bool CustomColorEventsEnabled { get; set; } = true;
 
