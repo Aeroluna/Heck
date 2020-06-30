@@ -92,12 +92,17 @@
             {
                 dynamic dynData = customData.customData;
                 IEnumerable<float> localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
+
+                Transform transform = __instance.transform;
+
                 Quaternion localRotation = _quaternionIdentity;
                 if (localrot != null)
                 {
                     localRotation = Quaternion.Euler(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
-                    __instance.transform.rotation *= localRotation;
+                    transform.rotation *= localRotation;
                 }
+
+                transform.localScale = Vector3.one; // This is a fix for animation due to obstacles being recycled
 
                 dynData.startPos = startPos;
                 dynData.midPos = midPos;

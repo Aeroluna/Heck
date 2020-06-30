@@ -148,7 +148,10 @@
 
             if (pathDefinitePosition.HasValue)
             {
-                definitePosition = SumVectorNullables(TryGetProperty(track, POSITION), pathDefinitePosition) * NoteLinesDistance;
+                TryGetPointData(customData, POSITION, out PointDefinition localPosition, PointDefinitions);
+                Vector3? pathPosition = localPosition?.Interpolate(time) ?? TryGetPathProperty(track, POSITION, time);
+                Vector3? positionOffset = SumVectorNullables(TryGetProperty(track, POSITION), pathPosition);
+                definitePosition = SumVectorNullables(positionOffset, pathDefinitePosition) * NoteLinesDistance;
 
                 if (NoodleController.LeftHandedMode)
                 {
