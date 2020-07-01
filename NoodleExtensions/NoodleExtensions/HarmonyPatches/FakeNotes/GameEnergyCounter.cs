@@ -4,7 +4,7 @@
 
     [NoodlePatch(typeof(GameEnergyCounter))]
     [NoodlePatch("HandleNoteWasCutEvent")]
-    internal class GameEnergyCounterHandleNoteWasCutEvent
+    internal static class GameEnergyCounterHandleNoteWasCutEvent
     {
         [HarmonyPriority(Priority.High)]
 #pragma warning disable SA1313
@@ -17,7 +17,7 @@
 
     [NoodlePatch(typeof(GameEnergyCounter))]
     [NoodlePatch("HandleNoteWasMissedEvent")]
-    internal class GameEnergyCounterHandleNoteWasMissedEvent
+    internal static class GameEnergyCounterHandleNoteWasMissedEvent
     {
         [HarmonyPriority(Priority.High)]
 #pragma warning disable SA1313

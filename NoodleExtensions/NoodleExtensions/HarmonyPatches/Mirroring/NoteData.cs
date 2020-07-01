@@ -11,7 +11,7 @@
 
     [HarmonyPatch(typeof(NoteData))]
     [HarmonyPatch("MirrorLineIndex")]
-    internal class NoteDataMirrorLineIndex
+    internal static class NoteDataMirrorLineIndex
     {
 #pragma warning disable SA1313
         private static void Postfix(NoteData __instance)

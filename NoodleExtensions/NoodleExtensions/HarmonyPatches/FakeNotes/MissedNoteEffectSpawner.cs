@@ -4,7 +4,7 @@
 
     [NoodlePatch(typeof(MissedNoteEffectSpawner))]
     [NoodlePatch("HandleNoteWasMissed")]
-    internal class MissedNoteEffectSpawnerHandleNoteWasMissed
+    internal static class MissedNoteEffectSpawnerHandleNoteWasMissed
     {
         [HarmonyPriority(Priority.High)]
 #pragma warning disable SA1313

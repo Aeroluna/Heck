@@ -13,7 +13,7 @@
         typeof(StandardLevelScenesTransitionSetupDataSO),
         new Type[] { typeof(IDifficultyBeatmap), typeof(OverrideEnvironmentSettings), typeof(ColorScheme), typeof(GameplayModifiers), typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(string), typeof(bool) })]
     [HarmonyPatch("Init")]
-    internal class StandardLevelScenesTransitionSetupDataSOInit
+    internal static class StandardLevelScenesTransitionSetupDataSOInit
     {
         private static void Postfix(IDifficultyBeatmap difficultyBeatmap, PlayerSpecificSettings playerSpecificSettings)
         {

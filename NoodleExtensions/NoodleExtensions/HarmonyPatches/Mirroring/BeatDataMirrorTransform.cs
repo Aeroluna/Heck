@@ -7,7 +7,7 @@
 
     [HarmonyPatch(typeof(BeatDataMirrorTransform))]
     [HarmonyPatch("CreateTransformedData")]
-    internal class BeatDataMirrorTransformCreateTransformedData
+    internal static class BeatDataMirrorTransformCreateTransformedData
     {
 #pragma warning disable SA1313
         private static void Postfix(BeatmapData __result)

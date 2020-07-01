@@ -40,7 +40,7 @@
 
     [NoodlePatch(typeof(NoteCutEffectSpawner))]
     [NoodlePatch("SpawnNoteCutEffect")]
-    internal class NoteCutEffectSpawnerSpawnNoteCutEffect
+    internal static class NoteCutEffectSpawnerSpawnNoteCutEffect
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -87,7 +87,7 @@
 
     [NoodlePatch(typeof(NoteCutEffectSpawner))]
     [NoodlePatch("SpawnBombCutEffect")]
-    internal class NoteCutEffectSpawnerSpawnBombCutEffect
+    internal static class NoteCutEffectSpawnerSpawnBombCutEffect
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {

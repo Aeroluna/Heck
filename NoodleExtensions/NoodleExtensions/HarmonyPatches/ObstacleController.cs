@@ -16,7 +16,7 @@
 
     [NoodlePatch(typeof(ObstacleController))]
     [NoodlePatch("Init")]
-    internal class ObstacleControllerInit
+    internal static class ObstacleControllerInit
     {
         private static readonly MethodInfo _getCustomWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(0, null));
         private static readonly MethodInfo _getWorldRotation = SymbolExtensions.GetMethodInfo(() => GetWorldRotation(null, 0));
@@ -173,7 +173,7 @@
 
     [NoodlePatch(typeof(ObstacleController))]
     [NoodlePatch("Update")]
-    internal class ObstacleControllerUpdate
+    internal static class ObstacleControllerUpdate
     {
         private static readonly FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.Accessor _obstacleCutoutAnimateEffectAccessor = FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
 
@@ -320,7 +320,7 @@
 
     [NoodlePatch(typeof(ObstacleController))]
     [NoodlePatch("GetPosForTime")]
-    internal class ObstacleControllerGetPosForTime
+    internal static class ObstacleControllerGetPosForTime
     {
 #pragma warning disable SA1313
         private static bool Prefix(

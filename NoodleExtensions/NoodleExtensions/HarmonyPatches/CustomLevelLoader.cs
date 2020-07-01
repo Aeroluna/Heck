@@ -10,7 +10,7 @@
 
     [HarmonyPatch(typeof(CustomLevelLoader))]
     [HarmonyPatch("LoadBeatmapDataBeatmapData")]
-    internal class CustomLevelLoaderLoadBeatmapDataBeatmapData
+    internal static class CustomLevelLoaderLoadBeatmapDataBeatmapData
     {
         [HarmonyPriority(Priority.Low)]
 #pragma warning disable SA1313

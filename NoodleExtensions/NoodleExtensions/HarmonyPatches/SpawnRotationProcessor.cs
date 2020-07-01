@@ -6,7 +6,7 @@
 
     [NoodlePatch(typeof(SpawnRotationProcessor))]
     [NoodlePatch("ProcessBeatmapEventData")]
-    internal class SpawnRotationProcessorProcessBeatmapEventData
+    internal static class SpawnRotationProcessorProcessBeatmapEventData
     {
 #pragma warning disable SA1313
         private static bool Prefix(BeatmapEventData beatmapEventData, ref float ____rotation)

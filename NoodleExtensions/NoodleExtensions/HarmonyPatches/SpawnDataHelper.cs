@@ -4,7 +4,7 @@
     using UnityEngine;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 
-    internal class SpawnDataHelper
+    internal static class SpawnDataHelper
     {
         internal static Vector3 GetNoteOffset(BeatmapObjectData beatmapObjectData, float? startRow, float? startHeight)
         {

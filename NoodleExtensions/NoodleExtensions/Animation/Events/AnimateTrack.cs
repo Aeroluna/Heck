@@ -5,7 +5,7 @@
     using UnityEngine;
     using static NoodleExtensions.Animation.AnimationController;
 
-    internal class AnimateTrack
+    internal static class AnimateTrack
     {
         internal static void Callback(CustomEventData customEventData)
         {

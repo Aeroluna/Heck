@@ -11,13 +11,14 @@
 
         public IDictionary<string, Track> Tracks { get; private set; } = new Dictionary<string, Track>();
 
-        public Track AddToTrack(string trackName)
+        public Track AddTrack(string trackName)
         {
             Track track;
             if (!Tracks.TryGetValue(trackName, out track))
             {
                 track = new Track();
                 TrackWasCreated?.Invoke(track);
+                track.ResetVariables();
                 Tracks.Add(trackName, track);
             }
 

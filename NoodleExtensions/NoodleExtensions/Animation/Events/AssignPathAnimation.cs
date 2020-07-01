@@ -5,7 +5,7 @@
     using UnityEngine;
     using static NoodleExtensions.Animation.AnimationController;
 
-    internal class AssignPathAnimation
+    internal static class AssignPathAnimation
     {
         internal static void Callback(CustomEventData customEventData)
         {

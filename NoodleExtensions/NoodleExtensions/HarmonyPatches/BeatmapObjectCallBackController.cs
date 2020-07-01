@@ -10,7 +10,7 @@
 
     [NoodlePatch(typeof(BeatmapObjectCallbackController))]
     [NoodlePatch("LateUpdate")]
-    internal class BeatmapObjectCallBackControllerLateUpdate
+    internal static class BeatmapObjectCallBackControllerLateUpdate
     {
         private static readonly MethodInfo _getAheadTime = SymbolExtensions.GetMethodInfo(() => GetAheadTime(null, null, 0));
         private static readonly MethodInfo _beatmapObjectSpawnControllerCallback = typeof(BeatmapObjectSpawnController).GetMethod("HandleBeatmapObjectCallback", BindingFlags.Public | BindingFlags.Instance);

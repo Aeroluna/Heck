@@ -4,7 +4,7 @@
 
     [NoodlePatch(typeof(ScoreController))]
     [NoodlePatch("HandleNoteWasCutEvent")]
-    internal class ScoreControllerHandleNoteWasCutEvent
+    internal static class ScoreControllerHandleNoteWasCutEvent
     {
         [HarmonyPriority(Priority.High)]
 #pragma warning disable SA1313
@@ -17,7 +17,7 @@
 
     [NoodlePatch(typeof(ScoreController))]
     [NoodlePatch("HandleNoteWasMissedEvent")]
-    internal class ScoreControllerHandleNoteWasMissedEvent
+    internal static class ScoreControllerHandleNoteWasMissedEvent
     {
         [HarmonyPriority(Priority.High)]
 #pragma warning disable SA1313

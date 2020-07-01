@@ -15,7 +15,7 @@
 
     [NoodlePatch(typeof(NoteController))]
     [NoodlePatch("Init")]
-    internal class NoteControllerInit
+    internal static class NoteControllerInit
     {
         internal static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
         internal static readonly FieldAccessor<NoteMovement, NoteFloorMovement>.Accessor _noteFloorMovementAccessor = FieldAccessor<NoteMovement, NoteFloorMovement>.GetAccessor("_floorMovement");
@@ -154,7 +154,7 @@
 
     [NoodlePatch(typeof(NoteController))]
     [NoodlePatch("Update")]
-    internal class NoteControllerUpdate
+    internal static class NoteControllerUpdate
     {
         internal static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorEndPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_endPos");
         private static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorStartPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_startPos");

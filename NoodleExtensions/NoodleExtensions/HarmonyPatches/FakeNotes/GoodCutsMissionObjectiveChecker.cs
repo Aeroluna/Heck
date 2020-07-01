@@ -4,7 +4,7 @@
 
     [NoodlePatch(typeof(GoodCutsMissionObjectiveChecker))]
     [NoodlePatch("HandleNoteWasCut")]
-    internal class GoodCutsMissionObjectiveCheckerHandleNoteWasCut
+    internal static class GoodCutsMissionObjectiveCheckerHandleNoteWasCut
     {
         [HarmonyPriority(Priority.High)]
 #pragma warning disable SA1313

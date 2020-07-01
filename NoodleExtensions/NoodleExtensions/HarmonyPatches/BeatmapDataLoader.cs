@@ -10,7 +10,7 @@
     using NoodleExtensions.Animation;
     using static NoodleExtensions.Plugin;
 
-    internal class BeatmapDataLoaderProcessNotesInTimeRow
+    internal static class BeatmapDataLoaderProcessNotesInTimeRow
     {
         private static readonly Dictionary<float, float> _numberOfNotesInLines = new Dictionary<float, float>();
 
@@ -135,7 +135,7 @@
 
     [HarmonyPatch(typeof(BeatmapDataLoader))]
     [HarmonyPatch("GetBeatmapDataFromBeatmapSaveData")]
-    internal class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
+    internal static class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
     {
         // TODO: account for base game bpm changes
 #pragma warning disable SA1313
@@ -174,7 +174,7 @@
                         string trackName = Trees.at(dynData, TRACK);
                         if (trackName != null)
                         {
-                            dynData.track = trackManager.AddToTrack(trackName);
+                            dynData.track = trackManager.AddTrack(trackName);
                         }
                     }
                 }

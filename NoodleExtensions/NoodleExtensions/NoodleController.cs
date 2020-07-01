@@ -4,10 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
-    using NoodleExtensions.Animation;
     using static NoodleExtensions.Plugin;
 
     public static class NoodleController

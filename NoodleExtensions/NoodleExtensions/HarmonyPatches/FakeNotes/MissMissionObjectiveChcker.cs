@@ -4,7 +4,7 @@
 
     [NoodlePatch(typeof(MissMissionObjectiveChecker))]
     [NoodlePatch("HandleNoteWasMissed")]
-    internal class MissMissionObjectiveCheckerHandleNoteWasMissed
+    internal static class MissMissionObjectiveCheckerHandleNoteWasMissed
     {
         [HarmonyPriority(Priority.High)]
 #pragma warning disable SA1313

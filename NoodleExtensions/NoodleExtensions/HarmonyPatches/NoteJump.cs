@@ -11,7 +11,7 @@
 
     [NoodlePatch(typeof(NoteJump))]
     [NoodlePatch("ManualUpdate")]
-    internal class NoteJumpManualUpdate
+    internal static class NoteJumpManualUpdate
     {
         private static readonly FieldInfo _jumpDurationField = AccessTools.Field(typeof(NoteJump), "_jumpDuration");
         private static readonly MethodInfo _noteJumpTimeAdjust = SymbolExtensions.GetMethodInfo(() => NoteJumpTimeAdjust(0, 0));

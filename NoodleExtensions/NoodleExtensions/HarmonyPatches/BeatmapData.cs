@@ -67,7 +67,7 @@
     [HarmonyPatch(typeof(BeatmapData))]
     [HarmonyPatch("notesCount")]
     [HarmonyPatch(MethodType.Getter)]
-    internal class BeatmapDataGetNotesCount
+    internal static class BeatmapDataGetNotesCount
     {
 #pragma warning disable SA1313
         private static void Postfix(BeatmapData __instance, ref int __result)
@@ -84,7 +84,7 @@
     [HarmonyPatch(typeof(BeatmapData))]
     [HarmonyPatch("obstaclesCount")]
     [HarmonyPatch(MethodType.Getter)]
-    internal class BeatmapDataGetObstaclesCount
+    internal static class BeatmapDataGetObstaclesCount
     {
 #pragma warning disable SA1313
         private static void Postfix(BeatmapData __instance, ref int __result)
@@ -101,7 +101,7 @@
     [HarmonyPatch(typeof(BeatmapData))]
     [HarmonyPatch("bombsCount")]
     [HarmonyPatch(MethodType.Getter)]
-    internal class BeatmapDataGetBombsCount
+    internal static class BeatmapDataGetBombsCount
     {
 #pragma warning disable SA1313
         private static void Postfix(BeatmapData __instance, ref int __result)

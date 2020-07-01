@@ -11,7 +11,7 @@
 
     [HarmonyPatch(typeof(ObstacleData))]
     [HarmonyPatch("MirrorLineIndex")]
-    internal class ObstacleDataMirrorLineIndex
+    internal static class ObstacleDataMirrorLineIndex
     {
 #pragma warning disable SA1313
         private static void Postfix(ObstacleData __instance)

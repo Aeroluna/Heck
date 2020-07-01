@@ -13,7 +13,7 @@
     [NoodlePatch(typeof(BeatmapObjectSpawnController))]
     [NoodlePatch("SpawnObstacle")]
     [NoodlePatch("SpawnNote")]
-    internal class BeatmapObjectSpawnControllerSpawnObject
+    internal static class BeatmapObjectSpawnControllerSpawnObject
     {
         private static readonly MethodInfo _getJumpDuration = SymbolExtensions.GetMethodInfo(() => GetJumpDuration(null, 0));
 

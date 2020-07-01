@@ -11,7 +11,7 @@
 
     [NoodlePatch(typeof(NoteFloorMovement))]
     [NoodlePatch("ManualUpdate")]
-    internal class NoteFloorMovementManualUpdate
+    internal static class NoteFloorMovementManualUpdate
     {
         private static readonly MethodInfo _definiteNoteFloorMovement = SymbolExtensions.GetMethodInfo(() => DefiniteNoteFloorMovement(Vector3.zero, null));
 

@@ -2,7 +2,7 @@
 {
     [NoodlePatch(typeof(DisappearingArrowController))]
     [NoodlePatch("SetArrowTransparency")]
-    internal class DisappearingArrowControllerSetArrowTransparency
+    internal static class DisappearingArrowControllerSetArrowTransparency
     {
         // This makes _dissolveArrow work and I cannot figure out why
 #pragma warning disable SA1313

@@ -12,7 +12,7 @@
 
     [HarmonyPatch(typeof(BeatmapObjectSpawnMovementData))]
     [HarmonyPatch("Init")]
-    internal class BeatmapObjectSpawnMovementDataInit
+    internal static class BeatmapObjectSpawnMovementDataInit
     {
 #pragma warning disable SA1313
         private static void Postfix(BeatmapObjectSpawnMovementData __instance)
@@ -24,7 +24,7 @@
 
     [NoodlePatch(typeof(BeatmapObjectSpawnMovementData))]
     [NoodlePatch("GetObstacleSpawnMovementData")]
-    internal class BeatmapObjectSpawnMovementDataGetObstacleSpawnMovementData
+    internal static class BeatmapObjectSpawnMovementDataGetObstacleSpawnMovementData
     {
 #pragma warning disable SA1313
         private static void Postfix(Vector3 ____centerPos, ObstacleData obstacleData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float obstacleHeight)
@@ -83,7 +83,7 @@
 
     [NoodlePatch(typeof(BeatmapObjectSpawnMovementData))]
     [NoodlePatch("GetNoteSpawnMovementData")]
-    internal class BeatmapObjectSpawnMovementDataGetNoteSpawnMovementData
+    internal static class BeatmapObjectSpawnMovementDataGetNoteSpawnMovementData
     {
 #pragma warning disable SA1313
         private static void Postfix(BeatmapObjectSpawnMovementData __instance, Vector3 ____centerPos, float ____jumpDuration, NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float jumpGravity)
