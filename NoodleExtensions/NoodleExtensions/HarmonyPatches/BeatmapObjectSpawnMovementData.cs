@@ -36,7 +36,7 @@
                 IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
                 IEnumerable<float?> scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
                 float? njs = (float?)Trees.at(dynData, NOTEJUMPSPEED);
-                float? spawnoffset = (float?)Trees.at(dynData, SPAWNOFFSET);
+                float? spawnoffset = (float?)Trees.at(dynData, NOTESPAWNOFFSET);
 
                 float? startX = position?.ElementAtOrDefault(0);
                 float? startY = position?.ElementAtOrDefault(1);
@@ -95,7 +95,7 @@
                 IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
                 float? flipLineIndex = (float?)Trees.at(dynData, "flipLineIndex");
                 float? njs = (float?)Trees.at(dynData, NOTEJUMPSPEED);
-                float? spawnoffset = (float?)Trees.at(dynData, SPAWNOFFSET);
+                float? spawnoffset = (float?)Trees.at(dynData, NOTESPAWNOFFSET);
                 float startlinelayer = (float?)Trees.at(dynData, "startNoteLineLayer") ?? (float)NoteLineLayer.Base;
 
                 float? startRow = position?.ElementAtOrDefault(0);

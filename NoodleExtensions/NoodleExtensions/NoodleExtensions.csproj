@@ -81,9 +81,18 @@
     <Compile Include="Animation\Events\EventHelper.cs" />
     <Compile Include="Animation\PointDefinition.cs" />
     <Compile Include="Animation\PointDefinitionInterpolation.cs" />
+    <Compile Include="HarmonyPatches\BeatmapData.cs" />
+    <Compile Include="HarmonyPatches\CustomLevelLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectCallBackController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\MissMissionObjectiveChcker.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\MissedNoteEffectSpawner.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\GoodCutsMissionObjectiveChecker.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\FakeNoteHelper.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\BadCutsMissionObjectiveChecker.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\GameEnergyCounter.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\NoteCutEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnMovementData.cs" />
     <Compile Include="HarmonyPatches\Mirroring\ObstacleData.cs" />
@@ -91,6 +100,7 @@
     <Compile Include="HarmonyPatches\Mirroring\BeatDataMirrorTransform.cs" />
     <Compile Include="HarmonyPatches\NoteFloorMovement.cs" />
     <Compile Include="HarmonyPatches\NoteJump.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\ScoreController.cs" />
     <Compile Include="HarmonyPatches\SpawnDataHelper.cs" />
     <Compile Include="HarmonyPatches\DisappearingArrowController.cs" />
     <Compile Include="HarmonyPatches\SpawnRotationProcessor.cs" />

@@ -23,7 +23,7 @@
             {
                 dynamic dynData = ((dynamic)beatmapObjectData).customData;
                 float? njs = (float?)Trees.at(dynData, NOTEJUMPSPEED);
-                float? spawnoffset = (float?)Trees.at(dynData, SPAWNOFFSET);
+                float? spawnoffset = (float?)Trees.at(dynData, NOTESPAWNOFFSET);
                 SpawnDataHelper.GetNoteJumpValues(njs, spawnoffset, out float localJumpDuration, out float _, out Vector3 _, out Vector3 _, out Vector3 _);
                 return localJumpDuration;
             }

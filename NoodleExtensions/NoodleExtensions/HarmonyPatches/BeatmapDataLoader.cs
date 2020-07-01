@@ -179,6 +179,8 @@
                     }
                 }
 
+                trackManager.InvokeTrackManagerWasCreated(__result);
+
                 customBeatmapData.customData.tracks = trackManager.Tracks;
 
                 IEnumerable<dynamic> pointDefinitions = (IEnumerable<dynamic>)Trees.at(customBeatmapData.customData, POINTDEFINITIONS);

@@ -5,11 +5,13 @@
 
     public class TrackManager
     {
+        public static event Action<TrackManager, BeatmapData> TrackManagerWasCreated;
+
         public static event Action<Track> TrackWasCreated;
 
-        internal Dictionary<string, Track> Tracks { get; private set; } = new Dictionary<string, Track>();
+        public IDictionary<string, Track> Tracks { get; private set; } = new Dictionary<string, Track>();
 
-        internal Track AddToTrack(string trackName)
+        public Track AddToTrack(string trackName)
         {
             Track track;
             if (!Tracks.TryGetValue(trackName, out track))
@@ -20,6 +22,11 @@
             }
 
             return track;
+        }
+
+        internal void InvokeTrackManagerWasCreated(BeatmapData beatmapData)
+        {
+            TrackManagerWasCreated?.Invoke(this, beatmapData);
         }
     }
 
