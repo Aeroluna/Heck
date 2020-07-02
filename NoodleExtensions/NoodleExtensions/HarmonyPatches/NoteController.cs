@@ -166,6 +166,10 @@
 
         private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
 
+        private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber>.Accessor _gameNoteBigCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber>.GetAccessor("_bigCuttableBySaber");
+        private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber>.Accessor _gameNoteSmallCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber>.GetAccessor("_smallCuttableBySaber");
+        private static readonly FieldAccessor<BombNoteController, CuttableBySaber>.Accessor _bombNoteCuttableAccessor = FieldAccessor<BombNoteController, CuttableBySaber>.GetAccessor("_cuttableBySaber");
+
         internal static CustomNoteData CustomNoteData { get; private set; }
 
 #pragma warning disable SA1313
@@ -190,7 +194,7 @@
                     float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - (jumpDuration * 0.5f));
                     float normalTime = elapsedTime / jumpDuration;
 
-                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow);
+                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow, out float? cuttable);
 
                     if (positionOffset.HasValue)
                     {
@@ -261,6 +265,32 @@
                         }
 
                         disappearingArrowController.SetArrowTransparency(dissolveArrow.Value);
+                    }
+
+                    if (cuttable.HasValue)
+                    {
+                        bool enabled = cuttable.Value >= 1;
+
+                        switch (__instance)
+                        {
+                            case GameNoteController gameNoteController:
+                                BoxCuttableBySaber bigCuttableBySaber = _gameNoteBigCuttableAccessor(ref gameNoteController);
+                                if (bigCuttableBySaber.enabled != enabled)
+                                {
+                                    bigCuttableBySaber.enabled = enabled;
+                                    _gameNoteSmallCuttableAccessor(ref gameNoteController).enabled = enabled;
+                                }
+
+                                break;
+                            case BombNoteController bombNoteController:
+                                CuttableBySaber boxCuttableBySaber = _bombNoteCuttableAccessor(ref bombNoteController);
+                                if (boxCuttableBySaber.enabled != enabled)
+                                {
+                                    boxCuttableBySaber.enabled = enabled;
+                                }
+
+                                break;
+                        }
                     }
                 }
             }

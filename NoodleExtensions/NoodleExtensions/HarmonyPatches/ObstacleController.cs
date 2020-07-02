@@ -256,7 +256,7 @@
                     float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
                     float normalTime = (elapsedTime - ____move1Duration) / (jumpDuration + ____obstacleDuration);
 
-                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _);
+                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _, out float? _);
 
                     if (positionOffset.HasValue)
                     {

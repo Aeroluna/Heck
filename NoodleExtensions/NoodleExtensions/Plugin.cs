@@ -14,6 +14,7 @@
         internal const string HARMONYID = "com.noodle.BeatSaber.NoodleExtensions";
 
         internal const string CUTDIRECTION = "_cutDirection";
+        internal const string CUTTABLE = "_interactable";
         internal const string DEFINITEPOSITION = "_definitePosition";
         internal const string DISSOLVE = "_dissolve";
         internal const string DISSOLVEARROW = "_dissolveArrow";
@@ -32,7 +33,6 @@
         internal const string SCALE = "_scale";
         internal const string TIME = "_time";
         internal const string TRACK = "_track";
-        internal const string UNCUTTABLE = "_uncuttable";
 
         internal static readonly Vector3 _vectorZero = Vector3.zero;
         internal static readonly Quaternion _quaternionIdentity = Quaternion.identity;

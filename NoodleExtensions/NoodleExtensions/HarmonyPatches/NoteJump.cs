@@ -157,8 +157,7 @@
         private static Quaternion ConvertQuaternion(Quaternion source)
         {
             Vector3 euler = source.eulerAngles;
-            euler.z = 0;
-            return Quaternion.Euler(euler);
+            return Quaternion.Euler(euler.x, euler.y, 0);
         }
     }
 }

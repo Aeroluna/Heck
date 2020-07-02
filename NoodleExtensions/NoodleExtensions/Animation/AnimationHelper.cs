@@ -129,6 +129,7 @@
             properties.Add(DISSOLVE, new Property(PropertyType.Linear));
             properties.Add(DISSOLVEARROW, new Property(PropertyType.Linear));
             properties.Add(TIME, new Property(PropertyType.Linear));
+            properties.Add(CUTTABLE, new Property(PropertyType.Linear));
 
             IDictionary<string, Property> pathProperties = track.PathProperties;
             pathProperties.Add(POSITION, new Property(PropertyType.Vector3));
@@ -138,6 +139,7 @@
             pathProperties.Add(DEFINITEPOSITION, new Property(PropertyType.Vector3));
             pathProperties.Add(DISSOLVE, new Property(PropertyType.Linear));
             pathProperties.Add(DISSOLVEARROW, new Property(PropertyType.Linear));
+            pathProperties.Add(CUTTABLE, new Property(PropertyType.Linear));
         }
 
         internal static void GetDefinitePositionOffset(dynamic customData, Track track, float time, out Vector3? definitePosition)
@@ -164,9 +166,9 @@
             }
         }
 
-        internal static void GetObjectOffset(dynamic customData, Track track, float time, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow)
+        internal static void GetObjectOffset(dynamic customData, Track track, float time, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow, out float? cuttable)
         {
-            GetAllPointData(customData, out PointDefinition localPosition, out PointDefinition localRotation, out PointDefinition localScale, out PointDefinition localLocalRotation, out PointDefinition localDissolve, out PointDefinition localDissolveArrow);
+            GetAllPointData(customData, out PointDefinition localPosition, out PointDefinition localRotation, out PointDefinition localScale, out PointDefinition localLocalRotation, out PointDefinition localDissolve, out PointDefinition localDissolveArrow, out PointDefinition localCuttable);
 
             Vector3? pathPosition = localPosition?.Interpolate(time) ?? TryGetPathProperty(track, POSITION, time);
             Quaternion? pathRotation = localRotation?.InterpolateQuaternion(time) ?? TryGetPathProperty(track, ROTATION, time);
@@ -174,6 +176,7 @@
             Quaternion? pathLocalRotation = localLocalRotation?.InterpolateQuaternion(time) ?? TryGetPathProperty(track, LOCALROTATION, time);
             float? pathDissolve = localDissolve?.InterpolateLinear(time) ?? TryGetPathProperty(track, DISSOLVE, time);
             float? pathDissolveArrow = localDissolveArrow?.InterpolateLinear(time) ?? TryGetPathProperty(track, DISSOLVEARROW, time);
+            float? pathCuttable = localCuttable?.InterpolateLinear(time) ?? TryGetPathProperty(track, CUTTABLE, time);
 
             positionOffset = SumVectorNullables(TryGetProperty(track, POSITION), pathPosition) * NoteLinesDistance;
             rotationOffset = MultQuaternionNullables(TryGetProperty(track, ROTATION), pathRotation);
@@ -181,6 +184,7 @@
             localRotationOffset = MultQuaternionNullables(TryGetProperty(track, LOCALROTATION), pathLocalRotation);
             dissolve = MultFloatNullables(TryGetProperty(track, DISSOLVE), pathDissolve);
             dissolveArrow = MultFloatNullables(TryGetProperty(track, DISSOLVEARROW), pathDissolveArrow);
+            cuttable = MultFloatNullables(TryGetProperty(track, CUTTABLE), pathCuttable);
 
             if (NoodleController.LeftHandedMode)
             {
@@ -190,7 +194,7 @@
             }
         }
 
-        internal static void GetAllPointData(dynamic customData, out PointDefinition position, out PointDefinition rotation, out PointDefinition scale, out PointDefinition localRotation, out PointDefinition dissolve, out PointDefinition dissolveArrow)
+        internal static void GetAllPointData(dynamic customData, out PointDefinition position, out PointDefinition rotation, out PointDefinition scale, out PointDefinition localRotation, out PointDefinition dissolve, out PointDefinition dissolveArrow, out PointDefinition cuttable)
         {
             Dictionary<string, PointDefinition> pointDefinitions = PointDefinitions;
 
@@ -200,6 +204,7 @@
             TryGetPointData(customData, LOCALROTATION, out localRotation, pointDefinitions);
             TryGetPointData(customData, DISSOLVE, out dissolve, pointDefinitions);
             TryGetPointData(customData, DISSOLVEARROW, out dissolveArrow, pointDefinitions);
+            TryGetPointData(customData, CUTTABLE, out cuttable, pointDefinitions);
         }
     }
 }
