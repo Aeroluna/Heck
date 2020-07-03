@@ -54,6 +54,8 @@
                 GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", ChromaSettingsUI.instance);
             }
 
+            ChromaUtils.SetSongCoreCapability("Chroma");
+
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");
         }

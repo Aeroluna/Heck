@@ -12,8 +12,11 @@
         private MaterialPropertyBlock[] _blocks;
         private SetSaberGlowColor.PropertyTintColorPair[][] _tintPairs;
         private Xft.XWeaponTrail _weaponTrail;
+        private Color _trailTintColor;
 
         private List<Material> _customMats = new List<Material>();
+
+        private static readonly FieldAccessor<BasicSaberModelController, BasicSaberModelController.InitData>.Accessor _basicSaberModelControllerAccessor = FieldAccessor<BasicSaberModelController, BasicSaberModelController.InitData>.GetAccessor("_initData");
 
         private SaberColourizer(Saber saber)
         {
@@ -62,6 +65,8 @@
             }
 
             _weaponTrail = saber.gameObject.GetComponentInChildren<Xft.XWeaponTrail>();
+            BasicSaberModelController basicSaberModelController = saber.gameObject.GetComponentInChildren<BasicSaberModelController>();
+            _trailTintColor = _basicSaberModelControllerAccessor(ref basicSaberModelController).trailTintColor;
         }
 
         internal static SaberBurnMarkArea SaberBurnMarkArea { get; set; } = null;
@@ -112,7 +117,7 @@
                 lineRenderers[(int)SaberType].endColor = color;
             }
 
-            _weaponTrail.color = color;
+            _weaponTrail.color = (color * _trailTintColor).linear;
         }
     }
 }
