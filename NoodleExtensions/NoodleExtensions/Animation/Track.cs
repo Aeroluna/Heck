@@ -11,6 +11,8 @@
 
         public IDictionary<string, Track> Tracks { get; private set; } = new Dictionary<string, Track>();
 
+        internal static TrackManager Instance { get; private set; }
+
         public Track AddTrack(string trackName)
         {
             Track track;
@@ -27,6 +29,7 @@
 
         internal void InvokeTrackManagerWasCreated(BeatmapData beatmapData)
         {
+            Instance = this;
             TrackManagerWasCreated?.Invoke(this, beatmapData);
         }
     }
