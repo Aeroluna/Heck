@@ -266,7 +266,7 @@
 
     internal class PointDefinitionManager
     {
-        internal Dictionary<string, PointDefinition> PointData { get; private set; } = new Dictionary<string, PointDefinition>();
+        internal IDictionary<string, PointDefinition> PointData { get; private set; } = new Dictionary<string, PointDefinition>();
 
         internal void AddPoint(string pointDataName, PointDefinition pointData)
         {

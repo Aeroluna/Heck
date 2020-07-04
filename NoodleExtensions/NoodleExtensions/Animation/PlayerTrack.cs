@@ -1,6 +1,6 @@
 ﻿namespace NoodleExtensions.Animation
 {
-    using System;
+    using System.Linq;
     using IPA.Utilities;
     using UnityEngine;
     using static NoodleExtensions.Plugin;
@@ -19,7 +19,7 @@
             {
                 _origin = GameObject.Find("GameCore/Origin");
                 _instance = _origin.AddComponent<PlayerTrack>();
-                _pauseController = GameObject.Find("Pause").GetComponent<PauseController>();
+                _pauseController = FindObjectOfType<PauseController>();
             }
 
             _track = track;
@@ -27,14 +27,11 @@
 
         private void Update()
         {
-            if (PauseBool(ref _pauseController))
-            {
-                return;
-            }
+            bool paused = PauseBool(ref _pauseController);
 
             Transform transform = _origin.transform;
             object position = _track.Properties[POSITION].Value;
-            if (position != null)
+            if (position != null && !paused)
             {
                 transform.localPosition = (Vector3)position;
             }
@@ -44,7 +41,7 @@
             }
 
             object rotation = _track.Properties[ROTATION].Value;
-            if (rotation != null)
+            if (rotation != null && !paused)
             {
                 transform.localRotation = (Quaternion)rotation;
             }
