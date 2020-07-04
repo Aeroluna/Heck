@@ -2,16 +2,20 @@
 {
     using System;
     using System.Collections.Generic;
+    using CustomJSONData.CustomBeatmap;
 
     public class TrackManager
     {
-        public static event Action<TrackManager, BeatmapData> TrackManagerWasCreated;
+        internal TrackManager(CustomBeatmapData beatmapData)
+        {
+            TrackManagerCreated?.Invoke(this, beatmapData);
+        }
 
-        public static event Action<Track> TrackWasCreated;
+        public static event EventHandler<CustomBeatmapData> TrackManagerCreated;
+
+        public static event Action<Track> TrackCreated;
 
         public IDictionary<string, Track> Tracks { get; private set; } = new Dictionary<string, Track>();
-
-        internal static TrackManager Instance { get; private set; }
 
         public Track AddTrack(string trackName)
         {
@@ -19,18 +23,12 @@
             if (!Tracks.TryGetValue(trackName, out track))
             {
                 track = new Track();
-                TrackWasCreated?.Invoke(track);
+                TrackCreated?.Invoke(track);
                 track.ResetVariables();
                 Tracks.Add(trackName, track);
             }
 
             return track;
-        }
-
-        internal void InvokeTrackManagerWasCreated(BeatmapData beatmapData)
-        {
-            Instance = this;
-            TrackManagerWasCreated?.Invoke(this, beatmapData);
         }
     }
 

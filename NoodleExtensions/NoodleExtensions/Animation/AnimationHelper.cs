@@ -119,7 +119,7 @@
         }
 
         // NE Specific properties below
-        internal static void AddTrackProperties(Track track)
+        internal static void OnTrackCreated(Track track)
         {
             IDictionary<string, Property> properties = track.Properties;
             properties.Add(POSITION, new Property(PropertyType.Vector3));

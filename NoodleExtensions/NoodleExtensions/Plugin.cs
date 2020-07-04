@@ -46,7 +46,8 @@
             NoodleLogger.IPAlogger = pluginLogger;
             NoodleController.InitNoodlePatches();
 
-            Animation.TrackManager.TrackWasCreated += Animation.AnimationHelper.AddTrackProperties;
+            Animation.TrackManager.TrackManagerCreated += Animation.AssignPlayerToTrack.OnTrackManagerCreated;
+            Animation.TrackManager.TrackCreated += Animation.AnimationHelper.OnTrackCreated;
         }
 
         [OnEnable]

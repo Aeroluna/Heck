@@ -149,8 +149,8 @@
 
             if (__result is CustomBeatmapData customBeatmapData)
             {
-                TrackManager trackManager = new TrackManager();
-                foreach (BeatmapLineData beatmapLineData in __result.beatmapLinesData)
+                TrackManager trackManager = new TrackManager(customBeatmapData);
+                foreach (BeatmapLineData beatmapLineData in customBeatmapData.beatmapLinesData)
                 {
                     foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
                     {
@@ -178,8 +178,6 @@
                         }
                     }
                 }
-
-                trackManager.InvokeTrackManagerWasCreated(__result);
 
                 customBeatmapData.customData.tracks = trackManager.Tracks;
 
