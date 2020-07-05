@@ -27,16 +27,6 @@
             }
         }
 
-        [UIValue("notecolours")]
-        public bool NoteColourEventsEnabled
-        {
-            get => !ChromaConfig.Instance.NoteColorEventsEnabled;
-            set
-            {
-                ChromaConfig.Instance.NoteColorEventsEnabled = !value;
-            }
-        }
-
         // Lightshow
         [UIValue("platform")]
         public bool EnvironmentEnhancementsEnabled

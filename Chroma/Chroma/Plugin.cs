@@ -58,6 +58,11 @@
 
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");
+
+            if (ChromaUtils.IsModInstalled("NoodleExtensions"))
+            {
+                AnimationHelper.SubscribeColorEvents();
+            }
         }
 
         [OnDisable]
@@ -113,11 +118,10 @@
 
         private static void CleanupSongEvents()
         {
-            ChromaNoteColourEvent.SavedNoteColours.Clear();
-            ChromaLightColourEvent.LightColours.Clear();
+            ChromaNoteColorEvent.SavedNoteColours.Clear();
             ChromaGradientEvent.Gradients.Clear();
 
-            HarmonyPatches.ColorNoteVisualsHandleNoteControllerDidInitEvent.NoteColoursActive = false;
+            HarmonyPatches.ColorNoteVisualsHandleNoteControllerDidInitEvent.NoteColorsActive = false;
             HarmonyPatches.ObstacleControllerInit.ClearObstacleColors();
 
             Extensions.SaberColourizer.CurrentAColor = null;

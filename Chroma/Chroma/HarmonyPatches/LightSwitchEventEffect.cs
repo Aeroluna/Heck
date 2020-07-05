@@ -85,7 +85,7 @@
             Color? c = null;
 
             // LightColours
-            if (ChromaLightColourEvent.LightColours.TryGetValue(_event, out List<TimedColor> dictionaryID))
+            if (ChromaLegacyRGBEvent.LightColours.TryGetValue(_event, out List<TimedColor> dictionaryID))
             {
                 List<TimedColor> colors = dictionaryID.Where(n => n.Time <= beatmapEventData.time).ToList();
                 if (colors.Count > 0)

@@ -1,8 +1,8 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using Chroma.Events;
-    using Chroma.Settings;
     using Chroma.Utils;
+    using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
     using UnityEngine;
@@ -11,33 +11,32 @@
     [HarmonyPatch("HandleNoteControllerDidInitEvent")]
     internal class ColorNoteVisualsHandleNoteControllerDidInitEvent
     {
-        internal static bool NoteColoursActive { get; set; }
+        internal static bool NoteColorsActive { get; set; }
 
 #pragma warning disable SA1313
         private static void Prefix(NoteController noteController, ColorManager ____colorManager)
 #pragma warning restore SA1313
         {
             NoteData noteData = noteController.noteData;
-            bool warm = noteData.noteType == NoteType.NoteA;
-            Color? c = null;
 
             // CustomJSONData _customData individual color override
-            if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered && ChromaConfig.Instance.NoteColorEventsEnabled)
+            if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered)
             {
                 dynamic dynData = customData.customData;
-                c = ChromaUtils.GetColorFromData(dynData, false) ?? c;
-            }
+                Color? c = ChromaUtils.GetColorFromData(dynData, false);
 
-            if (c.HasValue)
-            {
-                ChromaColorManager.SetNoteTypeColourOverride(noteData.noteType, c.Value);
-                NoteColoursActive = true;
-            }
+                if (c.HasValue)
+                {
+                    ChromaColorManager.SetNoteTypeColourOverride(noteData.noteType, c.Value);
+                    NoteColorsActive = true;
+                }
 
-            if (NoteColoursActive)
-            {
-                ChromaNoteColourEvent.SavedNoteColours[noteController] = ____colorManager.ColorForNoteType(noteData.noteType);
-                noteController.noteWasCutEvent += ChromaNoteColourEvent.SaberColour;
+                if (NoteColorsActive)
+                {
+                    ChromaNoteColorEvent.SavedNoteColours[noteController] = ____colorManager.ColorForNoteType(noteData.noteType);
+                    noteController.noteWasCutEvent += ChromaNoteColorEvent.SaberColour;
+                    dynData.isSubscribed = true;
+                }
             }
         }
 

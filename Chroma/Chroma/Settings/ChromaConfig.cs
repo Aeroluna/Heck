@@ -8,8 +8,6 @@
 
         public bool CustomColorEventsEnabled { get; set; } = true;
 
-        public bool NoteColorEventsEnabled { get; set; } = true;
-
         public bool EnvironmentEnhancementsEnabled { get; set; } = true;
 
         // fun secret lightshow menu

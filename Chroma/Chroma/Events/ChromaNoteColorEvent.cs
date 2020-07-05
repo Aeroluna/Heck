@@ -4,7 +4,7 @@
     using Chroma.Extensions;
     using UnityEngine;
 
-    internal class ChromaNoteColourEvent
+    internal class ChromaNoteColorEvent
     {
         internal static Dictionary<INoteController, Color> SavedNoteColours { get; } = new Dictionary<INoteController, Color>();
 

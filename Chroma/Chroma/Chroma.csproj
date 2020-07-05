@@ -34,6 +34,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AnimationHelper.cs" />
     <Compile Include="Events\ChromaLegacyRGBEvent.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectManager.cs" />
     <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
@@ -41,8 +42,7 @@
     <Compile Include="HarmonyPatches\StandardLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="Utils\Easings.cs" />
     <Compile Include="Events\ChromaGradientEvent.cs" />
-    <Compile Include="Events\ChromaLightColourEvent.cs" />
-    <Compile Include="Events\ChromaNoteColourEvent.cs" />
+    <Compile Include="Events\ChromaNoteColorEvent.cs" />
     <Compile Include="ChromaBehaviour.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
     <Compile Include="Extensions\SaberColourizer.cs" />
@@ -107,6 +107,9 @@
       <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Main.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NoodleExtensions">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\NoodleExtensions.dll</HintPath>
+    </Reference>
     <Reference Include="SongCore">
       <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\SongCore.dll</HintPath>
     </Reference>

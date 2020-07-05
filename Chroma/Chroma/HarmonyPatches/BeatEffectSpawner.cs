@@ -22,7 +22,7 @@
                 }
             }
 
-            if (ChromaNoteColourEvent.SavedNoteColours.TryGetValue(noteController, out Color c))
+            if (ChromaNoteColorEvent.SavedNoteColours.TryGetValue(noteController, out Color c))
             {
                 ChromaColorManager.SetNoteTypeColourOverride(noteController.noteData.noteType, c);
             }

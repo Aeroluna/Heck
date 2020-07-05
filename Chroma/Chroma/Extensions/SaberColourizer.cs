@@ -7,6 +7,8 @@
 
     internal class SaberColourizer
     {
+        private static readonly FieldAccessor<BasicSaberModelController, BasicSaberModelController.InitData>.Accessor _basicSaberModelControllerAccessor = FieldAccessor<BasicSaberModelController, BasicSaberModelController.InitData>.GetAccessor("_initData");
+
         private SetSaberGlowColor[] _glowColors;
         private MeshRenderer[] _meshRenderers;
         private MaterialPropertyBlock[] _blocks;
@@ -15,8 +17,6 @@
         private Color _trailTintColor;
 
         private List<Material> _customMats = new List<Material>();
-
-        private static readonly FieldAccessor<BasicSaberModelController, BasicSaberModelController.InitData>.Accessor _basicSaberModelControllerAccessor = FieldAccessor<BasicSaberModelController, BasicSaberModelController.InitData>.GetAccessor("_initData");
 
         private SaberColourizer(Saber saber)
         {
