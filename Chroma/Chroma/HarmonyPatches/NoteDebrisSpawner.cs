@@ -10,15 +10,15 @@
     {
         private static void Prefix(INoteController noteController)
         {
-            if (ChromaNoteColorEvent.SavedNoteColours.TryGetValue(noteController, out Color c))
+            if (ChromaNoteColorEvent.SavedNoteColors.TryGetValue(noteController, out Color c))
             {
-                ChromaColorManager.SetNoteTypeColourOverride(noteController.noteData.noteType, c);
+                ChromaColorManager.SetNoteTypeColorOverride(noteController.noteData.noteType, c);
             }
         }
 
         private static void Postfix(INoteController noteController)
         {
-            ChromaColorManager.RemoveNoteTypeColourOverride(noteController.noteData.noteType);
+            ChromaColorManager.RemoveNoteTypeColorOverride(noteController.noteData.noteType);
         }
     }
 }

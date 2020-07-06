@@ -8,7 +8,7 @@
     {
         private static void Postfix(NoteController noteController)
         {
-            noteController.noteWasCutEvent -= Events.ChromaNoteColorEvent.SaberColour;
+            noteController.noteWasCutEvent -= Events.ChromaNoteColorEvent.SaberColor;
         }
     }
 }

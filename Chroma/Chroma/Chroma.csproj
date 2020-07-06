@@ -45,7 +45,7 @@
     <Compile Include="Events\ChromaNoteColorEvent.cs" />
     <Compile Include="ChromaBehaviour.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
-    <Compile Include="Extensions\SaberColourizer.cs" />
+    <Compile Include="Extensions\SaberColorizer.cs" />
     <Compile Include="HarmonyPatches\ColorNoteVisuals.cs" />
     <Compile Include="HarmonyPatches\NoteDebrisSpawner.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />

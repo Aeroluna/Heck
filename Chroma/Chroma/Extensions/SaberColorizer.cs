@@ -5,7 +5,7 @@
     using IPA.Utilities;
     using UnityEngine;
 
-    internal class SaberColourizer
+    internal class SaberColorizer
     {
         private static readonly FieldAccessor<BasicSaberModelController, BasicSaberModelController.InitData>.Accessor _basicSaberModelControllerAccessor = FieldAccessor<BasicSaberModelController, BasicSaberModelController.InitData>.GetAccessor("_initData");
 
@@ -18,7 +18,7 @@
 
         private List<Material> _customMats = new List<Material>();
 
-        private SaberColourizer(Saber saber)
+        private SaberColorizer(Saber saber)
         {
             SaberType = saber.saberType;
 
@@ -75,16 +75,16 @@
 
         internal static Color? CurrentBColor { get; set; } = null;
 
-        internal static SaberColourizer[] SaberColourizers { get; private set; } = new SaberColourizer[0];
+        internal static SaberColorizer[] SaberColorizers { get; private set; } = new SaberColorizer[0];
 
         internal SaberType SaberType { get; set; }
 
         internal static void InitializeSabers(Saber[] sabers)
         {
-            SaberColourizers = sabers.Select(n => new SaberColourizer(n)).ToArray();
+            SaberColorizers = sabers.Select(n => new SaberColorizer(n)).ToArray();
         }
 
-        internal void Colourize(Color color)
+        internal void Colorize(Color color)
         {
             if (SaberType == SaberType.SaberA)
             {

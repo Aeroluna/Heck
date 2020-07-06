@@ -11,7 +11,7 @@
         private static bool Prefix(ref Color __result, NoteType type)
 #pragma warning restore SA1313
         {
-            Color? c = ChromaColorManager.GetNoteTypeColourOverride(type);
+            Color? c = ChromaColorManager.GetNoteTypeColorOverride(type);
             if (c.HasValue)
             {
                 __result = c.Value;
@@ -32,7 +32,7 @@
         {
             bool warm = type == SaberType.SaberA;
 
-            Color? color = warm ? Extensions.SaberColourizer.CurrentAColor : Extensions.SaberColourizer.CurrentBColor;
+            Color? color = warm ? Extensions.SaberColorizer.CurrentAColor : Extensions.SaberColorizer.CurrentBColor;
             if (color.HasValue)
             {
                 __result = color.Value;

@@ -109,10 +109,6 @@
                         ____color = ObstacleControllerInit.CustomObstacleColorSO;
                         ____color.SetColor(colorOffset.Value);
                     }
-                    else
-                    {
-                        ____color = ObstacleControllerInit.DefaultObstacleColorSO;
-                    }
 
                     ParametricBoxFrameController obstacleFrame = _obstacleFrameAccessor(ref ____stretchableObstacle);
                     ParametricBoxFakeGlowController obstacleFakeGlow = _obstacleFakeGlowAccessor(ref ____stretchableObstacle);

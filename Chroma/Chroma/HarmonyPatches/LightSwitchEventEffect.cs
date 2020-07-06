@@ -77,15 +77,15 @@
         internal static LightWithId[] OverrideLightWithIdActivation { get; set; }
 
 #pragma warning disable SA1313
-        internal static void ColourLightSwitch(MonoBehaviour __monobehaviour, BeatmapEventData beatmapEventData, BeatmapEventType _event)
+        internal static void ColorLightSwitch(MonoBehaviour __monobehaviour, BeatmapEventData beatmapEventData, BeatmapEventType _event)
 #pragma warning restore SA1313
         {
             __monobehaviour.SetLastValue(beatmapEventData.value);
 
             Color? c = null;
 
-            // LightColours
-            if (ChromaLegacyRGBEvent.LightColours.TryGetValue(_event, out List<TimedColor> dictionaryID))
+            // LightColors
+            if (ChromaLegacyRGBEvent.LightColors.TryGetValue(_event, out List<TimedColor> dictionaryID))
             {
                 List<TimedColor> colors = dictionaryID.Where(n => n.Time <= beatmapEventData.time).ToList();
                 if (colors.Count > 0)
@@ -164,7 +164,7 @@
 
             if (c.HasValue)
             {
-                __monobehaviour.SetLightingColours(c.Value, c.Value);
+                __monobehaviour.SetLightingColors(c.Value, c.Value);
             }
             else if (!ChromaGradientEvent.Gradients.TryGetValue(_event, out _))
             {
@@ -185,7 +185,7 @@
                 return true;
             }
 
-            ColourLightSwitch(__instance, beatmapEventData, ____event);
+            ColorLightSwitch(__instance, beatmapEventData, ____event);
 
             return true;
         }

@@ -27,14 +27,14 @@
 
                 if (c.HasValue)
                 {
-                    ChromaColorManager.SetNoteTypeColourOverride(noteData.noteType, c.Value);
+                    ChromaColorManager.SetNoteTypeColorOverride(noteData.noteType, c.Value);
                     NoteColorsActive = true;
                 }
 
                 if (NoteColorsActive)
                 {
-                    ChromaNoteColorEvent.SavedNoteColours[noteController] = ____colorManager.ColorForNoteType(noteData.noteType);
-                    noteController.noteWasCutEvent += ChromaNoteColorEvent.SaberColour;
+                    ChromaNoteColorEvent.SavedNoteColors[noteController] = ____colorManager.ColorForNoteType(noteData.noteType);
+                    noteController.noteWasCutEvent += ChromaNoteColorEvent.SaberColor;
                     dynData.isSubscribed = true;
                 }
             }
@@ -42,7 +42,7 @@
 
         private static void Postfix(ref NoteController noteController)
         {
-            ChromaColorManager.RemoveNoteTypeColourOverride(noteController.noteData.noteType);
+            ChromaColorManager.RemoveNoteTypeColorOverride(noteController.noteData.noteType);
         }
     }
 }

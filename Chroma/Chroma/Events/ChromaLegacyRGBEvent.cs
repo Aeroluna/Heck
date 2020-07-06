@@ -7,7 +7,7 @@
     {
         internal const int RGB_INT_OFFSET = 2000000000;
 
-        internal static Dictionary<BeatmapEventType, List<TimedColor>> LightColours { get; } = new Dictionary<BeatmapEventType, List<TimedColor>>();
+        internal static Dictionary<BeatmapEventType, List<TimedColor>> LightColors { get; } = new Dictionary<BeatmapEventType, List<TimedColor>>();
 
         internal static void Activate(BeatmapEventData[] eventData)
         {
@@ -16,18 +16,18 @@
                 if (d.value >= RGB_INT_OFFSET)
                 {
                     // Luckily I already had a system in place to replicate this functionality
-                    if (!LightColours.TryGetValue(d.type, out List<TimedColor> dictionaryID))
+                    if (!LightColors.TryGetValue(d.type, out List<TimedColor> dictionaryID))
                     {
                         dictionaryID = new List<TimedColor>();
-                        LightColours.Add(d.type, dictionaryID);
+                        LightColors.Add(d.type, dictionaryID);
                     }
 
-                    dictionaryID.Add(new TimedColor(d.time, ColourFromInt(d.value)));
+                    dictionaryID.Add(new TimedColor(d.time, ColorFromInt(d.value)));
                 }
             }
         }
 
-        private static Color ColourFromInt(int rgb)
+        private static Color ColorFromInt(int rgb)
         {
             rgb = rgb - RGB_INT_OFFSET;
             int red = (rgb >> 16) & 0x0ff;

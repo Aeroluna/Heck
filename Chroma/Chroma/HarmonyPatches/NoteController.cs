@@ -74,32 +74,25 @@
 
                     Chroma.AnimationHelper.GetColorOffset(animationObject, track, normalTime, out Color? colorOffset);
 
-                    if (____noteData.noteType == NoteType.Bomb)
+                    if (colorOffset.HasValue)
                     {
-                        Color? c = colorOffset;
-                        if (!c.HasValue)
+                        if (____noteData.noteType == NoteType.Bomb)
                         {
-                            // I shouldn't hard code this... but i can't be bothered to not atm
-                            c = new Color(0.251f, 0.251f, 0.251f, 0);
+                            Material mat = __instance.noteTransform.gameObject.GetComponent<Renderer>().material;
+                            mat.SetColor("_SimpleColor", colorOffset.Value);
                         }
-
-                        Material mat = __instance.noteTransform.gameObject.GetComponent<Renderer>().material;
-                        mat.SetColor("_SimpleColor", c.Value);
-                    }
-                    else
-                    {
-                        ColorNoteVisuals colorNoteVisuals = Trees.at(dynData, "colorNoteVisuals");
-                        if (colorNoteVisuals == null)
+                        else
                         {
-                            colorNoteVisuals = __instance.gameObject.GetComponent<ColorNoteVisuals>();
-                            dynData.colorNoteVisuals = colorNoteVisuals;
-                        }
+                            ColorNoteVisuals colorNoteVisuals = Trees.at(dynData, "colorNoteVisuals");
+                            if (colorNoteVisuals == null)
+                            {
+                                colorNoteVisuals = __instance.gameObject.GetComponent<ColorNoteVisuals>();
+                                dynData.colorNoteVisuals = colorNoteVisuals;
+                            }
 
-                        if (colorOffset.HasValue)
-                        {
                             Color noteColor = colorOffset.Value;
 
-                            ChromaColorManager.SetNoteTypeColourOverride(____noteData.noteType, noteColor);
+                            ChromaColorManager.SetNoteTypeColorOverride(____noteData.noteType, noteColor);
 
                             _arrowGlowSpriteRendererAccessor(ref colorNoteVisuals).color = noteColor.ColorWithAlpha(noteColor.a * _arrowGlowIntensityAccessor(ref colorNoteVisuals));
                             _circleGlowSpriteRendererAccessor(ref colorNoteVisuals).color = noteColor;
@@ -110,12 +103,12 @@
                                 materialPropertyBlockController.ApplyChanges();
                             }
 
-                            Events.ChromaNoteColorEvent.SavedNoteColours[__instance] = noteColor;
+                            Events.ChromaNoteColorEvent.SavedNoteColors[__instance] = noteColor;
 
                             bool? isSubscribed = Trees.at(dynData, "subscribed");
                             if (!isSubscribed.HasValue)
                             {
-                                __instance.noteWasCutEvent += Events.ChromaNoteColorEvent.SaberColour;
+                                __instance.noteWasCutEvent += Events.ChromaNoteColorEvent.SaberColor;
                                 dynData.isSubscribed = true;
                             }
                         }

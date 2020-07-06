@@ -6,7 +6,7 @@
 
     internal static class ChromaColorManager
     {
-        private static Color?[] _noteTypeColourOverrides = new Color?[] { null, null };
+        private static Color?[] _noteTypeColorOverrides = new Color?[] { null, null };
 
         private static Dictionary<BeatmapEventType, LightSwitchEventEffect> _lightSwitchDictionary;
 
@@ -27,19 +27,19 @@
             }
         }
 
-        internal static Color? GetNoteTypeColourOverride(NoteType noteType)
+        internal static Color? GetNoteTypeColorOverride(NoteType noteType)
         {
-            return _noteTypeColourOverrides[noteType == NoteType.NoteA ? 0 : 1];
+            return _noteTypeColorOverrides[noteType == NoteType.NoteA ? 0 : 1];
         }
 
-        internal static void SetNoteTypeColourOverride(NoteType noteType, Color color)
+        internal static void SetNoteTypeColorOverride(NoteType noteType, Color color)
         {
-            _noteTypeColourOverrides[noteType == NoteType.NoteA ? 0 : 1] = color;
+            _noteTypeColorOverrides[noteType == NoteType.NoteA ? 0 : 1] = color;
         }
 
-        internal static void RemoveNoteTypeColourOverride(NoteType noteType)
+        internal static void RemoveNoteTypeColorOverride(NoteType noteType)
         {
-            _noteTypeColourOverrides[noteType == NoteType.NoteA ? 0 : 1] = null;
+            _noteTypeColorOverrides[noteType == NoteType.NoteA ? 0 : 1] = null;
         }
 
         internal static void ClearLightSwitches()

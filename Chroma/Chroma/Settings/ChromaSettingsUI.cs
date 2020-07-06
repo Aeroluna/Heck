@@ -17,7 +17,7 @@
         }
 
         [UIValue("rgbevents")]
-        public bool CustomColourEventsEnabled
+        public bool CustomColorEventsEnabled
         {
             get => !ChromaConfig.Instance.CustomColorEventsEnabled;
             set

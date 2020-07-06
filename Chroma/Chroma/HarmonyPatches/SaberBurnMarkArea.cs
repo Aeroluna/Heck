@@ -10,7 +10,7 @@
         private static void Postfix(SaberBurnMarkArea __instance)
 #pragma warning restore SA1313
         {
-            Extensions.SaberColourizer.SaberBurnMarkArea = __instance;
+            Extensions.SaberColorizer.SaberBurnMarkArea = __instance;
         }
     }
 }

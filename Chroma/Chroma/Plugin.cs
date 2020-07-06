@@ -106,26 +106,26 @@
 
         private static void OnMainMenuLoaded()
         {
-            RemoveNoteTypeColourOverride(NoteType.NoteA);
-            RemoveNoteTypeColourOverride(NoteType.NoteB);
+            RemoveNoteTypeColorOverride(NoteType.NoteA);
+            RemoveNoteTypeColorOverride(NoteType.NoteB);
         }
 
         private static void OnSongLoaded()
         {
-            RemoveNoteTypeColourOverride(NoteType.NoteA);
-            RemoveNoteTypeColourOverride(NoteType.NoteB);
+            RemoveNoteTypeColorOverride(NoteType.NoteA);
+            RemoveNoteTypeColorOverride(NoteType.NoteB);
         }
 
         private static void CleanupSongEvents()
         {
-            ChromaNoteColorEvent.SavedNoteColours.Clear();
+            ChromaNoteColorEvent.SavedNoteColors.Clear();
             ChromaGradientEvent.Gradients.Clear();
 
             HarmonyPatches.ColorNoteVisualsHandleNoteControllerDidInitEvent.NoteColorsActive = false;
             HarmonyPatches.ObstacleControllerInit.ClearObstacleColors();
 
-            Extensions.SaberColourizer.CurrentAColor = null;
-            Extensions.SaberColourizer.CurrentBColor = null;
+            Extensions.SaberColorizer.CurrentAColor = null;
+            Extensions.SaberColorizer.CurrentBColor = null;
 
             ChromaGradientEvent.Clear();
 

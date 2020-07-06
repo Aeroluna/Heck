@@ -53,7 +53,7 @@
                 return true;
             }
 
-            LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ColourLightSwitch(__instance, beatmapEventData, ____colorEvent);
+            LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ColorLightSwitch(__instance, beatmapEventData, ____colorEvent);
 
             return true;
         }

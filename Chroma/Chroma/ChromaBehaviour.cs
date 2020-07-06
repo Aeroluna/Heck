@@ -141,7 +141,7 @@
 
             if (LightingRegistered)
             {
-                Extensions.SaberColourizer.InitializeSabers(FindObjectsOfType<Saber>());
+                Extensions.SaberColorizer.InitializeSabers(FindObjectsOfType<Saber>());
             }
         }
     }

@@ -79,15 +79,15 @@
             if (time > 0 && time <= _duration)
             {
                 Color c = Color.Lerp(_initcolor, _endcolor, Easings.Interpolate(time / _duration, _easing));
-                _event.SetLightingColours(c, c);
-                _event.SetActiveColours();
+                _event.SetLightingColors(c, c);
+                _event.SetActiveColors();
             }
             else
             {
                 if (time > _duration)
                 {
-                    _event.SetLightingColours(_endcolor, _endcolor);
-                    _event.SetActiveColours();
+                    _event.SetLightingColors(_endcolor, _endcolor);
+                    _event.SetActiveColors();
                 }
 
                 Gradients.Remove(_event);
