@@ -12,26 +12,7 @@
         private List<PointData> _points;
         private List<PointData> _linearPoints;
 
-        public override string ToString()
-        {
-            StringBuilder stringBuilder = new StringBuilder("{ ");
-            if (_points != null)
-            {
-                _points.ForEach(n => stringBuilder.Append($"{n.Point.ToString()} "));
-            }
-            else
-            {
-                if (_linearPoints != null)
-                {
-                    _linearPoints.ForEach(n => stringBuilder.Append($"{n.LinearPoint.ToString()} "));
-                }
-            }
-
-            stringBuilder.Append("}");
-            return stringBuilder.ToString();
-        }
-
-        internal static PointDefinition DynamicToPointData(dynamic dyn)
+        public static PointDefinition DynamicToPointData(dynamic dyn)
         {
             IEnumerable<List<object>> points = ((IEnumerable<object>)dyn)
                         ?.Cast<List<object>>();
@@ -83,17 +64,41 @@
                     Vector2 vector = new Vector2(Convert.ToSingle(rawPoint[0]), Convert.ToSingle(rawPoint[1]));
                     pointData.LinearAdd(new PointData(vector, easing));
                 }
-                else
+                else if (rawPoint.Count() == 4)
                 {
                     Vector4 vector = new Vector4(Convert.ToSingle(rawPoint[0]), Convert.ToSingle(rawPoint[1]), Convert.ToSingle(rawPoint[2]), Convert.ToSingle(rawPoint[3]));
                     pointData.Add(new PointData(vector, easing, spline));
+                }
+                else
+                {
+                    Vector5 vector = new Vector5(Convert.ToSingle(rawPoint[0]), Convert.ToSingle(rawPoint[1]), Convert.ToSingle(rawPoint[2]), Convert.ToSingle(rawPoint[3]), Convert.ToSingle(rawPoint[4]));
+                    pointData.Add(new PointData(vector, easing));
                 }
             }
 
             return pointData;
         }
 
-        internal Vector3 Interpolate(float time)
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new StringBuilder("{ ");
+            if (_points != null)
+            {
+                _points.ForEach(n => stringBuilder.Append($"{n.Point.ToString()} "));
+            }
+            else
+            {
+                if (_linearPoints != null)
+                {
+                    _linearPoints.ForEach(n => stringBuilder.Append($"{n.LinearPoint.ToString()} "));
+                }
+            }
+
+            stringBuilder.Append("}");
+            return stringBuilder.ToString();
+        }
+
+        public Vector3 Interpolate(float time)
         {
             if (_points == null || _points.Count == 0)
             {
@@ -131,7 +136,7 @@
             return _points.Last().Point;
         }
 
-        internal Quaternion InterpolateQuaternion(float time)
+        public Quaternion InterpolateQuaternion(float time)
         {
             if (_points == null || _points.Count == 0)
             {
@@ -165,7 +170,7 @@
         }
 
         // Kind of a sloppy way of implementing this, but hell if it works
-        internal float InterpolateLinear(float time)
+        public float InterpolateLinear(float time)
         {
             if (_linearPoints == null || _linearPoints.Count == 0)
             {
@@ -194,6 +199,37 @@
             }
 
             return _linearPoints.Last().LinearPoint.x;
+        }
+
+        public Vector4 InterpolateVector4(float time)
+        {
+            if (_points == null || _points.Count == 0)
+            {
+                return Vector4.zero;
+            }
+
+            if (time <= 0)
+            {
+                return _points.First().Point;
+            }
+
+            int pointsCount = _points.Count;
+            for (int i = 0; i < pointsCount; i++)
+            {
+                if (_points[i].Vector4Point.v > time)
+                {
+                    if (i == 0)
+                    {
+                        return _points.First().Vector4Point;
+                    }
+
+                    float normalTime = (time - _points[i - 1].Vector4Point.v) / (_points[i].Vector4Point.v - _points[i - 1].Vector4Point.v);
+                    normalTime = Easings.Interpolate(normalTime, _points[i].Easing);
+                    return Vector4.LerpUnclamped(_points[i - 1].Vector4Point, _points[i].Vector4Point, normalTime);
+                }
+            }
+
+            return _points.Last().Vector4Point;
         }
 
         private static Vector3 SmoothVectorLerp(List<PointData> points, int a, int b, float time)
@@ -239,6 +275,34 @@
             _linearPoints.Add(point);
         }
 
+        private struct Vector5
+        {
+            internal Vector5(float x, float y, float z, float w, float v)
+            {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+                this.w = w;
+                this.v = v;
+            }
+
+#pragma warning disable IDE1006
+#pragma warning disable SA1300
+            internal float x { get; }
+
+            internal float y { get; }
+
+            internal float z { get; }
+
+            internal float w { get; }
+
+            internal float v { get; }
+#pragma warning restore IDE1006
+#pragma warning restore SA1300
+
+            public static implicit operator Vector4(Vector5 vector) => new Vector4(vector.x, vector.y, vector.z, vector.w);
+        }
+
         private class PointData
         {
             internal PointData(Vector4 point, Functions easing = Functions.easeLinear, bool smooth = false)
@@ -254,7 +318,15 @@
                 Easing = easing;
             }
 
+            internal PointData(Vector5 point, Functions easing = Functions.easeLinear)
+            {
+                Vector4Point = point;
+                Easing = easing;
+            }
+
             internal Vector4 Point { get; }
+
+            internal Vector5 Vector4Point { get; }
 
             internal Vector2 LinearPoint { get; }
 

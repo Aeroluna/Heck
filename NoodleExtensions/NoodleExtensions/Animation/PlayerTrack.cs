@@ -1,8 +1,8 @@
 ﻿namespace NoodleExtensions.Animation
 {
-    using System.Linq;
     using IPA.Utilities;
     using UnityEngine;
+    using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
     using static NoodleExtensions.Plugin;
 
     internal class PlayerTrack : MonoBehaviour
@@ -33,7 +33,7 @@
             object position = _track.Properties[POSITION].Value;
             if (position != null && !paused)
             {
-                transform.localPosition = (Vector3)position;
+                transform.localPosition = (Vector3)position * NoteLinesDistance;
             }
             else
             {

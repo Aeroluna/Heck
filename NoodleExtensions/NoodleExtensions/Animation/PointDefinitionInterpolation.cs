@@ -59,6 +59,21 @@
             return Mathf.LerpUnclamped(_previousPointData.InterpolateLinear(time), _basePointData.InterpolateLinear(time), Time);
         }
 
+        internal Vector4? InterpolateVector4(float time)
+        {
+            if (_basePointData == null)
+            {
+                return null;
+            }
+
+            if (_previousPointData == null)
+            {
+                return _basePointData.InterpolateVector4(time);
+            }
+
+            return Vector4.LerpUnclamped(_previousPointData.InterpolateVector4(time), _basePointData.InterpolateVector4(time), Time);
+        }
+
         internal void Init(PointDefinition newPointData)
         {
             Time = 0;

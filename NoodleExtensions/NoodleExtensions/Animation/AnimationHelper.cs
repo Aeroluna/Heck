@@ -11,24 +11,9 @@
 
     public static class AnimationHelper
     {
-        private static BeatmapObjectManager _beatmapObjectManager;
+        public static Dictionary<string, Track> Tracks { get => ((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData.tracks; }
 
-        private static Dictionary<string, Track> Tracks { get => ((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData.tracks; }
-
-        private static Dictionary<string, PointDefinition> PointDefinitions { get => Trees.at(((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData, "pointDefinitions"); }
-
-        private static BeatmapObjectManager BeatmapObjectManager
-        {
-            get
-            {
-                if (_beatmapObjectManager == null)
-                {
-                    _beatmapObjectManager = Resources.FindObjectsOfTypeAll<BeatmapObjectManager>().First();
-                }
-
-                return _beatmapObjectManager;
-            }
-        }
+        public static Dictionary<string, PointDefinition> PointDefinitions { get => Trees.at(((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData, "pointDefinitions"); }
 
         public static dynamic TryGetPathProperty(Track track, string propertyName, float time)
         {
@@ -51,6 +36,9 @@
 
                 case PropertyType.Vector3:
                     return pointDataInterpolation.Interpolate(time);
+
+                case PropertyType.Vector4:
+                    return pointDataInterpolation.InterpolateVector4(time);
 
                 default:
                     return null;

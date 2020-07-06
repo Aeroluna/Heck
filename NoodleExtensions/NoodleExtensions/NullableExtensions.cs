@@ -100,6 +100,27 @@
             return null;
         }
 
+        public static Vector4? MultVector4Nullables(Vector4? vectorOne, Vector4? vectorTwo)
+        {
+            if (vectorOne.HasValue)
+            {
+                if (vectorTwo.HasValue)
+                {
+                    return Vector4.Scale(vectorOne.Value, vectorTwo.Value);
+                }
+                else
+                {
+                    return vectorOne;
+                }
+            }
+            else if (vectorTwo.HasValue)
+            {
+                return vectorTwo;
+            }
+
+            return null;
+        }
+
         public static void MirrorVectorNullable(ref Vector3? vector)
         {
             if (vector.HasValue)

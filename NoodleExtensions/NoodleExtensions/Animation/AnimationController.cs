@@ -4,15 +4,15 @@
     using CustomJSONData;
     using UnityEngine;
 
-    internal class AnimationController : MonoBehaviour
+    public class AnimationController : MonoBehaviour
     {
         private BeatmapObjectSpawnController _beatmapObjectSpawnController;
 
-        internal static AnimationController Instance { get; private set; }
+        public static AnimationController Instance { get; private set; }
 
-        internal CustomEventCallbackController CustomEventCallbackController { get; private set; }
+        public CustomEventCallbackController CustomEventCallbackController { get; private set; }
 
-        internal BeatmapObjectSpawnController BeatmapObjectSpawnController
+        public BeatmapObjectSpawnController BeatmapObjectSpawnController
         {
             get
             {

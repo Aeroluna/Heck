@@ -5,6 +5,7 @@
     public enum PropertyType
     {
         Vector3,
+        Vector4,
         Quaternion,
         Linear,
     }
