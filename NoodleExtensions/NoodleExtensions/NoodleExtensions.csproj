@@ -83,7 +83,7 @@
     <Compile Include="Animation\PlayerTrack.cs" />
     <Compile Include="Animation\PointDefinition.cs" />
     <Compile Include="Animation\PointDefinitionInterpolation.cs" />
-    <Compile Include="HarmonyPatches\BeatmapData.cs" />
+    <Compile Include="HarmonyPatches\CustomBeatmapData.cs" />
     <Compile Include="HarmonyPatches\CustomLevelLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectCallBackController.cs" />

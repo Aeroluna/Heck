@@ -1,11 +1,9 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
-    using System.Collections.Generic;
     using System.Linq;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
-    using IPA.Utilities;
     using static NoodleExtensions.Plugin;
 
     [HarmonyPatch(typeof(CustomLevelLoader))]
