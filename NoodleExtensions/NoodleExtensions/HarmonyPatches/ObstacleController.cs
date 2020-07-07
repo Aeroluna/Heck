@@ -252,9 +252,8 @@
                 if (track != null || animationObject != null)
                 {
                     // idk i just copied base game time
-                    float jumpDuration = ____move2Duration;
                     float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
-                    float normalTime = (elapsedTime - ____move1Duration) / (jumpDuration + ____obstacleDuration);
+                    float normalTime = (elapsedTime - ____move1Duration) / (____move2Duration + ____obstacleDuration);
 
                     AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _, out float? _);
 
@@ -330,6 +329,7 @@
             Vector3 ____midPos,
             float ____move1Duration,
             float ____move2Duration,
+            float ____obstacleDuration,
             float time)
 #pragma warning restore SA1313
         {
@@ -339,7 +339,7 @@
                 dynamic animationObject = Trees.at(dynData, "_animation");
                 Track track = Trees.at(dynData, "track");
 
-                float jumpTime = Mathf.Clamp((time - ____move1Duration) / ____move2Duration, 0, 1);
+                float jumpTime = Mathf.Clamp((time - ____move1Duration) / (____move2Duration + ____obstacleDuration), 0, 1);
                 AnimationHelper.GetDefinitePositionOffset(animationObject, track, jumpTime, out Vector3? position);
 
                 if (position.HasValue)
