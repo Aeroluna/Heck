@@ -89,8 +89,15 @@
         private static void Postfix(ref SimpleColorSO ____color, StretchableObstacle ____stretchableObstacle, ObstacleData ____obstacleData, AudioTimeSyncController ____audioTimeSyncController, float ____startTimeOffset, float ____move1Duration, float ____move2Duration, float ____obstacleDuration)
 #pragma warning restore SA1313
         {
-            // CustomJSONData _customData individual color override
-            if (____obstacleData is CustomObstacleData customData && ChromaBehaviour.LightingRegistered)
+            if (Chroma.Plugin.NoodleExtensionsActive)
+            {
+                TrackColorize(ref ____color, ____stretchableObstacle, ____obstacleData, ____audioTimeSyncController, ____startTimeOffset, ____move1Duration, ____move2Duration, ____obstacleDuration);
+            }
+        }
+
+        private static void TrackColorize(ref SimpleColorSO color, StretchableObstacle stretchableObstacle, ObstacleData obstacleData, AudioTimeSyncController audioTimeSyncController, float startTimeOffset, float move1Duration, float move2Duration, float obstacleDuration)
+        {
+            if (obstacleData is CustomObstacleData customData && ChromaBehaviour.LightingRegistered)
             {
                 dynamic dynData = customData.customData;
                 Track track = AnimationHelper.GetTrack(dynData);
@@ -98,33 +105,33 @@
 
                 if (track != null || animationObject != null)
                 {
-                    float jumpDuration = ____move2Duration;
-                    float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
-                    float normalTime = (elapsedTime - ____move1Duration) / (jumpDuration + ____obstacleDuration);
+                    float jumpDuration = move2Duration;
+                    float elapsedTime = audioTimeSyncController.songTime - startTimeOffset;
+                    float normalTime = (elapsedTime - move1Duration) / (jumpDuration + obstacleDuration);
 
                     Chroma.AnimationHelper.GetColorOffset(animationObject, track, normalTime, out Color? colorOffset);
 
                     if (colorOffset.HasValue)
                     {
-                        ____color = ObstacleControllerInit.CustomObstacleColorSO;
-                        ____color.SetColor(colorOffset.Value);
+                        color = ObstacleControllerInit.CustomObstacleColorSO;
+                        color.SetColor(colorOffset.Value);
                     }
 
-                    ParametricBoxFrameController obstacleFrame = _obstacleFrameAccessor(ref ____stretchableObstacle);
-                    ParametricBoxFakeGlowController obstacleFakeGlow = _obstacleFakeGlowAccessor(ref ____stretchableObstacle);
-                    MaterialPropertyBlockController[] materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref ____stretchableObstacle);
-                    Color color = ____color;
-                    obstacleFrame.color = color;
+                    ParametricBoxFrameController obstacleFrame = _obstacleFrameAccessor(ref stretchableObstacle);
+                    ParametricBoxFakeGlowController obstacleFakeGlow = _obstacleFakeGlowAccessor(ref stretchableObstacle);
+                    MaterialPropertyBlockController[] materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref stretchableObstacle);
+                    Color finalColor = color;
+                    obstacleFrame.color = finalColor;
                     obstacleFrame.Refresh();
-                    obstacleFakeGlow.color = color;
+                    obstacleFakeGlow.color = finalColor;
                     obstacleFakeGlow.Refresh();
-                    Color value = color * _addColorMultiplierAccessor(ref ____stretchableObstacle);
+                    Color value = finalColor * _addColorMultiplierAccessor(ref stretchableObstacle);
                     value.a = 0f;
-                    float obstacleCoreLerpToWhiteFactor = _obstacleCoreLerpToWhiteFactorAccessor(ref ____stretchableObstacle);
+                    float obstacleCoreLerpToWhiteFactor = _obstacleCoreLerpToWhiteFactorAccessor(ref stretchableObstacle);
                     foreach (MaterialPropertyBlockController materialPropertyBlockController in materialPropertyBlockControllers)
                     {
                         materialPropertyBlockController.materialPropertyBlock.SetColor(_addColorID, value);
-                        materialPropertyBlockController.materialPropertyBlock.SetColor(_tintColorID, Color.Lerp(color, Color.white, obstacleCoreLerpToWhiteFactor));
+                        materialPropertyBlockController.materialPropertyBlock.SetColor(_tintColorID, Color.Lerp(finalColor, Color.white, obstacleCoreLerpToWhiteFactor));
                         materialPropertyBlockController.ApplyChanges();
                     }
                 }

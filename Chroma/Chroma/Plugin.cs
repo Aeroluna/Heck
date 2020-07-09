@@ -26,6 +26,8 @@
 
         internal static event Action SongSceneLoadedEvent;
 
+        internal static bool NoodleExtensionsActive { get; private set; } = false;
+
         [Init]
         public void Init(IPALogger pluginLogger, Config conf)
         {
@@ -62,6 +64,7 @@
             if (ChromaUtils.IsModInstalled("NoodleExtensions"))
             {
                 AnimationHelper.SubscribeColorEvents();
+                NoodleExtensionsActive = true;
             }
         }
 

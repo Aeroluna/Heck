@@ -58,7 +58,15 @@
         private static void Postfix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
 #pragma warning restore SA1313
         {
-            if (____noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered)
+            if (Chroma.Plugin.NoodleExtensionsActive)
+            {
+                TrackColorize(__instance, ____noteData, ____noteMovement);
+            }
+        }
+
+        private static void TrackColorize(NoteController instance, NoteData noteData, NoteMovement noteMovement)
+        {
+            if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered)
             {
                 dynamic dynData = customData.customData;
                 Track track = AnimationHelper.GetTrack(dynData);
@@ -66,19 +74,19 @@
 
                 if (track != null || animationObject != null)
                 {
-                    NoteJump noteJump = _noteJumpAccessor(ref ____noteMovement);
+                    NoteJump noteJump = _noteJumpAccessor(ref noteMovement);
 
                     float jumpDuration = _jumpDurationAccessor(ref noteJump);
-                    float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - (jumpDuration * 0.5f));
+                    float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (noteData.time - (jumpDuration * 0.5f));
                     float normalTime = elapsedTime / jumpDuration;
 
                     Chroma.AnimationHelper.GetColorOffset(animationObject, track, normalTime, out Color? colorOffset);
 
                     if (colorOffset.HasValue)
                     {
-                        if (____noteData.noteType == NoteType.Bomb)
+                        if (noteData.noteType == NoteType.Bomb)
                         {
-                            Material mat = __instance.noteTransform.gameObject.GetComponent<Renderer>().material;
+                            Material mat = instance.noteTransform.gameObject.GetComponent<Renderer>().material;
                             mat.SetColor("_SimpleColor", colorOffset.Value);
                         }
                         else
@@ -86,13 +94,13 @@
                             ColorNoteVisuals colorNoteVisuals = Trees.at(dynData, "colorNoteVisuals");
                             if (colorNoteVisuals == null)
                             {
-                                colorNoteVisuals = __instance.gameObject.GetComponent<ColorNoteVisuals>();
+                                colorNoteVisuals = instance.gameObject.GetComponent<ColorNoteVisuals>();
                                 dynData.colorNoteVisuals = colorNoteVisuals;
                             }
 
                             Color noteColor = colorOffset.Value;
 
-                            ChromaColorManager.SetNoteTypeColorOverride(____noteData.noteType, noteColor);
+                            ChromaColorManager.SetNoteTypeColorOverride(noteData.noteType, noteColor);
 
                             _arrowGlowSpriteRendererAccessor(ref colorNoteVisuals).color = noteColor.ColorWithAlpha(noteColor.a * _arrowGlowIntensityAccessor(ref colorNoteVisuals));
                             _circleGlowSpriteRendererAccessor(ref colorNoteVisuals).color = noteColor;
@@ -103,12 +111,12 @@
                                 materialPropertyBlockController.ApplyChanges();
                             }
 
-                            Events.ChromaNoteColorEvent.SavedNoteColors[__instance] = noteColor;
+                            Events.ChromaNoteColorEvent.SavedNoteColors[instance] = noteColor;
 
                             bool? isSubscribed = Trees.at(dynData, "subscribed");
                             if (!isSubscribed.HasValue)
                             {
-                                __instance.noteWasCutEvent += Events.ChromaNoteColorEvent.SaberColor;
+                                instance.noteWasCutEvent += Events.ChromaNoteColorEvent.SaberColor;
                                 dynData.isSubscribed = true;
                             }
                         }
