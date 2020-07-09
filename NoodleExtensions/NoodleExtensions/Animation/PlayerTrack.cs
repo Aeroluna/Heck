@@ -2,6 +2,7 @@
 {
     using IPA.Utilities;
     using UnityEngine;
+    using static NoodleExtensions.Animation.AnimationHelper;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
     using static NoodleExtensions.Plugin;
 
@@ -12,18 +13,19 @@
         private static Track _track;
         private static Vector3 _startPos;
         private static Quaternion _startRot;
-        private static GameObject _origin;
+        private static Transform _origin;
         private static PauseController _pauseController;
 
         internal static void AssignTrack(Track track)
         {
             if (_instance == null)
             {
-                _origin = GameObject.Find("GameCore/Origin");
-                _instance = _origin.AddComponent<PlayerTrack>();
+                GameObject gameObject = GameObject.Find("GameCore/Origin");
+                _origin = gameObject.transform;
+                _instance = gameObject.AddComponent<PlayerTrack>();
                 _pauseController = FindObjectOfType<PauseController>();
-                _startRot = _origin.transform.localRotation;
-                _startPos = _origin.transform.localPosition;
+                _startRot = _origin.localRotation;
+                _startPos = _origin.localPosition;
             }
 
             _track = track;
@@ -33,26 +35,35 @@
         {
             bool paused = PauseBool(ref _pauseController);
 
-            Transform transform = _origin.transform;
-            object position = _track.Properties[POSITION].Value;
-            if (position != null && !paused)
+            Quaternion rotation = _quaternionIdentity;
+            if (!paused)
+            {
+                Quaternion? propertyRotation = TryGetProperty(_track, ROTATION);
+                if (propertyRotation.HasValue)
+                {
+                    rotation = propertyRotation.Value;
+                }
+            }
+
+            Vector3? position = TryGetProperty(_track, POSITION);
+            if (position.HasValue && !paused)
             {
 
-                transform.localPosition = ((Vector3)position * NoteLinesDistance) + _startPos;
+                _origin.localPosition = rotation * ((position.Value * NoteLinesDistance) + _startPos);
             }
             else
             {
-                transform.localPosition = _startPos;
+                _origin.localPosition = rotation * _startPos;
             }
 
-            object rotation = _track.Properties[ROTATION].Value;
-            if (rotation != null && !paused)
+            Quaternion? localRotation = TryGetProperty(_track, LOCALROTATION);
+            if (localRotation.HasValue && !paused)
             {
-                transform.localRotation = ((Quaternion)rotation) * _startRot;
+                _origin.localRotation = localRotation.Value * _startRot;
             }
             else
             {
-                transform.localRotation = _startRot;
+                _origin.localRotation = _startRot;
             }
         }
     }
