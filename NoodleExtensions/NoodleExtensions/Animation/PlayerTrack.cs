@@ -4,6 +4,7 @@
     using UnityEngine;
     using static NoodleExtensions.Animation.AnimationHelper;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
+    using static NoodleExtensions.NullableExtensions;
     using static NoodleExtensions.Plugin;
 
     internal class PlayerTrack : MonoBehaviour
@@ -41,6 +42,11 @@
                 Quaternion? propertyRotation = TryGetProperty(_track, ROTATION);
                 if (propertyRotation.HasValue)
                 {
+                    if (NoodleController.LeftHandedMode)
+                    {
+                        MirrorQuaternionNullable(ref propertyRotation);
+                    }
+
                     rotation = propertyRotation.Value;
                 }
             }
@@ -48,6 +54,10 @@
             Vector3? position = TryGetProperty(_track, POSITION);
             if (position.HasValue && !paused)
             {
+                if (NoodleController.LeftHandedMode)
+                {
+                    MirrorVectorNullable(ref position);
+                }
 
                 _origin.localPosition = rotation * ((position.Value * NoteLinesDistance) + _startPos);
             }
@@ -59,6 +69,11 @@
             Quaternion? localRotation = TryGetProperty(_track, LOCALROTATION);
             if (localRotation.HasValue && !paused)
             {
+                if (NoodleController.LeftHandedMode)
+                {
+                    MirrorQuaternionNullable(ref localRotation);
+                }
+
                 _origin.localRotation = localRotation.Value * _startRot;
             }
             else
