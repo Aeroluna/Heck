@@ -85,7 +85,7 @@
         }
 
 #pragma warning disable SA1313
-        private static void Postfix(ObstacleController __instance, ObstacleData obstacleData, Vector3 startPos, Vector3 midPos, Vector3 endPos)
+        private static void Postfix(ObstacleController __instance, ObstacleData obstacleData, Vector3 ____startPos, Vector3 ____midPos, Vector3 ____endPos)
 #pragma warning restore SA1313
         {
             if (obstacleData is CustomObstacleData customData)
@@ -104,9 +104,9 @@
 
                 transform.localScale = Vector3.one; // This is a fix for animation due to obstacles being recycled
 
-                dynData.startPos = startPos;
-                dynData.midPos = midPos;
-                dynData.endPos = endPos;
+                dynData.startPos = ____startPos;
+                dynData.midPos = ____midPos;
+                dynData.endPos = ____endPos;
                 dynData.localRotation = localRotation;
             }
         }
