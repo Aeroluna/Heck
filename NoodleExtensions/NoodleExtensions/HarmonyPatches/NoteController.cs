@@ -32,6 +32,8 @@
 
         private static readonly MethodInfo _getFlipYSide = SymbolExtensions.GetMethodInfo(() => GetFlipYSide(null, 0));
 
+        private static readonly MethodInfo _noteControllerUpdate = typeof(NoteController).GetMethod("Update");
+
 #pragma warning disable SA1313
         private static void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
 #pragma warning restore SA1313
@@ -105,6 +107,8 @@
                 dynData.worldRotation = __instance.worldRotation;
                 dynData.localRotation = localRotation;
             }
+
+            _noteControllerUpdate.Invoke(__instance, null);
         }
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)

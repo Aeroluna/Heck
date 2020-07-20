@@ -109,6 +109,8 @@
                 dynData.endPos = ____endPos;
                 dynData.localRotation = localRotation;
             }
+
+            __instance.Update();
         }
 
         private static Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
