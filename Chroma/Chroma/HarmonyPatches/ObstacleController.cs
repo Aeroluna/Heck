@@ -115,24 +115,24 @@
                     {
                         color = ObstacleControllerInit.CustomObstacleColorSO;
                         color.SetColor(colorOffset.Value);
-                    }
 
-                    ParametricBoxFrameController obstacleFrame = _obstacleFrameAccessor(ref stretchableObstacle);
-                    ParametricBoxFakeGlowController obstacleFakeGlow = _obstacleFakeGlowAccessor(ref stretchableObstacle);
-                    MaterialPropertyBlockController[] materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref stretchableObstacle);
-                    Color finalColor = color;
-                    obstacleFrame.color = finalColor;
-                    obstacleFrame.Refresh();
-                    obstacleFakeGlow.color = finalColor;
-                    obstacleFakeGlow.Refresh();
-                    Color value = finalColor * _addColorMultiplierAccessor(ref stretchableObstacle);
-                    value.a = 0f;
-                    float obstacleCoreLerpToWhiteFactor = _obstacleCoreLerpToWhiteFactorAccessor(ref stretchableObstacle);
-                    foreach (MaterialPropertyBlockController materialPropertyBlockController in materialPropertyBlockControllers)
-                    {
-                        materialPropertyBlockController.materialPropertyBlock.SetColor(_addColorID, value);
-                        materialPropertyBlockController.materialPropertyBlock.SetColor(_tintColorID, Color.Lerp(finalColor, Color.white, obstacleCoreLerpToWhiteFactor));
-                        materialPropertyBlockController.ApplyChanges();
+                        ParametricBoxFrameController obstacleFrame = _obstacleFrameAccessor(ref stretchableObstacle);
+                        ParametricBoxFakeGlowController obstacleFakeGlow = _obstacleFakeGlowAccessor(ref stretchableObstacle);
+                        MaterialPropertyBlockController[] materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref stretchableObstacle);
+                        Color finalColor = color;
+                        obstacleFrame.color = finalColor;
+                        obstacleFrame.Refresh();
+                        obstacleFakeGlow.color = finalColor;
+                        obstacleFakeGlow.Refresh();
+                        Color value = finalColor * _addColorMultiplierAccessor(ref stretchableObstacle);
+                        value.a = 0f;
+                        float obstacleCoreLerpToWhiteFactor = _obstacleCoreLerpToWhiteFactorAccessor(ref stretchableObstacle);
+                        foreach (MaterialPropertyBlockController materialPropertyBlockController in materialPropertyBlockControllers)
+                        {
+                            materialPropertyBlockController.materialPropertyBlock.SetColor(_addColorID, value);
+                            materialPropertyBlockController.materialPropertyBlock.SetColor(_tintColorID, Color.Lerp(finalColor, Color.white, obstacleCoreLerpToWhiteFactor));
+                            materialPropertyBlockController.ApplyChanges();
+                        }
                     }
                 }
             }

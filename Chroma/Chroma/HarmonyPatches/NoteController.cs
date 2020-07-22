@@ -100,16 +100,18 @@
 
                             Color noteColor = colorOffset.Value;
 
-                            ChromaColorManager.SetNoteTypeColorOverride(noteData.noteType, noteColor);
-
-                            _arrowGlowSpriteRendererAccessor(ref colorNoteVisuals).color = noteColor.ColorWithAlpha(noteColor.a * _arrowGlowIntensityAccessor(ref colorNoteVisuals));
-                            _circleGlowSpriteRendererAccessor(ref colorNoteVisuals).color = noteColor;
+                            SpriteRenderer arrowGlowSpriteRenderer = _arrowGlowSpriteRendererAccessor(ref colorNoteVisuals);
+                            SpriteRenderer circleGlowSpriteRenderer = _circleGlowSpriteRendererAccessor(ref colorNoteVisuals);
+                            arrowGlowSpriteRenderer.color = noteColor.ColorWithAlpha(arrowGlowSpriteRenderer.color.a);
+                            circleGlowSpriteRenderer.color = noteColor.ColorWithAlpha(circleGlowSpriteRenderer.color.a);
                             MaterialPropertyBlockController[] materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref colorNoteVisuals);
                             foreach (MaterialPropertyBlockController materialPropertyBlockController in materialPropertyBlockControllers)
                             {
                                 materialPropertyBlockController.materialPropertyBlock.SetColor(_colorID, noteColor);
                                 materialPropertyBlockController.ApplyChanges();
                             }
+
+                            ColorNoteVisualsHandleNoteControllerDidInitEvent.NoteColorsActive = true;
 
                             Events.ChromaNoteColorEvent.SavedNoteColors[instance] = noteColor;
 

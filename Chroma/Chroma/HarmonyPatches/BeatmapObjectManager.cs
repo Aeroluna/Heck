@@ -1,5 +1,6 @@
 ﻿namespace Chroma.HarmonyPatches
 {
+    using Chroma.Events;
     using HarmonyLib;
 
     [HarmonyPatch(typeof(BeatmapObjectManager))]
@@ -8,7 +9,8 @@
     {
         private static void Postfix(NoteController noteController)
         {
-            noteController.noteWasCutEvent -= Events.ChromaNoteColorEvent.SaberColor;
+            noteController.noteWasCutEvent -= ChromaNoteColorEvent.SaberColor;
+            ChromaNoteColorEvent.SavedNoteColors.Remove(noteController);
         }
     }
 }
