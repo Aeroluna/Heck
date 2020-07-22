@@ -1,8 +1,10 @@
 ﻿namespace NoodleExtensions.Animation
 {
     using System.Collections.Generic;
+    using System.Linq;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using IPA.Utilities;
     using UnityEngine;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
     using static NoodleExtensions.NullableExtensions;
@@ -10,9 +12,65 @@
 
     public static class AnimationHelper
     {
+        private static readonly FieldAccessor<BeatmapObjectManager, NoteController.Pool>.Accessor _noteAPoolAccessor = FieldAccessor<BeatmapObjectManager, NoteController.Pool>.GetAccessor("_noteAPool");
+        private static readonly FieldAccessor<BeatmapObjectManager, NoteController.Pool>.Accessor _noteBPoolAccessor = FieldAccessor<BeatmapObjectManager, NoteController.Pool>.GetAccessor("_noteBPool");
+        private static readonly FieldAccessor<BeatmapObjectManager, NoteController.Pool>.Accessor _bombNotePoolAccessor = FieldAccessor<BeatmapObjectManager, NoteController.Pool>.GetAccessor("_bombNotePool");
+        private static readonly FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.Accessor _obstaclePoolAccessor = FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.GetAccessor("_obstaclePool");
+
+        private static BeatmapObjectManager _beatmapObjectManager;
+
+        public static NoteController.Pool NoteAPool
+        {
+            get
+            {
+                BeatmapObjectManager beatmapObjectManager = BeatmapObjectManager;
+                return _noteAPoolAccessor(ref beatmapObjectManager);
+            }
+        }
+
+        public static NoteController.Pool NoteBPool
+        {
+            get
+            {
+                BeatmapObjectManager beatmapObjectManager = BeatmapObjectManager;
+                return _noteBPoolAccessor(ref beatmapObjectManager);
+            }
+        }
+
+        public static NoteController.Pool BombNotePool
+        {
+            get
+            {
+                BeatmapObjectManager beatmapObjectManager = BeatmapObjectManager;
+                return _bombNotePoolAccessor(ref beatmapObjectManager);
+            }
+        }
+
+        public static ObstacleController.Pool ObstaclePool
+        {
+            get
+            {
+                BeatmapObjectManager beatmapObjectManager = BeatmapObjectManager;
+                return _obstaclePoolAccessor(ref beatmapObjectManager);
+            }
+        }
+
         public static Dictionary<string, Track> Tracks { get => ((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData.tracks; }
 
         public static Dictionary<string, PointDefinition> PointDefinitions { get => Trees.at(((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData, "pointDefinitions"); }
+
+        private static BeatmapObjectManager BeatmapObjectManager
+        {
+            get
+            {
+                if (_beatmapObjectManager == null)
+                {
+                    _beatmapObjectManager = Resources.FindObjectsOfTypeAll<BeatmapObjectManager>().First();
+                }
+
+                return _beatmapObjectManager;
+            }
+        }
 
         public static dynamic TryGetPathProperty(Track track, string propertyName, float time)
         {
@@ -86,9 +144,9 @@
             }
         }
 
-        public static Track GetTrack(dynamic customData)
+        public static Track GetTrack(dynamic customData, string name = TRACK)
         {
-            string trackName = Trees.at(customData, TRACK);
+            string trackName = Trees.at(customData, name);
             if (trackName == null)
             {
                 return null;
@@ -103,6 +161,30 @@
                 NoodleLogger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
                 return null;
             }
+        }
+
+        public static IEnumerable<Track> GetTrackArray(dynamic customData, string name = TRACK)
+        {
+            IEnumerable<string> trackNames = ((List<object>)Trees.at(customData, name)).Cast<string>();
+            if (trackNames == null)
+            {
+                return null;
+            }
+
+            HashSet<Track> tracks = new HashSet<Track>();
+            foreach (string trackName in trackNames)
+            {
+                if (Tracks.TryGetValue(trackName, out Track track))
+                {
+                    tracks.Add(track);
+                }
+                else
+                {
+                    NoodleLogger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
+                }
+            }
+
+            return tracks;
         }
 
         // NE Specific properties below

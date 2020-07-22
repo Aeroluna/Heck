@@ -92,15 +92,33 @@
 
                         worldRotationQuatnerion *= localRotation;
 
-                        transform.rotation = worldRotationQuatnerion;
+                        transform.localRotation = worldRotationQuatnerion;
                     }
                     else
                     {
-                        transform.rotation *= localRotation;
+                        transform.localRotation *= localRotation;
                     }
                 }
 
                 transform.localScale = Vector3.one; // This is a fix for animation due to notes being recycled
+
+                Track track = AnimationHelper.GetTrack(dynData);
+                if (track != null && ParentObject.Controller != null)
+                {
+                    ParentObject parentObject = ParentObject.Controller.GetParentObjectTrack(track);
+                    if (parentObject != null)
+                    {
+                        parentObject.ParentToObject(transform);
+                    }
+                    else
+                    {
+                        ParentObject.ResetTransformParent(transform);
+                    }
+                }
+                else
+                {
+                    ParentObject.ResetTransformParent(transform);
+                }
 
                 dynData.moveStartPos = moveStartPos;
                 dynData.moveEndPos = moveEndPos;
@@ -123,8 +141,7 @@
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundFlipYSide = false;
-            int instructionListCount = instructionList.Count;
-            for (int i = 0; i < instructionListCount; i++)
+            for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundFlipYSide &&
                     instructionList[i].opcode == OpCodes.Callvirt &&
@@ -246,7 +263,7 @@
                             worldRotationQuatnerion *= localRotationOffset.Value;
                         }
 
-                        transform.rotation = worldRotationQuatnerion;
+                        transform.localRotation = worldRotationQuatnerion;
                     }
 
                     if (scaleOffset.HasValue)

@@ -38,6 +38,7 @@
             Instance.CustomEventCallbackController.AddCustomEventCallback(AnimateTrack.Callback);
             Instance.CustomEventCallbackController.AddCustomEventCallback(AssignPathAnimation.Callback);
             Instance.CustomEventCallbackController.AddCustomEventCallback(AssignPlayerToTrack.Callback);
+            Instance.CustomEventCallbackController.AddCustomEventCallback(AssignTrackParent.Callback);
         }
     }
 }

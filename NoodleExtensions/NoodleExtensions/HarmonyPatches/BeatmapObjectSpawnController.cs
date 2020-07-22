@@ -35,8 +35,7 @@
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundJumpDuration = false;
-            int instructionListCount = instructionList.Count;
-            for (int i = 0; i < instructionListCount; i++)
+            for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundJumpDuration &&
                     instructionList[i].opcode == OpCodes.Callvirt &&

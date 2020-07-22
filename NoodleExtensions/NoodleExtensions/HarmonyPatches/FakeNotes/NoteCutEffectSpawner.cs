@@ -47,8 +47,7 @@
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundSpawnFlyingSprite = false;
             bool foundSpawnFlyingScore = false;
-            int instructionListCount = instructionList.Count;
-            for (int i = 0; i < instructionListCount; i++)
+            for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundSpawnFlyingSprite &&
                     instructionList[i].opcode == OpCodes.Callvirt &&
@@ -93,8 +92,7 @@
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundSpawnFlyingSprite = false;
-            int instructionListCount = instructionList.Count;
-            for (int i = 0; i < instructionListCount; i++)
+            for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundSpawnFlyingSprite &&
                     instructionList[i].opcode == OpCodes.Callvirt &&

@@ -79,7 +79,9 @@
     <Compile Include="Animation\Events\AssignPathAnimation.cs" />
     <Compile Include="Animation\Events\AnimateTrack.cs" />
     <Compile Include="Animation\Events\AssignPlayerToTrack.cs" />
+    <Compile Include="Animation\Events\AssignTrackParent.cs" />
     <Compile Include="Animation\Events\EventHelper.cs" />
+    <Compile Include="Animation\ParentObject.cs" />
     <Compile Include="Animation\PlayerTrack.cs" />
     <Compile Include="Animation\PointDefinition.cs" />
     <Compile Include="Animation\PointDefinitionInterpolation.cs" />

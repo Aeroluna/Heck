@@ -19,8 +19,7 @@
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundAheadTime = false;
-            int instructionListCount = instructionList.Count;
-            for (int i = 0; i < instructionListCount; i++)
+            for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundAheadTime &&
                     instructionList[i].opcode == OpCodes.Ldfld &&

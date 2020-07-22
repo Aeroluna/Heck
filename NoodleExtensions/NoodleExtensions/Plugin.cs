@@ -47,6 +47,7 @@
             NoodleController.InitNoodlePatches();
 
             Animation.TrackManager.TrackManagerCreated += Animation.AssignPlayerToTrack.OnTrackManagerCreated;
+            Animation.TrackManager.TrackManagerCreated += Animation.AssignTrackParent.OnTrackManagerCreated;
             Animation.TrackManager.TrackCreated += Animation.AnimationHelper.OnTrackCreated;
         }
 

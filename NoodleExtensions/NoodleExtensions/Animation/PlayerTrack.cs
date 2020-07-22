@@ -12,8 +12,9 @@
         private static readonly FieldAccessor<PauseController, bool>.Accessor PauseBool = FieldAccessor<PauseController, bool>.GetAccessor("_paused");
         private static PlayerTrack _instance;
         private static Track _track;
-        private static Vector3 _startPos;
-        private static Quaternion _startRot;
+        private static Vector3 _startPos = _vectorZero;
+        private static Quaternion _startRot = _quaternionIdentity;
+        private static Quaternion _startLocalRot = _quaternionIdentity;
         private static Transform _origin;
         private static PauseController _pauseController;
 
@@ -25,7 +26,7 @@
                 _origin = gameObject.transform;
                 _instance = gameObject.AddComponent<PlayerTrack>();
                 _pauseController = FindObjectOfType<PauseController>();
-                _startRot = _origin.localRotation;
+                _startLocalRot = _origin.localRotation;
                 _startPos = _origin.localPosition;
             }
 
@@ -36,36 +37,35 @@
         {
             bool paused = PauseBool(ref _pauseController);
 
-            Quaternion rotation = _quaternionIdentity;
-            if (!paused)
+            Quaternion? rotation = TryGetProperty(_track, ROTATION);
+            if (rotation.HasValue)
             {
-                Quaternion? propertyRotation = TryGetProperty(_track, ROTATION);
-                if (propertyRotation.HasValue)
+                if (NoodleController.LeftHandedMode)
                 {
-                    if (NoodleController.LeftHandedMode)
-                    {
-                        MirrorQuaternionNullable(ref propertyRotation);
-                    }
-
-                    rotation = propertyRotation.Value;
+                    MirrorQuaternionNullable(ref rotation);
                 }
             }
 
             Vector3? position = TryGetProperty(_track, POSITION);
-            if (position.HasValue && !paused)
+            if (position.HasValue)
             {
                 if (NoodleController.LeftHandedMode)
                 {
                     MirrorVectorNullable(ref position);
                 }
-
-                _origin.localPosition = rotation * ((position.Value * NoteLinesDistance) + _startPos);
             }
-            else
+
+            Quaternion worldRotationQuatnerion = _startRot;
+            Vector3 positionVector = _startPos;
+            if ((rotation.HasValue || position.HasValue) && !paused)
             {
-                _origin.localPosition = rotation * _startPos;
+                Quaternion finalRot = rotation.HasValue ? rotation.Value : _quaternionIdentity;
+                worldRotationQuatnerion *= finalRot;
+                Vector3 finalPos = position.HasValue ? position.Value : _vectorZero;
+                positionVector = worldRotationQuatnerion * ((finalPos + _startPos) * NoteLinesDistance);
             }
 
+            worldRotationQuatnerion *= _startLocalRot;
             Quaternion? localRotation = TryGetProperty(_track, LOCALROTATION);
             if (localRotation.HasValue && !paused)
             {
@@ -74,11 +74,17 @@
                     MirrorQuaternionNullable(ref localRotation);
                 }
 
-                _origin.localRotation = localRotation.Value * _startRot;
+                worldRotationQuatnerion *= localRotation.Value;
             }
-            else
+
+            if (_origin.localRotation != worldRotationQuatnerion)
             {
-                _origin.localRotation = _startRot;
+                _origin.localRotation = worldRotationQuatnerion;
+            }
+
+            if (_origin.localPosition != positionVector)
+            {
+                _origin.localPosition = positionVector;
             }
         }
     }

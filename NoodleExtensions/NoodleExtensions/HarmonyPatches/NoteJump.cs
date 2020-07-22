@@ -20,6 +20,7 @@
         private static readonly MethodInfo _convertToLocalSpace = SymbolExtensions.GetMethodInfo(() => ConvertToLocalSpace(null));
         private static readonly MethodInfo _convertQuaternion = SymbolExtensions.GetMethodInfo(() => ConvertQuaternion(Quaternion.identity));
         private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), "_definitePosition");
+        private static readonly MethodInfo _setLocalPosition = typeof(Transform).GetProperty("localPosition").GetSetMethod();
 
 #pragma warning disable 0414
         private static bool _definitePosition = false;
@@ -29,12 +30,12 @@
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundTime = false;
-            bool foundPosition = false;
+            bool foundFinalPosition = false;
             bool foundTransformUp = false;
             bool foundZOffset = false;
             bool foundInverseRotation = false;
-            int instructionListCount = instructionList.Count;
-            for (int i = 0; i < instructionListCount; i++)
+            bool foundPosition = false;
+            for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundTime &&
                     instructionList[i].opcode == OpCodes.Stloc_0)
@@ -45,10 +46,10 @@
                     instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Call, _noteJumpTimeAdjust));
                 }
 
-                if (!foundPosition &&
+                if (!foundFinalPosition &&
                     instructionList[i].opcode == OpCodes.Stind_R4)
                 {
-                    foundPosition = true;
+                    foundFinalPosition = true;
                     instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Ldarg_0));
                     instructionList.Insert(i + 3, new CodeInstruction(OpCodes.Ldarg_0));
                     instructionList.Insert(i + 4, new CodeInstruction(OpCodes.Ldfld, _localPositionField));
@@ -88,6 +89,14 @@
                     instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldsfld, _definitePositionField));
                     instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Brtrue_S, instructionList[i].operand));
                 }
+
+                if (!foundPosition &&
+                    instructionList[i].opcode == OpCodes.Callvirt &&
+                    ((MethodInfo)instructionList[i].operand).Name == "set_position")
+                {
+                    foundPosition = true;
+                    instructionList[i].operand = _setLocalPosition;
+                }
             }
 
             if (!foundTime)
@@ -95,7 +104,7 @@
                 NoodleLogger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
             }
 
-            if (!foundPosition)
+            if (!foundFinalPosition)
             {
                 NoodleLogger.Log("Failed to find stind.r4!", IPA.Logging.Logger.Level.Error);
             }
@@ -108,6 +117,11 @@
             if (!foundZOffset)
             {
                 NoodleLogger.Log("Failed to find brfalse.s to Label21!", IPA.Logging.Logger.Level.Error);
+            }
+
+            if (!foundPosition)
+            {
+                NoodleLogger.Log("Failed to find callvirt to set_position!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();
