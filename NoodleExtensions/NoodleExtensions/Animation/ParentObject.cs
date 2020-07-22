@@ -24,8 +24,15 @@
 
         internal static void ResetTransformParent(Transform transform)
         {
+            Vector3 cachedScale = transform.localScale;
             Quaternion cachedRotation = transform.localRotation;
             transform.SetParent(null);
+
+            if (transform.localScale != cachedScale)
+            {
+                transform.localScale = cachedScale;
+            }
+
             if (transform.localRotation != cachedRotation)
             {
                 transform.localRotation = cachedRotation;
@@ -116,8 +123,15 @@
 
         internal void ParentToObject(Transform transform)
         {
+            Vector3 cachedScale = transform.localScale;
             Quaternion cachedRotation = transform.localRotation;
             transform.SetParent(_origin.transform);
+
+            if (transform.localScale != cachedScale)
+            {
+                transform.localScale = cachedScale;
+            }
+
             if (transform.localRotation != cachedRotation)
             {
                 transform.localRotation = cachedRotation;

@@ -17,7 +17,7 @@
             PropertyType = propertyType;
         }
 
-        public PropertyType PropertyType { get; set; }
+        public PropertyType PropertyType { get; }
 
         public Coroutine Coroutine { get; set; }
 

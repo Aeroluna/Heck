@@ -31,6 +31,10 @@
                         property.Value = points.Interpolate(time);
                         break;
 
+                    case PropertyType.Vector4:
+                        property.Value = points.InterpolateVector4(time);
+                        break;
+
                     case PropertyType.Quaternion:
                         property.Value = points.InterpolateQuaternion(time);
                         break;
