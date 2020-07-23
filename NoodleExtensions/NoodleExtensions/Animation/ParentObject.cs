@@ -24,19 +24,7 @@
 
         internal static void ResetTransformParent(Transform transform)
         {
-            Vector3 cachedScale = transform.localScale;
-            Quaternion cachedRotation = transform.localRotation;
-            transform.SetParent(null);
-
-            if (transform.localScale != cachedScale)
-            {
-                transform.localScale = cachedScale;
-            }
-
-            if (transform.localRotation != cachedRotation)
-            {
-                transform.localRotation = cachedRotation;
-            }
+            transform.SetParent(null, false);
         }
 
         internal static void AssignTrack(IEnumerable<Track> tracks, Track parentTrack, Vector3? startPos, Quaternion? startRot, Quaternion? startLocalRot, Vector3? startScale)
@@ -123,19 +111,7 @@
 
         internal void ParentToObject(Transform transform)
         {
-            Vector3 cachedScale = transform.localScale;
-            Quaternion cachedRotation = transform.localRotation;
-            transform.SetParent(_origin.transform);
-
-            if (transform.localScale != cachedScale)
-            {
-                transform.localScale = cachedScale;
-            }
-
-            if (transform.localRotation != cachedRotation)
-            {
-                transform.localRotation = cachedRotation;
-            }
+            transform.SetParent(_origin.transform, false);
         }
 
         private void Update()
@@ -159,13 +135,13 @@
             }
 
             Quaternion worldRotationQuatnerion = _startRot;
-            Vector3 positionVector = _startPos;
+            Vector3 positionVector = worldRotationQuatnerion * (_startPos * NoteLinesDistance);
             if (rotation.HasValue || position.HasValue)
             {
-                Quaternion finalRot = rotation.HasValue ? rotation.Value : _quaternionIdentity;
-                worldRotationQuatnerion *= finalRot;
-                Vector3 finalPos = position.HasValue ? position.Value : _vectorZero;
-                positionVector = worldRotationQuatnerion * ((finalPos + _startPos) * NoteLinesDistance);
+                Quaternion rotationOffset = rotation.HasValue ? rotation.Value : _quaternionIdentity;
+                worldRotationQuatnerion *= rotationOffset;
+                Vector3 positionOffset = position.HasValue ? position.Value : _vectorZero;
+                positionVector = worldRotationQuatnerion * ((positionOffset + _startPos) * NoteLinesDistance);
             }
 
             worldRotationQuatnerion *= _startLocalRot;
