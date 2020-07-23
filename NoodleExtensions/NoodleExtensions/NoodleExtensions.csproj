@@ -90,6 +90,8 @@
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectCallBackController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\BombNoteController.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\GameNoteController.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\MissMissionObjectiveChcker.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\MissedNoteEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\GoodCutsMissionObjectiveChecker.cs" />

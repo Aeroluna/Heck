@@ -20,5 +20,20 @@
 
             return true;
         }
+
+        internal static bool GetCuttable(NoteData noteData)
+        {
+            if (noteData is CustomNoteData customNoteData)
+            {
+                dynamic dynData = customNoteData.customData;
+                bool? cuttable = Trees.at(dynData, CUTTABLE);
+                if (cuttable.HasValue && cuttable.Value)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }
