@@ -85,7 +85,7 @@
         }
 
 #pragma warning disable SA1313
-        private static void Postfix(ObstacleController __instance, Quaternion ____worldRotation, ObstacleData obstacleData, Vector3 ____startPos, Vector3 ____midPos, Vector3 ____endPos)
+        private static void Postfix(ObstacleController __instance, Quaternion ____worldRotation, ObstacleData obstacleData, Vector3 ____startPos, Vector3 ____midPos, Vector3 ____endPos, ref Bounds ____bounds)
 #pragma warning restore SA1313
         {
             if (obstacleData is CustomObstacleData customData)
@@ -122,10 +122,17 @@
                     ParentObject.ResetTransformParent(transform);
                 }
 
+                bool? cuttable = Trees.at(dynData, CUTTABLE);
+                if (cuttable.HasValue && !cuttable.Value)
+                {
+                    ____bounds.size = _vectorZero;
+                }
+
                 dynData.startPos = ____startPos;
                 dynData.midPos = ____midPos;
                 dynData.endPos = ____endPos;
                 dynData.localRotation = localRotation;
+                dynData.boundsSize = ____bounds.size;
             }
 
             __instance.Update();
@@ -274,7 +281,8 @@
             float ____move2Duration,
             float ____obstacleDuration,
             ref Quaternion ____worldRotation,
-            ref Quaternion ____inverseWorldRotation)
+            ref Quaternion ____inverseWorldRotation,
+            ref Bounds ____bounds)
 #pragma warning restore SA1313
         {
             if (____obstacleData is CustomObstacleData customData)
@@ -289,7 +297,7 @@
                     float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
                     float normalTime = (elapsedTime - ____move1Duration) / (____move2Duration + ____obstacleDuration);
 
-                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _, out float? _);
+                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _, out float? cuttable);
 
                     if (positionOffset.HasValue)
                     {
@@ -327,6 +335,27 @@
                         }
 
                         transform.localRotation = worldRotationQuatnerion;
+                    }
+
+                    bool cuttableEnabled = true;
+                    if (cuttable.HasValue)
+                    {
+                        cuttableEnabled = cuttable.Value >= 1;
+                        if (cuttableEnabled)
+                        {
+                            if (____bounds.size != _vectorZero)
+                            {
+                                ____bounds.size = _vectorZero;
+                            }
+                        }
+                        else
+                        {
+                            Vector3 boundsSize = Trees.at(dynData, "boundsSize");
+                            if (____bounds.size != boundsSize)
+                            {
+                                ____bounds.size = boundsSize;
+                            }
+                        }
                     }
 
                     if (scaleOffset.HasValue)

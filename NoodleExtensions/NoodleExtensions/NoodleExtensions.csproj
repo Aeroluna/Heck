@@ -90,6 +90,7 @@
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectCallBackController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\BeatmapObjectExecutionRatingsRecorder.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\BombNoteController.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\GameNoteController.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\MissMissionObjectiveChcker.cs" />
@@ -99,6 +100,8 @@
     <Compile Include="HarmonyPatches\FakeNotes\BadCutsMissionObjectiveChecker.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\GameEnergyCounter.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\NoteCutEffectSpawner.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\ObstacleSaberSparkleEffectManager.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\PlayerHeadAndObstacleInteraction.cs" />
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnMovementData.cs" />
     <Compile Include="HarmonyPatches\Mirroring\ObstacleData.cs" />
