@@ -40,10 +40,11 @@
 
                 Functions easing = Functions.easeLinear;
                 bool spline = false;
+                List<object> copiedList = rawPoint.ToList();
                 if (flagIndex != -1)
                 {
                     List<string> flags = rawPoint.GetRange(flagIndex, cachedCount - flagIndex).Cast<string>().ToList();
-                    rawPoint.RemoveRange(flagIndex, cachedCount - flagIndex);
+                    copiedList.RemoveRange(flagIndex, cachedCount - flagIndex);
 
                     string easingString = flags.Where(n => n.StartsWith("ease")).FirstOrDefault();
                     if (easingString != null)
@@ -59,19 +60,19 @@
                     }
                 }
 
-                if (rawPoint.Count() == 2)
+                if (copiedList.Count() == 2)
                 {
-                    Vector2 vector = new Vector2(Convert.ToSingle(rawPoint[0]), Convert.ToSingle(rawPoint[1]));
+                    Vector2 vector = new Vector2(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]));
                     pointData.LinearAdd(new PointData(vector, easing));
                 }
-                else if (rawPoint.Count() == 4)
+                else if (copiedList.Count() == 4)
                 {
-                    Vector4 vector = new Vector4(Convert.ToSingle(rawPoint[0]), Convert.ToSingle(rawPoint[1]), Convert.ToSingle(rawPoint[2]), Convert.ToSingle(rawPoint[3]));
+                    Vector4 vector = new Vector4(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]), Convert.ToSingle(copiedList[2]), Convert.ToSingle(copiedList[3]));
                     pointData.Add(new PointData(vector, easing, spline));
                 }
                 else
                 {
-                    Vector5 vector = new Vector5(Convert.ToSingle(rawPoint[0]), Convert.ToSingle(rawPoint[1]), Convert.ToSingle(rawPoint[2]), Convert.ToSingle(rawPoint[3]), Convert.ToSingle(rawPoint[4]));
+                    Vector5 vector = new Vector5(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]), Convert.ToSingle(copiedList[2]), Convert.ToSingle(copiedList[3]), Convert.ToSingle(copiedList[4]));
                     pointData.Add(new PointData(vector, easing));
                 }
             }
