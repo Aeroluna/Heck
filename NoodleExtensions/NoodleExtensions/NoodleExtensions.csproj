@@ -85,6 +85,7 @@
     <Compile Include="Animation\PlayerTrack.cs" />
     <Compile Include="Animation\PointDefinition.cs" />
     <Compile Include="Animation\PointDefinitionInterpolation.cs" />
+    <Compile Include="HarmonyPatches\BeatmapDataNoArrowsTransform.cs" />
     <Compile Include="HarmonyPatches\CustomBeatmapData.cs" />
     <Compile Include="HarmonyPatches\CustomLevelLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
