@@ -26,6 +26,21 @@
         private static bool _definitePosition = false;
 #pragma warning restore 0414
 
+        internal static float NoteJumpTimeAdjust(float original, float jumpDuration)
+        {
+            dynamic dynData = NoteControllerUpdate.CustomNoteData.customData;
+            Track track = Trees.at(dynData, "track");
+            float? time = AnimationHelper.TryGetProperty(track, NoodleExtensions.Plugin.TIME);
+            if (time.HasValue)
+            {
+                return Mathf.Clamp(time.Value, 0, 1) * jumpDuration;
+            }
+            else
+            {
+                return original;
+            }
+        }
+
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
@@ -125,21 +140,6 @@
             }
 
             return instructionList.AsEnumerable();
-        }
-
-        private static float NoteJumpTimeAdjust(float original, float jumpDuration)
-        {
-            dynamic dynData = NoteControllerUpdate.CustomNoteData.customData;
-            Track track = Trees.at(dynData, "track");
-            float? time = AnimationHelper.TryGetProperty(track, NoodleExtensions.Plugin.TIME);
-            if (time.HasValue)
-            {
-                return Mathf.Clamp(time.Value, 0, 1) * jumpDuration;
-            }
-            else
-            {
-                return original;
-            }
         }
 
         private static Vector3 DefiniteNoteJump(Vector3 original, float time)
