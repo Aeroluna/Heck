@@ -62,7 +62,7 @@
                 Quaternion finalRot = rotation.HasValue ? rotation.Value : _quaternionIdentity;
                 worldRotationQuatnerion *= finalRot;
                 Vector3 finalPos = position.HasValue ? position.Value : _vectorZero;
-                positionVector = worldRotationQuatnerion * ((finalPos + _startPos) * NoteLinesDistance);
+                positionVector = worldRotationQuatnerion * ((finalPos * NoteLinesDistance) + _startPos);
             }
 
             worldRotationQuatnerion *= _startLocalRot;
