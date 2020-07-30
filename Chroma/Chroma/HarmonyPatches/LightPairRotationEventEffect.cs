@@ -2,7 +2,6 @@
 {
     using System;
     using System.Reflection;
-    using BS_Utils.Utilities;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
@@ -37,17 +36,17 @@
     internal class LightPairRotationEventEffectUpdateRotationData
     {
         private static MethodInfo _getPrivateFieldM = null;
-        private static Type _rotationData = null;
+        private static Type _rotationDataType = null;
 
         private static void GetRotationData()
         {
             // Thank you +1 Rabbit for providing this code
             // Since LightPairRotationEventEffect.RotationData is a private internal member, we need to get its type dynamically.
-            _rotationData = Type.GetType("LightPairRotationEventEffect+RotationData,Main");
+            _rotationDataType = Type.GetType("LightPairRotationEventEffect+RotationData,Main");
 
             // The reflection method to get the rotation data must have its generic method created dynamically, so as to use the dynamic type.
-            _getPrivateFieldM = typeof(BS_Utils.Utilities.ReflectionUtil).GetMethod("GetPrivateField", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(object), typeof(string) }, null);
-            _getPrivateFieldM = _getPrivateFieldM.MakeGenericMethod(_rotationData);
+            MethodInfo reflectionGetField = typeof(ReflectionUtil).GetMethod("GetField");
+            _getPrivateFieldM = reflectionGetField.MakeGenericMethod(_rotationDataType, typeof(LightPairRotationEventEffect));
         }
 
 #pragma warning disable SA1313
@@ -93,12 +92,12 @@
                 }
 
                 // Actual lasering
-                Transform transform = rotationData.GetField<Transform>("transform", _rotationData);
-                Quaternion startRotation = rotationData.GetField<Quaternion>("startRotation", _rotationData);
+                Transform transform = (Transform)_rotationDataType.GetField("transform").GetValue(rotationData);
+                Quaternion startRotation = (Quaternion)_rotationDataType.GetField("startRotation").GetValue(rotationData);
                 Vector3 rotationVector = __instance.GetField<Vector3, LightPairRotationEventEffect>("_rotationVector");
                 if (beatmapEventData.value == 0)
                 {
-                    rotationData.SetField("enabled", false, _rotationData);
+                    _rotationDataType.GetField("enabled").SetValue(rotationData, false);
                     if (!lockPosition.Value)
                     {
                         transform.localRotation = startRotation;
@@ -106,8 +105,8 @@
                 }
                 else
                 {
-                    rotationData.SetField("enabled", true, _rotationData);
-                    rotationData.SetField("rotationSpeed", precisionSpeed * 20f * direction, _rotationData);
+                    _rotationDataType.GetField("enabled").SetValue(rotationData, true);
+                    _rotationDataType.GetField("rotationSpeed").SetValue(rotationData, precisionSpeed * 20f * direction);
                     if (!lockPosition.Value)
                     {
                         transform.localRotation = startRotation;
