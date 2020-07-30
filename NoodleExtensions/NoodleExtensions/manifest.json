@@ -5,7 +5,7 @@
   "gameVersion": "1.10.0",
   "id": "NoodleExtensions",
   "name": "NoodleExtensions",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "dependsOn": {
     "SongCore": "^2.9.0",
     "CustomJSONData": "^1.0.0"
