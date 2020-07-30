@@ -25,11 +25,15 @@
                         n.Prefix != null ? new HarmonyMethod(n.Prefix) : null,
                         n.Postfix != null ? new HarmonyMethod(n.Postfix) : null,
                         n.Transpiler != null ? new HarmonyMethod(n.Transpiler) : null));
+
+                    CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit += Animation.AnimationController.CustomEventCallbackInit;
                 }
             }
             else
             {
                 _harmonyInstance.UnpatchAll(HARMONYID);
+
+                CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit -= Animation.AnimationController.CustomEventCallbackInit;
             }
         }
 

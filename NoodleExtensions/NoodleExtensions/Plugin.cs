@@ -57,8 +57,6 @@
             SongCore.Collections.RegisterCapability(CAPABILITY);
             _harmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
             HarmonyPatches.BeatmapDataLoaderProcessNotesInTimeRow.PatchBeatmapDataLoader(_harmonyInstanceCore);
-
-            CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit += Animation.AnimationController.CustomEventCallbackInit;
         }
 
         [OnDisable]
@@ -67,8 +65,6 @@
             SongCore.Collections.DeregisterizeCapability(CAPABILITY);
             _harmonyInstanceCore.UnpatchAll(HARMONYIDCORE);
             _harmonyInstanceCore.UnpatchAll(HARMONYID);
-
-            CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit -= Animation.AnimationController.CustomEventCallbackInit;
         }
     }
 }
