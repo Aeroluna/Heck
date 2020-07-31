@@ -1,32 +1,35 @@
-﻿using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using UnityEngine;
-using static NoodleExtensions.Plugin;
-
-namespace NoodleExtensions.HarmonyPatches
+﻿namespace NoodleExtensions.HarmonyPatches
 {
-    internal class BeatmapDataLoaderProcessNotesInTimeRow
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using CustomJSONData;
+    using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
+    using NoodleExtensions.Animation;
+    using static NoodleExtensions.Plugin;
+
+    internal static class BeatmapDataLoaderProcessNotesInTimeRow
     {
+        private static readonly Dictionary<float, float> _numberOfNotesInLines = new Dictionary<float, float>();
+
         internal static void PatchBeatmapDataLoader(Harmony harmony)
         {
-            Type NotesInTimeRowProcessor = Type.GetType("BeatmapDataLoader+NotesInTimeRowProcessor,Main");
-            MethodInfo basicoriginal = AccessTools.Method(NotesInTimeRowProcessor, "ProcessBasicNotesInTimeRow");
+            Type notesInTimeRowProcessor = Type.GetType("BeatmapDataLoader+NotesInTimeRowProcessor,Main");
+            MethodInfo basicoriginal = AccessTools.Method(notesInTimeRowProcessor, "ProcessBasicNotesInTimeRow");
             MethodInfo basicpostfix = SymbolExtensions.GetMethodInfo(() => ProcessBasicNotesInTimeRow(null));
             harmony.Patch(basicoriginal, postfix: new HarmonyMethod(basicpostfix));
 
-            MethodInfo original = AccessTools.Method(NotesInTimeRowProcessor, "ProcessNotesInTimeRow");
+            MethodInfo original = AccessTools.Method(notesInTimeRowProcessor, "ProcessNotesInTimeRow");
             MethodInfo postfix = SymbolExtensions.GetMethodInfo(() => ProcessNotesInTimeRow(null));
             harmony.Patch(original, postfix: new HarmonyMethod(postfix));
         }
 
         private static void ProcessFlipData(List<CustomNoteData> customNotes, bool defaultFlip = true)
         {
-            for (int i = customNotes.Count - 1; i >= 0; i--)
+            int customNoteCount = customNotes.Count;
+            for (int i = customNoteCount - 1; i >= 0; i--)
             {
                 dynamic dynData = customNotes[i].customData;
                 IEnumerable<float?> flip = ((List<object>)Trees.at(dynData, FLIP))?.Select(n => n.ToNullableFloat());
@@ -34,12 +37,24 @@ namespace NoodleExtensions.HarmonyPatches
                 float? flipY = flip?.ElementAtOrDefault(1);
                 if (flipX.HasValue || flipY.HasValue)
                 {
-                    if (flipX.HasValue) dynData.flipLineIndex = flipX.Value;
-                    if (flipY.HasValue) dynData.flipYSide = flipY.Value;
+                    if (flipX.HasValue)
+                    {
+                        dynData.flipLineIndex = flipX.Value;
+                    }
+
+                    if (flipY.HasValue)
+                    {
+                        dynData.flipYSide = flipY.Value;
+                    }
+
                     customNotes.Remove(customNotes[i]);
                 }
             }
-            if (defaultFlip) customNotes.ForEach(c => c.customData.flipYSide = 0);
+
+            if (defaultFlip)
+            {
+                customNotes.ForEach(c => c.customData.flipYSide = 0);
+            }
         }
 
         private static void ProcessBasicNotesInTimeRow(List<NoteData> basicNotes)
@@ -48,24 +63,26 @@ namespace NoodleExtensions.HarmonyPatches
 
             ProcessFlipData(customNotes);
 
-            if (customNotes.Count == 2)
+            int customNoteCount = customNotes.Count;
+            if (customNoteCount == 2)
             {
                 float[] lineIndexes = new float[2];
                 float[] lineLayers = new float[2];
-                for (int i = 0; i < customNotes.Count; i++)
+                for (int i = 0; i < customNoteCount; i++)
                 {
                     dynamic dynData = customNotes[i].customData;
-                    IEnumerable<float?> _position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
-                    float? startRow = _position?.ElementAtOrDefault(0);
-                    float? startHeight = _position?.ElementAtOrDefault(1);
+                    IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
+                    float? startRow = position?.ElementAtOrDefault(0);
+                    float? startHeight = position?.ElementAtOrDefault(1);
 
                     lineIndexes[i] = startRow.GetValueOrDefault(customNotes[i].lineIndex - 2);
                     lineLayers[i] = startHeight.GetValueOrDefault((float)customNotes[i].noteLineLayer);
                 }
+
                 if (customNotes[0].noteType != customNotes[1].noteType && ((customNotes[0].noteType == NoteType.NoteA && lineIndexes[0] > lineIndexes[1]) ||
                     (customNotes[0].noteType == NoteType.NoteB && lineIndexes[0] < lineIndexes[1])))
                 {
-                    for (int i = 0; i < customNotes.Count; i++)
+                    for (int i = 0; i < customNoteCount; i++)
                     {
                         // apparently I can use customData to store my own variables in noteData, neat
                         dynamic dynData = customNotes[i].customData;
@@ -77,6 +94,7 @@ namespace NoodleExtensions.HarmonyPatches
                         {
                             flipYSide *= -1f;
                         }
+
                         dynData.flipYSide = flipYSide;
                     }
                 }
@@ -88,100 +106,97 @@ namespace NoodleExtensions.HarmonyPatches
             List<CustomNoteData> customNotes = notes.Cast<CustomNoteData>().ToList();
 
             ProcessFlipData(customNotes, false);
-        }
-    }
 
-    // TODO: THIS IS JANK
-    [HarmonyPatch(typeof(CustomLevelLoader))]
-    [HarmonyPatch("LoadBeatmapDataBeatmapData")]
-    internal class CustomLevelLoaderLoadBeatmapDataBeatmapData
-    {
-        private static void Postfix(BeatmapData __result, StandardLevelInfoSaveData standardLevelInfoSaveData)
-        {
-            if (__result == null) return;
-            foreach (BeatmapLineData beatmapLineData in __result.beatmapLinesData)
+            _numberOfNotesInLines.Clear();
+            for (int i = 0; i < customNotes.Count; i++)
             {
-                foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
+                CustomNoteData noteData = customNotes[i];
+                dynamic dynData = noteData.customData;
+
+                IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
+                float lineIndex = position?.ElementAt(0) ?? noteData.lineIndex;
+                float lineLayer = position?.ElementAt(1) ?? (float)noteData.noteLineLayer;
+                if (_numberOfNotesInLines.TryGetValue(lineIndex, out float num))
                 {
-                    dynamic customData;
-                    if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData) customData = beatmapObjectData;
-                    else continue;
-                    dynamic dynData = customData.customData;
-                    // JANK JANK JANK
-                    // TODO: REWRITE CJD SO I DONT HAVE TO DO THIS JANK
-                    float bpm = standardLevelInfoSaveData.beatsPerMinute;
-                    dynData.bpm = bpm;
-
-                    // VARIABLE FUN FUN TIME YAY SO FUN YAYYYY
-                    List<object> varPosition = Trees.at(dynData, VARIABLEPOSITION);
-                    if (varPosition != null)
-                    {
-                        List<PositionData> positionData = new List<PositionData>();
-                        foreach (object n in varPosition)
-                        {
-                            IDictionary<string, object> dictData = n as IDictionary<string, object>;
-
-                            IEnumerable<float> startpos = ((List<object>)Trees.at(dictData, VARIABLESTARTPOS))?.Select(Convert.ToSingle);
-                            IEnumerable<float> endpos = ((List<object>)Trees.at(dictData, VARIABLEENDPOS))?.Select(Convert.ToSingle);
-
-                            float time = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLETIME), bpm);
-                            float duration = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLEDURATION), bpm);
-                            string easing = (string)Trees.at(dictData, VARIABLEEASING);
-                            bool? relative = (bool?)Trees.at(dictData, VARIABLERELATIVE);
-                            positionData.Add(new PositionData(time, duration, startpos, endpos, easing, relative));
-                        }
-                        dynData.varPosition = positionData;
-                    }
-
-                    RotationData.savedRotation = Quaternion.identity;
-
-                    List<object> varRotation = Trees.at(dynData, VARIABLEROTATION);
-                    if (varRotation != null)
-                    {
-                        List<RotationData> rotationData = new List<RotationData>();
-                        foreach (object n in varRotation)
-                        {
-                            IDictionary<string, object> dictData = n as IDictionary<string, object>;
-
-                            IEnumerable<float> startrot = ((List<object>)Trees.at(dictData, VARIABLESTARTROT))?.Select(Convert.ToSingle);
-                            IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, VARIABLEENDROT))?.Select(Convert.ToSingle);
-
-                            float time = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLETIME), bpm);
-                            float duration = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLEDURATION), bpm);
-                            string easing = (string)Trees.at(dictData, VARIABLEEASING);
-                            rotationData.Add(new RotationData(time, duration, startrot, endrot, easing));
-                        }
-                        dynData.varRotation = rotationData;
-                    }
-
-                    RotationData.savedRotation = Quaternion.identity;
-
-                    List<object> varLocalRotation = Trees.at(dynData, VARIABLELOCALROTATION);
-                    if (varLocalRotation != null)
-                    {
-                        List<RotationData> rotationData = new List<RotationData>();
-                        foreach (object n in varLocalRotation)
-                        {
-                            IDictionary<string, object> dictData = n as IDictionary<string, object>;
-
-                            IEnumerable<float> startrot = ((List<object>)Trees.at(dictData, VARIABLESTARTROT))?.Select(Convert.ToSingle);
-                            IEnumerable<float> endrot = ((List<object>)Trees.at(dictData, VARIABLEENDROT))?.Select(Convert.ToSingle);
-
-                            float time = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLETIME), bpm);
-                            float duration = GetRealTimeFromBPMTime((float)Trees.at(dictData, VARIABLEDURATION), bpm);
-                            string easing = (string)Trees.at(dictData, VARIABLEEASING);
-                            rotationData.Add(new RotationData(time, duration, startrot, endrot, easing));
-                        }
-                        dynData.varLocalRotation = rotationData;
-                    }
+                    Dictionary<float, float> numberOfNotesInLines = _numberOfNotesInLines;
+                    float num2 = Math.Max(numberOfNotesInLines[lineIndex], 0) + Math.Min(lineLayer, 1);
+                    dynData.startNoteLineLayer = num2;
+                    numberOfNotesInLines[lineIndex] = num2;
+                }
+                else
+                {
+                    float startLineLayer = Math.Min(lineLayer, 0);
+                    _numberOfNotesInLines[lineIndex] = startLineLayer;
+                    dynData.startNoteLineLayer = startLineLayer;
                 }
             }
         }
+    }
 
-        // TODO: use base game method
-        private static float GetRealTimeFromBPMTime(float bpmTime, float bpm)
+    [HarmonyPatch(typeof(BeatmapDataLoader))]
+    [HarmonyPatch("GetBeatmapDataFromBeatmapSaveData")]
+    internal static class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
+    {
+        // TODO: account for base game bpm changes
+#pragma warning disable SA1313
+        private static void Postfix(BeatmapData __result, float startBPM)
+#pragma warning restore SA1313
         {
-            return bpmTime / bpm * 60f;
+            if (__result == null)
+            {
+                return;
+            }
+
+            if (__result is CustomBeatmapData customBeatmapData)
+            {
+                TrackManager trackManager = new TrackManager(customBeatmapData);
+                foreach (BeatmapLineData beatmapLineData in customBeatmapData.beatmapLinesData)
+                {
+                    foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
+                    {
+                        dynamic customData;
+                        if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData)
+                        {
+                            customData = beatmapObjectData;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+                        dynamic dynData = customData.customData;
+
+                        // for per object njs and spawn offset
+                        float bpm = startBPM;
+                        dynData.bpm = bpm;
+
+                        // for epic tracks thing
+                        string trackName = Trees.at(dynData, TRACK);
+                        if (trackName != null)
+                        {
+                            dynData.track = trackManager.AddTrack(trackName);
+                        }
+                    }
+                }
+
+                customBeatmapData.customData.tracks = trackManager.Tracks;
+
+                IEnumerable<dynamic> pointDefinitions = (IEnumerable<dynamic>)Trees.at(customBeatmapData.customData, POINTDEFINITIONS);
+                if (pointDefinitions == null)
+                {
+                    return;
+                }
+
+                PointDefinitionManager pointDataManager = new PointDefinitionManager();
+                foreach (dynamic pointDefintion in pointDefinitions)
+                {
+                    string pointName = Trees.at(pointDefintion, NAME);
+                    PointDefinition pointData = PointDefinition.DynamicToPointData(Trees.at(pointDefintion, POINTS));
+                    pointDataManager.AddPoint(pointName, pointData);
+                }
+
+                customBeatmapData.customData.pointDefinitions = pointDataManager.PointData;
+            }
         }
     }
 }

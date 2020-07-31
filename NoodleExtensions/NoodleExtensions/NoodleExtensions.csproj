@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>NoodleExtensions.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>NoodleExtensions.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -64,12 +66,44 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
+    <Reference Include="Zenject, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Zenject.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Easings.cs" />
+    <Compile Include="Animation\AnimationController.cs" />
+    <Compile Include="Animation\AnimationHelper.cs" />
+    <Compile Include="Animation\AnimationProperty.cs" />
+    <Compile Include="Animation\Easings.cs" />
+    <Compile Include="Animation\Events\AssignPathAnimation.cs" />
+    <Compile Include="Animation\Events\AnimateTrack.cs" />
+    <Compile Include="Animation\Events\AssignPlayerToTrack.cs" />
+    <Compile Include="Animation\Events\AssignTrackParent.cs" />
+    <Compile Include="Animation\Events\EventHelper.cs" />
+    <Compile Include="Animation\ParentObject.cs" />
+    <Compile Include="Animation\PlayerTrack.cs" />
+    <Compile Include="Animation\PointDefinition.cs" />
+    <Compile Include="Animation\PointDefinitionInterpolation.cs" />
+    <Compile Include="HarmonyPatches\BeatmapDataNoArrowsTransform.cs" />
+    <Compile Include="HarmonyPatches\CustomBeatmapData.cs" />
+    <Compile Include="HarmonyPatches\CustomLevelLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectCallBackController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\BeatmapObjectExecutionRatingsRecorder.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\BombNoteController.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\GameNoteController.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\MissMissionObjectiveChcker.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\MissedNoteEffectSpawner.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\GoodCutsMissionObjectiveChecker.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\FakeNoteHelper.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\BadCutsMissionObjectiveChecker.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\GameEnergyCounter.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\NoteCutEffectSpawner.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\ObstacleSaberSparkleEffectManager.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\PlayerHeadAndObstacleInteraction.cs" />
+    <Compile Include="HarmonyPatches\NoteCutSoundEffect.cs" />
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnMovementData.cs" />
     <Compile Include="HarmonyPatches\Mirroring\ObstacleData.cs" />
@@ -77,24 +111,31 @@
     <Compile Include="HarmonyPatches\Mirroring\BeatDataMirrorTransform.cs" />
     <Compile Include="HarmonyPatches\NoteFloorMovement.cs" />
     <Compile Include="HarmonyPatches\NoteJump.cs" />
-    <Compile Include="HarmonyPatches\ObjectAnimationHelper.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\ScoreController.cs" />
     <Compile Include="HarmonyPatches\SpawnDataHelper.cs" />
+    <Compile Include="HarmonyPatches\DisappearingArrowController.cs" />
     <Compile Include="HarmonyPatches\SpawnRotationProcessor.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />
     <Compile Include="HarmonyPatches\StandardLevelScenesTransitionSetupDataSO.cs" />
-    <Compile Include="MovementData\PositionData.cs" />
-    <Compile Include="MovementData\RotationData.cs" />
-    <Compile Include="MovementData\MovementData.cs" />
     <Compile Include="NoodlePatch.cs" />
+    <Compile Include="NullableExtensions.cs" />
     <Compile Include="Plugin.cs" />
-    <Compile Include="Logger.cs" />
+    <Compile Include="NoodleLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NoodleController.cs" />
+    <Compile Include="Animation\Track.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="NoodleExtensions.ruleset" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetDir)$(TargetName).dll" "C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\$(TargetName).dll"</PostBuildEvent>

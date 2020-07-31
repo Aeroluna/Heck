@@ -1,13 +1,13 @@
 ﻿{
-  "$schema": "https://raw.githubusercontent.com/nike4613/ModSaber-MetadataFileSchema/master/Schema.json",
+  "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "author": "Aeroluna",
   "description": "Gives mappers a host of new options for mapping, and you the player to play said maps!",
-  "gameVersion": "1.9.1",
+  "gameVersion": "1.10.0",
   "id": "NoodleExtensions",
   "name": "NoodleExtensions",
-  "version": "1.1.2",
+  "version": "1.2.1",
   "dependsOn": {
     "SongCore": "^2.9.0",
-    "CustomJSONData": "^0.1.2"
+    "CustomJSONData": "^1.0.0"
   }
 }

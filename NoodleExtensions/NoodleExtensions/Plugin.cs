@@ -1,81 +1,70 @@
-﻿using HarmonyLib;
-using IPA;
-using System.Reflection;
-using IPALogger = IPA.Logging.Logger;
-
-namespace NoodleExtensions
+﻿namespace NoodleExtensions
 {
+    using System.Reflection;
+    using HarmonyLib;
+    using IPA;
+    using UnityEngine;
+    using IPALogger = IPA.Logging.Logger;
+
     [Plugin(RuntimeOptions.DynamicInit)]
     internal class Plugin
     {
         internal const string CAPABILITY = "Noodle Extensions";
-        internal const string HARMONYID_CORE = "com.noodle.BeatSaber.NoodleExtensionsCore";
+        internal const string HARMONYIDCORE = "com.noodle.BeatSaber.NoodleExtensionsCore";
         internal const string HARMONYID = "com.noodle.BeatSaber.NoodleExtensions";
 
-        #region All Objects
-
-        internal const string POSITION = "_position";
-        internal const string ROTATION = "_rotation"; // Rotation events included
-
-        internal const string LOCALROTATION = "_localRotation";
-        internal const string NOTEJUMPSPEED = "_noteJumpMovementSpeed";
-        internal const string SPAWNOFFSET = "_noteJumpStartBeatOffset";
-
-        internal const string VARIABLEROTATION = "_variableRotation";
-        internal const string VARIABLEPOSITION = "_variablePosition";
-        internal const string VARIABLELOCALROTATION = "_variableLocalRotation";
-
-        internal const string VARIABLETIME = "_time";
-        internal const string VARIABLEDURATION = "_duration";
-        internal const string VARIABLERELATIVE = "_relative";
-        internal const string VARIABLEEASING = "_easing";
-        internal const string VARIABLESTARTROT = "_startRotation";
-        internal const string VARIABLEENDROT = "_endRotation";
-        internal const string VARIABLESTARTPOS = "_startPosition";
-        internal const string VARIABLEENDPOS = "_endPosition";
-
-        #endregion All Objects
-
-        #region Wall Exclusive
-
-        internal const string SCALE = "_scale";
-
-        internal const string DESPAWNTIME = "_despawnTime";
-        internal const string DESPAWNDURATION = "_despawnDuration";
-
-        #endregion Wall Exclusive
-
-        #region Note Exclusive
-
         internal const string CUTDIRECTION = "_cutDirection";
+        internal const string CUTTABLE = "_interactable";
+        internal const string DEFINITEPOSITION = "_definitePosition";
+        internal const string DISSOLVE = "_dissolve";
+        internal const string DISSOLVEARROW = "_dissolveArrow";
+        internal const string DURATION = "_duration";
+        internal const string EASING = "_easing";
+        internal const string FAKENOTE = "_fake";
         internal const string FLIP = "_flip";
+        internal const string LOCALROTATION = "_localRotation";
+        internal const string NAME = "_name";
+        internal const string NOTEJUMPSPEED = "_noteJumpMovementSpeed";
+        internal const string NOTESPAWNOFFSET = "_noteJumpStartBeatOffset";
+        internal const string POINTDEFINITIONS = "_pointDefinitions";
+        internal const string POINTS = "_points";
+        internal const string POSITION = "_position";
+        internal const string ROTATION = "_rotation";
+        internal const string SCALE = "_scale";
+        internal const string TIME = "_time";
+        internal const string TRACK = "_track";
 
-        #endregion Note Exclusive
+        internal static readonly Vector3 _vectorZero = Vector3.zero;
+        internal static readonly Quaternion _quaternionIdentity = Quaternion.identity;
+
+        internal static readonly Harmony _harmonyInstanceCore = new Harmony(HARMONYIDCORE);
+        internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
 
         [Init]
         public void Init(IPALogger pluginLogger)
         {
-            Logger.logger = pluginLogger;
+            NoodleLogger.IPAlogger = pluginLogger;
             NoodleController.InitNoodlePatches();
-        }
 
-        internal static readonly Harmony coreharmony = new Harmony(HARMONYID_CORE);
-        internal static readonly Harmony harmony = new Harmony(HARMONYID);
+            Animation.TrackManager.TrackManagerCreated += Animation.AssignPlayerToTrack.OnTrackManagerCreated;
+            Animation.TrackManager.TrackManagerCreated += Animation.AssignTrackParent.OnTrackManagerCreated;
+            Animation.TrackManager.TrackCreated += Animation.AnimationHelper.OnTrackCreated;
+        }
 
         [OnEnable]
         public void OnEnable()
         {
             SongCore.Collections.RegisterCapability(CAPABILITY);
-            coreharmony.PatchAll(Assembly.GetExecutingAssembly());
-            HarmonyPatches.BeatmapDataLoaderProcessNotesInTimeRow.PatchBeatmapDataLoader(coreharmony);
+            _harmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
+            HarmonyPatches.BeatmapDataLoaderProcessNotesInTimeRow.PatchBeatmapDataLoader(_harmonyInstanceCore);
         }
 
         [OnDisable]
         public void OnDisable()
         {
             SongCore.Collections.DeregisterizeCapability(CAPABILITY);
-            coreharmony.UnpatchAll(HARMONYID_CORE);
-            coreharmony.UnpatchAll(HARMONYID);
+            _harmonyInstanceCore.UnpatchAll(HARMONYIDCORE);
+            _harmonyInstanceCore.UnpatchAll(HARMONYID);
         }
     }
 }
