@@ -1,28 +1,24 @@
-﻿using Chroma.Events;
-using Chroma.Settings;
-using HarmonyLib;
-using UnityEngine;
-
-namespace Chroma.HarmonyPatches
+﻿namespace Chroma.HarmonyPatches
 {
+    using Chroma.Events;
+    using HarmonyLib;
+    using UnityEngine;
+
     [HarmonyPatch(typeof(NoteDebrisSpawner))]
     [HarmonyPatch("SpawnDebris")]
     internal class NoteDebrisSpawnerSpawnDebris
     {
         private static void Prefix(INoteController noteController)
         {
-            if (!ColourManager.TechnicolourBlocks || ChromaConfig.TechnicolourBlocksStyle != ColourManager.TechnicolourStyle.GRADIENT)
+            if (ChromaNoteColorEvent.SavedNoteColors.TryGetValue(noteController, out Color c))
             {
-                if (ChromaNoteColourEvent.SavedNoteColours.TryGetValue(noteController, out Color c))
-                {
-                    ColourManager.SetNoteTypeColourOverride(noteController.noteData.noteType, c);
-                }
+                ChromaColorManager.SetNoteTypeColorOverride(noteController.noteData.noteType, c);
             }
         }
 
         private static void Postfix(INoteController noteController)
         {
-            ColourManager.RemoveNoteTypeColourOverride(noteController.noteData.noteType);
+            ChromaColorManager.RemoveNoteTypeColorOverride(noteController.noteData.noteType);
         }
     }
 }

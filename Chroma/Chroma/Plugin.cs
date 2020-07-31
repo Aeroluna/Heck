@@ -1,82 +1,91 @@
-﻿using BeatSaberMarkupLanguage.GameplaySetup;
-using BeatSaberMarkupLanguage.Settings;
-using Chroma.Misc;
-using Chroma.Settings;
-using Chroma.Utils;
-using HarmonyLib;
-using IPA;
-using System;
-using System.IO;
-using System.Reflection;
-using UnityEngine.SceneManagement;
-using IPALogger = IPA.Logging.Logger;
-
-namespace Chroma
+﻿namespace Chroma
 {
-    [Plugin(RuntimeOptions.SingleStartInit)]
+    using System;
+    using System.Reflection;
+    using BeatSaberMarkupLanguage.GameplaySetup;
+    using Chroma.Events;
+    using Chroma.Settings;
+    using Chroma.Utils;
+    using HarmonyLib;
+    using IPA;
+    using IPA.Config;
+    using IPA.Config.Stores;
+    using UnityEngine.SceneManagement;
+    using static Chroma.ChromaColorManager;
+    using IPALogger = IPA.Logging.Logger;
+
+    [Plugin(RuntimeOptions.DynamicInit)]
     internal class Plugin
     {
-        private static Version assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
-        internal static string Version = assemblyVersion.Major + "." + assemblyVersion.Minor + "." + assemblyVersion.Build;
-
         internal const string REQUIREMENT_NAME = "Chroma";
+        internal const string HARMONYID = "com.noodle.BeatSaber.Chroma";
 
-        /// <summary>
-        /// Called when the game transitions to the Main Menu from any other scene.
-        /// </summary>
-        internal static event MainMenuLoadedDelegate MainMenuLoadedEvent;
+        internal static readonly Harmony HarmonyInstance = new Harmony(HARMONYID);
 
-        internal delegate void MainMenuLoadedDelegate();
+        internal static event Action MainMenuLoadedEvent;
 
-        /// <summary>
-        /// Called when the player starts a song.
-        /// </summary>
-        internal static event SongSceneLoadedDelegate SongSceneLoadedEvent;
+        internal static event Action SongSceneLoadedEvent;
 
-        internal delegate void SongSceneLoadedDelegate();
+        internal static bool NoodleExtensionsActive { get; private set; } = false;
 
-        [OnStart]
-        public void OnApplicationStart()
+        [Init]
+        public void Init(IPALogger pluginLogger, Config conf)
         {
-            Directory.CreateDirectory(Environment.CurrentDirectory.Replace('\\', '/') + "/UserData/Chroma");
+            ChromaLogger.IPAlogger = pluginLogger;
+            ChromaConfig.Instance = conf.Generated<ChromaConfig>();
+        }
 
-            ChromaLogger.Log("Initializing Chroma [" + Version + "]", ChromaLogger.Level.INFO);
-
+        [OnEnable]
+        public void OnEnable()
+        {
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
-            SceneManager.sceneLoaded += OnSceneLoaded;
 
             // Harmony patches
-            var harmony = new Harmony("net.binaryelement.chroma");
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            HarmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
 
             // Configuration Files
-            ChromaConfig.Init();
-            ChromaConfig.LoadSettings(ChromaConfig.LoadSettingsType.INITIAL);
+            MainMenuLoadedEvent += OnMainMenuLoaded;
+            SongSceneLoadedEvent += OnSongLoaded;
+
+            MainMenuLoadedEvent += CleanupSongEvents;
+            SongSceneLoadedEvent += CleanupSongEvents;
+
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
-            if (ChromaConfig.LightshowMenu) GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", ChromaSettingsUI.instance);
+            if (ChromaConfig.Instance.LightshowMenu)
+            {
+                GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", ChromaSettingsUI.instance);
+            }
+
+            ChromaUtils.SetSongCoreCapability("Chroma");
 
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");
 
-            // Side panel
-            Greetings.RegisterChromaSideMenu();
-            SidePanelUtil.ReleaseInfoEnabledEvent += ReleaseInfoEnabled;
+            if (ChromaUtils.IsModInstalled("NoodleExtensions"))
+            {
+                AnimationHelper.SubscribeColorEvents();
+                NoodleExtensionsActive = true;
+            }
         }
 
-        private void ReleaseInfoEnabled()
+        [OnDisable]
+        public void OnDisable()
         {
-            SidePanelUtil.SetPanel(Enum.GetName(typeof(ChromaConfig.SidePanelEnum), ChromaConfig.SidePanel));
-        }
+            // Harmony patches
+            HarmonyInstance.UnpatchAll(HARMONYID);
 
-        [Init]
-        public void Init(IPALogger pluginLogger)
-        {
-            ChromaLogger.logger = pluginLogger;
-        }
+            // Configuration Files
+            MainMenuLoadedEvent -= OnMainMenuLoaded;
+            SongSceneLoadedEvent -= OnSongLoaded;
 
-        public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
-        {
-            if (scene.name == "MenuViewControllers") BSMLSettings.instance.AddSettingsMenu("Chroma", "Chroma.Settings.settings.bsml", ChromaSettingsUI.instance);
+            MainMenuLoadedEvent -= CleanupSongEvents;
+            SongSceneLoadedEvent -= CleanupSongEvents;
+
+            GameplaySetup.instance.RemoveTab("Chroma");
+            GameplaySetup.instance.RemoveTab("Lightshow Modifiers");
+
+            // Legacy support
+            ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", false);
         }
 
         public void OnActiveSceneChanged(Scene current, Scene next)
@@ -96,6 +105,34 @@ namespace Chroma
                     SongSceneLoadedEvent?.Invoke();
                 }
             }
+        }
+
+        private static void OnMainMenuLoaded()
+        {
+            RemoveNoteTypeColorOverride(NoteType.NoteA);
+            RemoveNoteTypeColorOverride(NoteType.NoteB);
+        }
+
+        private static void OnSongLoaded()
+        {
+            RemoveNoteTypeColorOverride(NoteType.NoteA);
+            RemoveNoteTypeColorOverride(NoteType.NoteB);
+        }
+
+        private static void CleanupSongEvents()
+        {
+            ChromaNoteColorEvent.SavedNoteColors.Clear();
+            ChromaGradientEvent.Gradients.Clear();
+
+            HarmonyPatches.ColorNoteVisualsHandleNoteControllerDidInitEvent.NoteColorsActive = false;
+            HarmonyPatches.ObstacleControllerInit.ClearObstacleColors();
+
+            Extensions.SaberColorizer.CurrentAColor = null;
+            Extensions.SaberColorizer.CurrentBColor = null;
+
+            ChromaGradientEvent.Clear();
+
+            ClearLightSwitches();
         }
     }
 }

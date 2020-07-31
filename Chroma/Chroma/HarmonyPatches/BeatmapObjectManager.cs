@@ -1,17 +1,7 @@
-﻿using HarmonyLib;
-
-namespace Chroma.HarmonyPatches
+﻿namespace Chroma.HarmonyPatches
 {
-    [HarmonyPatch(typeof(BeatmapObjectManager))]
-    [HarmonyPatch("RemoveObstacleEventCallbacks")]
-    internal class BeatmapObjectManagerRemoveObstacleEventCallbacks
-    {
-        private static void Postfix(ObstacleController obstacleController)
-        {
-            if (VFX.TechnicolourController.Instantiated())
-                VFX.TechnicolourController.Instance._obstacleControllers.Remove(obstacleController);
-        }
-    }
+    using Chroma.Events;
+    using HarmonyLib;
 
     [HarmonyPatch(typeof(BeatmapObjectManager))]
     [HarmonyPatch("RemoveNoteControllerEventCallbacks")]
@@ -19,9 +9,8 @@ namespace Chroma.HarmonyPatches
     {
         private static void Postfix(NoteController noteController)
         {
-            if (VFX.TechnicolourController.Instantiated())
-                VFX.TechnicolourController.Instance._bombControllers.Remove(noteController);
-            noteController.noteWasCutEvent -= Events.ChromaNoteColourEvent.SaberColour;
+            noteController.noteWasCutEvent -= ChromaNoteColorEvent.SaberColor;
+            ChromaNoteColorEvent.SavedNoteColors.Remove(noteController);
         }
     }
 }

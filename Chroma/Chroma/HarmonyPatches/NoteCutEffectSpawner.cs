@@ -1,28 +1,38 @@
-﻿using Chroma.Events;
-using Chroma.Settings;
-using HarmonyLib;
-using UnityEngine;
-
-namespace Chroma.HarmonyPatches
+﻿namespace Chroma.HarmonyPatches
 {
+    using Chroma.Events;
+    using CustomJSONData;
+    using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
+    using UnityEngine;
+
     [HarmonyPatch(typeof(NoteCutEffectSpawner))]
     [HarmonyPatch("SpawnNoteCutEffect")]
     internal class NoteCutEffectSpawnerSpawnNoteCutEffect
     {
-        private static void Prefix(NoteController noteController)
+        private static bool Prefix(NoteController noteController)
         {
-            if (!ColourManager.TechnicolourBlocks || ChromaConfig.TechnicolourBlocksStyle != ColourManager.TechnicolourStyle.GRADIENT)
+            if (ChromaBehaviour.LightingRegistered && noteController.noteData is CustomNoteData customData)
             {
-                if (ChromaNoteColourEvent.SavedNoteColours.TryGetValue(noteController, out Color c))
+                dynamic dynData = customData.customData;
+                bool? reset = Trees.at(dynData, "_disableNoteDebris");
+                if (reset.HasValue && reset == true)
                 {
-                    ColourManager.SetNoteTypeColourOverride(noteController.noteData.noteType, c);
+                    return false;
                 }
             }
+
+            if (ChromaNoteColorEvent.SavedNoteColors.TryGetValue(noteController, out Color c))
+            {
+                ChromaColorManager.SetNoteTypeColorOverride(noteController.noteData.noteType, c);
+            }
+
+            return true;
         }
 
         private static void Postfix(NoteController noteController)
         {
-            ColourManager.RemoveNoteTypeColourOverride(noteController.noteData.noteType);
+            ChromaColorManager.RemoveNoteTypeColorOverride(noteController.noteData.noteType);
         }
     }
 }

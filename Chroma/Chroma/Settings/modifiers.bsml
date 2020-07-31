@@ -1,6 +1,5 @@
 ﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
   <modifier-container pref-width='65'>
-    <modifier src='#HueWheel' text='Technicolour' value='technicolour' apply-on-change='true' hover-hint='Enable Technicolour. Same as enabling from Mod Settings'></modifier>
     <modifier src='Chroma.Resources.LightshowIcon.png' text='Lightshow Mode' value='lightshowonly' apply-on-change='true' hover-hint='Disable all notes and sabers, allowing you to view the lightshow! (Will keep obstacles)'></modifier>
     <modifier src='#FeetIcon' text='Disable Environment Enhancements' value='platform' apply-on-change='true' hover-hint='Disable Chroma&apos;s ability to manage the environment.'></modifier>
     <modifier src='#LightIcon' text='Disable Lighting Events' value='rgbevents' apply-on-change='true' hover-hint='Disable RGB lighting events, but you&apos;ll break my heart.'></modifier>

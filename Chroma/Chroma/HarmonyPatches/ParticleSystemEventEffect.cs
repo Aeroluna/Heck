@@ -1,22 +1,27 @@
-﻿using Chroma.Extensions;
-using Chroma.Settings;
-using HarmonyLib;
-using System.Collections;
-using UnityEngine;
-
-namespace Chroma.HarmonyPatches
+﻿namespace Chroma.HarmonyPatches
 {
+    using System.Collections;
+    using Chroma.Extensions;
+    using HarmonyLib;
+    using UnityEngine;
+
     [HarmonyPatch(typeof(ParticleSystemEventEffect))]
     [HarmonyPatch("Start")]
     internal class ParticleSystemEventEffectStart
     {
+#pragma warning disable SA1313
         private static void Postfix(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)
+#pragma warning restore SA1313
         {
-            if (ChromaBehaviour.LightingRegistered || ColourManager.TechnicolourLights || ChromaBehaviour.LegacyOverride)
+            if (ChromaBehaviour.LightingRegistered || ChromaBehaviour.LegacyOverride)
+            {
                 __instance.StartCoroutine(WaitThenStart(__instance, ____colorEvent));
+            }
         }
 
+#pragma warning disable SA1313
         private static IEnumerator WaitThenStart(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)
+#pragma warning restore SA1313
         {
             yield return new WaitForEndOfFrame();
             LightSwitchEventEffectExtensions.LSEStart(__instance, ____colorEvent);
@@ -27,7 +32,9 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("OnDestroy")]
     internal class ParticleSystemEventEffectOnDestroy
     {
+#pragma warning disable SA1313
         private static void Postfix(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)
+#pragma warning restore SA1313
         {
             LightSwitchEventEffectExtensions.LSEDestroy(__instance, ____colorEvent);
         }
@@ -37,32 +44,16 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal class ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
-        internal static void ResetRandom()
-        {
-            techniLightRandom = new System.Random(408);
-        }
-
-        private static System.Random techniLightRandom = new System.Random(408);
-
+#pragma warning disable SA1313
         private static bool Prefix(ParticleSystemEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____colorEvent)
+#pragma warning restore SA1313
         {
-            if (beatmapEventData.type != ____colorEvent) return true;
-
-            if (ColourManager.TechnicolourLights && (int)____colorEvent <= 4)
+            if (beatmapEventData.type != ____colorEvent)
             {
-                if (beatmapEventData.value > 0 && beatmapEventData.value <= 7)
-                {
-                    if (ChromaConfig.TechnicolourLightsGrouping == ColourManager.TechnicolourLightsGrouping.ISOLATED &&
-                        techniLightRandom.NextDouble() < ChromaConfig.TechnicolourLightsFrequency)
-                    {
-                        // ParticleSystem need only worry about mayhem
-                        VFX.MayhemEvent.ParticleTechnicolour(beatmapEventData, __instance);
-                        return false;
-                    }
-                }
+                return true;
             }
 
-            LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ColourLightSwitch(__instance, beatmapEventData, ____colorEvent);
+            LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.ColorLightSwitch(__instance, beatmapEventData, ____colorEvent);
 
             return true;
         }

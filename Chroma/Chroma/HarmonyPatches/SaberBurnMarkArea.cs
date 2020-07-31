@@ -1,14 +1,16 @@
-﻿using HarmonyLib;
-
-namespace Chroma.HarmonyPatches
+﻿namespace Chroma.HarmonyPatches
 {
+    using HarmonyLib;
+
     [HarmonyPatch(typeof(SaberBurnMarkArea))]
     [HarmonyPatch("Start")]
     internal class SaberBurnMarkAreaStart
     {
+#pragma warning disable SA1313
         private static void Postfix(SaberBurnMarkArea __instance)
+#pragma warning restore SA1313
         {
-            Extensions.SaberColourizer.saberBurnMarkArea = __instance;
+            Extensions.SaberColorizer.SaberBurnMarkArea = __instance;
         }
     }
 }

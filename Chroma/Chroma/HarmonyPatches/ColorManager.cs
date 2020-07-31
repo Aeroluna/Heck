@@ -1,20 +1,23 @@
-﻿using HarmonyLib;
-using UnityEngine;
-
-namespace Chroma.HarmonyPatches
+﻿namespace Chroma.HarmonyPatches
 {
+    using HarmonyLib;
+    using UnityEngine;
+
     [HarmonyPatch(typeof(ColorManager))]
     [HarmonyPatch("ColorForNoteType")]
     internal class ColorManagerColorForNoteType
     {
+#pragma warning disable SA1313
         private static bool Prefix(ref Color __result, NoteType type)
+#pragma warning restore SA1313
         {
-            Color? c = ColourManager.GetNoteTypeColourOverride(type);
+            Color? c = ChromaColorManager.GetNoteTypeColorOverride(type);
             if (c.HasValue)
             {
                 __result = c.Value;
                 return false;
             }
+
             return true;
         }
     }
@@ -23,11 +26,13 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("ColorForSaberType")]
     internal class ColorManagerColorForSaberType
     {
+#pragma warning disable SA1313
         private static bool Prefix(SaberType type, ref Color __result)
+#pragma warning restore SA1313
         {
             bool warm = type == SaberType.SaberA;
 
-            Color? color = warm ? Extensions.SaberColourizer.currentAColor : Extensions.SaberColourizer.currentBColor;
+            Color? color = warm ? Extensions.SaberColorizer.CurrentAColor : Extensions.SaberColorizer.CurrentBColor;
             if (color.HasValue)
             {
                 __result = color.Value;
@@ -42,7 +47,9 @@ namespace Chroma.HarmonyPatches
     [HarmonyPatch("EffectsColorForSaberType")]
     internal class ColorManagerEffectsColorForSaberType
     {
+#pragma warning disable SA1313
         private static bool Prefix(ColorManager __instance, SaberType type, ref Color __result)
+#pragma warning restore SA1313
         {
             Color rgbColor = __instance.ColorForSaberType(type);
             float h;
