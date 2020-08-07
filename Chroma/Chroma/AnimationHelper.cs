@@ -10,7 +10,7 @@
     {
         internal static void SubscribeColorEvents()
         {
-            TrackManager.TrackCreated += OnTrackProperties;
+            TrackManager.TrackCreated += OnTrackCreated;
         }
 
         internal static void GetColorOffset(dynamic customData, Track track, float time, out Color? color)
@@ -32,7 +32,7 @@
             }
         }
 
-        private static void OnTrackProperties(Track track)
+        private static void OnTrackCreated(Track track)
         {
             IDictionary<string, Property> properties = track.Properties;
             properties.Add("_color", new Property(PropertyType.Vector4));

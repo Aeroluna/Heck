@@ -10,51 +10,22 @@
     using IPA.Utilities;
     using UnityEngine;
 
-    internal class ChromaBehaviour : MonoBehaviour
+    internal static class ChromaController
     {
-        private static ChromaBehaviour _instance = null;
-
         internal static float SongBPM { get; private set; }
 
         internal static AudioTimeSyncController ATSC { get; private set; }
+
+        internal static BeatmapObjectManager BeatmapObjectManager { get; private set; }
 
         internal static bool LightingRegistered { get; set; }
 
         internal static bool LegacyOverride { get; set; }
 
-        internal static ChromaBehaviour CreateNewInstance()
+        internal static void Init()
         {
-            ClearInstance();
-
-            GameObject instanceObject = new GameObject("Chroma_ChromaBehaviour");
-            ChromaBehaviour behaviour = instanceObject.AddComponent<ChromaBehaviour>();
-            _instance = behaviour;
-            return behaviour;
-        }
-
-        private static void ClearInstance()
-        {
-            if (_instance != null)
-            {
-                Destroy(_instance.gameObject);
-                _instance = null;
-            }
-        }
-
-        private void OnDestroy()
-        {
-            StopAllCoroutines();
-        }
-
-        private void Start()
-        {
-            StartCoroutine(DelayedStart());
-        }
-
-        private IEnumerator DelayedStart()
-        {
-            yield return new WaitForSeconds(0f);
             ATSC = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First();
+            BeatmapObjectManager = Resources.FindObjectsOfTypeAll<BeatmapObjectManager>().First();
             SongBPM = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First().currentBPM;
             BeatmapObjectCallbackController coreSetup = Resources.FindObjectsOfTypeAll<BeatmapObjectCallbackController>().First();
             BeatmapData beatmapData = coreSetup.GetField<BeatmapData, BeatmapObjectCallbackController>("_beatmapData");
@@ -66,7 +37,7 @@
                     b.beatmapObjectsData = b.beatmapObjectsData.Where((source, index) => b.beatmapObjectsData[index].beatmapObjectType != BeatmapObjectType.Note).ToArray();
                 }
 
-                foreach (Saber saber in FindObjectsOfType<Saber>())
+                foreach (Saber saber in Resources.FindObjectsOfTypeAll<Saber>())
                 {
                     saber.gameObject.SetActive(false);
                 }
@@ -101,11 +72,12 @@
                 {
                     if (ChromaConfig.Instance.EnvironmentEnhancementsEnabled)
                     {
+                        // Spaghetti code below until I can figure out a better way of doing this
                         dynamic dynData = customBeatmap.beatmapCustomData;
                         List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
                         if (objectsToKill != null)
                         {
-                            GameObject[] gameObjects = FindObjectsOfType<GameObject>();
+                            GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
                             foreach (string s in objectsToKill?.Cast<string>())
                             {
                                 if (s == "TrackLaneRing" || s == "BigTrackLaneRing")
@@ -141,7 +113,7 @@
 
             if (LightingRegistered)
             {
-                Extensions.SaberColorizer.InitializeSabers(FindObjectsOfType<Saber>());
+                Extensions.SaberColorizer.InitializeSabers(Resources.FindObjectsOfTypeAll<Saber>());
             }
         }
     }

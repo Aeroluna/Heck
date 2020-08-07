@@ -21,12 +21,11 @@
             {
                 Color? c = null;
 
-                // CustomJSONData _customData individual scale override
-                if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered)
+                if (noteData is CustomNoteData customData && ChromaController.LightingRegistered)
                 {
                     dynamic dynData = customData.customData;
 
-                    c = ChromaUtils.GetColorFromData(dynData, false) ?? c;
+                    c = ChromaUtils.GetColorFromData(dynData) ?? c;
                 }
 
                 if (!c.HasValue)
@@ -66,7 +65,7 @@
 
         private static void TrackColorize(NoteController instance, NoteData noteData, NoteMovement noteMovement)
         {
-            if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered)
+            if (noteData is CustomNoteData customData && ChromaController.LightingRegistered)
             {
                 dynamic dynData = customData.customData;
                 Track track = AnimationHelper.GetTrack(dynData);
@@ -109,17 +108,6 @@
                             {
                                 materialPropertyBlockController.materialPropertyBlock.SetColor(_colorID, noteColor);
                                 materialPropertyBlockController.ApplyChanges();
-                            }
-
-                            ColorNoteVisualsHandleNoteControllerDidInitEvent.NoteColorsActive = true;
-
-                            Events.ChromaNoteColorEvent.SavedNoteColors[instance] = noteColor;
-
-                            bool? isSubscribed = Trees.at(dynData, "subscribed");
-                            if (!isSubscribed.HasValue)
-                            {
-                                instance.noteWasCutEvent += Events.ChromaNoteColorEvent.SaberColor;
-                                dynData.isSubscribed = true;
                             }
                         }
                     }

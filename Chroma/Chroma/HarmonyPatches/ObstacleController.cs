@@ -54,7 +54,7 @@
 #pragma warning restore SA1313
         {
             // CustomJSONData _customData individual color override
-            if (obstacleData is CustomObstacleData customData && ChromaBehaviour.LightingRegistered)
+            if (obstacleData is CustomObstacleData customData && ChromaController.LightingRegistered)
             {
                 dynamic dynData = customData.customData;
 
@@ -97,7 +97,7 @@
 
         private static void TrackColorize(ref SimpleColorSO color, StretchableObstacle stretchableObstacle, ObstacleData obstacleData, AudioTimeSyncController audioTimeSyncController, float startTimeOffset, float move1Duration, float move2Duration, float obstacleDuration)
         {
-            if (obstacleData is CustomObstacleData customData && ChromaBehaviour.LightingRegistered)
+            if (obstacleData is CustomObstacleData customData && ChromaController.LightingRegistered)
             {
                 dynamic dynData = customData.customData;
                 Track track = AnimationHelper.GetTrack(dynData);

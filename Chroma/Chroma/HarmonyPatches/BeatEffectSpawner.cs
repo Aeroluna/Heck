@@ -12,27 +12,23 @@
     {
         private static bool Prefix(NoteController noteController)
         {
-            if (ChromaBehaviour.LightingRegistered && noteController.noteData is CustomNoteData customData)
+            if (ChromaController.LightingRegistered && noteController.noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                bool? reset = Trees.at(dynData, "_disableSpawnEffect");
-                if (reset.HasValue && reset == true)
+                bool? disable = Trees.at(dynData, "_disableSpawnEffect");
+                if (disable.HasValue && disable == true)
                 {
                     return false;
                 }
             }
 
-            if (ChromaNoteColorEvent.SavedNoteColors.TryGetValue(noteController, out Color c))
-            {
-                ChromaColorManager.SetNoteTypeColorOverride(noteController.noteData.noteType, c);
-            }
-
+            NoteColorManager.EnableNoteColorOverride(noteController);
             return true;
         }
 
-        private static void Postfix(NoteController noteController)
+        private static void Postfix()
         {
-            ChromaColorManager.RemoveNoteTypeColorOverride(noteController.noteData.noteType);
+            NoteColorManager.DisableNoteColorOverride();
         }
     }
 }

@@ -23,7 +23,7 @@
             set
             {
                 ChromaConfig.Instance.CustomColorEventsEnabled = !value;
-                ChromaUtils.SetSongCoreCapability(Plugin.REQUIREMENT_NAME, !value);
+                ChromaUtils.SetSongCoreCapability(Plugin.REQUIREMENTNAME, !value);
             }
         }
 

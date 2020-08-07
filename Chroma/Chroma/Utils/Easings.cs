@@ -6,9 +6,11 @@ namespace Chroma.Utils
     /// Easing Functions enumeration
     /// </summary>
 #pragma warning disable SA1300
+
     internal enum Functions
     {
         easeLinear,
+        easeStep,
         easeInQuad,
         easeOutQuad,
         easeInOutQuad,
@@ -40,6 +42,7 @@ namespace Chroma.Utils
         easeOutBounce,
         easeInOutBounce,
     }
+
 #pragma warning restore SA1300
 
     internal static class Easings
@@ -63,6 +66,7 @@ namespace Chroma.Utils
             {
                 default:
                 case Functions.easeLinear: return EaseLinear(p);
+                case Functions.easeStep: return EaseStep(p);
                 case Functions.easeOutQuad: return EaseOutQuad(p);
                 case Functions.easeInQuad: return EaseInQuad(p);
                 case Functions.easeInOutQuad: return EaseInOutQuad(p);
@@ -102,6 +106,14 @@ namespace Chroma.Utils
         internal static float EaseLinear(float p)
         {
             return p;
+        }
+
+        /// <summary>
+        /// It's either 1, or it's not
+        /// </summary>
+        internal static float EaseStep(float p)
+        {
+            return Math.Floor(p);
         }
 
         /// <summary>

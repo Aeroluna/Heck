@@ -8,13 +8,13 @@
     internal class ColorManagerColorForNoteType
     {
 #pragma warning disable SA1313
-        private static bool Prefix(ref Color __result, NoteType type)
+        private static bool Prefix(ref Color __result)
 #pragma warning restore SA1313
         {
-            Color? c = ChromaColorManager.GetNoteTypeColorOverride(type);
-            if (c.HasValue)
+            Color? color = NoteColorManager.NoteColorOverride;
+            if (color.HasValue)
             {
-                __result = c.Value;
+                __result = color.Value;
                 return false;
             }
 
@@ -52,10 +52,7 @@
 #pragma warning restore SA1313
         {
             Color rgbColor = __instance.ColorForSaberType(type);
-            float h;
-            float s;
-            float v;
-            Color.RGBToHSV(rgbColor, out h, out s, out v);
+            Color.RGBToHSV(rgbColor, out float h, out float s, out float v);
             v = 1f;
             __result = Color.HSVToRGB(h, s, v);
             return false;

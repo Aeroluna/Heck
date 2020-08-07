@@ -20,7 +20,7 @@
         private static void Postfix(LightSwitchEventEffect __instance, BeatmapEventType ____event)
 #pragma warning restore SA1313
         {
-            if (ChromaBehaviour.LightingRegistered || ChromaBehaviour.LegacyOverride)
+            if (ChromaController.LightingRegistered || ChromaController.LegacyOverride)
             {
                 __instance.StartCoroutine(WaitThenStart(__instance, ____event));
             }
@@ -95,7 +95,7 @@
             }
 
             // CustomJSONData _customData individual override
-            if (ChromaBehaviour.LightingRegistered && beatmapEventData is CustomBeatmapEventData customData)
+            if (ChromaController.LightingRegistered && beatmapEventData is CustomBeatmapEventData customData)
             {
                 dynamic dynData = customData.customData;
                 if (__monobehaviour is LightSwitchEventEffect)
@@ -130,8 +130,8 @@
                     {
                         // GRADIENT
                         float duration = (float)Trees.at(gradient, "_duration");
-                        Color initcolor = ChromaUtils.GetColorFromData(gradient, true, "_startColor");
-                        Color endcolor = ChromaUtils.GetColorFromData(gradient, true, "_endColor");
+                        Color initcolor = ChromaUtils.GetColorFromData(gradient, "_startColor");
+                        Color endcolor = ChromaUtils.GetColorFromData(gradient, "_endColor");
                         string easingstring = (string)Trees.at(gradient, "_easing");
                         Functions easing;
                         if (string.IsNullOrEmpty(easingstring))

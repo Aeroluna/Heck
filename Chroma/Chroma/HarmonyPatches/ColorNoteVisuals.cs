@@ -1,8 +1,10 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using Chroma.Events;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using System.Reflection.Emit;
     using Chroma.Utils;
-    using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
     using UnityEngine;
@@ -11,38 +13,32 @@
     [HarmonyPatch("HandleNoteControllerDidInitEvent")]
     internal class ColorNoteVisualsHandleNoteControllerDidInitEvent
     {
-        internal static bool NoteColorsActive { get; set; }
-
 #pragma warning disable SA1313
-        private static void Prefix(NoteController noteController, ColorManager ____colorManager)
+        private static void Prefix(ColorNoteVisuals __instance, NoteController noteController)
 #pragma warning restore SA1313
         {
-            NoteData noteData = noteController.noteData;
-
-            // CustomJSONData _customData individual color override
-            if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered)
+            if (noteController.noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                Color? c = ChromaUtils.GetColorFromData(dynData, false);
+                dynData.colorNoteVisuals = __instance;
 
-                if (c.HasValue)
+                Color? color = ChromaUtils.GetColorFromData(dynData);
+
+                if (color.HasValue)
                 {
-                    ChromaColorManager.SetNoteTypeColorOverride(noteData.noteType, c.Value);
-                    NoteColorsActive = true;
+                    dynData.color = color.Value;
                 }
 
-                if (NoteColorsActive)
-                {
-                    ChromaNoteColorEvent.SavedNoteColors[noteController] = ____colorManager.ColorForNoteType(noteData.noteType);
-                    noteController.noteWasCutEvent += ChromaNoteColorEvent.SaberColor;
-                    dynData.isSubscribed = true;
-                }
+                ChromaController.BeatmapObjectManager.noteWasCutEvent -= NoteColorManager.ColorizeSaber;
+                ChromaController.BeatmapObjectManager.noteWasCutEvent += NoteColorManager.ColorizeSaber;
             }
+
+            NoteColorManager.EnableNoteColorOverride(noteController);
         }
 
-        private static void Postfix(ref NoteController noteController)
+        private static void Postfix()
         {
-            ChromaColorManager.RemoveNoteTypeColorOverride(noteController.noteData.noteType);
+            NoteColorManager.DisableNoteColorOverride();
         }
     }
 }

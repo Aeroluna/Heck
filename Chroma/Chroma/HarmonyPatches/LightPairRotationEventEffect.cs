@@ -53,7 +53,7 @@
         private static bool Prefix(LightPairRotationEventEffect __instance, BeatmapEventType ____eventL, float startRotationOffset, float direction)
 #pragma warning restore SA1313
         {
-            if (!ChromaBehaviour.LightingRegistered)
+            if (!ChromaController.LightingRegistered)
             {
                 return true;
             }

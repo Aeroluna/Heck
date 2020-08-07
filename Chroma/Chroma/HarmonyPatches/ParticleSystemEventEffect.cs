@@ -13,7 +13,7 @@
         private static void Postfix(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)
 #pragma warning restore SA1313
         {
-            if (ChromaBehaviour.LightingRegistered || ChromaBehaviour.LegacyOverride)
+            if (ChromaController.LightingRegistered || ChromaController.LegacyOverride)
             {
                 __instance.StartCoroutine(WaitThenStart(__instance, ____colorEvent));
             }

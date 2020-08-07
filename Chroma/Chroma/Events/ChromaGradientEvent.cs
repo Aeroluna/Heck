@@ -43,7 +43,7 @@
 
         internal static Color AddGradient(BeatmapEventType id, Color initc, Color endc, float time, float duration, Functions easing)
         {
-            float normalTime = ChromaBehaviour.ATSC.songTime - time;
+            float normalTime = ChromaController.ATSC.songTime - time;
             if (normalTime < duration)
             {
                 if (Gradients.TryGetValue(id, out ChromaGradientEvent gradient))
@@ -67,7 +67,7 @@
             gradient._initcolor = initc;
             gradient._endcolor = endc;
             gradient._start = start;
-            gradient._duration = (60f * dur) / ChromaBehaviour.SongBPM;
+            gradient._duration = (60f * dur) / ChromaController.SongBPM;
             gradient._event = type;
             gradient._easing = easing;
             return gradient;
@@ -75,7 +75,7 @@
 
         private void Update()
         {
-            float time = ChromaBehaviour.ATSC.songTime - _start;
+            float time = ChromaController.ATSC.songTime - _start;
             if (time > 0 && time <= _duration)
             {
                 Color c = Color.Lerp(_initcolor, _endcolor, Easings.Interpolate(time / _duration, _easing));

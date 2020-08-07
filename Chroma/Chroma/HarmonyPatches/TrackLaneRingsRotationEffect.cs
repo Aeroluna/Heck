@@ -20,7 +20,7 @@
             TrackLaneRingsRotationEffectSpawner.RotationStepType ____rotationStepType)
 #pragma warning restore SA1313
         {
-            if (beatmapEventData.type == ____beatmapEventType && ChromaBehaviour.LightingRegistered)
+            if (beatmapEventData.type == ____beatmapEventType && ChromaController.LightingRegistered)
             {
                 if (beatmapEventData is CustomBeatmapEventData customData)
                 {
