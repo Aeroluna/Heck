@@ -18,7 +18,7 @@
         private static readonly FieldInfo _localPositionField = AccessTools.Field(typeof(NoteJump), "_localPosition");
         private static readonly MethodInfo _definiteNoteJump = SymbolExtensions.GetMethodInfo(() => DefiniteNoteJump(Vector3.zero, 0));
         private static readonly MethodInfo _convertToLocalSpace = SymbolExtensions.GetMethodInfo(() => ConvertToLocalSpace(null));
-        private static readonly MethodInfo _convertQuaternion = SymbolExtensions.GetMethodInfo(() => ConvertQuaternion(Quaternion.identity));
+        private static readonly MethodInfo _popQuaternion = SymbolExtensions.GetMethodInfo(() => PopQuaternion(Quaternion.identity, Vector3.zero));
         private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), "_definitePosition");
         private static readonly MethodInfo _setLocalPosition = typeof(Transform).GetProperty("localPosition").GetSetMethod();
 
@@ -79,18 +79,7 @@
                 {
                     foundTransformUp = true;
                     instructionList[i] = new CodeInstruction(OpCodes.Call, _convertToLocalSpace);
-                }
-
-                if (instructionList[i].opcode == OpCodes.Ldfld &&
-                 ((FieldInfo)instructionList[i].operand).Name == "_inverseWorldRotation")
-                {
-                    if (!foundInverseRotation)
-                    {
-                        foundInverseRotation = true;
-                        continue;
-                    }
-
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _convertQuaternion));
+                    instructionList[i + 1] = new CodeInstruction(OpCodes.Call, _popQuaternion);
                 }
 
                 // is there a better way of checking labels?
@@ -168,10 +157,10 @@
             return rotatedObject.parent.InverseTransformDirection(rotatedObject.up);
         }
 
-        private static Quaternion ConvertQuaternion(Quaternion source)
+        // used to pop the quaternion from the stack and return the vector3
+        private static Vector3 PopQuaternion(Quaternion quaternion, Vector3 vector)
         {
-            Vector3 euler = source.eulerAngles;
-            return Quaternion.Euler(euler.x, euler.y, 0);
+            return vector;
         }
     }
 }

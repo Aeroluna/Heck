@@ -103,7 +103,8 @@
     <Compile Include="HarmonyPatches\FakeNotes\NoteCutEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\ObstacleSaberSparkleEffectManager.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\PlayerHeadAndObstacleInteraction.cs" />
-    <Compile Include="HarmonyPatches\NoteCutSoundEffect.cs" />
+    <Compile Include="HarmonyPatches\BombCutSoundEffectManager.cs" />
+    <Compile Include="HarmonyPatches\NoteCutSoundEffectManager.cs" />
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnMovementData.cs" />
     <Compile Include="HarmonyPatches\Mirroring\ObstacleData.cs" />

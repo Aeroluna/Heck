@@ -21,7 +21,7 @@
         private static readonly MethodInfo _getCustomWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(0, null));
         private static readonly MethodInfo _getWorldRotation = SymbolExtensions.GetMethodInfo(() => GetWorldRotation(null, 0));
         private static readonly MethodInfo _getCustomLength = SymbolExtensions.GetMethodInfo(() => GetCustomLength(0, null));
-        private static readonly MethodInfo _invertQuaternion = SymbolExtensions.GetMethodInfo(() => Quaternion.Inverse(Quaternion.identity));
+        private static readonly MethodInfo _invertQuaternion = SymbolExtensions.GetMethodInfo(() => InvertQuaternion(Quaternion.identity));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -136,6 +136,11 @@
             }
 
             __instance.Update();
+        }
+
+        private static Quaternion InvertQuaternion(Quaternion quaternion)
+        {
+            return Quaternion.Euler(-quaternion.eulerAngles);
         }
 
         private static Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
@@ -322,7 +327,7 @@
                         if (rotationOffset.HasValue)
                         {
                             worldRotationQuatnerion *= rotationOffset.Value;
-                            Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
+                            Quaternion inverseWorldRotation = Quaternion.Euler(-worldRotationQuatnerion.eulerAngles);
                             ____worldRotation = worldRotationQuatnerion;
                             ____inverseWorldRotation = inverseWorldRotation;
                         }
