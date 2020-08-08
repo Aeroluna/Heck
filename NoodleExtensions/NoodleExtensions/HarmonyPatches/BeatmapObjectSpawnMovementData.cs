@@ -14,9 +14,9 @@
     [HarmonyPatch("Init")]
     internal static class BeatmapObjectSpawnMovementDataInit
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(BeatmapObjectSpawnMovementData __instance)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             InitBeatmapObjectSpawnController(__instance);
         }
@@ -26,9 +26,9 @@
     [NoodlePatch("GetObstacleSpawnMovementData")]
     internal static class BeatmapObjectSpawnMovementDataGetObstacleSpawnMovementData
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(Vector3 ____centerPos, ObstacleData obstacleData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float obstacleHeight)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (obstacleData is CustomObstacleData customData)
             {
@@ -85,9 +85,9 @@
     [NoodlePatch("GetNoteSpawnMovementData")]
     internal static class BeatmapObjectSpawnMovementDataGetNoteSpawnMovementData
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(BeatmapObjectSpawnMovementData __instance, Vector3 ____centerPos, float ____jumpDuration, NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float jumpGravity)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (noteData is CustomNoteData customData)
             {
@@ -116,7 +116,7 @@
                     float lineYPos = LineYPosForLineLayer(noteData, startHeight);
 
                     // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
-                    float highestJump = startHeight.HasValue ? ((0.875f * lineYPos) + 0.639583f) + JumpOffsetY :
+                    float highestJump = startHeight.HasValue ? (0.875f * lineYPos) + 0.639583f + JumpOffsetY :
                         __instance.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
                     jumpGravity = 2f * (highestJump - startLayerLineYPos) /
                         Mathf.Pow(localJumpDistance / localNoteJumpMovementSpeed * 0.5f, 2f);

@@ -9,9 +9,9 @@
     internal static class BombCutSoundEffectManagerHandleNoteWasCut
     {
         // Do not create a NoteCutSoundEffect for fake notes
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(INoteController noteController)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (noteController.noteData is CustomNoteData customNoteData)
             {

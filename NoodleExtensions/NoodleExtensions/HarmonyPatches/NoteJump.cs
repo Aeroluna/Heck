@@ -22,23 +22,17 @@
         private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), "_definitePosition");
         private static readonly MethodInfo _setLocalPosition = typeof(Transform).GetProperty("localPosition").GetSetMethod();
 
-#pragma warning disable 0414
+        // This field is used by reflection
+#pragma warning disable CS0414 // The field is assigned but its value is never used
         private static bool _definitePosition = false;
-#pragma warning restore 0414
+#pragma warning restore CS0414 // The field is assigned but its value is never used
 
         internal static float NoteJumpTimeAdjust(float original, float jumpDuration)
         {
             dynamic dynData = NoteControllerUpdate.CustomNoteData.customData;
             Track track = Trees.at(dynData, "track");
             float? time = AnimationHelper.TryGetProperty(track, NoodleExtensions.Plugin.TIME);
-            if (time.HasValue)
-            {
-                return Mathf.Clamp(time.Value, 0, 1) * jumpDuration;
-            }
-            else
-            {
-                return original;
-            }
+            return time.HasValue ? Mathf.Clamp(time.Value, 0, 1) * jumpDuration : original;
         }
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -48,7 +42,6 @@
             bool foundFinalPosition = false;
             bool foundTransformUp = false;
             bool foundZOffset = false;
-            bool foundInverseRotation = false;
             bool foundPosition = false;
             for (int i = 0; i < instructionList.Count; i++)
             {
@@ -158,7 +151,9 @@
         }
 
         // used to pop the quaternion from the stack and return the vector3
+#pragma warning disable IDE0060 // Remove unused parameter
         private static Vector3 PopQuaternion(Quaternion quaternion, Vector3 vector)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return vector;
         }

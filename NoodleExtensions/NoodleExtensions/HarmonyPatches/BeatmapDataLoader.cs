@@ -138,9 +138,9 @@
     internal static class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
     {
         // TODO: account for base game bpm changes
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(BeatmapData __result, float startBPM)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (__result == null)
             {

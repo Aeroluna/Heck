@@ -93,45 +93,45 @@
 
             internal static BeatmapObjectSpawnMovementData BeatmapObjectSpawnMovementData { get => _beatmapObjectSpawnMovementData; set => _beatmapObjectSpawnMovementData = value; }
 
-            internal static float StartBPM { get => _startBPMAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float StartBPM => _startBPMAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float TopObstaclePosY { get => _topObstaclePosYAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float TopObstaclePosY => _topObstaclePosYAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float JumpOffsetY { get => _jumpOffsetYAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float JumpOffsetY => _jumpOffsetYAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float VerticalObstaclePosY { get => _verticalObstaclePosYAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float VerticalObstaclePosY => _verticalObstaclePosYAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float MoveDistance { get => _moveDistanceAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float MoveDistance => _moveDistanceAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float JumpDistance { get => _jumpDistanceAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float JumpDistance => _jumpDistanceAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float JumpDuration { get => _jumpDurationAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float JumpDuration => _jumpDurationAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float NoteJumpMovementSpeed { get => _noteJumpMovementSpeedAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float NoteJumpMovementSpeed => _noteJumpMovementSpeedAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float NoteJumpStartBeatOffset { get => _noteJumpStartBeatOffsetAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float NoteJumpStartBeatOffset => _noteJumpStartBeatOffsetAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float NoteLinesDistance { get => _noteLinesDistanceAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float NoteLinesDistance => _noteLinesDistanceAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float BaseLinesYPos { get => _baseLinesYPosAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float BaseLinesYPos => _baseLinesYPosAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static Vector3 MoveStartPos { get => _moveStartPosAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static Vector3 MoveStartPos => _moveStartPosAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static Vector3 MoveEndPos { get => _moveEndPosAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static Vector3 MoveEndPos => _moveEndPosAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static Vector3 JumpEndPos { get => _jumpEndPosAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static Vector3 JumpEndPos => _jumpEndPosAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float NoteLinesCount { get => _noteLinesCountAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float NoteLinesCount => _noteLinesCountAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static Vector3 CenterPos { get => _centerPosAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static Vector3 CenterPos => _centerPosAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static Vector3 ForwardVec { get => _forwardVecAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static Vector3 ForwardVec => _forwardVecAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static Vector3 RightVec { get => _rightVecAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static Vector3 RightVec => _rightVecAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float StartHalfJumpDurationInBeats { get => _startHalfJumpDurationInBeatsAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float StartHalfJumpDurationInBeats => _startHalfJumpDurationInBeatsAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float MaxHalfJumpDistance { get => _maxHalfJumpDistanceAccessor(ref _beatmapObjectSpawnMovementData); }
+            internal static float MaxHalfJumpDistance => _maxHalfJumpDistanceAccessor(ref _beatmapObjectSpawnMovementData);
         }
     }
 }

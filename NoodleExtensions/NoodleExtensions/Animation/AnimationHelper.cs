@@ -55,9 +55,9 @@
             }
         }
 
-        public static Dictionary<string, Track> Tracks { get => ((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData.tracks; }
+        public static Dictionary<string, Track> Tracks => ((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData.tracks;
 
-        public static Dictionary<string, PointDefinition> PointDefinitions { get => Trees.at(((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData, "pointDefinitions"); }
+        public static Dictionary<string, PointDefinition> PointDefinitions => Trees.at(((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData, "pointDefinitions");
 
         private static BeatmapObjectManager BeatmapObjectManager
         {
@@ -122,9 +122,11 @@
                 case null:
                     pointData = null;
                     break;
+
                 case PointDefinition castedData:
                     pointData = castedData;
                     break;
+
                 case string castedString:
                     if (!pointDefinitions.TryGetValue(castedString, out pointData))
                     {
@@ -133,6 +135,7 @@
                     }
 
                     break;
+
                 default:
                     pointData = PointDefinition.DynamicToPointData(pointString);
                     if (pointData != null)

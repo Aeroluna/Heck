@@ -13,9 +13,9 @@
     [HarmonyPatch("MirrorLineIndex")]
     internal static class ObstacleDataMirrorLineIndex
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(ObstacleData __instance)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (__instance is CustomObstacleData customData)
             {

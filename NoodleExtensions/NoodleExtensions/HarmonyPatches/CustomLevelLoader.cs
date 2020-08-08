@@ -11,9 +11,9 @@
     internal static class CustomLevelLoaderLoadBeatmapDataBeatmapData
     {
         [HarmonyPriority(Priority.Low)]
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(BeatmapData __result, string difficultyFileName, StandardLevelInfoSaveData standardLevelInfoSaveData)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (__result != null && __result is CustomBeatmapData customBeatmapData)
             {

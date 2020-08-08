@@ -9,9 +9,7 @@
     internal static class NoteCutSoundEffectManagerBeatmapObjectCallback
     {
         // Do not create a NoteCutSoundEffect for fake notes
-#pragma warning disable SA1313
         private static bool Prefix(BeatmapObjectData beatmapObjectData)
-#pragma warning restore SA1313
         {
             if (beatmapObjectData is CustomNoteData customNoteData)
             {

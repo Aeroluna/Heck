@@ -35,9 +35,9 @@
         private static readonly MethodInfo _noteControllerUpdate = typeof(NoteController).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo _gameNoteControllerUpdate = typeof(GameNoteController).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (noteData is CustomNoteData customData)
             {
@@ -201,9 +201,9 @@
 
         internal static CustomNoteData CustomNoteData { get; private set; }
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (____noteData is CustomNoteData customData)
             {
@@ -312,6 +312,7 @@
                                 }
 
                                 break;
+
                             case BombNoteController bombNoteController:
                                 CuttableBySaber boxCuttableBySaber = _bombNoteCuttableAccessor(ref bombNoteController);
                                 if (boxCuttableBySaber.enabled != enabled)

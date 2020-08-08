@@ -23,7 +23,7 @@
             if (track != null)
             {
                 float duration = (float?)Trees.at(customEventData.data, DURATION) ?? 0f;
-                duration = (60f * duration) / Instance.BeatmapObjectSpawnController.currentBPM; // Convert to real time;
+                duration = 60f * duration / Instance.BeatmapObjectSpawnController.currentBPM; // Convert to real time;
 
                 string easingString = (string)Trees.at(customEventData.data, EASING);
                 Functions easing = Functions.easeLinear;
@@ -53,8 +53,7 @@
                 {
                     if (!excludedStrings.Any(n => n == valuePair.Key))
                     {
-                        Property property;
-                        if (!properties.TryGetValue(valuePair.Key, out property))
+                        if (!properties.TryGetValue(valuePair.Key, out Property property))
                         {
                             NoodleLogger.Log($"Could not find property {valuePair.Key}!", IPA.Logging.Logger.Level.Error);
                             continue;
