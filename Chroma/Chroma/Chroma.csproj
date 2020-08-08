@@ -36,10 +36,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AnimationHelper.cs" />
+    <Compile Include="ChromaPatch.cs" />
     <Compile Include="Events\ChromaLegacyRGBEvent.cs" />
     <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />
     <Compile Include="HarmonyPatches\StandardLevelScenesTransitionSetupDataSO.cs" />
+    <Compile Include="HarmonyPatches\BeatmapObjectCallbackController.cs" />
     <Compile Include="Utils\Easings.cs" />
     <Compile Include="Events\ChromaGradientEvent.cs" />
     <Compile Include="ChromaController.cs" />

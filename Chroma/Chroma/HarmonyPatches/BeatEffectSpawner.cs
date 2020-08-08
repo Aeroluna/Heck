@@ -1,18 +1,15 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using Chroma.Events;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
-    using UnityEngine;
 
-    [HarmonyPatch(typeof(BeatEffectSpawner))]
-    [HarmonyPatch("HandleNoteDidStartJumpEvent")]
+    [ChromaPatch(typeof(BeatEffectSpawner))]
+    [ChromaPatch("HandleNoteDidStartJumpEvent")]
     internal class HandleNoteDidStartJumpEvent
     {
         private static bool Prefix(NoteController noteController)
         {
-            if (ChromaController.LightingRegistered && noteController.noteData is CustomNoteData customData)
+            if (noteController.noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
                 bool? disable = Trees.at(dynData, "_disableSpawnEffect");

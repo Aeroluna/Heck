@@ -4,20 +4,19 @@
     using System.Reflection;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
     using IPA.Utilities;
     using UnityEngine;
 
-    [HarmonyPatch(typeof(LightPairRotationEventEffect))]
-    [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    [ChromaPatch(typeof(LightPairRotationEventEffect))]
+    [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal class LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
         internal static BeatmapEventData LastLightPairRotationEventEffectData { get; private set; }
 
         // Laser rotation
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(BeatmapEventData beatmapEventData, BeatmapEventType ____eventL, BeatmapEventType ____eventR)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (beatmapEventData.type == ____eventL || beatmapEventData.type == ____eventR)
             {
@@ -31,8 +30,8 @@
         }
     }
 
-    [HarmonyPatch(typeof(LightPairRotationEventEffect))]
-    [HarmonyPatch("UpdateRotationData")]
+    [ChromaPatch(typeof(LightPairRotationEventEffect))]
+    [ChromaPatch("UpdateRotationData")]
     internal class LightPairRotationEventEffectUpdateRotationData
     {
         private static MethodInfo _getPrivateFieldM = null;
@@ -49,15 +48,10 @@
             _getPrivateFieldM = reflectionGetField.MakeGenericMethod(_rotationDataType, typeof(LightPairRotationEventEffect));
         }
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(LightPairRotationEventEffect __instance, BeatmapEventType ____eventL, float startRotationOffset, float direction)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            if (!ChromaController.LightingRegistered)
-            {
-                return true;
-            }
-
             BeatmapEventData beatmapEventData = LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.LastLightPairRotationEventEffectData;
 
             string rotationName = beatmapEventData.type == ____eventL ? "_rotationDataL" : "_rotationDataR";

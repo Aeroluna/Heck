@@ -4,13 +4,12 @@
     using Chroma.Utils;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
     using IPA.Utilities;
     using NoodleExtensions.Animation;
     using UnityEngine;
 
-    [HarmonyPatch(typeof(ObstacleController))]
-    [HarmonyPatch("Init")]
+    [ChromaPatch(typeof(ObstacleController))]
+    [ChromaPatch("Init")]
     internal class ObstacleControllerInit
     {
         private static SimpleColorSO _customObstacleColor;
@@ -49,12 +48,12 @@
             _customObstacleColor = null;
         }
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(ref SimpleColorSO ____color, ObstacleData obstacleData)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             // CustomJSONData _customData individual color override
-            if (obstacleData is CustomObstacleData customData && ChromaController.LightingRegistered)
+            if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
 
@@ -73,8 +72,8 @@
         }
     }
 
-    [HarmonyPatch(typeof(ObstacleController))]
-    [HarmonyPatch("Update")]
+    [ChromaPatch(typeof(ObstacleController))]
+    [ChromaPatch("Update")]
     internal class ObstacleControllerUpdate
     {
         private static readonly FieldAccessor<StretchableObstacle, ParametricBoxFrameController>.Accessor _obstacleFrameAccessor = FieldAccessor<StretchableObstacle, ParametricBoxFrameController>.GetAccessor("_obstacleFrame");
@@ -85,9 +84,9 @@
         private static readonly int _tintColorID = Shader.PropertyToID("_TintColor");
         private static readonly int _addColorID = Shader.PropertyToID("_AddColor");
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(ref SimpleColorSO ____color, StretchableObstacle ____stretchableObstacle, ObstacleData ____obstacleData, AudioTimeSyncController ____audioTimeSyncController, float ____startTimeOffset, float ____move1Duration, float ____move2Duration, float ____obstacleDuration)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (Chroma.Plugin.NoodleExtensionsActive)
             {
@@ -97,7 +96,7 @@
 
         private static void TrackColorize(ref SimpleColorSO color, StretchableObstacle stretchableObstacle, ObstacleData obstacleData, AudioTimeSyncController audioTimeSyncController, float startTimeOffset, float move1Duration, float move2Duration, float obstacleDuration)
         {
-            if (obstacleData is CustomObstacleData customData && ChromaController.LightingRegistered)
+            if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
                 Track track = AnimationHelper.GetTrack(dynData);

@@ -9,51 +9,45 @@
     using Chroma.Utils;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
     using UnityEngine;
 
-    [HarmonyPatch(typeof(LightSwitchEventEffect))]
-    [HarmonyPatch("Start")]
+    [ChromaPatch(typeof(LightSwitchEventEffect))]
+    [ChromaPatch("Start")]
     internal class LightSwitchEventEffectStart
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(LightSwitchEventEffect __instance, BeatmapEventType ____event)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            if (ChromaController.LightingRegistered || ChromaController.LegacyOverride)
-            {
-                __instance.StartCoroutine(WaitThenStart(__instance, ____event));
-            }
+            __instance.StartCoroutine(WaitThenStart(__instance, ____event));
         }
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static IEnumerator WaitThenStart(LightSwitchEventEffect __instance, BeatmapEventType ____event)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             yield return new WaitForEndOfFrame();
             LightSwitchEventEffectExtensions.LSEStart(__instance, ____event);
         }
     }
 
-    [HarmonyPatch(typeof(LightSwitchEventEffect))]
-    [HarmonyPatch("OnDestroy")]
+    [ChromaPatch(typeof(LightSwitchEventEffect))]
+    [ChromaPatch("OnDestroy")]
     internal class LightSwitchEventEffectOnDestroy
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(LightSwitchEventEffect __instance, BeatmapEventType ____event)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             LightSwitchEventEffectExtensions.LSEDestroy(__instance, ____event);
         }
     }
 
-    [HarmonyPatch(typeof(LightSwitchEventEffect))]
-    [HarmonyPatch("SetColor")]
+    [ChromaPatch(typeof(LightSwitchEventEffect))]
+    [ChromaPatch("SetColor")]
     internal class LightSwitchEventEffectSetColor
     {
-#pragma warning disable SA1313
-        private static bool Prefix(LightSwitchEventEffect __instance, Color color)
-#pragma warning restore SA1313
+        private static bool Prefix(Color color)
         {
             if (LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.OverrideLightWithIdActivation != null)
             {
@@ -70,15 +64,15 @@
         }
     }
 
-    [HarmonyPatch(typeof(LightSwitchEventEffect))]
-    [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    [ChromaPatch(typeof(LightSwitchEventEffect))]
+    [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal class LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
         internal static LightWithId[] OverrideLightWithIdActivation { get; set; }
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         internal static void ColorLightSwitch(MonoBehaviour __monobehaviour, BeatmapEventData beatmapEventData, BeatmapEventType _event)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             __monobehaviour.SetLastValue(beatmapEventData.value);
 
@@ -95,7 +89,7 @@
             }
 
             // CustomJSONData _customData individual override
-            if (ChromaController.LightingRegistered && beatmapEventData is CustomBeatmapEventData customData)
+            if (beatmapEventData is CustomBeatmapEventData customData)
             {
                 dynamic dynData = customData.customData;
                 if (__monobehaviour is LightSwitchEventEffect)
@@ -176,9 +170,9 @@
         // 1 = blue on, 5 = red on
         // 2 = blue flash, 6 = red flash
         // 3 = blue fade, 7 = red fade
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(LightSwitchEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____event)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (beatmapEventData.type != ____event)
             {

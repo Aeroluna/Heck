@@ -1,34 +1,99 @@
 ﻿namespace Chroma
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using Chroma.Events;
     using Chroma.Settings;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
     using IPA.Utilities;
     using UnityEngine;
+    using static Chroma.Plugin;
 
     internal static class ChromaController
     {
+        private static List<ChromaPatchData> _chromaPatches;
+
         internal static float SongBPM { get; private set; }
 
-        internal static AudioTimeSyncController ATSC { get; private set; }
+        internal static AudioTimeSyncController AudioTimeSyncController { get; private set; }
 
         internal static BeatmapObjectManager BeatmapObjectManager { get; private set; }
 
-        internal static bool LightingRegistered { get; set; }
-
-        internal static bool LegacyOverride { get; set; }
-
-        internal static void Init()
+        public static void ToggleChromaPatches(bool value)
         {
-            ATSC = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First();
+            if (value)
+            {
+                if (!Harmony.HasAnyPatches(HARMONYID))
+                {
+                    _chromaPatches.ForEach(n => _harmonyInstance.Patch(
+                        n.OriginalMethod,
+                        n.Prefix != null ? new HarmonyMethod(n.Prefix) : null,
+                        n.Postfix != null ? new HarmonyMethod(n.Postfix) : null,
+                        n.Transpiler != null ? new HarmonyMethod(n.Transpiler) : null));
+                }
+            }
+            else
+            {
+                _harmonyInstance.UnpatchAll(HARMONYID);
+            }
+        }
+
+        internal static void InitChromaPatches()
+        {
+            if (_chromaPatches == null)
+            {
+                _chromaPatches = new List<ChromaPatchData>();
+                foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+                {
+                    object[] noodleattributes = type.GetCustomAttributes(typeof(ChromaPatch), true);
+                    if (noodleattributes.Length > 0)
+                    {
+                        Type declaringType = null;
+                        List<string> methodNames = new List<string>();
+                        foreach (ChromaPatch n in noodleattributes)
+                        {
+                            if (n.DeclaringType != null)
+                            {
+                                declaringType = n.DeclaringType;
+                            }
+
+                            if (n.MethodName != null)
+                            {
+                                methodNames.Add(n.MethodName);
+                            }
+                        }
+
+                        if (declaringType == null || !methodNames.Any())
+                        {
+                            throw new ArgumentException("Type or Method Name not described");
+                        }
+
+                        MethodInfo prefix = AccessTools.Method(type, "Prefix");
+                        MethodInfo postfix = AccessTools.Method(type, "Postfix");
+                        MethodInfo transpiler = AccessTools.Method(type, "Transpiler");
+
+                        methodNames.ForEach(n => _chromaPatches.Add(new ChromaPatchData(AccessTools.Method(declaringType, n), prefix, postfix, transpiler)));
+                    }
+                }
+            }
+        }
+
+        internal static IEnumerator DelayedStart()
+        {
+            yield return new WaitForEndOfFrame();
+            AudioTimeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First();
             BeatmapObjectManager = Resources.FindObjectsOfTypeAll<BeatmapObjectManager>().First();
             SongBPM = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First().currentBPM;
             BeatmapObjectCallbackController coreSetup = Resources.FindObjectsOfTypeAll<BeatmapObjectCallbackController>().First();
             BeatmapData beatmapData = coreSetup.GetField<BeatmapData, BeatmapObjectCallbackController>("_beatmapData");
+
+            BeatmapObjectManager.noteWasCutEvent -= NoteColorManager.ColorizeSaber;
+            BeatmapObjectManager.noteWasCutEvent += NoteColorManager.ColorizeSaber;
 
             if (ChromaConfig.Instance.LightshowModifier)
             {
@@ -65,8 +130,7 @@
                 }
             }
 
-            // CustomJSONData
-            if (LightingRegistered)
+            if (Harmony.HasAnyPatches(HARMONYID))
             {
                 if (beatmapData is CustomBeatmapData customBeatmap)
                 {
@@ -103,18 +167,20 @@
                         }
                     }
                 }
-            }
 
-            // Legacy Chroma Events are handled by just sliding them in as if they were a normal rgb light event
-            if (LegacyOverride)
-            {
+                //Extensions.SaberColorizer.InitializeSabers(Resources.FindObjectsOfTypeAll<Saber>());
+
+                // please let me kill legacy
                 ChromaLegacyRGBEvent.Activate(beatmapData.beatmapEventData);
             }
 
-            if (LightingRegistered)
-            {
-                Extensions.SaberColorizer.InitializeSabers(Resources.FindObjectsOfTypeAll<Saber>());
-            }
+            HarmonyPatches.ObstacleControllerInit.ClearObstacleColors();
+            ChromaGradientEvent.Gradients.Clear();
+
+            Extensions.SaberColorizer.CurrentAColor = null;
+            Extensions.SaberColorizer.CurrentBColor = null;
+
+            ChromaGradientEvent.Clear();
         }
     }
 }

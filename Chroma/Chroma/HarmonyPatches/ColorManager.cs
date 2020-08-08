@@ -1,15 +1,14 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using HarmonyLib;
     using UnityEngine;
 
-    [HarmonyPatch(typeof(ColorManager))]
-    [HarmonyPatch("ColorForNoteType")]
+    [ChromaPatch(typeof(ColorManager))]
+    [ChromaPatch("ColorForNoteType")]
     internal class ColorManagerColorForNoteType
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(ref Color __result)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             Color? color = NoteColorManager.NoteColorOverride;
             if (color.HasValue)
@@ -22,13 +21,13 @@
         }
     }
 
-    [HarmonyPatch(typeof(ColorManager))]
-    [HarmonyPatch("ColorForSaberType")]
+    [ChromaPatch(typeof(ColorManager))]
+    [ChromaPatch("ColorForSaberType")]
     internal class ColorManagerColorForSaberType
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(SaberType type, ref Color __result)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             bool warm = type == SaberType.SaberA;
 
@@ -43,13 +42,13 @@
         }
     }
 
-    [HarmonyPatch(typeof(ColorManager))]
-    [HarmonyPatch("EffectsColorForSaberType")]
+    [ChromaPatch(typeof(ColorManager))]
+    [ChromaPatch("EffectsColorForSaberType")]
     internal class ColorManagerEffectsColorForSaberType
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(ColorManager __instance, SaberType type, ref Color __result)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             Color rgbColor = __instance.ColorForSaberType(type);
             Color.RGBToHSV(rgbColor, out float h, out float s, out float v);

@@ -3,25 +3,24 @@
     using Chroma.Utils;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
     using IPA.Utilities;
     using NoodleExtensions.Animation;
     using UnityEngine;
 
-    [HarmonyPatch(typeof(NoteController))]
-    [HarmonyPatch("Init")]
+    [ChromaPatch(typeof(NoteController))]
+    [ChromaPatch("Init")]
     internal class NoteControllerInit
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(NoteController __instance, NoteData noteData)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             // They said it couldn't be done, they called me a madman
             if (noteData.noteType == NoteType.Bomb)
             {
                 Color? c = null;
 
-                if (noteData is CustomNoteData customData && ChromaController.LightingRegistered)
+                if (noteData is CustomNoteData customData)
                 {
                     dynamic dynData = customData.customData;
 
@@ -40,8 +39,8 @@
         }
     }
 
-    [HarmonyPatch(typeof(NoteController))]
-    [HarmonyPatch("Update")]
+    [ChromaPatch(typeof(NoteController))]
+    [ChromaPatch("Update")]
     internal class NoteControllerUpdate
     {
         private static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
@@ -53,9 +52,9 @@
         private static readonly FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.Accessor _materialPropertyBlockControllersAccessor = FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.GetAccessor("_materialPropertyBlockControllers");
         private static readonly int _colorID = Shader.PropertyToID("_Color");
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (Chroma.Plugin.NoodleExtensionsActive)
             {
@@ -65,7 +64,7 @@
 
         private static void TrackColorize(NoteController instance, NoteData noteData, NoteMovement noteMovement)
         {
-            if (noteData is CustomNoteData customData && ChromaController.LightingRegistered)
+            if (noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
                 Track track = AnimationHelper.GetTrack(dynData);

@@ -1,13 +1,7 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using Chroma.Events;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
-    using UnityEngine;
-
-    [HarmonyPatch(typeof(NoteCutEffectSpawner))]
-    [HarmonyPatch("SpawnNoteCutEffect")]
+    [ChromaPatch(typeof(NoteCutEffectSpawner))]
+    [ChromaPatch("SpawnNoteCutEffect")]
     internal class NoteCutEffectSpawnerSpawnNoteCutEffect
     {
         private static void Prefix(NoteController noteController)

@@ -1,21 +1,16 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using System.Reflection.Emit;
     using Chroma.Utils;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
     using UnityEngine;
 
-    [HarmonyPatch(typeof(ColorNoteVisuals))]
-    [HarmonyPatch("HandleNoteControllerDidInitEvent")]
+    [ChromaPatch(typeof(ColorNoteVisuals))]
+    [ChromaPatch("HandleNoteControllerDidInitEvent")]
     internal class ColorNoteVisualsHandleNoteControllerDidInitEvent
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(ColorNoteVisuals __instance, NoteController noteController)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (noteController.noteData is CustomNoteData customData)
             {
@@ -28,9 +23,6 @@
                 {
                     dynData.color = color.Value;
                 }
-
-                ChromaController.BeatmapObjectManager.noteWasCutEvent -= NoteColorManager.ColorizeSaber;
-                ChromaController.BeatmapObjectManager.noteWasCutEvent += NoteColorManager.ColorizeSaber;
             }
 
             NoteColorManager.EnableNoteColorOverride(noteController);

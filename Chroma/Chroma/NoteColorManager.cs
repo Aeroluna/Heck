@@ -1,10 +1,8 @@
 ﻿namespace Chroma
 {
-    using System.Collections.Generic;
     using Chroma.Extensions;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using IPA.Utilities;
     using UnityEngine;
 
     internal static class NoteColorManager

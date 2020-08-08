@@ -1,9 +1,7 @@
 ﻿namespace Chroma
 {
-    using System;
     using System.Reflection;
     using BeatSaberMarkupLanguage.GameplaySetup;
-    using Chroma.Events;
     using Chroma.Settings;
     using Chroma.Utils;
     using HarmonyLib;
@@ -11,16 +9,17 @@
     using IPA.Config;
     using IPA.Config.Stores;
     using UnityEngine.SceneManagement;
-    using static Chroma.NoteColorManager;
     using IPALogger = IPA.Logging.Logger;
 
     [Plugin(RuntimeOptions.DynamicInit)]
     internal class Plugin
     {
         internal const string REQUIREMENTNAME = "Chroma";
+        internal const string HARMONYIDCORE = "com.noodle.BeatSaber.ChromaCore";
         internal const string HARMONYID = "com.noodle.BeatSaber.Chroma";
 
-        internal static readonly Harmony HarmonyInstance = new Harmony(HARMONYID);
+        internal static readonly Harmony _harmonyInstanceCore = new Harmony(HARMONYIDCORE);
+        internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
 
         internal static bool NoodleExtensionsActive { get; private set; } = false;
 
@@ -29,15 +28,16 @@
         {
             ChromaLogger.IPAlogger = pluginLogger;
             ChromaConfig.Instance = conf.Generated<ChromaConfig>();
+            ChromaController.InitChromaPatches();
         }
 
         [OnEnable]
         public void OnEnable()
         {
-            SceneManager.activeSceneChanged += OnActiveSceneChanged;
+            SceneManager.sceneLoaded += OnSceneLoaded;
 
             // Harmony patches
-            HarmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
+            _harmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
 
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
             if (ChromaConfig.Instance.LightshowMenu)
@@ -65,7 +65,7 @@
         public void OnDisable()
         {
             // Harmony patches
-            HarmonyInstance.UnpatchAll(HARMONYID);
+            _harmonyInstanceCore.UnpatchAll(HARMONYID);
 
             GameplaySetup.instance.RemoveTab("Chroma");
             GameplaySetup.instance.RemoveTab("Lightshow Modifiers");
@@ -74,24 +74,12 @@
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", false);
         }
 
-        public void OnActiveSceneChanged(Scene current, Scene next)
+        public void OnSceneLoaded(Scene next, LoadSceneMode _)
         {
             if (next.name == "GameCore")
             {
-                ChromaController.Init();
+                ////ChromaController.InitGameCore();
             }
-        }
-
-        private static void CleanupSongEvents()
-        {
-            ChromaGradientEvent.Gradients.Clear();
-
-            HarmonyPatches.ObstacleControllerInit.ClearObstacleColors();
-
-            Extensions.SaberColorizer.CurrentAColor = null;
-            Extensions.SaberColorizer.CurrentBColor = null;
-
-            ChromaGradientEvent.Clear();
         }
     }
 }

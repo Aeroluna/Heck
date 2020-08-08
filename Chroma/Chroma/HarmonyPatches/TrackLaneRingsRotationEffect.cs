@@ -2,13 +2,12 @@
 {
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
 
-    [HarmonyPatch(typeof(TrackLaneRingsRotationEffectSpawner))]
-    [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    [ChromaPatch(typeof(TrackLaneRingsRotationEffectSpawner))]
+    [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal class TrackLaneRingsRotationEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(
             TrackLaneRingsRotationEffectSpawner __instance,
             BeatmapEventData beatmapEventData,
@@ -18,9 +17,9 @@
             int ____rotationPropagationSpeed,
             float ____rotationFlexySpeed,
             TrackLaneRingsRotationEffectSpawner.RotationStepType ____rotationStepType)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            if (beatmapEventData.type == ____beatmapEventType && ChromaController.LightingRegistered)
+            if (beatmapEventData.type == ____beatmapEventType)
             {
                 if (beatmapEventData is CustomBeatmapEventData customData)
                 {
@@ -46,7 +45,7 @@
                     string nameFilter = Trees.at(dynData, "_nameFilter");
                     if (nameFilter != null)
                     {
-                        if (!__instance.name.ToLower().Contains(nameFilter.ToLower()))
+                        if (!__instance.name.ToLower().Equals(nameFilter.ToLower()))
                         {
                             return false;
                         }
@@ -99,7 +98,7 @@
             return true;
         }
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void TriggerRotation(
             bool rotRight,
             TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect,
@@ -109,18 +108,18 @@
             float ringStepMult = 1f,
             float ringPropagationMult = 1f,
             float ringSpeedMult = 1f)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             ____trackLaneRingsRotationEffect.AddRingRotationEffect(____trackLaneRingsRotationEffect.GetFirstRingDestinationRotationAngle() + (90 * (rotRight ? -1 : 1)), ____rotationStep * ringStepMult, (int)(____rotationPropagationSpeed * ringPropagationMult), ____rotationFlexySpeed * ringSpeedMult);
         }
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void ResetRings(
             TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect,
             float ____rotationStep,
             int ____rotationPropagationSpeed,
             float ____rotationFlexySpeed)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             TriggerRotation(UnityEngine.Random.value < 0.5f, ____trackLaneRingsRotationEffect, ____rotationStep, ____rotationPropagationSpeed, ____rotationFlexySpeed, 0f, 116f, 116f);
         }
