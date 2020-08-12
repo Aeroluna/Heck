@@ -7,7 +7,7 @@
 
     internal static class LightSwitchEventEffectExtensions
     {
-        private static List<LSEColorManager> _lseColorManagers = new List<LSEColorManager>();
+        private static readonly List<LSEColorManager> _lseColorManagers = new List<LSEColorManager>();
 
         internal static void Reset(this MonoBehaviour lse)
         {
@@ -74,34 +74,30 @@
             LSEColorManager.CreateLSEColorManager(lse, type);
         }
 
-        internal static void LSEDestroy(MonoBehaviour lse, BeatmapEventType type)
+        internal static void LSEDestroy(MonoBehaviour lse)
         {
-            LSEColorManager[] managerList = LSEColorManager.GetLSEColorManager(type).ToArray();
-            for (int i = 0; i < managerList.Length; i++)
-            {
-                managerList[i].LSEDestroyed();
-            }
+            LSEColorManager.GetLSEColorManager(lse)?.LSEDestroyed();
         }
 
         private class LSEColorManager
         {
-            private MonoBehaviour _lse;
-            private BeatmapEventType _type;
+            private readonly MonoBehaviour _lse;
+            private readonly BeatmapEventType _type;
 
-            private Color _lightColor0_Original;
-            private Color _highlightColor0_Original;
-            private Color _lightColor1_Original;
-            private Color _highlightColor1_Original;
+            private readonly Color _lightColor0_Original;
+            private readonly Color _highlightColor0_Original;
+            private readonly Color _lightColor1_Original;
+            private readonly Color _highlightColor1_Original;
 
-            private SimpleColorSO _lightColor0;
-            private SimpleColorSO _highlightColor0;
-            private SimpleColorSO _lightColor1;
-            private SimpleColorSO _highlightColor1;
+            private readonly SimpleColorSO _lightColor0;
+            private readonly SimpleColorSO _highlightColor0;
+            private readonly SimpleColorSO _lightColor1;
+            private readonly SimpleColorSO _highlightColor1;
 
-            private MultipliedColorSO _mLightColor0;
-            private MultipliedColorSO _mHighlightColor0;
-            private MultipliedColorSO _mLightColor1;
-            private MultipliedColorSO _mHighlightColor1;
+            private readonly MultipliedColorSO _mLightColor0;
+            private readonly MultipliedColorSO _mHighlightColor0;
+            private readonly MultipliedColorSO _mLightColor1;
+            private readonly MultipliedColorSO _mHighlightColor1;
 
             private float _lastValue;
 
@@ -114,40 +110,33 @@
                 InitializeSOs(mono, "_lightColor1", ref _lightColor1, ref _lightColor1_Original, ref _mLightColor1);
                 InitializeSOs(mono, "_highlightColor1", ref _highlightColor1, ref _highlightColor1_Original, ref _mHighlightColor1);
 
-                if (!(mono is LightSwitchEventEffect))
+                if (mono is LightSwitchEventEffect lse)
                 {
-                    return;
-                }
-
-                LightSwitchEventEffect lse = (LightSwitchEventEffect)mono;
-                Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<LightWithId>[], LightWithIdManager>("_lights")[lse.LightsID];
-                Dictionary<int, List<LightWithId>> lightsPreGroup = new Dictionary<int, List<LightWithId>>();
-                foreach (LightWithId light in Lights)
-                {
-                    int z = Mathf.RoundToInt(light.transform.position.z);
-                    if (lightsPreGroup.TryGetValue(z, out List<LightWithId> list))
+                    Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<LightWithId>[], LightWithIdManager>("_lights")[lse.LightsID];
+                    Dictionary<int, List<LightWithId>> lightsPreGroup = new Dictionary<int, List<LightWithId>>();
+                    foreach (LightWithId light in Lights)
                     {
-                        list.Add(light);
-                    }
-                    else
-                    {
-                        list = new List<LightWithId>();
-                        list.Add(light);
-                        lightsPreGroup.Add(z, list);
-                    }
-                }
-
-                LightsPropagationGrouped = new LightWithId[lightsPreGroup.Count][];
-                int i = 0;
-                foreach (List<LightWithId> lightList in lightsPreGroup.Values)
-                {
-                    if (lightList is null)
-                    {
-                        continue;
+                        int z = Mathf.RoundToInt(light.transform.position.z);
+                        if (lightsPreGroup.TryGetValue(z, out List<LightWithId> list))
+                        {
+                            list.Add(light);
+                        }
+                        else
+                        {
+                            list = new List<LightWithId>() { light };
+                            lightsPreGroup.Add(z, list);
+                        }
                     }
 
-                    LightsPropagationGrouped[i] = lightList.ToArray();
-                    i++;
+                    LightsPropagationGrouped = new LightWithId[lightsPreGroup.Count][];
+                    int count = lightsPreGroup.Values.Count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        if (lightsPreGroup[i] != null)
+                        {
+                            LightsPropagationGrouped[i] = lightsPreGroup[i].ToArray();
+                        }
+                    }
                 }
             }
 
@@ -162,15 +151,7 @@
 
             internal static LSEColorManager GetLSEColorManager(MonoBehaviour lse)
             {
-                for (int i = 0; i < _lseColorManagers.Count; i++)
-                {
-                    if (_lseColorManagers[i]._lse == lse)
-                    {
-                        return _lseColorManagers[i];
-                    }
-                }
-
-                return null;
+                return _lseColorManagers.First(n => n._lse == lse);
             }
 
             internal static LSEColorManager CreateLSEColorManager(MonoBehaviour lse, BeatmapEventType type)

@@ -171,7 +171,7 @@
                 //Extensions.SaberColorizer.InitializeSabers(Resources.FindObjectsOfTypeAll<Saber>());
 
                 // please let me kill legacy
-                ChromaLegacyRGBEvent.Activate(beatmapData.beatmapEventData);
+                LegacyLightHelper.Activate(beatmapData.beatmapEventData);
             }
 
             HarmonyPatches.ObstacleControllerInit.ClearObstacleColors();

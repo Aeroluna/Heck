@@ -53,7 +53,7 @@
                 }
 
                 Gradients.Add(id, Instantiate(initc, endc, time, duration, id, easing));
-                return Color.Lerp(initc, endc, normalTime / duration);
+                return Color.LerpUnclamped(initc, endc, normalTime / duration);
             }
             else
             {

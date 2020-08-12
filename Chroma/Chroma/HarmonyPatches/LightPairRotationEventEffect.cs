@@ -54,14 +54,14 @@
         {
             BeatmapEventData beatmapEventData = LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.LastLightPairRotationEventEffectData;
 
-            string rotationName = beatmapEventData.type == ____eventL ? "_rotationDataL" : "_rotationDataR";
+            bool isLeftEvent = beatmapEventData.type == ____eventL;
 
             if (_getPrivateFieldM == null)
             {
                 GetRotationData();
             }
 
-            var rotationData = _getPrivateFieldM.Invoke(null, new object[] { __instance, rotationName });
+            object rotationData = _getPrivateFieldM.Invoke(null, new object[] { __instance, isLeftEvent ? "_rotationDataL" : "_rotationDataR" });
 
             if (beatmapEventData is CustomBeatmapEventData customData && rotationData != null)
             {
@@ -76,13 +76,14 @@
                 int? dir = (int?)Trees.at(dynData, "_direction");
                 dir = dir.GetValueOrDefault(-1);
 
-                if (dir == 1)
+                switch (dir)
                 {
-                    direction = beatmapEventData.type == ____eventL ? 1 : -1;
-                }
-                else if (dir == 0)
-                {
-                    direction = beatmapEventData.type == ____eventL ? -1 : 1;
+                    case 0:
+                        direction = isLeftEvent ? -1 : 1;
+                        break;
+                    case 1:
+                        direction = isLeftEvent ? 1 : -1;
+                        break;
                 }
 
                 // Actual lasering

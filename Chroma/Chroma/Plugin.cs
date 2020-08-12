@@ -34,8 +34,6 @@
         [OnEnable]
         public void OnEnable()
         {
-            SceneManager.sceneLoaded += OnSceneLoaded;
-
             // Harmony patches
             _harmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
 
@@ -72,14 +70,6 @@
 
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", false);
-        }
-
-        public void OnSceneLoaded(Scene next, LoadSceneMode _)
-        {
-            if (next.name == "GameCore")
-            {
-                ////ChromaController.InitGameCore();
-            }
         }
     }
 }

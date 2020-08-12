@@ -37,11 +37,12 @@
   <ItemGroup>
     <Compile Include="AnimationHelper.cs" />
     <Compile Include="ChromaPatch.cs" />
-    <Compile Include="Events\ChromaLegacyRGBEvent.cs" />
+    <Compile Include="LegacyLightHelper.cs" />
     <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />
     <Compile Include="HarmonyPatches\StandardLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectCallbackController.cs" />
+    <Compile Include="LightColorManager.cs" />
     <Compile Include="Utils\Easings.cs" />
     <Compile Include="Events\ChromaGradientEvent.cs" />
     <Compile Include="ChromaController.cs" />
@@ -56,7 +57,6 @@
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\NoteCutEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\TrackLaneRingsRotationEffect.cs" />
-    <Compile Include="Utils\ColorStructs.cs" />
     <Compile Include="Settings\ChromaConfig.cs" />
     <Compile Include="Settings\ChromaSettingsUI.cs" />
     <Compile Include="Plugin.cs" />

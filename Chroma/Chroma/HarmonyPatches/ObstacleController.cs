@@ -52,17 +52,16 @@
         private static void Prefix(ref SimpleColorSO ____color, ObstacleData obstacleData)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            // CustomJSONData _customData individual color override
             if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
 
-                Color? c = ChromaUtils.GetColorFromData(dynData);
+                Color? color = ChromaUtils.GetColorFromData(dynData);
 
-                if (c.HasValue)
+                if (color.HasValue)
                 {
+                    CustomObstacleColorSO.SetColor(color.Value);
                     ____color = CustomObstacleColorSO;
-                    ____color.SetColor(c.Value);
                 }
                 else
                 {
