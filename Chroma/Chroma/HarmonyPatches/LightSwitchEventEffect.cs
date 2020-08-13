@@ -4,7 +4,6 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using Chroma.Events;
     using Chroma.Extensions;
     using Chroma.Utils;
     using CustomJSONData;
@@ -36,10 +35,10 @@
     internal class LightSwitchEventEffectOnDestroy
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static void Postfix(LightSwitchEventEffect __instance, BeatmapEventType ____event)
+        private static void Postfix(LightSwitchEventEffect __instance)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            LightSwitchEventEffectExtensions.LSEDestroy(__instance, ____event);
+            LightSwitchEventEffectExtensions.LSEDestroy(__instance);
         }
     }
 
@@ -75,17 +74,13 @@
         // 2 = blue flash, 6 = red flash
         // 3 = blue fade, 7 = red fade
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static bool Prefix(LightSwitchEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____event)
+        private static void Prefix(LightSwitchEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____event)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            if (beatmapEventData.type != ____event)
+            if (beatmapEventData.type == ____event)
             {
-                return true;
+                LightColorManager.ColorLightSwitch(__instance, beatmapEventData);
             }
-
-            ColorLightSwitch(__instance, beatmapEventData, ____event);
-
-            return true;
         }
 
         private static void Postfix()

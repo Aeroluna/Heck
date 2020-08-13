@@ -23,7 +23,7 @@
                 bool chromaRequirement = (requirements?.Contains(Chroma.Plugin.REQUIREMENTNAME) ?? false) || (suggestions?.Contains(Chroma.Plugin.REQUIREMENTNAME) ?? false);
 
                 // please let me remove this shit
-                bool legacyOverride = difficultyBeatmap.beatmapData.beatmapEventData.Any(n => n.value >= Events.ChromaLegacyRGBEvent.RGB_INT_OFFSET);
+                bool legacyOverride = difficultyBeatmap.beatmapData.beatmapEventData.Any(n => n.value >= LegacyLightHelper.RGB_INT_OFFSET);
                 if (legacyOverride)
                 {
                     ChromaLogger.Log("Legacy Chroma Detected...", IPA.Logging.Logger.Level.Warning);

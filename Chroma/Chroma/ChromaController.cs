@@ -5,7 +5,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Chroma.Events;
     using Chroma.Settings;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
@@ -175,12 +174,10 @@
             }
 
             HarmonyPatches.ObstacleControllerInit.ClearObstacleColors();
-            ChromaGradientEvent.Gradients.Clear();
-
             Extensions.SaberColorizer.CurrentAColor = null;
             Extensions.SaberColorizer.CurrentBColor = null;
 
-            ChromaGradientEvent.Clear();
+            ChromaGradientController.Clear();
         }
     }
 }

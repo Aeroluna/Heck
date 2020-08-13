@@ -113,7 +113,7 @@
                 if (mono is LightSwitchEventEffect lse)
                 {
                     Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<LightWithId>[], LightWithIdManager>("_lights")[lse.LightsID];
-                    Dictionary<int, List<LightWithId>> lightsPreGroup = new Dictionary<int, List<LightWithId>>();
+                    IDictionary<int, List<LightWithId>> lightsPreGroup = new Dictionary<int, List<LightWithId>>();
                     foreach (LightWithId light in Lights)
                     {
                         int z = Mathf.RoundToInt(light.transform.position.z);
@@ -129,13 +129,16 @@
                     }
 
                     LightsPropagationGrouped = new LightWithId[lightsPreGroup.Count][];
-                    int count = lightsPreGroup.Values.Count;
-                    for (int i = 0; i < count; i++)
+                    int i = 0;
+                    foreach (List<LightWithId> lightList in lightsPreGroup.Values)
                     {
-                        if (lightsPreGroup[i] != null)
+                        if (lightList is null)
                         {
-                            LightsPropagationGrouped[i] = lightsPreGroup[i].ToArray();
+                            continue;
                         }
+
+                        LightsPropagationGrouped[i] = lightList.ToArray();
+                        i++;
                     }
                 }
             }
@@ -151,7 +154,7 @@
 
             internal static LSEColorManager GetLSEColorManager(MonoBehaviour lse)
             {
-                return _lseColorManagers.First(n => n._lse == lse);
+                return _lseColorManagers.FirstOrDefault(n => n._lse == lse);
             }
 
             internal static LSEColorManager CreateLSEColorManager(MonoBehaviour lse, BeatmapEventType type)

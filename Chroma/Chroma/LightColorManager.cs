@@ -1,6 +1,4 @@
-﻿
-
-namespace Chroma
+﻿namespace Chroma
 {
     using System;
     using System.Collections.Generic;
@@ -15,7 +13,6 @@ namespace Chroma
 
     internal static class LightColorManager
     {
-
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         internal static void ColorLightSwitch(MonoBehaviour monobehaviour, BeatmapEventData beatmapEventData)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
@@ -51,12 +48,19 @@ namespace Chroma
                             SetOverrideLightWithIds(lights[propID.Value]);
                         }
                     }
+
+                    dynamic gradientObject = Trees.at(dynData, "_lightGradient");
+                    if (gradientObject != null)
+                    {
+                        color = ChromaGradientController.AddGradient(gradientObject, beatmapEventData.type, beatmapEventData.time);
+                    }
                 }
 
                 Color? colorData = ChromaUtils.GetColorFromData(dynData);
-                if (colorData != null)
+                if (colorData.HasValue)
                 {
                     color = colorData;
+                    ChromaGradientController.CancelGradient(beatmapEventData.type);
                 }
             }
 
@@ -64,7 +68,7 @@ namespace Chroma
             {
                 monobehaviour.SetLightingColors(color.Value, color.Value);
             }
-            else
+            else if (ChromaGradientController.IsGradientActive(beatmapEventData.type))
             {
                 monobehaviour.Reset();
             }

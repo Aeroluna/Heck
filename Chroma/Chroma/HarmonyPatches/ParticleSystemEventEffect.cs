@@ -29,10 +29,10 @@
     internal class ParticleSystemEventEffectOnDestroy
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static void Postfix(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)
+        private static void Postfix(ParticleSystemEventEffect __instance)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            LightSwitchEventEffectExtensions.LSEDestroy(__instance, ____colorEvent);
+            LightSwitchEventEffectExtensions.LSEDestroy(__instance);
         }
     }
 
@@ -41,17 +41,13 @@
     internal class ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static bool Prefix(ParticleSystemEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____colorEvent)
+        private static void Prefix(ParticleSystemEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____colorEvent)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            if (beatmapEventData.type != ____colorEvent)
+            if (beatmapEventData.type == ____colorEvent)
             {
-                return true;
+                LightColorManager.ColorLightSwitch(__instance, beatmapEventData);
             }
-
-            LightColorManager.ColorLightSwitch(__instance, beatmapEventData, ____colorEvent);
-
-            return true;
         }
     }
 }

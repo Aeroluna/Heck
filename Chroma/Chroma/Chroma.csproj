@@ -44,7 +44,7 @@
     <Compile Include="HarmonyPatches\BeatmapObjectCallbackController.cs" />
     <Compile Include="LightColorManager.cs" />
     <Compile Include="Utils\Easings.cs" />
-    <Compile Include="Events\ChromaGradientEvent.cs" />
+    <Compile Include="ChromaGradientController.cs" />
     <Compile Include="ChromaController.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
     <Compile Include="Extensions\SaberColorizer.cs" />
