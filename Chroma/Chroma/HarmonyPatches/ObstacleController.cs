@@ -1,11 +1,9 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using System.Linq;
     using Chroma.Extensions;
     using Chroma.Utils;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using IPA.Utilities;
     using NoodleExtensions.Animation;
     using UnityEngine;
 
@@ -13,7 +11,6 @@
     [ChromaPatch("Init")]
     internal static class ObstacleControllerInit
     {
-
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(ObstacleController __instance, ObstacleData obstacleData)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
@@ -42,7 +39,6 @@
     [ChromaPatch("Update")]
     internal static class ObstacleControllerUpdate
     {
-
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(ObstacleController __instance, ObstacleData ____obstacleData, AudioTimeSyncController ____audioTimeSyncController, float ____startTimeOffset, float ____move1Duration, float ____move2Duration, float ____obstacleDuration)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter

@@ -5,7 +5,6 @@
     using Chroma.Extensions;
     using Chroma.Utils;
     using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
     using UnityEngine;
 
     internal class ChromaGradientController : MonoBehaviour

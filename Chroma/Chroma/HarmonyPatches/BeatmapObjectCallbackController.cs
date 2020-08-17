@@ -1,7 +1,6 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using HarmonyLib;
-    using UnityEngine;
 
     [HarmonyPatch(typeof(BeatmapObjectCallbackController))]
     [HarmonyPatch("Start")]

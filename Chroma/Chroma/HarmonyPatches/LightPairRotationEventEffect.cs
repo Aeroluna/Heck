@@ -81,6 +81,7 @@
                     case 0:
                         direction = isLeftEvent ? -1 : 1;
                         break;
+
                     case 1:
                         direction = isLeftEvent ? 1 : -1;
                         break;

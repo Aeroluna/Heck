@@ -1,13 +1,7 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using System;
     using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
     using Chroma.Extensions;
-    using Chroma.Utils;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
     using UnityEngine;
 
     [ChromaPatch(typeof(LightSwitchEventEffect))]
