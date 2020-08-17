@@ -5,7 +5,7 @@
 
     [ChromaPatch(typeof(TrackLaneRingsRotationEffectSpawner))]
     [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
-    internal class TrackLaneRingsRotationEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
+    internal static class TrackLaneRingsRotationEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(

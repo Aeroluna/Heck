@@ -12,7 +12,7 @@
 
     [ChromaPatch(typeof(LightSwitchEventEffect))]
     [ChromaPatch("Start")]
-    internal class LightSwitchEventEffectStart
+    internal static class LightSwitchEventEffectStart
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(LightSwitchEventEffect __instance, BeatmapEventType ____event)
@@ -32,7 +32,7 @@
 
     [ChromaPatch(typeof(LightSwitchEventEffect))]
     [ChromaPatch("OnDestroy")]
-    internal class LightSwitchEventEffectOnDestroy
+    internal static class LightSwitchEventEffectOnDestroy
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(LightSwitchEventEffect __instance)
@@ -44,7 +44,7 @@
 
     [ChromaPatch(typeof(LightSwitchEventEffect))]
     [ChromaPatch("SetColor")]
-    internal class LightSwitchEventEffectSetColor
+    internal static class LightSwitchEventEffectSetColor
     {
         private static bool Prefix(Color color)
         {
@@ -65,7 +65,7 @@
 
     [ChromaPatch(typeof(LightSwitchEventEffect))]
     [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
-    internal class LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
+    internal static class LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
         internal static LightWithId[] OverrideLightWithIdActivation { get; set; }
 

@@ -1,6 +1,7 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using System.Linq;
+    using Chroma.Extensions;
     using Chroma.Utils;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
@@ -10,48 +11,15 @@
 
     [ChromaPatch(typeof(ObstacleController))]
     [ChromaPatch("Init")]
-    internal class ObstacleControllerInit
+    internal static class ObstacleControllerInit
     {
-        private static SimpleColorSO _customObstacleColor;
-        private static SimpleColorSO _defaultObstacleColor;
-
-        internal static SimpleColorSO DefaultObstacleColorSO
-        {
-            get
-            {
-                if (_defaultObstacleColor == null)
-                {
-                    _defaultObstacleColor = Resources.FindObjectsOfTypeAll<ColorManager>().First().GetField<SimpleColorSO, ColorManager>("_obstaclesColor");
-                }
-
-                return _defaultObstacleColor;
-            }
-        }
-
-        internal static SimpleColorSO CustomObstacleColorSO
-        {
-            get
-            {
-                if (_customObstacleColor == null)
-                {
-                    _customObstacleColor = ScriptableObject.CreateInstance<SimpleColorSO>();
-                }
-
-                return _customObstacleColor;
-            }
-        }
-
-        internal static void ClearObstacleColors()
-        {
-            _defaultObstacleColor = null;
-            Object.Destroy(_customObstacleColor);
-            _customObstacleColor = null;
-        }
 
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static void Prefix(ref SimpleColorSO ____color, ObstacleData obstacleData)
+        private static void Prefix(ObstacleController __instance, ObstacleData obstacleData)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
+            ObstacleControllerExtensions.OCStart(__instance);
+
             if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
@@ -60,12 +28,11 @@
 
                 if (color.HasValue)
                 {
-                    CustomObstacleColorSO.SetColor(color.Value);
-                    ____color = CustomObstacleColorSO;
+                    __instance.SetObstacleColor(color.Value);
                 }
                 else
                 {
-                    ____color = DefaultObstacleColorSO;
+                    __instance.Reset();
                 }
             }
         }
@@ -73,27 +40,20 @@
 
     [ChromaPatch(typeof(ObstacleController))]
     [ChromaPatch("Update")]
-    internal class ObstacleControllerUpdate
+    internal static class ObstacleControllerUpdate
     {
-        private static readonly FieldAccessor<StretchableObstacle, ParametricBoxFrameController>.Accessor _obstacleFrameAccessor = FieldAccessor<StretchableObstacle, ParametricBoxFrameController>.GetAccessor("_obstacleFrame");
-        private static readonly FieldAccessor<StretchableObstacle, ParametricBoxFakeGlowController>.Accessor _obstacleFakeGlowAccessor = FieldAccessor<StretchableObstacle, ParametricBoxFakeGlowController>.GetAccessor("_obstacleFakeGlow");
-        private static readonly FieldAccessor<StretchableObstacle, float>.Accessor _addColorMultiplierAccessor = FieldAccessor<StretchableObstacle, float>.GetAccessor("_addColorMultiplier");
-        private static readonly FieldAccessor<StretchableObstacle, float>.Accessor _obstacleCoreLerpToWhiteFactorAccessor = FieldAccessor<StretchableObstacle, float>.GetAccessor("_obstacleCoreLerpToWhiteFactor");
-        private static readonly FieldAccessor<StretchableObstacle, MaterialPropertyBlockController[]>.Accessor _materialPropertyBlockControllersAccessor = FieldAccessor<StretchableObstacle, MaterialPropertyBlockController[]>.GetAccessor("_materialPropertyBlockControllers");
-        private static readonly int _tintColorID = Shader.PropertyToID("_TintColor");
-        private static readonly int _addColorID = Shader.PropertyToID("_AddColor");
 
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static void Postfix(ref SimpleColorSO ____color, StretchableObstacle ____stretchableObstacle, ObstacleData ____obstacleData, AudioTimeSyncController ____audioTimeSyncController, float ____startTimeOffset, float ____move1Duration, float ____move2Duration, float ____obstacleDuration)
+        private static void Postfix(ObstacleController __instance, ObstacleData ____obstacleData, AudioTimeSyncController ____audioTimeSyncController, float ____startTimeOffset, float ____move1Duration, float ____move2Duration, float ____obstacleDuration)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (Chroma.Plugin.NoodleExtensionsActive)
             {
-                TrackColorize(ref ____color, ____stretchableObstacle, ____obstacleData, ____audioTimeSyncController, ____startTimeOffset, ____move1Duration, ____move2Duration, ____obstacleDuration);
+                TrackColorize(__instance, ____obstacleData, ____audioTimeSyncController, ____startTimeOffset, ____move1Duration, ____move2Duration, ____obstacleDuration);
             }
         }
 
-        private static void TrackColorize(ref SimpleColorSO color, StretchableObstacle stretchableObstacle, ObstacleData obstacleData, AudioTimeSyncController audioTimeSyncController, float startTimeOffset, float move1Duration, float move2Duration, float obstacleDuration)
+        private static void TrackColorize(ObstacleController obstacleController, ObstacleData obstacleData, AudioTimeSyncController audioTimeSyncController, float startTimeOffset, float move1Duration, float move2Duration, float obstacleDuration)
         {
             if (obstacleData is CustomObstacleData customData)
             {
@@ -111,26 +71,8 @@
 
                     if (colorOffset.HasValue)
                     {
-                        color = ObstacleControllerInit.CustomObstacleColorSO;
-                        color.SetColor(colorOffset.Value);
-
-                        ParametricBoxFrameController obstacleFrame = _obstacleFrameAccessor(ref stretchableObstacle);
-                        ParametricBoxFakeGlowController obstacleFakeGlow = _obstacleFakeGlowAccessor(ref stretchableObstacle);
-                        MaterialPropertyBlockController[] materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref stretchableObstacle);
-                        Color finalColor = color;
-                        obstacleFrame.color = finalColor;
-                        obstacleFrame.Refresh();
-                        obstacleFakeGlow.color = finalColor;
-                        obstacleFakeGlow.Refresh();
-                        Color value = finalColor * _addColorMultiplierAccessor(ref stretchableObstacle);
-                        value.a = 0f;
-                        float obstacleCoreLerpToWhiteFactor = _obstacleCoreLerpToWhiteFactorAccessor(ref stretchableObstacle);
-                        foreach (MaterialPropertyBlockController materialPropertyBlockController in materialPropertyBlockControllers)
-                        {
-                            materialPropertyBlockController.materialPropertyBlock.SetColor(_addColorID, value);
-                            materialPropertyBlockController.materialPropertyBlock.SetColor(_tintColorID, Color.Lerp(finalColor, Color.white, obstacleCoreLerpToWhiteFactor));
-                            materialPropertyBlockController.ApplyChanges();
-                        }
+                        obstacleController.SetObstacleColor(colorOffset.Value);
+                        obstacleController.SetActiveColors();
                     }
                 }
             }

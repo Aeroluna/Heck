@@ -6,7 +6,7 @@
 
     [ChromaPatch(typeof(ColorNoteVisuals))]
     [ChromaPatch("HandleNoteControllerDidInitEvent")]
-    internal class ColorNoteVisualsHandleNoteControllerDidInitEvent
+    internal static class ColorNoteVisualsHandleNoteControllerDidInitEvent
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(ColorNoteVisuals __instance, NoteController noteController)

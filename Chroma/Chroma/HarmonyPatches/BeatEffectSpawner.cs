@@ -5,7 +5,7 @@
 
     [ChromaPatch(typeof(BeatEffectSpawner))]
     [ChromaPatch("HandleNoteDidStartJumpEvent")]
-    internal class HandleNoteDidStartJumpEvent
+    internal static class HandleNoteDidStartJumpEvent
     {
         private static bool Prefix(NoteController noteController)
         {

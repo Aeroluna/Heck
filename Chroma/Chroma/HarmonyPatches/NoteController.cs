@@ -9,7 +9,7 @@
 
     [ChromaPatch(typeof(NoteController))]
     [ChromaPatch("Init")]
-    internal class NoteControllerInit
+    internal static class NoteControllerInit
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(NoteController __instance, NoteData noteData)
@@ -30,7 +30,7 @@
                 if (!c.HasValue)
                 {
                     // I shouldn't hard code this... but i can't be bothered to not atm
-                    c = new Color(0.251f, 0.251f, 0.251f, 0);
+                    c = new Color(0.2509804f, 0.2509804f, 0.2509804f, 0);
                 }
 
                 Material mat = __instance.noteTransform.gameObject.GetComponent<Renderer>().material;
@@ -41,7 +41,7 @@
 
     [ChromaPatch(typeof(NoteController))]
     [ChromaPatch("Update")]
-    internal class NoteControllerUpdate
+    internal static class NoteControllerUpdate
     {
         private static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
         private static readonly FieldAccessor<NoteJump, AudioTimeSyncController>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<NoteJump, AudioTimeSyncController>.GetAccessor("_audioTimeSyncController");

@@ -7,7 +7,7 @@
 
     internal static class LightSwitchEventEffectExtensions
     {
-        private static readonly List<LSEColorManager> _lseColorManagers = new List<LSEColorManager>();
+        private static readonly HashSet<LSEColorManager> _lseColorManagers = new HashSet<LSEColorManager>();
 
         internal static void Reset(this MonoBehaviour lse)
         {
@@ -16,7 +16,10 @@
 
         internal static void ResetAllLightingColors()
         {
-            _lseColorManagers.ForEach(n => n.Reset());
+            foreach (LSEColorManager lseColorManager in _lseColorManagers)
+            {
+                lseColorManager.Reset();
+            }
         }
 
         internal static void SetLightingColors(this MonoBehaviour lse, Color? colorA, Color? colorB)
@@ -34,7 +37,10 @@
 
         internal static void SetAllLightingColors(Color? colorA, Color? colorB)
         {
-            _lseColorManagers.ForEach(n => n.SetLightingColors(colorA, colorB));
+            foreach (LSEColorManager lseColorManager in _lseColorManagers)
+            {
+                lseColorManager.SetLightingColors(colorA, colorB);
+            }
         }
 
         internal static void SetActiveColors(this BeatmapEventType lse)
@@ -47,7 +53,10 @@
 
         internal static void SetAllActiveColors()
         {
-            _lseColorManagers.ForEach(n => n.SetActiveColors());
+            foreach (LSEColorManager lseColorManager in _lseColorManagers)
+            {
+                lseColorManager.SetActiveColors();
+            }
         }
 
         internal static void SetLastValue(this MonoBehaviour lse, int value)
@@ -277,24 +286,25 @@
                 {
                     if (_lastValue == 1 || _lastValue == 5 || _lastValue == 2 || _lastValue == 6)
                     {
-                        if (_lse is LightSwitchEventEffect mono)
+                        if (_lse is LightSwitchEventEffect l4)
                         {
-                            mono.SetColor(c);
+                            l4.SetColor(c);
                         }
-                        else
+                        else if (_lse is ParticleSystemEventEffect p4)
                         {
-                            ((ParticleSystemEventEffect)_lse).SetField("_particleColor", c);
+                            p4.SetField("_particleColor", c);
+                            p4.RefreshParticles();
                         }
                     }
                 }
 
-                if (_lse is LightSwitchEventEffect l4)
+                if (_lse is LightSwitchEventEffect l5)
                 {
-                    l4.SetField("_offColor", c.ColorWithAlpha(0f));
+                    l5.SetField("_offColor", c.ColorWithAlpha(0f));
                 }
-                else if (_lse is ParticleSystemEventEffect p4)
+                else if (_lse is ParticleSystemEventEffect p5)
                 {
-                    p4.SetField("_offColor", c.ColorWithAlpha(0f));
+                    p5.SetField("_offColor", c.ColorWithAlpha(0f));
                 }
             }
 

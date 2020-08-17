@@ -37,6 +37,7 @@
   <ItemGroup>
     <Compile Include="AnimationHelper.cs" />
     <Compile Include="ChromaPatch.cs" />
+    <Compile Include="Extensions\ObstacleControllerExtensions.cs" />
     <Compile Include="LegacyLightHelper.cs" />
     <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />

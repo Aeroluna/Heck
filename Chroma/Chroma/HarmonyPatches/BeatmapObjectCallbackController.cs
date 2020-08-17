@@ -5,7 +5,7 @@
 
     [HarmonyPatch(typeof(BeatmapObjectCallbackController))]
     [HarmonyPatch("Start")]
-    internal class BeatmapObjectCallbackControllerStart
+    internal static class BeatmapObjectCallbackControllerStart
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(BeatmapObjectCallbackController __instance)

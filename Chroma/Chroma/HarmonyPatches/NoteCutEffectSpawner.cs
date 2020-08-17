@@ -2,7 +2,7 @@
 {
     [ChromaPatch(typeof(NoteCutEffectSpawner))]
     [ChromaPatch("SpawnNoteCutEffect")]
-    internal class NoteCutEffectSpawnerSpawnNoteCutEffect
+    internal static class NoteCutEffectSpawnerSpawnNoteCutEffect
     {
         private static void Prefix(NoteController noteController)
         {

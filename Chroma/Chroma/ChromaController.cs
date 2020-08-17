@@ -133,47 +133,54 @@
             {
                 if (beatmapData is CustomBeatmapData customBeatmap)
                 {
-                    if (ChromaConfig.Instance.EnvironmentEnhancementsEnabled)
+                    try
                     {
-                        // Spaghetti code below until I can figure out a better way of doing this
-                        dynamic dynData = customBeatmap.beatmapCustomData;
-                        List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
-                        if (objectsToKill != null)
+                        if (ChromaConfig.Instance.EnvironmentEnhancementsEnabled)
                         {
-                            GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-                            foreach (string s in objectsToKill?.Cast<string>())
+                            // Spaghetti code below until I can figure out a better way of doing this
+                            dynamic dynData = customBeatmap.beatmapCustomData;
+                            List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
+                            if (objectsToKill != null)
                             {
-                                if (s == "TrackLaneRing" || s == "BigTrackLaneRing")
+                                IEnumerable<GameObject> gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+                                foreach (string s in objectsToKill?.Cast<string>())
                                 {
-                                    foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s)))
+                                    if (s == "TrackLaneRing" || s == "BigTrackLaneRing")
                                     {
-                                        if (s == "TrackLaneRing" && n.name.Contains("Big"))
+                                        foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s)))
                                         {
-                                            continue;
-                                        }
+                                            if (s == "TrackLaneRing" && n.name.Contains("Big"))
+                                            {
+                                                continue;
+                                            }
 
-                                        n.SetActive(false);
+                                            n.SetActive(false);
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s) && obj.scene.name.Contains("Environment") && !obj.scene.name.Contains("Menu")))
+                                    else
                                     {
-                                        n.SetActive(false);
+                                        foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s) && obj.scene.name.Contains("Environment") && !obj.scene.name.Contains("Menu")))
+                                        {
+                                            n.SetActive(false);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                    catch (Exception e)
+                    {
+                        ChromaLogger.Log(e);
+                    }
                 }
 
-                //Extensions.SaberColorizer.InitializeSabers(Resources.FindObjectsOfTypeAll<Saber>());
+                Extensions.SaberColorizer.InitializeSabers(Resources.FindObjectsOfTypeAll<Saber>());
 
                 // please let me kill legacy
                 LegacyLightHelper.Activate(beatmapData.beatmapEventData);
             }
 
-            HarmonyPatches.ObstacleControllerInit.ClearObstacleColors();
+            Extensions.ObstacleControllerExtensions.ClearOCColorManagers();
             Extensions.SaberColorizer.CurrentAColor = null;
             Extensions.SaberColorizer.CurrentBColor = null;
 

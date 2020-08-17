@@ -9,7 +9,7 @@
 
     [ChromaPatch(typeof(LightPairRotationEventEffect))]
     [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
-    internal class LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
+    internal static class LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
         internal static BeatmapEventData LastLightPairRotationEventEffectData { get; private set; }
 
@@ -32,7 +32,7 @@
 
     [ChromaPatch(typeof(LightPairRotationEventEffect))]
     [ChromaPatch("UpdateRotationData")]
-    internal class LightPairRotationEventEffectUpdateRotationData
+    internal static class LightPairRotationEventEffectUpdateRotationData
     {
         private static MethodInfo _getPrivateFieldM = null;
         private static Type _rotationDataType = null;
