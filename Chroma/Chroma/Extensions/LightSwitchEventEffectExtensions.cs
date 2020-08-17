@@ -7,7 +7,7 @@
 
     internal static class LightSwitchEventEffectExtensions
     {
-        private static List<LSEColorManager> _lseColorManagers = new List<LSEColorManager>();
+        private static readonly HashSet<LSEColorManager> _lseColorManagers = new HashSet<LSEColorManager>();
 
         internal static void Reset(this MonoBehaviour lse)
         {
@@ -16,7 +16,10 @@
 
         internal static void ResetAllLightingColors()
         {
-            _lseColorManagers.ForEach(n => n.Reset());
+            foreach (LSEColorManager lseColorManager in _lseColorManagers)
+            {
+                lseColorManager.Reset();
+            }
         }
 
         internal static void SetLightingColors(this MonoBehaviour lse, Color? colorA, Color? colorB)
@@ -34,7 +37,10 @@
 
         internal static void SetAllLightingColors(Color? colorA, Color? colorB)
         {
-            _lseColorManagers.ForEach(n => n.SetLightingColors(colorA, colorB));
+            foreach (LSEColorManager lseColorManager in _lseColorManagers)
+            {
+                lseColorManager.SetLightingColors(colorA, colorB);
+            }
         }
 
         internal static void SetActiveColors(this BeatmapEventType lse)
@@ -47,7 +53,10 @@
 
         internal static void SetAllActiveColors()
         {
-            _lseColorManagers.ForEach(n => n.SetActiveColors());
+            foreach (LSEColorManager lseColorManager in _lseColorManagers)
+            {
+                lseColorManager.SetActiveColors();
+            }
         }
 
         internal static void SetLastValue(this MonoBehaviour lse, int value)
@@ -74,34 +83,30 @@
             LSEColorManager.CreateLSEColorManager(lse, type);
         }
 
-        internal static void LSEDestroy(MonoBehaviour lse, BeatmapEventType type)
+        internal static void LSEDestroy(MonoBehaviour lse)
         {
-            LSEColorManager[] managerList = LSEColorManager.GetLSEColorManager(type).ToArray();
-            for (int i = 0; i < managerList.Length; i++)
-            {
-                managerList[i].LSEDestroyed();
-            }
+            LSEColorManager.GetLSEColorManager(lse)?.LSEDestroyed();
         }
 
         private class LSEColorManager
         {
-            private MonoBehaviour _lse;
-            private BeatmapEventType _type;
+            private readonly MonoBehaviour _lse;
+            private readonly BeatmapEventType _type;
 
-            private Color _lightColor0_Original;
-            private Color _highlightColor0_Original;
-            private Color _lightColor1_Original;
-            private Color _highlightColor1_Original;
+            private readonly Color _lightColor0_Original;
+            private readonly Color _highlightColor0_Original;
+            private readonly Color _lightColor1_Original;
+            private readonly Color _highlightColor1_Original;
 
-            private SimpleColorSO _lightColor0;
-            private SimpleColorSO _highlightColor0;
-            private SimpleColorSO _lightColor1;
-            private SimpleColorSO _highlightColor1;
+            private readonly SimpleColorSO _lightColor0;
+            private readonly SimpleColorSO _highlightColor0;
+            private readonly SimpleColorSO _lightColor1;
+            private readonly SimpleColorSO _highlightColor1;
 
-            private MultipliedColorSO _mLightColor0;
-            private MultipliedColorSO _mHighlightColor0;
-            private MultipliedColorSO _mLightColor1;
-            private MultipliedColorSO _mHighlightColor1;
+            private readonly MultipliedColorSO _mLightColor0;
+            private readonly MultipliedColorSO _mHighlightColor0;
+            private readonly MultipliedColorSO _mLightColor1;
+            private readonly MultipliedColorSO _mHighlightColor1;
 
             private float _lastValue;
 
@@ -114,40 +119,36 @@
                 InitializeSOs(mono, "_lightColor1", ref _lightColor1, ref _lightColor1_Original, ref _mLightColor1);
                 InitializeSOs(mono, "_highlightColor1", ref _highlightColor1, ref _highlightColor1_Original, ref _mHighlightColor1);
 
-                if (!(mono is LightSwitchEventEffect))
+                if (mono is LightSwitchEventEffect lse)
                 {
-                    return;
-                }
-
-                LightSwitchEventEffect lse = (LightSwitchEventEffect)mono;
-                Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<LightWithId>[], LightWithIdManager>("_lights")[lse.LightsID];
-                Dictionary<int, List<LightWithId>> lightsPreGroup = new Dictionary<int, List<LightWithId>>();
-                foreach (LightWithId light in Lights)
-                {
-                    int z = Mathf.RoundToInt(light.transform.position.z);
-                    if (lightsPreGroup.TryGetValue(z, out List<LightWithId> list))
+                    Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<LightWithId>[], LightWithIdManager>("_lights")[lse.LightsID];
+                    IDictionary<int, List<LightWithId>> lightsPreGroup = new Dictionary<int, List<LightWithId>>();
+                    foreach (LightWithId light in Lights)
                     {
-                        list.Add(light);
-                    }
-                    else
-                    {
-                        list = new List<LightWithId>();
-                        list.Add(light);
-                        lightsPreGroup.Add(z, list);
-                    }
-                }
-
-                LightsPropagationGrouped = new LightWithId[lightsPreGroup.Count][];
-                int i = 0;
-                foreach (List<LightWithId> lightList in lightsPreGroup.Values)
-                {
-                    if (lightList is null)
-                    {
-                        continue;
+                        int z = Mathf.RoundToInt(light.transform.position.z);
+                        if (lightsPreGroup.TryGetValue(z, out List<LightWithId> list))
+                        {
+                            list.Add(light);
+                        }
+                        else
+                        {
+                            list = new List<LightWithId>() { light };
+                            lightsPreGroup.Add(z, list);
+                        }
                     }
 
-                    LightsPropagationGrouped[i] = lightList.ToArray();
-                    i++;
+                    LightsPropagationGrouped = new LightWithId[lightsPreGroup.Count][];
+                    int i = 0;
+                    foreach (List<LightWithId> lightList in lightsPreGroup.Values)
+                    {
+                        if (lightList is null)
+                        {
+                            continue;
+                        }
+
+                        LightsPropagationGrouped[i] = lightList.ToArray();
+                        i++;
+                    }
                 }
             }
 
@@ -162,15 +163,7 @@
 
             internal static LSEColorManager GetLSEColorManager(MonoBehaviour lse)
             {
-                for (int i = 0; i < _lseColorManagers.Count; i++)
-                {
-                    if (_lseColorManagers[i]._lse == lse)
-                    {
-                        return _lseColorManagers[i];
-                    }
-                }
-
-                return null;
+                return _lseColorManagers.FirstOrDefault(n => n._lse == lse);
             }
 
             internal static LSEColorManager CreateLSEColorManager(MonoBehaviour lse, BeatmapEventType type)
@@ -293,24 +286,25 @@
                 {
                     if (_lastValue == 1 || _lastValue == 5 || _lastValue == 2 || _lastValue == 6)
                     {
-                        if (_lse is LightSwitchEventEffect mono)
+                        if (_lse is LightSwitchEventEffect l4)
                         {
-                            mono.SetColor(c);
+                            l4.SetColor(c);
                         }
-                        else
+                        else if (_lse is ParticleSystemEventEffect p4)
                         {
-                            ((ParticleSystemEventEffect)_lse).SetField("_particleColor", c);
+                            p4.SetField("_particleColor", c);
+                            p4.RefreshParticles();
                         }
                     }
                 }
 
-                if (_lse is LightSwitchEventEffect l4)
+                if (_lse is LightSwitchEventEffect l5)
                 {
-                    l4.SetField("_offColor", c.ColorWithAlpha(0f));
+                    l5.SetField("_offColor", c.ColorWithAlpha(0f));
                 }
-                else if (_lse is ParticleSystemEventEffect p4)
+                else if (_lse is ParticleSystemEventEffect p5)
                 {
-                    p4.SetField("_offColor", c.ColorWithAlpha(0f));
+                    p5.SetField("_offColor", c.ColorWithAlpha(0f));
                 }
             }
 

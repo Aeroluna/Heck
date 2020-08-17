@@ -32,22 +32,24 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet>..\..\NoodleExtensions\NoodleExtensions\NoodleExtensions.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AnimationHelper.cs" />
-    <Compile Include="Events\ChromaLegacyRGBEvent.cs" />
-    <Compile Include="HarmonyPatches\BeatmapObjectManager.cs" />
+    <Compile Include="ChromaPatch.cs" />
+    <Compile Include="Extensions\ObstacleControllerExtensions.cs" />
+    <Compile Include="LegacyLightHelper.cs" />
     <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />
     <Compile Include="HarmonyPatches\StandardLevelScenesTransitionSetupDataSO.cs" />
+    <Compile Include="HarmonyPatches\BeatmapObjectCallbackController.cs" />
+    <Compile Include="LightColorManager.cs" />
     <Compile Include="Utils\Easings.cs" />
-    <Compile Include="Events\ChromaGradientEvent.cs" />
-    <Compile Include="Events\ChromaNoteColorEvent.cs" />
-    <Compile Include="ChromaBehaviour.cs" />
+    <Compile Include="ChromaGradientController.cs" />
+    <Compile Include="ChromaController.cs" />
     <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
     <Compile Include="Extensions\SaberColorizer.cs" />
     <Compile Include="HarmonyPatches\ColorNoteVisuals.cs" />
-    <Compile Include="HarmonyPatches\NoteDebrisSpawner.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />
     <Compile Include="HarmonyPatches\LightPairRotationEventEffect.cs" />
     <Compile Include="HarmonyPatches\ParticleSystemEventEffect.cs" />
@@ -56,13 +58,12 @@
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\NoteCutEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\TrackLaneRingsRotationEffect.cs" />
-    <Compile Include="Utils\ColorStructs.cs" />
     <Compile Include="Settings\ChromaConfig.cs" />
     <Compile Include="Settings\ChromaSettingsUI.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ChromaLogger.cs" />
-    <Compile Include="ChromaColorManager.cs" />
+    <Compile Include="NoteColorManager.cs" />
     <Compile Include="Utils\ChromaUtils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -130,8 +131,9 @@
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\Chroma.dll"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(TargetDir)$(TargetName).dll" "C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\$(TargetName).dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>

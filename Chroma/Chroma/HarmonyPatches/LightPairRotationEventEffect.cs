@@ -4,20 +4,19 @@
     using System.Reflection;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
     using IPA.Utilities;
     using UnityEngine;
 
-    [HarmonyPatch(typeof(LightPairRotationEventEffect))]
-    [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
-    internal class LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
+    [ChromaPatch(typeof(LightPairRotationEventEffect))]
+    [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    internal static class LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
         internal static BeatmapEventData LastLightPairRotationEventEffectData { get; private set; }
 
         // Laser rotation
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(BeatmapEventData beatmapEventData, BeatmapEventType ____eventL, BeatmapEventType ____eventR)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (beatmapEventData.type == ____eventL || beatmapEventData.type == ____eventR)
             {
@@ -31,9 +30,9 @@
         }
     }
 
-    [HarmonyPatch(typeof(LightPairRotationEventEffect))]
-    [HarmonyPatch("UpdateRotationData")]
-    internal class LightPairRotationEventEffectUpdateRotationData
+    [ChromaPatch(typeof(LightPairRotationEventEffect))]
+    [ChromaPatch("UpdateRotationData")]
+    internal static class LightPairRotationEventEffectUpdateRotationData
     {
         private static MethodInfo _getPrivateFieldM = null;
         private static Type _rotationDataType = null;
@@ -49,25 +48,20 @@
             _getPrivateFieldM = reflectionGetField.MakeGenericMethod(_rotationDataType, typeof(LightPairRotationEventEffect));
         }
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(LightPairRotationEventEffect __instance, BeatmapEventType ____eventL, float startRotationOffset, float direction)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            if (!ChromaBehaviour.LightingRegistered)
-            {
-                return true;
-            }
-
             BeatmapEventData beatmapEventData = LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.LastLightPairRotationEventEffectData;
 
-            string rotationName = beatmapEventData.type == ____eventL ? "_rotationDataL" : "_rotationDataR";
+            bool isLeftEvent = beatmapEventData.type == ____eventL;
 
             if (_getPrivateFieldM == null)
             {
                 GetRotationData();
             }
 
-            var rotationData = _getPrivateFieldM.Invoke(null, new object[] { __instance, rotationName });
+            object rotationData = _getPrivateFieldM.Invoke(null, new object[] { __instance, isLeftEvent ? "_rotationDataL" : "_rotationDataR" });
 
             if (beatmapEventData is CustomBeatmapEventData customData && rotationData != null)
             {
@@ -82,25 +76,28 @@
                 int? dir = (int?)Trees.at(dynData, "_direction");
                 dir = dir.GetValueOrDefault(-1);
 
-                if (dir == 1)
+                switch (dir)
                 {
-                    direction = beatmapEventData.type == ____eventL ? 1 : -1;
-                }
-                else if (dir == 0)
-                {
-                    direction = beatmapEventData.type == ____eventL ? -1 : 1;
+                    case 0:
+                        direction = isLeftEvent ? -1 : 1;
+                        break;
+
+                    case 1:
+                        direction = isLeftEvent ? 1 : -1;
+                        break;
                 }
 
                 // Actual lasering
                 Transform transform = (Transform)_rotationDataType.GetField("transform").GetValue(rotationData);
                 Quaternion startRotation = (Quaternion)_rotationDataType.GetField("startRotation").GetValue(rotationData);
+                float startRotationAngle = (float)_rotationDataType.GetField("startRotationAngle").GetValue(rotationData);
                 Vector3 rotationVector = __instance.GetField<Vector3, LightPairRotationEventEffect>("_rotationVector");
                 if (beatmapEventData.value == 0)
                 {
                     _rotationDataType.GetField("enabled").SetValue(rotationData, false);
                     if (!lockPosition.Value)
                     {
-                        transform.localRotation = startRotation;
+                        transform.localRotation = startRotation * Quaternion.Euler(rotationVector * startRotationAngle);
                     }
                 }
                 else
@@ -109,8 +106,9 @@
                     _rotationDataType.GetField("rotationSpeed").SetValue(rotationData, precisionSpeed * 20f * direction);
                     if (!lockPosition.Value)
                     {
-                        transform.localRotation = startRotation;
-                        transform.Rotate(rotationVector, startRotationOffset, Space.Self);
+                        float rotationAngle = startRotationOffset + startRotationAngle;
+                        _rotationDataType.GetField("rotationAngle").SetValue(rotationData, rotationAngle);
+                        transform.localRotation = startRotation * Quaternion.Euler(rotationVector * rotationAngle);
                     }
                 }
 

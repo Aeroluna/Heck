@@ -2,42 +2,42 @@
 {
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
 
-    [HarmonyPatch(typeof(TrackLaneRingsRotationEffectSpawner))]
-    [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
-    internal class TrackLaneRingsRotationEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
+    [ChromaPatch(typeof(TrackLaneRingsRotationEffectSpawner))]
+    [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    internal static class TrackLaneRingsRotationEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(
             TrackLaneRingsRotationEffectSpawner __instance,
             BeatmapEventData beatmapEventData,
             BeatmapEventType ____beatmapEventType,
             TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect,
+            float ____rotation,
             float ____rotationStep,
             int ____rotationPropagationSpeed,
             float ____rotationFlexySpeed,
             TrackLaneRingsRotationEffectSpawner.RotationStepType ____rotationStepType)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            if (beatmapEventData.type == ____beatmapEventType && ChromaBehaviour.LightingRegistered)
+            if (beatmapEventData.type == ____beatmapEventType)
             {
                 if (beatmapEventData is CustomBeatmapEventData customData)
                 {
                     // Added in 1.8
-                    float step = 0f;
+                    float rotationStep = 0f;
                     switch (____rotationStepType)
                     {
                         case TrackLaneRingsRotationEffectSpawner.RotationStepType.Range0ToMax:
-                            step = UnityEngine.Random.Range(0f, ____rotationStep);
+                            rotationStep = UnityEngine.Random.Range(0f, ____rotationStep);
                             break;
 
                         case TrackLaneRingsRotationEffectSpawner.RotationStepType.Range:
-                            step = UnityEngine.Random.Range(-____rotationStep, ____rotationStep);
+                            rotationStep = UnityEngine.Random.Range(-____rotationStep, ____rotationStep);
                             break;
 
                         case TrackLaneRingsRotationEffectSpawner.RotationStepType.MaxOr0:
-                            step = (UnityEngine.Random.value < 0.5f) ? ____rotationStep : 0f;
+                            rotationStep = (UnityEngine.Random.value < 0.5f) ? ____rotationStep : 0f;
                             break;
                     }
 
@@ -46,25 +46,11 @@
                     string nameFilter = Trees.at(dynData, "_nameFilter");
                     if (nameFilter != null)
                     {
-                        if (!__instance.name.ToLower().Contains(nameFilter.ToLower()))
+                        if (!__instance.name.ToLower().Equals(nameFilter.ToLower()))
                         {
                             return false;
                         }
                     }
-
-                    bool? reset = Trees.at(dynData, "_reset");
-                    if (reset.HasValue && reset == true)
-                    {
-                        ResetRings(____trackLaneRingsRotationEffect, ____rotationStep, ____rotationPropagationSpeed, ____rotationFlexySpeed);
-                        return false;
-                    }
-
-                    float? stepMult = (float?)Trees.at(dynData, "_stepMult");
-                    stepMult = stepMult.GetValueOrDefault(1f);
-                    float? propMult = (float?)Trees.at(dynData, "_propMult");
-                    propMult = propMult.GetValueOrDefault(1f);
-                    float? speedMult = (float?)Trees.at(dynData, "_speedMult");
-                    speedMult = speedMult.GetValueOrDefault(1f);
 
                     int? dir = (int?)Trees.at(dynData, "_direction");
                     if (!dir.HasValue)
@@ -85,13 +71,28 @@
                     bool? counterSpin = Trees.at(dynData, "_counterSpin");
                     if (counterSpin.HasValue && counterSpin == true)
                     {
-                        if (__instance.name.ToLower().Contains("small"))
+                        if (!__instance.name.Contains("Big"))
                         {
                             rotRight = !rotRight;
                         }
                     }
 
-                    TriggerRotation(rotRight, ____trackLaneRingsRotationEffect, step, ____rotationPropagationSpeed, ____rotationFlexySpeed, stepMult.Value, propMult.Value, speedMult.Value);
+                    bool? reset = Trees.at(dynData, "_reset");
+                    if (reset.HasValue && reset == true)
+                    {
+                        TriggerRotation(____trackLaneRingsRotationEffect, rotRight, ____rotation, 0, 50, 50);
+                        return false;
+                    }
+
+                    float step = ((float?)Trees.at(dynData, "_step")).GetValueOrDefault(rotationStep);
+                    int prop = ((int?)Trees.at(dynData, "_prop")).GetValueOrDefault(____rotationPropagationSpeed);
+                    float speed = ((float?)Trees.at(dynData, "_speed")).GetValueOrDefault(____rotationFlexySpeed);
+
+                    float stepMult = ((float?)Trees.at(dynData, "_stepMult")).GetValueOrDefault(1f);
+                    float propMult = ((float?)Trees.at(dynData, "_propMult")).GetValueOrDefault(1f);
+                    float speedMult = ((float?)Trees.at(dynData, "_speedMult")).GetValueOrDefault(1f);
+
+                    TriggerRotation(____trackLaneRingsRotationEffect, rotRight, ____rotation, step * stepMult, (int)(prop * propMult), speed * speedMult);
                     return false;
                 }
             }
@@ -99,30 +100,17 @@
             return true;
         }
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void TriggerRotation(
+            TrackLaneRingsRotationEffect trackLaneRingsRotationEffect,
             bool rotRight,
-            TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect,
-            float ____rotationStep,
-            int ____rotationPropagationSpeed,
-            float ____rotationFlexySpeed,
-            float ringStepMult = 1f,
-            float ringPropagationMult = 1f,
-            float ringSpeedMult = 1f)
-#pragma warning restore SA1313
+            float rotation,
+            float rotationStep,
+            int rotationPropagationSpeed,
+            float rotationFlexySpeed)
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            ____trackLaneRingsRotationEffect.AddRingRotationEffect(____trackLaneRingsRotationEffect.GetFirstRingDestinationRotationAngle() + (90 * (rotRight ? -1 : 1)), ____rotationStep * ringStepMult, (int)(____rotationPropagationSpeed * ringPropagationMult), ____rotationFlexySpeed * ringSpeedMult);
-        }
-
-#pragma warning disable SA1313
-        private static void ResetRings(
-            TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect,
-            float ____rotationStep,
-            int ____rotationPropagationSpeed,
-            float ____rotationFlexySpeed)
-#pragma warning restore SA1313
-        {
-            TriggerRotation(UnityEngine.Random.value < 0.5f, ____trackLaneRingsRotationEffect, ____rotationStep, ____rotationPropagationSpeed, ____rotationFlexySpeed, 0f, 116f, 116f);
+            trackLaneRingsRotationEffect.AddRingRotationEffect(trackLaneRingsRotationEffect.GetFirstRingDestinationRotationAngle() + (rotation * (rotRight ? -1 : 1)), rotationStep, rotationPropagationSpeed, rotationFlexySpeed);
         }
     }
 }

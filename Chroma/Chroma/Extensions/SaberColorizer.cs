@@ -9,14 +9,14 @@
     {
         private static readonly FieldAccessor<BasicSaberModelController, BasicSaberModelController.InitData>.Accessor _basicSaberModelControllerAccessor = FieldAccessor<BasicSaberModelController, BasicSaberModelController.InitData>.GetAccessor("_initData");
 
-        private SetSaberGlowColor[] _glowColors;
-        private MeshRenderer[] _meshRenderers;
-        private MaterialPropertyBlock[] _blocks;
-        private SetSaberGlowColor.PropertyTintColorPair[][] _tintPairs;
-        private Xft.XWeaponTrail _weaponTrail;
-        private Color _trailTintColor;
+        private readonly SetSaberGlowColor[] _glowColors;
+        private readonly MeshRenderer[] _meshRenderers;
+        private readonly MaterialPropertyBlock[] _blocks;
+        private readonly SetSaberGlowColor.PropertyTintColorPair[][] _tintPairs;
+        private readonly Xft.XWeaponTrail _weaponTrail;
+        private readonly Color _trailTintColor;
 
-        private List<Material> _customMats = new List<Material>();
+        private readonly List<Material> _customMats = new List<Material>();
 
         private SaberColorizer(Saber saber)
         {

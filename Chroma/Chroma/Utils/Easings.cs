@@ -5,10 +5,11 @@ namespace Chroma.Utils
     /// <summary>
     /// Easing Functions enumeration
     /// </summary>
-#pragma warning disable SA1300
+#pragma warning disable SA1300 // Element should begin with upper-case letter
     internal enum Functions
     {
         easeLinear,
+        easeStep,
         easeInQuad,
         easeOutQuad,
         easeInOutQuad,
@@ -40,7 +41,7 @@ namespace Chroma.Utils
         easeOutBounce,
         easeInOutBounce,
     }
-#pragma warning restore SA1300
+#pragma warning restore SA1300 // Element should begin with upper-case letter
 
     internal static class Easings
     {
@@ -63,6 +64,7 @@ namespace Chroma.Utils
             {
                 default:
                 case Functions.easeLinear: return EaseLinear(p);
+                case Functions.easeStep: return EaseStep(p);
                 case Functions.easeOutQuad: return EaseOutQuad(p);
                 case Functions.easeInQuad: return EaseInQuad(p);
                 case Functions.easeInOutQuad: return EaseInOutQuad(p);
@@ -102,6 +104,14 @@ namespace Chroma.Utils
         internal static float EaseLinear(float p)
         {
             return p;
+        }
+
+        /// <summary>
+        /// It's either 1, or it's not
+        /// </summary>
+        internal static float EaseStep(float p)
+        {
+            return Math.Floor(p);
         }
 
         /// <summary>
@@ -366,7 +376,7 @@ namespace Chroma.Utils
             }
             else
             {
-                return 0.5f * ((Math.Sin(-13 * HALFPI * (((2 * p) - 1) + 1)) * Math.Pow(2, -10 * ((2 * p) - 1))) + 2);
+                return 0.5f * ((Math.Sin(-13 * HALFPI * (2 * p)) * Math.Pow(2, -10 * ((2 * p) - 1))) + 2);
             }
         }
 
@@ -415,7 +425,7 @@ namespace Chroma.Utils
         {
             if (p < 4 / 11.0f)
             {
-                return (121 * p * p) / 16.0f;
+                return 121 * p * p / 16.0f;
             }
             else if (p < 8 / 11.0f)
             {

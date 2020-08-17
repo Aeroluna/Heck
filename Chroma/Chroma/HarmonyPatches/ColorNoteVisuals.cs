@@ -1,48 +1,36 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using Chroma.Events;
     using Chroma.Utils;
-    using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
     using UnityEngine;
 
-    [HarmonyPatch(typeof(ColorNoteVisuals))]
-    [HarmonyPatch("HandleNoteControllerDidInitEvent")]
-    internal class ColorNoteVisualsHandleNoteControllerDidInitEvent
+    [ChromaPatch(typeof(ColorNoteVisuals))]
+    [ChromaPatch("HandleNoteControllerDidInitEvent")]
+    internal static class ColorNoteVisualsHandleNoteControllerDidInitEvent
     {
-        internal static bool NoteColorsActive { get; set; }
-
-#pragma warning disable SA1313
-        private static void Prefix(NoteController noteController, ColorManager ____colorManager)
-#pragma warning restore SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
+        private static void Prefix(ColorNoteVisuals __instance, NoteController noteController)
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            NoteData noteData = noteController.noteData;
-
-            // CustomJSONData _customData individual color override
-            if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered)
+            if (noteController.noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                Color? c = ChromaUtils.GetColorFromData(dynData, false);
+                dynData.colorNoteVisuals = __instance;
 
-                if (c.HasValue)
-                {
-                    ChromaColorManager.SetNoteTypeColorOverride(noteData.noteType, c.Value);
-                    NoteColorsActive = true;
-                }
+                Color? color = ChromaUtils.GetColorFromData(dynData);
 
-                if (NoteColorsActive)
+                if (color.HasValue)
                 {
-                    ChromaNoteColorEvent.SavedNoteColors[noteController] = ____colorManager.ColorForNoteType(noteData.noteType);
-                    noteController.noteWasCutEvent += ChromaNoteColorEvent.SaberColor;
-                    dynData.isSubscribed = true;
+                    dynData.color = color.Value;
                 }
             }
+
+            NoteColorManager.EnableNoteColorOverride(noteController);
         }
 
-        private static void Postfix(ref NoteController noteController)
+        private static void Postfix()
         {
-            ChromaColorManager.RemoveNoteTypeColorOverride(noteController.noteData.noteType);
+            NoteColorManager.DisableNoteColorOverride();
         }
     }
 }

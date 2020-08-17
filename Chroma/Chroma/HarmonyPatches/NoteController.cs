@@ -3,36 +3,34 @@
     using Chroma.Utils;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
     using IPA.Utilities;
     using NoodleExtensions.Animation;
     using UnityEngine;
 
-    [HarmonyPatch(typeof(NoteController))]
-    [HarmonyPatch("Init")]
-    internal class NoteControllerInit
+    [ChromaPatch(typeof(NoteController))]
+    [ChromaPatch("Init")]
+    internal static class NoteControllerInit
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(NoteController __instance, NoteData noteData)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             // They said it couldn't be done, they called me a madman
             if (noteData.noteType == NoteType.Bomb)
             {
                 Color? c = null;
 
-                // CustomJSONData _customData individual scale override
-                if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered)
+                if (noteData is CustomNoteData customData)
                 {
                     dynamic dynData = customData.customData;
 
-                    c = ChromaUtils.GetColorFromData(dynData, false) ?? c;
+                    c = ChromaUtils.GetColorFromData(dynData) ?? c;
                 }
 
                 if (!c.HasValue)
                 {
                     // I shouldn't hard code this... but i can't be bothered to not atm
-                    c = new Color(0.251f, 0.251f, 0.251f, 0);
+                    c = new Color(0.2509804f, 0.2509804f, 0.2509804f, 0);
                 }
 
                 Material mat = __instance.noteTransform.gameObject.GetComponent<Renderer>().material;
@@ -41,9 +39,9 @@
         }
     }
 
-    [HarmonyPatch(typeof(NoteController))]
-    [HarmonyPatch("Update")]
-    internal class NoteControllerUpdate
+    [ChromaPatch(typeof(NoteController))]
+    [ChromaPatch("Update")]
+    internal static class NoteControllerUpdate
     {
         private static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
         private static readonly FieldAccessor<NoteJump, AudioTimeSyncController>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<NoteJump, AudioTimeSyncController>.GetAccessor("_audioTimeSyncController");
@@ -54,9 +52,9 @@
         private static readonly FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.Accessor _materialPropertyBlockControllersAccessor = FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.GetAccessor("_materialPropertyBlockControllers");
         private static readonly int _colorID = Shader.PropertyToID("_Color");
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (Chroma.Plugin.NoodleExtensionsActive)
             {
@@ -66,7 +64,7 @@
 
         private static void TrackColorize(NoteController instance, NoteData noteData, NoteMovement noteMovement)
         {
-            if (noteData is CustomNoteData customData && ChromaBehaviour.LightingRegistered)
+            if (noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
                 Track track = AnimationHelper.GetTrack(dynData);
@@ -109,17 +107,6 @@
                             {
                                 materialPropertyBlockController.materialPropertyBlock.SetColor(_colorID, noteColor);
                                 materialPropertyBlockController.ApplyChanges();
-                            }
-
-                            ColorNoteVisualsHandleNoteControllerDidInitEvent.NoteColorsActive = true;
-
-                            Events.ChromaNoteColorEvent.SavedNoteColors[instance] = noteColor;
-
-                            bool? isSubscribed = Trees.at(dynData, "subscribed");
-                            if (!isSubscribed.HasValue)
-                            {
-                                instance.noteWasCutEvent += Events.ChromaNoteColorEvent.SaberColor;
-                                dynData.isSubscribed = true;
                             }
                         }
                     }
