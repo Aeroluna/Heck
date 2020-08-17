@@ -287,8 +287,8 @@
                 this.v = v;
             }
 
-#pragma warning disable IDE1006
-#pragma warning disable SA1300
+#pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable SA1300 // Element should begin with upper-case letter
             internal float x { get; }
 
             internal float y { get; }
@@ -298,10 +298,13 @@
             internal float w { get; }
 
             internal float v { get; }
-#pragma warning restore IDE1006
-#pragma warning restore SA1300
+#pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore SA1300 // Element should begin with upper-case letter
 
-            public static implicit operator Vector4(Vector5 vector) => new Vector4(vector.x, vector.y, vector.z, vector.w);
+            public static implicit operator Vector4(Vector5 vector)
+            {
+                return new Vector4(vector.x, vector.y, vector.z, vector.w);
+            }
         }
 
         private class PointData

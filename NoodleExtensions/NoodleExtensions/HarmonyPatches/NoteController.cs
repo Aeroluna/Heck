@@ -35,9 +35,9 @@
         private static readonly MethodInfo _noteControllerUpdate = typeof(NoteController).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo _gameNoteControllerUpdate = typeof(GameNoteController).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (noteData is CustomNoteData customData)
             {
@@ -84,7 +84,7 @@
                             worldRotationQuatnerion = Quaternion.Euler(0, (float)rotation, 0);
                         }
 
-                        Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
+                        Quaternion inverseWorldRotation = Quaternion.Euler(-worldRotationQuatnerion.eulerAngles);
                         _worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
                         _inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
                         _worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
@@ -194,6 +194,7 @@
         private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
 
         private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
+        private static readonly FieldAccessor<CutoutAnimateEffect, CutoutEffect[]>.Accessor _cutoutEffectAccessor = FieldAccessor<CutoutAnimateEffect, CutoutEffect[]>.GetAccessor("_cuttoutEffects");
 
         private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber>.Accessor _gameNoteBigCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber>.GetAccessor("_bigCuttableBySaber");
         private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber>.Accessor _gameNoteSmallCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber>.GetAccessor("_smallCuttableBySaber");
@@ -201,9 +202,9 @@
 
         internal static CustomNoteData CustomNoteData { get; private set; }
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (____noteData is CustomNoteData customData)
             {
@@ -250,7 +251,7 @@
                         if (rotationOffset.HasValue)
                         {
                             worldRotationQuatnerion *= rotationOffset.Value;
-                            Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
+                            Quaternion inverseWorldRotation = Quaternion.Euler(-worldRotationQuatnerion.eulerAngles);
                             NoteControllerInit._worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
                             NoteControllerInit._inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
                             NoteControllerInit._worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
@@ -274,15 +275,17 @@
 
                     if (dissolve.HasValue)
                     {
-                        CutoutAnimateEffect cutoutAnimateEffect = Trees.at(dynData, "cutoutAnimateEffect");
-                        if (cutoutAnimateEffect == null)
+                        CutoutEffect cutoutEffect = Trees.at(dynData, "cutoutEffect");
+                        if (cutoutEffect == null)
                         {
                             BaseNoteVisuals baseNoteVisuals = __instance.gameObject.GetComponent<BaseNoteVisuals>();
-                            cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
-                            dynData.cutoutAnimateEffect = cutoutAnimateEffect;
+                            CutoutAnimateEffect cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
+                            CutoutEffect[] cutoutEffects = _cutoutEffectAccessor(ref cutoutAnimateEffect);
+                            cutoutEffect = cutoutEffects.First(n => n.name != "NoteArrow"); // 1.11 NoteArrow has been added to the CutoutAnimateEffect and we don't want that
+                            dynData.cutoutAnimateEffect = cutoutEffect;
                         }
 
-                        cutoutAnimateEffect.SetCutout(1 - dissolve.Value);
+                        cutoutEffect.SetCutout(1 - dissolve.Value);
                     }
 
                     if (dissolveArrow.HasValue && __instance.noteData.noteType != NoteType.Bomb)
@@ -312,6 +315,7 @@
                                 }
 
                                 break;
+
                             case BombNoteController bombNoteController:
                                 CuttableBySaber boxCuttableBySaber = _bombNoteCuttableAccessor(ref bombNoteController);
                                 if (boxCuttableBySaber.enabled != enabled)

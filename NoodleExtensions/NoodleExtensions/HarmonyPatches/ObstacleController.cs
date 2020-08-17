@@ -21,7 +21,7 @@
         private static readonly MethodInfo _getCustomWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(0, null));
         private static readonly MethodInfo _getWorldRotation = SymbolExtensions.GetMethodInfo(() => GetWorldRotation(null, 0));
         private static readonly MethodInfo _getCustomLength = SymbolExtensions.GetMethodInfo(() => GetCustomLength(0, null));
-        private static readonly MethodInfo _invertQuaternion = SymbolExtensions.GetMethodInfo(() => Quaternion.Inverse(Quaternion.identity));
+        private static readonly MethodInfo _invertQuaternion = SymbolExtensions.GetMethodInfo(() => InvertQuaternion(Quaternion.identity));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -84,9 +84,9 @@
             return instructionList.AsEnumerable();
         }
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(ObstacleController __instance, Quaternion ____worldRotation, ObstacleData obstacleData, Vector3 ____startPos, Vector3 ____midPos, Vector3 ____endPos, ref Bounds ____bounds)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (obstacleData is CustomObstacleData customData)
             {
@@ -136,6 +136,11 @@
             }
 
             __instance.Update();
+        }
+
+        private static Quaternion InvertQuaternion(Quaternion quaternion)
+        {
+            return Quaternion.Euler(-quaternion.eulerAngles);
         }
 
         private static Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
@@ -261,14 +266,14 @@
                 float? time = AnimationHelper.TryGetProperty(track, TIME);
                 if (time.HasValue)
                 {
-                    return (Mathf.Clamp(time.Value, 0, 1) * (finishMovementTime - move1Duration)) + move1Duration;
+                    return (time.Value * (finishMovementTime - move1Duration)) + move1Duration;
                 }
             }
 
             return original;
         }
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(
             ObstacleController __instance,
             ObstacleData ____obstacleData,
@@ -283,7 +288,7 @@
             ref Quaternion ____worldRotation,
             ref Quaternion ____inverseWorldRotation,
             ref Bounds ____bounds)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (____obstacleData is CustomObstacleData customData)
             {
@@ -322,7 +327,7 @@
                         if (rotationOffset.HasValue)
                         {
                             worldRotationQuatnerion *= rotationOffset.Value;
-                            Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
+                            Quaternion inverseWorldRotation = Quaternion.Euler(-worldRotationQuatnerion.eulerAngles);
                             ____worldRotation = worldRotationQuatnerion;
                             ____inverseWorldRotation = inverseWorldRotation;
                         }
@@ -384,7 +389,7 @@
     [NoodlePatch("GetPosForTime")]
     internal static class ObstacleControllerGetPosForTime
     {
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(
             ref Vector3 __result,
             ObstacleData ____obstacleData,
@@ -394,7 +399,7 @@
             float ____move2Duration,
             float ____obstacleDuration,
             float time)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (____obstacleData is CustomObstacleData customObstacleData)
             {

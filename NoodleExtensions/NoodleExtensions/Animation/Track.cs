@@ -19,8 +19,7 @@
 
         public Track AddTrack(string trackName)
         {
-            Track track;
-            if (!Tracks.TryGetValue(trackName, out track))
+            if (!Tracks.TryGetValue(trackName, out Track track))
             {
                 track = new Track();
                 TrackCreated?.Invoke(track);

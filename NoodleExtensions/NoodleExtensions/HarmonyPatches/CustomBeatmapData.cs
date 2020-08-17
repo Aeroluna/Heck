@@ -19,9 +19,9 @@
         private static readonly PropertyAccessor<BeatmapData, int>.Setter _obstaclesCountSetter = PropertyAccessor<BeatmapData, int>.GetSetter("obstaclesCount");
         private static readonly PropertyAccessor<BeatmapData, int>.Setter _bombsCountSetter = PropertyAccessor<BeatmapData, int>.GetSetter("bombsCount");
 
-#pragma warning disable SA1313
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(CustomBeatmapData __instance)
-#pragma warning restore SA1313
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             IEnumerable<string> requirements = ((List<object>)Trees.at(__instance.beatmapCustomData, "_requirements"))?.Cast<string>();
             bool noodleRequirement = requirements?.Contains(CAPABILITY) ?? false;

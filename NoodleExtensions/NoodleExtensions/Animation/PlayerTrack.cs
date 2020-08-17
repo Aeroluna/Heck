@@ -59,9 +59,9 @@
             Vector3 positionVector = _startPos;
             if ((rotation.HasValue || position.HasValue) && !paused)
             {
-                Quaternion finalRot = rotation.HasValue ? rotation.Value : _quaternionIdentity;
+                Quaternion finalRot = rotation ?? _quaternionIdentity;
                 worldRotationQuatnerion *= finalRot;
-                Vector3 finalPos = position.HasValue ? position.Value : _vectorZero;
+                Vector3 finalPos = position ?? _vectorZero;
                 positionVector = worldRotationQuatnerion * ((finalPos * NoteLinesDistance) + _startPos);
             }
 

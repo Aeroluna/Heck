@@ -18,27 +18,21 @@
         private static readonly FieldInfo _localPositionField = AccessTools.Field(typeof(NoteJump), "_localPosition");
         private static readonly MethodInfo _definiteNoteJump = SymbolExtensions.GetMethodInfo(() => DefiniteNoteJump(Vector3.zero, 0));
         private static readonly MethodInfo _convertToLocalSpace = SymbolExtensions.GetMethodInfo(() => ConvertToLocalSpace(null));
-        private static readonly MethodInfo _convertQuaternion = SymbolExtensions.GetMethodInfo(() => ConvertQuaternion(Quaternion.identity));
+        private static readonly MethodInfo _popQuaternion = SymbolExtensions.GetMethodInfo(() => PopQuaternion(Quaternion.identity, Vector3.zero));
         private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), "_definitePosition");
         private static readonly MethodInfo _setLocalPosition = typeof(Transform).GetProperty("localPosition").GetSetMethod();
 
-#pragma warning disable 0414
+        // This field is used by reflection
+#pragma warning disable CS0414 // The field is assigned but its value is never used
         private static bool _definitePosition = false;
-#pragma warning restore 0414
+#pragma warning restore CS0414 // The field is assigned but its value is never used
 
         internal static float NoteJumpTimeAdjust(float original, float jumpDuration)
         {
             dynamic dynData = NoteControllerUpdate.CustomNoteData.customData;
             Track track = Trees.at(dynData, "track");
             float? time = AnimationHelper.TryGetProperty(track, NoodleExtensions.Plugin.TIME);
-            if (time.HasValue)
-            {
-                return Mathf.Clamp(time.Value, 0, 1) * jumpDuration;
-            }
-            else
-            {
-                return original;
-            }
+            return time.HasValue ? time.Value * jumpDuration : original;
         }
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -48,7 +42,6 @@
             bool foundFinalPosition = false;
             bool foundTransformUp = false;
             bool foundZOffset = false;
-            bool foundInverseRotation = false;
             bool foundPosition = false;
             for (int i = 0; i < instructionList.Count; i++)
             {
@@ -79,18 +72,7 @@
                 {
                     foundTransformUp = true;
                     instructionList[i] = new CodeInstruction(OpCodes.Call, _convertToLocalSpace);
-                }
-
-                if (instructionList[i].opcode == OpCodes.Ldfld &&
-                 ((FieldInfo)instructionList[i].operand).Name == "_inverseWorldRotation")
-                {
-                    if (!foundInverseRotation)
-                    {
-                        foundInverseRotation = true;
-                        continue;
-                    }
-
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _convertQuaternion));
+                    instructionList[i + 1] = new CodeInstruction(OpCodes.Call, _popQuaternion);
                 }
 
                 // is there a better way of checking labels?
@@ -168,10 +150,12 @@
             return rotatedObject.parent.InverseTransformDirection(rotatedObject.up);
         }
 
-        private static Quaternion ConvertQuaternion(Quaternion source)
+        // used to pop the quaternion from the stack and return the vector3
+#pragma warning disable IDE0060 // Remove unused parameter
+        private static Vector3 PopQuaternion(Quaternion quaternion, Vector3 vector)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
-            Vector3 euler = source.eulerAngles;
-            return Quaternion.Euler(euler.x, euler.y, 0);
+            return vector;
         }
     }
 }

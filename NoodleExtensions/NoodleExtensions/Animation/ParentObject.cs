@@ -58,7 +58,7 @@
             if (startLocalRot.HasValue)
             {
                 instance._startLocalRot = instance._startRot * startLocalRot.Value;
-                transform.localRotation = transform.localRotation * instance._startLocalRot;
+                transform.localRotation *= instance._startLocalRot;
             }
 
             if (startScale.HasValue)
@@ -138,9 +138,9 @@
             Vector3 positionVector = worldRotationQuatnerion * (_startPos * NoteLinesDistance);
             if (rotation.HasValue || position.HasValue)
             {
-                Quaternion rotationOffset = rotation.HasValue ? rotation.Value : _quaternionIdentity;
+                Quaternion rotationOffset = rotation ?? _quaternionIdentity;
                 worldRotationQuatnerion *= rotationOffset;
-                Vector3 positionOffset = position.HasValue ? position.Value : _vectorZero;
+                Vector3 positionOffset = position ?? _vectorZero;
                 positionVector = worldRotationQuatnerion * ((positionOffset + _startPos) * NoteLinesDistance);
             }
 

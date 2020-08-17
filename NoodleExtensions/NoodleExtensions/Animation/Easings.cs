@@ -5,7 +5,8 @@
     /// <summary>
     /// Easing Functions enumeration
     /// </summary>
-#pragma warning disable SA1300
+
+#pragma warning disable SA1300 // Element should begin with upper-case letter
     internal enum Functions
     {
         easeLinear,
@@ -41,7 +42,7 @@
         easeOutBounce,
         easeInOutBounce,
     }
-#pragma warning restore SA1300
+#pragma warning restore SA1300 // Element should begin with upper-case letter
 
     internal static class Easings
     {
@@ -376,7 +377,7 @@
             }
             else
             {
-                return 0.5f * ((Math.Sin(-13 * HALFPI * (((2 * p) - 1) + 1)) * Math.Pow(2, -10 * ((2 * p) - 1))) + 2);
+                return 0.5f * ((Math.Sin(-13 * HALFPI * (2 * p)) * Math.Pow(2, -10 * ((2 * p) - 1))) + 2);
             }
         }
 
@@ -425,7 +426,7 @@
         {
             if (p < 4 / 11.0f)
             {
-                return (121 * p * p) / 16.0f;
+                return 121 * p * p / 16.0f;
             }
             else if (p < 8 / 11.0f)
             {
