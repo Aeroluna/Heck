@@ -32,7 +32,7 @@
             dynamic dynData = NoteControllerUpdate.CustomNoteData.customData;
             Track track = Trees.at(dynData, "track");
             float? time = AnimationHelper.TryGetProperty(track, NoodleExtensions.Plugin.TIME);
-            return time.HasValue ? Mathf.Clamp(time.Value, 0, 1) * jumpDuration : original;
+            return time.HasValue ? time.Value * jumpDuration : original;
         }
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)

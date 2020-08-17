@@ -194,6 +194,7 @@
         private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
 
         private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
+        private static readonly FieldAccessor<CutoutAnimateEffect, CutoutEffect[]>.Accessor _cutoutEffectAccessor = FieldAccessor<CutoutAnimateEffect, CutoutEffect[]>.GetAccessor("_cuttoutEffects");
 
         private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber>.Accessor _gameNoteBigCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber>.GetAccessor("_bigCuttableBySaber");
         private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber>.Accessor _gameNoteSmallCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber>.GetAccessor("_smallCuttableBySaber");
@@ -274,15 +275,17 @@
 
                     if (dissolve.HasValue)
                     {
-                        CutoutAnimateEffect cutoutAnimateEffect = Trees.at(dynData, "cutoutAnimateEffect");
-                        if (cutoutAnimateEffect == null)
+                        CutoutEffect cutoutEffect = Trees.at(dynData, "cutoutEffect");
+                        if (cutoutEffect == null)
                         {
                             BaseNoteVisuals baseNoteVisuals = __instance.gameObject.GetComponent<BaseNoteVisuals>();
-                            cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
-                            dynData.cutoutAnimateEffect = cutoutAnimateEffect;
+                            CutoutAnimateEffect cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
+                            CutoutEffect[] cutoutEffects = _cutoutEffectAccessor(ref cutoutAnimateEffect);
+                            cutoutEffect = cutoutEffects.First(n => n.name != "NoteArrow"); // 1.11 NoteArrow has been added to the CutoutAnimateEffect and we don't want that
+                            dynData.cutoutAnimateEffect = cutoutEffect;
                         }
 
-                        cutoutAnimateEffect.SetCutout(1 - dissolve.Value);
+                        cutoutEffect.SetCutout(1 - dissolve.Value);
                     }
 
                     if (dissolveArrow.HasValue && __instance.noteData.noteType != NoteType.Bomb)

@@ -266,7 +266,7 @@
                 float? time = AnimationHelper.TryGetProperty(track, TIME);
                 if (time.HasValue)
                 {
-                    return (Mathf.Clamp(time.Value, 0, 1) * (finishMovementTime - move1Duration)) + move1Duration;
+                    return (time.Value * (finishMovementTime - move1Duration)) + move1Duration;
                 }
             }
 
