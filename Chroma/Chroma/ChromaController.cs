@@ -133,44 +133,38 @@
             {
                 if (beatmapData is CustomBeatmapData customBeatmap)
                 {
-                    try
+                    if (ChromaConfig.Instance.EnvironmentEnhancementsEnabled)
                     {
-                        if (ChromaConfig.Instance.EnvironmentEnhancementsEnabled)
+                        // Spaghetti code below until I can figure out a better way of doing this
+                        dynamic dynData = customBeatmap.beatmapCustomData;
+                        List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
+                        if (objectsToKill != null)
                         {
-                            // Spaghetti code below until I can figure out a better way of doing this
-                            dynamic dynData = customBeatmap.beatmapCustomData;
-                            List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
-                            if (objectsToKill != null)
+                            IEnumerable<GameObject> gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+                            foreach (string s in objectsToKill.Cast<string>())
                             {
-                                IEnumerable<GameObject> gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-                                foreach (string s in objectsToKill?.Cast<string>())
+                                if (s == "TrackLaneRing" || s == "BigTrackLaneRing")
                                 {
-                                    if (s == "TrackLaneRing" || s == "BigTrackLaneRing")
+                                    foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s)))
                                     {
-                                        foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s)))
+                                        if (s == "TrackLaneRing" && n.name.Contains("Big"))
                                         {
-                                            if (s == "TrackLaneRing" && n.name.Contains("Big"))
-                                            {
-                                                continue;
-                                            }
+                                            continue;
+                                        }
 
-                                            n.SetActive(false);
-                                        }
+                                        n.SetActive(false);
                                     }
-                                    else
+                                }
+                                else
+                                {
+                                    foreach (GameObject n in gameObjects
+                                        .Where(obj => obj.name.Contains(s) && (obj.scene.name?.Contains("Environment") ?? false) && (!obj.scene.name?.Contains("Menu") ?? false)))
                                     {
-                                        foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s) && obj.scene.name.Contains("Environment") && !obj.scene.name.Contains("Menu")))
-                                        {
-                                            n.SetActive(false);
-                                        }
+                                        n.SetActive(false);
                                     }
                                 }
                             }
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        ChromaLogger.Log(e);
                     }
                 }
 
