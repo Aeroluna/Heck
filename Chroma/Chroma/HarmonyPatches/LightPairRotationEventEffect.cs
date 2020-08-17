@@ -89,13 +89,14 @@
                 // Actual lasering
                 Transform transform = (Transform)_rotationDataType.GetField("transform").GetValue(rotationData);
                 Quaternion startRotation = (Quaternion)_rotationDataType.GetField("startRotation").GetValue(rotationData);
+                float startRotationAngle = (float)_rotationDataType.GetField("startRotationAngle").GetValue(rotationData);
                 Vector3 rotationVector = __instance.GetField<Vector3, LightPairRotationEventEffect>("_rotationVector");
                 if (beatmapEventData.value == 0)
                 {
                     _rotationDataType.GetField("enabled").SetValue(rotationData, false);
                     if (!lockPosition.Value)
                     {
-                        transform.localRotation = startRotation;
+                        transform.localRotation = startRotation * Quaternion.Euler(rotationVector * startRotationAngle);
                     }
                 }
                 else
@@ -104,8 +105,9 @@
                     _rotationDataType.GetField("rotationSpeed").SetValue(rotationData, precisionSpeed * 20f * direction);
                     if (!lockPosition.Value)
                     {
-                        transform.localRotation = startRotation;
-                        transform.Rotate(rotationVector, startRotationOffset, Space.Self);
+                        float rotationAngle = startRotationOffset + startRotationAngle;
+                        _rotationDataType.GetField("rotationAngle").SetValue(rotationData, rotationAngle);
+                        transform.localRotation = startRotation * Quaternion.Euler(rotationVector * rotationAngle);
                     }
                 }
 

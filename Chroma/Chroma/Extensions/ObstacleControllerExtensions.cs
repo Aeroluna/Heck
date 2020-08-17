@@ -92,6 +92,7 @@
 
             internal static OCColorManager CreateOCColorManager(ObstacleController oc)
             {
+                // TODO TODO TODO: FIFX FIXFXIFXIFX FIX
                 if (GetOCColorManager(oc) != null)
                 {
                     return null;
