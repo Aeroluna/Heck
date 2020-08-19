@@ -10,6 +10,42 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{3E8D1134-B4CE-458C-A21F-2016636840FF}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\AnimationDocs.md = Documentation\AnimationDocs.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{47ABF7CC-E146-49EA-8001-9236C121345F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "media", "media", "{78E1F3FF-36CF-4ECF-94D1-4011141FF22C}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\media\ColorAnimateTrack.gif = Documentation\media\ColorAnimateTrack.gif
+		Documentation\media\ColorAssignPath.gif = Documentation\media\ColorAssignPath.gif
+		Documentation\media\DefinitePositionAnimateTrack.gif = Documentation\media\DefinitePositionAnimateTrack.gif
+		Documentation\media\DissolveAnimateTrack.gif = Documentation\media\DissolveAnimateTrack.gif
+		Documentation\media\DissolveArrowAnimateTrack.gif = Documentation\media\DissolveArrowAnimateTrack.gif
+		Documentation\media\DissolveArrowAssignPath.gif = Documentation\media\DissolveArrowAssignPath.gif
+		Documentation\media\DissolveAssignPath.gif = Documentation\media\DissolveAssignPath.gif
+		Documentation\media\LocalRotationAnimateTrack.gif = Documentation\media\LocalRotationAnimateTrack.gif
+		Documentation\media\LocalRotationAssignPath.gif = Documentation\media\LocalRotationAssignPath.gif
+		Documentation\media\PositionAnimateTrack1.gif = Documentation\media\PositionAnimateTrack1.gif
+		Documentation\media\PositionAssignPath.gif = Documentation\media\PositionAssignPath.gif
+		Documentation\media\RotationAnimateTrack.gif = Documentation\media\RotationAnimateTrack.gif
+		Documentation\media\RotationAssignPath.gif = Documentation\media\RotationAssignPath.gif
+		Documentation\media\TimeIsDumb.gif = Documentation\media\TimeIsDumb.gif
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documentationMap", "documentationMap", "{4DDC5B47-1E50-463F-8C15-67CD182B795D}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\examples\documentationMap\cat.ogg = Documentation\examples\documentationMap\cat.ogg
+		Documentation\examples\documentationMap\count.txt = Documentation\examples\documentationMap\count.txt
+		Documentation\examples\documentationMap\demo.js = Documentation\examples\documentationMap\demo.js
+		Documentation\examples\documentationMap\ExpertPlusStandard.dat = Documentation\examples\documentationMap\ExpertPlusStandard.dat
+		Documentation\examples\documentationMap\ExpertStandard.dat = Documentation\examples\documentationMap\ExpertStandard.dat
+		Documentation\examples\documentationMap\Info.dat = Documentation\examples\documentationMap\Info.dat
+		Documentation\examples\documentationMap\README.md = Documentation\examples\documentationMap\README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +59,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3E8D1134-B4CE-458C-A21F-2016636840FF} = {C716C2DD-39D3-4AC0-8B2D-E129E72F4828}
+		{47ABF7CC-E146-49EA-8001-9236C121345F} = {3E8D1134-B4CE-458C-A21F-2016636840FF}
+		{78E1F3FF-36CF-4ECF-94D1-4011141FF22C} = {3E8D1134-B4CE-458C-A21F-2016636840FF}
+		{4DDC5B47-1E50-463F-8C15-67CD182B795D} = {47ABF7CC-E146-49EA-8001-9236C121345F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C9ABA060-E44A-4177-B81E-E3E3784930C2}
