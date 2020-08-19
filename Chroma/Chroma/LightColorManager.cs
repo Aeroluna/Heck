@@ -63,7 +63,7 @@
             {
                 monobehaviour.SetLightingColors(color.Value, color.Value);
             }
-            else if (ChromaGradientController.IsGradientActive(beatmapEventData.type))
+            else if (!ChromaGradientController.IsGradientActive(beatmapEventData.type))
             {
                 monobehaviour.Reset();
             }

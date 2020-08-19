@@ -49,6 +49,8 @@
 
         internal static Color AddGradient(dynamic gradientObject, BeatmapEventType id, float time)
         {
+            CancelGradient(id);
+
             float duration = (float)Trees.at(gradientObject, "_duration");
             Color initcolor = ChromaUtils.GetColorFromData(gradientObject, "_startColor");
             Color endcolor = ChromaUtils.GetColorFromData(gradientObject, "_endColor");
