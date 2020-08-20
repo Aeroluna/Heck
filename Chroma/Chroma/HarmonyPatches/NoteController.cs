@@ -1,43 +1,11 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using Chroma.Utils;
+    using Chroma.Extensions;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using IPA.Utilities;
     using NoodleExtensions.Animation;
     using UnityEngine;
-
-    [ChromaPatch(typeof(NoteController))]
-    [ChromaPatch("Init")]
-    internal static class NoteControllerInit
-    {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static void Prefix(NoteController __instance, NoteData noteData)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
-        {
-            // They said it couldn't be done, they called me a madman
-            if (noteData.noteType == NoteType.Bomb)
-            {
-                Color? c = null;
-
-                if (noteData is CustomNoteData customData)
-                {
-                    dynamic dynData = customData.customData;
-
-                    c = ChromaUtils.GetColorFromData(dynData) ?? c;
-                }
-
-                if (!c.HasValue)
-                {
-                    // I shouldn't hard code this... but i can't be bothered to not atm
-                    c = new Color(0.2509804f, 0.2509804f, 0.2509804f, 0);
-                }
-
-                Material mat = __instance.noteTransform.gameObject.GetComponent<Renderer>().material;
-                mat.SetColor("_SimpleColor", c.Value);
-            }
-        }
-    }
 
     [ChromaPatch(typeof(NoteController))]
     [ChromaPatch("Update")]
@@ -82,32 +50,14 @@
 
                     if (colorOffset.HasValue)
                     {
-                        if (noteData.noteType == NoteType.Bomb)
+                        if (instance is BombNoteController bnc)
                         {
-                            Material mat = instance.noteTransform.gameObject.GetComponent<Renderer>().material;
-                            mat.SetColor("_SimpleColor", colorOffset.Value);
+                            bnc.SetBombColor(colorOffset.Value);
                         }
                         else
                         {
-                            ColorNoteVisuals colorNoteVisuals = Trees.at(dynData, "colorNoteVisuals");
-                            if (colorNoteVisuals == null)
-                            {
-                                colorNoteVisuals = instance.gameObject.GetComponent<ColorNoteVisuals>();
-                                dynData.colorNoteVisuals = colorNoteVisuals;
-                            }
-
-                            Color noteColor = colorOffset.Value;
-
-                            SpriteRenderer arrowGlowSpriteRenderer = _arrowGlowSpriteRendererAccessor(ref colorNoteVisuals);
-                            SpriteRenderer circleGlowSpriteRenderer = _circleGlowSpriteRendererAccessor(ref colorNoteVisuals);
-                            arrowGlowSpriteRenderer.color = noteColor.ColorWithAlpha(arrowGlowSpriteRenderer.color.a);
-                            circleGlowSpriteRenderer.color = noteColor.ColorWithAlpha(circleGlowSpriteRenderer.color.a);
-                            MaterialPropertyBlockController[] materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref colorNoteVisuals);
-                            foreach (MaterialPropertyBlockController materialPropertyBlockController in materialPropertyBlockControllers)
-                            {
-                                materialPropertyBlockController.materialPropertyBlock.SetColor(_colorID, noteColor);
-                                materialPropertyBlockController.ApplyChanges();
-                            }
+                            instance.SetNoteColors(colorOffset.Value, colorOffset.Value);
+                            instance.SetActiveColors();
                         }
                     }
                 }

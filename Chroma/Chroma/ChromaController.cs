@@ -5,12 +5,14 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Chroma.Extensions;
     using Chroma.Settings;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
     using IPA.Utilities;
     using UnityEngine;
+    using UnityEngine.SceneManagement;
     using static Chroma.Plugin;
 
     internal static class ChromaController
@@ -168,17 +170,26 @@
                     }
                 }
 
-                Extensions.SaberColorizer.InitializeSabers(Resources.FindObjectsOfTypeAll<Saber>());
+                SaberColorizer.InitializeSabers(Resources.FindObjectsOfTypeAll<Saber>());
 
                 // please let me kill legacy
                 LegacyLightHelper.Activate(beatmapData.beatmapEventData);
             }
+        }
 
-            Extensions.ObstacleControllerExtensions.ClearOCColorManagers();
-            Extensions.SaberColorizer.CurrentAColor = null;
-            Extensions.SaberColorizer.CurrentBColor = null;
-
-            ChromaGradientController.Clear();
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
+        internal static void OnActiveSceneChanged(Scene current, Scene _)
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
+        {
+            if (current.name == "GameCore")
+            {
+                LightColorizer.ClearLSEColorManagers();
+                ObstacleColorizer.ClearOCColorManagers();
+                BombColorizer.ClearBNCColorManagers();
+                NoteColorizer.ClearCNVColorManagers();
+                SaberColorizer.CurrentAColor = null;
+                SaberColorizer.CurrentBColor = null;
+            }
         }
     }
 }

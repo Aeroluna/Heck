@@ -37,7 +37,10 @@
   <ItemGroup>
     <Compile Include="AnimationHelper.cs" />
     <Compile Include="ChromaPatch.cs" />
-    <Compile Include="Extensions\ObstacleControllerExtensions.cs" />
+    <Compile Include="Extensions\BombColorizer.cs" />
+    <Compile Include="Extensions\NoteColorizer.cs" />
+    <Compile Include="Extensions\ObstacleColorizer.cs" />
+    <Compile Include="HarmonyPatches\BombNoteController.cs" />
     <Compile Include="LegacyLightHelper.cs" />
     <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />
@@ -47,7 +50,7 @@
     <Compile Include="Utils\Easings.cs" />
     <Compile Include="ChromaGradientController.cs" />
     <Compile Include="ChromaController.cs" />
-    <Compile Include="Extensions\LightSwitchEventEffectExtensions.cs" />
+    <Compile Include="Extensions\LightColorizer.cs" />
     <Compile Include="Extensions\SaberColorizer.cs" />
     <Compile Include="HarmonyPatches\ColorNoteVisuals.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />

@@ -20,19 +20,7 @@
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             yield return new WaitForEndOfFrame();
-            LightSwitchEventEffectExtensions.LSEStart(__instance, ____event);
-        }
-    }
-
-    [ChromaPatch(typeof(LightSwitchEventEffect))]
-    [ChromaPatch("OnDestroy")]
-    internal static class LightSwitchEventEffectOnDestroy
-    {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static void Postfix(LightSwitchEventEffect __instance)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
-        {
-            LightSwitchEventEffectExtensions.LSEDestroy(__instance);
+            LightColorizer.LSEStart(__instance, ____event);
         }
     }
 

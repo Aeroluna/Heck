@@ -15,7 +15,7 @@
         private static void Prefix(ObstacleController __instance, ObstacleData obstacleData)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            ObstacleControllerExtensions.OCStart(__instance);
+            ObstacleColorizer.OCStart(__instance);
 
             if (obstacleData is CustomObstacleData customData)
             {

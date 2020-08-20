@@ -8,6 +8,7 @@
     using IPA;
     using IPA.Config;
     using IPA.Config.Stores;
+    using UnityEngine.SceneManagement;
     using IPALogger = IPA.Logging.Logger;
 
     [Plugin(RuntimeOptions.DynamicInit)]
@@ -56,6 +57,8 @@
             {
                 NoodleExtensionsActive = false;
             }
+
+            SceneManager.activeSceneChanged += ChromaController.OnActiveSceneChanged;
         }
 
         [OnDisable]

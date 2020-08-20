@@ -7,20 +7,22 @@
 
     internal static class NoteColorManager
     {
-        internal static Color? NoteColorOverride { get; private set; }
+        internal static Color?[] NoteColorOverride { get; private set; } = new Color?[2] { null, null };
 
         internal static void EnableNoteColorOverride(NoteController noteController)
         {
             if (noteController.noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                NoteColorOverride = Trees.at(dynData, "color");
+                NoteColorOverride[0] = Trees.at(dynData, "color0");
+                NoteColorOverride[1] = Trees.at(dynData, "color1");
             }
         }
 
         internal static void DisableNoteColorOverride()
         {
-            NoteColorOverride = null;
+            NoteColorOverride[0] = null;
+            NoteColorOverride[1] = null;
         }
 
         internal static void ColorizeSaber(INoteController noteController, NoteCutInfo noteCutInfo)
@@ -29,7 +31,7 @@
             if ((int)noteData.noteType == (int)noteCutInfo.saberType && noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                Color? color = Trees.at(dynData, "color");
+                Color? color = Trees.at(dynData, "color" + (int)noteData.noteType);
 
                 if (color.HasValue)
                 {

@@ -36,17 +36,6 @@
             Instance.Gradients.Remove(eventType);
         }
 
-        internal static void Clear()
-        {
-            if (_instance != null)
-            {
-                _instance.Gradients.Clear();
-                Destroy(_instance.gameObject);
-            }
-
-            _instance = null;
-        }
-
         internal static Color AddGradient(dynamic gradientObject, BeatmapEventType id, float time)
         {
             CancelGradient(id);

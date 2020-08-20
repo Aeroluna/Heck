@@ -5,7 +5,7 @@
     using IPA.Utilities;
     using UnityEngine;
 
-    internal static class ObstacleControllerExtensions
+    internal static class ObstacleColorizer
     {
         private static readonly HashSet<OCColorManager> _ocColorManagers = new HashSet<OCColorManager>();
 
@@ -54,11 +54,6 @@
             OCColorManager.CreateOCColorManager(oc);
         }
 
-        internal static void OCDestroy(ObstacleController oc)
-        {
-            OCColorManager.GetOCColorManager(oc)?.OCDestroyed();
-        }
-
         private class OCColorManager
         {
             private static readonly FieldAccessor<ObstacleController, StretchableObstacle>.Accessor _stretchableObstacleAccessor = FieldAccessor<ObstacleController, StretchableObstacle>.GetAccessor("_stretchableObstacle");
@@ -82,7 +77,16 @@
             {
                 _oc = oc;
                 _stretchableObstacle = _stretchableObstacleAccessor(ref _oc);
-                InitializeSOs(oc, "_color", ref _color, ref _color_Original);
+
+                _color_Original = oc.GetField<SimpleColorSO, ObstacleController>("_color").color;
+
+                if (_color == null)
+                {
+                    _color = ScriptableObject.CreateInstance<SimpleColorSO>();
+                    _color.SetColor(_color_Original);
+                }
+
+                oc.SetField("_color", _color);
             }
 
             internal static OCColorManager GetOCColorManager(ObstacleController oc)
@@ -92,7 +96,6 @@
 
             internal static OCColorManager CreateOCColorManager(ObstacleController oc)
             {
-                // TODO TODO TODO: FIFX FIXFXIFXIFX FIX
                 if (GetOCColorManager(oc) != null)
                 {
                     return null;
@@ -102,11 +105,6 @@
                 occm = new OCColorManager(oc);
                 _ocColorManagers.Add(occm);
                 return occm;
-            }
-
-            internal void OCDestroyed()
-            {
-                _ocColorManagers.Remove(this);
             }
 
             internal void Reset()
@@ -141,19 +139,6 @@
                     materialPropertyBlockController.materialPropertyBlock.SetColor(_tintColorID, Color.Lerp(finalColor, Color.white, obstacleCoreLerpToWhiteFactor));
                     materialPropertyBlockController.ApplyChanges();
                 }
-            }
-
-            private void InitializeSOs(ObstacleController oc, string id, ref SimpleColorSO sColorSO, ref Color originalColor)
-            {
-                originalColor = oc.GetField<SimpleColorSO, ObstacleController>(id).color;
-
-                if (sColorSO == null)
-                {
-                    sColorSO = ScriptableObject.CreateInstance<SimpleColorSO>();
-                    sColorSO.SetColor(originalColor);
-                }
-
-                oc.SetField(id, sColorSO);
             }
         }
     }

@@ -5,9 +5,14 @@
     using IPA.Utilities;
     using UnityEngine;
 
-    internal static class LightSwitchEventEffectExtensions
+    internal static class LightColorizer
     {
         private static readonly HashSet<LSEColorManager> _lseColorManagers = new HashSet<LSEColorManager>();
+
+        internal static void ClearLSEColorManagers()
+        {
+            _lseColorManagers.Clear();
+        }
 
         internal static void Reset(this MonoBehaviour lse)
         {
@@ -22,24 +27,24 @@
             }
         }
 
-        internal static void SetLightingColors(this MonoBehaviour lse, Color? colorA, Color? colorB)
+        internal static void SetLightingColors(this MonoBehaviour lse, Color? color0, Color? color1)
         {
-            LSEColorManager.GetLSEColorManager(lse)?.SetLightingColors(colorA, colorB);
+            LSEColorManager.GetLSEColorManager(lse)?.SetLightingColors(color0, color1);
         }
 
-        internal static void SetLightingColors(this BeatmapEventType lse, Color? colorA, Color? colorB)
+        internal static void SetLightingColors(this BeatmapEventType lse, Color? color0, Color? color1)
         {
             foreach (LSEColorManager l in LSEColorManager.GetLSEColorManager(lse))
             {
-                l.SetLightingColors(colorA, colorB);
+                l.SetLightingColors(color0, color1);
             }
         }
 
-        internal static void SetAllLightingColors(Color? colorA, Color? colorB)
+        internal static void SetAllLightingColors(Color? color0, Color? color1)
         {
             foreach (LSEColorManager lseColorManager in _lseColorManagers)
             {
-                lseColorManager.SetLightingColors(colorA, colorB);
+                lseColorManager.SetLightingColors(color0, color1);
             }
         }
 
@@ -83,30 +88,30 @@
             LSEColorManager.CreateLSEColorManager(lse, type);
         }
 
-        internal static void LSEDestroy(MonoBehaviour lse)
-        {
-            LSEColorManager.GetLSEColorManager(lse)?.LSEDestroyed();
-        }
-
         private class LSEColorManager
         {
             private readonly MonoBehaviour _lse;
             private readonly BeatmapEventType _type;
 
             private readonly Color _lightColor0_Original;
-            private readonly Color _highlightColor0_Original;
             private readonly Color _lightColor1_Original;
-            private readonly Color _highlightColor1_Original;
+            private readonly Color _lightColor0Boost_Original;
+            private readonly Color _lightColor1Boost_Original;
 
             private readonly SimpleColorSO _lightColor0;
-            private readonly SimpleColorSO _highlightColor0;
             private readonly SimpleColorSO _lightColor1;
-            private readonly SimpleColorSO _highlightColor1;
+            private readonly SimpleColorSO _lightColor0Boost;
+            private readonly SimpleColorSO _lightColor1Boost;
 
             private readonly MultipliedColorSO _mLightColor0;
             private readonly MultipliedColorSO _mHighlightColor0;
             private readonly MultipliedColorSO _mLightColor1;
             private readonly MultipliedColorSO _mHighlightColor1;
+
+            private readonly MultipliedColorSO _mLightColor0Boost;
+            private readonly MultipliedColorSO _mHighlightColor0Boost;
+            private readonly MultipliedColorSO _mLightColor1Boost;
+            private readonly MultipliedColorSO _mHighlightColor1Boost;
 
             private float _lastValue;
 
@@ -115,9 +120,14 @@
                 _lse = mono;
                 _type = type;
                 InitializeSOs(mono, "_lightColor0", ref _lightColor0, ref _lightColor0_Original, ref _mLightColor0);
-                InitializeSOs(mono, "_highlightColor0", ref _highlightColor0, ref _highlightColor0_Original, ref _mHighlightColor0);
+                InitializeSOs(mono, "_highlightColor0", ref _lightColor0, ref _lightColor0_Original, ref _mHighlightColor0);
                 InitializeSOs(mono, "_lightColor1", ref _lightColor1, ref _lightColor1_Original, ref _mLightColor1);
-                InitializeSOs(mono, "_highlightColor1", ref _highlightColor1, ref _highlightColor1_Original, ref _mHighlightColor1);
+                InitializeSOs(mono, "_highlightColor1", ref _lightColor1, ref _lightColor1_Original, ref _mHighlightColor1);
+
+                InitializeSOs(mono, "_lightColor0Boost", ref _lightColor0Boost, ref _lightColor0Boost_Original, ref _mLightColor0Boost);
+                InitializeSOs(mono, "_highlightColor0Boost", ref _lightColor0Boost, ref _lightColor0Boost_Original, ref _mHighlightColor0Boost);
+                InitializeSOs(mono, "_lightColor1Boost", ref _lightColor1Boost, ref _lightColor1Boost_Original, ref _mLightColor1Boost);
+                InitializeSOs(mono, "_highlightColor1Boost", ref _lightColor1Boost, ref _lightColor1Boost_Original, ref _mHighlightColor1Boost);
 
                 if (mono is LightSwitchEventEffect lse)
                 {
@@ -174,31 +184,34 @@
                 return lsecm;
             }
 
-            internal void LSEDestroyed()
-            {
-                _lseColorManagers.Remove(this);
-            }
-
             internal void Reset()
             {
                 _lightColor0.SetColor(_lightColor0_Original);
-                _highlightColor0.SetColor(_highlightColor0_Original);
                 _lightColor1.SetColor(_lightColor1_Original);
-                _highlightColor1.SetColor(_highlightColor1_Original);
+                _lightColor0Boost.SetColor(_lightColor0Boost_Original);
+                _lightColor1Boost.SetColor(_lightColor1Boost_Original);
             }
 
-            internal void SetLightingColors(Color? colorA, Color? colorB)
+            internal void SetLightingColors(Color? color0, Color? color1, Color? color0Boost = null, Color? color1Boost = null)
             {
-                if (colorA.HasValue)
+                if (color0.HasValue)
                 {
-                    _lightColor0.SetColor(colorA.Value);
-                    _highlightColor0.SetColor(colorA.Value);
+                    _lightColor0.SetColor(color0.Value);
                 }
 
-                if (colorB.HasValue)
+                if (color1.HasValue)
                 {
-                    _lightColor1.SetColor(colorB.Value);
-                    _highlightColor1.SetColor(colorB.Value);
+                    _lightColor1.SetColor(color1.Value);
+                }
+
+                if (color0Boost.HasValue)
+                {
+                    _lightColor0Boost.SetColor(color0Boost.Value);
+                }
+
+                if (color1Boost.HasValue)
+                {
+                    _lightColor1Boost.SetColor(color1Boost.Value);
                 }
             }
 
@@ -209,6 +222,7 @@
 
             internal void SetActiveColors()
             {
+                // Replace with ProcessLightSwitchEvent
                 if (_lastValue == 0)
                 {
                     return;
@@ -308,7 +322,6 @@
                 }
             }
 
-            // We still need to do the first half of this even if the LSECM already exists as custom map colors exist and we need to be able to know the default color
             private void InitializeSOs(MonoBehaviour lse, string id, ref SimpleColorSO sColorSO, ref Color originalColor, ref MultipliedColorSO mColorSO)
             {
                 MultipliedColorSO lightMultSO = null;
@@ -330,8 +343,12 @@
                     mColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
                     mColorSO.SetField("_multiplierColor", multiplierColor);
 
-                    sColorSO = ScriptableObject.CreateInstance<SimpleColorSO>();
-                    sColorSO.SetColor(originalColor);
+                    if (sColorSO == null)
+                    {
+                        sColorSO = ScriptableObject.CreateInstance<SimpleColorSO>();
+                        sColorSO.SetColor(originalColor);
+                    }
+
                     mColorSO.SetField("_baseColor", sColorSO);
                 }
 

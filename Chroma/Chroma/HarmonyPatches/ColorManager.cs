@@ -7,10 +7,10 @@
     internal static class ColorManagerColorForNoteType
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static bool Prefix(ref Color __result)
+        private static bool Prefix(ref Color __result, NoteType type)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            Color? color = NoteColorManager.NoteColorOverride;
+            Color? color = NoteColorManager.NoteColorOverride[(int)type];
             if (color.HasValue)
             {
                 __result = color.Value;
