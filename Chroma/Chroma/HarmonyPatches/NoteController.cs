@@ -1,6 +1,6 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using Chroma.Extensions;
+    using Chroma.Colorizer;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using IPA.Utilities;

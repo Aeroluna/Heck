@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using Chroma.Extensions;
+    using Chroma.Colorizer;
     using Chroma.Utils;
     using CustomJSONData;
     using UnityEngine;

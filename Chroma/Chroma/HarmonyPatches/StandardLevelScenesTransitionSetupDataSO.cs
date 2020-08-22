@@ -27,11 +27,11 @@
                 if (legacyOverride)
                 {
                     ChromaLogger.Log("Legacy Chroma Detected...", IPA.Logging.Logger.Level.Warning);
-                    ChromaLogger.Log("Chroma has been forcibly activated", IPA.Logging.Logger.Level.Warning);
                     ChromaLogger.Log("Please do not use Legacy Chroma for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", IPA.Logging.Logger.Level.Warning);
                 }
 
                 ChromaController.ToggleChromaPatches((chromaRequirement || legacyOverride) && ChromaConfig.Instance.CustomColorEventsEnabled);
+                ChromaController.DoColorizerSabers = chromaRequirement && ChromaConfig.Instance.CustomColorEventsEnabled;
 
                 if (chromaRequirement && ChromaConfig.Instance.EnvironmentEnhancementsEnabled && Trees.at(customBeatmapData.beatmapCustomData, "_environmentRemoval") != null)
                 {

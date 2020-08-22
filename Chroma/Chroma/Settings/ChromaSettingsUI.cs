@@ -1,7 +1,6 @@
 ﻿namespace Chroma.Settings
 {
     using BeatSaberMarkupLanguage.Attributes;
-    using Chroma.Utils;
 
     internal class ChromaSettingsUI : PersistentSingleton<ChromaSettingsUI>
     {
@@ -17,14 +16,9 @@
         public bool CustomColorEventsEnabled
         {
             get => !ChromaConfig.Instance.CustomColorEventsEnabled;
-            set
-            {
-                ChromaConfig.Instance.CustomColorEventsEnabled = !value;
-                ChromaUtils.SetSongCoreCapability(Plugin.REQUIREMENTNAME, !value);
-            }
+            set => ChromaConfig.Instance.CustomColorEventsEnabled = !value;
         }
 
-        // Lightshow
         [UIValue("platform")]
         public bool EnvironmentEnhancementsEnabled
         {
@@ -32,6 +26,7 @@
             set => ChromaConfig.Instance.EnvironmentEnhancementsEnabled = !value;
         }
 
+        // Lightshow
         [UIValue("playersplace")]
         public bool PlayersPlace
         {

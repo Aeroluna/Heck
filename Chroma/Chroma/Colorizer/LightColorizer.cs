@@ -1,25 +1,20 @@
-﻿namespace Chroma.Extensions
+﻿namespace Chroma.Colorizer
 {
     using System.Collections.Generic;
     using System.Linq;
     using IPA.Utilities;
     using UnityEngine;
 
-    internal static class LightColorizer
+    public static class LightColorizer
     {
         private static readonly HashSet<LSEColorManager> _lseColorManagers = new HashSet<LSEColorManager>();
 
-        internal static void ClearLSEColorManagers()
-        {
-            _lseColorManagers.Clear();
-        }
-
-        internal static void Reset(this MonoBehaviour lse)
+        public static void Reset(this MonoBehaviour lse)
         {
             LSEColorManager.GetLSEColorManager(lse)?.Reset();
         }
 
-        internal static void ResetAllLightingColors()
+        public static void ResetAllLightingColors()
         {
             foreach (LSEColorManager lseColorManager in _lseColorManagers)
             {
@@ -27,12 +22,12 @@
             }
         }
 
-        internal static void SetLightingColors(this MonoBehaviour lse, Color? color0, Color? color1)
+        public static void SetLightingColors(this MonoBehaviour lse, Color? color0, Color? color1)
         {
             LSEColorManager.GetLSEColorManager(lse)?.SetLightingColors(color0, color1);
         }
 
-        internal static void SetLightingColors(this BeatmapEventType lse, Color? color0, Color? color1)
+        public static void SetLightingColors(this BeatmapEventType lse, Color? color0, Color? color1)
         {
             foreach (LSEColorManager l in LSEColorManager.GetLSEColorManager(lse))
             {
@@ -40,7 +35,7 @@
             }
         }
 
-        internal static void SetAllLightingColors(Color? color0, Color? color1)
+        public static void SetAllLightingColors(Color? color0, Color? color1)
         {
             foreach (LSEColorManager lseColorManager in _lseColorManagers)
             {
@@ -48,7 +43,7 @@
             }
         }
 
-        internal static void SetActiveColors(this BeatmapEventType lse)
+        public static void SetActiveColors(this BeatmapEventType lse)
         {
             foreach (LSEColorManager l in LSEColorManager.GetLSEColorManager(lse))
             {
@@ -56,12 +51,17 @@
             }
         }
 
-        internal static void SetAllActiveColors()
+        public static void SetAllActiveColors()
         {
             foreach (LSEColorManager lseColorManager in _lseColorManagers)
             {
                 lseColorManager.SetActiveColors();
             }
+        }
+
+        internal static void ClearLSEColorManagers()
+        {
+            _lseColorManagers.Clear();
         }
 
         internal static void SetLastValue(this MonoBehaviour lse, int value)
@@ -113,6 +113,8 @@
             private readonly MultipliedColorSO _mLightColor1Boost;
             private readonly MultipliedColorSO _mHighlightColor1Boost;
 
+            private readonly bool _supportBoostColor;
+
             private float _lastValue;
 
             private LSEColorManager(MonoBehaviour mono, BeatmapEventType type)
@@ -124,13 +126,14 @@
                 InitializeSOs(mono, "_lightColor1", ref _lightColor1, ref _lightColor1_Original, ref _mLightColor1);
                 InitializeSOs(mono, "_highlightColor1", ref _lightColor1, ref _lightColor1_Original, ref _mHighlightColor1);
 
-                InitializeSOs(mono, "_lightColor0Boost", ref _lightColor0Boost, ref _lightColor0Boost_Original, ref _mLightColor0Boost);
-                InitializeSOs(mono, "_highlightColor0Boost", ref _lightColor0Boost, ref _lightColor0Boost_Original, ref _mHighlightColor0Boost);
-                InitializeSOs(mono, "_lightColor1Boost", ref _lightColor1Boost, ref _lightColor1Boost_Original, ref _mLightColor1Boost);
-                InitializeSOs(mono, "_highlightColor1Boost", ref _lightColor1Boost, ref _lightColor1Boost_Original, ref _mHighlightColor1Boost);
-
                 if (mono is LightSwitchEventEffect lse)
                 {
+                    InitializeSOs(mono, "_lightColor0Boost", ref _lightColor0Boost, ref _lightColor0Boost_Original, ref _mLightColor0Boost);
+                    InitializeSOs(mono, "_highlightColor0Boost", ref _lightColor0Boost, ref _lightColor0Boost_Original, ref _mHighlightColor0Boost);
+                    InitializeSOs(mono, "_lightColor1Boost", ref _lightColor1Boost, ref _lightColor1Boost_Original, ref _mLightColor1Boost);
+                    InitializeSOs(mono, "_highlightColor1Boost", ref _lightColor1Boost, ref _lightColor1Boost_Original, ref _mHighlightColor1Boost);
+                    _supportBoostColor = true;
+
                     Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<LightWithId>[], LightWithIdManager>("_lights")[lse.LightsID];
                     IDictionary<int, List<LightWithId>> lightsPreGroup = new Dictionary<int, List<LightWithId>>();
                     foreach (LightWithId light in Lights)
@@ -188,8 +191,11 @@
             {
                 _lightColor0.SetColor(_lightColor0_Original);
                 _lightColor1.SetColor(_lightColor1_Original);
-                _lightColor0Boost.SetColor(_lightColor0Boost_Original);
-                _lightColor1Boost.SetColor(_lightColor1Boost_Original);
+                if (_supportBoostColor)
+                {
+                    _lightColor0Boost.SetColor(_lightColor0Boost_Original);
+                    _lightColor1Boost.SetColor(_lightColor1Boost_Original);
+                }
             }
 
             internal void SetLightingColors(Color? color0, Color? color1, Color? color0Boost = null, Color? color1Boost = null)
@@ -204,14 +210,17 @@
                     _lightColor1.SetColor(color1.Value);
                 }
 
-                if (color0Boost.HasValue)
+                if (_supportBoostColor)
                 {
-                    _lightColor0Boost.SetColor(color0Boost.Value);
-                }
+                    if (color0Boost.HasValue)
+                    {
+                        _lightColor0Boost.SetColor(color0Boost.Value);
+                    }
 
-                if (color1Boost.HasValue)
-                {
-                    _lightColor1Boost.SetColor(color1Boost.Value);
+                    if (color1Boost.HasValue)
+                    {
+                        _lightColor1Boost.SetColor(color1Boost.Value);
+                    }
                 }
             }
 

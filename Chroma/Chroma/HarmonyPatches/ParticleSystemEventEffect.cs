@@ -1,11 +1,12 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using System.Collections;
-    using Chroma.Extensions;
+    using Chroma.Colorizer;
+    using HarmonyLib;
     using UnityEngine;
 
-    [ChromaPatch(typeof(ParticleSystemEventEffect))]
-    [ChromaPatch("Start")]
+    [HarmonyPatch(typeof(ParticleSystemEventEffect))]
+    [HarmonyPatch("Start")]
     internal static class ParticleSystemEventEffectStart
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
@@ -15,12 +16,10 @@
             __instance.StartCoroutine(WaitThenStart(__instance, ____colorEvent));
         }
 
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static IEnumerator WaitThenStart(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
+        private static IEnumerator WaitThenStart(ParticleSystemEventEffect instance, BeatmapEventType eventType)
         {
             yield return new WaitForEndOfFrame();
-            LightColorizer.LSEStart(__instance, ____colorEvent);
+            LightColorizer.LSEStart(instance, eventType);
         }
     }
 

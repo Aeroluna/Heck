@@ -1,17 +1,21 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    [ChromaPatch(typeof(NoteCutEffectSpawner))]
-    [ChromaPatch("SpawnNoteCutEffect")]
+    using Chroma.Colorizer;
+    using HarmonyLib;
+
+    [HarmonyPatch(typeof(NoteCutEffectSpawner))]
+    [HarmonyPatch("SpawnNoteCutEffect")]
     internal static class NoteCutEffectSpawnerSpawnNoteCutEffect
     {
+        [HarmonyPriority(Priority.Low)]
         private static void Prefix(NoteController noteController)
         {
-            NoteColorManager.EnableNoteColorOverride(noteController);
+            NoteColorizer.EnableNoteColorOverride(noteController);
         }
 
         private static void Postfix()
         {
-            NoteColorManager.DisableNoteColorOverride();
+            NoteColorizer.DisableNoteColorOverride();
         }
     }
 }

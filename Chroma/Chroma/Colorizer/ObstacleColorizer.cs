@@ -1,48 +1,61 @@
-﻿namespace Chroma.Extensions
+﻿namespace Chroma.Colorizer
 {
     using System.Collections.Generic;
     using System.Linq;
     using IPA.Utilities;
     using UnityEngine;
 
-    internal static class ObstacleColorizer
+    public static class ObstacleColorizer
     {
         private static readonly HashSet<OCColorManager> _ocColorManagers = new HashSet<OCColorManager>();
 
-        internal static void ClearOCColorManagers()
-        {
-            _ocColorManagers.Clear();
-        }
-
-        internal static void Reset(this ObstacleController oc)
+        public static void Reset(this ObstacleController oc)
         {
             OCColorManager.GetOCColorManager(oc)?.Reset();
         }
 
-        internal static void ResetAllObstacleColors()
+        public static void ResetAllObstacleColors()
         {
+            OCColorManager.ResetGlobal();
+
             foreach (OCColorManager ocColorManager in _ocColorManagers)
             {
                 ocColorManager.Reset();
             }
         }
 
-        internal static void SetObstacleColor(this ObstacleController oc, Color? color)
+        public static void SetObstacleColor(this ObstacleController oc, Color? color)
         {
             OCColorManager.GetOCColorManager(oc)?.SetObstacleColor(color);
         }
 
-        internal static void SetActiveColors(this ObstacleController oc)
+        public static void SetAllObstacleColors(Color? color)
+        {
+            OCColorManager.SetGlobalObstacleColor(color);
+
+            foreach (OCColorManager ocColorManager in _ocColorManagers)
+            {
+                ocColorManager.Reset();
+            }
+        }
+
+        public static void SetActiveColors(this ObstacleController oc)
         {
             OCColorManager.GetOCColorManager(oc).SetActiveColors();
         }
 
-        internal static void SetAllActiveColors()
+        public static void SetAllActiveColors()
         {
             foreach (OCColorManager ocColorManager in _ocColorManagers)
             {
                 ocColorManager.SetActiveColors();
             }
+        }
+
+        internal static void ClearOCColorManagers()
+        {
+            ResetAllObstacleColors();
+            _ocColorManagers.Clear();
         }
 
         /*
@@ -64,6 +77,8 @@
             private static readonly FieldAccessor<StretchableObstacle, MaterialPropertyBlockController[]>.Accessor _materialPropertyBlockControllersAccessor = FieldAccessor<StretchableObstacle, MaterialPropertyBlockController[]>.GetAccessor("_materialPropertyBlockControllers");
             private static readonly int _tintColorID = Shader.PropertyToID("_TintColor");
             private static readonly int _addColorID = Shader.PropertyToID("_AddColor");
+
+            private static Color? _globalColor = null;
 
             private readonly ObstacleController _oc;
 
@@ -107,9 +122,29 @@
                 return occm;
             }
 
+            internal static void SetGlobalObstacleColor(Color? color)
+            {
+                if (color.HasValue)
+                {
+                    _globalColor = color.Value;
+                }
+            }
+
+            internal static void ResetGlobal()
+            {
+                _globalColor = null;
+            }
+
             internal void Reset()
             {
-                _color.SetColor(_color_Original);
+                if (_globalColor.HasValue)
+                {
+                    _color.SetColor(_globalColor.Value);
+                }
+                else
+                {
+                    _color.SetColor(_color_Original);
+                }
             }
 
             internal void SetObstacleColor(Color? color)

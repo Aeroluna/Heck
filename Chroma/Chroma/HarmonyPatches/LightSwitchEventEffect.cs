@@ -1,11 +1,12 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using System.Collections;
-    using Chroma.Extensions;
+    using Chroma.Colorizer;
+    using HarmonyLib;
     using UnityEngine;
 
-    [ChromaPatch(typeof(LightSwitchEventEffect))]
-    [ChromaPatch("Start")]
+    [HarmonyPatch(typeof(LightSwitchEventEffect))]
+    [HarmonyPatch("Start")]
     internal static class LightSwitchEventEffectStart
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
@@ -15,12 +16,10 @@
             __instance.StartCoroutine(WaitThenStart(__instance, ____event));
         }
 
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static IEnumerator WaitThenStart(LightSwitchEventEffect __instance, BeatmapEventType ____event)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
+        private static IEnumerator WaitThenStart(LightSwitchEventEffect instance, BeatmapEventType eventType)
         {
             yield return new WaitForEndOfFrame();
-            LightColorizer.LSEStart(__instance, ____event);
+            LightColorizer.LSEStart(instance, eventType);
         }
     }
 

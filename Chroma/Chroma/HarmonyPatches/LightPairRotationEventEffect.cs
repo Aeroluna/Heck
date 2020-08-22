@@ -97,6 +97,7 @@
                     _rotationDataType.GetField("enabled").SetValue(rotationData, false);
                     if (!lockPosition.Value)
                     {
+                        _rotationDataType.GetField("rotationAngle").SetValue(rotationData, startRotationAngle);
                         transform.localRotation = startRotation * Quaternion.Euler(rotationVector * startRotationAngle);
                     }
                 }

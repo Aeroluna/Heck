@@ -1,11 +1,25 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using Chroma.Extensions;
+    using Chroma.Colorizer;
     using Chroma.Utils;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
     using NoodleExtensions.Animation;
     using UnityEngine;
+
+    [HarmonyPatch(typeof(ObstacleController))]
+    [HarmonyPatch("Init")]
+    internal static class ObstacleControllerInitColorizer
+    {
+        [HarmonyPriority(Priority.High)]
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
+        private static void Prefix(ObstacleController __instance)
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
+        {
+            ObstacleColorizer.OCStart(__instance);
+        }
+    }
 
     [ChromaPatch(typeof(ObstacleController))]
     [ChromaPatch("Init")]
@@ -15,8 +29,6 @@
         private static void Prefix(ObstacleController __instance, ObstacleData obstacleData)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            ObstacleColorizer.OCStart(__instance);
-
             if (obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;

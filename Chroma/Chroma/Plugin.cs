@@ -34,7 +34,6 @@
         [OnEnable]
         public void OnEnable()
         {
-            // Harmony patches
             _harmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
 
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
@@ -43,7 +42,7 @@
                 GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", ChromaSettingsUI.instance);
             }
 
-            ChromaUtils.SetSongCoreCapability("Chroma");
+            SceneManager.activeSceneChanged += ChromaController.OnActiveSceneChanged;
 
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");
@@ -57,18 +56,19 @@
             {
                 NoodleExtensionsActive = false;
             }
-
-            SceneManager.activeSceneChanged += ChromaController.OnActiveSceneChanged;
         }
 
         [OnDisable]
         public void OnDisable()
         {
-            // Harmony patches
             _harmonyInstanceCore.UnpatchAll(HARMONYID);
 
             GameplaySetup.instance.RemoveTab("Chroma");
             GameplaySetup.instance.RemoveTab("Lightshow Modifiers");
+
+            ChromaUtils.SetSongCoreCapability(REQUIREMENTNAME, false);
+
+            SceneManager.activeSceneChanged -= ChromaController.OnActiveSceneChanged;
 
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", false);

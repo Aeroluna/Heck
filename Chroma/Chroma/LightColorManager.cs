@@ -1,6 +1,6 @@
 ﻿namespace Chroma
 {
-    using Chroma.Extensions;
+    using Chroma.Colorizer;
     using Chroma.Utils;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;

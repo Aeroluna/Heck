@@ -5,7 +5,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Chroma.Extensions;
+    using Chroma.Colorizer;
     using Chroma.Settings;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
@@ -15,9 +15,13 @@
     using UnityEngine.SceneManagement;
     using static Chroma.Plugin;
 
-    internal static class ChromaController
+    public static class ChromaController
     {
         private static List<ChromaPatchData> _chromaPatches;
+
+        public static bool ChromaIsActive { get; private set; }
+
+        public static bool DoColorizerSabers { get; set; }
 
         internal static float SongBPM { get; private set; }
 
@@ -27,6 +31,8 @@
 
         public static void ToggleChromaPatches(bool value)
         {
+            ChromaIsActive = value;
+
             if (value)
             {
                 if (!Harmony.HasAnyPatches(HARMONYID))
@@ -93,8 +99,8 @@
             BeatmapObjectCallbackController coreSetup = Resources.FindObjectsOfTypeAll<BeatmapObjectCallbackController>().First();
             BeatmapData beatmapData = coreSetup.GetField<BeatmapData, BeatmapObjectCallbackController>("_beatmapData");
 
-            BeatmapObjectManager.noteWasCutEvent -= NoteColorManager.ColorizeSaber;
-            BeatmapObjectManager.noteWasCutEvent += NoteColorManager.ColorizeSaber;
+            BeatmapObjectManager.noteWasCutEvent -= NoteColorizer.ColorizeSaber;
+            BeatmapObjectManager.noteWasCutEvent += NoteColorizer.ColorizeSaber;
 
             if (ChromaConfig.Instance.LightshowModifier)
             {
@@ -170,8 +176,6 @@
                     }
                 }
 
-                SaberColorizer.InitializeSabers(Resources.FindObjectsOfTypeAll<Saber>());
-
                 // please let me kill legacy
                 LegacyLightHelper.Activate(beatmapData.beatmapEventData);
             }
@@ -187,8 +191,7 @@
                 ObstacleColorizer.ClearOCColorManagers();
                 BombColorizer.ClearBNCColorManagers();
                 NoteColorizer.ClearCNVColorManagers();
-                SaberColorizer.CurrentAColor = null;
-                SaberColorizer.CurrentBColor = null;
+                SaberColorizer.ClearBSMColorManagers();
             }
         }
     }
