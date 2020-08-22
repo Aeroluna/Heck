@@ -303,6 +303,7 @@ This will instantly apply a path animation to the object. See [`AssignPathAnimat
 - [`_position`](#_position)
 - [`_rotation`](#_rotation)
 - [`_localRotation`](#_localRotation)
+- [`_scale`](#_scale)
 - [`_dissolve`](#_dissolve)
 - [`_dissolveArrow`](#_dissolveArrow)
 - [`_interactable`](#_interactable)
