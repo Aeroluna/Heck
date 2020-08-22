@@ -551,7 +551,7 @@ Point definition: `[x, y, z, time, (optional)easing, (optional)spline]`
 ## Examples
 
 ```js
-//Point Definition
+// Point Definition
 {
 	"_name":"AnimateTrackScale",
 	"_points":[
