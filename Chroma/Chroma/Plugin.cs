@@ -42,6 +42,8 @@
                 GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", ChromaSettingsUI.instance);
             }
 
+            ChromaUtils.SetSongCoreCapability(REQUIREMENTNAME, ChromaConfig.Instance.CustomColorEventsEnabled);
+
             SceneManager.activeSceneChanged += ChromaController.OnActiveSceneChanged;
 
             // Legacy support
