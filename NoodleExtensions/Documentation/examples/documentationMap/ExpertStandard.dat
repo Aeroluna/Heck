@@ -2596,7 +2596,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 165.5,
@@ -2604,7 +2606,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 166,
@@ -2612,7 +2616,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 166.5,
@@ -2620,7 +2626,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 167,
@@ -2628,7 +2636,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 167.5,
@@ -2636,7 +2646,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 168,
@@ -2644,7 +2656,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 168.5,
@@ -2652,7 +2666,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 169,
@@ -2660,7 +2676,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 169.5,
@@ -2668,7 +2686,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 170,
@@ -2676,7 +2696,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 170.5,
@@ -2684,7 +2706,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 171,
@@ -2692,7 +2716,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 171.5,
@@ -2700,7 +2726,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 172,
@@ -2708,7 +2736,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 172.5,
@@ -2716,7 +2746,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 173,
@@ -2724,7 +2756,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 173.5,
@@ -2732,7 +2766,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 174,
@@ -2740,7 +2776,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 174.5,
@@ -2748,7 +2786,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 175,
@@ -2756,7 +2796,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 175.5,
@@ -2764,7 +2806,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 176,
@@ -2772,7 +2816,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 176.5,
@@ -2780,7 +2826,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 177,
@@ -2788,7 +2836,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 177.5,
@@ -2796,7 +2846,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 178,
@@ -2804,7 +2856,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 178.5,
@@ -2812,7 +2866,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 179,
@@ -2820,7 +2876,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 179.5,
@@ -2828,7 +2886,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 180,
@@ -2836,7 +2896,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 180.5,
@@ -2844,7 +2906,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 181,
@@ -2852,7 +2916,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 181.5,
@@ -2860,7 +2926,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 182,
@@ -2868,7 +2936,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 182.5,
@@ -2876,7 +2946,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 183,
@@ -2884,7 +2956,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 183.5,
@@ -2892,7 +2966,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 184,
@@ -2900,7 +2976,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 184.5,
@@ -2908,7 +2986,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 185,
@@ -2916,7 +2996,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 185.5,
@@ -2924,7 +3006,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 186,
@@ -2932,7 +3016,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 186.5,
@@ -2940,7 +3026,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 187,
@@ -2948,7 +3036,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 187.5,
@@ -2956,7 +3046,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 188,
@@ -2964,7 +3056,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 188.5,
@@ -2972,7 +3066,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 189,
@@ -2980,7 +3076,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 189.5,
@@ -2988,7 +3086,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 190,
@@ -2996,7 +3096,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 190.5,
@@ -3004,7 +3106,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 191,
@@ -3012,7 +3116,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 191.5,
@@ -3020,7 +3126,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 192,
@@ -3028,7 +3136,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 192.5,
@@ -3036,7 +3146,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 193,
@@ -3044,7 +3156,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 193.5,
@@ -3052,7 +3166,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 194,
@@ -3060,7 +3176,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 194.5,
@@ -3068,7 +3186,9 @@
             "_lineLayer": 0,
             "_type": 0,
             "_cutDirection": 1,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 195,
@@ -3076,7 +3196,9 @@
             "_lineLayer": 0,
             "_type": 1,
             "_cutDirection": 0,
-            "_customData": {}
+            "_customData": {
+                "_track": "scaleTrack"
+            }
         },
         {
             "_time": 195.5,
@@ -17187,6 +17309,546 @@
             "_customData": {
                 "_track": "RightColorWallStatic"
             }
+        },
+        {
+            "_time": 165,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    3.27,
+                    1.1385
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 166,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    2.6122,
+                    3.4814
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 167,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    2.8842,
+                    3.7761
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 168,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    3.431,
+                    3.4716
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 169,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    1.3273,
+                    3.441
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 170,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    2.2879,
+                    2.0449
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 171,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    1.3669,
+                    3.6437
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 172,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    1.9972,
+                    1.4064
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 173,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    1.4704,
+                    1.2266
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 174,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    2.5388,
+                    1.0642
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 175,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    2.0626,
+                    2.4032
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 176,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    3.708,
+                    1.9056
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 177,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    2.5146,
+                    2.0655
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 178,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    3.8425,
+                    2.2907
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 179,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    1.8447,
+                    3.4658
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 180,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    2.8682,
+                    1.3532
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 181,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    1.7088,
+                    3.4591
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 182,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    1.2626,
+                    1.7745
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 183,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    3.4591,
+                    3.6773
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 184,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    1.4712,
+                    1.1237
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 185,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    3.8853,
+                    2.5211
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 186,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    2.1797,
+                    1.3506
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 187,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    3.7388,
+                    1.702
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 188,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    2.9059,
+                    1.8338
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 189,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    1.5092,
+                    3.7058
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 190,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    1.0402,
+                    1.0623
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 191,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    1.985,
+                    2.199
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 192,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    1.5835,
+                    2.8371
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 193,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    3.3311,
+                    1.2185
+                ],
+                "_track": "scaleTrack"
+            }
+        },
+        {
+            "_time": 194,
+            "_duration": 0.5,
+            "_lineIndex": 0,
+            "_type": 0,
+            "_width": 0,
+            "_customData": {
+                "_position": [
+                    -6,
+                    1
+                ],
+                "_scale": [
+                    3.3996,
+                    2.3149
+                ],
+                "_track": "scaleTrack"
+            }
         }
     ],
     "_customData": {
@@ -17859,6 +18521,76 @@
                         1
                     ]
                 ]
+            },
+            {
+                "_name": "AnimateTrackScale",
+                "_points": [
+                    [
+                        1,
+                        1,
+                        1,
+                        0
+                    ],
+                    [
+                        0.8,
+                        0.8,
+                        0.8,
+                        0.15,
+                        "easeOutCirc"
+                    ],
+                    [
+                        2,
+                        2,
+                        2,
+                        0.5,
+                        "easeOutBounce"
+                    ],
+                    [
+                        2,
+                        2,
+                        2,
+                        0.6
+                    ],
+                    [
+                        2.5,
+                        1,
+                        1,
+                        0.8,
+                        "easeOutExpo"
+                    ],
+                    [
+                        1,
+                        1,
+                        1,
+                        1,
+                        "easeOutBounce"
+                    ]
+                ]
+            },
+            {
+                "_name": "PathScale",
+                "_points": [
+                    [
+                        1,
+                        1,
+                        1,
+                        0
+                    ],
+                    [
+                        4,
+                        0.5,
+                        1,
+                        0.2,
+                        "easeInElastic"
+                    ],
+                    [
+                        1,
+                        1,
+                        1,
+                        0.5,
+                        "easeOutElastic"
+                    ]
+                ]
             }
         ],
         "_customEvents": [
@@ -18101,6 +18833,23 @@
                     "_time": "SingleNoteTime",
                     "_duration": 10,
                     "_track": "singleNoteTimeTrack"
+                }
+            },
+            {
+                "_time": 165,
+                "_type": "AnimateTrack",
+                "_data": {
+                    "_track": "scaleTrack",
+                    "_scale": "AnimateTrackScale",
+                    "_duration": 5
+                }
+            },
+            {
+                "_time": 175,
+                "_type": "AssignPathAnimation",
+                "_data": {
+                    "_track": "scaleTrack",
+                    "_scale": "PathScale"
                 }
             }
         ]

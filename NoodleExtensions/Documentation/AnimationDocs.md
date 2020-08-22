@@ -19,7 +19,7 @@ Custom events are stored inside the `_customEvents` field of your `_customData`.
         }
       }
     ]
-  }
+  },
   "_events": [],
   "_notes": [],
   "_obstacles": []
@@ -74,7 +74,7 @@ A point definition usually follows the pattern of `[data, time, "optional easing
 - Data can be multiple points of data, this part of a point varies per property,
 - Time is a float from 0 - 1, points must be ordered by their time values
 - "optional easing" is an optional field, with any easing from easings.net (with the addition of `easeLinear` and `easeStep`). This is the easing that will be used in the interpolation from the last point to the one with the easing defined on it.
-- "optional spline" is an optional field, with any spline implemented, currently only `"splineCatmullRom`". It acts like easings, affecting the movement from the last point to the one with the spline on it. Currently only positions and rotations support splines.
+- "optional spline" is an optional field, with any spline implemented, currently only `"splineCatmullRom"`. It acts like easings, affecting the movement from the last point to the one with the spline on it. Currently only positions and rotations support splines.
 ```js
 // Example of splines and easings being used
 "_position": [
@@ -162,6 +162,7 @@ Although not recommended, properties can be set to `null` to "erase" a track's p
 - [`_position`](#_position)
 - [`_rotation`](#_rotation)
 - [`_localRotation`](#_localRotation)
+- [`_scale`](#_scale)
 - [`_dissolve`](#_dissolve)
 - [`_dissolveArrow`](#_dissolveArrow)
 - [`_color`](#_color) (Chroma)
@@ -214,6 +215,7 @@ Although not recommended, path properties can be set to `null` to "erase" a trac
 - [`_position`](#_position)
 - [`_rotation`](#_rotation)
 - [`_localRotation`](#_localRotation)
+- [`_scale`](#_scale)
 - [`_dissolve`](#_dissolve)
 - [`_dissolveArrow`](#_dissolveArrow)
 - [`_color`](#_color) (Chroma)
@@ -535,6 +537,68 @@ Above event results in:
 Above event results in:
 
 !["AssignPathRotation"](media/RotationAssignPath.gif)
+
+
+# _scale
+`_scale` may be used in both [`AnimateTrack`](#AnimateTrack) and [`AssignPathAnimation`](#AssignPathAnimation)
+
+Decribes the scale of an object. This will be based off their initial size. A scale of 1 is equal to normal size, anything under is smaller, over is larger.
+
+Track `_scale` and path `_scale` will be multiplied.
+
+Point definition: `[x, y, z, time, (optional)easing, (optional)spline]`
+## Examples
+
+```js
+//Point Definition
+{
+	"_name":"AnimateTrackScale",
+	"_points":[
+		[1,1,1,0],
+		[0.80,0.80,0.80,0.15,"easeOutCirc"],
+		[2,2,2,0.5,"easeOutBounce"],
+		[2,2,2,0.6],
+		[2.5,1,1,0.8,"easeOutExpo"],
+		[1,1,1,1,"easeOutBounce"]
+	]
+}, {
+	"_name":"PathScale",
+	"_points":[
+		[1,1,1,0],
+		[4,0.5,1,0.20,"easeInElastic"],
+		[1,1,1,0.50,"easeOutElastic"]
+	]
+}
+```
+```js
+// AnimateTrack
+{
+	"_time":165,
+	"_type":"AnimateTrack",
+	"_data":{
+		"_track":"scaleTrack",
+		"_scale":"AnimateTrackScale",
+		"_duration":5
+	}
+}
+```
+Above event results in:
+
+![AnimateTrackScale](media/ScaleAnimateTrack.gif)
+```js
+// AssignPathAnimation
+{
+	"_time":175,
+	"_type":"AssignPathAnimation",
+	"_data":{
+		"_track":"scaleTrack",
+		"_scale":"PathScale"
+	}
+}
+```
+Above event results in:
+
+![AssignPathScale](media/ScaleAssignPath.gif)
 
 # _dissolve
 `_dissolve` may be used in both [`AnimateTrack`](#AnimateTrack) and [`AssignPathAnimation`](#AssignPathAnimation)

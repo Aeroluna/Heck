@@ -614,6 +614,66 @@ _customEvents.push({
 		"_track":"singleNoteTimeTrack"
 	}
 })
+//#endregion 
+
+//#region scale 165-190
+trackOnNotesBetween("scaleTrack", 165, 195)
+for (let i = 0; i < 30; i++) {
+	let mult = 1
+	let dur = 0.5
+	let scaleVar = 3
+	_obstacles.push({
+		"_time":165+(i*mult),
+		"_duration":dur,
+		"_lineIndex":0,
+		"_type":0,
+		"_width":0,
+		"_customData":{
+			"_position":[-6,1],
+			"_scale":[1+(Math.random()*scaleVar),1+(Math.random()*scaleVar)],
+			"_track":"scaleTrack"
+		}
+	})
+	
+}
+_pointDefinitions.push({
+	"_name":"AnimateTrackScale",
+	"_points":[
+		[1,1,1,0],
+		[0.80,0.80,0.80,0.15,"easeOutCirc"],
+		[2,2,2,0.5,"easeOutBounce"],
+		[2,2,2,0.6],
+		[2.5,1,1,0.8,"easeOutExpo"],
+		[1,1,1,1,"easeOutBounce"]
+
+	]
+}, {
+	"_name":"PathScale",
+	"_points":[
+		[1,1,1,0],
+		[4,0.5,1,0.20,"easeInElastic"],
+		[1,1,1,0.50,"easeOutElastic"]
+
+	]
+})
+_customEvents.push({
+	"_time":165,
+	"_type":"AnimateTrack",
+	"_data":{
+		"_track":"scaleTrack",
+		"_scale":"AnimateTrackScale",
+		"_duration":5
+	}
+}, {
+	"_time":175,
+	"_type":"AssignPathAnimation",
+	"_data":{
+		"_track":"scaleTrack",
+		"_scale":"PathScale"
+	}
+})
+
+
 //#endregion
 
 //#region write file
