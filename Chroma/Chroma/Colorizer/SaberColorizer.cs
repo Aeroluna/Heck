@@ -142,7 +142,7 @@
                     IEnumerable<Renderer> renderers = _bsm.transform.parent.GetComponentsInChildren<Renderer>();
                     foreach (Renderer renderer in renderers)
                     {
-                        foreach (Material material in renderer.sharedMaterials)
+                        foreach (Material material in renderer.materials)
                         {
                             if (material.HasProperty("_Color"))
                             {
