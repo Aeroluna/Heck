@@ -7,28 +7,6 @@
     using HarmonyLib;
 
     [NoodlePatch(typeof(GameEnergyCounter))]
-    [NoodlePatch("HandleNoteWasCutEvent")]
-    internal static class GameEnergyCounterHandleNoteWasCutEvent
-    {
-        [HarmonyPriority(Priority.High)]
-        private static bool Prefix(INoteController noteController)
-        {
-            return FakeNoteHelper.GetFakeNote(noteController);
-        }
-    }
-
-    [NoodlePatch(typeof(GameEnergyCounter))]
-    [NoodlePatch("HandleNoteWasMissedEvent")]
-    internal static class GameEnergyCounterHandleNoteWasMissedEvent
-    {
-        [HarmonyPriority(Priority.High)]
-        private static bool Prefix(INoteController noteController)
-        {
-            return FakeNoteHelper.GetFakeNote(noteController);
-        }
-    }
-
-    [NoodlePatch(typeof(GameEnergyCounter))]
     [NoodlePatch("Update")]
     internal static class GameEnergyCounterUpdate
     {
