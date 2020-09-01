@@ -1,5 +1,7 @@
 ﻿namespace Chroma
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using Chroma.Colorizer;
     using Chroma.Utils;
     using CustomJSONData;
@@ -24,23 +26,65 @@
                 dynamic dynData = customData.customData;
                 if (monobehaviour is LightSwitchEventEffect lightSwitchEventEffect)
                 {
-                    int? lightID = (int?)Trees.at(dynData, "_lightID");
-                    if (lightID.HasValue)
+                    object lightID = Trees.at(dynData, "_lightID");
+                    if (lightID != null)
                     {
                         LightWithId[] lights = lightSwitchEventEffect.GetLights();
-                        if (lights.Length > lightID)
+                        int lightCount = lights.Length;
+                        switch (lightID)
                         {
-                            SetOverrideLightWithIds(lights[lightID.Value]);
+                            case List<object> lightIDobjects:
+                                int[] lightIDArray = lightIDobjects.Select(n => System.Convert.ToInt32(n)).ToArray();
+                                List<LightWithId> overrideLights = new List<LightWithId>();
+                                for (int i = 0; i < lightIDArray.Length; i++)
+                                {
+                                    if (lightCount > lightIDArray[i])
+                                    {
+                                        overrideLights.Add(lights[lightIDArray[i]]);
+                                    }
+                                }
+
+                                SetOverrideLightWithIds(overrideLights.ToArray());
+
+                                break;
+                            case long lightIDint:
+                                if (lightCount > lightIDint)
+                                {
+                                    SetOverrideLightWithIds(lights[lightIDint]);
+                                }
+
+                                break;
                         }
                     }
 
-                    int? propID = (int?)Trees.at(dynData, "_propID");
-                    if (propID.HasValue)
+                    object propID = Trees.at(dynData, "_propID");
+                    if (propID != null)
                     {
                         LightWithId[][] lights = lightSwitchEventEffect.GetLightsPropagationGrouped();
-                        if (lights.Length > propID)
+                        int lightCount = lights.Length;
+                        switch (propID)
                         {
-                            SetOverrideLightWithIds(lights[propID.Value]);
+                            case List<object> propIDobjects:
+                                int[] propIDArray = propIDobjects.Select(n => System.Convert.ToInt32(n)).ToArray();
+                                List<LightWithId> overrideLights = new List<LightWithId>();
+                                for (int i = 0; i < propIDArray.Length; i++)
+                                {
+                                    if (lightCount > propIDArray[i])
+                                    {
+                                        overrideLights.AddRange(lights[propIDArray[i]]);
+                                    }
+                                }
+
+                                SetOverrideLightWithIds(overrideLights.ToArray());
+
+                                break;
+                            case long propIDlong:
+                                if (lightCount > propIDlong)
+                                {
+                                    SetOverrideLightWithIds(lights[propIDlong]);
+                                }
+
+                                break;
                         }
                     }
 
