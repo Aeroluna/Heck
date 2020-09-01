@@ -37,12 +37,14 @@
   <ItemGroup>
     <Compile Include="AnimationHelper.cs" />
     <Compile Include="ChromaPatch.cs" />
+    <Compile Include="ChromaRingsRotationEffect.cs" />
     <Compile Include="Colorizer\BombColorizer.cs" />
     <Compile Include="Colorizer\SaberColorizer.cs" />
     <Compile Include="Colorizer\NoteColorizer.cs" />
     <Compile Include="Colorizer\ObstacleColorizer.cs" />
     <Compile Include="HarmonyPatches\BombNoteController.cs" />
     <Compile Include="HarmonyPatches\BasicSaberModelController.cs" />
+    <Compile Include="HarmonyPatches\TrackLaneRingsRotationEffect.cs" />
     <Compile Include="LegacyLightHelper.cs" />
     <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />
@@ -61,7 +63,7 @@
     <Compile Include="HarmonyPatches\LightSwitchEventEffect.cs" />
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\NoteCutEffectSpawner.cs" />
-    <Compile Include="HarmonyPatches\TrackLaneRingsRotationEffect.cs" />
+    <Compile Include="HarmonyPatches\TrackLaneRingsRotationEffectSpawner.cs" />
     <Compile Include="Settings\ChromaConfig.cs" />
     <Compile Include="Settings\ChromaSettingsUI.cs" />
     <Compile Include="Plugin.cs" />

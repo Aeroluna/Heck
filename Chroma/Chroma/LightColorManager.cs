@@ -47,6 +47,7 @@
                                 SetOverrideLightWithIds(overrideLights.ToArray());
 
                                 break;
+
                             case long lightIDint:
                                 if (lightCount > lightIDint)
                                 {
@@ -78,6 +79,7 @@
                                 SetOverrideLightWithIds(overrideLights.ToArray());
 
                                 break;
+
                             case long propIDlong:
                                 if (lightCount > propIDlong)
                                 {
