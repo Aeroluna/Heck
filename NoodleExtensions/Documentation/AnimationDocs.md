@@ -129,10 +129,10 @@ When a point definition is used, input time values outside of the defined points
   "_customData": {
     "_animation": {
       "_scale": [
-	  	[2, 2, 2, 0.5],
-	  	[1, 1, 1, 0.8]
-	  ]
-	}
+        [2, 2, 2, 0.5],
+        [1, 1, 1, 0.8]
+      ]
+    }
   }
 }
 ```
@@ -143,9 +143,9 @@ When a point definition is used, input time values outside of the defined points
   "_time": float, // Time in beats.
   "_type": "AnimateTrack",
   "_data": {
-    "_track": string // The track you want to animate.
-    "_duration": float // The length of the event in beats (defaults to 0).
-    "_easing": string // An easing for the animation to follow (defaults to easeLinear).
+    "_track": string, // The track you want to animate.
+    "_duration": float, // The length of the event in beats (defaults to 0).
+    "_easing": string, // An easing for the animation to follow (defaults to easeLinear).
     "_property": point definition // The property you want to animate.
   }
 }
@@ -194,9 +194,9 @@ Although not recommended, properties can be set to `null` to "erase" a track's p
   "_time": float, // Time in beats.
   "_type": "AssignPathAnimation",
   "_data": {
-    "_track": string // The track you want to animate.
-    "_duration": float // How long it takes to assign this path animation (defaults to 0).
-    "_easing": string // An easing for moving to the path animation (defaults to easeLinear).
+    "_track": string, // The track you want to animate.
+    "_duration": float, // How long it takes to assign this path animation (defaults to 0).
+    "_easing": string, // An easing for moving to the path animation (defaults to easeLinear).
     "_property": point definition // The property you want to assign the path to.
   }
 }
@@ -244,7 +244,7 @@ Although not recommended, path properties can be set to `null` to "erase" a trac
   "_time": float, // Time in beats.
   "_type": "AssignTrackParent",
   "_data": {
-    "_childrenTracks": [string] // Array of tracks to parent to _parentTrack.
+    "_childrenTracks": [string], // Array of tracks to parent to _parentTrack.
     "_parentTrack": string // The track you want to animate.
   }
 }
@@ -294,7 +294,7 @@ This will instantly apply a path animation to the object. See [`AssignPathAnimat
     "_animation": {
       "_position": [
         [0, 40, 0, 0],
-        [0, 0, 0, 0.2],
+        [0, 0, 0, 0.2]
       ]
     }
   }
@@ -378,8 +378,8 @@ Above event results in:
     "_duration": 4,
     "_easing": "easeOutBounce"
     "_position": [
-	  [0, 0, 0, 0]
-	],
+      [0, 0, 0, 0]
+    ]
   }
 }
 ```
