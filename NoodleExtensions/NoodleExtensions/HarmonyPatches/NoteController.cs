@@ -308,19 +308,19 @@
                         {
                             case GameNoteController gameNoteController:
                                 BoxCuttableBySaber bigCuttableBySaber = _gameNoteBigCuttableAccessor(ref gameNoteController);
-                                if (bigCuttableBySaber.enabled != enabled)
+                                if (bigCuttableBySaber.canBeCut != enabled)
                                 {
-                                    bigCuttableBySaber.enabled = enabled;
-                                    _gameNoteSmallCuttableAccessor(ref gameNoteController).enabled = enabled;
+                                    bigCuttableBySaber.canBeCut = enabled;
+                                    _gameNoteSmallCuttableAccessor(ref gameNoteController).canBeCut = enabled;
                                 }
 
                                 break;
 
                             case BombNoteController bombNoteController:
                                 CuttableBySaber boxCuttableBySaber = _bombNoteCuttableAccessor(ref bombNoteController);
-                                if (boxCuttableBySaber.enabled != enabled)
+                                if (boxCuttableBySaber.canBeCut != enabled)
                                 {
-                                    boxCuttableBySaber.enabled = enabled;
+                                    boxCuttableBySaber.canBeCut = enabled;
                                 }
 
                                 break;
