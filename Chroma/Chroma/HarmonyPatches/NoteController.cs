@@ -50,13 +50,16 @@
 
                     if (colorOffset.HasValue)
                     {
+                        Color color = colorOffset.Value;
                         if (instance is BombNoteController bnc)
                         {
-                            bnc.SetBombColor(colorOffset.Value);
+                            bnc.SetBombColor(color);
                         }
                         else
                         {
-                            instance.SetNoteColors(colorOffset.Value, colorOffset.Value);
+                            instance.SetNoteColors(color, color);
+                            dynData.color0 = color;
+                            dynData.color1 = color;
                             instance.SetActiveColors();
                         }
                     }
