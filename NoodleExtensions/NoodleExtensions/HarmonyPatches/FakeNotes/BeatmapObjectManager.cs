@@ -1,4 +1,4 @@
-﻿namespace NoodleExtensions.HarmonyPatches.FakeNotes
+﻿namespace NoodleExtensions.HarmonyPatches
 {
     using HarmonyLib;
 

@@ -98,6 +98,8 @@
                 float? spawnoffset = (float?)Trees.at(dynData, NOTESPAWNOFFSET);
                 float startlinelayer = (float?)Trees.at(dynData, "startNoteLineLayer") ?? (float)NoteLineLayer.Base;
 
+                bool gravityOverride = (bool?)Trees.at(dynData, NOTEGRAVITYDISABLE) ?? false;
+
                 float? startRow = position?.ElementAtOrDefault(0);
                 float? startHeight = position?.ElementAtOrDefault(1);
 
@@ -105,7 +107,7 @@
 
                 Vector3 noteOffset = GetNoteOffset(noteData, startRow, startlinelayer);
 
-                if (position != null || flipLineIndex != null || njs.HasValue || spawnoffset.HasValue)
+                if (position != null || flipLineIndex != null || njs.HasValue || spawnoffset.HasValue || gravityOverride)
                 {
                     GetNoteJumpValues(njs, spawnoffset, out float localJumpDuration, out float localJumpDistance, out Vector3 localMoveStartPos, out Vector3 localMoveEndPos, out Vector3 localJumpEndPos);
                     jumpDuration = localJumpDuration;
@@ -118,13 +120,13 @@
                     // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
                     float highestJump = startHeight.HasValue ? (0.875f * lineYPos) + 0.639583f + JumpOffsetY :
                         __instance.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
-                    jumpGravity = 2f * (highestJump - startLayerLineYPos) /
+                    jumpGravity = 2f * (highestJump - (gravityOverride ? lineYPos : startLayerLineYPos)) /
                         Mathf.Pow(localJumpDistance / localNoteJumpMovementSpeed * 0.5f, 2f);
 
                     jumpEndPos = localJumpEndPos + noteOffset;
 
                     // IsBasicNote() check is skipped so bombs can flip too
-                    Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? startRow, startlinelayer);
+                    Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? startRow, gravityOverride ? startHeight : startlinelayer);
                     moveStartPos = localMoveStartPos + noteOffset2;
                     moveEndPos = localMoveEndPos + noteOffset2;
                 }

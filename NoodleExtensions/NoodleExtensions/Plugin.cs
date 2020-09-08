@@ -24,6 +24,7 @@
         internal const string FLIP = "_flip";
         internal const string LOCALROTATION = "_localRotation";
         internal const string NAME = "_name";
+        internal const string NOTEGRAVITYDISABLE = "_disableNoteGravity";
         internal const string NOTEJUMPSPEED = "_noteJumpMovementSpeed";
         internal const string NOTESPAWNOFFSET = "_noteJumpStartBeatOffset";
         internal const string POINTDEFINITIONS = "_pointDefinitions";

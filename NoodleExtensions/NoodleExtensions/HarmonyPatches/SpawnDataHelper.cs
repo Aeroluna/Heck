@@ -74,15 +74,10 @@
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _jumpOffsetYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_jumpOffsetY");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _verticalObstaclePosYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_verticalObstaclePosY");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _moveDistanceAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_moveDistance");
-            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _jumpDistanceAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_jumpDistance");
-            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _jumpDurationAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_jumpDuration");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _noteJumpMovementSpeedAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_noteJumpMovementSpeed");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _noteJumpStartBeatOffsetAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_noteJumpStartBeatOffset");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _noteLinesDistanceAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_noteLinesDistance");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _baseLinesYPosAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_baseLinesYPos");
-            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.Accessor _moveStartPosAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.GetAccessor("_moveStartPos");
-            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.Accessor _moveEndPosAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.GetAccessor("_moveEndPos");
-            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.Accessor _jumpEndPosAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.GetAccessor("_jumpEndPos");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _noteLinesCountAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_noteLinesCount");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.Accessor _centerPosAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.GetAccessor("_centerPos");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.Accessor _forwardVecAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.GetAccessor("_forwardVec");
@@ -103,10 +98,6 @@
 
             internal static float MoveDistance => _moveDistanceAccessor(ref _beatmapObjectSpawnMovementData);
 
-            internal static float JumpDistance => _jumpDistanceAccessor(ref _beatmapObjectSpawnMovementData);
-
-            internal static float JumpDuration => _jumpDurationAccessor(ref _beatmapObjectSpawnMovementData);
-
             internal static float NoteJumpMovementSpeed => _noteJumpMovementSpeedAccessor(ref _beatmapObjectSpawnMovementData);
 
             internal static float NoteJumpStartBeatOffset => _noteJumpStartBeatOffsetAccessor(ref _beatmapObjectSpawnMovementData);
@@ -114,12 +105,6 @@
             internal static float NoteLinesDistance => _noteLinesDistanceAccessor(ref _beatmapObjectSpawnMovementData);
 
             internal static float BaseLinesYPos => _baseLinesYPosAccessor(ref _beatmapObjectSpawnMovementData);
-
-            internal static Vector3 MoveStartPos => _moveStartPosAccessor(ref _beatmapObjectSpawnMovementData);
-
-            internal static Vector3 MoveEndPos => _moveEndPosAccessor(ref _beatmapObjectSpawnMovementData);
-
-            internal static Vector3 JumpEndPos => _jumpEndPosAccessor(ref _beatmapObjectSpawnMovementData);
 
             internal static float NoteLinesCount => _noteLinesCountAccessor(ref _beatmapObjectSpawnMovementData);
 
