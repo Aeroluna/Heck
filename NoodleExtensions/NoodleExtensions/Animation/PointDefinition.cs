@@ -163,7 +163,7 @@
                     Quaternion quaternionTwo = Quaternion.Euler(_points[i].Point);
                     float normalTime = (time - _points[i - 1].Point.w) / (_points[i].Point.w - _points[i - 1].Point.w);
                     normalTime = Easings.Interpolate(normalTime, _points[i].Easing);
-                    return Quaternion.LerpUnclamped(quaternionOne, quaternionTwo, normalTime);
+                    return Quaternion.SlerpUnclamped(quaternionOne, quaternionTwo, normalTime);
                 }
             }
 

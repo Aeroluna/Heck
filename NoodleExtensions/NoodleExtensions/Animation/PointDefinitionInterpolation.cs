@@ -41,7 +41,7 @@
                 return _basePointData.InterpolateQuaternion(time);
             }
 
-            return Quaternion.LerpUnclamped(_previousPointData.InterpolateQuaternion(time), _basePointData.InterpolateQuaternion(time), Time);
+            return Quaternion.SlerpUnclamped(_previousPointData.InterpolateQuaternion(time), _basePointData.InterpolateQuaternion(time), Time);
         }
 
         internal float? InterpolateLinear(float time)
