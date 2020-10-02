@@ -107,7 +107,7 @@
 
             if (color.HasValue)
             {
-                monobehaviour.SetLightingColors(color.Value, color.Value);
+                monobehaviour.SetLightingColors(color.Value, color.Value, color.Value, color.Value);
             }
             else if (!ChromaGradientController.IsGradientActive(beatmapEventData.type))
             {
