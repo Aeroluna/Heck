@@ -5,14 +5,14 @@
     using UnityEngine;
 
     [HarmonyPatch(typeof(ColorManager))]
-    [HarmonyPatch("ColorForNoteType")]
-    internal static class ColorManagerColorForNoteType
+    [HarmonyPatch("ColorForType")]
+    internal static class ColorManagerColorForType
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static bool Prefix(ref Color __result, NoteType type)
+        private static bool Prefix(ref Color __result, ColorType type)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            if (type == NoteType.NoteA || type == NoteType.NoteB)
+            if (type == ColorType.ColorA || type == ColorType.ColorB)
             {
                 Color? color = NoteColorizer.NoteColorOverride[(int)type];
                 if (color.HasValue)

@@ -7,8 +7,8 @@
     using UnityEngine;
 
     [HarmonyPatch(typeof(ColorNoteVisuals))]
-    [HarmonyPatch("HandleNoteControllerDidInitEvent")]
-    internal static class ColorNoteVisualsHandleNoteControllerDidInitEventColorizerInit
+    [HarmonyPatch("HandleNoteControllerDidInit")]
+    internal static class ColorNoteVisualsHandleNoteControllerDidInitColorizerInit
     {
         [HarmonyPriority(Priority.High)]
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
@@ -20,8 +20,8 @@
     }
 
     [HarmonyPatch(typeof(ColorNoteVisuals))]
-    [HarmonyPatch("HandleNoteControllerDidInitEvent")]
-    internal static class ColorNoteVisualsHandleNoteControllerDidInitEventColorizer
+    [HarmonyPatch("HandleNoteControllerDidInit")]
+    internal static class ColorNoteVisualsHandleNoteControllerDidInitColorizer
     {
         [HarmonyPriority(Priority.Low)]
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
@@ -38,8 +38,8 @@
     }
 
     [ChromaPatch(typeof(ColorNoteVisuals))]
-    [ChromaPatch("HandleNoteControllerDidInitEvent")]
-    internal static class ColorNoteVisualsHandleNoteControllerDidInitEvent
+    [ChromaPatch("HandleNoteControllerDidInit")]
+    internal static class ColorNoteVisualsHandleNoteControllerDidInit
     {
         private static void Prefix(NoteController noteController)
         {

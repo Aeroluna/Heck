@@ -79,13 +79,13 @@
             NoteColorOverride[1] = null;
         }
 
-        internal static void ColorizeSaber(INoteController noteController, NoteCutInfo noteCutInfo)
+        internal static void ColorizeSaber(NoteController noteController, NoteCutInfo noteCutInfo)
         {
             if (ChromaController.DoColorizerSabers)
             {
                 NoteData noteData = noteController.noteData;
                 SaberType saberType = noteCutInfo.saberType;
-                if ((int)noteData.noteType == (int)saberType)
+                if ((int)noteData.colorType == (int)saberType)
                 {
                     Color color = CNVColorManager.GetCNVColorManager((NoteController)noteController).ColorForCNVManager();
 
@@ -100,8 +100,8 @@
 
         internal static void CNVStart(ColorNoteVisuals cnv, NoteController nc)
         {
-            NoteType noteType = nc.noteData.noteType;
-            if (noteType == NoteType.NoteA || noteType == NoteType.NoteB)
+            ColorType noteType = nc.noteData.colorType;
+            if (noteType == ColorType.ColorA || noteType == ColorType.ColorB)
             {
                 CNVColorManager.CreateCNVColorManager(cnv, nc);
             }
@@ -110,7 +110,7 @@
         private class CNVColorManager
         {
             private static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
-            private static readonly FieldAccessor<NoteJump, AudioTimeSyncController>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<NoteJump, AudioTimeSyncController>.GetAccessor("_audioTimeSyncController");
+            private static readonly FieldAccessor<NoteJump, IAudioTimeSource>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<NoteJump, IAudioTimeSource>.GetAccessor("_audioTimeSyncController");
             private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
             private static readonly FieldAccessor<ColorNoteVisuals, float>.Accessor _arrowGlowIntensityAccessor = FieldAccessor<ColorNoteVisuals, float>.GetAccessor("_arrowGlowIntensity");
             private static readonly FieldAccessor<ColorNoteVisuals, SpriteRenderer>.Accessor _arrowGlowSpriteRendererAccessor = FieldAccessor<ColorNoteVisuals, SpriteRenderer>.GetAccessor("_arrowGlowSpriteRenderer");
@@ -205,7 +205,7 @@
             internal Color ColorForCNVManager()
             {
                 EnableNoteColorOverride(_nc);
-                Color noteColor = _colorManager.ColorForNoteType(_noteData.noteType);
+                Color noteColor = _colorManager.ColorForType(_noteData.colorType);
                 DisableNoteColorOverride();
                 return noteColor;
             }

@@ -37,12 +37,15 @@
   <ItemGroup>
     <Compile Include="AnimationHelper.cs" />
     <Compile Include="ChromaPatch.cs" />
+    <Compile Include="ChromaRingsRotationEffect.cs" />
     <Compile Include="Colorizer\BombColorizer.cs" />
     <Compile Include="Colorizer\SaberColorizer.cs" />
     <Compile Include="Colorizer\NoteColorizer.cs" />
     <Compile Include="Colorizer\ObstacleColorizer.cs" />
     <Compile Include="HarmonyPatches\BombNoteController.cs" />
-    <Compile Include="HarmonyPatches\BasicSaberModelController.cs" />
+    <Compile Include="HarmonyPatches\SaberModelController.cs" />
+    <Compile Include="HarmonyPatches\LightRotationEventEffect.cs" />
+    <Compile Include="HarmonyPatches\TrackLaneRingsRotationEffect.cs" />
     <Compile Include="LegacyLightHelper.cs" />
     <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />
@@ -61,7 +64,7 @@
     <Compile Include="HarmonyPatches\LightSwitchEventEffect.cs" />
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\NoteCutEffectSpawner.cs" />
-    <Compile Include="HarmonyPatches\TrackLaneRingsRotationEffect.cs" />
+    <Compile Include="HarmonyPatches\TrackLaneRingsRotationEffectSpawner.cs" />
     <Compile Include="Settings\ChromaConfig.cs" />
     <Compile Include="Settings\ChromaSettingsUI.cs" />
     <Compile Include="Plugin.cs" />
@@ -81,6 +84,9 @@
     <Reference Include="0Harmony">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Libs\0Harmony.dll</HintPath>
     </Reference>
+    <Reference Include="BeatmapCore">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+    </Reference>
     <Reference Include="BSML, Version=1.1.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BSML.dll</HintPath>
@@ -95,6 +101,9 @@
     <Reference Include="CustomJSONData, Version=0.0.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\CustomJSONData.dll</HintPath>
+    </Reference>
+    <Reference Include="GameplayCore">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
     </Reference>
     <Reference Include="HMLib, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

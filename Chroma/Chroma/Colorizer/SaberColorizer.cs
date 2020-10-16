@@ -55,7 +55,7 @@
          * BSM ColorSO holders
          */
 
-        internal static void BSMStart(BasicSaberModelController bcm, SaberType saberType)
+        internal static void BSMStart(SaberModelController bcm, SaberType saberType)
         {
             if (saberType == SaberType.SaberA || saberType == SaberType.SaberB)
             {
@@ -65,24 +65,26 @@
 
         private class BSMColorManager
         {
-            private static readonly FieldAccessor<BasicSaberModelController, Xft.XWeaponTrail>.Accessor _saberWeaponTrailAccessor = FieldAccessor<BasicSaberModelController, Xft.XWeaponTrail>.GetAccessor("_saberWeaponTrail");
-            private static readonly FieldAccessor<BasicSaberModelController, BasicSaberModelController.InitData>.Accessor _initDataAccessor = FieldAccessor<BasicSaberModelController, BasicSaberModelController.InitData>.GetAccessor("_initData");
-            private static readonly FieldAccessor<BasicSaberModelController, SetSaberGlowColor[]>.Accessor _setSaberGlowColorsAccessor = FieldAccessor<BasicSaberModelController, SetSaberGlowColor[]>.GetAccessor("_setSaberGlowColors");
-            private static readonly FieldAccessor<BasicSaberModelController, SetSaberFakeGlowColor[]>.Accessor _SetSaberFakeGlowAccessor = FieldAccessor<BasicSaberModelController, SetSaberFakeGlowColor[]>.GetAccessor("_setSaberFakeGlowColors");
-            private static readonly FieldAccessor<BasicSaberModelController, Light>.Accessor _lightAccessor = FieldAccessor<BasicSaberModelController, Light>.GetAccessor("_light");
+            private static readonly FieldAccessor<SaberModelController, SaberTrail>.Accessor _saberWeaponTrailAccessor = FieldAccessor<SaberModelController, SaberTrail>.GetAccessor("_saberTrail");
+            private static readonly FieldAccessor<SaberModelController, SaberModelController.InitData>.Accessor _initDataAccessor = FieldAccessor<SaberModelController, SaberModelController.InitData>.GetAccessor("_initData");
+            private static readonly FieldAccessor<SaberModelController, SetSaberGlowColor[]>.Accessor _setSaberGlowColorsAccessor = FieldAccessor<SaberModelController, SetSaberGlowColor[]>.GetAccessor("_setSaberGlowColors");
+            private static readonly FieldAccessor<SaberModelController, SetSaberFakeGlowColor[]>.Accessor _SetSaberFakeGlowAccessor = FieldAccessor<SaberModelController, SetSaberFakeGlowColor[]>.GetAccessor("_setSaberFakeGlowColors");
+            private static readonly FieldAccessor<SaberModelController, TubeBloomPrePassLight>.Accessor _saberLightAccessor = FieldAccessor<SaberModelController, TubeBloomPrePassLight>.GetAccessor("_saberLight");
+
+            private static readonly FieldAccessor<SaberTrail, Color>.Accessor _saberTrailColorAccessor = FieldAccessor<SaberTrail, Color>.GetAccessor("_color");
 
             private static readonly FieldAccessor<SaberBurnMarkArea, LineRenderer[]>.Accessor _lineRenderersAccessor = FieldAccessor<SaberBurnMarkArea, LineRenderer[]>.GetAccessor("_lineRenderers");
 
-            private readonly Xft.XWeaponTrail _saberWeaponTrail;
+            private readonly SaberTrail _saberWeaponTrail;
             private readonly Color _trailTintColor;
             private readonly SetSaberGlowColor[] _setSaberGlowColors;
             private readonly SetSaberFakeGlowColor[] _setSaberFakeGlowColors;
-            private readonly Light _light;
+            private readonly TubeBloomPrePassLight _saberLight;
 
-            private readonly BasicSaberModelController _bsm;
+            private readonly SaberModelController _bsm;
             private readonly SaberType _saberType;
 
-            private BSMColorManager(BasicSaberModelController bsm, SaberType saberType)
+            private BSMColorManager(SaberModelController bsm, SaberType saberType)
             {
                 _bsm = bsm;
                 _saberType = saberType;
@@ -91,7 +93,7 @@
                 _trailTintColor = _initDataAccessor(ref _bsm).trailTintColor;
                 _setSaberGlowColors = _setSaberGlowColorsAccessor(ref _bsm);
                 _setSaberFakeGlowColors = _SetSaberFakeGlowAccessor(ref _bsm);
-                _light = _lightAccessor(ref _bsm);
+                _saberLight = _saberLightAccessor(ref _bsm);
             }
 
             internal static IEnumerable<BSMColorManager> GetBSMColorManager(SaberType saberType)
@@ -99,7 +101,7 @@
                 return _bsmColorManagers.Where(n => n._saberType == saberType);
             }
 
-            internal static BSMColorManager CreateBSMColorManager(BasicSaberModelController bsm, SaberType saberType)
+            internal static BSMColorManager CreateBSMColorManager(SaberModelController bsm, SaberType saberType)
             {
                 BSMColorManager bsmcm;
                 bsmcm = new BSMColorManager(bsm, saberType);
@@ -120,8 +122,9 @@
 
                     SaberColorOverride[(int)_saberType] = color;
 
-                    _saberWeaponTrail.color = (color * _trailTintColor).linear;
-                    _light.color = color;
+                    SaberTrail saberTrail = _saberWeaponTrail;
+                    _saberTrailColorAccessor(ref saberTrail) = (color * _trailTintColor).linear;
+                    _saberLight.color = color;
 
                     foreach (SetSaberGlowColor setSaberGlowColor in _setSaberGlowColors)
                     {

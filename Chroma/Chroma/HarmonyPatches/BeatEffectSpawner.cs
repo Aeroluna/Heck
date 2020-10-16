@@ -6,8 +6,8 @@
     using HarmonyLib;
 
     [HarmonyPatch(typeof(BeatEffectSpawner))]
-    [HarmonyPatch("HandleNoteDidStartJumpEvent")]
-    internal static class HandleNoteDidStartJumpEventColorizer
+    [HarmonyPatch("HandleNoteDidStartJump")]
+    internal static class HandleNoteDidStartJumpColorizer
     {
         [HarmonyPriority(Priority.Low)]
         private static void Prefix(NoteController noteController)
@@ -22,8 +22,8 @@
     }
 
     [ChromaPatch(typeof(BeatEffectSpawner))]
-    [ChromaPatch("HandleNoteDidStartJumpEvent")]
-    internal static class HandleNoteDidStartJumpEvent
+    [ChromaPatch("HandleNoteDidStartJump")]
+    internal static class HandleNoteDidStartJump
     {
         [HarmonyPriority(Priority.High)]
         private static bool Prefix(NoteController noteController)

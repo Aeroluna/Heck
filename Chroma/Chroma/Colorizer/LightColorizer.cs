@@ -134,7 +134,7 @@
                     InitializeSOs(mono, "_highlightColor1Boost", ref _lightColor1Boost, ref _lightColor1Boost_Original, ref _mHighlightColor1Boost);
                     _supportBoostColor = true;
 
-                    Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<LightWithId>[], LightWithIdManager>("_lights")[lse.LightsID];
+                    Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<LightWithId>[], LightWithIdManager>("_lights")[lse.lightsId];
                     IDictionary<int, List<LightWithId>> lightsPreGroup = new Dictionary<int, List<LightWithId>>();
                     foreach (LightWithId light in Lights)
                     {

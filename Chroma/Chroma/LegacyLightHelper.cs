@@ -12,7 +12,7 @@
 
         internal static IDictionary<BeatmapEventType, List<Tuple<float, Color>>> LegacyColorEvents { get; } = new Dictionary<BeatmapEventType, List<Tuple<float, Color>>>();
 
-        internal static void Activate(BeatmapEventData[] eventData)
+        internal static void Activate(IReadOnlyList<BeatmapEventData> eventData)
         {
             LegacyColorEvents.Clear();
             foreach (BeatmapEventData d in eventData)
@@ -46,7 +46,7 @@
 
         private static Color ColorFromInt(int rgb)
         {
-            rgb = rgb - RGB_INT_OFFSET;
+            rgb -= RGB_INT_OFFSET;
             int red = (rgb >> 16) & 0x0ff;
             int green = (rgb >> 8) & 0x0ff;
             int blue = rgb & 0x0ff;

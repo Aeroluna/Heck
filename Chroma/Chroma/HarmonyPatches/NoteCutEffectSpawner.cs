@@ -3,7 +3,7 @@
     using Chroma.Colorizer;
     using HarmonyLib;
 
-    [HarmonyPatch(typeof(NoteCutEffectSpawner))]
+    [HarmonyPatch(typeof(NoteCutCoreEffectsSpawner))]
     [HarmonyPatch("SpawnNoteCutEffect")]
     internal static class NoteCutEffectSpawnerSpawnNoteCutEffect
     {

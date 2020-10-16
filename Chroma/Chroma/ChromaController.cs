@@ -17,6 +17,9 @@
 
     public static class ChromaController
     {
+        private static readonly FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.Accessor _beatmapObjectSpawnAccessor = FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.GetAccessor("_beatmapObjectSpawner");
+        private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
+
         private static List<ChromaPatchData> _chromaPatches;
 
         public static bool ChromaIsActive { get; private set; }
@@ -26,8 +29,6 @@
         internal static float SongBPM { get; private set; }
 
         internal static AudioTimeSyncController AudioTimeSyncController { get; private set; }
-
-        internal static BeatmapObjectManager BeatmapObjectManager { get; private set; }
 
         public static void ToggleChromaPatches(bool value)
         {
@@ -84,7 +85,16 @@
                         MethodInfo postfix = AccessTools.Method(type, "Postfix");
                         MethodInfo transpiler = AccessTools.Method(type, "Transpiler");
 
-                        methodNames.ForEach(n => _chromaPatches.Add(new ChromaPatchData(AccessTools.Method(declaringType, n), prefix, postfix, transpiler)));
+                        foreach (string methodName in methodNames)
+                        {
+                            MethodInfo methodInfo = declaringType.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+                            if (methodInfo == null)
+                            {
+                                throw new ArgumentException($"Could not find method '{methodName}' of '{declaringType}'");
+                            }
+
+                            _chromaPatches.Add(new ChromaPatchData(methodInfo, prefix, postfix, transpiler));
+                        }
                     }
                 }
             }
@@ -94,19 +104,21 @@
         {
             yield return new WaitForEndOfFrame();
             AudioTimeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First();
-            BeatmapObjectManager = Resources.FindObjectsOfTypeAll<BeatmapObjectManager>().First();
-            SongBPM = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First().currentBPM;
+            BeatmapObjectSpawnController beatmapObjectSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
+            BeatmapObjectManager beatmapObjectManager = _beatmapObjectSpawnAccessor(ref beatmapObjectSpawnController) as BeatmapObjectManager;
+            SongBPM = beatmapObjectSpawnController.currentBpm;
             BeatmapObjectCallbackController coreSetup = Resources.FindObjectsOfTypeAll<BeatmapObjectCallbackController>().First();
-            BeatmapData beatmapData = coreSetup.GetField<BeatmapData, BeatmapObjectCallbackController>("_beatmapData");
+            IReadonlyBeatmapData beatmapData = coreSetup.GetField<IReadonlyBeatmapData, BeatmapObjectCallbackController>("_beatmapData");
 
-            BeatmapObjectManager.noteWasCutEvent -= NoteColorizer.ColorizeSaber;
-            BeatmapObjectManager.noteWasCutEvent += NoteColorizer.ColorizeSaber;
+            beatmapObjectManager.noteWasCutEvent -= NoteColorizer.ColorizeSaber;
+            beatmapObjectManager.noteWasCutEvent += NoteColorizer.ColorizeSaber;
 
             if (ChromaConfig.Instance.LightshowModifier)
             {
                 foreach (BeatmapLineData b in beatmapData.beatmapLinesData)
                 {
-                    b.beatmapObjectsData = b.beatmapObjectsData.Where((source, index) => b.beatmapObjectsData[index].beatmapObjectType != BeatmapObjectType.Note).ToArray();
+                    BeatmapLineData refBeatmapLineData = b;
+                    _beatmapObjectsDataAccessor(ref refBeatmapLineData) = b.beatmapObjectsData.Where((source, index) => b.beatmapObjectsData[index].beatmapObjectType != BeatmapObjectType.Note).ToList();
                 }
 
                 foreach (Saber saber in Resources.FindObjectsOfTypeAll<Saber>())
@@ -177,7 +189,7 @@
                 }
 
                 // please let me kill legacy
-                LegacyLightHelper.Activate(beatmapData.beatmapEventData);
+                LegacyLightHelper.Activate(beatmapData.beatmapEventsData);
             }
         }
 

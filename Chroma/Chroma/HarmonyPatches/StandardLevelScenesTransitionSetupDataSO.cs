@@ -10,7 +10,7 @@
 
     [HarmonyPatch(
         typeof(StandardLevelScenesTransitionSetupDataSO),
-        new Type[] { typeof(IDifficultyBeatmap), typeof(OverrideEnvironmentSettings), typeof(ColorScheme), typeof(GameplayModifiers), typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(string), typeof(bool) })]
+        new Type[] { typeof(string), typeof(IDifficultyBeatmap), typeof(OverrideEnvironmentSettings), typeof(ColorScheme), typeof(GameplayModifiers), typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(string), typeof(bool) })]
     [HarmonyPatch("Init")]
     internal static class StandardLevelScenesTransitionSetupDataSOInit
     {
@@ -23,7 +23,7 @@
                 bool chromaRequirement = (requirements?.Contains(Chroma.Plugin.REQUIREMENTNAME) ?? false) || (suggestions?.Contains(Chroma.Plugin.REQUIREMENTNAME) ?? false);
 
                 // please let me remove this shit
-                bool legacyOverride = difficultyBeatmap.beatmapData.beatmapEventData.Any(n => n.value >= LegacyLightHelper.RGB_INT_OFFSET);
+                bool legacyOverride = difficultyBeatmap.beatmapData.beatmapEventsData.Any(n => n.value >= LegacyLightHelper.RGB_INT_OFFSET);
                 if (legacyOverride)
                 {
                     ChromaLogger.Log("Legacy Chroma Detected...", IPA.Logging.Logger.Level.Warning);
