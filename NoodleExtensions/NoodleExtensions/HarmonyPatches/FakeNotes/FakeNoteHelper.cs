@@ -13,7 +13,7 @@
         internal static readonly MethodInfo _boundsNullCheck = SymbolExtensions.GetMethodInfo(() => BoundsNullCheck(null));
         internal static readonly MethodInfo _obstacleFakeCheck = SymbolExtensions.GetMethodInfo(() => ObstacleFakeCheck(null));
 
-        internal static bool GetFakeNote(INoteController noteController)
+        internal static bool GetFakeNote(NoteController noteController)
         {
             if (noteController.noteData is CustomNoteData customNoteData)
             {

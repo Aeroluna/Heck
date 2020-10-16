@@ -57,7 +57,8 @@
         {
             SongCore.Collections.RegisterCapability(CAPABILITY);
             _harmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
-            HarmonyPatches.BeatmapDataLoaderProcessNotesInTimeRow.PatchBeatmapDataLoader(_harmonyInstanceCore);
+
+            CustomJSONData.CustomBeatmap.CustomBeatmapData.CustomBeatmapDataWasCreated += FakeNoteRecount.OnCustomBeatmapDataCreated;
         }
 
         [OnDisable]
@@ -66,6 +67,8 @@
             SongCore.Collections.DeregisterizeCapability(CAPABILITY);
             _harmonyInstanceCore.UnpatchAll(HARMONYIDCORE);
             _harmonyInstanceCore.UnpatchAll(HARMONYID);
+
+            CustomJSONData.CustomBeatmap.CustomBeatmapData.CustomBeatmapDataWasCreated -= FakeNoteRecount.OnCustomBeatmapDataCreated;
         }
     }
 }

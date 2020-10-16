@@ -1,29 +1,21 @@
-﻿namespace NoodleExtensions.HarmonyPatches
+﻿namespace NoodleExtensions
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
     using IPA.Utilities;
     using static Plugin;
 
-    // Yeah i just harmony patched my own mod, you got a problem with it?
-    [HarmonyPatch(typeof(CustomBeatmapData))]
-    [HarmonyPatch(MethodType.Constructor)]
-    [HarmonyPatch(new Type[] { typeof(BeatmapLineData[]), typeof(BeatmapEventData[]), typeof(CustomEventData[]), typeof(object), typeof(object), typeof(object) })]
-    internal static class CustomBeatmapDataCtor
+    internal static class FakeNoteRecount
     {
-        private static readonly PropertyAccessor<BeatmapData, int>.Setter _notesCountSetter = PropertyAccessor<BeatmapData, int>.GetSetter("notesCount");
+        private static readonly PropertyAccessor<BeatmapData, int>.Setter _cuttableNotesTypeSetter = PropertyAccessor<BeatmapData, int>.GetSetter("cuttableNotesType");
         private static readonly PropertyAccessor<BeatmapData, int>.Setter _obstaclesCountSetter = PropertyAccessor<BeatmapData, int>.GetSetter("obstaclesCount");
         private static readonly PropertyAccessor<BeatmapData, int>.Setter _bombsCountSetter = PropertyAccessor<BeatmapData, int>.GetSetter("bombsCount");
 
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static void Postfix(CustomBeatmapData __instance)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
+        internal static void OnCustomBeatmapDataCreated(CustomBeatmapData customBeatmapData)
         {
-            IEnumerable<string> requirements = ((List<object>)Trees.at(__instance.beatmapCustomData, "_requirements"))?.Cast<string>();
+            IEnumerable<string> requirements = ((List<object>)Trees.at(customBeatmapData.beatmapCustomData, "_requirements"))?.Cast<string>();
             bool noodleRequirement = requirements?.Contains(CAPABILITY) ?? false;
 
             if (noodleRequirement)
@@ -32,8 +24,8 @@
                 int notesCount = 0;
                 int obstaclesCount = 0;
                 int bombsCount = 0;
-                BeatmapLineData[] beatmapLinesData = __instance.beatmapLinesData;
-                for (int i = 0; i < beatmapLinesData.Length; i++)
+                IReadOnlyList<IReadonlyBeatmapLineData> beatmapLinesData = customBeatmapData.beatmapLinesData;
+                for (int i = 0; i < beatmapLinesData.Count; i++)
                 {
                     foreach (BeatmapObjectData beatmapObjectData in beatmapLinesData[i].beatmapObjectsData)
                     {
@@ -50,12 +42,12 @@
 
                         if (beatmapObjectData.beatmapObjectType == BeatmapObjectType.Note)
                         {
-                            NoteType noteType = ((NoteData)beatmapObjectData).noteType;
-                            if (noteType == NoteType.NoteA || noteType == NoteType.NoteB)
+                            ColorType noteType = ((NoteData)beatmapObjectData).colorType;
+                            if (noteType == ColorType.ColorA || noteType == ColorType.ColorB)
                             {
                                 notesCount++;
                             }
-                            else if (noteType == NoteType.Bomb)
+                            else if (noteType == ColorType.None)
                             {
                                 bombsCount++;
                             }
@@ -67,8 +59,8 @@
                     }
                 }
 
-                BeatmapData beatmapData = __instance as BeatmapData;
-                _notesCountSetter(ref beatmapData, notesCount);
+                BeatmapData beatmapData = customBeatmapData as BeatmapData;
+                _cuttableNotesTypeSetter(ref beatmapData, notesCount);
                 _obstaclesCountSetter(ref beatmapData, obstaclesCount);
                 _bombsCountSetter(ref beatmapData, bombsCount);
             }

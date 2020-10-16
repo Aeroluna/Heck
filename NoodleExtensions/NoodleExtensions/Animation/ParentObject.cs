@@ -93,7 +93,7 @@
 
                 foreach (ObstacleController obstacleController in ObstaclePool.activeItems)
                 {
-                    if (obstacleController.obstacleData is CustomObstacleData customObstacleData)
+                    if (obstacleController?.obstacleData is CustomObstacleData customObstacleData)
                     {
                         Track obstacleTrack = GetTrack(customObstacleData.customData);
                         if (obstacleTrack == track)

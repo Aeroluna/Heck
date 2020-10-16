@@ -1,6 +1,6 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
-    [NoodlePatch(typeof(DisappearingArrowController))]
+    [NoodlePatch(typeof(DisappearingArrowControllerBase<GameNoteController>))]
     [NoodlePatch("SetArrowTransparency")]
     internal static class DisappearingArrowControllerSetArrowTransparency
     {

@@ -5,13 +5,13 @@
     using static NoodleExtensions.Plugin;
 
     [NoodlePatch(typeof(NoteCutSoundEffectManager))]
-    [NoodlePatch("BeatmapObjectCallback")]
-    internal static class NoteCutSoundEffectManagerBeatmapObjectCallback
+    [NoodlePatch("HandleNoteWasSpawned")]
+    internal static class NoteCutSoundEffectManagerHandleNoteWasSpawned
     {
         // Do not create a NoteCutSoundEffect for fake notes
-        private static bool Prefix(BeatmapObjectData beatmapObjectData)
+        private static bool Prefix(NoteController noteController)
         {
-            if (beatmapObjectData is CustomNoteData customNoteData)
+            if (noteController.noteData is CustomNoteData customNoteData)
             {
                 dynamic dynData = customNoteData.customData;
                 bool? fake = Trees.at(dynData, FAKENOTE);

@@ -23,7 +23,7 @@
             if (track != null)
             {
                 float duration = (float?)Trees.at(customEventData.data, DURATION) ?? 0f;
-                duration = 60f * duration / Instance.BeatmapObjectSpawnController.currentBPM; // Convert to real time;
+                duration = 60f * duration / Instance.BeatmapObjectSpawnController.currentBpm; // Convert to real time;
 
                 string easingString = (string)Trees.at(customEventData.data, EASING);
                 Functions easing = Functions.easeLinear;

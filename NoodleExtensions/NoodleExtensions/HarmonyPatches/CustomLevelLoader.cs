@@ -1,15 +1,19 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
+    using System.Collections.Generic;
     using System.Linq;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
+    using IPA.Utilities;
     using static NoodleExtensions.Plugin;
 
     [HarmonyPatch(typeof(CustomLevelLoader))]
     [HarmonyPatch("LoadBeatmapDataBeatmapData")]
     internal static class CustomLevelLoaderLoadBeatmapDataBeatmapData
     {
+        private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
+
         [HarmonyPriority(Priority.Low)]
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(BeatmapData __result, string difficultyFileName, StandardLevelInfoSaveData standardLevelInfoSaveData)
@@ -77,7 +81,8 @@
                             dynData.aheadTime = moveDuration + (jumpDuration * 0.5f);
                         }
 
-                        beatmapLineData.beatmapObjectsData = beatmapLineData.beatmapObjectsData.OrderBy(n => n.time - (float)((dynamic)n).customData.aheadTime).ToArray();
+                        BeatmapLineData refBeatmapLineData = beatmapLineData;
+                        _beatmapObjectsDataAccessor(ref refBeatmapLineData) = beatmapLineData.beatmapObjectsData.OrderBy(n => n.time - (float)((dynamic)n).customData.aheadTime).ToList();
                     }
                 }
             }

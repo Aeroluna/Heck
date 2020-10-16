@@ -204,8 +204,8 @@
     }
 
     [NoodlePatch(typeof(ObstacleController))]
-    [NoodlePatch("Update")]
-    internal static class ObstacleControllerUpdate
+    [NoodlePatch("ManualUpdate")]
+    internal static class ObstacleControllerManualUpdate
     {
         private static readonly FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.Accessor _obstacleCutoutAnimateEffectAccessor = FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
 

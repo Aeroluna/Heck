@@ -6,8 +6,8 @@
     using HarmonyLib;
 
     [NoodlePatch(typeof(PlayerHeadAndObstacleInteraction))]
-    [NoodlePatch("GetObstaclesCointainingPoint")]
-    internal static class PlayerHeadAndObstacleInteractionGetObstaclesCointainingPoint
+    [NoodlePatch("GetObstaclesContainingPoint")]
+    internal static class PlayerHeadAndObstacleInteractionGetObstaclesContainingPoint
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {

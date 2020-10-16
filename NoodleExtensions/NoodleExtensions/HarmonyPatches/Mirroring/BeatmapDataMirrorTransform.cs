@@ -5,17 +5,16 @@
     using HarmonyLib;
     using static NoodleExtensions.Plugin;
 
-    [HarmonyPatch(typeof(BeatDataMirrorTransform))]
+    [HarmonyPatch(typeof(BeatmapDataMirrorTransform))]
     [HarmonyPatch("CreateTransformedData")]
     internal static class BeatDataMirrorTransformCreateTransformedData
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static void Postfix(BeatmapData __result)
+        private static void Postfix(IReadonlyBeatmapData __result)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            for (int num5 = 0; num5 < __result.beatmapEventData.Length; num5++)
+            foreach (BeatmapEventData beatmapEventData in __result.beatmapEventsData)
             {
-                BeatmapEventData beatmapEventData = __result.beatmapEventData[num5];
                 if (beatmapEventData.type.IsRotationEvent())
                 {
                     if (beatmapEventData is CustomBeatmapEventData customData)

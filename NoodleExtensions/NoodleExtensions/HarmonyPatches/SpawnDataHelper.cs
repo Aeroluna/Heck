@@ -69,7 +69,7 @@
 
         internal static class BeatmapObjectSpawnMovementDataVariables
         {
-            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _startBPMAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_startBPM");
+            private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _startBPMAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_startBpm");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _topObstaclePosYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_topObstaclePosY");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _jumpOffsetYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_jumpOffsetY");
             private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _verticalObstaclePosYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_verticalObstaclePosY");

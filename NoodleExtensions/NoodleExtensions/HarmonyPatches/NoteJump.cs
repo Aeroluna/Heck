@@ -20,7 +20,6 @@
         private static readonly MethodInfo _convertToLocalSpace = SymbolExtensions.GetMethodInfo(() => ConvertToLocalSpace(null));
         private static readonly MethodInfo _popQuaternion = SymbolExtensions.GetMethodInfo(() => PopQuaternion(Quaternion.identity, Vector3.zero));
         private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), "_definitePosition");
-        private static readonly MethodInfo _setLocalPosition = typeof(Transform).GetProperty("localPosition").GetSetMethod();
 
         // This field is used by reflection
 #pragma warning disable CS0414 // The field is assigned but its value is never used
@@ -42,7 +41,6 @@
             bool foundFinalPosition = false;
             bool foundTransformUp = false;
             bool foundZOffset = false;
-            bool foundPosition = false;
             for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundTime &&
@@ -86,14 +84,6 @@
                     instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldsfld, _definitePositionField));
                     instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Brtrue_S, instructionList[i].operand));
                 }
-
-                if (!foundPosition &&
-                    instructionList[i].opcode == OpCodes.Callvirt &&
-                    ((MethodInfo)instructionList[i].operand).Name == "set_position")
-                {
-                    foundPosition = true;
-                    instructionList[i].operand = _setLocalPosition;
-                }
             }
 
             if (!foundTime)
@@ -114,11 +104,6 @@
             if (!foundZOffset)
             {
                 NoodleLogger.Log("Failed to find brfalse.s to Label21!", IPA.Logging.Logger.Level.Error);
-            }
-
-            if (!foundPosition)
-            {
-                NoodleLogger.Log("Failed to find callvirt to set_position!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();

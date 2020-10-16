@@ -13,8 +13,8 @@
     {
         internal static void OnTrackManagerCreated(object trackManager, CustomBeatmapData customBeatmapData)
         {
-            CustomEventData[] customEventDatas = customBeatmapData.customEventData;
-            foreach (CustomEventData customEventData in customEventDatas)
+            List<CustomEventData> customEventsData = customBeatmapData.customEventsData;
+            foreach (CustomEventData customEventData in customEventsData)
             {
                 if (customEventData.type == "AssignTrackParent")
                 {

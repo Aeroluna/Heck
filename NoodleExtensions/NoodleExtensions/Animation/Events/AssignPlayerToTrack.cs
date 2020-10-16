@@ -1,5 +1,6 @@
 ﻿namespace NoodleExtensions.Animation
 {
+    using System.Collections.Generic;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using static NoodleExtensions.Animation.AnimationHelper;
@@ -9,8 +10,8 @@
     {
         internal static void OnTrackManagerCreated(object trackManager, CustomBeatmapData customBeatmapData)
         {
-            CustomEventData[] customEventDatas = customBeatmapData.customEventData;
-            foreach (CustomEventData customEventData in customEventDatas)
+            List<CustomEventData> customEventsData = customBeatmapData.customEventsData;
+            foreach (CustomEventData customEventData in customEventsData)
             {
                 if (customEventData.type == "AssignPlayerToTrack")
                 {

@@ -20,7 +20,7 @@
             {
                 if (!foundLabel &&
                     instructionList[i].operand is Label operandLabel &&
-                    instructionList[i].operand.GetHashCode() == 0)
+                    instructionList[i].operand.GetHashCode() == 2)
                 {
                     foundLabel = true;
 
@@ -42,7 +42,7 @@
 
             if (!foundLabel)
             {
-                NoodleLogger.Log("Failed to find br to IL_0134!", IPA.Logging.Logger.Level.Error);
+                NoodleLogger.Log("Failed to find br to IL_0136!", IPA.Logging.Logger.Level.Error);
             }
 
             if (!foundBounds)

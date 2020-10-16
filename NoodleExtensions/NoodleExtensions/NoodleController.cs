@@ -71,7 +71,16 @@
                         MethodInfo postfix = AccessTools.Method(type, "Postfix");
                         MethodInfo transpiler = AccessTools.Method(type, "Transpiler");
 
-                        methodNames.ForEach(n => _noodlePatches.Add(new NoodlePatchData(AccessTools.Method(declaringType, n), prefix, postfix, transpiler)));
+                        foreach (string methodName in methodNames)
+                        {
+                            MethodInfo methodInfo = declaringType.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+                            if (methodInfo == null)
+                            {
+                                throw new ArgumentException($"Could not find method '{methodName}' of '{declaringType}'");
+                            }
+
+                            _noodlePatches.Add(new NoodlePatchData(methodInfo, prefix, postfix, transpiler));
+                        }
                     }
                 }
             }

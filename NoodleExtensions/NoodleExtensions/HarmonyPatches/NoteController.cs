@@ -150,8 +150,8 @@
                     foundFlipYSide = true;
 
                     instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _getFlipYSide));
-                    instructionList.Insert(i - 2, new CodeInstruction(OpCodes.Ldarg_0));
-                    instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(NoteController), "_noteData")));
+                    instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldarg_0));
+                    instructionList.Insert(i, new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(NoteController), "_noteData")));
                 }
             }
 
@@ -190,7 +190,7 @@
         private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpStartPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_startPos");
         private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpEndPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_endPos");
 
-        private static readonly FieldAccessor<NoteJump, AudioTimeSyncController>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<NoteJump, AudioTimeSyncController>.GetAccessor("_audioTimeSyncController");
+        private static readonly FieldAccessor<NoteJump, IAudioTimeSource>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<NoteJump, IAudioTimeSource>.GetAccessor("_audioTimeSyncController");
         private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
 
         private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
@@ -288,16 +288,18 @@
                         cutoutEffect.SetCutout(1 - dissolve.Value);
                     }
 
-                    if (dissolveArrow.HasValue && __instance.noteData.noteType != NoteType.Bomb)
+                    if (dissolveArrow.HasValue && __instance.noteData.colorType != ColorType.None)
                     {
-                        DisappearingArrowController disappearingArrowController = Trees.at(dynData, "disappearingArrowController");
+                        DisappearingArrowControllerBase<GameNoteController> disappearingArrowController = Trees.at(dynData, "disappearingArrowController");
                         if (disappearingArrowController == null)
                         {
-                            disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowController>();
+                            disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowControllerBase<GameNoteController>>();
                             dynData.disappearingArrowController = disappearingArrowController;
                         }
 
-                        disappearingArrowController.SetArrowTransparency(dissolveArrow.Value);
+                        // gross nasty reflection
+                        typeof(DisappearingArrowControllerBase<GameNoteController>).GetMethod("SetArrowTransparency", BindingFlags.NonPublic | BindingFlags.Instance)
+                            .Invoke(disappearingArrowController, new object[] { dissolveArrow.Value });
                     }
 
                     if (cuttable.HasValue)

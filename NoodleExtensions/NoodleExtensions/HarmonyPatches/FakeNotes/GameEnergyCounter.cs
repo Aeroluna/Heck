@@ -7,7 +7,7 @@
     using HarmonyLib;
 
     [NoodlePatch(typeof(GameEnergyCounter))]
-    [NoodlePatch("Update")]
+    [NoodlePatch("LateUpdate")]
     internal static class GameEnergyCounterUpdate
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)

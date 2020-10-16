@@ -23,11 +23,11 @@
     }
 
     [NoodlePatch(typeof(BeatmapObjectSpawnMovementData))]
-    [NoodlePatch("GetObstacleSpawnMovementData")]
-    internal static class BeatmapObjectSpawnMovementDataGetObstacleSpawnMovementData
+    [NoodlePatch("GetObstacleSpawnData")]
+    internal static class BeatmapObjectSpawnMovementDataGetObstacleSpawnData
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static void Postfix(Vector3 ____centerPos, ObstacleData obstacleData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float obstacleHeight)
+        private static void Postfix(Vector3 ____centerPos, ObstacleData obstacleData, ref BeatmapObjectSpawnMovementData.ObstacleSpawnData __result)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (obstacleData is CustomObstacleData customData)
@@ -44,6 +44,12 @@
                 float? height = scale?.ElementAtOrDefault(1);
 
                 Vector3? finalNoteOffset = null;
+
+                Vector3 moveStartPos = __result.moveStartPos;
+                Vector3 moveEndPos = __result.moveEndPos;
+                Vector3 jumpEndPos = __result.jumpEndPos;
+                float obstacleHeight = __result.obstacleHeight;
+                GetNoteJumpValues(njs, spawnoffset, out float jumpDuration, out float _, out Vector3 _, out Vector3 _, out Vector3 _);
 
                 // Actual wall stuff
                 if (startX.HasValue || startY.HasValue || njs.HasValue || spawnoffset.HasValue)
@@ -67,6 +73,8 @@
                     obstacleHeight = height.Value * NoteLinesDistance;
                 }
 
+                __result = new BeatmapObjectSpawnMovementData.ObstacleSpawnData(moveStartPos, moveEndPos, jumpEndPos, obstacleHeight, __result.moveDuration, jumpDuration, __result.noteLinesDistance);
+
                 if (!finalNoteOffset.HasValue)
                 {
                     Vector3 noteOffset = GetNoteOffset(obstacleData, startX, null);
@@ -82,11 +90,11 @@
     }
 
     [NoodlePatch(typeof(BeatmapObjectSpawnMovementData))]
-    [NoodlePatch("GetNoteSpawnMovementData")]
-    internal static class BeatmapObjectSpawnMovementDataGetNoteSpawnMovementData
+    [NoodlePatch("GetJumpingNoteSpawnData")]
+    internal static class BeatmapObjectSpawnMovementDataGetJumpingNoteSpawnData
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static void Postfix(BeatmapObjectSpawnMovementData __instance, Vector3 ____centerPos, float ____jumpDuration, NoteData noteData, ref Vector3 moveStartPos, ref Vector3 moveEndPos, ref Vector3 jumpEndPos, ref float jumpGravity)
+        private static void Postfix(BeatmapObjectSpawnMovementData __instance, Vector3 ____centerPos, float ____jumpDuration, NoteData noteData, ref BeatmapObjectSpawnMovementData.NoteSpawnData __result)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (noteData is CustomNoteData customData)
@@ -104,6 +112,11 @@
                 float? startHeight = position?.ElementAtOrDefault(1);
 
                 float jumpDuration = ____jumpDuration;
+
+                Vector3 moveStartPos = __result.moveStartPos;
+                Vector3 moveEndPos = __result.moveEndPos;
+                Vector3 jumpEndPos = __result.jumpEndPos;
+                float jumpGravity = __result.jumpGravity;
 
                 Vector3 noteOffset = GetNoteOffset(noteData, startRow, startlinelayer);
 
@@ -129,6 +142,8 @@
                     Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? startRow, gravityOverride ? startHeight : startlinelayer);
                     moveStartPos = localMoveStartPos + noteOffset2;
                     moveEndPos = localMoveEndPos + noteOffset2;
+
+                    __result = new BeatmapObjectSpawnMovementData.NoteSpawnData(moveStartPos, moveEndPos, jumpEndPos, jumpGravity, __result.moveDuration, jumpDuration);
                 }
 
                 // DEFINITE POSITION IS WEIRD, OK?

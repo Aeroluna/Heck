@@ -37,12 +37,18 @@
     <Reference Include="0Harmony">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Libs\0Harmony.dll</HintPath>
     </Reference>
+    <Reference Include="BeatmapCore">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+    </Reference>
     <Reference Include="Colors">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Colors.dll</HintPath>
     </Reference>
     <Reference Include="CustomJSONData, Version=0.0.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\CustomJSONData.dll</HintPath>
+    </Reference>
+    <Reference Include="GameplayCore">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
     </Reference>
     <Reference Include="IPA.Loader">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\IPA\Data\Managed\IPA.Loader.dll</HintPath>
@@ -85,30 +91,30 @@
     <Compile Include="Animation\PlayerTrack.cs" />
     <Compile Include="Animation\PointDefinition.cs" />
     <Compile Include="Animation\PointDefinitionInterpolation.cs" />
-    <Compile Include="HarmonyPatches\BeatmapDataNoArrowsTransform.cs" />
-    <Compile Include="HarmonyPatches\CustomBeatmapData.cs" />
+    <Compile Include="FakeNoteRecount.cs" />
     <Compile Include="HarmonyPatches\CustomLevelLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectCallBackController.cs" />
-    <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\BeatmapObjectExecutionRatingsRecorder.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\BeatmapObjectManager.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\BombNoteController.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\GameNoteController.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\FakeNoteHelper.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\GameEnergyCounter.cs" />
-    <Compile Include="HarmonyPatches\FakeNotes\NoteCutEffectSpawner.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\BadNoteCutEffectSpawner.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\NoteCutScoreSpawner.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\ObstacleSaberSparkleEffectManager.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\PlayerHeadAndObstacleInteraction.cs" />
     <Compile Include="HarmonyPatches\BombCutSoundEffectManager.cs" />
-    <Compile Include="HarmonyPatches\NoteCutSoundEffectManager.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\NoteCutSoundEffectManager.cs" />
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnMovementData.cs" />
     <Compile Include="HarmonyPatches\Mirroring\ObstacleData.cs" />
     <Compile Include="HarmonyPatches\Mirroring\NoteData.cs" />
-    <Compile Include="HarmonyPatches\Mirroring\BeatDataMirrorTransform.cs" />
+    <Compile Include="HarmonyPatches\Mirroring\BeatmapDataMirrorTransform.cs" />
     <Compile Include="HarmonyPatches\NoteFloorMovement.cs" />
     <Compile Include="HarmonyPatches\NoteJump.cs" />
+    <Compile Include="HarmonyPatches\NotesInTimeRowProcessor.cs" />
     <Compile Include="HarmonyPatches\SpawnDataHelper.cs" />
     <Compile Include="HarmonyPatches\DisappearingArrowController.cs" />
     <Compile Include="HarmonyPatches\SpawnRotationProcessor.cs" />

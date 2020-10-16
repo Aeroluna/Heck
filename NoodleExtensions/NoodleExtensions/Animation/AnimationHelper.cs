@@ -12,45 +12,37 @@
 
     public static class AnimationHelper
     {
-        private static readonly FieldAccessor<BeatmapObjectManager, NoteController.Pool>.Accessor _noteAPoolAccessor = FieldAccessor<BeatmapObjectManager, NoteController.Pool>.GetAccessor("_noteAPool");
-        private static readonly FieldAccessor<BeatmapObjectManager, NoteController.Pool>.Accessor _noteBPoolAccessor = FieldAccessor<BeatmapObjectManager, NoteController.Pool>.GetAccessor("_noteBPool");
-        private static readonly FieldAccessor<BeatmapObjectManager, NoteController.Pool>.Accessor _bombNotePoolAccessor = FieldAccessor<BeatmapObjectManager, NoteController.Pool>.GetAccessor("_bombNotePool");
-        private static readonly FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.Accessor _obstaclePoolAccessor = FieldAccessor<BeatmapObjectManager, ObstacleController.Pool>.GetAccessor("_obstaclePool");
+        private static readonly FieldAccessor<BasicBeatmapObjectManager, MonoMemoryPoolContainer<GameNoteController>>.Accessor _gameNotePoolAccessor = FieldAccessor<BasicBeatmapObjectManager, MonoMemoryPoolContainer<GameNoteController>>.GetAccessor("_gameNotePoolContainer");
+        private static readonly FieldAccessor<BasicBeatmapObjectManager, MonoMemoryPoolContainer<BombNoteController>>.Accessor _bombNotePoolAccessor = FieldAccessor<BasicBeatmapObjectManager, MonoMemoryPoolContainer<BombNoteController>>.GetAccessor("_bombNotePoolContainer");
+        private static readonly FieldAccessor<BasicBeatmapObjectManager, MonoMemoryPoolContainer<ObstacleController>>.Accessor _obstaclePoolAccessor = FieldAccessor<BasicBeatmapObjectManager, MonoMemoryPoolContainer<ObstacleController>>.GetAccessor("_obstaclePoolContainer");
+        private static readonly FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.Accessor _beatmapObjectSpawnAccessor = FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.GetAccessor("_beatmapObjectSpawner");
 
-        private static BeatmapObjectManager _beatmapObjectManager;
+        private static BeatmapObjectSpawnController _beatmapObjectSpawnController;
+        private static BasicBeatmapObjectManager _beatmapObjectManager;
 
-        public static NoteController.Pool NoteAPool
+        public static MonoMemoryPoolContainer<GameNoteController> GameNotePool
         {
             get
             {
-                BeatmapObjectManager beatmapObjectManager = BeatmapObjectManager;
-                return _noteAPoolAccessor(ref beatmapObjectManager);
+                BasicBeatmapObjectManager beatmapObjectManager = BeatmapObjectManager;
+                return _gameNotePoolAccessor(ref beatmapObjectManager);
             }
         }
 
-        public static NoteController.Pool NoteBPool
+        public static MonoMemoryPoolContainer<BombNoteController> BombNotePool
         {
             get
             {
-                BeatmapObjectManager beatmapObjectManager = BeatmapObjectManager;
-                return _noteBPoolAccessor(ref beatmapObjectManager);
-            }
-        }
-
-        public static NoteController.Pool BombNotePool
-        {
-            get
-            {
-                BeatmapObjectManager beatmapObjectManager = BeatmapObjectManager;
+                BasicBeatmapObjectManager beatmapObjectManager = BeatmapObjectManager;
                 return _bombNotePoolAccessor(ref beatmapObjectManager);
             }
         }
 
-        public static ObstacleController.Pool ObstaclePool
+        public static MonoMemoryPoolContainer<ObstacleController> ObstaclePool
         {
             get
             {
-                BeatmapObjectManager beatmapObjectManager = BeatmapObjectManager;
+                BasicBeatmapObjectManager beatmapObjectManager = BeatmapObjectManager;
                 return _obstaclePoolAccessor(ref beatmapObjectManager);
             }
         }
@@ -59,13 +51,23 @@
 
         public static Dictionary<string, PointDefinition> PointDefinitions => Trees.at(((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData, "pointDefinitions");
 
-        private static BeatmapObjectManager BeatmapObjectManager
+        private static BasicBeatmapObjectManager BeatmapObjectManager
         {
             get
             {
-                if (_beatmapObjectManager == null)
+                if (_beatmapObjectSpawnController == null)
                 {
-                    _beatmapObjectManager = Resources.FindObjectsOfTypeAll<BeatmapObjectManager>().First();
+                    // TODO: find a better way to get the BeatmapObjectManager
+                    _beatmapObjectSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
+                    IBeatmapObjectSpawner beatmapObjectSpawner = _beatmapObjectSpawnAccessor(ref _beatmapObjectSpawnController);
+                    if (beatmapObjectSpawner is BasicBeatmapObjectManager basicBeatmapObjectManager)
+                    {
+                        _beatmapObjectManager = basicBeatmapObjectManager;
+                    }
+                    else
+                    {
+                        throw new System.NullReferenceException("Not BasicBeatmapObjectManager");
+                    }
                 }
 
                 return _beatmapObjectManager;
