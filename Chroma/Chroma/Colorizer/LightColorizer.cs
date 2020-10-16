@@ -22,24 +22,24 @@
             }
         }
 
-        public static void SetLightingColors(this MonoBehaviour lse, Color? color0, Color? color1)
+        public static void SetLightingColors(this MonoBehaviour lse, Color? color0, Color? color1, Color? color0Boost = null, Color? color1Boost = null)
         {
-            LSEColorManager.GetLSEColorManager(lse)?.SetLightingColors(color0, color1);
+            LSEColorManager.GetLSEColorManager(lse)?.SetLightingColors(color0, color1, color0Boost, color1Boost);
         }
 
-        public static void SetLightingColors(this BeatmapEventType lse, Color? color0, Color? color1)
+        public static void SetLightingColors(this BeatmapEventType lse, Color? color0, Color? color1, Color? color0Boost = null, Color? color1Boost = null)
         {
             foreach (LSEColorManager l in LSEColorManager.GetLSEColorManager(lse))
             {
-                l.SetLightingColors(color0, color1);
+                l.SetLightingColors(color0, color1, color0Boost, color1Boost);
             }
         }
 
-        public static void SetAllLightingColors(Color? color0, Color? color1)
+        public static void SetAllLightingColors(Color? color0, Color? color1, Color? color0Boost = null, Color? color1Boost = null)
         {
             foreach (LSEColorManager lseColorManager in _lseColorManagers)
             {
-                lseColorManager.SetLightingColors(color0, color1);
+                lseColorManager.SetLightingColors(color0, color1, color0Boost, color1Boost);
             }
         }
 

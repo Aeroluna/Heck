@@ -65,7 +65,7 @@
             {
                 Color color = valuePair.Value.Interpolate();
                 BeatmapEventType eventType = valuePair.Key;
-                eventType.SetLightingColors(color, color);
+                eventType.SetLightingColors(color, color, color, color);
                 eventType.SetActiveColors();
             }
         }

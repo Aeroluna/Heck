@@ -67,11 +67,9 @@
             {
                 dynamic dynData = customData.customData;
 
-                bool? lockPosition = Trees.at(dynData, "_lockPosition");
-                lockPosition = lockPosition.GetValueOrDefault(false);
+                bool lockPosition = ((bool?)Trees.at(dynData, "_lockPosition")).GetValueOrDefault(false);
 
-                float? precisionSpeed = (float?)Trees.at(dynData, "_preciseSpeed");
-                precisionSpeed = precisionSpeed.GetValueOrDefault(beatmapEventData.value);
+                float precisionSpeed = ((float?)Trees.at(dynData, "_preciseSpeed")).GetValueOrDefault(beatmapEventData.value);
 
                 int? dir = (int?)Trees.at(dynData, "_direction");
                 dir = dir.GetValueOrDefault(-1);
@@ -95,17 +93,17 @@
                 if (beatmapEventData.value == 0)
                 {
                     _rotationDataType.GetField("enabled").SetValue(rotationData, false);
-                    if (!lockPosition.Value)
+                    if (!lockPosition)
                     {
                         _rotationDataType.GetField("rotationAngle").SetValue(rotationData, startRotationAngle);
                         transform.localRotation = startRotation * Quaternion.Euler(rotationVector * startRotationAngle);
                     }
                 }
-                else
+                else if (beatmapEventData.value > 0)
                 {
                     _rotationDataType.GetField("enabled").SetValue(rotationData, true);
                     _rotationDataType.GetField("rotationSpeed").SetValue(rotationData, precisionSpeed * 20f * direction);
-                    if (!lockPosition.Value)
+                    if (!lockPosition)
                     {
                         float rotationAngle = startRotationOffset + startRotationAngle;
                         _rotationDataType.GetField("rotationAngle").SetValue(rotationData, rotationAngle);
