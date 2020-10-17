@@ -22,7 +22,7 @@
         {
             if (_instance == null)
             {
-                GameObject gameObject = GameObject.Find("GameCore/Origin");
+                GameObject gameObject = GameObject.Find("LocalPlayerGameCore/Origin");
                 _origin = gameObject.transform;
                 _instance = gameObject.AddComponent<PlayerTrack>();
                 _pauseController = FindObjectOfType<PauseController>();

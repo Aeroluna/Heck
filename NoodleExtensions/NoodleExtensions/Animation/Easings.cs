@@ -41,6 +41,7 @@
         easeOutBounce,
         easeInOutBounce,
     }
+
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 
     internal static class Easings

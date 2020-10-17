@@ -69,6 +69,10 @@
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
@@ -105,7 +109,7 @@
     <Compile Include="HarmonyPatches\FakeNotes\NoteCutScoreSpawner.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\ObstacleSaberSparkleEffectManager.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\PlayerHeadAndObstacleInteraction.cs" />
-    <Compile Include="HarmonyPatches\BombCutSoundEffectManager.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\BombCutSoundEffectManager.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\NoteCutSoundEffectManager.cs" />
     <Compile Include="HarmonyPatches\NoteController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnMovementData.cs" />

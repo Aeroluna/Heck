@@ -18,7 +18,6 @@
         private static readonly FieldInfo _localPositionField = AccessTools.Field(typeof(NoteJump), "_localPosition");
         private static readonly MethodInfo _definiteNoteJump = SymbolExtensions.GetMethodInfo(() => DefiniteNoteJump(Vector3.zero, 0));
         private static readonly MethodInfo _convertToLocalSpace = SymbolExtensions.GetMethodInfo(() => ConvertToLocalSpace(null));
-        private static readonly MethodInfo _popQuaternion = SymbolExtensions.GetMethodInfo(() => PopQuaternion(Quaternion.identity, Vector3.zero));
         private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), "_definitePosition");
 
         // This field is used by reflection
@@ -70,7 +69,10 @@
                 {
                     foundTransformUp = true;
                     instructionList[i] = new CodeInstruction(OpCodes.Call, _convertToLocalSpace);
-                    instructionList[i + 1] = new CodeInstruction(OpCodes.Call, _popQuaternion);
+                    instructionList.RemoveRange(i + 1, 8);
+                    instructionList.RemoveRange(i - 5, 3);
+                    instructionList.Insert(i - 5, new CodeInstruction(OpCodes.Ldloc_S, 5));
+                    instructionList.Insert(i - 5, new CodeInstruction(OpCodes.Ldloca_S, 6));
                 }
 
                 // is there a better way of checking labels?
@@ -133,14 +135,6 @@
         private static Vector3 ConvertToLocalSpace(Transform rotatedObject)
         {
             return rotatedObject.parent.InverseTransformDirection(rotatedObject.up);
-        }
-
-        // used to pop the quaternion from the stack and return the vector3
-#pragma warning disable IDE0060 // Remove unused parameter
-        private static Vector3 PopQuaternion(Quaternion quaternion, Vector3 vector)
-#pragma warning restore IDE0060 // Remove unused parameter
-        {
-            return vector;
         }
     }
 }

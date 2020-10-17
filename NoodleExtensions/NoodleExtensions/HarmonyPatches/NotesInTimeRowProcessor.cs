@@ -3,11 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
-    using NoodleExtensions.Animation;
     using static NoodleExtensions.Plugin;
 
     internal static class NotesInTimeRowProcessorProcessAllNotesInTimeRow
