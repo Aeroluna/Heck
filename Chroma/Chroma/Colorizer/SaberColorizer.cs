@@ -124,7 +124,10 @@
 
                     SaberTrail saberTrail = _saberWeaponTrail;
                     _saberTrailColorAccessor(ref saberTrail) = (color * _trailTintColor).linear;
-                    _saberLight.color = color;
+                    if (_saberLight != null)
+                    {
+                        _saberLight.color = color;
+                    }
 
                     foreach (SetSaberGlowColor setSaberGlowColor in _setSaberGlowColors)
                     {
