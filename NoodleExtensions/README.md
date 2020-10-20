@@ -39,7 +39,7 @@ Example of `_customData`:
     * `"_noteJumpMovementSpeed"`: (float) Set the NJS of an individual object.
     * `"_noteJumpStartBeatOffset"`: (float) Set the spawn offset of an individual object.
     * `"_fake"`: (bool) When true, causes the note/wall to not show up in the note/wall count and to not count towards score in any way.
-    * `"_interactable"`: (bool) When true, the note/wall cannot be interacted with. This means notes cannot be cut and walls will not interact with sabers/putting your head in the wall. Notes will still count towards your score.
+    * `"_interactable"`: (bool) When false, the note/wall cannot be interacted with. This means notes cannot be cut and walls will not interact with sabers/putting your head in the wall. Notes will still count towards your score.
 ## Notes
   * `"_notes"` -> `"_customData"`
     * `"_cutDirection"`: (float) Rotate notes 360 degrees with as much precision as you want (0 is down). Will override `"_cutDirection"`.
