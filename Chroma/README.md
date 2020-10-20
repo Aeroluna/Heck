@@ -74,8 +74,17 @@ Example of _customData:
     * Can only be applied to ring rotation events.
     * `"_nameFilter"`: (string) Causes event to only affect rings with a listed name (e.g. SmallTrackLaneRings, BigTrackLaneRings).
     * `"_reset"`: (bool) Will reset the rings when set to true (Overwrites values below).
-    * `"_stepMult"`: (float) Dictates how far the rings will spin.
-    * `"_propMult"`: (float) Dictates the rate at which rings behind the first one have physics applied to them.  High value makes all rings move simultaneously, low value gives them [significant delay](https://streamable.com/vsdr9).
-    * `"_speedMult"`: (float) Dictates the [speed multiplier of the rings](https://streamable.com/fxlse).
+    * `"_step"`: (float) Dictates how far the rings will spin.
+    * `"_prop"`: (float) Dictates the rate at which rings behind the first one have physics applied to them.  High value makes all rings move simultaneously, low value gives them [significant delay](https://streamable.com/vsdr9).
+    * `"_speed"`: (float) Dictates the [speed multiplier of the rings](https://streamable.com/fxlse).
     * `"_direction"`: (int) Direction to spin the rings (1 spins clockwise, 0 spins counter-clockwise).
     * `"_counterSpin"`: (bool) Causes the smaller ring to [spin in the opposite direction](https://streamable.com/4duyy).
+    * `"_stepMult"`: (float) Deprecated. Step is multiplied by this value.
+    * `"_propMult"`: (float) Deprecated. Prop is multiplied by this value.
+    * `"_speedMult"`: (float) Deprecated. Speed is multiplied by this value.
+* Hide Note Spawn Effect
+  * `"_notes"` -> `"_customData"`
+    * `"_disableSpawnEffect"`: (bool) Set to true and the note spawn effect will be hidden.
+    
+## Animation
+See [Noodle Extensions documentation](https://github.com/Aeroluna/NoodleExtensions/blob/master/Documentation/AnimationDocs.md#_color)
