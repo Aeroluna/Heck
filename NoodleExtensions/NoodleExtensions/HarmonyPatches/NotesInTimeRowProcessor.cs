@@ -1,25 +1,70 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
     using static NoodleExtensions.Plugin;
 
+    [HarmonyPatch(typeof(NotesInTimeRowProcessor))]
+    [HarmonyPatch("ProcessAllNotesInTimeRow")]
     internal static class NotesInTimeRowProcessorProcessAllNotesInTimeRow
     {
-        private static readonly Dictionary<float, float> _numberOfNotesInLines = new Dictionary<float, float>();
+        private static readonly Dictionary<float, List<CustomNoteData>> _notesInColumns = new Dictionary<float, List<CustomNoteData>>();
 
         private static void Postfix(List<NoteData> notes)
         {
             List<CustomNoteData> customNotes = notes.Cast<CustomNoteData>().ToList();
 
-            // Process flip data
-            int customNoteCount = customNotes.Count;
-            for (int i = customNoteCount - 1; i >= 0; i--)
+            _notesInColumns.Clear();
+            for (int i = 0; i < customNotes.Count; i++)
             {
-                dynamic dynData = customNotes[i].customData;
+                CustomNoteData noteData = customNotes[i];
+
+                IEnumerable<float?> position = ((List<object>)Trees.at(noteData.customData, POSITION))?.Select(n => n.ToNullableFloat());
+                float lineIndex = position?.ElementAtOrDefault(0) ?? (noteData.lineIndex - 2);
+                float lineLayer = position?.ElementAtOrDefault(1) ?? (float)noteData.noteLineLayer;
+
+                if (!_notesInColumns.TryGetValue(lineIndex, out List<CustomNoteData> list))
+                {
+                    list = new List<CustomNoteData>();
+                    _notesInColumns.Add(lineIndex, list);
+                }
+
+                bool flag = false;
+                for (int k = 0; k < list.Count; k++)
+                {
+                    IEnumerable<float?> listPosition = ((List<object>)Trees.at(list[k].customData, POSITION))?.Select(n => n.ToNullableFloat());
+                    float listLineLayer = position?.ElementAtOrDefault(1) ?? (float)noteData.noteLineLayer;
+                    if (listLineLayer > lineLayer)
+                    {
+                        list.Insert(k, noteData);
+                        flag = true;
+                        break;
+                    }
+                }
+
+                if (!flag)
+                {
+                    list.Add(noteData);
+                }
+            }
+
+            foreach (KeyValuePair<float, List<CustomNoteData>> keyValue in _notesInColumns)
+            {
+                List<CustomNoteData> list2 = keyValue.Value;
+                for (int m = 0; m < list2.Count; m++)
+                {
+                    list2[m].customData.startNoteLineLayer = m;
+                }
+            }
+
+            // Process flip data
+            List<CustomNoteData> flipNotes = new List<CustomNoteData>(customNotes);
+            for (int i = flipNotes.Count - 1; i >= 0; i--)
+            {
+                dynamic dynData = flipNotes[i].customData;
                 IEnumerable<float?> flip = ((List<object>)Trees.at(dynData, FLIP))?.Select(n => n.ToNullableFloat());
                 float? flipX = flip?.ElementAtOrDefault(0);
                 float? flipY = flip?.ElementAtOrDefault(1);
@@ -35,38 +80,16 @@
                         dynData.flipYSide = flipY.Value;
                     }
 
-                    customNotes.Remove(customNotes[i]);
+                    flipNotes.Remove(flipNotes[i]);
                 }
             }
 
-            customNotes.ForEach(c => c.customData.flipYSide = 0);
-
-            _numberOfNotesInLines.Clear();
-            for (int i = 0; i < customNotes.Count; i++)
-            {
-                CustomNoteData noteData = customNotes[i];
-                dynamic dynData = noteData.customData;
-
-                IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
-                float lineIndex = position?.ElementAt(0) ?? noteData.lineIndex;
-                float lineLayer = position?.ElementAt(1) ?? (float)noteData.noteLineLayer;
-                if (_numberOfNotesInLines.TryGetValue(lineIndex, out float num))
-                {
-                    Dictionary<float, float> numberOfNotesInLines = _numberOfNotesInLines;
-                    float num2 = Math.Max(numberOfNotesInLines[lineIndex], 0) + Math.Min(lineLayer, 1);
-                    dynData.startNoteLineLayer = num2;
-                    numberOfNotesInLines[lineIndex] = num2;
-                }
-                else
-                {
-                    float startLineLayer = Math.Min(lineLayer, 0);
-                    _numberOfNotesInLines[lineIndex] = startLineLayer;
-                    dynData.startNoteLineLayer = startLineLayer;
-                }
-            }
+            flipNotes.ForEach(c => c.customData.flipYSide = 0);
         }
     }
 
+    [HarmonyPatch(typeof(NotesInTimeRowProcessor))]
+    [HarmonyPatch("ProcessColorNotesInTimeRow")]
     internal static class NotesInTimeRowProcessorProcessColorNotesInTimeRow
     {
         private static void ProcessBasicNotesInTimeRow(List<NoteData> basicNotes)
@@ -82,11 +105,8 @@
                 {
                     dynamic dynData = customNotes[i].customData;
                     IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
-                    float? startRow = position?.ElementAtOrDefault(0);
-                    float? startHeight = position?.ElementAtOrDefault(1);
-
-                    lineIndexes[i] = startRow.GetValueOrDefault(customNotes[i].lineIndex - 2);
-                    lineLayers[i] = startHeight.GetValueOrDefault((float)customNotes[i].noteLineLayer);
+                    lineIndexes[i] = position?.ElementAtOrDefault(0) ?? (customNotes[i].lineIndex - 2);
+                    lineLayers[i] = position?.ElementAtOrDefault(1) ?? (float)customNotes[i].noteLineLayer;
                 }
 
                 if (customNotes[0].colorType != customNotes[1].colorType && ((customNotes[0].colorType == ColorType.ColorA && lineIndexes[0] > lineIndexes[1]) ||

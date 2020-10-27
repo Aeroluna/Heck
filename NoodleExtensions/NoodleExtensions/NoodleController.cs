@@ -12,10 +12,13 @@
         private static List<NoodlePatchData> _noodlePatches;
 
         // used by tracks
-        public static bool LeftHandedMode { get; set; }
+        public static bool LeftHandedMode { get; internal set; }
+
+        public static bool NoodleExtensionsActive { get; private set; }
 
         public static void ToggleNoodlePatches(bool value)
         {
+            NoodleExtensionsActive = value;
             if (value)
             {
                 if (!Harmony.HasAnyPatches(HARMONYID))

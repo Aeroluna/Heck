@@ -104,7 +104,7 @@
                 float? flipLineIndex = (float?)Trees.at(dynData, "flipLineIndex");
                 float? njs = (float?)Trees.at(dynData, NOTEJUMPSPEED);
                 float? spawnoffset = (float?)Trees.at(dynData, NOTESPAWNOFFSET);
-                float startlinelayer = (float?)Trees.at(dynData, "startNoteLineLayer") ?? (float)NoteLineLayer.Base;
+                float? startlinelayer = (float?)Trees.at(dynData, "startNoteLineLayer");
 
                 bool gravityOverride = (bool?)Trees.at(dynData, NOTEGRAVITYDISABLE) ?? false;
 
@@ -118,16 +118,16 @@
                 Vector3 jumpEndPos = __result.jumpEndPos;
                 float jumpGravity = __result.jumpGravity;
 
-                Vector3 noteOffset = GetNoteOffset(noteData, startRow, startlinelayer);
+                Vector3 noteOffset = GetNoteOffset(noteData, startRow, startlinelayer ?? (float)noteData.startNoteLineLayer);
 
-                if (position != null || flipLineIndex != null || njs.HasValue || spawnoffset.HasValue || gravityOverride)
+                if (position != null || flipLineIndex != null || njs.HasValue || spawnoffset.HasValue || startlinelayer.HasValue || gravityOverride)
                 {
                     GetNoteJumpValues(njs, spawnoffset, out float localJumpDuration, out float localJumpDistance, out Vector3 localMoveStartPos, out Vector3 localMoveEndPos, out Vector3 localJumpEndPos);
                     jumpDuration = localJumpDuration;
 
                     float localNoteJumpMovementSpeed = njs ?? NoteJumpMovementSpeed;
 
-                    float startLayerLineYPos = LineYPosForLineLayer(noteData, startlinelayer);
+                    float startLayerLineYPos = LineYPosForLineLayer(noteData, startlinelayer ?? (float)noteData.startNoteLineLayer);
                     float lineYPos = LineYPosForLineLayer(noteData, startHeight);
 
                     // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
@@ -139,7 +139,7 @@
                     jumpEndPos = localJumpEndPos + noteOffset;
 
                     // IsBasicNote() check is skipped so bombs can flip too
-                    Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? startRow, gravityOverride ? startHeight : startlinelayer);
+                    Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? startRow, gravityOverride ? startHeight : startlinelayer ?? (float)noteData.startNoteLineLayer);
                     moveStartPos = localMoveStartPos + noteOffset2;
                     moveEndPos = localMoveEndPos + noteOffset2;
 

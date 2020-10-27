@@ -12,8 +12,6 @@
     [HarmonyPatch("LoadBeatmapDataBeatmapData")]
     internal static class CustomLevelLoaderLoadBeatmapDataBeatmapData
     {
-        private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
-
         [HarmonyPriority(Priority.Low)]
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(BeatmapData __result, string difficultyFileName, StandardLevelInfoSaveData standardLevelInfoSaveData)
@@ -45,8 +43,10 @@
                     float maxHalfJumpDistance = 18;
                     float moveDuration = 0.5f;
 
-                    foreach (BeatmapLineData beatmapLineData in __result.beatmapLinesData)
+                    List<IReadonlyBeatmapLineData> reorderedLineData = new List<IReadonlyBeatmapLineData>(customBeatmapData.beatmapLinesData.Count);
+                    for (int i = 0; i < customBeatmapData.beatmapLinesData.Count; i++)
                     {
+                        IReadonlyBeatmapLineData beatmapLineData = customBeatmapData.beatmapLinesData[i];
                         foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
                         {
                             dynamic customData;
@@ -81,9 +81,10 @@
                             dynData.aheadTime = moveDuration + (jumpDuration * 0.5f);
                         }
 
-                        BeatmapLineData refBeatmapLineData = beatmapLineData;
-                        _beatmapObjectsDataAccessor(ref refBeatmapLineData) = beatmapLineData.beatmapObjectsData.OrderBy(n => n.time - (float)((dynamic)n).customData.aheadTime).ToList();
+                        reorderedLineData.Add(new BeatmapLineData(beatmapLineData.beatmapObjectsData.OrderBy(n => n.time - (float)((dynamic)n).customData.aheadTime).ToList()));
                     }
+
+                    customBeatmapData.customData.reorderedLineData = reorderedLineData;
                 }
             }
         }
