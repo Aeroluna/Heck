@@ -101,6 +101,7 @@
     <Compile Include="HarmonyPatches\BeatmapObjectCallBackController.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\BeatmapObjectExecutionRatingsRecorder.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\BeatmapObjectManager.cs" />
+    <Compile Include="HarmonyPatches\FakeNotes\NoteCutCoreEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\BombNoteController.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\GameNoteController.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\FakeNoteHelper.cs" />
@@ -119,11 +120,15 @@
     <Compile Include="HarmonyPatches\NoteFloorMovement.cs" />
     <Compile Include="HarmonyPatches\NoteJump.cs" />
     <Compile Include="HarmonyPatches\NotesInTimeRowProcessor.cs" />
+    <Compile Include="HarmonyPatches\SceneTransition\MissionLevelScenesTransitionSetupDataSO.cs" />
+    <Compile Include="HarmonyPatches\SceneTransition\SceneTransitionHelper.cs" />
+    <Compile Include="HarmonyPatches\SceneTransition\MultiplayerLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\SpawnDataHelper.cs" />
     <Compile Include="HarmonyPatches\DisappearingArrowController.cs" />
+    <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
     <Compile Include="HarmonyPatches\SpawnRotationProcessor.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />
-    <Compile Include="HarmonyPatches\StandardLevelScenesTransitionSetupDataSO.cs" />
+    <Compile Include="HarmonyPatches\SceneTransition\StandardLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="NoodlePatch.cs" />
     <Compile Include="NullableExtensions.cs" />
     <Compile Include="Plugin.cs" />
@@ -143,6 +148,7 @@
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetDir)$(TargetName).dll" "C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\$(TargetName).dll"</PostBuildEvent>

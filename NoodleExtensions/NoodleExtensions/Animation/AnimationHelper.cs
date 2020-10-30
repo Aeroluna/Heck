@@ -58,15 +58,17 @@
                 if (_beatmapObjectSpawnController == null)
                 {
                     // TODO: find a better way to get the BeatmapObjectManager
-                    _beatmapObjectSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
-                    IBeatmapObjectSpawner beatmapObjectSpawner = _beatmapObjectSpawnAccessor(ref _beatmapObjectSpawnController);
+                    BeatmapObjectSpawnController spawnController = HarmonyPatches.BeatmapObjectSpawnControllerStart.BeatmapObjectSpawnController;
+                    IBeatmapObjectSpawner beatmapObjectSpawner = _beatmapObjectSpawnAccessor(ref spawnController);
                     if (beatmapObjectSpawner is BasicBeatmapObjectManager basicBeatmapObjectManager)
                     {
                         _beatmapObjectManager = basicBeatmapObjectManager;
+                        _beatmapObjectSpawnController = spawnController;
                     }
-                    else
+
+                    if (_beatmapObjectSpawnController == null)
                     {
-                        throw new System.NullReferenceException("Not BasicBeatmapObjectManager");
+                        throw new System.Exception("Could not find BasicBeatmapObjectManager");
                     }
                 }
 

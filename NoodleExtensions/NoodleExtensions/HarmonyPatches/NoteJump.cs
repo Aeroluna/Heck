@@ -19,6 +19,7 @@
         private static readonly MethodInfo _definiteNoteJump = SymbolExtensions.GetMethodInfo(() => DefiniteNoteJump(Vector3.zero, 0));
         private static readonly MethodInfo _convertToLocalSpace = SymbolExtensions.GetMethodInfo(() => ConvertToLocalSpace(null));
         private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), "_definitePosition");
+        private static readonly MethodInfo _getHeadPos = AccessTools.PropertyGetter(typeof(PlayerTransforms), "headPos");
 
         // This field is used by reflection
 #pragma warning disable CS0414 // The field is assigned but its value is never used
@@ -38,6 +39,7 @@
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundTime = false;
             bool foundFinalPosition = false;
+            bool foundHeadLocalPos = false;
             bool foundTransformUp = false;
             bool foundZOffset = false;
             for (int i = 0; i < instructionList.Count; i++)
@@ -61,6 +63,14 @@
                     instructionList.Insert(i + 5, new CodeInstruction(OpCodes.Ldloc_1));
                     instructionList.Insert(i + 6, new CodeInstruction(OpCodes.Call, _definiteNoteJump));
                     instructionList.Insert(i + 7, new CodeInstruction(OpCodes.Stfld, _localPositionField));
+                }
+
+                if (!foundHeadLocalPos &&
+                    instructionList[i].opcode == OpCodes.Callvirt &&
+                  ((MethodInfo)instructionList[i].operand).Name == "get_headLocalPos")
+                {
+                    foundHeadLocalPos = true;
+                    instructionList[i].operand = _getHeadPos;
                 }
 
                 if (!foundTransformUp &&
@@ -131,7 +141,7 @@
         }
 
         // These methods are necessary in order to rotate the parent transform without screwing with the rotateObject's up
-        // (This is something that beat games should be doing tbh)
+        // (Beat games kinda does this but they do it very pepega so i override)
         private static Vector3 ConvertToLocalSpace(Transform rotatedObject)
         {
             return rotatedObject.parent.InverseTransformDirection(rotatedObject.up);
