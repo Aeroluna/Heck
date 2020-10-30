@@ -84,14 +84,14 @@
                 _initcolor = initcolor;
                 _endcolor = endcolor;
                 _start = start;
-                _duration = 60f * duration / ChromaController.SongBPM;
+                _duration = 60f * duration / ChromaController.BeatmapObjectSpawnController.currentBpm;
                 _event = eventType;
                 _easing = easing;
             }
 
             internal Color Interpolate()
             {
-                float normalTime = ChromaController.AudioTimeSyncController.songTime - _start;
+                float normalTime = ChromaController.IAudioTimeSource.songTime - _start;
                 if (normalTime < 0)
                 {
                     return _initcolor;

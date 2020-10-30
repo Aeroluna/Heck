@@ -34,36 +34,30 @@
     [ChromaPatch("UpdateRotationData")]
     internal static class LightPairRotationEventEffectUpdateRotationData
     {
-        private static MethodInfo _getPrivateFieldM = null;
         private static Type _rotationDataType = null;
 
         private static void GetRotationData()
         {
-            // Thank you +1 Rabbit for providing this code
             // Since LightPairRotationEventEffect.RotationData is a private internal member, we need to get its type dynamically.
             _rotationDataType = Type.GetType("LightPairRotationEventEffect+RotationData,Main");
-
-            // The reflection method to get the rotation data must have its generic method created dynamically, so as to use the dynamic type.
-            MethodInfo reflectionGetField = typeof(ReflectionUtil).GetMethod("GetField");
-            _getPrivateFieldM = reflectionGetField.MakeGenericMethod(_rotationDataType, typeof(LightPairRotationEventEffect));
         }
 
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static bool Prefix(LightPairRotationEventEffect __instance, BeatmapEventType ____eventL, float startRotationOffset, float direction)
+        private static bool Prefix(LightPairRotationEventEffect __instance, BeatmapEventType ____eventL, float startRotationOffset, float direction, object ____rotationDataL, object ____rotationDataR)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             BeatmapEventData beatmapEventData = LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.LastLightPairRotationEventEffectData;
 
             bool isLeftEvent = beatmapEventData.type == ____eventL;
 
-            if (_getPrivateFieldM == null)
+            if (_rotationDataType == null)
             {
                 GetRotationData();
             }
 
-            object rotationData = _getPrivateFieldM.Invoke(null, new object[] { __instance, isLeftEvent ? "_rotationDataL" : "_rotationDataR" });
+            object rotationData = isLeftEvent ? ____rotationDataL : ____rotationDataR;
 
-            if (beatmapEventData is CustomBeatmapEventData customData && rotationData != null)
+            if (beatmapEventData is CustomBeatmapEventData customData)
             {
                 dynamic dynData = customData.customData;
 

@@ -7,7 +7,7 @@
 
     [HarmonyPatch(typeof(BeatEffectSpawner))]
     [HarmonyPatch("HandleNoteDidStartJump")]
-    internal static class HandleNoteDidStartJumpColorizer
+    internal static class BeatEffectSpawnerHandleNoteDidStartJumpColorizer
     {
         [HarmonyPriority(Priority.Low)]
         private static void Prefix(NoteController noteController)
@@ -23,7 +23,7 @@
 
     [ChromaPatch(typeof(BeatEffectSpawner))]
     [ChromaPatch("HandleNoteDidStartJump")]
-    internal static class HandleNoteDidStartJump
+    internal static class BeatEffectSpawnerHandleNoteDidStartJump
     {
         [HarmonyPriority(Priority.High)]
         private static bool Prefix(NoteController noteController)

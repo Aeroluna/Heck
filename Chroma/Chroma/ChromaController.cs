@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Reflection;
     using Chroma.Colorizer;
+    using Chroma.HarmonyPatches;
     using Chroma.Settings;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
@@ -19,6 +20,8 @@
     {
         private static readonly FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.Accessor _beatmapObjectSpawnAccessor = FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.GetAccessor("_beatmapObjectSpawner");
         private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
+        private static readonly FieldAccessor<BeatmapObjectCallbackController, IAudioTimeSource>.Accessor _audioTimeSourceAccessor = FieldAccessor<BeatmapObjectCallbackController, IAudioTimeSource>.GetAccessor("_audioTimeSource");
+        private static readonly FieldAccessor<BeatmapObjectCallbackController, IReadonlyBeatmapData>.Accessor _beatmapDataAccessor = FieldAccessor<BeatmapObjectCallbackController, IReadonlyBeatmapData>.GetAccessor("_beatmapData");
 
         private static List<ChromaPatchData> _chromaPatches;
 
@@ -26,9 +29,9 @@
 
         public static bool DoColorizerSabers { get; set; }
 
-        internal static float SongBPM { get; private set; }
+        internal static BeatmapObjectSpawnController BeatmapObjectSpawnController => BeatmapObjectSpawnControllerStart.BeatmapObjectSpawnController;
 
-        internal static AudioTimeSyncController AudioTimeSyncController { get; private set; }
+        internal static IAudioTimeSource IAudioTimeSource { get; private set; }
 
         public static void ToggleChromaPatches(bool value)
         {
@@ -103,12 +106,11 @@
         internal static IEnumerator DelayedStart()
         {
             yield return new WaitForEndOfFrame();
-            AudioTimeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First();
-            BeatmapObjectSpawnController beatmapObjectSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
+            BeatmapObjectSpawnController beatmapObjectSpawnController = BeatmapObjectSpawnController;
             BeatmapObjectManager beatmapObjectManager = _beatmapObjectSpawnAccessor(ref beatmapObjectSpawnController) as BeatmapObjectManager;
-            SongBPM = beatmapObjectSpawnController.currentBpm;
-            BeatmapObjectCallbackController coreSetup = Resources.FindObjectsOfTypeAll<BeatmapObjectCallbackController>().First();
-            IReadonlyBeatmapData beatmapData = coreSetup.GetField<IReadonlyBeatmapData, BeatmapObjectCallbackController>("_beatmapData");
+            BeatmapObjectCallbackController coreSetup = BeatmapObjectCallbackControllerStart.BeatmapObjectCallbackController;
+            IAudioTimeSource = _audioTimeSourceAccessor(ref coreSetup);
+            IReadonlyBeatmapData beatmapData = _beatmapDataAccessor(ref coreSetup);
 
             beatmapObjectManager.noteWasCutEvent -= NoteColorizer.ColorizeSaber;
             beatmapObjectManager.noteWasCutEvent += NoteColorizer.ColorizeSaber;

@@ -21,7 +21,7 @@
         internal static readonly Harmony _harmonyInstanceCore = new Harmony(HARMONYIDCORE);
         internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
 
-        internal static bool NoodleExtensionsActive { get; private set; } = false;
+        internal static bool NoodleExtensionsInstalled { get; private set; } = false;
 
         [Init]
         public void Init(IPALogger pluginLogger, Config conf)
@@ -52,11 +52,11 @@
             if (ChromaUtils.IsModInstalled("NoodleExtensions"))
             {
                 AnimationHelper.SubscribeColorEvents();
-                NoodleExtensionsActive = true;
+                NoodleExtensionsInstalled = true;
             }
             else
             {
-                NoodleExtensionsActive = false;
+                NoodleExtensionsInstalled = false;
             }
         }
 

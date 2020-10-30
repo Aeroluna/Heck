@@ -24,7 +24,7 @@
         private static void Postfix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            if (Chroma.Plugin.NoodleExtensionsActive)
+            if (Chroma.Plugin.NoodleExtensionsInstalled)
             {
                 TrackColorize(__instance, ____noteData, ____noteMovement);
             }
@@ -32,7 +32,7 @@
 
         private static void TrackColorize(NoteController instance, NoteData noteData, NoteMovement noteMovement)
         {
-            if (noteData is CustomNoteData customData)
+            if (NoodleExtensions.NoodleController.NoodleExtensionsActive && noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
                 Track track = AnimationHelper.GetTrack(dynData);

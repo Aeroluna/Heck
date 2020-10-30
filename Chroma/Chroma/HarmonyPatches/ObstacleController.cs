@@ -55,7 +55,7 @@
         private static void Postfix(ObstacleController __instance, ObstacleData ____obstacleData, AudioTimeSyncController ____audioTimeSyncController, float ____startTimeOffset, float ____move1Duration, float ____move2Duration, float ____obstacleDuration)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            if (Chroma.Plugin.NoodleExtensionsActive)
+            if (Chroma.Plugin.NoodleExtensionsInstalled)
             {
                 TrackColorize(__instance, ____obstacleData, ____audioTimeSyncController, ____startTimeOffset, ____move1Duration, ____move2Duration, ____obstacleDuration);
             }
@@ -63,7 +63,7 @@
 
         private static void TrackColorize(ObstacleController obstacleController, ObstacleData obstacleData, AudioTimeSyncController audioTimeSyncController, float startTimeOffset, float move1Duration, float move2Duration, float obstacleDuration)
         {
-            if (obstacleData is CustomObstacleData customData)
+            if (NoodleExtensions.NoodleController.NoodleExtensionsActive && obstacleData is CustomObstacleData customData)
             {
                 dynamic dynData = customData.customData;
                 Track track = AnimationHelper.GetTrack(dynData);
