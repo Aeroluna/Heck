@@ -10,7 +10,6 @@
     public class PointDefinition
     {
         private List<PointData> _points;
-        private List<PointData> _linearPoints;
 
         public static PointDefinition DynamicToPointData(dynamic dyn)
         {
@@ -63,7 +62,7 @@
                 if (copiedList.Count() == 2)
                 {
                     Vector2 vector = new Vector2(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]));
-                    pointData.LinearAdd(new PointData(vector, easing));
+                    pointData.Add(new PointData(vector, easing));
                 }
                 else if (copiedList.Count() == 4)
                 {
@@ -87,13 +86,6 @@
             {
                 _points.ForEach(n => stringBuilder.Append($"{n.Point.ToString()} "));
             }
-            else
-            {
-                if (_linearPoints != null)
-                {
-                    _linearPoints.ForEach(n => stringBuilder.Append($"{n.LinearPoint.ToString()} "));
-                }
-            }
 
             stringBuilder.Append("}");
             return stringBuilder.ToString();
@@ -106,35 +98,28 @@
                 return _vectorZero;
             }
 
-            if (time <= 0)
+            if (_points.First().Point.w >= time)
             {
                 return _points.First().Point;
             }
 
-            int pointsCount = _points.Count;
-            for (int i = 0; i < pointsCount; i++)
+            if (_points.Last().Point.w <= time)
             {
-                if (_points[i].Point.w > time)
-                {
-                    if (i == 0)
-                    {
-                        return _points.First().Point;
-                    }
-
-                    float normalTime = (time - _points[i - 1].Point.w) / (_points[i].Point.w - _points[i - 1].Point.w);
-                    normalTime = Easings.Interpolate(normalTime, _points[i].Easing);
-                    if (_points[i].Smooth)
-                    {
-                        return SmoothVectorLerp(_points, i - 1, i, normalTime);
-                    }
-                    else
-                    {
-                        return Vector3.LerpUnclamped(_points[i - 1].Point, _points[i].Point, normalTime);
-                    }
-                }
+                return _points.Last().Point;
             }
 
-            return _points.Last().Point;
+            SearchIndex(time, PropertyType.Vector3, out int l, out int r);
+
+            float normalTime = (time - _points[l].Point.w) / (_points[r].Point.w - _points[l].Point.w);
+            normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
+            if (_points[r].Smooth)
+            {
+                return SmoothVectorLerp(_points, l, r, normalTime);
+            }
+            else
+            {
+                return Vector3.LerpUnclamped(_points[l].Point, _points[r].Point, normalTime);
+            }
         }
 
         public Quaternion InterpolateQuaternion(float time)
@@ -144,62 +129,48 @@
                 return _quaternionIdentity;
             }
 
-            if (time <= 0)
+            if (_points.First().Point.w >= time)
             {
                 return Quaternion.Euler(_points.First().Point);
             }
 
-            int pointsCount = _points.Count;
-            for (int i = 0; i < pointsCount; i++)
+            if (_points.Last().Point.w <= time)
             {
-                if (_points[i].Point.w > time)
-                {
-                    if (i == 0)
-                    {
-                        return Quaternion.Euler(_points.First().Point);
-                    }
-
-                    Quaternion quaternionOne = Quaternion.Euler(_points[i - 1].Point);
-                    Quaternion quaternionTwo = Quaternion.Euler(_points[i].Point);
-                    float normalTime = (time - _points[i - 1].Point.w) / (_points[i].Point.w - _points[i - 1].Point.w);
-                    normalTime = Easings.Interpolate(normalTime, _points[i].Easing);
-                    return Quaternion.SlerpUnclamped(quaternionOne, quaternionTwo, normalTime);
-                }
+                return Quaternion.Euler(_points.Last().Point);
             }
 
-            return Quaternion.Euler(_points.Last().Point);
+            SearchIndex(time, PropertyType.Quaternion, out int l, out int r);
+
+            Quaternion quaternionOne = Quaternion.Euler(_points[l].Point);
+            Quaternion quaternionTwo = Quaternion.Euler(_points[r].Point);
+            float normalTime = (time - _points[l].Point.w) / (_points[r].Point.w - _points[l].Point.w);
+            normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
+            return Quaternion.SlerpUnclamped(quaternionOne, quaternionTwo, normalTime);
         }
 
         // Kind of a sloppy way of implementing this, but hell if it works
         public float InterpolateLinear(float time)
         {
-            if (_linearPoints == null || _linearPoints.Count == 0)
+            if (_points == null || _points.Count == 0)
             {
                 return 0;
             }
 
-            if (time <= 0)
+            if (_points.First().LinearPoint.y >= time)
             {
-                return _linearPoints.First().LinearPoint.x;
+                return _points.First().LinearPoint.x;
             }
 
-            int pointsCount = _linearPoints.Count;
-            for (int i = 0; i < pointsCount; i++)
+            if (_points.Last().LinearPoint.y <= time)
             {
-                if (_linearPoints[i].LinearPoint.y > time)
-                {
-                    if (i == 0)
-                    {
-                        return _linearPoints.First().LinearPoint.x;
-                    }
-
-                    float normalTime = (time - _linearPoints[i - 1].LinearPoint.y) / (_linearPoints[i].LinearPoint.y - _linearPoints[i - 1].LinearPoint.y);
-                    normalTime = Easings.Interpolate(normalTime, _linearPoints[i].Easing);
-                    return Mathf.LerpUnclamped(_linearPoints[i - 1].LinearPoint.x, _linearPoints[i].LinearPoint.x, normalTime);
-                }
+                return _points.Last().LinearPoint.x;
             }
 
-            return _linearPoints.Last().LinearPoint.x;
+            SearchIndex(time, PropertyType.Linear, out int l, out int r);
+
+            float normalTime = (time - _points[l].LinearPoint.y) / (_points[r].LinearPoint.y - _points[l].LinearPoint.y);
+            normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
+            return Mathf.LerpUnclamped(_points[l].LinearPoint.x, _points[r].LinearPoint.x, normalTime);
         }
 
         public Vector4 InterpolateVector4(float time)
@@ -209,28 +180,21 @@
                 return Vector4.zero;
             }
 
-            if (time <= 0)
+            if (_points.First().Vector4Point.v >= time)
             {
-                return _points.First().Point;
+                return _points.First().Vector4Point;
             }
 
-            int pointsCount = _points.Count;
-            for (int i = 0; i < pointsCount; i++)
+            if (_points.Last().Vector4Point.v <= time)
             {
-                if (_points[i].Vector4Point.v > time)
-                {
-                    if (i == 0)
-                    {
-                        return _points.First().Vector4Point;
-                    }
-
-                    float normalTime = (time - _points[i - 1].Vector4Point.v) / (_points[i].Vector4Point.v - _points[i - 1].Vector4Point.v);
-                    normalTime = Easings.Interpolate(normalTime, _points[i].Easing);
-                    return Vector4.LerpUnclamped(_points[i - 1].Vector4Point, _points[i].Vector4Point, normalTime);
-                }
+                return _points.Last().Vector4Point;
             }
 
-            return _points.Last().Vector4Point;
+            SearchIndex(time, PropertyType.Vector4, out int l, out int r);
+
+            float normalTime = (time - _points[l].Vector4Point.v) / (_points[r].Vector4Point.v - _points[l].Vector4Point.v);
+            normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
+            return Vector4.LerpUnclamped(_points[l].Vector4Point, _points[r].Vector4Point, normalTime);
         }
 
         private static Vector3 SmoothVectorLerp(List<PointData> points, int a, int b, float time)
@@ -256,6 +220,41 @@
             return c;
         }
 
+        // Use binary search instead of linear search.
+        private void SearchIndex(float time, PropertyType propertyType, out int l, out int r)
+        {
+            l = 0;
+            r = _points.Count;
+
+            while (l < r - 1)
+            {
+                int m = (l + r) / 2;
+                float pointTime = 0;
+                switch (propertyType)
+                {
+                    case PropertyType.Linear:
+                        pointTime = _points[m].LinearPoint.y;
+                        break;
+                    case PropertyType.Quaternion:
+                    case PropertyType.Vector3:
+                        pointTime = _points[m].Point.w;
+                        break;
+                    case PropertyType.Vector4:
+                        pointTime = _points[m].Vector4Point.v;
+                        break;
+                }
+
+                if (pointTime < time)
+                {
+                    l = m;
+                }
+                else
+                {
+                    r = m;
+                }
+            }
+        }
+
         private void Add(PointData point)
         {
             if (_points == null)
@@ -264,16 +263,6 @@
             }
 
             _points.Add(point);
-        }
-
-        private void LinearAdd(PointData point)
-        {
-            if (_linearPoints == null)
-            {
-                _linearPoints = new List<PointData>();
-            }
-
-            _linearPoints.Add(point);
         }
 
         private struct Vector5
