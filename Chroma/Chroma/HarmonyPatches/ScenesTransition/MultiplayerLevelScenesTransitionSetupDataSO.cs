@@ -4,10 +4,10 @@
     using HarmonyLib;
 
     [HarmonyPatch(
-        typeof(MissionLevelScenesTransitionSetupDataSO),
-        new Type[] { typeof(string), typeof(IDifficultyBeatmap), typeof(MissionObjective[]), typeof(ColorScheme), typeof(GameplayModifiers), typeof(PlayerSpecificSettings), typeof(string) })]
+        typeof(MultiplayerLevelScenesTransitionSetupDataSO),
+        new Type[] { typeof(string), typeof(IPreviewBeatmapLevel), typeof(BeatmapDifficulty), typeof(BeatmapCharacteristicSO), typeof(IDifficultyBeatmap), typeof(ColorScheme), typeof(GameplayModifiers), typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(bool) })]
     [HarmonyPatch("Init")]
-    internal static class MissionLevelScenesTransitionSetupDataSOInit
+    internal static class MultiplayerLevelScenesTransitionSetupDataSOInit
     {
         private static void Postfix(IDifficultyBeatmap difficultyBeatmap)
         {

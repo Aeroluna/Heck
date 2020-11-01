@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Reflection;
     using Chroma.Colorizer;
-    using Chroma.HarmonyPatches;
     using Chroma.Settings;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
@@ -18,6 +17,7 @@
 
     public static class ChromaController
     {
+        private static readonly FieldAccessor<BeatmapObjectSpawnController, BeatmapObjectCallbackController>.Accessor _callbackControllerAccessor = FieldAccessor<BeatmapObjectSpawnController, BeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
         private static readonly FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.Accessor _beatmapObjectSpawnAccessor = FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.GetAccessor("_beatmapObjectSpawner");
         private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
         private static readonly FieldAccessor<BeatmapObjectCallbackController, IAudioTimeSource>.Accessor _audioTimeSourceAccessor = FieldAccessor<BeatmapObjectCallbackController, IAudioTimeSource>.GetAccessor("_audioTimeSource");
@@ -29,7 +29,7 @@
 
         public static bool DoColorizerSabers { get; set; }
 
-        internal static BeatmapObjectSpawnController BeatmapObjectSpawnController => BeatmapObjectSpawnControllerStart.BeatmapObjectSpawnController;
+        internal static BeatmapObjectSpawnController BeatmapObjectSpawnController { get; private set; }
 
         internal static IAudioTimeSource IAudioTimeSource { get; private set; }
 
@@ -103,12 +103,12 @@
             }
         }
 
-        internal static IEnumerator DelayedStart()
+        internal static IEnumerator DelayedStart(BeatmapObjectSpawnController beatmapObjectSpawnController)
         {
             yield return new WaitForEndOfFrame();
-            BeatmapObjectSpawnController beatmapObjectSpawnController = BeatmapObjectSpawnController;
+            BeatmapObjectSpawnController = beatmapObjectSpawnController;
             BeatmapObjectManager beatmapObjectManager = _beatmapObjectSpawnAccessor(ref beatmapObjectSpawnController) as BeatmapObjectManager;
-            BeatmapObjectCallbackController coreSetup = BeatmapObjectCallbackControllerStart.BeatmapObjectCallbackController;
+            BeatmapObjectCallbackController coreSetup = _callbackControllerAccessor(ref beatmapObjectSpawnController);
             IAudioTimeSource = _audioTimeSourceAccessor(ref coreSetup);
             IReadonlyBeatmapData beatmapData = _beatmapDataAccessor(ref coreSetup);
 
