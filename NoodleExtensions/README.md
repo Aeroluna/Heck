@@ -38,6 +38,8 @@ Example of `_customData`:
     * `"_localRotation"`: `[x, y, z]` (float) Allows you to [rotate the object](https://cdn.discordapp.com/attachments/642393483000283146/695698691943825559/unknown.png). This won't affect the direction it spawns from or the path it takes. The origin for walls is the front bottom center, [as illustrated by spooky](https://cdn.discordapp.com/attachments/642393483000283146/725065831850967150/unknown.png). THIS MAY HAVE SOME STRANGE EFFECTS ON NOTES.
     * `"_noteJumpMovementSpeed"`: (float) Set the NJS of an individual object.
     * `"_noteJumpStartBeatOffset"`: (float) Set the spawn offset of an individual object.
+    * `"_fake"`: (bool) When true, causes the note/wall to not show up in the note/wall count and to not count towards score in any way.
+    * `"_interactable"`: (bool) When true, the note/wall cannot be interacted with. This means notes cannot be cut and walls will not interact with sabers/putting your head in the wall. Notes will still count towards your score.
 ## Notes
   * `"_notes"` -> `"_customData"`
     * `"_cutDirection"`: (float) Rotate notes 360 degrees with as much precision as you want (0 is down). Will override `"_cutDirection"`.

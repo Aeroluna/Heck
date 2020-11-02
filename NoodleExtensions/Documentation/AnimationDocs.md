@@ -129,10 +129,10 @@ When a point definition is used, input time values outside of the defined points
   "_customData": {
     "_animation": {
       "_scale": [
-	  	[2, 2, 2, 0.5],
-	  	[1, 1, 1, 0.8]
-	  ]
-	}
+        [2, 2, 2, 0.5],
+        [1, 1, 1, 0.8]
+      ]
+    }
   }
 }
 ```
@@ -143,9 +143,9 @@ When a point definition is used, input time values outside of the defined points
   "_time": float, // Time in beats.
   "_type": "AnimateTrack",
   "_data": {
-    "_track": string // The track you want to animate.
-    "_duration": float // The length of the event in beats (defaults to 0).
-    "_easing": string // An easing for the animation to follow (defaults to easeLinear).
+    "_track": string, // The track you want to animate.
+    "_duration": float, // The length of the event in beats (defaults to 0).
+    "_easing": string, // An easing for the animation to follow (defaults to easeLinear).
     "_property": point definition // The property you want to animate.
   }
 }
@@ -166,6 +166,7 @@ Although not recommended, properties can be set to `null` to "erase" a track's p
 - [`_dissolve`](#_dissolve)
 - [`_dissolveArrow`](#_dissolveArrow)
 - [`_color`](#_color) (Chroma)
+- [`_interactable`](#_interactable)
 - [`_time`](#_time)
 
 ```js
@@ -193,9 +194,9 @@ Although not recommended, properties can be set to `null` to "erase" a track's p
   "_time": float, // Time in beats.
   "_type": "AssignPathAnimation",
   "_data": {
-    "_track": string // The track you want to animate.
-    "_duration": float // How long it takes to assign this path animation (defaults to 0).
-    "_easing": string // An easing for moving to the path animation (defaults to easeLinear).
+    "_track": string, // The track you want to animate.
+    "_duration": float, // How long it takes to assign this path animation (defaults to 0).
+    "_easing": string, // An easing for moving to the path animation (defaults to easeLinear).
     "_property": point definition // The property you want to assign the path to.
   }
 }
@@ -219,6 +220,7 @@ Although not recommended, path properties can be set to `null` to "erase" a trac
 - [`_dissolve`](#_dissolve)
 - [`_dissolveArrow`](#_dissolveArrow)
 - [`_color`](#_color) (Chroma)
+- [`_interactable`](#_interactable)
 - [`_definitePosition`](#_definitePosition)
 ```js
 // Example
@@ -242,7 +244,7 @@ Although not recommended, path properties can be set to `null` to "erase" a trac
   "_time": float, // Time in beats.
   "_type": "AssignTrackParent",
   "_data": {
-    "_childrenTracks": [string] // Array of tracks to parent to _parentTrack.
+    "_childrenTracks": [string], // Array of tracks to parent to _parentTrack.
     "_parentTrack": string // The track you want to animate.
   }
 }
@@ -292,7 +294,7 @@ This will instantly apply a path animation to the object. See [`AssignPathAnimat
     "_animation": {
       "_position": [
         [0, 40, 0, 0],
-        [0, 0, 0, 0.2],
+        [0, 0, 0, 0.2]
       ]
     }
   }
@@ -308,6 +310,7 @@ This will instantly apply a path animation to the object. See [`AssignPathAnimat
 - [`_dissolveArrow`](#_dissolveArrow)
 - [`_interactable`](#_interactable)
 - [`_color`](#_color) (Chroma)
+- [`_interactable`](#_interactable)
 - [`_definitePosition`](#_definitePosition) (EXCLUSIVE TO AssignPathAnimation)
 - [`_time`](#_time) (EXCLUSIVE TO AnimateTrack)
 
@@ -375,8 +378,8 @@ Above event results in:
     "_duration": 4,
     "_easing": "easeOutBounce"
     "_position": [
-	  [0, 0, 0, 0]
-	],
+      [0, 0, 0, 0]
+    ]
   }
 }
 ```
@@ -553,34 +556,34 @@ Point definition: `[x, y, z, time, (optional)easing, (optional)spline]`
 ```js
 // Point Definition
 {
-	"_name":"AnimateTrackScale",
-	"_points":[
-		[1,1,1,0],
-		[0.80,0.80,0.80,0.15,"easeOutCirc"],
-		[2,2,2,0.5,"easeOutBounce"],
-		[2,2,2,0.6],
-		[2.5,1,1,0.8,"easeOutExpo"],
-		[1,1,1,1,"easeOutBounce"]
-	]
+  "_name": "AnimateTrackScale",
+  "_points": [
+    [1, 1, 1, 0],
+    [0.80, 0.80, 0.80, 0.15, "easeOutCirc"],
+    [2, 2, 2, 0.5, "easeOutBounce"],
+    [2, 2, 2, 0.6],
+    [2.5, 1, 1, 0.8, "easeOutExpo"],
+    [1, 1, 1, 1, "easeOutBounce"]
+  ]
 }, {
-	"_name":"PathScale",
-	"_points":[
-		[1,1,1,0],
-		[4,0.5,1,0.20,"easeInElastic"],
-		[1,1,1,0.50,"easeOutElastic"]
-	]
+  "_name": "PathScale",
+  "_points": [
+    [1, 1, 1, 0],
+    [4, 0.5, 1, 0.20, "easeInElastic"],
+    [1, 1, 1, 0.50, "easeOutElastic"]
+  ]
 }
 ```
 ```js
 // AnimateTrack
 {
-	"_time":165,
-	"_type":"AnimateTrack",
-	"_data":{
-		"_track":"scaleTrack",
-		"_scale":"AnimateTrackScale",
-		"_duration":5
-	}
+  "_time": 165,
+  "_type": "AnimateTrack",
+  "_data": {
+    "_track": "scaleTrack",
+    "_scale": "AnimateTrackScale",
+    "_duration": 5
+  }
 }
 ```
 Above event results in:
@@ -589,12 +592,12 @@ Above event results in:
 ```js
 // AssignPathAnimation
 {
-	"_time":175,
-	"_type":"AssignPathAnimation",
-	"_data":{
-		"_track":"scaleTrack",
-		"_scale":"PathScale"
-	}
+  "_time":175,
+  "_type":"AssignPathAnimation",
+  "_data":{
+    "_track":"scaleTrack",
+    "_scale":"PathScale"
+  }
 }
 ```
 Above event results in:
@@ -676,6 +679,7 @@ Above event results in:
 ![AnimateTrackDissolve](media/DissolveAnimateTrack.gif)
 
 ```js
+// AssignPathAnimation
 {
   "_time": 70,
   "_type": "AssignPathAnimation",
@@ -890,6 +894,43 @@ Above event results in:
 Above event results in:
 
 ![AssignPathColor](media/ColorAssignPath.gif)
+
+# _interactable
+`_interactable` may be used in both [`AnimateTrack`](#AnimateTrack) and [`AssignPathAnimation`](#AssignPathAnimation)
+
+This property controls whether or not the player can interact with the note/wall. 
+
+`_interactable` either is or isn't, there is no inbetween. When great than or equal to `1`, the object can fully be interacted with. When less than `1`, the object cannot be interacted with at all.
+
+Track `_interactable` and path `_interactable` will be multiplied together.
+
+Point definition: `[interactable, time, (optional)easing]`
+
+## Examples
+```js
+// Point Definition
+{
+// neat example goes here
+}
+```
+```js
+// AnimateTrack
+{
+// neat example goes here
+}
+```
+Above event results in:
+
+(cool gif goes here)
+
+```js
+{
+// neat example goes here
+}
+```
+Above event results in:
+
+(cool gif goes here)
 
 # _definitePosition
 `_definitePosition` may be used in [`AssignPathAnimation`](#AssignPathAnimation)
