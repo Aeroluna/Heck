@@ -41,8 +41,6 @@ Example of _customData:
   * Hate placing a thousand color blocks for a gradient? So do I. This will handle all of that for you.
   * `"_events"` -> `"_customData"`
     * `"_lightGradient"`:
-      * A gradient can be declared inside a `_event`'s `_customData` in pretty much the identical way.
-      * `"_event"`: (int) Which type of lights to affect.
       * `"_duration"`: (float) How long should it take to get from start color to end color (in beats).
       * `"_startColor"`: `[r, g, b, a]` (float) Initial color at beginning of gradient.
       * `"_endColor"`: `[r, g, b, a]` (float) Final color of gradient.

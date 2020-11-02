@@ -3,6 +3,7 @@
     using Chroma;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using static Plugin;
 
     [ChromaPatch(typeof(TrackLaneRingsRotationEffectSpawner))]
     [ChromaPatch("Start")]
@@ -60,7 +61,7 @@
 
                     dynamic dynData = customData.customData;
 
-                    string nameFilter = Trees.at(dynData, "_nameFilter");
+                    string nameFilter = Trees.at(dynData, NAMEFILTER);
                     if (nameFilter != null)
                     {
                         if (!__instance.name.ToLower().Equals(nameFilter.ToLower()))
@@ -69,7 +70,7 @@
                         }
                     }
 
-                    int? dir = (int?)Trees.at(dynData, "_direction");
+                    int? dir = (int?)Trees.at(dynData, DIRECTION);
                     if (!dir.HasValue)
                     {
                         dir = -1;
@@ -85,7 +86,7 @@
                         rotRight = dir == 1 ? true : false;
                     }
 
-                    bool? counterSpin = Trees.at(dynData, "_counterSpin");
+                    bool? counterSpin = Trees.at(dynData, COUNTERSPIN);
                     if (counterSpin.HasValue && counterSpin == true)
                     {
                         if (!__instance.name.Contains("Big"))
@@ -94,20 +95,20 @@
                         }
                     }
 
-                    bool? reset = Trees.at(dynData, "_reset");
+                    bool? reset = Trees.at(dynData, RESET);
                     if (reset.HasValue && reset == true)
                     {
                         TriggerRotation(____trackLaneRingsRotationEffect, rotRight, ____rotation, 0, 50, 50);
                         return false;
                     }
 
-                    float step = ((float?)Trees.at(dynData, "_step")).GetValueOrDefault(rotationStep);
-                    float prop = ((float?)Trees.at(dynData, "_prop")).GetValueOrDefault(____rotationPropagationSpeed);
-                    float speed = ((float?)Trees.at(dynData, "_speed")).GetValueOrDefault(____rotationFlexySpeed);
+                    float step = ((float?)Trees.at(dynData, STEP)).GetValueOrDefault(rotationStep);
+                    float prop = ((float?)Trees.at(dynData, PROP)).GetValueOrDefault(____rotationPropagationSpeed);
+                    float speed = ((float?)Trees.at(dynData, SPEED)).GetValueOrDefault(____rotationFlexySpeed);
 
-                    float stepMult = ((float?)Trees.at(dynData, "_stepMult")).GetValueOrDefault(1f);
-                    float propMult = ((float?)Trees.at(dynData, "_propMult")).GetValueOrDefault(1f);
-                    float speedMult = ((float?)Trees.at(dynData, "_speedMult")).GetValueOrDefault(1f);
+                    float stepMult = ((float?)Trees.at(dynData, STEPMULT)).GetValueOrDefault(1f);
+                    float propMult = ((float?)Trees.at(dynData, PROPMULT)).GetValueOrDefault(1f);
+                    float speedMult = ((float?)Trees.at(dynData, SPEEDMULT)).GetValueOrDefault(1f);
 
                     TriggerRotation(____trackLaneRingsRotationEffect, rotRight, ____rotation, step * stepMult, prop * propMult, speed * speedMult);
                     return false;

@@ -1,11 +1,11 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using System;
-    using System.Reflection;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using IPA.Utilities;
     using UnityEngine;
+    using static Plugin;
 
     [ChromaPatch(typeof(LightPairRotationEventEffect))]
     [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
@@ -61,11 +61,11 @@
             {
                 dynamic dynData = customData.customData;
 
-                bool lockPosition = ((bool?)Trees.at(dynData, "_lockPosition")).GetValueOrDefault(false);
+                bool lockPosition = ((bool?)Trees.at(dynData, LOCKPOSITION)).GetValueOrDefault(false);
 
-                float precisionSpeed = ((float?)Trees.at(dynData, "_preciseSpeed")).GetValueOrDefault(beatmapEventData.value);
+                float precisionSpeed = ((float?)Trees.at(dynData, PRECISESPEED)).GetValueOrDefault(beatmapEventData.value);
 
-                int? dir = (int?)Trees.at(dynData, "_direction");
+                int? dir = (int?)Trees.at(dynData, DIRECTION);
                 dir = dir.GetValueOrDefault(-1);
 
                 switch (dir)

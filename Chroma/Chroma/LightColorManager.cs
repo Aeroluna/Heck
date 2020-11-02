@@ -7,6 +7,7 @@
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using UnityEngine;
+    using static Plugin;
 
     internal static class LightColorManager
     {
@@ -26,7 +27,7 @@
                 dynamic dynData = customData.customData;
                 if (monobehaviour is LightSwitchEventEffect lightSwitchEventEffect)
                 {
-                    object lightID = Trees.at(dynData, "_lightID");
+                    object lightID = Trees.at(dynData, LIGHTID);
                     if (lightID != null)
                     {
                         LightWithId[] lights = lightSwitchEventEffect.GetLights();
@@ -58,7 +59,7 @@
                         }
                     }
 
-                    object propID = Trees.at(dynData, "_propID");
+                    object propID = Trees.at(dynData, PROPAGATIONID);
                     if (propID != null)
                     {
                         LightWithId[][] lights = lightSwitchEventEffect.GetLightsPropagationGrouped();
@@ -90,7 +91,7 @@
                         }
                     }
 
-                    dynamic gradientObject = Trees.at(dynData, "_lightGradient");
+                    dynamic gradientObject = Trees.at(dynData, LIGHTGRADIENT);
                     if (gradientObject != null)
                     {
                         color = ChromaGradientController.AddGradient(gradientObject, beatmapEventData.type, beatmapEventData.time);

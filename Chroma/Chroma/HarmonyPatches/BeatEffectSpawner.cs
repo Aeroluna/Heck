@@ -4,6 +4,7 @@
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
+    using static Plugin;
 
     [HarmonyPatch(typeof(BeatEffectSpawner))]
     [HarmonyPatch("HandleNoteDidStartJump")]
@@ -31,7 +32,7 @@
             if (noteController.noteData is CustomNoteData customData)
             {
                 dynamic dynData = customData.customData;
-                bool? disable = Trees.at(dynData, "_disableSpawnEffect");
+                bool? disable = Trees.at(dynData, DISABLESPAWNEFFECT);
                 if (disable.HasValue && disable == true)
                 {
                     return false;

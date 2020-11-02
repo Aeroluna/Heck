@@ -7,6 +7,7 @@
     using HarmonyLib;
     using NoodleExtensions.Animation;
     using UnityEngine;
+    using static Plugin;
 
     [HarmonyPatch(typeof(ObstacleController))]
     [HarmonyPatch("Init")]
@@ -67,7 +68,7 @@
             {
                 dynamic dynData = customData.customData;
                 Track track = AnimationHelper.GetTrack(dynData);
-                dynamic animationObject = Trees.at(dynData, "_animation");
+                dynamic animationObject = Trees.at(dynData, ANIMATION);
 
                 if (track != null || animationObject != null)
                 {

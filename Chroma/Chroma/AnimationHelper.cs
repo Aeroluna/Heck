@@ -5,6 +5,7 @@
     using UnityEngine;
     using static NoodleExtensions.Animation.AnimationHelper;
     using static NoodleExtensions.NullableExtensions;
+    using static Plugin;
 
     internal static class AnimationHelper
     {
@@ -15,11 +16,11 @@
 
         internal static void GetColorOffset(dynamic customData, Track track, float time, out Color? color)
         {
-            TryGetPointData(customData, "_color", out PointDefinition localColor);
+            TryGetPointData(customData, COLOR, out PointDefinition localColor);
 
-            Vector4? pathColor = localColor?.InterpolateVector4(time) ?? TryGetPathProperty(track, "_color", time);
+            Vector4? pathColor = localColor?.InterpolateVector4(time) ?? TryGetPathProperty(track, COLOR, time);
 
-            Vector4? colorVector = MultVector4Nullables(TryGetProperty(track, "_color"), pathColor);
+            Vector4? colorVector = MultVector4Nullables(TryGetProperty(track, COLOR), pathColor);
 
             if (colorVector.HasValue)
             {
@@ -35,10 +36,10 @@
         private static void OnTrackCreated(Track track)
         {
             IDictionary<string, Property> properties = track.Properties;
-            properties.Add("_color", new Property(PropertyType.Vector4));
+            properties.Add(COLOR, new Property(PropertyType.Vector4));
 
             IDictionary<string, Property> pathProperties = track.PathProperties;
-            pathProperties.Add("_color", new Property(PropertyType.Vector4));
+            pathProperties.Add(COLOR, new Property(PropertyType.Vector4));
         }
     }
 }

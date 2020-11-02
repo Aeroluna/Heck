@@ -6,6 +6,7 @@
     using Chroma.Utils;
     using CustomJSONData;
     using UnityEngine;
+    using static Plugin;
 
     internal class ChromaGradientController : MonoBehaviour
     {
@@ -40,10 +41,10 @@
         {
             CancelGradient(id);
 
-            float duration = (float)Trees.at(gradientObject, "_duration");
-            Color initcolor = ChromaUtils.GetColorFromData(gradientObject, "_startColor");
-            Color endcolor = ChromaUtils.GetColorFromData(gradientObject, "_endColor");
-            string easingstring = (string)Trees.at(gradientObject, "_easing");
+            float duration = (float)Trees.at(gradientObject, DURATION);
+            Color initcolor = ChromaUtils.GetColorFromData(gradientObject, STARTCOLOR);
+            Color endcolor = ChromaUtils.GetColorFromData(gradientObject, ENDCOLOR);
+            string easingstring = (string)Trees.at(gradientObject, EASING);
             Functions easing;
             if (string.IsNullOrEmpty(easingstring))
             {

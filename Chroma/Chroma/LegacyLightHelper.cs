@@ -6,7 +6,7 @@
     using UnityEngine;
 
     // Please let me delete this whole class
-    internal class LegacyLightHelper
+    internal static class LegacyLightHelper
     {
         internal const int RGB_INT_OFFSET = 2000000000;
 

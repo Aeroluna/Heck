@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using UnityEngine;
+    using static Plugin;
 
     internal static class ChromaUtils
     {
@@ -12,7 +13,7 @@
             return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == mod);
         }
 
-        internal static Color? GetColorFromData(dynamic data, string member = "_color")
+        internal static Color? GetColorFromData(dynamic data, string member = COLOR)
         {
             IEnumerable<float> color = ((List<object>)CustomJSONData.Trees.at(data, member))?.Select(n => Convert.ToSingle(n));
             if (color == null)

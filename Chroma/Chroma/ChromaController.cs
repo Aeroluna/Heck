@@ -159,7 +159,7 @@
                     {
                         // Spaghetti code below until I can figure out a better way of doing this
                         dynamic dynData = customBeatmap.beatmapCustomData;
-                        List<object> objectsToKill = Trees.at(dynData, "_environmentRemoval");
+                        List<object> objectsToKill = Trees.at(dynData, ENVIRONMENTREMOVAL);
                         if (objectsToKill != null)
                         {
                             IEnumerable<GameObject> gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();

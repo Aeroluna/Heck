@@ -6,6 +6,7 @@
     using IPA.Utilities;
     using NoodleExtensions.Animation;
     using UnityEngine;
+    using static Plugin;
 
     [ChromaPatch(typeof(NoteController))]
     [ChromaPatch("Update")]
@@ -36,7 +37,7 @@
             {
                 dynamic dynData = customData.customData;
                 Track track = AnimationHelper.GetTrack(dynData);
-                dynamic animationObject = Trees.at(dynData, "_animation");
+                dynamic animationObject = Trees.at(dynData, ANIMATION);
 
                 if (track != null || animationObject != null)
                 {
