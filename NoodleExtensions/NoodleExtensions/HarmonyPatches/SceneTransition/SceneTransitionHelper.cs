@@ -7,7 +7,7 @@
     using NoodleExtensions.Animation;
     using static NoodleExtensions.Plugin;
 
-    internal class SceneTransitionHelper
+    internal static class SceneTransitionHelper
     {
         internal static void Patch(IDifficultyBeatmap difficultyBeatmap, PlayerSpecificSettings playerSpecificSettings)
         {
