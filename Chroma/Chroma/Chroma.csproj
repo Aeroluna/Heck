@@ -44,7 +44,7 @@
     <Compile Include="Colorizer\ObstacleColorizer.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
     <Compile Include="HarmonyPatches\BombNoteController.cs" />
-    <Compile Include="HarmonyPatches\SaberModelController.cs" />
+    <Compile Include="HarmonyPatches\Saber.cs" />
     <Compile Include="HarmonyPatches\LightRotationEventEffect.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\MissionLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\SceneTransitionHelper.cs" />
@@ -52,7 +52,6 @@
     <Compile Include="HarmonyPatches\TrackLaneRingsRotationEffect.cs" />
     <Compile Include="LegacyLightHelper.cs" />
     <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
-    <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\StandardLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="LightColorManager.cs" />
     <Compile Include="Utils\Easings.cs" />
@@ -130,6 +129,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="NoodleExtensions">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\NoodleExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="SiraUtil">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\SiraUtil.dll</HintPath>
     </Reference>
     <Reference Include="SongCore">
       <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\SongCore.dll</HintPath>

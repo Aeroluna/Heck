@@ -1,16 +1,18 @@
 ﻿namespace Chroma.HarmonyPatches
 {
+    using Chroma.Colorizer;
     using HarmonyLib;
 
-    [HarmonyPatch(typeof(SaberBurnMarkArea))]
+    [HarmonyPatch(typeof(Saber))]
     [HarmonyPatch("Start")]
-    internal static class SaberBurnMarkAreaStart
+    internal static class SaberStart
     {
+        [HarmonyPriority(Priority.High)]
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static void Postfix(SaberBurnMarkArea __instance)
+        private static void Prefix(Saber __instance)
 #pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            Colorizer.SaberColorizer.SaberBurnMarkArea = __instance;
+            SaberColorizer.BSMStart(__instance, __instance.saberType);
         }
     }
 }
