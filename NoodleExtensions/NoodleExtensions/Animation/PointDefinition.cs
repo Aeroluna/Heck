@@ -235,10 +235,12 @@
                     case PropertyType.Linear:
                         pointTime = _points[m].LinearPoint.y;
                         break;
+
                     case PropertyType.Quaternion:
                     case PropertyType.Vector3:
                         pointTime = _points[m].Point.w;
                         break;
+
                     case PropertyType.Vector4:
                         pointTime = _points[m].Vector4Point.v;
                         break;
