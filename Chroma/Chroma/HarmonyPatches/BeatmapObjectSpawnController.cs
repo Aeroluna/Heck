@@ -1,7 +1,9 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    [ChromaPatch(typeof(BeatmapObjectSpawnController))]
-    [ChromaPatch("Start")]
+    using HarmonyLib;
+
+    [HarmonyPatch(typeof(BeatmapObjectSpawnController))]
+    [HarmonyPatch("Start")]
     internal static class BeatmapObjectSpawnControllerStart
     {
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
