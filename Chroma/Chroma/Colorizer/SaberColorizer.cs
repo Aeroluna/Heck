@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using IPA.Utilities;
     using SiraUtil;
     using UnityEngine;
 
@@ -54,6 +55,8 @@
 
         private class BSMColorManager
         {
+            private static readonly FieldAccessor<SaberBurnMarkArea, LineRenderer[]>.Accessor _lineRenderersAccessor = FieldAccessor<SaberBurnMarkArea, LineRenderer[]>.GetAccessor("_lineRenderers");
+
             private readonly Saber _bsm;
             private readonly SaberType _saberType;
 
@@ -80,7 +83,14 @@
             {
                 if (colorNullable.HasValue)
                 {
-                    _bsm.ChangeColor(colorNullable.Value);
+                    Color color = colorNullable.Value;
+
+                    _bsm.ChangeColor(color);
+
+                    SaberBurnMarkArea saberBurnMarkArea = SaberBurnMarkArea;
+                    LineRenderer[] lineRenderers = _lineRenderersAccessor(ref saberBurnMarkArea);
+                    lineRenderers[(int)_saberType].startColor = color;
+                    lineRenderers[(int)_saberType].endColor = color;
                 }
             }
         }

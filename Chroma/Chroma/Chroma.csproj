@@ -46,6 +46,7 @@
     <Compile Include="HarmonyPatches\BombNoteController.cs" />
     <Compile Include="HarmonyPatches\Saber.cs" />
     <Compile Include="HarmonyPatches\LightRotationEventEffect.cs" />
+    <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\MissionLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\SceneTransitionHelper.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\MultiplayerLevelScenesTransitionSetupDataSO.cs" />
@@ -134,11 +135,11 @@
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\SiraUtil.dll</HintPath>
     </Reference>
     <Reference Include="SongCore">
-      <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\SongCore.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\SongCore.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
