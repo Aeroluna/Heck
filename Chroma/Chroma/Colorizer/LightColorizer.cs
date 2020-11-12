@@ -69,12 +69,12 @@
             LSEColorManager.GetLSEColorManager(lse)?.SetLastValue(value);
         }
 
-        internal static LightWithId[] GetLights(this LightSwitchEventEffect lse)
+        internal static ILightWithId[] GetLights(this LightSwitchEventEffect lse)
         {
             return LSEColorManager.GetLSEColorManager(lse)?.Lights.ToArray();
         }
 
-        internal static LightWithId[][] GetLightsPropagationGrouped(this LightSwitchEventEffect lse)
+        internal static ILightWithId[][] GetLightsPropagationGrouped(this LightSwitchEventEffect lse)
         {
             return LSEColorManager.GetLSEColorManager(lse)?.LightsPropagationGrouped;
         }
@@ -134,25 +134,28 @@
                     InitializeSOs(mono, "_highlightColor1Boost", ref _lightColor1Boost, ref _lightColor1Boost_Original, ref _mHighlightColor1Boost);
                     _supportBoostColor = true;
 
-                    Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<LightWithId>[], LightWithIdManager>("_lights")[lse.lightsId];
-                    IDictionary<int, List<LightWithId>> lightsPreGroup = new Dictionary<int, List<LightWithId>>();
-                    foreach (LightWithId light in Lights)
+                    Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<ILightWithId>[], LightWithIdManager>("_lights")[lse.lightsId];
+                    IDictionary<int, List<ILightWithId>> lightsPreGroup = new Dictionary<int, List<ILightWithId>>();
+                    foreach (ILightWithId light in Lights)
                     {
-                        int z = Mathf.RoundToInt(light.transform.position.z);
-                        if (lightsPreGroup.TryGetValue(z, out List<LightWithId> list))
+                        if (light is MonoBehaviour monoBehaviour)
                         {
-                            list.Add(light);
-                        }
-                        else
-                        {
-                            list = new List<LightWithId>() { light };
-                            lightsPreGroup.Add(z, list);
+                            int z = Mathf.RoundToInt(monoBehaviour.transform.position.z);
+                            if (lightsPreGroup.TryGetValue(z, out List<ILightWithId> list))
+                            {
+                                list.Add(light);
+                            }
+                            else
+                            {
+                                list = new List<ILightWithId>() { light };
+                                lightsPreGroup.Add(z, list);
+                            }
                         }
                     }
 
-                    LightsPropagationGrouped = new LightWithId[lightsPreGroup.Count][];
+                    LightsPropagationGrouped = new ILightWithId[lightsPreGroup.Count][];
                     int i = 0;
-                    foreach (List<LightWithId> lightList in lightsPreGroup.Values)
+                    foreach (List<ILightWithId> lightList in lightsPreGroup.Values)
                     {
                         if (lightList is null)
                         {
@@ -165,9 +168,9 @@
                 }
             }
 
-            internal List<LightWithId> Lights { get; private set; }
+            internal List<ILightWithId> Lights { get; private set; }
 
-            internal LightWithId[][] LightsPropagationGrouped { get; private set; }
+            internal ILightWithId[][] LightsPropagationGrouped { get; private set; }
 
             internal static IEnumerable<LSEColorManager> GetLSEColorManager(BeatmapEventType type)
             {

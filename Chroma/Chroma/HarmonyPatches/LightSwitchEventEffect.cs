@@ -31,7 +31,7 @@
         {
             if (LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.OverrideLightWithIdActivation != null)
             {
-                LightWithId[] lights = LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.OverrideLightWithIdActivation;
+                ILightWithId[] lights = LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.OverrideLightWithIdActivation;
                 for (int i = 0; i < lights.Length; i++)
                 {
                     lights[i].ColorWasSet(color);
@@ -48,7 +48,7 @@
     [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
-        internal static LightWithId[] OverrideLightWithIdActivation { get; set; }
+        internal static ILightWithId[] OverrideLightWithIdActivation { get; set; }
 
         // 0 = off
         // 1 = blue on, 5 = red on

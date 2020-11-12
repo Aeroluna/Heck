@@ -30,13 +30,13 @@
                     object lightID = Trees.at(dynData, LIGHTID);
                     if (lightID != null)
                     {
-                        LightWithId[] lights = lightSwitchEventEffect.GetLights();
+                        ILightWithId[] lights = lightSwitchEventEffect.GetLights();
                         int lightCount = lights.Length;
                         switch (lightID)
                         {
                             case List<object> lightIDobjects:
                                 int[] lightIDArray = lightIDobjects.Select(n => System.Convert.ToInt32(n)).ToArray();
-                                List<LightWithId> overrideLights = new List<LightWithId>();
+                                List<ILightWithId> overrideLights = new List<ILightWithId>();
                                 for (int i = 0; i < lightIDArray.Length; i++)
                                 {
                                     if (lightCount > lightIDArray[i])
@@ -62,13 +62,13 @@
                     object propID = Trees.at(dynData, PROPAGATIONID);
                     if (propID != null)
                     {
-                        LightWithId[][] lights = lightSwitchEventEffect.GetLightsPropagationGrouped();
+                        ILightWithId[][] lights = lightSwitchEventEffect.GetLightsPropagationGrouped();
                         int lightCount = lights.Length;
                         switch (propID)
                         {
                             case List<object> propIDobjects:
                                 int[] propIDArray = propIDobjects.Select(n => System.Convert.ToInt32(n)).ToArray();
-                                List<LightWithId> overrideLights = new List<LightWithId>();
+                                List<ILightWithId> overrideLights = new List<ILightWithId>();
                                 for (int i = 0; i < propIDArray.Length; i++)
                                 {
                                     if (lightCount > propIDArray[i])
@@ -116,7 +116,7 @@
             }
         }
 
-        private static void SetOverrideLightWithIds(params LightWithId[] lights)
+        private static void SetOverrideLightWithIds(params ILightWithId[] lights)
         {
             HarmonyPatches.LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.OverrideLightWithIdActivation = lights;
         }
