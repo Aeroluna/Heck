@@ -20,7 +20,7 @@
             {
                 if (!foundLabel &&
                     instructionList[i].operand is Label operandLabel &&
-                    instructionList[i].operand.GetHashCode() == 2)
+                    instructionList[i].operand.GetHashCode() == 0)
                 {
                     foundLabel = true;
 
