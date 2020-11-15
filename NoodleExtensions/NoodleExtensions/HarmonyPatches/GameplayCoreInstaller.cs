@@ -59,13 +59,14 @@
                     foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
                     {
                         dynamic customData;
-                        if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData)
+                        if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData || beatmapObjectData is CustomWaypointData)
                         {
                             customData = beatmapObjectData;
                         }
                         else
                         {
-                            throw new System.Exception("BeatmapObjectData was not CustomObstacleData or CustomNoteData");
+                            NoodleLogger.Log("beatmapObjectData was not CustomObstacleData, CustomNoteData, or CustomWaypointData");
+                            continue;
                         }
 
                         dynamic dynData = customData.customData;

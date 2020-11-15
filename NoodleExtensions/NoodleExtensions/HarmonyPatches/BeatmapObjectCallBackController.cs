@@ -44,7 +44,7 @@
         private static float GetAheadTime(BeatmapObjectCallbackController.BeatmapObjectCallbackData beatmapObjectCallbackData, BeatmapObjectData beatmapObjectData, float @default)
         {
             if (beatmapObjectCallbackData.callback.Method == _beatmapObjectSpawnControllerCallback &&
-                (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData))
+                (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData || beatmapObjectData is WaypointData))
             {
                 dynamic dynData = ((dynamic)beatmapObjectData).customData;
                 float? aheadTime = (float?)Trees.at(dynData, "aheadTime");
