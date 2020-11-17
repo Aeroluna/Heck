@@ -4,19 +4,17 @@
     using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
-    using IPA.Utilities;
-    using static NoodleExtensions.Plugin;
 
-    [HarmonyPatch(typeof(GameplayCoreInstaller))]
-    [HarmonyPatch("InstallBindings")]
+    [NoodlePatch(typeof(GameplayCoreInstaller))]
+    [NoodlePatch("InstallBindings")]
     internal static class GameplayCoreInstallerInstallBindings
     {
-        private static readonly MethodInfo _reorderLineData = SymbolExtensions.GetMethodInfo(() => ReorderLineData(null, 0, 0));
+        private static readonly MethodInfo _cacheNoteJumpValues = SymbolExtensions.GetMethodInfo(() => CacheNoteJumpValues(0, 0));
 
-        private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
+        internal static float CachedNoteJumpMovementSpeed { get; private set; }
+
+        internal static float CachedNoteJumpStartBeatOffset { get; private set; }
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -30,72 +28,24 @@
                 {
                     foundBeatmapData = true;
 
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldloc_S, 9));
-                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Ldloc_S, 10));
-                    instructionList.Insert(i + 3, new CodeInstruction(OpCodes.Call, _reorderLineData));
+                    instructionList.Insert(i - 8, new CodeInstruction(OpCodes.Ldloc_S, 9));
+                    instructionList.Insert(i - 7, new CodeInstruction(OpCodes.Ldloc_S, 10));
+                    instructionList.Insert(i - 6, new CodeInstruction(OpCodes.Call, _cacheNoteJumpValues));
                 }
             }
 
             if (!foundBeatmapData)
             {
-                NoodleLogger.Log("Failed to find V_12 stloc.s!", IPA.Logging.Logger.Level.Error);
+                NoodleLogger.Log("Failed to find Call to CreateTransformedBeatmapData!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();
         }
 
-        private static IReadonlyBeatmapData ReorderLineData(IReadonlyBeatmapData beatmapData, float defaultNoteJumpMovementSpeed, float defaultNoteJumpStartBeatOffset)
+        private static void CacheNoteJumpValues(float defaultNoteJumpMovementSpeed, float defaultNoteJumpStartBeatOffset)
         {
-            if (beatmapData is CustomBeatmapData customBeatmapData)
-            {
-                // there is some ambiguity with these variables but who frikkin cares
-                float startHalfJumpDurationInBeats = 4;
-                float maxHalfJumpDistance = 18;
-                float moveDuration = 0.5f;
-
-                for (int i = 0; i < customBeatmapData.beatmapLinesData.Count; i++)
-                {
-                    BeatmapLineData beatmapLineData = customBeatmapData.beatmapLinesData[i] as BeatmapLineData;
-                    foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
-                    {
-                        dynamic customData;
-                        if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData || beatmapObjectData is CustomWaypointData)
-                        {
-                            customData = beatmapObjectData;
-                        }
-                        else
-                        {
-                            NoodleLogger.Log("beatmapObjectData was not CustomObstacleData, CustomNoteData, or CustomWaypointData");
-                            continue;
-                        }
-
-                        dynamic dynData = customData.customData;
-                        float noteJumpMovementSpeed = (float?)Trees.at(dynData, NOTEJUMPSPEED) ?? defaultNoteJumpMovementSpeed;
-                        float noteJumpStartBeatOffset = (float?)Trees.at(dynData, NOTESPAWNOFFSET) ?? defaultNoteJumpStartBeatOffset;
-
-                        // how do i not repeat this in a reasonable way
-                        float num = 60f / (float)Trees.at(dynData, "bpm");
-                        float num2 = startHalfJumpDurationInBeats;
-                        while (noteJumpMovementSpeed * num * num2 > maxHalfJumpDistance)
-                        {
-                            num2 /= 2f;
-                        }
-
-                        num2 += noteJumpStartBeatOffset;
-                        if (num2 < 1f)
-                        {
-                            num2 = 1f;
-                        }
-
-                        float jumpDuration = num * num2 * 2f;
-                        dynData.aheadTime = moveDuration + (jumpDuration * 0.5f);
-                    }
-
-                    _beatmapObjectsDataAccessor(ref beatmapLineData) = beatmapLineData.beatmapObjectsData.OrderBy(n => n.time - (float)((dynamic)n).customData.aheadTime).ToList();
-                }
-            }
-
-            return beatmapData;
+            CachedNoteJumpMovementSpeed = defaultNoteJumpMovementSpeed;
+            CachedNoteJumpStartBeatOffset = defaultNoteJumpStartBeatOffset;
         }
     }
 }

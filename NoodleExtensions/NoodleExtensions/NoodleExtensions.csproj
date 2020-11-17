@@ -96,6 +96,7 @@
     <Compile Include="Animation\PointDefinition.cs" />
     <Compile Include="Animation\PointDefinitionInterpolation.cs" />
     <Compile Include="FakeNoteRecount.cs" />
+    <Compile Include="HarmonyPatches\BeatmapDataTransformHelper.cs" />
     <Compile Include="HarmonyPatches\GameplayCoreInstaller.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectCallBackController.cs" />
