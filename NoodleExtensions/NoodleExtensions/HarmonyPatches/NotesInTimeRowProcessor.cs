@@ -36,7 +36,7 @@
                 for (int k = 0; k < list.Count; k++)
                 {
                     IEnumerable<float?> listPosition = ((List<object>)Trees.at(list[k].customData, POSITION))?.Select(n => n.ToNullableFloat());
-                    float listLineLayer = position?.ElementAtOrDefault(1) ?? (float)noteData.noteLineLayer;
+                    float listLineLayer = listPosition?.ElementAtOrDefault(1) ?? (float)list[k].noteLineLayer;
                     if (listLineLayer > lineLayer)
                     {
                         list.Insert(k, noteData);
