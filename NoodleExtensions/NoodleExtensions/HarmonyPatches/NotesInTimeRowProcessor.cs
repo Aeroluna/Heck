@@ -92,9 +92,9 @@
     [HarmonyPatch("ProcessColorNotesInTimeRow")]
     internal static class NotesInTimeRowProcessorProcessColorNotesInTimeRow
     {
-        private static void ProcessBasicNotesInTimeRow(List<NoteData> basicNotes)
+        private static void Postfix(List<NoteData> colorNotesData)
         {
-            List<CustomNoteData> customNotes = basicNotes.Cast<CustomNoteData>().ToList();
+            List<CustomNoteData> customNotes = colorNotesData.Cast<CustomNoteData>().ToList();
 
             int customNoteCount = customNotes.Count;
             if (customNoteCount == 2)
