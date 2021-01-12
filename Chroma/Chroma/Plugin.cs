@@ -41,6 +41,7 @@
         internal const string STARTCOLOR = "_startColor";
         internal const string STEP = "_step";
         internal const string STEPMULT = "_stepMult";
+        internal const string ROTATION = "_rotation";
 
         internal static readonly Harmony _harmonyInstanceCore = new Harmony(HARMONYIDCORE);
         internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);

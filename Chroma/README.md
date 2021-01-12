@@ -72,7 +72,8 @@ Example of _customData:
     * Can only be applied to ring rotation events.
     * `"_nameFilter"`: (string) Causes event to only affect rings with a listed name (e.g. SmallTrackLaneRings, BigTrackLaneRings).
     * `"_reset"`: (bool) Will reset the rings when set to true (Overwrites values below).
-    * `"_step"`: (float) Dictates how far the rings will spin.
+    * `"_rotation"`: (float) Dictates how far the first ring will spin.
+    * `"_step"`: (float) Dictates how much rotation is added between each ring.
     * `"_prop"`: (float) Dictates the rate at which rings behind the first one have physics applied to them.  High value makes all rings move simultaneously, low value gives them [significant delay](https://streamable.com/vsdr9).
     * `"_speed"`: (float) Dictates the [speed multiplier of the rings](https://streamable.com/fxlse).
     * `"_direction"`: (int) Direction to spin the rings (1 spins clockwise, 0 spins counter-clockwise).
