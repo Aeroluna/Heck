@@ -110,9 +110,8 @@
                     float stepMult = ((float?)Trees.at(dynData, STEPMULT)).GetValueOrDefault(1f);
                     float propMult = ((float?)Trees.at(dynData, PROPMULT)).GetValueOrDefault(1f);
                     float speedMult = ((float?)Trees.at(dynData, SPEEDMULT)).GetValueOrDefault(1f);
-                    float rotationMult = ((float?)Trees.at(dynData, ROTATIONMULT)).GetValueOrDefault(1f);
 
-                    TriggerRotation(____trackLaneRingsRotationEffect, rotRight, rotation * rotationMult, step * stepMult, prop * propMult, speed * speedMult);
+                    TriggerRotation(____trackLaneRingsRotationEffect, rotRight, rotation, step * stepMult, prop * propMult, speed * speedMult);
                     return false;
                 }
             }
