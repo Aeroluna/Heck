@@ -631,7 +631,7 @@ It is possible to "disable" the jump animation when objects cannot be animated.
   "_customData": {
 	"_disableSpawnEffect": true,
     "_animation": {
-      "_dissolve_": [
+      "_dissolve": [
         [0, 0],
         [1, 0],
       ]
