@@ -25,19 +25,25 @@
             for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundBeatmapData &&
-                    instructionList[i].opcode == OpCodes.Stloc_0)
+                    instructionList[i].opcode == OpCodes.Callvirt &&
+                    ((MethodInfo)instructionList[i].operand).Name == "GetCopy")
                 {
                     foundBeatmapData = true;
 
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldloc_0));
-                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Call, _reorderLineData));
-                    instructionList.Insert(i + 3, new CodeInstruction(OpCodes.Stloc_0));
+                    // yoink label5 so we can insert our code w/o breaking shit
+                    CodeInstruction sourceLabel = instructionList[i - 4];
+                    CodeInstruction newLabel = new CodeInstruction(instructionList[i - 4]);
+                    sourceLabel.labels.Clear();
+
+                    instructionList.Insert(i - 4, newLabel);
+                    instructionList.Insert(i - 3, new CodeInstruction(OpCodes.Call, _reorderLineData));
+                    instructionList.Insert(i - 2, new CodeInstruction(OpCodes.Stloc_0));
                 }
             }
 
             if (!foundBeatmapData)
             {
-                NoodleLogger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
+                NoodleLogger.Log("Failed to find GetCopy!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();
