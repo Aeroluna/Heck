@@ -213,13 +213,11 @@
         private static readonly FieldInfo _move1DurationField = AccessTools.Field(typeof(ObstacleController), "_move1Duration");
         private static readonly FieldInfo _finishMovementTime = AccessTools.Field(typeof(ObstacleController), "_finishMovementTime");
         private static readonly MethodInfo _obstacleTimeAdjust = SymbolExtensions.GetMethodInfo(() => ObstacleTimeAdjust(0, null, 0, 0));
-        private static readonly MethodInfo _setLocalPosition = typeof(Transform).GetProperty("localPosition").GetSetMethod();
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundTime = false;
-            bool foundPosition = false;
             for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundTime &&
@@ -234,24 +232,11 @@
                     instructionList.Insert(i + 5, new CodeInstruction(OpCodes.Ldfld, _finishMovementTime));
                     instructionList.Insert(i + 6, new CodeInstruction(OpCodes.Call, _obstacleTimeAdjust));
                 }
-
-                if (!foundPosition &&
-                    instructionList[i].opcode == OpCodes.Callvirt &&
-                    ((MethodInfo)instructionList[i].operand).Name == "set_position")
-                {
-                    foundPosition = true;
-                    instructionList[i].operand = _setLocalPosition;
-                }
             }
 
             if (!foundTime)
             {
                 NoodleLogger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
-            }
-
-            if (!foundPosition)
-            {
-                NoodleLogger.Log("Failed to find callvirt to set_position!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();
