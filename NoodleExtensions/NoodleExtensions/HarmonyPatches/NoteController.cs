@@ -290,16 +290,29 @@
 
                     if (dissolveArrow.HasValue && __instance.noteData.colorType != ColorType.None)
                     {
-                        DisappearingArrowControllerBase<GameNoteController> disappearingArrowController = Trees.at(dynData, "disappearingArrowController");
+                        MonoBehaviour disappearingArrowController = Trees.at(dynData, "disappearingArrowController");
                         if (disappearingArrowController == null)
                         {
                             disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowControllerBase<GameNoteController>>();
+                            if (disappearingArrowController == null)
+                                disappearingArrowController = __instance.gameObject.GetComponent<MultiplayerConnectedPlayerDisappearingArrowController>();
                             dynData.disappearingArrowController = disappearingArrowController;
                         }
-
-                        // gross nasty reflection
-                        typeof(DisappearingArrowControllerBase<GameNoteController>).GetMethod("SetArrowTransparency", BindingFlags.NonPublic | BindingFlags.Instance)
-                            .Invoke(disappearingArrowController, new object[] { dissolveArrow.Value });
+                        if (disappearingArrowController != null)
+                        {
+                            // gross nasty reflection
+                            try
+                            {
+                                GetSetArrowTransparency(disappearingArrowController.GetType()).Invoke(disappearingArrowController, new object[] { dissolveArrow.Value });
+                            }
+                            catch (Exception ex)
+                            {
+                                NoodleLogger.IPAlogger.Error($"Error calling {disappearingArrowController.GetType().Name}.SetArrowTransparency: {ex.Message}");
+                                NoodleLogger.IPAlogger.Debug(ex);
+                            }
+                        }
+                        else
+                            NoodleLogger.IPAlogger.Warn($"Couldn't find a DisappearingArrowController");
                     }
 
                     if (cuttable.HasValue)
@@ -330,6 +343,21 @@
                     }
                 }
             }
+        }
+
+        private static Dictionary<Type, MethodInfo> _setArrowTransparencyMethods = new Dictionary<Type, MethodInfo>();
+
+        private static MethodInfo GetSetArrowTransparency(Type type)
+        {
+            if (_setArrowTransparencyMethods.TryGetValue(type, out MethodInfo value))
+            {
+                return value;
+            }
+            Type baseType = type.BaseType;
+            NoodleLogger.IPAlogger.Debug($"Base type is {baseType.Name}<{string.Join(", ", baseType.GenericTypeArguments.Select(t => t.Name))}>");
+            MethodInfo method = baseType.GetMethod("SetArrowTransparency", BindingFlags.NonPublic | BindingFlags.Instance);
+            _setArrowTransparencyMethods[type] = method;
+            return method;
         }
     }
 }

@@ -35,7 +35,9 @@
 
         private void Update()
         {
-            bool paused = PauseBool(ref _pauseController);
+            bool paused = false;
+            if (_pauseController != null)
+                paused = PauseBool(ref _pauseController);
 
             Quaternion? rotation = TryGetProperty(_track, ROTATION);
             if (rotation.HasValue)
