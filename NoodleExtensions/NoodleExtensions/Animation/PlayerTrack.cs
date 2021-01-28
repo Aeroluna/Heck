@@ -9,7 +9,7 @@
 
     internal class PlayerTrack : MonoBehaviour
     {
-        private static readonly FieldAccessor<PauseController, bool>.Accessor PauseBool = FieldAccessor<PauseController, bool>.GetAccessor("_paused");
+        private static readonly FieldAccessor<PauseController, bool>.Accessor _pausedAccessor = FieldAccessor<PauseController, bool>.GetAccessor("_paused");
         private static PlayerTrack _instance;
         private static Track _track;
         private static Vector3 _startPos = _vectorZero;
@@ -37,7 +37,9 @@
         {
             bool paused = false;
             if (_pauseController != null)
-                paused = PauseBool(ref _pauseController);
+            {
+                paused = _pausedAccessor(ref _pauseController);
+            }
 
             Quaternion? rotation = TryGetProperty(_track, ROTATION);
             if (rotation.HasValue)

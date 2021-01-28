@@ -200,6 +200,8 @@
         private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber>.Accessor _gameNoteSmallCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber>.GetAccessor("_smallCuttableBySaber");
         private static readonly FieldAccessor<BombNoteController, CuttableBySaber>.Accessor _bombNoteCuttableAccessor = FieldAccessor<BombNoteController, CuttableBySaber>.GetAccessor("_cuttableBySaber");
 
+        private static readonly Dictionary<Type, MethodInfo> _setArrowTransparencyMethods = new Dictionary<Type, MethodInfo>();
+
         internal static CustomNoteData CustomNoteData { get; private set; }
 
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
@@ -295,24 +297,15 @@
                         {
                             disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowControllerBase<GameNoteController>>();
                             if (disappearingArrowController == null)
-                                disappearingArrowController = __instance.gameObject.GetComponent<MultiplayerConnectedPlayerDisappearingArrowController>();
+                            {
+                                disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowControllerBase<MultiplayerConnectedPlayerGameNoteController>>();
+                            }
+
                             dynData.disappearingArrowController = disappearingArrowController;
                         }
-                        if (disappearingArrowController != null)
-                        {
-                            // gross nasty reflection
-                            try
-                            {
-                                GetSetArrowTransparency(disappearingArrowController.GetType()).Invoke(disappearingArrowController, new object[] { dissolveArrow.Value });
-                            }
-                            catch (Exception ex)
-                            {
-                                NoodleLogger.IPAlogger.Error($"Error calling {disappearingArrowController.GetType().Name}.SetArrowTransparency: {ex.Message}");
-                                NoodleLogger.IPAlogger.Debug(ex);
-                            }
-                        }
-                        else
-                            NoodleLogger.IPAlogger.Warn($"Couldn't find a DisappearingArrowController");
+
+                        // gross nasty reflection
+                        GetSetArrowTransparency(disappearingArrowController.GetType()).Invoke(disappearingArrowController, new object[] { dissolveArrow.Value });
                     }
 
                     if (cuttable.HasValue)
@@ -345,16 +338,15 @@
             }
         }
 
-        private static Dictionary<Type, MethodInfo> _setArrowTransparencyMethods = new Dictionary<Type, MethodInfo>();
-
         private static MethodInfo GetSetArrowTransparency(Type type)
         {
             if (_setArrowTransparencyMethods.TryGetValue(type, out MethodInfo value))
             {
                 return value;
             }
+
             Type baseType = type.BaseType;
-            NoodleLogger.IPAlogger.Debug($"Base type is {baseType.Name}<{string.Join(", ", baseType.GenericTypeArguments.Select(t => t.Name))}>");
+            ////NoodleLogger.IPAlogger.Debug($"Base type is {baseType.Name}<{string.Join(", ", baseType.GenericTypeArguments.Select(t => t.Name))}>");
             MethodInfo method = baseType.GetMethod("SetArrowTransparency", BindingFlags.NonPublic | BindingFlags.Instance);
             _setArrowTransparencyMethods[type] = method;
             return method;
