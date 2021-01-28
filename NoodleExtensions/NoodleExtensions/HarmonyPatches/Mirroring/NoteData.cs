@@ -22,10 +22,12 @@
                 dynamic dynData = customData.customData;
                 IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
                 float? flipLineIndex = (float?)Trees.at(dynData, "flipLineIndex");
+                IEnumerable<float?> flip = ((List<object>)Trees.at(dynData, FLIP))?.Select(n => n.ToNullableFloat());
                 List<float> localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n)).ToList();
                 dynamic rotation = Trees.at(dynData, ROTATION);
 
                 float? startRow = position?.ElementAtOrDefault(0);
+                float? flipX = flip?.ElementAtOrDefault(0);
 
                 IDictionary<string, object> dictdata = dynData as IDictionary<string, object>;
 
@@ -37,6 +39,11 @@
                 if (flipLineIndex.HasValue)
                 {
                     dynData.flipLineIndex = ((flipLineIndex.Value + 0.5f) * -1) - 0.5f;
+                }
+
+                if (flipX.HasValue)
+                {
+                    dictdata[FLIP] = new List<object>() { ((flipX.Value + 0.5f) * -1) - 0.5f, flip.ElementAtOrDefault(1) };
                 }
 
                 if (localrot != null)
