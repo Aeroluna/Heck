@@ -138,6 +138,7 @@
     <Compile Include="HarmonyPatches\NoteFloorMovement.cs" />
     <Compile Include="HarmonyPatches\NoteJump.cs" />
     <Compile Include="HarmonyPatches\NotesInTimeRowProcessor.cs" />
+    <Compile Include="HarmonyPatches\PlayerTransforms.cs" />
     <Compile Include="HarmonyPatches\SceneTransition\MissionLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\SceneTransition\SceneTransitionHelper.cs" />
     <Compile Include="HarmonyPatches\SceneTransition\MultiplayerLevelScenesTransitionSetupDataSO.cs" />
