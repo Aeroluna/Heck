@@ -12,15 +12,15 @@
 
     public static class AnimationHelper
     {
-        private static readonly FieldAccessor<BasicBeatmapObjectManager, MonoMemoryPoolContainer<GameNoteController>>.Accessor _gameNotePoolAccessor = FieldAccessor<BasicBeatmapObjectManager, MonoMemoryPoolContainer<GameNoteController>>.GetAccessor("_gameNotePoolContainer");
-        private static readonly FieldAccessor<BasicBeatmapObjectManager, MonoMemoryPoolContainer<BombNoteController>>.Accessor _bombNotePoolAccessor = FieldAccessor<BasicBeatmapObjectManager, MonoMemoryPoolContainer<BombNoteController>>.GetAccessor("_bombNotePoolContainer");
-        private static readonly FieldAccessor<BasicBeatmapObjectManager, MonoMemoryPoolContainer<ObstacleController>>.Accessor _obstaclePoolAccessor = FieldAccessor<BasicBeatmapObjectManager, MonoMemoryPoolContainer<ObstacleController>>.GetAccessor("_obstaclePoolContainer");
+        private static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<GameNoteController>>.Accessor _gameNotePoolAccessor = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<GameNoteController>>.GetAccessor("_gameNotePoolContainer");
+        private static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<BombNoteController>>.Accessor _bombNotePoolAccessor = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<BombNoteController>>.GetAccessor("_bombNotePoolContainer");
+        private static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<ObstacleController>>.Accessor _obstaclePoolAccessor = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<ObstacleController>>.GetAccessor("_obstaclePoolContainer");
         private static readonly FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.Accessor _beatmapObjectSpawnAccessor = FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.GetAccessor("_beatmapObjectSpawner");
 
         private static BeatmapObjectSpawnController _beatmapObjectSpawnController;
         private static BasicBeatmapObjectManager _beatmapObjectManager;
 
-        public static MonoMemoryPoolContainer<GameNoteController> GameNotePool
+        public static MemoryPoolContainer<GameNoteController> GameNotePool
         {
             get
             {
@@ -29,7 +29,7 @@
             }
         }
 
-        public static MonoMemoryPoolContainer<BombNoteController> BombNotePool
+        public static MemoryPoolContainer<BombNoteController> BombNotePool
         {
             get
             {
@@ -38,7 +38,7 @@
             }
         }
 
-        public static MonoMemoryPoolContainer<ObstacleController> ObstaclePool
+        public static MemoryPoolContainer<ObstacleController> ObstaclePool
         {
             get
             {

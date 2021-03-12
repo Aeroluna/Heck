@@ -41,8 +41,6 @@
                 NoodleLogger.Log("Failed to find call to HeadOffsetZ!", IPA.Logging.Logger.Level.Error);
             }
 
-            instructionList.ForEach(n => NoodleLogger.Log(n));
-
             return instructionList.AsEnumerable();
         }
 

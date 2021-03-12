@@ -14,9 +14,7 @@
     [HarmonyPatch("Init")]
     internal static class BeatmapObjectSpawnMovementDataInit
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(BeatmapObjectSpawnMovementData __instance)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             InitBeatmapObjectSpawnController(__instance);
         }
@@ -26,9 +24,7 @@
     [NoodlePatch("GetObstacleSpawnData")]
     internal static class BeatmapObjectSpawnMovementDataGetObstacleSpawnData
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(Vector3 ____centerPos, ObstacleData obstacleData, ref BeatmapObjectSpawnMovementData.ObstacleSpawnData __result)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (obstacleData is CustomObstacleData customData)
             {
@@ -93,9 +89,7 @@
     [NoodlePatch("GetJumpingNoteSpawnData")]
     internal static class BeatmapObjectSpawnMovementDataGetJumpingNoteSpawnData
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(BeatmapObjectSpawnMovementData __instance, Vector3 ____centerPos, float ____jumpDuration, NoteData noteData, ref BeatmapObjectSpawnMovementData.NoteSpawnData __result)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (noteData is CustomNoteData customData)
             {

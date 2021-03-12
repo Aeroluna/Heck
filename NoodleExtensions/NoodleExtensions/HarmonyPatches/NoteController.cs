@@ -35,9 +35,7 @@
         private static readonly MethodInfo _noteControllerUpdate = typeof(NoteController).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo _gameNoteControllerUpdate = typeof(GameNoteController).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
 
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (noteData is CustomNoteData customData)
             {
@@ -196,17 +194,15 @@
         private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
         private static readonly FieldAccessor<CutoutAnimateEffect, CutoutEffect[]>.Accessor _cutoutEffectAccessor = FieldAccessor<CutoutAnimateEffect, CutoutEffect[]>.GetAccessor("_cuttoutEffects");
 
-        private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber>.Accessor _gameNoteBigCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber>.GetAccessor("_bigCuttableBySaber");
-        private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber>.Accessor _gameNoteSmallCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber>.GetAccessor("_smallCuttableBySaber");
+        private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.Accessor _gameNoteBigCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.GetAccessor("_bigCuttableBySaberList");
+        private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.Accessor _gameNoteSmallCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.GetAccessor("_smallCuttableBySaberList");
         private static readonly FieldAccessor<BombNoteController, CuttableBySaber>.Accessor _bombNoteCuttableAccessor = FieldAccessor<BombNoteController, CuttableBySaber>.GetAccessor("_cuttableBySaber");
 
         private static readonly Dictionary<Type, MethodInfo> _setArrowTransparencyMethods = new Dictionary<Type, MethodInfo>();
 
         internal static CustomNoteData CustomNoteData { get; private set; }
 
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (____noteData is CustomNoteData customData)
             {
@@ -315,11 +311,22 @@
                         switch (__instance)
                         {
                             case GameNoteController gameNoteController:
-                                BoxCuttableBySaber bigCuttableBySaber = _gameNoteBigCuttableAccessor(ref gameNoteController);
-                                if (bigCuttableBySaber.canBeCut != enabled)
+                                BoxCuttableBySaber[] bigCuttableBySaberList = _gameNoteBigCuttableAccessor(ref gameNoteController);
+                                foreach (BoxCuttableBySaber bigCuttableBySaber in bigCuttableBySaberList) 
                                 {
-                                    bigCuttableBySaber.canBeCut = enabled;
-                                    _gameNoteSmallCuttableAccessor(ref gameNoteController).canBeCut = enabled;
+                                    if (bigCuttableBySaber.canBeCut != enabled)
+                                    {
+                                        bigCuttableBySaber.canBeCut = enabled;
+                                    }
+                                }
+
+                                BoxCuttableBySaber[] smallCuttableBySaberList = _gameNoteSmallCuttableAccessor(ref gameNoteController);
+                                foreach (BoxCuttableBySaber smallCuttableBySaber in smallCuttableBySaberList)
+                                {
+                                    if (smallCuttableBySaber.canBeCut != enabled)
+                                    {
+                                        smallCuttableBySaber.canBeCut = enabled;
+                                    }
                                 }
 
                                 break;

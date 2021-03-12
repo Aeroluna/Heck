@@ -9,9 +9,7 @@
     [HarmonyPatch("CreateTransformedData")]
     internal static class BeatDataMirrorTransformCreateTransformedData
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(IReadonlyBeatmapData __result)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             foreach (BeatmapEventData beatmapEventData in __result.beatmapEventsData)
             {
