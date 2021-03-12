@@ -13,9 +13,7 @@
     [HarmonyPatch("MirrorLineIndex")]
     internal static class NoteDataMirrorLineIndex
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(NoteData __instance)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (__instance is CustomNoteData customData)
             {
@@ -76,9 +74,7 @@
     [HarmonyPatch("MirrorTransformCutDirection")]
     internal class NoteDataMirrorTransformCutDirection
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(NoteData __instance)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (__instance is CustomNoteData customData)
             {

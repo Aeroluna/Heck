@@ -84,9 +84,7 @@
             return instructionList.AsEnumerable();
         }
 
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(ObstacleController __instance, Quaternion ____worldRotation, ObstacleData obstacleData, Vector3 ____startPos, Vector3 ____midPos, Vector3 ____endPos, ref Bounds ____bounds)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (obstacleData is CustomObstacleData customData)
             {
@@ -258,7 +256,6 @@
             return original;
         }
 
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(
             ObstacleController __instance,
             ObstacleData ____obstacleData,
@@ -273,7 +270,6 @@
             ref Quaternion ____worldRotation,
             ref Quaternion ____inverseWorldRotation,
             ref Bounds ____bounds)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (____obstacleData is CustomObstacleData customData)
             {
@@ -374,7 +370,6 @@
     [NoodlePatch("GetPosForTime")]
     internal static class ObstacleControllerGetPosForTime
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(
             ref Vector3 __result,
             ObstacleData ____obstacleData,
@@ -384,7 +379,6 @@
             float ____move2Duration,
             float ____obstacleDuration,
             float time)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (____obstacleData is CustomObstacleData customObstacleData)
             {

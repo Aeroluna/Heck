@@ -161,7 +161,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="NoodleExtensions.ruleset" />
-    <None Include="packages.config" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="NoodleExtensions.csproj.user" Condition="Exists('NoodleExtensions.csproj.user')" />

@@ -11,9 +11,7 @@
     [HarmonyPatch("GetBeatmapDataFromBeatmapSaveData")]
     internal static class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(BeatmapData __result, float startBpm)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (__result == null)
             {

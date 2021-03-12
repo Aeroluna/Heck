@@ -8,9 +8,7 @@
     [NoodlePatch("ProcessBeatmapEventData")]
     internal static class SpawnRotationProcessorProcessBeatmapEventData
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(BeatmapEventData beatmapEventData, ref float ____rotation)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (beatmapEventData.type.IsRotationEvent() && beatmapEventData is CustomBeatmapEventData customData)
             {
