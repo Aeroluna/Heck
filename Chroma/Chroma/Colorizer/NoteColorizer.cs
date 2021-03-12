@@ -79,7 +79,7 @@
             NoteColorOverride[1] = null;
         }
 
-        internal static void ColorizeSaber(NoteController noteController, NoteCutInfo noteCutInfo)
+        internal static void ColorizeSaber(NoteController noteController, in NoteCutInfo noteCutInfo)
         {
             if (ChromaController.DoColorizerSabers)
             {

@@ -44,7 +44,7 @@
     <Compile Include="Colorizer\ObstacleColorizer.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
     <Compile Include="HarmonyPatches\BombNoteController.cs" />
-    <Compile Include="HarmonyPatches\Saber.cs" />
+    <Compile Include="HarmonyPatches\SaberManager.cs" />
     <Compile Include="HarmonyPatches\LightRotationEventEffect.cs" />
     <Compile Include="HarmonyPatches\SaberBurnMarkArea.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\MissionLevelScenesTransitionSetupDataSO.cs" />

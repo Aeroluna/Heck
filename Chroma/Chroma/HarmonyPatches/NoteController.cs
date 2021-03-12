@@ -21,9 +21,7 @@
         private static readonly FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.Accessor _materialPropertyBlockControllersAccessor = FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.GetAccessor("_materialPropertyBlockControllers");
         private static readonly int _colorID = Shader.PropertyToID("_Color");
 
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (Chroma.Plugin.NoodleExtensionsInstalled)
             {

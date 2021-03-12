@@ -11,9 +11,7 @@
 
     internal static class LightColorManager
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         internal static void ColorLightSwitch(MonoBehaviour monobehaviour, BeatmapEventData beatmapEventData)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             monobehaviour.SetLastValue(beatmapEventData.value);
 

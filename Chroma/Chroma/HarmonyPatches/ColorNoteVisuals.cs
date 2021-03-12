@@ -11,9 +11,7 @@
     internal static class ColorNoteVisualsHandleNoteControllerDidInitColorizerInit
     {
         [HarmonyPriority(Priority.High)]
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(ColorNoteVisuals __instance, NoteController noteController)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             NoteColorizer.CNVStart(__instance, noteController);
         }
@@ -24,9 +22,7 @@
     internal static class ColorNoteVisualsHandleNoteControllerDidInitColorizer
     {
         [HarmonyPriority(Priority.Low)]
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(NoteController noteController)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             NoteColorizer.EnableNoteColorOverride(noteController);
         }

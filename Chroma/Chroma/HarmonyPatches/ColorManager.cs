@@ -8,9 +8,7 @@
     [HarmonyPatch("ColorForType")]
     internal static class ColorManagerColorForType
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(ref Color __result, ColorType type)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (type == ColorType.ColorA || type == ColorType.ColorB)
             {
@@ -30,9 +28,7 @@
     [HarmonyPatch("ColorForSaberType")]
     internal static class ColorManagerColorForSaberType
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(SaberType type, ref Color __result)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             Color? color = SaberColorizer.SaberColorOverride[(int)type];
             if (color.HasValue)
@@ -49,9 +45,7 @@
     [HarmonyPatch("EffectsColorForSaberType")]
     internal static class ColorManagerEffectsColorForSaberType
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(ColorManager __instance, SaberType type, ref Color __result)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             Color rgbColor = __instance.ColorForSaberType(type);
             Color.RGBToHSV(rgbColor, out float h, out float s, out _);

@@ -14,9 +14,7 @@
         internal static BeatmapEventData LastLightPairRotationEventEffectData { get; private set; }
 
         // Laser rotation
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(BeatmapEventData beatmapEventData, BeatmapEventType ____eventL, BeatmapEventType ____eventR)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (beatmapEventData.type == ____eventL || beatmapEventData.type == ____eventR)
             {
@@ -42,9 +40,7 @@
             _rotationDataType = Type.GetType("LightPairRotationEventEffect+RotationData,Main");
         }
 
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(LightPairRotationEventEffect __instance, BeatmapEventType ____eventL, float startRotationOffset, float direction, object ____rotationDataL, object ____rotationDataR)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             BeatmapEventData beatmapEventData = LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.LastLightPairRotationEventEffectData;
 

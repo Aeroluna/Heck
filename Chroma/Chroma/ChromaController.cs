@@ -17,7 +17,7 @@
 
     public static class ChromaController
     {
-        private static readonly FieldAccessor<BeatmapObjectSpawnController, BeatmapObjectCallbackController>.Accessor _callbackControllerAccessor = FieldAccessor<BeatmapObjectSpawnController, BeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
+        private static readonly FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectCallbackController>.Accessor _callbackControllerAccessor = FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
         private static readonly FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.Accessor _beatmapObjectSpawnAccessor = FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.GetAccessor("_beatmapObjectSpawner");
         private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
         private static readonly FieldAccessor<BeatmapObjectCallbackController, IAudioTimeSource>.Accessor _audioTimeSourceAccessor = FieldAccessor<BeatmapObjectCallbackController, IAudioTimeSource>.GetAccessor("_audioTimeSource");
@@ -107,8 +107,11 @@
         {
             yield return new WaitForEndOfFrame();
             BeatmapObjectSpawnController = beatmapObjectSpawnController;
+
+            // prone to breaking if anything else implements these interfaces
             BeatmapObjectManager beatmapObjectManager = _beatmapObjectSpawnAccessor(ref beatmapObjectSpawnController) as BeatmapObjectManager;
-            BeatmapObjectCallbackController coreSetup = _callbackControllerAccessor(ref beatmapObjectSpawnController);
+            BeatmapObjectCallbackController coreSetup = _callbackControllerAccessor(ref beatmapObjectSpawnController) as BeatmapObjectCallbackController;
+
             IAudioTimeSource = _audioTimeSourceAccessor(ref coreSetup);
             IReadonlyBeatmapData beatmapData = _beatmapDataAccessor(ref coreSetup);
 
@@ -195,9 +198,7 @@
             }
         }
 
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         internal static void OnActiveSceneChanged(Scene current, Scene _)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (current.name == "GameCore")
             {

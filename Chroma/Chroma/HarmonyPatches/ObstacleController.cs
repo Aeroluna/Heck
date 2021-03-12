@@ -14,11 +14,14 @@
     internal static class ObstacleControllerInitColorizer
     {
         [HarmonyPriority(Priority.High)]
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
-        private static void Prefix(ObstacleController __instance)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
+        private static void Prefix(ObstacleController __instance, ColorManager ____colorManager)
         {
-            ObstacleColorizer.OCStart(__instance);
+            ObstacleColorizer.OCStart(__instance, ____colorManager.obstaclesColor);
+        }
+
+        private static void Postfix(ObstacleController __instance)
+        {
+            __instance.SetActiveColors();
         }
     }
 
@@ -26,9 +29,7 @@
     [ChromaPatch("Init")]
     internal static class ObstacleControllerInit
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(ObstacleController __instance, ObstacleData obstacleData)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (obstacleData is CustomObstacleData customData)
             {
@@ -52,11 +53,9 @@
     [ChromaPatch("Update")]
     internal static class ObstacleControllerUpdate
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(ObstacleController __instance, ObstacleData ____obstacleData, AudioTimeSyncController ____audioTimeSyncController, float ____startTimeOffset, float ____move1Duration, float ____move2Duration, float ____obstacleDuration)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
-            if (Chroma.Plugin.NoodleExtensionsInstalled)
+            if (NoodleExtensionsInstalled)
             {
                 TrackColorize(__instance, ____obstacleData, ____audioTimeSyncController, ____startTimeOffset, ____move1Duration, ____move2Duration, ____obstacleDuration);
             }

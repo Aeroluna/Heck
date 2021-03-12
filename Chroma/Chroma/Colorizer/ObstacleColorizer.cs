@@ -62,9 +62,9 @@
          * OC ColorSO holders
          */
 
-        internal static void OCStart(ObstacleController oc)
+        internal static void OCStart(ObstacleController oc, Color original)
         {
-            OCColorManager.CreateOCColorManager(oc);
+            OCColorManager.CreateOCColorManager(oc, original);
         }
 
         private class OCColorManager
@@ -84,24 +84,18 @@
 
             private readonly Color _color_Original;
 
-            private readonly SimpleColorSO _color;
+            private Color _color;
 
             private StretchableObstacle _stretchableObstacle;
 
-            private OCColorManager(ObstacleController oc)
+            private OCColorManager(ObstacleController oc, Color original)
             {
                 _oc = oc;
                 _stretchableObstacle = _stretchableObstacleAccessor(ref _oc);
 
-                _color_Original = oc.GetField<SimpleColorSO, ObstacleController>("_color").color;
+                _color_Original = original;
 
-                if (_color == null)
-                {
-                    _color = ScriptableObject.CreateInstance<SimpleColorSO>();
-                    _color.SetColor(_color_Original);
-                }
-
-                oc.SetField("_color", _color);
+                _color = _color_Original;
             }
 
             internal static OCColorManager GetOCColorManager(ObstacleController oc)
@@ -109,7 +103,7 @@
                 return _ocColorManagers.FirstOrDefault(n => n._oc == oc);
             }
 
-            internal static OCColorManager CreateOCColorManager(ObstacleController oc)
+            internal static OCColorManager CreateOCColorManager(ObstacleController oc, Color original)
             {
                 if (GetOCColorManager(oc) != null)
                 {
@@ -117,7 +111,7 @@
                 }
 
                 OCColorManager occm;
-                occm = new OCColorManager(oc);
+                occm = new OCColorManager(oc, original);
                 _ocColorManagers.Add(occm);
                 return occm;
             }
@@ -139,11 +133,11 @@
             {
                 if (_globalColor.HasValue)
                 {
-                    _color.SetColor(_globalColor.Value);
+                    _color = _globalColor.Value;
                 }
                 else
                 {
-                    _color.SetColor(_color_Original);
+                    _color = _color_Original;
                 }
             }
 
@@ -151,7 +145,7 @@
             {
                 if (color.HasValue)
                 {
-                    _color.SetColor(color.Value);
+                    _color = color.Value;
                 }
             }
 

@@ -9,9 +9,7 @@
     [HarmonyPatch("Start")]
     internal static class LightSwitchEventEffectStart
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Postfix(LightSwitchEventEffect __instance, BeatmapEventType ____event)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             __instance.StartCoroutine(WaitThenStart(__instance, ____event));
         }
@@ -54,9 +52,7 @@
         // 1 = blue on, 5 = red on
         // 2 = blue flash, 6 = red flash
         // 3 = blue fade, 7 = red fade
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(LightSwitchEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____event)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (beatmapEventData.type == ____event)
             {

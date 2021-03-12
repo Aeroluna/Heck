@@ -9,9 +9,7 @@
     [ChromaPatch("Start")]
     internal static class TrackLaneRingsRotationEffectSpawnerStart
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void Prefix(ref TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             TrackLaneRingsRotationEffect oldRotationEffect = ____trackLaneRingsRotationEffect;
             ChromaRingsRotationEffect newRotationEffect = oldRotationEffect.gameObject.AddComponent<ChromaRingsRotationEffect>();
@@ -25,7 +23,6 @@
     [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class TrackLaneRingsRotationEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(
             TrackLaneRingsRotationEffectSpawner __instance,
             BeatmapEventData beatmapEventData,
@@ -36,7 +33,6 @@
             int ____rotationPropagationSpeed,
             float ____rotationFlexySpeed,
             TrackLaneRingsRotationEffectSpawner.RotationStepType ____rotationStepType)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (beatmapEventData.type == ____beatmapEventType)
             {
@@ -118,7 +114,6 @@
             return true;
         }
 
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static void TriggerRotation(
             TrackLaneRingsRotationEffect trackLaneRingsRotationEffect,
             bool rotRight,
@@ -126,7 +121,6 @@
             float rotationStep,
             float rotationPropagationSpeed,
             float rotationFlexySpeed)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             ((ChromaRingsRotationEffect)trackLaneRingsRotationEffect).AddRingRotationEffect(trackLaneRingsRotationEffect.GetFirstRingDestinationRotationAngle() + (rotation * (rotRight ? -1 : 1)), rotationStep, rotationPropagationSpeed, rotationFlexySpeed);
         }

@@ -9,7 +9,6 @@
     [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class LightRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
-#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
         private static bool Prefix(
             BeatmapEventData beatmapEventData,
             LightRotationEventEffect __instance,
@@ -17,7 +16,6 @@
             Quaternion ____startRotation,
             ref float ____rotationSpeed,
             Vector3 ____rotationVector)
-#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
         {
             if (beatmapEventData.type == ____event)
             {

@@ -5,7 +5,7 @@
 
     [HarmonyPatch(
         typeof(MissionLevelScenesTransitionSetupDataSO),
-        new Type[] { typeof(string), typeof(IDifficultyBeatmap), typeof(MissionObjective[]), typeof(ColorScheme), typeof(GameplayModifiers), typeof(PlayerSpecificSettings), typeof(string) })]
+        new Type[] { typeof(string), typeof(IDifficultyBeatmap), typeof(IPreviewBeatmapLevel), typeof(MissionObjective[]), typeof(ColorScheme), typeof(GameplayModifiers), typeof(PlayerSpecificSettings), typeof(string) })]
     [HarmonyPatch("Init")]
     internal static class MissionLevelScenesTransitionSetupDataSOInit
     {
