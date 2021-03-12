@@ -61,10 +61,6 @@
             _harmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
 
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
-            if (ChromaConfig.Instance.LightshowMenu)
-            {
-                GameplaySetup.instance.AddTab("Lightshow Modifiers", "Chroma.Settings.lightshow.bsml", ChromaSettingsUI.instance);
-            }
 
             ChromaUtils.SetSongCoreCapability(REQUIREMENTNAME, ChromaConfig.Instance.CustomColorEventsEnabled);
 

@@ -118,42 +118,6 @@
             beatmapObjectManager.noteWasCutEvent -= NoteColorizer.ColorizeSaber;
             beatmapObjectManager.noteWasCutEvent += NoteColorizer.ColorizeSaber;
 
-            if (ChromaConfig.Instance.LightshowModifier)
-            {
-                foreach (BeatmapLineData b in beatmapData.beatmapLinesData)
-                {
-                    BeatmapLineData refBeatmapLineData = b;
-                    _beatmapObjectsDataAccessor(ref refBeatmapLineData) = b.beatmapObjectsData.Where((source, index) => b.beatmapObjectsData[index].beatmapObjectType != BeatmapObjectType.Note).ToList();
-                }
-
-                foreach (Saber saber in Resources.FindObjectsOfTypeAll<Saber>())
-                {
-                    saber.gameObject.SetActive(false);
-                }
-
-                BS_Utils.Gameplay.ScoreSubmission.DisableSubmission("Chroma");
-
-                if (ChromaConfig.Instance.PlayersPlace)
-                {
-                    GameObject.Find("PlayersPlace")?.SetActive(false);
-                }
-
-                if (ChromaConfig.Instance.Spectrograms)
-                {
-                    GameObject.Find("Spectrograms")?.SetActive(false);
-                }
-
-                if (ChromaConfig.Instance.BackColumns)
-                {
-                    GameObject.Find("BackColumns")?.SetActive(false);
-                }
-
-                if (ChromaConfig.Instance.Buildings)
-                {
-                    GameObject.Find("Buildings")?.SetActive(false);
-                }
-            }
-
             if (Harmony.HasAnyPatches(HARMONYID))
             {
                 if (beatmapData is CustomBeatmapData customBeatmap)

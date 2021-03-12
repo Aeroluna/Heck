@@ -8,7 +8,6 @@
   "version": "2.2.8",
   "dependsOn": {
     "BeatSaberMarkupLanguage": "^1.4.0",
-    "BS Utils": "^1.6.0",
     "CustomJSONData": "^1.1.0",
     "SongCore": "^3.0.0",
     "BSIPA": "^4.1.3",

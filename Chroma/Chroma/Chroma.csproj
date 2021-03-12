@@ -84,7 +84,6 @@
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="Settings\modifiers.bsml" />
-    <EmbeddedResource Include="Settings\lightshow.bsml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\LightshowIcon.png" />
