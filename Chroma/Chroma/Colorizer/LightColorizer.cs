@@ -136,17 +136,17 @@
 
                     Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<ILightWithId>[], LightWithIdManager>("_lights")[lse.lightsId];
                     IDictionary<int, List<ILightWithId>> lightsPreGroup = new Dictionary<int, List<ILightWithId>>();
-                    var managers = Object.FindObjectsOfType<TrackLaneRingsManager>();
+                    TrackLaneRingsManager[] managers = Object.FindObjectsOfType<TrackLaneRingsManager>();
                     foreach (ILightWithId light in Lights)
                     {
                         if (light is MonoBehaviour monoBehaviour)
                         {
                             int z = Mathf.RoundToInt(monoBehaviour.transform.position.z);
 
-                            var ring = monoBehaviour.GetComponentInParent<TrackLaneRing>();
+                            TrackLaneRing ring = monoBehaviour.GetComponentInParent<TrackLaneRing>();
                             if (ring != null)
                             {
-                                var mngr = managers.FirstOrDefault(it => it.Rings.IndexOf(ring) >= 0);
+                                TrackLaneRingsManager mngr = managers.FirstOrDefault(it => it.Rings.IndexOf(ring) >= 0);
                                 if (mngr != null)
                                 {
                                     z = 1000 + mngr.Rings.IndexOf(ring);
