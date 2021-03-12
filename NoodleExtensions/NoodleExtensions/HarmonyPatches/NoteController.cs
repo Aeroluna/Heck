@@ -312,7 +312,7 @@
                         {
                             case GameNoteController gameNoteController:
                                 BoxCuttableBySaber[] bigCuttableBySaberList = _gameNoteBigCuttableAccessor(ref gameNoteController);
-                                foreach (BoxCuttableBySaber bigCuttableBySaber in bigCuttableBySaberList) 
+                                foreach (BoxCuttableBySaber bigCuttableBySaber in bigCuttableBySaberList)
                                 {
                                     if (bigCuttableBySaber.canBeCut != enabled)
                                     {
