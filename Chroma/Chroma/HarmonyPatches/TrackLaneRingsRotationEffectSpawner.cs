@@ -101,12 +101,13 @@
                     float step = ((float?)Trees.at(dynData, STEP)).GetValueOrDefault(rotationStep);
                     float prop = ((float?)Trees.at(dynData, PROP)).GetValueOrDefault(____rotationPropagationSpeed);
                     float speed = ((float?)Trees.at(dynData, SPEED)).GetValueOrDefault(____rotationFlexySpeed);
+                    float rotation = ((float?)Trees.at(dynData, ROTATION)).GetValueOrDefault(____rotation);
 
                     float stepMult = ((float?)Trees.at(dynData, STEPMULT)).GetValueOrDefault(1f);
                     float propMult = ((float?)Trees.at(dynData, PROPMULT)).GetValueOrDefault(1f);
                     float speedMult = ((float?)Trees.at(dynData, SPEEDMULT)).GetValueOrDefault(1f);
 
-                    TriggerRotation(____trackLaneRingsRotationEffect, rotRight, ____rotation, step * stepMult, prop * propMult, speed * speedMult);
+                    TriggerRotation(____trackLaneRingsRotationEffect, rotRight, rotation, step * stepMult, prop * propMult, speed * speedMult);
                     return false;
                 }
             }
