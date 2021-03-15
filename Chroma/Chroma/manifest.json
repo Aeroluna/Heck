@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "author": "Aeroluna",
   "description": "RGB Lightmapping and custom lighting events",
-  "gameVersion": "1.13.4",
+  "gameVersion": "1.13.5",
   "id": "Chroma",
   "name": "Chroma",
   "version": "2.3.0",

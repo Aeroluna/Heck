@@ -56,6 +56,8 @@
                     lights[i].ColorWasSet(color);
                 }
 
+                LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.LegacyLightOverride = null;
+
                 return false;
             }
 
