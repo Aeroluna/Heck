@@ -9,8 +9,10 @@
     [HarmonyPatch("Init")]
     internal static class MultiplayerLevelScenesTransitionSetupDataSOInit
     {
-        private static void Postfix(IDifficultyBeatmap difficultyBeatmap)
+        private static void Postfix(IDifficultyBeatmap difficultyBeatmap, EnvironmentInfoSO ____multiplayerEnvironmentInfo)
         {
+            LightIDTableManager.SetEnvironment(____multiplayerEnvironmentInfo.serializedName);
+
             SceneTransitionHelper.Patch(difficultyBeatmap);
         }
     }

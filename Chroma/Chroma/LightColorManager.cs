@@ -11,6 +11,8 @@
 
     internal static class LightColorManager
     {
+        internal static List<int> LightIDOverride { get; set; }
+
         internal static void ColorLightSwitch(MonoBehaviour monobehaviour, BeatmapEventData beatmapEventData)
         {
             monobehaviour.SetLastValue(beatmapEventData.value);
@@ -28,35 +30,21 @@
                     object lightID = Trees.at(dynData, LIGHTID);
                     if (lightID != null)
                     {
-                        ILightWithId[] lights = lightSwitchEventEffect.GetLights();
-                        int lightCount = lights.Length;
                         switch (lightID)
                         {
                             case List<object> lightIDobjects:
-                                int[] lightIDArray = lightIDobjects.Select(n => System.Convert.ToInt32(n)).ToArray();
-                                List<ILightWithId> overrideLights = new List<ILightWithId>();
-                                for (int i = 0; i < lightIDArray.Length; i++)
-                                {
-                                    if (lightCount > lightIDArray[i])
-                                    {
-                                        overrideLights.Add(lights[lightIDArray[i]]);
-                                    }
-                                }
-
-                                SetOverrideLightWithIds(overrideLights.ToArray());
+                                LightIDOverride = lightIDobjects.Select(n => System.Convert.ToInt32(n)).ToList();
 
                                 break;
 
                             case long lightIDint:
-                                if (lightCount > lightIDint)
-                                {
-                                    SetOverrideLightWithIds(lights[lightIDint]);
-                                }
+                                LightIDOverride = new List<int> { (int)lightIDint };
 
                                 break;
                         }
                     }
 
+                    // propID is now DEPRECATED!!!!!!!!
                     object propID = Trees.at(dynData, PROPAGATIONID);
                     if (propID != null)
                     {
@@ -75,14 +63,14 @@
                                     }
                                 }
 
-                                SetOverrideLightWithIds(overrideLights.ToArray());
+                                SetLegacyPropIdOverride(overrideLights.ToArray());
 
                                 break;
 
                             case long propIDlong:
                                 if (lightCount > propIDlong)
                                 {
-                                    SetOverrideLightWithIds(lights[propIDlong]);
+                                    SetLegacyPropIdOverride(lights[propIDlong]);
                                 }
 
                                 break;
@@ -114,9 +102,9 @@
             }
         }
 
-        private static void SetOverrideLightWithIds(params ILightWithId[] lights)
+        private static void SetLegacyPropIdOverride(params ILightWithId[] lights)
         {
-            HarmonyPatches.LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.OverrideLightWithIdActivation = lights;
+            HarmonyPatches.LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.LegacyLightOverride = lights;
         }
     }
 }

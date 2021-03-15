@@ -1,6 +1,8 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
     using Chroma.Colorizer;
     using HarmonyLib;
     using UnityEngine;
@@ -25,11 +27,30 @@
     [ChromaPatch("SetColor")]
     internal static class LightSwitchEventEffectSetColor
     {
-        private static bool Prefix(Color color)
+        private static bool Prefix(LightSwitchEventEffect __instance, BeatmapEventType ____event, Color color)
         {
-            if (LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.OverrideLightWithIdActivation != null)
+            if (LightColorManager.LightIDOverride != null)
             {
-                ILightWithId[] lights = LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.OverrideLightWithIdActivation;
+                List<ILightWithId> lights = __instance.GetLights();
+                int type = (int)____event;
+                IEnumerable<int> newIds = LightColorManager.LightIDOverride.Select(n => LightIDTableManager.GetActiveTableValue(type, n) ?? n);
+                foreach (int id in newIds)
+                {
+                    if (lights[id].isRegistered)
+                    {
+                        lights[id].ColorWasSet(color);
+                    }
+                }
+
+                LightColorManager.LightIDOverride = null;
+
+                return false;
+            }
+
+            // Legacy Prop Id stuff
+            if (LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.LegacyLightOverride != null)
+            {
+                ILightWithId[] lights = LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.LegacyLightOverride;
                 for (int i = 0; i < lights.Length; i++)
                 {
                     lights[i].ColorWasSet(color);
@@ -46,7 +67,7 @@
     [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
-        internal static ILightWithId[] OverrideLightWithIdActivation { get; set; }
+        internal static ILightWithId[] LegacyLightOverride { get; set; }
 
         // 0 = off
         // 1 = blue on, 5 = red on
@@ -58,11 +79,6 @@
             {
                 LightColorManager.ColorLightSwitch(__instance, beatmapEventData);
             }
-        }
-
-        private static void Postfix()
-        {
-            OverrideLightWithIdActivation = null;
         }
     }
 }

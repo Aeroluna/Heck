@@ -53,6 +53,7 @@
             ChromaLogger.IPAlogger = pluginLogger;
             ChromaConfig.Instance = conf.Generated<ChromaConfig>();
             ChromaController.InitChromaPatches();
+            LightIDTableManager.InitTable();
         }
 
         [OnEnable]

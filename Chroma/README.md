@@ -34,9 +34,9 @@ Example of _customData:
 * RGB
   * `"_events"` -> `"_customData"`
     * Will only apply to the single light it's attached to.
-    * `"_propID"`: (int) Causes event to only affect specified [propagation group](https://streamable.com/byyda).
-    * `"_lightID"`: (int) Causes event to only affect specified [ID](https://streamable.com/dhs31).
+    * `"_lightID"`: (int) Causes event to only affect specified [ID](https://streamable.com/dhs31). Can be an array.
     * `"_color"`: `[r, g, b, a]` (float) Array of RGB values (Alpha is optional and will default to 1 if not specified).
+    * `"_propID"`: (int) Deprecated, use _lightID. Causes event to only affect specified [propagation group](https://streamable.com/byyda).
 * Gradient
   * Hate placing a thousand color blocks for a gradient? So do I. This will handle all of that for you.
   * `"_events"` -> `"_customData"`

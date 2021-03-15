@@ -2,12 +2,41 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
+    using System.Reflection.Emit;
     using Chroma.Settings;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using HarmonyLib;
 
     internal static class SceneTransitionHelper
     {
+        private static readonly MethodInfo _setEnvironmentTable = SymbolExtensions.GetMethodInfo(() => SetEnvironmentTable(null));
+
+        internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            List<CodeInstruction> instructionList = instructions.ToList();
+            bool foundReturn = false;
+            for (int i = 0; i < instructionList.Count; i++)
+            {
+                if (!foundReturn &&
+                    instructionList[i].opcode == OpCodes.Ret)
+                {
+                    foundReturn = true;
+
+                    instructionList.Insert(i, new CodeInstruction(OpCodes.Ldloc_0));
+                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _setEnvironmentTable));
+                }
+            }
+
+            if (!foundReturn)
+            {
+                ChromaLogger.Log("Failed to find ret!", IPA.Logging.Logger.Level.Error);
+            }
+
+            return instructionList.AsEnumerable();
+        }
+
         internal static void Patch(IDifficultyBeatmap difficultyBeatmap)
         {
             if (difficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
@@ -26,6 +55,11 @@
                     overrideEnvironmentSettings = null;
                 }
             }
+        }
+
+        private static void SetEnvironmentTable(EnvironmentInfoSO environmentInfo)
+        {
+            LightIDTableManager.SetEnvironment(environmentInfo.serializedName);
         }
 
         private static bool BasicPatch(CustomBeatmapData customBeatmapData)

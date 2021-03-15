@@ -69,9 +69,9 @@
             LSEColorManager.GetLSEColorManager(lse)?.SetLastValue(value);
         }
 
-        internal static ILightWithId[] GetLights(this LightSwitchEventEffect lse)
+        internal static List<ILightWithId> GetLights(this LightSwitchEventEffect lse)
         {
-            return LSEColorManager.GetLSEColorManager(lse)?.Lights.ToArray();
+            return LSEColorManager.GetLSEColorManager(lse)?.Lights;
         }
 
         internal static ILightWithId[][] GetLightsPropagationGrouped(this LightSwitchEventEffect lse)
