@@ -127,6 +127,16 @@
                         // Spaghetti code below until I can figure out a better way of doing this
                         dynamic dynData = customBeatmap.beatmapCustomData;
                         List<object> objectsToKill = Trees.at(dynData, ENVIRONMENTREMOVAL);
+
+                        // seriously what the fuck beat games
+                        // GradientBackground permanently yeeted because it looks awful and can ruin multi-colored chroma maps
+                        if (objectsToKill == null)
+                        {
+                            objectsToKill = new List<object>();
+                        }
+
+                        objectsToKill.Add("GradientBackground");
+
                         if (objectsToKill != null)
                         {
                             IEnumerable<GameObject> gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
