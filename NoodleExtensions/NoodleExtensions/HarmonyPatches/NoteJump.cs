@@ -19,6 +19,7 @@
         private static readonly MethodInfo _definiteNoteJump = SymbolExtensions.GetMethodInfo(() => DefiniteNoteJump(Vector3.zero, 0));
         private static readonly MethodInfo _convertToLocalSpace = SymbolExtensions.GetMethodInfo(() => ConvertToLocalSpace(null));
         private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), "_definitePosition");
+        private static readonly MethodInfo _playerTransformWorldPos = typeof(PlayerTransforms).GetProperty("headWorldPos").GetGetMethod();
 
         // This field is used by reflection
 #pragma warning disable CS0414 // The field is assigned but its value is never used
@@ -40,6 +41,7 @@
             bool foundFinalPosition = false;
             bool foundTransformUp = false;
             bool foundZOffset = false;
+            bool foundPseudo = false;
             for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundTime &&
@@ -86,6 +88,16 @@
                     instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldsfld, _definitePositionField));
                     instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Brtrue_S, instructionList[i].operand));
                 }
+
+                // Another possibly broken in multiplayer thingy
+                if (!foundPseudo &&
+                    instructionList[i].opcode == OpCodes.Callvirt &&
+                  ((MethodInfo)instructionList[i].operand).Name == "get_headPseudoLocalPos")
+                {
+                    foundPseudo = true;
+
+                    instructionList[i].operand = _playerTransformWorldPos;
+                }
             }
 
             if (!foundTime)
@@ -106,6 +118,11 @@
             if (!foundZOffset)
             {
                 NoodleLogger.Log("Failed to find brfalse.s to Label21!", IPA.Logging.Logger.Level.Error);
+            }
+
+            if (!foundPseudo)
+            {
+                NoodleLogger.Log("Failed to find callvirt to get_headPseudoLocalPos!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();

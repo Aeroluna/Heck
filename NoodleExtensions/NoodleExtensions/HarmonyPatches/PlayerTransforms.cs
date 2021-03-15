@@ -1,13 +1,24 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
-    using System.Collections.Generic;
+    /*using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
-    using HarmonyLib;
+    using HarmonyLib;*/
     using UnityEngine;
 
+    // Possibly breaks in multiplayer? We don't support that anyways.
     [NoodlePatch(typeof(PlayerTransforms))]
+    [NoodlePatch("Update")]
+    internal static class PlayerTransformsUpdate
+    {
+        private static void Postfix(ref Vector3 ____headPseudoLocalPos, Transform ____headTransform)
+        {
+            ____headPseudoLocalPos = ____headTransform.localPosition;
+        }
+    }
+
+    /*[NoodlePatch(typeof(PlayerTransforms))]
     [NoodlePatch("MoveTowardsHead")]
     internal static class PlayerTransformsMoveTowardsHead
     {
@@ -48,5 +59,5 @@
         {
             return (noteInverseWorldRotation * localPos).z;
         }
-    }
+    }*/
 }
