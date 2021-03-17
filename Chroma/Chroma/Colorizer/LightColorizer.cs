@@ -134,7 +134,7 @@
                     InitializeSOs(mono, "_highlightColor1Boost", ref _lightColor1Boost, ref _lightColor1Boost_Original, ref _mHighlightColor1Boost);
                     _supportBoostColor = true;
 
-                    Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<ILightWithId>[], LightWithIdManager>("_lights")[lse.lightsId];
+                    Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<ILightWithId>[], LightWithIdManager>("_lights")[lse.lightsId].Select(x => x).ToList();
                     IDictionary<int, List<ILightWithId>> lightsPreGroup = new Dictionary<int, List<ILightWithId>>();
                     TrackLaneRingsManager[] managers = Object.FindObjectsOfType<TrackLaneRingsManager>();
                     foreach (ILightWithId light in Lights)
