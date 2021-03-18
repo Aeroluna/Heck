@@ -112,6 +112,7 @@
     <EmbeddedResource Include="LightIDTables\RocketEnvironment.json" />
     <EmbeddedResource Include="LightIDTables\TimbalandEnvironment.json" />
     <EmbeddedResource Include="LightIDTables\TriangleEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\KaleidoscopeEnvironment.json" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
