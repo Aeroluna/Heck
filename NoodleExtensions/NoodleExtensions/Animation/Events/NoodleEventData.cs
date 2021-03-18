@@ -30,7 +30,7 @@
                     case "AssignPlayerToTrack":
                         noodleEventData = new NoodlePlayerTrackEventData()
                         {
-                            Track = GetTrack(customEventData.data),
+                            Track = GetTrackPreload(customEventData.data, beatmapData),
                         };
                         break;
 
