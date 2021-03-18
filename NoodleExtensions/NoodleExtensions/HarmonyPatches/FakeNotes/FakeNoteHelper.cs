@@ -3,9 +3,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
+    using static NoodleExtensions.NoodleObjectDataManager;
     using static NoodleExtensions.Plugin;
 
     internal static class FakeNoteHelper
@@ -15,14 +14,11 @@
 
         internal static bool GetFakeNote(NoteController noteController)
         {
-            if (noteController.noteData is CustomNoteData customNoteData)
+            NoodleNoteData noodleData = (NoodleNoteData)NoodleObjectDatas[noteController.noteData];
+            bool? fake = noodleData.Fake;
+            if (fake.HasValue && fake.Value)
             {
-                dynamic dynData = customNoteData.customData;
-                bool? fake = Trees.at(dynData, FAKENOTE);
-                if (fake.HasValue && fake.Value)
-                {
-                    return false;
-                }
+                return false;
             }
 
             return true;
@@ -30,14 +26,11 @@
 
         internal static bool GetCuttable(NoteData noteData)
         {
-            if (noteData is CustomNoteData customNoteData)
+            NoodleNoteData noodleData = (NoodleNoteData)NoodleObjectDatas[noteData];
+            bool? cuttable = noodleData.Cuttable;
+            if (cuttable.HasValue && !cuttable.Value)
             {
-                dynamic dynData = customNoteData.customData;
-                bool? cuttable = Trees.at(dynData, CUTTABLE);
-                if (cuttable.HasValue && !cuttable.Value)
-                {
-                    return false;
-                }
+                return false;
             }
 
             return true;
@@ -52,14 +45,11 @@
         {
             return intersectingObstacles.Where(n =>
             {
-                if (n.obstacleData is CustomObstacleData customObstacleData)
+                NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[n.obstacleData];
+                bool? fake = noodleData.Fake;
+                if (fake.HasValue && fake.Value)
                 {
-                    dynamic dynData = customObstacleData.customData;
-                    bool? fake = Trees.at(dynData, FAKENOTE);
-                    if (fake.HasValue && fake.Value)
-                    {
-                        return false;
-                    }
+                    return false;
                 }
 
                 return true;

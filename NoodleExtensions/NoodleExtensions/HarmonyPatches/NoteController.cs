@@ -5,12 +5,11 @@
     using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
     using IPA.Utilities;
     using NoodleExtensions.Animation;
     using UnityEngine;
+    using static NoodleExtensions.NoodleObjectDataManager;
     using static NoodleExtensions.Plugin;
 
     [NoodlePatch(typeof(NoteController))]
@@ -32,107 +31,82 @@
 
         private static readonly MethodInfo _getFlipYSide = SymbolExtensions.GetMethodInfo(() => GetFlipYSide(null, 0));
 
-        private static readonly MethodInfo _noteControllerUpdate = typeof(NoteController).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo _gameNoteControllerUpdate = typeof(GameNoteController).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
-
         private static void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
         {
-            if (noteData is CustomNoteData customData)
+            NoodleNoteData noodleData = (NoodleNoteData)NoodleObjectDatas[noteData];
+
+            Quaternion? cutQuaternion = noodleData.CutQuaternion;
+
+            NoteJump noteJump = _noteJumpAccessor(ref ____noteMovement);
+            NoteFloorMovement floorMovement = _noteFloorMovementAccessor(ref ____noteMovement);
+
+            if (cutQuaternion.HasValue)
             {
-                dynamic dynData = customData.customData;
+                Quaternion quatVal = cutQuaternion.Value;
+                _endRotationAccessor(ref noteJump) = quatVal;
+                Vector3 vector = quatVal.eulerAngles;
+                vector += _randomRotationsAccessor(ref noteJump)[_randomRotationIdxAccessor(ref noteJump)] * 20;
+                Quaternion midrotation = Quaternion.Euler(vector);
+                _middleRotationAccessor(ref noteJump) = midrotation;
+            }
 
-                float? cutDir = (float?)Trees.at(dynData, CUTDIRECTION);
+            Quaternion? worldRotationQuaternion = noodleData.WorldRotationQuaternion;
+            Quaternion? localRotationQuaternion = noodleData.LocalRotationQuaternion;
 
-                NoteJump noteJump = _noteJumpAccessor(ref ____noteMovement);
-                NoteFloorMovement floorMovement = _noteFloorMovementAccessor(ref ____noteMovement);
+            Transform transform = __instance.transform;
 
-                if (cutDir.HasValue)
+            Quaternion localRotation = _quaternionIdentity;
+            if (worldRotationQuaternion.HasValue || localRotationQuaternion.HasValue)
+            {
+                if (localRotationQuaternion.HasValue)
                 {
-                    Quaternion cutQuaternion = Quaternion.Euler(0, 0, cutDir.Value);
-                    _endRotationAccessor(ref noteJump) = cutQuaternion;
-                    Vector3 vector = cutQuaternion.eulerAngles;
-                    vector += _randomRotationsAccessor(ref noteJump)[_randomRotationIdxAccessor(ref noteJump)] * 20;
-                    Quaternion midrotation = Quaternion.Euler(vector);
-                    _middleRotationAccessor(ref noteJump) = midrotation;
+                    localRotation = localRotationQuaternion.Value;
                 }
 
-                dynamic rotation = Trees.at(dynData, ROTATION);
-                IEnumerable<float> localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
-
-                Transform transform = __instance.transform;
-
-                Quaternion localRotation = _quaternionIdentity;
-                if (rotation != null || localRotation != null)
+                if (worldRotationQuaternion.HasValue)
                 {
-                    if (localrot != null)
-                    {
-                        localRotation = Quaternion.Euler(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
-                    }
+                    Quaternion quatVal = worldRotationQuaternion.Value;
+                    Quaternion inverseWorldRotation = Quaternion.Euler(-quatVal.eulerAngles);
+                    _worldRotationJumpAccessor(ref noteJump) = quatVal;
+                    _inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
+                    _worldRotationFloorAccessor(ref floorMovement) = quatVal;
+                    _inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
 
-                    Quaternion worldRotationQuatnerion;
-                    if (rotation != null)
-                    {
-                        if (rotation is List<object> list)
-                        {
-                            IEnumerable<float> rot = list?.Select(n => Convert.ToSingle(n));
-                            worldRotationQuatnerion = Quaternion.Euler(rot.ElementAt(0), rot.ElementAt(1), rot.ElementAt(2));
-                        }
-                        else
-                        {
-                            worldRotationQuatnerion = Quaternion.Euler(0, (float)rotation, 0);
-                        }
+                    quatVal *= localRotation;
 
-                        Quaternion inverseWorldRotation = Quaternion.Euler(-worldRotationQuatnerion.eulerAngles);
-                        _worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
-                        _inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
-                        _worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
-                        _inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
-
-                        worldRotationQuatnerion *= localRotation;
-
-                        transform.localRotation = worldRotationQuatnerion;
-                    }
-                    else
-                    {
-                        transform.localRotation *= localRotation;
-                    }
+                    transform.localRotation = quatVal;
                 }
-
-                transform.localScale = Vector3.one; // This is a fix for animation due to notes being recycled
-
-                Track track = AnimationHelper.GetTrack(dynData);
-                if (track != null && ParentObject.Controller != null)
+                else
                 {
-                    ParentObject parentObject = ParentObject.Controller.GetParentObjectTrack(track);
-                    if (parentObject != null)
-                    {
-                        parentObject.ParentToObject(transform);
-                    }
-                    else
-                    {
-                        ParentObject.ResetTransformParent(transform);
-                    }
+                    transform.localRotation *= localRotation;
+                }
+            }
+
+            transform.localScale = Vector3.one; // This is a fix for animation due to notes being recycled
+
+            Track track = noodleData.Track;
+            if (track != null && ParentObject.Controller != null)
+            {
+                ParentObject parentObject = ParentObject.Controller.GetParentObjectTrack(track);
+                if (parentObject != null)
+                {
+                    parentObject.ParentToObject(transform);
                 }
                 else
                 {
                     ParentObject.ResetTransformParent(transform);
                 }
-
-                dynData.moveStartPos = moveStartPos;
-                dynData.moveEndPos = moveEndPos;
-                dynData.jumpEndPos = jumpEndPos;
-                dynData.worldRotation = __instance.worldRotation;
-                dynData.localRotation = localRotation;
-            }
-
-            if (__instance is GameNoteController)
-            {
-                _gameNoteControllerUpdate.Invoke(__instance, null);
             }
             else
             {
-                _noteControllerUpdate.Invoke(__instance, null);
+                ParentObject.ResetTransformParent(transform);
             }
+
+            noodleData.MoveStartPos = moveStartPos;
+            noodleData.MoveEndPos = moveEndPos;
+            noodleData.JumpEndPos = jumpEndPos;
+            noodleData.WorldRotation = __instance.worldRotation;
+            noodleData.LocalRotation = localRotation;
         }
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -164,15 +138,11 @@
         private static float GetFlipYSide(NoteData noteData, float @default)
         {
             float output = @default;
-            if (noteData is CustomNoteData customData)
+            NoodleNoteData noodleData = (NoodleNoteData)NoodleObjectDatas[noteData];
+            float? flipYSide = noodleData.FlipYSideInternal;
+            if (flipYSide.HasValue)
             {
-                dynamic dynData = customData.customData;
-
-                float? flipYSide = (float?)Trees.at(dynData, "flipYSide");
-                if (flipYSide.HasValue)
-                {
-                    output = flipYSide.Value;
-                }
+                output = flipYSide.Value;
             }
 
             return output;
@@ -180,7 +150,7 @@
     }
 
     [NoodlePatch(typeof(NoteController))]
-    [NoodlePatch("Update")]
+    [NoodlePatch("ManualUpdate")]
     internal static class NoteControllerUpdate
     {
         internal static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorEndPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_endPos");
@@ -200,146 +170,143 @@
 
         private static readonly Dictionary<Type, MethodInfo> _setArrowTransparencyMethods = new Dictionary<Type, MethodInfo>();
 
-        internal static CustomNoteData CustomNoteData { get; private set; }
+        internal static NoodleObjectData NoodleData { get; private set; }
 
         private static void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
-            if (____noteData is CustomNoteData customData)
+            NoodleData = NoodleObjectDatas[____noteData];
+            NoodleNoteData noodleData = (NoodleNoteData)NoodleData;
+
+            Track track = noodleData.Track;
+            NoodleObjectData.AnimationObjectData animationObject = noodleData.AnimationObject;
+            if (track != null || animationObject != null)
             {
-                CustomNoteData = customData;
+                NoteJump noteJump = NoteControllerInit._noteJumpAccessor(ref ____noteMovement);
+                NoteFloorMovement floorMovement = NoteControllerInit._noteFloorMovementAccessor(ref ____noteMovement);
 
-                dynamic dynData = customData.customData;
+                // idk i just copied base game time
+                float jumpDuration = _jumpDurationAccessor(ref noteJump);
+                float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - (jumpDuration * 0.5f));
+                elapsedTime = NoteJumpManualUpdate.NoteJumpTimeAdjust(elapsedTime, jumpDuration);
+                float normalTime = elapsedTime / jumpDuration;
 
-                Track track = Trees.at(dynData, "track");
-                dynamic animationObject = Trees.at(dynData, "_animation");
-                if (track != null || animationObject != null)
+                AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow, out float? cuttable);
+
+                if (positionOffset.HasValue)
                 {
-                    NoteJump noteJump = NoteControllerInit._noteJumpAccessor(ref ____noteMovement);
-                    NoteFloorMovement floorMovement = NoteControllerInit._noteFloorMovementAccessor(ref ____noteMovement);
+                    Vector3 moveStartPos = noodleData.MoveStartPos;
+                    Vector3 moveEndPos = noodleData.MoveEndPos;
+                    Vector3 jumpEndPos = noodleData.JumpEndPos;
 
-                    // idk i just copied base game time
-                    float jumpDuration = _jumpDurationAccessor(ref noteJump);
-                    float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - (jumpDuration * 0.5f));
-                    elapsedTime = NoteJumpManualUpdate.NoteJumpTimeAdjust(elapsedTime, jumpDuration);
-                    float normalTime = elapsedTime / jumpDuration;
+                    Vector3 offset = positionOffset.Value;
+                    _floorStartPosAccessor(ref floorMovement) = moveStartPos + offset;
+                    _floorEndPosAccessor(ref floorMovement) = moveEndPos + offset;
+                    _jumpStartPosAccessor(ref noteJump) = moveEndPos + offset;
+                    _jumpEndPosAccessor(ref noteJump) = jumpEndPos + offset;
+                }
 
-                    AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow, out float? cuttable);
+                Transform transform = __instance.transform;
 
-                    if (positionOffset.HasValue)
+                if (rotationOffset.HasValue || localRotationOffset.HasValue)
+                {
+                    Quaternion worldRotation = noodleData.WorldRotation;
+                    Quaternion localRotation = noodleData.LocalRotation;
+
+                    Quaternion worldRotationQuatnerion = worldRotation;
+                    if (rotationOffset.HasValue)
                     {
-                        Vector3 moveStartPos = Trees.at(dynData, "moveStartPos");
-                        Vector3 moveEndPos = Trees.at(dynData, "moveEndPos");
-                        Vector3 jumpEndPos = Trees.at(dynData, "jumpEndPos");
-
-                        Vector3 offset = positionOffset.Value;
-                        _floorStartPosAccessor(ref floorMovement) = moveStartPos + offset;
-                        _floorEndPosAccessor(ref floorMovement) = moveEndPos + offset;
-                        _jumpStartPosAccessor(ref noteJump) = moveEndPos + offset;
-                        _jumpEndPosAccessor(ref noteJump) = jumpEndPos + offset;
+                        worldRotationQuatnerion *= rotationOffset.Value;
+                        Quaternion inverseWorldRotation = Quaternion.Euler(-worldRotationQuatnerion.eulerAngles);
+                        NoteControllerInit._worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
+                        NoteControllerInit._inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
+                        NoteControllerInit._worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
+                        NoteControllerInit._inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
                     }
 
-                    Transform transform = __instance.transform;
+                    worldRotationQuatnerion *= localRotation;
 
-                    if (rotationOffset.HasValue || localRotationOffset.HasValue)
+                    if (localRotationOffset.HasValue)
                     {
-                        Quaternion worldRotation = Trees.at(dynData, "worldRotation");
-                        Quaternion localRotation = Trees.at(dynData, "localRotation");
-
-                        Quaternion worldRotationQuatnerion = worldRotation;
-                        if (rotationOffset.HasValue)
-                        {
-                            worldRotationQuatnerion *= rotationOffset.Value;
-                            Quaternion inverseWorldRotation = Quaternion.Euler(-worldRotationQuatnerion.eulerAngles);
-                            NoteControllerInit._worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
-                            NoteControllerInit._inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
-                            NoteControllerInit._worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
-                            NoteControllerInit._inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
-                        }
-
-                        worldRotationQuatnerion *= localRotation;
-
-                        if (localRotationOffset.HasValue)
-                        {
-                            worldRotationQuatnerion *= localRotationOffset.Value;
-                        }
-
-                        transform.localRotation = worldRotationQuatnerion;
+                        worldRotationQuatnerion *= localRotationOffset.Value;
                     }
 
-                    if (scaleOffset.HasValue)
+                    transform.localRotation = worldRotationQuatnerion;
+                }
+
+                if (scaleOffset.HasValue)
+                {
+                    transform.localScale = scaleOffset.Value;
+                }
+
+                if (dissolve.HasValue)
+                {
+                    CutoutEffect cutoutEffect = noodleData.CutoutEffect;
+                    if (cutoutEffect == null)
                     {
-                        transform.localScale = scaleOffset.Value;
+                        BaseNoteVisuals baseNoteVisuals = __instance.gameObject.GetComponent<BaseNoteVisuals>();
+                        CutoutAnimateEffect cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
+                        CutoutEffect[] cutoutEffects = _cutoutEffectAccessor(ref cutoutAnimateEffect);
+                        cutoutEffect = cutoutEffects.First(n => n.name != "NoteArrow"); // 1.11 NoteArrow has been added to the CutoutAnimateEffect and we don't want that
+                        noodleData.CutoutEffect = cutoutEffect;
                     }
 
-                    if (dissolve.HasValue)
-                    {
-                        CutoutEffect cutoutEffect = Trees.at(dynData, "cutoutEffect");
-                        if (cutoutEffect == null)
-                        {
-                            BaseNoteVisuals baseNoteVisuals = __instance.gameObject.GetComponent<BaseNoteVisuals>();
-                            CutoutAnimateEffect cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
-                            CutoutEffect[] cutoutEffects = _cutoutEffectAccessor(ref cutoutAnimateEffect);
-                            cutoutEffect = cutoutEffects.First(n => n.name != "NoteArrow"); // 1.11 NoteArrow has been added to the CutoutAnimateEffect and we don't want that
-                            dynData.cutoutAnimateEffect = cutoutEffect;
-                        }
+                    cutoutEffect.SetCutout(1 - dissolve.Value);
+                }
 
-                        cutoutEffect.SetCutout(1 - dissolve.Value);
-                    }
-
-                    if (dissolveArrow.HasValue && __instance.noteData.colorType != ColorType.None)
+                if (dissolveArrow.HasValue && __instance.noteData.colorType != ColorType.None)
+                {
+                    MonoBehaviour disappearingArrowController = noodleData.DisappearingArrowController;
+                    if (disappearingArrowController == null)
                     {
-                        MonoBehaviour disappearingArrowController = Trees.at(dynData, "disappearingArrowController");
+                        disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowControllerBase<GameNoteController>>();
                         if (disappearingArrowController == null)
                         {
-                            disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowControllerBase<GameNoteController>>();
-                            if (disappearingArrowController == null)
-                            {
-                                disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowControllerBase<MultiplayerConnectedPlayerGameNoteController>>();
-                            }
-
-                            dynData.disappearingArrowController = disappearingArrowController;
+                            disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowControllerBase<MultiplayerConnectedPlayerGameNoteController>>();
                         }
 
-                        // gross nasty reflection
-                        GetSetArrowTransparency(disappearingArrowController.GetType()).Invoke(disappearingArrowController, new object[] { dissolveArrow.Value });
+                        noodleData.DisappearingArrowController = disappearingArrowController;
+                        noodleData.DisappearingArrowMethod = GetSetArrowTransparency(disappearingArrowController.GetType());
                     }
 
-                    if (cuttable.HasValue)
+                    // gross nasty reflection
+                    noodleData.DisappearingArrowMethod.Invoke(disappearingArrowController, new object[] { dissolveArrow.Value });
+                }
+
+                if (cuttable.HasValue)
+                {
+                    bool enabled = cuttable.Value >= 1;
+
+                    switch (__instance)
                     {
-                        bool enabled = cuttable.Value >= 1;
-
-                        switch (__instance)
-                        {
-                            case GameNoteController gameNoteController:
-                                BoxCuttableBySaber[] bigCuttableBySaberList = _gameNoteBigCuttableAccessor(ref gameNoteController);
-                                foreach (BoxCuttableBySaber bigCuttableBySaber in bigCuttableBySaberList)
+                        case GameNoteController gameNoteController:
+                            BoxCuttableBySaber[] bigCuttableBySaberList = _gameNoteBigCuttableAccessor(ref gameNoteController);
+                            foreach (BoxCuttableBySaber bigCuttableBySaber in bigCuttableBySaberList)
+                            {
+                                if (bigCuttableBySaber.canBeCut != enabled)
                                 {
-                                    if (bigCuttableBySaber.canBeCut != enabled)
-                                    {
-                                        bigCuttableBySaber.canBeCut = enabled;
-                                    }
+                                    bigCuttableBySaber.canBeCut = enabled;
                                 }
+                            }
 
-                                BoxCuttableBySaber[] smallCuttableBySaberList = _gameNoteSmallCuttableAccessor(ref gameNoteController);
-                                foreach (BoxCuttableBySaber smallCuttableBySaber in smallCuttableBySaberList)
+                            BoxCuttableBySaber[] smallCuttableBySaberList = _gameNoteSmallCuttableAccessor(ref gameNoteController);
+                            foreach (BoxCuttableBySaber smallCuttableBySaber in smallCuttableBySaberList)
+                            {
+                                if (smallCuttableBySaber.canBeCut != enabled)
                                 {
-                                    if (smallCuttableBySaber.canBeCut != enabled)
-                                    {
-                                        smallCuttableBySaber.canBeCut = enabled;
-                                    }
+                                    smallCuttableBySaber.canBeCut = enabled;
                                 }
+                            }
 
-                                break;
+                            break;
 
-                            case BombNoteController bombNoteController:
-                                CuttableBySaber boxCuttableBySaber = _bombNoteCuttableAccessor(ref bombNoteController);
-                                if (boxCuttableBySaber.canBeCut != enabled)
-                                {
-                                    boxCuttableBySaber.canBeCut = enabled;
-                                }
+                        case BombNoteController bombNoteController:
+                            CuttableBySaber boxCuttableBySaber = _bombNoteCuttableAccessor(ref bombNoteController);
+                            if (boxCuttableBySaber.canBeCut != enabled)
+                            {
+                                boxCuttableBySaber.canBeCut = enabled;
+                            }
 
-                                break;
-                        }
+                            break;
                     }
                 }
             }

@@ -41,7 +41,7 @@
                 paused = _pausedAccessor(ref _pauseController);
             }
 
-            Quaternion? rotation = TryGetProperty(_track, ROTATION);
+            Quaternion? rotation = (Quaternion?)TryGetPropertyAsObject(_track, ROTATION);
             if (rotation.HasValue)
             {
                 if (NoodleController.LeftHandedMode)
@@ -50,7 +50,7 @@
                 }
             }
 
-            Vector3? position = TryGetProperty(_track, POSITION);
+            Vector3? position = (Vector3?)TryGetPropertyAsObject(_track, POSITION);
             if (position.HasValue)
             {
                 if (NoodleController.LeftHandedMode)
@@ -70,7 +70,7 @@
             }
 
             worldRotationQuatnerion *= _startLocalRot;
-            Quaternion? localRotation = TryGetProperty(_track, LOCALROTATION);
+            Quaternion? localRotation = (Quaternion)TryGetPropertyAsObject(_track, LOCALROTATION);
             if (localRotation.HasValue && !paused)
             {
                 if (NoodleController.LeftHandedMode)

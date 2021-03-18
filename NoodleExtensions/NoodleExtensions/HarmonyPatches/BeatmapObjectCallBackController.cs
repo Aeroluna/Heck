@@ -4,9 +4,9 @@
     using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
-    using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
+    using static NoodleExtensions.NoodleObjectDataManager;
 
     [NoodlePatch(typeof(BeatmapObjectCallbackController))]
     [NoodlePatch("LateUpdate")]
@@ -46,8 +46,8 @@
             if (beatmapObjectCallbackData.callback.Method == _beatmapObjectSpawnControllerCallback &&
                 (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData || beatmapObjectData is WaypointData))
             {
-                dynamic dynData = ((dynamic)beatmapObjectData).customData;
-                float? aheadTime = (float?)Trees.at(dynData, "aheadTime");
+                NoodleObjectData noodleData = NoodleObjectDatas[beatmapObjectData];
+                float? aheadTime = noodleData.AheadTimeInternal;
                 if (aheadTime.HasValue)
                 {
                     return aheadTime.Value;

@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using static NoodleExtensions.Animation.AnimationHelper;
+    using static NoodleExtensions.Animation.NoodleEventDataManager;
     using static NoodleExtensions.Plugin;
 
     internal static class AssignPlayerToTrack
@@ -25,7 +25,8 @@
         {
             if (customEventData.type == "AssignPlayerToTrack")
             {
-                Track track = GetTrack(customEventData.data);
+                NoodlePlayerTrackEventData noodleData = (NoodlePlayerTrackEventData)NoodleEventDatas[customEventData];
+                Track track = noodleData.Track;
                 if (track != null)
                 {
                     PlayerTrack.AssignTrack(track);

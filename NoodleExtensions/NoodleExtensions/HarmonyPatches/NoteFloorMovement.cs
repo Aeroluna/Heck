@@ -4,7 +4,6 @@
     using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
-    using CustomJSONData;
     using HarmonyLib;
     using NoodleExtensions.Animation;
     using UnityEngine;
@@ -41,13 +40,11 @@
 
         private static Vector3 DefiniteNoteFloorMovement(Vector3 original, NoteFloorMovement noteFloorMovement)
         {
-            dynamic dynData = NoteControllerUpdate.CustomNoteData.customData;
-            dynamic animationObject = Trees.at(dynData, "_animation");
-            Track track = Trees.at(dynData, "track");
-            AnimationHelper.GetDefinitePositionOffset(animationObject, track, 0, out Vector3? position);
+            NoodleObjectData noodleData = NoteControllerUpdate.NoodleData;
+            AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, 0, out Vector3? position);
             if (position.HasValue)
             {
-                Vector3 noteOffset = Trees.at(dynData, "noteOffset");
+                Vector3 noteOffset = noodleData.NoteOffset;
                 Vector3 endPos = NoteControllerUpdate._floorEndPosAccessor(ref noteFloorMovement);
                 return original + (position.Value + noteOffset - endPos);
             }

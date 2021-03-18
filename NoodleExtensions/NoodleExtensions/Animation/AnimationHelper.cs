@@ -1,5 +1,6 @@
 ﻿namespace NoodleExtensions.Animation
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using CustomJSONData;
@@ -68,7 +69,7 @@
 
                     if (_beatmapObjectSpawnController == null)
                     {
-                        throw new System.Exception("Could not find BasicBeatmapObjectManager");
+                        throw new Exception("Could not find BasicBeatmapObjectManager");
                     }
                 }
 
@@ -106,7 +107,62 @@
             }
         }
 
+        public static float? TryGetLinearPathProperty(Track track, string propertyName, float time)
+        {
+            PointDefinitionInterpolation pointDataInterpolation = GetPathInterpolation(track, propertyName, PropertyType.Linear);
+
+            if (pointDataInterpolation != null)
+            {
+                return pointDataInterpolation.InterpolateLinear(time);
+            }
+
+            return null;
+        }
+
+        public static Quaternion? TryGetQuaternionPathProperty(Track track, string propertyName, float time)
+        {
+            PointDefinitionInterpolation pointDataInterpolation = GetPathInterpolation(track, propertyName, PropertyType.Quaternion);
+
+            if (pointDataInterpolation != null)
+            {
+                return pointDataInterpolation.InterpolateQuaternion(time);
+            }
+
+            return null;
+        }
+
+        public static Vector3? TryGetVector3PathProperty(Track track, string propertyName, float time)
+        {
+            PointDefinitionInterpolation pointDataInterpolation = GetPathInterpolation(track, propertyName, PropertyType.Vector3);
+
+            if (pointDataInterpolation != null)
+            {
+                return pointDataInterpolation.Interpolate(time);
+            }
+
+            return null;
+        }
+
+        public static Vector4? TryGetVector4PathProperty(Track track, string propertyName, float time)
+        {
+            PointDefinitionInterpolation pointDataInterpolation = GetPathInterpolation(track, propertyName, PropertyType.Vector4);
+
+            if (pointDataInterpolation != null)
+            {
+                return pointDataInterpolation.InterpolateVector4(time);
+            }
+
+            return null;
+        }
+
         public static dynamic TryGetProperty(Track track, string propertyName)
+        {
+            Property property = null;
+            track?.Properties.TryGetValue(propertyName, out property);
+            return property?.Value;
+        }
+
+        public static object TryGetPropertyAsObject(Track track, string propertyName)
         {
             Property property = null;
             track?.Properties.TryGetValue(propertyName, out property);
@@ -170,6 +226,25 @@
             }
         }
 
+        public static Track GetTrackPreload(dynamic customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
+        {
+            string trackName = Trees.at(customData, name);
+            if (trackName == null)
+            {
+                return null;
+            }
+
+            if (((CustomBeatmapData)beatmapData).customData.tracks.TryGetValue(trackName, out Track track))
+            {
+                return track;
+            }
+            else
+            {
+                NoodleLogger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
+                return null;
+            }
+        }
+
         public static IEnumerable<Track> GetTrackArray(dynamic customData, string name = TRACK)
         {
             IEnumerable<string> trackNames = ((List<object>)Trees.at(customData, name)).Cast<string>();
@@ -182,6 +257,30 @@
             foreach (string trackName in trackNames)
             {
                 if (Tracks.TryGetValue(trackName, out Track track))
+                {
+                    tracks.Add(track);
+                }
+                else
+                {
+                    NoodleLogger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
+                }
+            }
+
+            return tracks;
+        }
+
+        public static IEnumerable<Track> GetTrackArrayPreload(dynamic customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
+        {
+            IEnumerable<string> trackNames = ((List<object>)Trees.at(customData, name)).Cast<string>();
+            if (trackNames == null)
+            {
+                return null;
+            }
+
+            HashSet<Track> tracks = new HashSet<Track>();
+            foreach (string trackName in trackNames)
+            {
+                if (((CustomBeatmapData)beatmapData).customData.tracks.TryGetValue(trackName, out Track track))
                 {
                     tracks.Add(track);
                 }
@@ -218,17 +317,16 @@
             pathProperties.Add(CUTTABLE, new Property(PropertyType.Linear));
         }
 
-        internal static void GetDefinitePositionOffset(dynamic customData, Track track, float time, out Vector3? definitePosition)
+        internal static void GetDefinitePositionOffset(NoodleObjectData.AnimationObjectData animationObject, Track track, float time, out Vector3? definitePosition)
         {
-            TryGetPointData(customData, DEFINITEPOSITION, out PointDefinition localDefinitePosition);
+            PointDefinition localDefinitePosition = animationObject.LocalDefinitePosition;
 
-            Vector3? pathDefinitePosition = localDefinitePosition?.Interpolate(time) ?? TryGetPathProperty(track, DEFINITEPOSITION, time);
+            Vector3? pathDefinitePosition = localDefinitePosition?.Interpolate(time) ?? TryGetVector3PathProperty(track, DEFINITEPOSITION, time);
 
             if (pathDefinitePosition.HasValue)
             {
-                TryGetPointData(customData, POSITION, out PointDefinition localPosition, PointDefinitions);
-                Vector3? pathPosition = localPosition?.Interpolate(time) ?? TryGetPathProperty(track, POSITION, time);
-                Vector3? positionOffset = SumVectorNullables(TryGetProperty(track, POSITION), pathPosition);
+                Vector3? pathPosition = animationObject.LocalPosition?.Interpolate(time) ?? TryGetVector3PathProperty(track, POSITION, time);
+                Vector3? positionOffset = SumVectorNullables((Vector3?)TryGetPropertyAsObject(track, POSITION), pathPosition);
                 definitePosition = SumVectorNullables(positionOffset, pathDefinitePosition) * NoteLinesDistance;
 
                 if (NoodleController.LeftHandedMode)
@@ -242,25 +340,23 @@
             }
         }
 
-        internal static void GetObjectOffset(dynamic customData, Track track, float time, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow, out float? cuttable)
+        internal static void GetObjectOffset(NoodleObjectData.AnimationObjectData animationObject, Track track, float time, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow, out float? cuttable)
         {
-            GetAllPointData(customData, out PointDefinition localPosition, out PointDefinition localRotation, out PointDefinition localScale, out PointDefinition localLocalRotation, out PointDefinition localDissolve, out PointDefinition localDissolveArrow, out PointDefinition localCuttable);
+            Vector3? pathPosition = animationObject.LocalPosition?.Interpolate(time) ?? TryGetVector3PathProperty(track, POSITION, time);
+            Quaternion? pathRotation = animationObject.LocalRotation?.InterpolateQuaternion(time) ?? TryGetQuaternionPathProperty(track, ROTATION, time);
+            Vector3? pathScale = animationObject.LocalScale?.Interpolate(time) ?? TryGetVector3PathProperty(track, SCALE, time);
+            Quaternion? pathLocalRotation = animationObject.LocalLocalRotation?.InterpolateQuaternion(time) ?? TryGetQuaternionPathProperty(track, LOCALROTATION, time);
+            float? pathDissolve = animationObject.LocalDissolve?.InterpolateLinear(time) ?? TryGetLinearPathProperty(track, DISSOLVE, time);
+            float? pathDissolveArrow = animationObject.LocalDissolveArrow?.InterpolateLinear(time) ?? TryGetLinearPathProperty(track, DISSOLVEARROW, time);
+            float? pathCuttable = animationObject.LocalCuttable?.InterpolateLinear(time) ?? TryGetLinearPathProperty(track, CUTTABLE, time);
 
-            Vector3? pathPosition = localPosition?.Interpolate(time) ?? TryGetPathProperty(track, POSITION, time);
-            Quaternion? pathRotation = localRotation?.InterpolateQuaternion(time) ?? TryGetPathProperty(track, ROTATION, time);
-            Vector3? pathScale = localScale?.Interpolate(time) ?? TryGetPathProperty(track, SCALE, time);
-            Quaternion? pathLocalRotation = localLocalRotation?.InterpolateQuaternion(time) ?? TryGetPathProperty(track, LOCALROTATION, time);
-            float? pathDissolve = localDissolve?.InterpolateLinear(time) ?? TryGetPathProperty(track, DISSOLVE, time);
-            float? pathDissolveArrow = localDissolveArrow?.InterpolateLinear(time) ?? TryGetPathProperty(track, DISSOLVEARROW, time);
-            float? pathCuttable = localCuttable?.InterpolateLinear(time) ?? TryGetPathProperty(track, CUTTABLE, time);
-
-            positionOffset = SumVectorNullables(TryGetProperty(track, POSITION), pathPosition) * NoteLinesDistance;
-            rotationOffset = MultQuaternionNullables(TryGetProperty(track, ROTATION), pathRotation);
-            scaleOffset = MultVectorNullables(TryGetProperty(track, SCALE), pathScale);
-            localRotationOffset = MultQuaternionNullables(TryGetProperty(track, LOCALROTATION), pathLocalRotation);
-            dissolve = MultFloatNullables(TryGetProperty(track, DISSOLVE), pathDissolve);
-            dissolveArrow = MultFloatNullables(TryGetProperty(track, DISSOLVEARROW), pathDissolveArrow);
-            cuttable = MultFloatNullables(TryGetProperty(track, CUTTABLE), pathCuttable);
+            positionOffset = SumVectorNullables((Vector3?)TryGetPropertyAsObject(track, POSITION), pathPosition) * NoteLinesDistance;
+            rotationOffset = MultQuaternionNullables((Quaternion?)TryGetPropertyAsObject(track, ROTATION), pathRotation);
+            scaleOffset = MultVectorNullables((Vector3?)TryGetPropertyAsObject(track, SCALE), pathScale);
+            localRotationOffset = MultQuaternionNullables((Quaternion?)TryGetPropertyAsObject(track, LOCALROTATION), pathLocalRotation);
+            dissolve = MultFloatNullables((float?)TryGetPropertyAsObject(track, DISSOLVE), pathDissolve);
+            dissolveArrow = MultFloatNullables((float?)TryGetPropertyAsObject(track, DISSOLVEARROW), pathDissolveArrow);
+            cuttable = MultFloatNullables((float?)TryGetPropertyAsObject(track, CUTTABLE), pathCuttable);
 
             if (NoodleController.LeftHandedMode)
             {
@@ -270,10 +366,8 @@
             }
         }
 
-        internal static void GetAllPointData(dynamic customData, out PointDefinition position, out PointDefinition rotation, out PointDefinition scale, out PointDefinition localRotation, out PointDefinition dissolve, out PointDefinition dissolveArrow, out PointDefinition cuttable)
+        internal static void GetAllPointData(dynamic customData, Dictionary<string, PointDefinition> pointDefinitions, out PointDefinition position, out PointDefinition rotation, out PointDefinition scale, out PointDefinition localRotation, out PointDefinition dissolve, out PointDefinition dissolveArrow, out PointDefinition cuttable)
         {
-            Dictionary<string, PointDefinition> pointDefinitions = PointDefinitions;
-
             TryGetPointData(customData, POSITION, out position, pointDefinitions);
             TryGetPointData(customData, ROTATION, out rotation, pointDefinitions);
             TryGetPointData(customData, SCALE, out scale, pointDefinitions);
@@ -281,6 +375,21 @@
             TryGetPointData(customData, DISSOLVE, out dissolve, pointDefinitions);
             TryGetPointData(customData, DISSOLVEARROW, out dissolveArrow, pointDefinitions);
             TryGetPointData(customData, CUTTABLE, out cuttable, pointDefinitions);
+        }
+
+        // End of NE specific
+        private static PointDefinitionInterpolation GetPathInterpolation(Track track, string propertyName, PropertyType propertyType)
+        {
+            Property pathProperty = null;
+            track?.PathProperties.TryGetValue(propertyName, out pathProperty);
+            if (pathProperty != null && pathProperty.PropertyType == propertyType)
+            {
+                PointDefinitionInterpolation pointDataInterpolation = (PointDefinitionInterpolation)pathProperty.Value;
+
+                return pointDataInterpolation;
+            }
+
+            return null;
         }
     }
 }

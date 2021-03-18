@@ -1,13 +1,8 @@
 ﻿namespace NoodleExtensions.Animation
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using static NoodleExtensions.Animation.AnimationController;
-    using static NoodleExtensions.Animation.AnimationHelper;
-    using static NoodleExtensions.Plugin;
+    using static NoodleExtensions.Animation.NoodleEventDataManager;
 
     internal enum EventType
     {
@@ -19,80 +14,48 @@
     {
         internal static void StartEventCoroutine(CustomEventData customEventData, EventType eventType)
         {
-            Track track = GetTrack(customEventData.data);
-            if (track != null)
+            NoodleCoroutineEventData noodleData = (NoodleCoroutineEventData)NoodleEventDatas[customEventData];
+
+            float duration = noodleData.Duration;
+            duration = 60f * duration / Instance.BeatmapObjectSpawnController.currentBpm; // Convert to real time;
+
+            Functions easing = noodleData.Easing;
+
+            foreach (NoodleCoroutineEventData.CoroutineInfo coroutineInfo in noodleData.CoroutineInfos)
             {
-                float duration = (float?)Trees.at(customEventData.data, DURATION) ?? 0f;
-                duration = 60f * duration / Instance.BeatmapObjectSpawnController.currentBpm; // Convert to real time;
+                Property property = coroutineInfo.Property;
+                PointDefinition pointData = coroutineInfo.PointDefinition;
 
-                string easingString = (string)Trees.at(customEventData.data, EASING);
-                Functions easing = Functions.easeLinear;
-                if (easingString != null)
+                if (property.Coroutine != null)
                 {
-                    easing = (Functions)Enum.Parse(typeof(Functions), easingString);
+                    Instance.StopCoroutine(property.Coroutine);
                 }
 
-                List<string> excludedStrings = new List<string> { TRACK, DURATION, EASING };
-                IDictionary<string, object> eventData = new Dictionary<string, object>(customEventData.data as IDictionary<string, object>); // Shallow copy
-                IDictionary<string, Property> properties = null;
-                switch (eventType)
+                if (pointData == null)
                 {
-                    case EventType.AnimateTrack:
-                        properties = track.Properties;
-                        break;
-
-                    case EventType.AssignPathAnimation:
-                        properties = track.PathProperties;
-                        break;
-
-                    default:
-                        return;
-                }
-
-                foreach (KeyValuePair<string, object> valuePair in eventData)
-                {
-                    if (!excludedStrings.Any(n => n == valuePair.Key))
+                    switch (eventType)
                     {
-                        if (!properties.TryGetValue(valuePair.Key, out Property property))
-                        {
-                            NoodleLogger.Log($"Could not find property {valuePair.Key}!", IPA.Logging.Logger.Level.Error);
-                            continue;
-                        }
+                        case EventType.AnimateTrack:
+                            property.Value = null;
+                            break;
 
-                        TryGetPointData(customEventData.data, valuePair.Key, out PointDefinition pointData);
+                        case EventType.AssignPathAnimation:
+                            ((PointDefinitionInterpolation)property.Value).Init(null);
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (eventType)
+                    {
+                        case EventType.AnimateTrack:
+                            property.Coroutine = Instance.StartCoroutine(AnimateTrack.AnimateTrackCoroutine(pointData, property, duration, customEventData.time, easing));
+                            break;
 
-                        if (property.Coroutine != null)
-                        {
-                            Instance.StopCoroutine(property.Coroutine);
-                        }
-
-                        if (pointData == null)
-                        {
-                            switch (eventType)
-                            {
-                                case EventType.AnimateTrack:
-                                    property.Value = null;
-                                    break;
-
-                                case EventType.AssignPathAnimation:
-                                    ((PointDefinitionInterpolation)property.Value).Init(null);
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            switch (eventType)
-                            {
-                                case EventType.AnimateTrack:
-                                    property.Coroutine = Instance.StartCoroutine(AnimateTrack.AnimateTrackCoroutine(pointData, property, duration, customEventData.time, easing));
-                                    break;
-
-                                case EventType.AssignPathAnimation:
-                                    ((PointDefinitionInterpolation)property.Value).Init(pointData);
-                                    property.Coroutine = Instance.StartCoroutine(AssignPathAnimation.AssignPathAnimationCoroutine(property, duration, customEventData.time, easing));
-                                    break;
-                            }
-                        }
+                        case EventType.AssignPathAnimation:
+                            ((PointDefinitionInterpolation)property.Value).Init(pointData);
+                            property.Coroutine = Instance.StartCoroutine(AssignPathAnimation.AssignPathAnimationCoroutine(property, duration, customEventData.time, easing));
+                            break;
                     }
                 }
             }

@@ -108,6 +108,7 @@
     <Compile Include="Animation\Events\AssignPlayerToTrack.cs" />
     <Compile Include="Animation\Events\AssignTrackParent.cs" />
     <Compile Include="Animation\Events\EventHelper.cs" />
+    <Compile Include="Animation\Events\NoodleEventData.cs" />
     <Compile Include="Animation\ParentObject.cs" />
     <Compile Include="Animation\PlayerTrack.cs" />
     <Compile Include="Animation\PointDefinition.cs" />
@@ -148,6 +149,7 @@
     <Compile Include="HarmonyPatches\SpawnRotationProcessor.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />
     <Compile Include="HarmonyPatches\SceneTransition\StandardLevelScenesTransitionSetupDataSO.cs" />
+    <Compile Include="NoodleObjectData.cs" />
     <Compile Include="NoodlePatch.cs" />
     <Compile Include="NullableExtensions.cs" />
     <Compile Include="Plugin.cs" />

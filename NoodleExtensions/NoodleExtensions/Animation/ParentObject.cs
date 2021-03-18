@@ -2,10 +2,10 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using CustomJSONData.CustomBeatmap;
     using UnityEngine;
     using static NoodleExtensions.Animation.AnimationHelper;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
+    using static NoodleExtensions.NoodleObjectDataManager;
     using static NoodleExtensions.NullableExtensions;
     using static NoodleExtensions.Plugin;
 
@@ -93,9 +93,10 @@
 
                 foreach (ObstacleController obstacleController in ObstaclePool.activeItems)
                 {
-                    if (obstacleController?.obstacleData is CustomObstacleData customObstacleData)
+                    if (obstacleController?.obstacleData != null)
                     {
-                        Track obstacleTrack = GetTrack(customObstacleData.customData);
+                        NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[obstacleController.obstacleData];
+                        Track obstacleTrack = noodleData.Track;
                         if (obstacleTrack == track)
                         {
                             instance.ParentToObject(obstacleController.transform);
@@ -116,7 +117,7 @@
 
         private void Update()
         {
-            Quaternion? rotation = TryGetProperty(_track, ROTATION);
+            Quaternion? rotation = (Quaternion?)TryGetPropertyAsObject(_track, ROTATION);
             if (rotation.HasValue)
             {
                 if (NoodleController.LeftHandedMode)
@@ -125,7 +126,7 @@
                 }
             }
 
-            Vector3? position = TryGetProperty(_track, POSITION);
+            Vector3? position = (Vector3?)TryGetPropertyAsObject(_track, POSITION);
             if (position.HasValue)
             {
                 if (NoodleController.LeftHandedMode)
@@ -145,7 +146,7 @@
             }
 
             worldRotationQuatnerion *= _startLocalRot;
-            Quaternion? localRotation = TryGetProperty(_track, LOCALROTATION);
+            Quaternion? localRotation = (Quaternion?)TryGetPropertyAsObject(_track, LOCALROTATION);
             if (localRotation.HasValue)
             {
                 if (NoodleController.LeftHandedMode)
@@ -157,7 +158,7 @@
             }
 
             Vector3 scaleVector = _startScale;
-            Vector3? scale = TryGetProperty(_track, SCALE);
+            Vector3? scale = (Vector3?)TryGetPropertyAsObject(_track, SCALE);
             if (scale.HasValue)
             {
                 scaleVector = Vector3.Scale(_startScale, scale.Value);

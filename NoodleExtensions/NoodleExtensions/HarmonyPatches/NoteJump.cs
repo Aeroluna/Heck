@@ -4,7 +4,6 @@
     using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
-    using CustomJSONData;
     using HarmonyLib;
     using NoodleExtensions.Animation;
     using UnityEngine;
@@ -28,9 +27,8 @@
 
         internal static float NoteJumpTimeAdjust(float original, float jumpDuration)
         {
-            dynamic dynData = NoteControllerUpdate.CustomNoteData.customData;
-            Track track = Trees.at(dynData, "track");
-            float? time = AnimationHelper.TryGetProperty(track, NoodleExtensions.Plugin.TIME);
+            NoodleObjectData noodleData = NoteControllerUpdate.NoodleData;
+            float? time = (float?)AnimationHelper.TryGetPropertyAsObject(noodleData.Track, NoodleExtensions.Plugin.TIME);
             return time.HasValue ? time.Value * jumpDuration : original;
         }
 
@@ -130,13 +128,11 @@
 
         private static Vector3 DefiniteNoteJump(Vector3 original, float time)
         {
-            dynamic dynData = NoteControllerUpdate.CustomNoteData.customData;
-            dynamic animationObject = Trees.at(dynData, "_animation");
-            Track track = Trees.at(dynData, "track");
-            AnimationHelper.GetDefinitePositionOffset(animationObject, track, time, out Vector3? position);
+            NoodleObjectData noodleData = NoteControllerUpdate.NoodleData;
+            AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, time, out Vector3? position);
             if (position.HasValue)
             {
-                Vector3 noteOffset = Trees.at(dynData, "noteOffset");
+                Vector3 noteOffset = noodleData.NoteOffset;
                 _definitePosition = true;
                 return position.Value + noteOffset;
             }
