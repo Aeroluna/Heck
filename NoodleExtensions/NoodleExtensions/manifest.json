@@ -2,10 +2,10 @@
   "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "author": "Aeroluna",
   "description": "Gives mappers a host of new options for mapping, and you the player to play said maps!",
-  "gameVersion": "1.13.5",
+  "gameVersion": "1.14.0",
   "id": "NoodleExtensions",
   "name": "NoodleExtensions",
-  "version": "1.3.9",
+  "version": "1.3.10",
   "dependsOn": {
     "SongCore": "^3.2.1",
     "CustomJSONData": "^1.1.4",
