@@ -21,9 +21,9 @@
             {
                 foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
                 {
-                    NoodleObjectData noodleObjectData = null;
+                    NoodleObjectData noodleObjectData;
 
-                    dynamic customData = null;
+                    dynamic customData;
 
                     switch (beatmapObjectData)
                     {
@@ -41,14 +41,14 @@
                             customData = customWaypointData.customData;
                             noodleObjectData = new NoodleObjectData();
                             break;
+
+                        default:
+                            continue;
                     }
 
-                    if (noodleObjectData != null)
-                    {
-                        FinalizeCustomObject(customData, noodleObjectData, beatmapData);
+                    FinalizeCustomObject(customData, noodleObjectData, beatmapData);
 
-                        NoodleObjectDatas.Add(beatmapObjectData, noodleObjectData);
-                    }
+                    NoodleObjectDatas.Add(beatmapObjectData, noodleObjectData);
                 }
             }
         }
@@ -79,8 +79,17 @@
 
             dynamic animationObjectDyn = Trees.at(dynData, "_animation");
             Dictionary<string, PointDefinition> pointDefinitions = Trees.at(((CustomBeatmapData)beatmapData).customData, "pointDefinitions");
-            AnimationHelper.GetAllPointData(animationObjectDyn, pointDefinitions, out PointDefinition localPosition, out PointDefinition localRotation, out PointDefinition localScale, out PointDefinition localLocalRotation, out PointDefinition localDissolve, out PointDefinition localDissolveArrow, out PointDefinition localCuttable);
-            AnimationHelper.TryGetPointData(animationObjectDyn, DEFINITEPOSITION, out PointDefinition localDefinitePosition, pointDefinitions);
+            AnimationHelper.GetAllPointData(
+                animationObjectDyn,
+                pointDefinitions,
+                out PointDefinition localPosition,
+                out PointDefinition localRotation,
+                out PointDefinition localScale,
+                out PointDefinition localLocalRotation,
+                out PointDefinition localDissolve,
+                out PointDefinition localDissolveArrow,
+                out PointDefinition localCuttable,
+                out PointDefinition localDefinitePosition);
             NoodleObjectData.AnimationObjectData animationObjectData = new NoodleObjectData.AnimationObjectData
             {
                 LocalPosition = localPosition,

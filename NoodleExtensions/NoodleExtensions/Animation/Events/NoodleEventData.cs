@@ -18,7 +18,7 @@
             NoodleEventDatas = new Dictionary<CustomEventData, NoodleEventData>();
             foreach (CustomEventData customEventData in ((CustomBeatmapData)beatmapData).customEventsData)
             {
-                NoodleEventData noodleEventData = null;
+                NoodleEventData noodleEventData;
 
                 switch (customEventData.type)
                 {
@@ -37,12 +37,11 @@
                     case "AssignTrackParent":
                         noodleEventData = ProcessParentTrackEvent(customEventData.data, beatmapData);
                         break;
+                    default:
+                        continue;
                 }
 
-                if (noodleEventData != null)
-                {
-                    NoodleEventDatas.Add(customEventData, noodleEventData);
-                }
+                NoodleEventDatas.Add(customEventData, noodleEventData);
             }
         }
 

@@ -15,6 +15,10 @@
         internal static void StartEventCoroutine(CustomEventData customEventData, EventType eventType)
         {
             NoodleCoroutineEventData noodleData = (NoodleCoroutineEventData)NoodleEventDatas[customEventData];
+            if (noodleData == null)
+            {
+                return;
+            }
 
             float duration = noodleData.Duration;
             duration = 60f * duration / Instance.BeatmapObjectSpawnController.currentBpm; // Convert to real time;
