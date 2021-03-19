@@ -33,4 +33,17 @@
             }
         }
     }
+
+    [HarmonyPatch(typeof(ParticleSystemEventEffect))]
+    [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    internal static class ParticleSystemEventEffectSetLastEvent
+    {
+        private static void Prefix(ParticleSystemEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____colorEvent)
+        {
+            if (beatmapEventData.type == ____colorEvent)
+            {
+                __instance.SetLastValue(beatmapEventData.value);
+            }
+        }
+    }
 }

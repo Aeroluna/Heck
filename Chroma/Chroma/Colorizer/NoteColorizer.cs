@@ -2,10 +2,10 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using IPA.Utilities;
     using UnityEngine;
+    using static ChromaObjectDataManager;
 
     public static class NoteColorizer
     {
@@ -64,13 +64,9 @@
 
         internal static void EnableNoteColorOverride(NoteController noteController)
         {
-            if (noteController.noteData is CustomNoteData customData)
-            {
-                dynamic dynData = customData.customData;
-
-                NoteColorOverride[0] = Trees.at(dynData, "color0");
-                NoteColorOverride[1] = Trees.at(dynData, "color1");
-            }
+            ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[noteController.noteData];
+            NoteColorOverride[0] = chromaData.Color0 ?? CNVColorManager.GlobalColor[0];
+            NoteColorOverride[1] = chromaData.Color1 ?? CNVColorManager.GlobalColor[1];
         }
 
         internal static void DisableNoteColorOverride()
@@ -109,10 +105,8 @@
 
         private class CNVColorManager
         {
-            private static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
-            private static readonly FieldAccessor<NoteJump, IAudioTimeSource>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<NoteJump, IAudioTimeSource>.GetAccessor("_audioTimeSyncController");
-            private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
-            private static readonly FieldAccessor<ColorNoteVisuals, float>.Accessor _arrowGlowIntensityAccessor = FieldAccessor<ColorNoteVisuals, float>.GetAccessor("_arrowGlowIntensity");
+            internal static readonly Color?[] GlobalColor = new Color?[2] { null, null };
+
             private static readonly FieldAccessor<ColorNoteVisuals, SpriteRenderer>.Accessor _arrowGlowSpriteRendererAccessor = FieldAccessor<ColorNoteVisuals, SpriteRenderer>.GetAccessor("_arrowGlowSpriteRenderer");
             private static readonly FieldAccessor<ColorNoteVisuals, SpriteRenderer>.Accessor _circleGlowSpriteRendererAccessor = FieldAccessor<ColorNoteVisuals, SpriteRenderer>.GetAccessor("_circleGlowSpriteRenderer");
             private static readonly FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.Accessor _materialPropertyBlockControllersAccessor = FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.GetAccessor("_materialPropertyBlockControllers");
@@ -120,11 +114,10 @@
 
             private static readonly FieldAccessor<ColorNoteVisuals, ColorManager>.Accessor _colorManagerAccessor = FieldAccessor<ColorNoteVisuals, ColorManager>.GetAccessor("_colorManager");
 
-            private static readonly Color?[] _globalColor = new Color?[2] { null, null };
-
             private readonly ColorNoteVisuals _cnv;
             private readonly NoteController _nc;
             private readonly ColorManager _colorManager;
+            private ChromaNoteData _chromaData;
             private CustomNoteData _noteData;
 
             private CNVColorManager(ColorNoteVisuals cnv, NoteController nc)
@@ -132,6 +125,7 @@
                 _cnv = cnv;
                 _nc = nc;
                 _colorManager = _colorManagerAccessor(ref cnv);
+                _chromaData = (ChromaNoteData)ChromaObjectDatas[nc.noteData];
                 if (nc.noteData is CustomNoteData customNoteData)
                 {
                     _noteData = customNoteData;
@@ -150,9 +144,10 @@
                 {
                     if (nc.noteData is CustomNoteData customNoteData)
                     {
+                        ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[nc.noteData];
                         cnvColorManager._noteData = customNoteData;
-                        customNoteData.customData._color0 = _globalColor[0];
-                        customNoteData.customData._color1 = _globalColor[1];
+                        cnvColorManager._chromaData = chromaData;
+                        cnvColorManager.Reset();
                     }
 
                     return null;
@@ -168,37 +163,37 @@
             {
                 if (color0.HasValue)
                 {
-                    _globalColor[0] = color0.Value;
+                    GlobalColor[0] = color0.Value;
                 }
 
                 if (color1.HasValue)
                 {
-                    _globalColor[1] = color1.Value;
+                    GlobalColor[1] = color1.Value;
                 }
             }
 
             internal static void ResetGlobal()
             {
-                _globalColor[0] = null;
-                _globalColor[1] = null;
+                GlobalColor[0] = null;
+                GlobalColor[1] = null;
             }
 
             internal void Reset()
             {
-                _noteData.customData.color0 = _globalColor[0];
-                _noteData.customData.color1 = _globalColor[1];
+                _chromaData.Color0 = null;
+                _chromaData.Color1 = null;
             }
 
             internal void SetNoteColors(Color? color0, Color? color1)
             {
                 if (color0.HasValue)
                 {
-                    _noteData.customData.color0 = color0.Value;
+                    _chromaData.Color0 = color0.Value;
                 }
 
                 if (color1.HasValue)
                 {
-                    _noteData.customData.color1 = color1.Value;
+                    _chromaData.Color1 = color1.Value;
                 }
             }
 

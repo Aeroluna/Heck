@@ -1,12 +1,9 @@
 ﻿namespace Chroma
 {
-    using System;
     using System.Collections.Generic;
     using Chroma.Colorizer;
     using Chroma.Utils;
-    using CustomJSONData;
     using UnityEngine;
-    using static Plugin;
 
     internal class ChromaGradientController : MonoBehaviour
     {
@@ -37,23 +34,14 @@
             Instance.Gradients.Remove(eventType);
         }
 
-        internal static Color AddGradient(dynamic gradientObject, BeatmapEventType id, float time)
+        internal static Color AddGradient(ChromaLightEventData.GradientObjectData gradientObject, BeatmapEventType id, float time)
         {
             CancelGradient(id);
 
-            float duration = (float)Trees.at(gradientObject, DURATION);
-            Color initcolor = ChromaUtils.GetColorFromData(gradientObject, STARTCOLOR);
-            Color endcolor = ChromaUtils.GetColorFromData(gradientObject, ENDCOLOR);
-            string easingstring = (string)Trees.at(gradientObject, EASING);
-            Functions easing;
-            if (string.IsNullOrEmpty(easingstring))
-            {
-                easing = Functions.easeLinear;
-            }
-            else
-            {
-                easing = (Functions)Enum.Parse(typeof(Functions), easingstring);
-            }
+            float duration = gradientObject.Duration;
+            Color initcolor = gradientObject.StartColor;
+            Color endcolor = gradientObject.EndColor;
+            Functions easing = gradientObject.Easing;
 
             ChromaGradientEvent gradientEvent = new ChromaGradientEvent(initcolor, endcolor, time, duration, id, easing);
             Instance.Gradients[id] = gradientEvent;

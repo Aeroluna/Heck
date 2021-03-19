@@ -1,12 +1,10 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using Chroma.Colorizer;
-    using Chroma.Utils;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
     using NoodleExtensions.Animation;
     using UnityEngine;
+    using static ChromaObjectDataManager;
     using static Plugin;
 
     [HarmonyPatch(typeof(ObstacleController))]
@@ -31,20 +29,16 @@
     {
         private static void Prefix(ObstacleController __instance, ObstacleData obstacleData)
         {
-            if (obstacleData is CustomObstacleData customData)
+            ChromaObjectData chromaData = ChromaObjectDatas[obstacleData];
+            Color? color = chromaData.Color;
+
+            if (color.HasValue)
             {
-                dynamic dynData = customData.customData;
-
-                Color? color = ChromaUtils.GetColorFromData(dynData);
-
-                if (color.HasValue)
-                {
-                    __instance.SetObstacleColor(color.Value);
-                }
-                else
-                {
-                    __instance.Reset();
-                }
+                __instance.SetObstacleColor(color.Value);
+            }
+            else
+            {
+                __instance.Reset();
             }
         }
     }
@@ -63,19 +57,19 @@
 
         private static void TrackColorize(ObstacleController obstacleController, ObstacleData obstacleData, AudioTimeSyncController audioTimeSyncController, float startTimeOffset, float move1Duration, float move2Duration, float obstacleDuration)
         {
-            if (NoodleExtensions.NoodleController.NoodleExtensionsActive && obstacleData is CustomObstacleData customData)
+            if (NoodleExtensions.NoodleController.NoodleExtensionsActive)
             {
-                dynamic dynData = customData.customData;
-                Track track = AnimationHelper.GetTrack(dynData);
-                dynamic animationObject = Trees.at(dynData, ANIMATION);
+                ChromaNoodleData chromaData = ChromaNoodleDatas[obstacleData];
 
-                if (track != null || animationObject != null)
+                Track track = chromaData.Track;
+                PointDefinition pathPointDefinition = chromaData.LocalPathColor;
+                if (track != null || pathPointDefinition != null)
                 {
                     float jumpDuration = move2Duration;
                     float elapsedTime = audioTimeSyncController.songTime - startTimeOffset;
                     float normalTime = (elapsedTime - move1Duration) / (jumpDuration + obstacleDuration);
 
-                    Chroma.AnimationHelper.GetColorOffset(animationObject, track, normalTime, out Color? colorOffset);
+                    Chroma.AnimationHelper.GetColorOffset(pathPointDefinition, track, normalTime, out Color? colorOffset);
 
                     if (colorOffset.HasValue)
                     {

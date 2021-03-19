@@ -43,9 +43,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AnimationHelper.cs" />
+    <Compile Include="ChromaEventData.cs" />
+    <Compile Include="ChromaObjectData.cs" />
     <Compile Include="ChromaPatch.cs" />
-    <Compile Include="ChromaRingsRotationEffect.cs" />
-    <Compile Include="LightIDTableManager.cs" />
+    <Compile Include="Lighting\ChromaRingsRotationEffect.cs" />
+    <Compile Include="HarmonyPatches\BeatmapDataTransformHelper.cs" />
+    <Compile Include="Lighting\LightIDTableManager.cs" />
     <Compile Include="Colorizer\BombColorizer.cs" />
     <Compile Include="Colorizer\SaberColorizer.cs" />
     <Compile Include="Colorizer\NoteColorizer.cs" />
@@ -59,10 +62,10 @@
     <Compile Include="HarmonyPatches\ScenesTransition\SceneTransitionHelper.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\MultiplayerLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\TrackLaneRingsRotationEffect.cs" />
-    <Compile Include="LegacyLightHelper.cs" />
+    <Compile Include="Lighting\LegacyLightHelper.cs" />
     <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\StandardLevelScenesTransitionSetupDataSO.cs" />
-    <Compile Include="LightColorManager.cs" />
+    <Compile Include="Lighting\LightColorManager.cs" />
     <Compile Include="Utils\Easings.cs" />
     <Compile Include="ChromaGradientController.cs" />
     <Compile Include="ChromaController.cs" />
@@ -86,9 +89,6 @@
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="Settings\modifiers.bsml" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\LightshowIcon.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />

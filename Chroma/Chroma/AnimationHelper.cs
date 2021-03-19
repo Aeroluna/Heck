@@ -14,13 +14,11 @@
             TrackManager.TrackCreated += OnTrackCreated;
         }
 
-        internal static void GetColorOffset(dynamic customData, Track track, float time, out Color? color)
+        internal static void GetColorOffset(PointDefinition localColor, Track track, float time, out Color? color)
         {
-            TryGetPointData(customData, COLOR, out PointDefinition localColor);
+            Vector4? pathColor = localColor?.InterpolateVector4(time) ?? TryGetVector4PathProperty(track, COLOR, time);
 
-            Vector4? pathColor = localColor?.InterpolateVector4(time) ?? TryGetPathProperty(track, COLOR, time);
-
-            Vector4? colorVector = MultVector4Nullables(TryGetProperty(track, COLOR), pathColor);
+            Vector4? colorVector = MultVector4Nullables((Vector4?)TryGetPropertyAsObject(track, COLOR), pathColor);
 
             if (colorVector.HasValue)
             {

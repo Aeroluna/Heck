@@ -1,11 +1,10 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using Chroma.Colorizer;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
     using IPA.Utilities;
     using NoodleExtensions.Animation;
     using UnityEngine;
+    using static ChromaObjectDataManager;
     using static Plugin;
 
     [ChromaPatch(typeof(NoteController))]
@@ -15,15 +14,10 @@
         private static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
         private static readonly FieldAccessor<NoteJump, IAudioTimeSource>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<NoteJump, IAudioTimeSource>.GetAccessor("_audioTimeSyncController");
         private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
-        private static readonly FieldAccessor<ColorNoteVisuals, float>.Accessor _arrowGlowIntensityAccessor = FieldAccessor<ColorNoteVisuals, float>.GetAccessor("_arrowGlowIntensity");
-        private static readonly FieldAccessor<ColorNoteVisuals, SpriteRenderer>.Accessor _arrowGlowSpriteRendererAccessor = FieldAccessor<ColorNoteVisuals, SpriteRenderer>.GetAccessor("_arrowGlowSpriteRenderer");
-        private static readonly FieldAccessor<ColorNoteVisuals, SpriteRenderer>.Accessor _circleGlowSpriteRendererAccessor = FieldAccessor<ColorNoteVisuals, SpriteRenderer>.GetAccessor("_circleGlowSpriteRenderer");
-        private static readonly FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.Accessor _materialPropertyBlockControllersAccessor = FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.GetAccessor("_materialPropertyBlockControllers");
-        private static readonly int _colorID = Shader.PropertyToID("_Color");
 
         private static void Postfix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
-            if (Chroma.Plugin.NoodleExtensionsInstalled)
+            if (NoodleExtensionsInstalled)
             {
                 TrackColorize(__instance, ____noteData, ____noteMovement);
             }
@@ -31,13 +25,13 @@
 
         private static void TrackColorize(NoteController instance, NoteData noteData, NoteMovement noteMovement)
         {
-            if (NoodleExtensions.NoodleController.NoodleExtensionsActive && noteData is CustomNoteData customData)
+            if (NoodleExtensions.NoodleController.NoodleExtensionsActive)
             {
-                dynamic dynData = customData.customData;
-                Track track = AnimationHelper.GetTrack(dynData);
-                dynamic animationObject = Trees.at(dynData, ANIMATION);
+                ChromaNoodleData chromaData = ChromaNoodleDatas[noteData];
 
-                if (track != null || animationObject != null)
+                Track track = chromaData.Track;
+                PointDefinition pathPointDefinition = chromaData.LocalPathColor;
+                if (track != null || pathPointDefinition != null)
                 {
                     NoteJump noteJump = _noteJumpAccessor(ref noteMovement);
 
@@ -45,7 +39,7 @@
                     float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (noteData.time - (jumpDuration * 0.5f));
                     float normalTime = elapsedTime / jumpDuration;
 
-                    Chroma.AnimationHelper.GetColorOffset(animationObject, track, normalTime, out Color? colorOffset);
+                    Chroma.AnimationHelper.GetColorOffset(pathPointDefinition, track, normalTime, out Color? colorOffset);
 
                     if (colorOffset.HasValue)
                     {
@@ -57,8 +51,6 @@
                         else
                         {
                             instance.SetNoteColors(color, color);
-                            dynData.color0 = color;
-                            dynData.color1 = color;
                             instance.SetActiveColors();
                         }
                     }

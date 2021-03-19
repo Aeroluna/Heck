@@ -1,10 +1,9 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using Chroma.Colorizer;
-    using Chroma.Utils;
-    using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
     using UnityEngine;
+    using static ChromaObjectDataManager;
 
     [HarmonyPatch(typeof(ColorNoteVisuals))]
     [HarmonyPatch("HandleNoteControllerDidInit")]
@@ -39,22 +38,16 @@
     {
         private static void Prefix(NoteController noteController)
         {
-            if (noteController.noteData is CustomNoteData customData)
+            ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[noteController.noteData];
+            Color? color = chromaData.Color;
+
+            if (color.HasValue)
             {
-                dynamic dynData = customData.customData;
-
-                Color? color = ChromaUtils.GetColorFromData(dynData);
-
-                if (color.HasValue)
-                {
-                    noteController.SetNoteColors(color.Value, color.Value);
-                    dynData.color0 = color.Value;
-                    dynData.color1 = color.Value;
-                }
-                else
-                {
-                    noteController.Reset();
-                }
+                noteController.SetNoteColors(color.Value, color.Value);
+            }
+            else
+            {
+                noteController.Reset();
             }
         }
     }

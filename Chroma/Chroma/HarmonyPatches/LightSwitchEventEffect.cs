@@ -83,4 +83,17 @@
             }
         }
     }
+
+    [HarmonyPatch(typeof(LightSwitchEventEffect))]
+    [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    internal static class LightSwitchEventEffectSetLastEvent
+    {
+        private static void Prefix(LightSwitchEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____event)
+        {
+            if (beatmapEventData.type == ____event)
+            {
+                __instance.SetLastValue(beatmapEventData.value);
+            }
+        }
+    }
 }

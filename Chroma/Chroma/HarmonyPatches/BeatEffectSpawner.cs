@@ -1,10 +1,8 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using Chroma.Colorizer;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
-    using static Plugin;
+    using static ChromaObjectDataManager;
 
     [HarmonyPatch(typeof(BeatEffectSpawner))]
     [HarmonyPatch("HandleNoteDidStartJump")]
@@ -29,14 +27,11 @@
         [HarmonyPriority(Priority.High)]
         private static bool Prefix(NoteController noteController)
         {
-            if (noteController.noteData is CustomNoteData customData)
+            ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[noteController.noteData];
+            bool? disable = chromaData.DisableSpawnEffect;
+            if (disable.HasValue && disable == true)
             {
-                dynamic dynData = customData.customData;
-                bool? disable = Trees.at(dynData, DISABLESPAWNEFFECT);
-                if (disable.HasValue && disable == true)
-                {
-                    return false;
-                }
+                return false;
             }
 
             return true;

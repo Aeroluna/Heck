@@ -1,11 +1,9 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using System;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
     using IPA.Utilities;
     using UnityEngine;
-    using static Plugin;
+    using static ChromaEventDataManager;
 
     [ChromaPatch(typeof(LightPairRotationEventEffect))]
     [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
@@ -53,58 +51,50 @@
 
             object rotationData = isLeftEvent ? ____rotationDataL : ____rotationDataR;
 
-            if (beatmapEventData is CustomBeatmapEventData customData)
+            ChromaLaserSpeedEventData chromaData = (ChromaLaserSpeedEventData)ChromaEventDatas[beatmapEventData];
+
+            bool lockPosition = chromaData.LockPosition;
+            float precisionSpeed = chromaData.PreciseSpeed;
+            int? dir = chromaData.Direction;
+
+            switch (dir)
             {
-                dynamic dynData = customData.customData;
+                case 0:
+                    direction = isLeftEvent ? -1 : 1;
+                    break;
 
-                bool lockPosition = ((bool?)Trees.at(dynData, LOCKPOSITION)).GetValueOrDefault(false);
-
-                float precisionSpeed = ((float?)Trees.at(dynData, PRECISESPEED)).GetValueOrDefault(beatmapEventData.value);
-
-                int? dir = (int?)Trees.at(dynData, DIRECTION);
-                dir = dir.GetValueOrDefault(-1);
-
-                switch (dir)
-                {
-                    case 0:
-                        direction = isLeftEvent ? -1 : 1;
-                        break;
-
-                    case 1:
-                        direction = isLeftEvent ? 1 : -1;
-                        break;
-                }
-
-                // Actual lasering
-                Transform transform = (Transform)_rotationDataType.GetField("transform").GetValue(rotationData);
-                Quaternion startRotation = (Quaternion)_rotationDataType.GetField("startRotation").GetValue(rotationData);
-                float startRotationAngle = (float)_rotationDataType.GetField("startRotationAngle").GetValue(rotationData);
-                Vector3 rotationVector = __instance.GetField<Vector3, LightPairRotationEventEffect>("_rotationVector");
-                if (beatmapEventData.value == 0)
-                {
-                    _rotationDataType.GetField("enabled").SetValue(rotationData, false);
-                    if (!lockPosition)
-                    {
-                        _rotationDataType.GetField("rotationAngle").SetValue(rotationData, startRotationAngle);
-                        transform.localRotation = startRotation * Quaternion.Euler(rotationVector * startRotationAngle);
-                    }
-                }
-                else if (beatmapEventData.value > 0)
-                {
-                    _rotationDataType.GetField("enabled").SetValue(rotationData, true);
-                    _rotationDataType.GetField("rotationSpeed").SetValue(rotationData, precisionSpeed * 20f * direction);
-                    if (!lockPosition)
-                    {
-                        float rotationAngle = startRotationOffset + startRotationAngle;
-                        _rotationDataType.GetField("rotationAngle").SetValue(rotationData, rotationAngle);
-                        transform.localRotation = startRotation * Quaternion.Euler(rotationVector * rotationAngle);
-                    }
-                }
-
-                return false;
+                case 1:
+                    direction = isLeftEvent ? 1 : -1;
+                    break;
             }
 
-            return true;
+            // Actual lasering
+            Transform transform = (Transform)_rotationDataType.GetField("transform").GetValue(rotationData);
+            Quaternion startRotation = (Quaternion)_rotationDataType.GetField("startRotation").GetValue(rotationData);
+            float startRotationAngle = (float)_rotationDataType.GetField("startRotationAngle").GetValue(rotationData);
+            Vector3 rotationVector = __instance.GetField<Vector3, LightPairRotationEventEffect>("_rotationVector");
+            if (beatmapEventData.value == 0)
+            {
+                _rotationDataType.GetField("enabled").SetValue(rotationData, false);
+                if (!lockPosition)
+                {
+                    _rotationDataType.GetField("rotationAngle").SetValue(rotationData, startRotationAngle);
+                    transform.localRotation = startRotation * Quaternion.Euler(rotationVector * startRotationAngle);
+                }
+            }
+            else if (beatmapEventData.value > 0)
+            {
+                _rotationDataType.GetField("enabled").SetValue(rotationData, true);
+                _rotationDataType.GetField("rotationSpeed").SetValue(rotationData, precisionSpeed * 20f * direction);
+                if (!lockPosition)
+                {
+                    float rotationAngle = startRotationOffset + startRotationAngle;
+                    _rotationDataType.GetField("rotationAngle").SetValue(rotationData, rotationAngle);
+                    transform.localRotation = startRotation * Quaternion.Euler(rotationVector * rotationAngle);
+                }
+            }
+
+            return false;
         }
     }
 }
