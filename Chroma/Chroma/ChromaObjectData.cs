@@ -17,6 +17,11 @@
         internal static void DeserializeBeatmapData(IReadonlyBeatmapData beatmapData)
         {
             ChromaObjectDatas = new Dictionary<BeatmapObjectData, ChromaObjectData>();
+            if (NoodleExtensionsInstalled)
+            {
+                ChromaNoodleDatas = new Dictionary<BeatmapObjectData, ChromaNoodleData>();
+            }
+
             foreach (IReadonlyBeatmapLineData beatmapLineData in beatmapData.beatmapLinesData)
             {
                 foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
