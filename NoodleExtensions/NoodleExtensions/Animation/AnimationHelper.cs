@@ -48,9 +48,9 @@
             }
         }
 
-        public static Dictionary<string, Track> Tracks => ((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData.tracks;
+        ////public static Dictionary<string, Track> Tracks => ((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData.tracks;
 
-        public static Dictionary<string, PointDefinition> PointDefinitions => Trees.at(((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData, "pointDefinitions");
+        ////public static Dictionary<string, PointDefinition> PointDefinitions => Trees.at(((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData, "pointDefinitions");
 
         private static BasicBeatmapObjectManager BeatmapObjectManager
         {
@@ -77,7 +77,7 @@
             }
         }
 
-        public static dynamic TryGetPathProperty(Track track, string propertyName, float time)
+        /*public static dynamic TryGetPathProperty(Track track, string propertyName, float time)
         {
             Property pathProperty = null;
             track?.PathProperties.TryGetValue(propertyName, out pathProperty);
@@ -105,7 +105,7 @@
                 default:
                     return null;
             }
-        }
+        }*/
 
         public static float? TryGetLinearPathProperty(Track track, string propertyName, float time)
         {
@@ -155,12 +155,12 @@
             return null;
         }
 
-        public static dynamic TryGetProperty(Track track, string propertyName)
+        /*public static dynamic TryGetProperty(Track track, string propertyName)
         {
             Property property = null;
             track?.Properties.TryGetValue(propertyName, out property);
             return property?.Value;
-        }
+        }*/
 
         public static object TryGetPropertyAsObject(Track track, string propertyName)
         {
@@ -171,11 +171,6 @@
 
         public static void TryGetPointData(dynamic customData, string pointName, out PointDefinition pointData, Dictionary<string, PointDefinition> pointDefinitions = null)
         {
-            if (pointDefinitions == null)
-            {
-                pointDefinitions = PointDefinitions;
-            }
-
             dynamic pointString = Trees.at(customData, pointName);
             switch (pointString)
             {
@@ -207,7 +202,7 @@
             }
         }
 
-        public static Track GetTrack(dynamic customData, string name = TRACK)
+        /*public static Track GetTrack(dynamic customData, string name = TRACK)
         {
             string trackName = Trees.at(customData, name);
             if (trackName == null)
@@ -224,7 +219,7 @@
                 NoodleLogger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
                 return null;
             }
-        }
+        }*/
 
         public static Track GetTrackPreload(dynamic customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
         {
@@ -245,7 +240,7 @@
             }
         }
 
-        public static IEnumerable<Track> GetTrackArray(dynamic customData, string name = TRACK)
+        /*public static IEnumerable<Track> GetTrackArray(dynamic customData, string name = TRACK)
         {
             IEnumerable<string> trackNames = ((List<object>)Trees.at(customData, name)).Cast<string>();
             if (trackNames == null)
@@ -267,7 +262,7 @@
             }
 
             return tracks;
-        }
+        }*/
 
         public static IEnumerable<Track> GetTrackArrayPreload(dynamic customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
         {
