@@ -191,6 +191,11 @@
       <HintPath>$(BeatSaberDir)\Plugins\NoodleExtensions.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="SemVer">
+      <HintPath>$(BeatSaberDir)\Libs\SemVer.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="SiraUtil, Version=2.5.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>

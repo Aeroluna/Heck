@@ -71,7 +71,7 @@
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");
 
-            if (ChromaUtils.IsModInstalled("NoodleExtensions"))
+            if (ChromaUtils.IsNoodleExtensionsInstalled())
             {
                 AnimationHelper.SubscribeColorEvents();
                 NoodleExtensionsInstalled = true;
