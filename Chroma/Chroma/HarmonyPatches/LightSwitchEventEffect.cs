@@ -36,9 +36,17 @@
                 IEnumerable<int> newIds = LightColorManager.LightIDOverride.Select(n => LightIDTableManager.GetActiveTableValue(type, n) ?? n);
                 foreach (int id in newIds)
                 {
-                    if (lights[id].isRegistered)
+                    ILightWithId lightWithId = lights.ElementAtOrDefault(id);
+                    if (lightWithId != null)
                     {
-                        lights[id].ColorWasSet(color);
+                        if (lightWithId.isRegistered)
+                        {
+                            lightWithId.ColorWasSet(color);
+                        }
+                    }
+                    else
+                    {
+                        ChromaLogger.Log($"Type [{type}] does not contain id [{id}].", IPA.Logging.Logger.Level.Warning);
                     }
                 }
 
