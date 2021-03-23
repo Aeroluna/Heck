@@ -37,6 +37,7 @@
                     case ASSIGNTRACKPARENT:
                         noodleEventData = ProcessParentTrackEvent(customEventData.data, beatmapData);
                         break;
+
                     default:
                         continue;
                 }

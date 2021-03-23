@@ -17,39 +17,36 @@
         internal static void DeserializeBeatmapData(IReadonlyBeatmapData beatmapData)
         {
             NoodleObjectDatas = new Dictionary<BeatmapObjectData, NoodleObjectData>();
-            foreach (IReadonlyBeatmapLineData beatmapLineData in beatmapData.beatmapLinesData)
+            foreach (BeatmapObjectData beatmapObjectData in beatmapData.beatmapObjectsData)
             {
-                foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
+                NoodleObjectData noodleObjectData;
+
+                dynamic customData;
+
+                switch (beatmapObjectData)
                 {
-                    NoodleObjectData noodleObjectData;
+                    case CustomNoteData customNoteData:
+                        customData = customNoteData.customData;
+                        noodleObjectData = ProcessCustomNote(customData);
+                        break;
 
-                    dynamic customData;
+                    case CustomObstacleData customObstacleData:
+                        customData = customObstacleData.customData;
+                        noodleObjectData = ProcessCustomObstacle(customData);
+                        break;
 
-                    switch (beatmapObjectData)
-                    {
-                        case CustomNoteData customNoteData:
-                            customData = customNoteData.customData;
-                            noodleObjectData = ProcessCustomNote(customData);
-                            break;
+                    case CustomWaypointData customWaypointData:
+                        customData = customWaypointData.customData;
+                        noodleObjectData = new NoodleObjectData();
+                        break;
 
-                        case CustomObstacleData customObstacleData:
-                            customData = customObstacleData.customData;
-                            noodleObjectData = ProcessCustomObstacle(customData);
-                            break;
-
-                        case CustomWaypointData customWaypointData:
-                            customData = customWaypointData.customData;
-                            noodleObjectData = new NoodleObjectData();
-                            break;
-
-                        default:
-                            continue;
-                    }
-
-                    FinalizeCustomObject(customData, noodleObjectData, beatmapData);
-
-                    NoodleObjectDatas.Add(beatmapObjectData, noodleObjectData);
+                    default:
+                        continue;
                 }
+
+                FinalizeCustomObject(customData, noodleObjectData, beatmapData);
+
+                NoodleObjectDatas.Add(beatmapObjectData, noodleObjectData);
             }
         }
 

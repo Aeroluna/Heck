@@ -71,7 +71,7 @@
                     }
 
                     return true;
-                    }).ToList();
+                }).ToList();
             }
 
             if (result is CustomBeatmapData customBeatmapData)
