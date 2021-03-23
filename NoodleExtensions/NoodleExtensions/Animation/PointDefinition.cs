@@ -110,7 +110,17 @@
 
             SearchIndex(time, PropertyType.Vector3, out int l, out int r);
 
-            float normalTime = (time - _points[l].Point.w) / (_points[r].Point.w - _points[l].Point.w);
+            float normalTime;
+            float divisor = _points[r].Point.w - _points[l].Point.w;
+            if (divisor != 0)
+            {
+                normalTime = (time - _points[l].Point.w) / divisor;
+            }
+            else
+            {
+                normalTime = 0;
+            }
+
             normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
             if (_points[r].Smooth)
             {
@@ -143,7 +153,18 @@
 
             Quaternion quaternionOne = Quaternion.Euler(_points[l].Point);
             Quaternion quaternionTwo = Quaternion.Euler(_points[r].Point);
-            float normalTime = (time - _points[l].Point.w) / (_points[r].Point.w - _points[l].Point.w);
+
+            float normalTime;
+            float divisor = _points[r].Point.w - _points[l].Point.w;
+            if (divisor != 0)
+            {
+                normalTime = (time - _points[l].Point.w) / divisor;
+            }
+            else
+            {
+                normalTime = 0;
+            }
+
             normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
             return Quaternion.SlerpUnclamped(quaternionOne, quaternionTwo, normalTime);
         }
@@ -168,7 +189,17 @@
 
             SearchIndex(time, PropertyType.Linear, out int l, out int r);
 
-            float normalTime = (time - _points[l].LinearPoint.y) / (_points[r].LinearPoint.y - _points[l].LinearPoint.y);
+            float normalTime;
+            float divisor = _points[r].LinearPoint.y - _points[l].LinearPoint.y;
+            if (divisor != 0)
+            {
+                normalTime = (time - _points[l].LinearPoint.y) / divisor;
+            }
+            else
+            {
+                normalTime = 0;
+            }
+
             normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
             return Mathf.LerpUnclamped(_points[l].LinearPoint.x, _points[r].LinearPoint.x, normalTime);
         }
@@ -192,7 +223,17 @@
 
             SearchIndex(time, PropertyType.Vector4, out int l, out int r);
 
-            float normalTime = (time - _points[l].Vector4Point.v) / (_points[r].Vector4Point.v - _points[l].Vector4Point.v);
+            float normalTime;
+            float divisor = _points[r].Vector4Point.v - _points[l].Vector4Point.v;
+            if (divisor != 0)
+            {
+                normalTime = (time - _points[l].Vector4Point.v) / divisor;
+            }
+            else
+            {
+                normalTime = 0;
+            }
+
             normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
             return Vector4.LerpUnclamped(_points[l].Vector4Point, _points[r].Vector4Point, normalTime);
         }
