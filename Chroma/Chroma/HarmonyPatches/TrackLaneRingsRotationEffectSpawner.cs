@@ -65,13 +65,13 @@
                 int? dir = chromaData.Direction;
 
                 bool rotRight;
-                if (dir.HasValue)
+                if (!dir.HasValue)
                 {
                     rotRight = UnityEngine.Random.value < 0.5f;
                 }
                 else
                 {
-                    rotRight = dir == 1 ? true : false;
+                    rotRight = dir == 1;
                 }
 
                 bool? counterSpin = chromaData.CounterSpin;
