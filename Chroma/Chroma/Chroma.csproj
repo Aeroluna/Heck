@@ -47,7 +47,7 @@
     <Compile Include="ChromaObjectData.cs" />
     <Compile Include="ChromaPatch.cs" />
     <Compile Include="Lighting\ChromaRingsRotationEffect.cs" />
-    <Compile Include="HarmonyPatches\BeatmapDataTransformHelper.cs" />
+    <Compile Include="HarmonyPatches\GameplayCoreInstaller.cs" />
     <Compile Include="Lighting\LightIDTableManager.cs" />
     <Compile Include="Colorizer\BombColorizer.cs" />
     <Compile Include="Colorizer\SaberColorizer.cs" />

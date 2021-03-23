@@ -12,7 +12,10 @@
         [HarmonyPriority(Priority.High)]
         private static void Prefix(ColorNoteVisuals __instance, NoteController noteController)
         {
-            NoteColorizer.CNVStart(__instance, noteController);
+            if (!(noteController is MultiplayerConnectedPlayerNoteController))
+            {
+                NoteColorizer.CNVStart(__instance, noteController);
+            }
         }
     }
 
@@ -23,7 +26,10 @@
         [HarmonyPriority(Priority.Low)]
         private static void Prefix(NoteController noteController)
         {
-            NoteColorizer.EnableNoteColorOverride(noteController);
+            if (!(noteController is MultiplayerConnectedPlayerNoteController))
+            {
+                NoteColorizer.EnableNoteColorOverride(noteController);
+            }
         }
 
         private static void Postfix()
@@ -38,16 +44,19 @@
     {
         private static void Prefix(NoteController noteController)
         {
-            ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[noteController.noteData];
-            Color? color = chromaData.Color;
+            if (!(noteController is MultiplayerConnectedPlayerNoteController))
+            {
+                ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[noteController.noteData];
+                Color? color = chromaData.Color;
 
-            if (color.HasValue)
-            {
-                noteController.SetNoteColors(color.Value, color.Value);
-            }
-            else
-            {
-                noteController.Reset();
+                if (color.HasValue)
+                {
+                    noteController.SetNoteColors(color.Value, color.Value);
+                }
+                else
+                {
+                    noteController.Reset();
+                }
             }
         }
     }

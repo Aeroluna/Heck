@@ -14,12 +14,18 @@
         [HarmonyPriority(Priority.High)]
         private static void Prefix(ObstacleController __instance, ColorManager ____colorManager)
         {
-            ObstacleColorizer.OCStart(__instance, ____colorManager.obstaclesColor);
+            if (!(__instance is MultiplayerConnectedPlayerObstacleController))
+            {
+                ObstacleColorizer.OCStart(__instance, ____colorManager.obstaclesColor);
+            }
         }
 
         private static void Postfix(ObstacleController __instance)
         {
-            __instance.SetActiveColors();
+            if (!(__instance is MultiplayerConnectedPlayerObstacleController))
+            {
+                __instance.SetActiveColors();
+            }
         }
     }
 
@@ -29,16 +35,19 @@
     {
         private static void Prefix(ObstacleController __instance, ObstacleData obstacleData)
         {
-            ChromaObjectData chromaData = ChromaObjectDatas[obstacleData];
-            Color? color = chromaData.Color;
+            if (!(__instance is MultiplayerConnectedPlayerObstacleController))
+            {
+                ChromaObjectData chromaData = ChromaObjectDatas[obstacleData];
+                Color? color = chromaData.Color;
 
-            if (color.HasValue)
-            {
-                __instance.SetObstacleColor(color.Value);
-            }
-            else
-            {
-                __instance.Reset();
+                if (color.HasValue)
+                {
+                    __instance.SetObstacleColor(color.Value);
+                }
+                else
+                {
+                    __instance.Reset();
+                }
             }
         }
     }
@@ -49,7 +58,7 @@
     {
         private static void Postfix(ObstacleController __instance, ObstacleData ____obstacleData, AudioTimeSyncController ____audioTimeSyncController, float ____startTimeOffset, float ____move1Duration, float ____move2Duration, float ____obstacleDuration)
         {
-            if (NoodleExtensionsInstalled)
+            if (!(__instance is MultiplayerConnectedPlayerObstacleController) && NoodleExtensionsInstalled)
             {
                 TrackColorize(__instance, ____obstacleData, ____audioTimeSyncController, ____startTimeOffset, ____move1Duration, ____move2Duration, ____obstacleDuration);
             }

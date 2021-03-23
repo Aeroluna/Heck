@@ -17,7 +17,7 @@
 
         private static void Postfix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
-            if (NoodleExtensionsInstalled)
+            if (!(__instance is MultiplayerConnectedPlayerNoteController) && NoodleExtensionsInstalled)
             {
                 TrackColorize(__instance, ____noteData, ____noteMovement);
             }

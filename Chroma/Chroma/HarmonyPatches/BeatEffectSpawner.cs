@@ -11,7 +11,10 @@
         [HarmonyPriority(Priority.Low)]
         private static void Prefix(NoteController noteController)
         {
-            NoteColorizer.EnableNoteColorOverride(noteController);
+            if (!(noteController is MultiplayerConnectedPlayerNoteController))
+            {
+                NoteColorizer.EnableNoteColorOverride(noteController);
+            }
         }
 
         private static void Postfix()
@@ -27,11 +30,14 @@
         [HarmonyPriority(Priority.High)]
         private static bool Prefix(NoteController noteController)
         {
-            ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[noteController.noteData];
-            bool? disable = chromaData.DisableSpawnEffect;
-            if (disable.HasValue && disable == true)
+            if (!(noteController is MultiplayerConnectedPlayerNoteController))
             {
-                return false;
+                ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[noteController.noteData];
+                bool? disable = chromaData.DisableSpawnEffect;
+                if (disable.HasValue && disable == true)
+                {
+                    return false;
+                }
             }
 
             return true;
