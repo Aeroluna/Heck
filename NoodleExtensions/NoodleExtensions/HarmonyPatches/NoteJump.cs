@@ -16,9 +16,11 @@
         private static readonly MethodInfo _noteJumpTimeAdjust = SymbolExtensions.GetMethodInfo(() => NoteJumpTimeAdjust(0, 0));
         private static readonly FieldInfo _localPositionField = AccessTools.Field(typeof(NoteJump), "_localPosition");
         private static readonly MethodInfo _definiteNoteJump = SymbolExtensions.GetMethodInfo(() => DefiniteNoteJump(Vector3.zero, 0));
-        private static readonly MethodInfo _convertToLocalSpace = SymbolExtensions.GetMethodInfo(() => ConvertToLocalSpace(null));
+        private static readonly MethodInfo _convertUpToLocalSpace = SymbolExtensions.GetMethodInfo(() => ConvertUpToLocalSpace(null));
         private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), "_definitePosition");
         private static readonly MethodInfo _playerTransformWorldPos = typeof(PlayerTransforms).GetProperty("headWorldPos").GetGetMethod();
+        private static readonly MethodInfo _convertToWorldSpace = SymbolExtensions.GetMethodInfo(() => ConvertToWorldSpace(Vector3.zero, null));
+        private static readonly MethodInfo _getTransform = typeof(Component).GetProperty("transform").GetGetMethod();
 
         // This field is used by reflection
 #pragma warning disable CS0414 // The field is assigned but its value is never used
@@ -48,6 +50,7 @@
             bool foundTransformUp = false;
             bool foundZOffset = false;
             bool foundPseudo = false;
+            bool foundNormalized = false;
             for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundTime &&
@@ -76,7 +79,7 @@
                   ((MethodInfo)instructionList[i].operand).Name == "get_up")
                 {
                     foundTransformUp = true;
-                    instructionList[i] = new CodeInstruction(OpCodes.Call, _convertToLocalSpace);
+                    instructionList[i] = new CodeInstruction(OpCodes.Call, _convertUpToLocalSpace);
                     instructionList.RemoveRange(i + 1, 8);
                     instructionList.RemoveRange(i - 5, 3);
                     instructionList.Insert(i - 5, new CodeInstruction(OpCodes.Ldloc_S, 5));
@@ -103,6 +106,22 @@
                     foundPseudo = true;
 
                     instructionList[i].operand = _playerTransformWorldPos;
+                }
+
+                // Force using world position when turning towards the player
+                if (!foundNormalized &&
+                    instructionList[i].opcode == OpCodes.Stloc_S &&
+                    ((LocalBuilder)instructionList[i].operand).LocalIndex == 8)
+                {
+                    foundNormalized = true;
+                    instructionList.Insert(i - 2, new CodeInstruction(OpCodes.Ldarg_0));
+                    instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Call, _getTransform));
+                    instructionList.Insert(i, new CodeInstruction(OpCodes.Call, _convertToWorldSpace));
+
+                    instructionList[i - 14].opcode = OpCodes.Ldfld;
+                    instructionList.Insert(i - 13, new CodeInstruction(OpCodes.Ldarg_0));
+                    instructionList.Insert(i - 12, new CodeInstruction(OpCodes.Call, _getTransform));
+                    instructionList.Insert(i - 11, new CodeInstruction(OpCodes.Call, _convertToWorldSpace));
                 }
             }
 
@@ -131,6 +150,11 @@
                 NoodleLogger.Log("Failed to find callvirt to get_headPseudoLocalPos!", IPA.Logging.Logger.Level.Error);
             }
 
+            if (!foundPseudo)
+            {
+                NoodleLogger.Log("Failed to find stloc.s to V_8!", IPA.Logging.Logger.Level.Error);
+            }
+
             return instructionList.AsEnumerable();
         }
 
@@ -152,9 +176,14 @@
             return original;
         }
 
-        // These methods are necessary in order to rotate the parent transform without screwing with the rotateObject's up
+        private static Vector3 ConvertToWorldSpace(Vector3 vector, Transform transform)
+        {
+            return transform.TransformPoint(vector);
+        }
+
+        // This methods is necessary in order to rotate the parent transform without screwing with the rotateObject's up
         // (Beat games kinda does this but they do it very pepega so i override)
-        private static Vector3 ConvertToLocalSpace(Transform rotatedObject)
+        private static Vector3 ConvertUpToLocalSpace(Transform rotatedObject)
         {
             return rotatedObject.parent.InverseTransformDirection(rotatedObject.up);
         }
