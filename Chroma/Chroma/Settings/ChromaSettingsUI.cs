@@ -18,5 +18,12 @@
             get => !ChromaConfig.Instance.EnvironmentEnhancementsEnabled;
             set => ChromaConfig.Instance.EnvironmentEnhancementsEnabled = !value;
         }
+
+        [UIValue("zenwalls")]
+        public bool ForceZenWallsEnabled
+        {
+            get => ChromaConfig.Instance.ForceZenWallsEnabled;
+            set => ChromaConfig.Instance.ForceZenWallsEnabled = value;
+        }
     }
 }

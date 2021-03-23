@@ -2,5 +2,6 @@
   <modifier-container pref-width='65'>
     <modifier src='#FeetIcon' text='Disable Environment Enhancements' value='platform' apply-on-change='true' hover-hint='Disable Chroma&apos;s ability to manage the environment.'></modifier>
     <modifier src='#LightIcon' text='Disable Chroma Events' value='rgbevents' apply-on-change='true' hover-hint='Disable chroma events, but you&apos;ll break my heart.'></modifier>
+    <modifier src='#LightIcon' text='Force Zen Mode Walls' value='zenwalls' apply-on-change='true' hover-hint='Forces walls to be enabled in the Zen Mode modifier.'></modifier>
   </modifier-container>
 </bg>

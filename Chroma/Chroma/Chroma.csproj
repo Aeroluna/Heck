@@ -46,6 +46,7 @@
     <Compile Include="ChromaEventData.cs" />
     <Compile Include="ChromaObjectData.cs" />
     <Compile Include="ChromaPatch.cs" />
+    <Compile Include="HarmonyPatches\BeatmapDataZenModeTransform.cs" />
     <Compile Include="Lighting\ChromaRingsRotationEffect.cs" />
     <Compile Include="HarmonyPatches\GameplayCoreInstaller.cs" />
     <Compile Include="Lighting\LightIDTableManager.cs" />
