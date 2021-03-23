@@ -4,12 +4,13 @@
     using CustomJSONData.CustomBeatmap;
     using UnityEngine;
     using static NoodleExtensions.Animation.AnimationController;
+    using static NoodleExtensions.Plugin;
 
     internal static class AnimateTrack
     {
         internal static void Callback(CustomEventData customEventData)
         {
-            if (customEventData.type == "AnimateTrack")
+            if (customEventData.type == ANIMATETRACK)
             {
                 EventHelper.StartEventCoroutine(customEventData, EventType.AnimateTrack);
             }

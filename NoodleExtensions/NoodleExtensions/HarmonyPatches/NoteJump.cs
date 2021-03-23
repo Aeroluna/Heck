@@ -28,8 +28,16 @@
         internal static float NoteJumpTimeAdjust(float original, float jumpDuration)
         {
             NoodleObjectData noodleData = NoteControllerUpdate.NoodleData;
-            float? time = (float?)AnimationHelper.TryGetPropertyAsObject(noodleData.Track, NoodleExtensions.Plugin.TIME);
-            return time.HasValue ? time.Value * jumpDuration : original;
+            if (noodleData != null)
+            {
+                float? time = (float?)AnimationHelper.TryGetPropertyAsObject(noodleData.Track, Plugin.TIME);
+                if (time.HasValue)
+                {
+                    return time.Value * jumpDuration;
+                }
+            }
+
+            return original;
         }
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -129,18 +137,19 @@
         private static Vector3 DefiniteNoteJump(Vector3 original, float time)
         {
             NoodleObjectData noodleData = NoteControllerUpdate.NoodleData;
-            AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, time, out Vector3? position);
-            if (position.HasValue)
+            if (noodleData != null)
             {
-                Vector3 noteOffset = noodleData.NoteOffset;
-                _definitePosition = true;
-                return position.Value + noteOffset;
+                AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, time, out Vector3? position);
+                if (position.HasValue)
+                {
+                    Vector3 noteOffset = noodleData.NoteOffset;
+                    _definitePosition = true;
+                    return position.Value + noteOffset;
+                }
             }
-            else
-            {
-                _definitePosition = false;
-                return original;
-            }
+
+            _definitePosition = false;
+            return original;
         }
 
         // These methods are necessary in order to rotate the parent transform without screwing with the rotateObject's up

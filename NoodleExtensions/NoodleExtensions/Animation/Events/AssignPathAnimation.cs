@@ -4,12 +4,13 @@
     using CustomJSONData.CustomBeatmap;
     using UnityEngine;
     using static NoodleExtensions.Animation.AnimationController;
+    using static NoodleExtensions.Plugin;
 
     internal static class AssignPathAnimation
     {
         internal static void Callback(CustomEventData customEventData)
         {
-            if (customEventData.type == "AssignPathAnimation")
+            if (customEventData.type == ASSIGNPATHANIMATION)
             {
                 EventHelper.StartEventCoroutine(customEventData, EventType.AssignPathAnimation);
             }

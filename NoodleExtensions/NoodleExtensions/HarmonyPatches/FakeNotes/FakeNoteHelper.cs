@@ -45,11 +45,14 @@
         {
             return intersectingObstacles.Where(n =>
             {
-                NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[n.obstacleData];
-                bool? fake = noodleData.Fake;
-                if (fake.HasValue && fake.Value)
+                if (!(n is MultiplayerConnectedPlayerObstacleController))
                 {
-                    return false;
+                    NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[n.obstacleData];
+                    bool? fake = noodleData.Fake;
+                    if (fake.HasValue && fake.Value)
+                    {
+                        return false;
+                    }
                 }
 
                 return true;

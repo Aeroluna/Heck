@@ -41,17 +41,18 @@
         private static Vector3 DefiniteNoteFloorMovement(Vector3 original, NoteFloorMovement noteFloorMovement)
         {
             NoodleObjectData noodleData = NoteControllerUpdate.NoodleData;
-            AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, 0, out Vector3? position);
-            if (position.HasValue)
+            if (noodleData != null)
             {
-                Vector3 noteOffset = noodleData.NoteOffset;
-                Vector3 endPos = NoteControllerUpdate._floorEndPosAccessor(ref noteFloorMovement);
-                return original + (position.Value + noteOffset - endPos);
+                AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, 0, out Vector3? position);
+                if (position.HasValue)
+                {
+                    Vector3 noteOffset = noodleData.NoteOffset;
+                    Vector3 endPos = NoteControllerUpdate._floorEndPosAccessor(ref noteFloorMovement);
+                    return original + (position.Value + noteOffset - endPos);
+                }
             }
-            else
-            {
-                return original;
-            }
+
+            return original;
         }
     }
 }

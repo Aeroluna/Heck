@@ -4,6 +4,7 @@
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using static NoodleExtensions.Animation.NoodleEventDataManager;
+    using static NoodleExtensions.Plugin;
 
     internal class AssignTrackParent
     {
@@ -12,7 +13,7 @@
             List<CustomEventData> customEventsData = customBeatmapData.customEventsData;
             foreach (CustomEventData customEventData in customEventsData)
             {
-                if (customEventData.type == "AssignTrackParent")
+                if (customEventData.type == ASSIGNTRACKPARENT)
                 {
                     string trackName = Trees.at(customEventData.data, "_parentTrack");
                     ((TrackManager)trackManager).AddTrack(trackName);
@@ -22,7 +23,7 @@
 
         internal static void Callback(CustomEventData customEventData)
         {
-            if (customEventData.type == "AssignTrackParent")
+            if (customEventData.type == ASSIGNTRACKPARENT)
             {
                 NoodleParentTrackEventData noodleData = (NoodleParentTrackEventData)NoodleEventDatas[customEventData];
                 IEnumerable<Track> tracks = noodleData.ChildrenTracks;

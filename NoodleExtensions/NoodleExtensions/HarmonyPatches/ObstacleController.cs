@@ -84,6 +84,11 @@
 
         private static void Postfix(ObstacleController __instance, Quaternion ____worldRotation, ObstacleData obstacleData, Vector3 ____startPos, Vector3 ____midPos, Vector3 ____endPos, ref Bounds ____bounds)
         {
+            if (__instance is MultiplayerConnectedPlayerObstacleController)
+            {
+                return;
+            }
+
             NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[obstacleData];
 
             Quaternion? localRotationQuaternion = noodleData.LocalRotationQuaternion;
@@ -138,26 +143,33 @@
         private static Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
         {
             Quaternion worldRotation = Quaternion.Euler(0, @default, 0);
-            NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[obstacleData];
 
-            Quaternion? worldRotationQuaternion = noodleData.WorldRotationQuaternion;
-            if (worldRotationQuaternion.HasValue)
+            if (NoodleObjectDatas.TryGetValue(obstacleData, out NoodleObjectData noodleObjectData))
             {
-                worldRotation = worldRotationQuaternion.Value;
-            }
+                NoodleObstacleData noodleData = (NoodleObstacleData)noodleObjectData;
 
-            noodleData.WorldRotation = worldRotation;
+                Quaternion? worldRotationQuaternion = noodleData.WorldRotationQuaternion;
+                if (worldRotationQuaternion.HasValue)
+                {
+                    worldRotation = worldRotationQuaternion.Value;
+                }
+
+                noodleData.WorldRotation = worldRotation;
+            }
 
             return worldRotation;
         }
 
         private static float GetCustomWidth(float @default, ObstacleData obstacleData)
         {
-            NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[obstacleData];
-            float? width = noodleData.Width;
-            if (width.HasValue)
+            if (NoodleObjectDatas.TryGetValue(obstacleData, out NoodleObjectData noodleObjectData))
             {
-                return width.Value;
+                NoodleObstacleData noodleData = (NoodleObstacleData)noodleObjectData;
+                float? width = noodleData.Width;
+                if (width.HasValue)
+                {
+                    return width.Value;
+                }
             }
 
             return @default;
@@ -165,11 +177,14 @@
 
         private static float GetCustomLength(float @default, ObstacleData obstacleData)
         {
-            NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[obstacleData];
-            float? length = noodleData.Length;
-            if (length.HasValue)
+            if (NoodleObjectDatas.TryGetValue(obstacleData, out NoodleObjectData noodleObjectData))
             {
-                return length.Value * NoteLinesDistance;
+                NoodleObstacleData noodleData = (NoodleObstacleData)noodleObjectData;
+                float? length = noodleData.Length;
+                if (length.HasValue)
+                {
+                    return length.Value * NoteLinesDistance;
+                }
             }
 
             return @default;
@@ -217,9 +232,8 @@
 
         private static float ObstacleTimeAdjust(float original, ObstacleData obstacleData, float move1Duration, float finishMovementTime)
         {
-            if (original > move1Duration)
+            if (original > move1Duration && NoodleObjectDatas.TryGetValue(obstacleData, out NoodleObjectData noodleData))
             {
-                NoodleObjectData noodleData = NoodleObjectDatas[obstacleData];
                 float? time = (float?)AnimationHelper.TryGetPropertyAsObject(noodleData.Track, TIME);
                 if (time.HasValue)
                 {
@@ -245,6 +259,11 @@
             ref Quaternion ____inverseWorldRotation,
             ref Bounds ____bounds)
         {
+            if (__instance is MultiplayerConnectedPlayerObstacleController)
+            {
+                return;
+            }
+
             NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[____obstacleData];
 
             Track track = noodleData.Track;
@@ -351,7 +370,12 @@
             float ____obstacleDuration,
             float time)
         {
-            NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[____obstacleData];
+            if (!NoodleObjectDatas.TryGetValue(____obstacleData, out NoodleObjectData noodleObjectData))
+            {
+                return true;
+            }
+
+            NoodleObstacleData noodleData = (NoodleObstacleData)noodleObjectData;
 
             float jumpTime = Mathf.Clamp((time - ____move1Duration) / (____move2Duration + ____obstacleDuration), 0, 1);
             AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, jumpTime, out Vector3? position);

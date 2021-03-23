@@ -13,7 +13,7 @@
             List<CustomEventData> customEventsData = customBeatmapData.customEventsData;
             foreach (CustomEventData customEventData in customEventsData)
             {
-                if (customEventData.type == "AssignPlayerToTrack")
+                if (customEventData.type == ASSIGNPLAYERTOTRACK)
                 {
                     string trackName = Trees.at(customEventData.data, TRACK);
                     ((TrackManager)trackManager).AddTrack(trackName);
@@ -23,7 +23,7 @@
 
         internal static void Callback(CustomEventData customEventData)
         {
-            if (customEventData.type == "AssignPlayerToTrack")
+            if (customEventData.type == ASSIGNPLAYERTOTRACK)
             {
                 NoodlePlayerTrackEventData noodleData = (NoodlePlayerTrackEventData)NoodleEventDatas[customEventData];
                 Track track = noodleData.Track;

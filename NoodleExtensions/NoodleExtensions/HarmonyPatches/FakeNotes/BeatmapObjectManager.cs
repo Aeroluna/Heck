@@ -13,7 +13,7 @@
         [HarmonyPriority(Priority.High)]
         private static bool Prefix(BeatmapObjectManager __instance, NoteController noteController, in NoteCutInfo noteCutInfo)
         {
-            if (!FakeNoteHelper.GetFakeNote(noteController))
+            if (!(noteController is MultiplayerConnectedPlayerNoteController) && !FakeNoteHelper.GetFakeNote(noteController))
             {
                 NoteCutCoreEffectsSpawnerStart.NoteCutCoreEffectsSpawner.HandleNoteWasCut(noteController, noteCutInfo);
                 _despawnMethod.Invoke(__instance, new object[] { noteController });
@@ -32,7 +32,12 @@
         [HarmonyPriority(Priority.High)]
         private static bool Prefix(NoteController noteController)
         {
-            return FakeNoteHelper.GetFakeNote(noteController);
+            if (!(noteController is MultiplayerConnectedPlayerNoteController))
+            {
+                return FakeNoteHelper.GetFakeNote(noteController);
+            }
+
+            return true;
         }
     }
 }

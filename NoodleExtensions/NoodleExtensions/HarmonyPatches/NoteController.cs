@@ -33,6 +33,11 @@
 
         private static void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
         {
+            if (__instance is MultiplayerConnectedPlayerNoteController)
+            {
+                return;
+            }
+
             NoodleNoteData noodleData = (NoodleNoteData)NoodleObjectDatas[noteData];
 
             Quaternion? cutQuaternion = noodleData.CutQuaternion;
@@ -138,11 +143,15 @@
         private static float GetFlipYSide(NoteData noteData, float @default)
         {
             float output = @default;
-            NoodleNoteData noodleData = (NoodleNoteData)NoodleObjectDatas[noteData];
-            float? flipYSide = noodleData.FlipYSideInternal;
-            if (flipYSide.HasValue)
+
+            if (NoodleObjectDatas.TryGetValue(noteData, out NoodleObjectData noodleObjectData))
             {
-                output = flipYSide.Value;
+                NoodleNoteData noodleData = (NoodleNoteData)noodleObjectData;
+                float? flipYSide = noodleData.FlipYSideInternal;
+                if (flipYSide.HasValue)
+                {
+                    output = flipYSide.Value;
+                }
             }
 
             return output;
@@ -174,6 +183,12 @@
 
         private static void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
+            if (__instance is MultiplayerConnectedPlayerNoteController)
+            {
+                NoodleData = null;
+                return;
+            }
+
             NoodleData = NoodleObjectDatas[____noteData];
             NoodleNoteData noodleData = (NoodleNoteData)NoodleData;
 

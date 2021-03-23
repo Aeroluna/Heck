@@ -18,9 +18,6 @@
         private static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<ObstacleController>>.Accessor _obstaclePoolAccessor = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<ObstacleController>>.GetAccessor("_obstaclePoolContainer");
         private static readonly FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.Accessor _beatmapObjectSpawnAccessor = FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.GetAccessor("_beatmapObjectSpawner");
 
-        private static BeatmapObjectSpawnController _beatmapObjectSpawnController;
-        private static BasicBeatmapObjectManager _beatmapObjectManager;
-
         public static MemoryPoolContainer<GameNoteController> GameNotePool
         {
             get
@@ -52,30 +49,7 @@
 
         ////public static Dictionary<string, PointDefinition> PointDefinitions => Trees.at(((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData, "pointDefinitions");
 
-        private static BasicBeatmapObjectManager BeatmapObjectManager
-        {
-            get
-            {
-                if (_beatmapObjectSpawnController == null)
-                {
-                    // TODO: find a better way to get the BeatmapObjectManager
-                    BeatmapObjectSpawnController spawnController = HarmonyPatches.BeatmapObjectSpawnControllerStart.BeatmapObjectSpawnController;
-                    IBeatmapObjectSpawner beatmapObjectSpawner = _beatmapObjectSpawnAccessor(ref spawnController);
-                    if (beatmapObjectSpawner is BasicBeatmapObjectManager basicBeatmapObjectManager)
-                    {
-                        _beatmapObjectManager = basicBeatmapObjectManager;
-                        _beatmapObjectSpawnController = spawnController;
-                    }
-
-                    if (_beatmapObjectSpawnController == null)
-                    {
-                        throw new Exception("Could not find BasicBeatmapObjectManager");
-                    }
-                }
-
-                return _beatmapObjectManager;
-            }
-        }
+        private static BasicBeatmapObjectManager BeatmapObjectManager => HarmonyPatches.BeatmapObjectSpawnControllerStart.BeatmapObjectManager;
 
         /*public static dynamic TryGetPathProperty(Track track, string propertyName, float time)
         {
@@ -169,7 +143,7 @@
             return property?.Value;
         }
 
-        public static void TryGetPointData(dynamic customData, string pointName, out PointDefinition pointData, Dictionary<string, PointDefinition> pointDefinitions = null)
+        public static void TryGetPointData(dynamic customData, string pointName, out PointDefinition pointData, Dictionary<string, PointDefinition> pointDefinitions)
         {
             dynamic pointString = Trees.at(customData, pointName);
             switch (pointString)

@@ -22,19 +22,19 @@
 
                 switch (customEventData.type)
                 {
-                    case "AnimateTrack":
-                    case "AssignPathAnimation":
+                    case ANIMATETRACK:
+                    case ASSIGNPATHANIMATION:
                         noodleEventData = ProcessCoroutineEvent(customEventData, beatmapData);
                         break;
 
-                    case "AssignPlayerToTrack":
+                    case ASSIGNPLAYERTOTRACK:
                         noodleEventData = new NoodlePlayerTrackEventData()
                         {
                             Track = GetTrackPreload(customEventData.data, beatmapData),
                         };
                         break;
 
-                    case "AssignTrackParent":
+                    case ASSIGNTRACKPARENT:
                         noodleEventData = ProcessParentTrackEvent(customEventData.data, beatmapData);
                         break;
                     default:
@@ -67,11 +67,11 @@
             EventType eventType;
             switch (customEventData.type)
             {
-                case "AnimateTrack":
+                case ANIMATETRACK:
                     eventType = EventType.AnimateTrack;
                     break;
 
-                case "AssignPathAnimation":
+                case ASSIGNPATHANIMATION:
                     eventType = EventType.AssignPathAnimation;
                     break;
 

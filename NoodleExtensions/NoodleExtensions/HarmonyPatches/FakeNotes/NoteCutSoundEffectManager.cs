@@ -24,7 +24,7 @@
         // Do not create a NoteCutSoundEffect for fake notes
         private static bool Prefix(NoteController noteController)
         {
-            if (FakeNoteHelper.GetFakeNote(noteController))
+            if (!(noteController is MultiplayerConnectedPlayerNoteController) && FakeNoteHelper.GetFakeNote(noteController))
             {
                 return NoodleManager.ProcessHitSound(noteController);
             }

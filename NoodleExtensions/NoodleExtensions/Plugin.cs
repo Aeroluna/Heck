@@ -35,6 +35,11 @@
         internal const string TIME = "_time";
         internal const string TRACK = "_track";
 
+        internal const string ANIMATETRACK = "AnimateTrack";
+        internal const string ASSIGNPATHANIMATION = "AssignPathAnimation";
+        internal const string ASSIGNPLAYERTOTRACK = "AssignPlayerToTrack";
+        internal const string ASSIGNTRACKPARENT = "AssignTrackParent";
+
         internal static readonly Vector3 _vectorZero = Vector3.zero;
         internal static readonly Quaternion _quaternionIdentity = Quaternion.identity;
 

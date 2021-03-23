@@ -46,11 +46,13 @@
             if (beatmapObjectCallbackData.callback.Method == _beatmapObjectSpawnControllerCallback &&
                 (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData || beatmapObjectData is WaypointData))
             {
-                NoodleObjectData noodleData = NoodleObjectDatas[beatmapObjectData];
-                float? aheadTime = noodleData.AheadTimeInternal;
-                if (aheadTime.HasValue)
+                if (NoodleObjectDatas.TryGetValue(beatmapObjectData, out NoodleObjectData noodleData))
                 {
-                    return aheadTime.Value;
+                    float? aheadTime = noodleData.AheadTimeInternal;
+                    if (aheadTime.HasValue)
+                    {
+                        return aheadTime.Value;
+                    }
                 }
             }
 

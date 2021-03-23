@@ -107,11 +107,5 @@
             NoodleLogger.Log("beatmapData was not CustomBeatmapData", IPA.Logging.Logger.Level.Error);
             return beatmapData;
         }
-
-        private static void Postfix(IReadonlyBeatmapData __result)
-        {
-            NoodleObjectDataManager.DeserializeBeatmapData(__result);
-            Animation.NoodleEventDataManager.DeserializeBeatmapData(__result);
-        }
     }
 }

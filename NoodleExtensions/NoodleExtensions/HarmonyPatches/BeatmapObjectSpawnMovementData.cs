@@ -1,20 +1,9 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
-    using HarmonyLib;
     using UnityEngine;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
     using static NoodleExtensions.NoodleObjectDataManager;
-
-    [HarmonyPatch(typeof(BeatmapObjectSpawnMovementData))]
-    [HarmonyPatch("Init")]
-    internal static class BeatmapObjectSpawnMovementDataInit
-    {
-        private static void Postfix(BeatmapObjectSpawnMovementData __instance)
-        {
-            InitBeatmapObjectSpawnController(__instance);
-        }
-    }
 
     [NoodlePatch(typeof(BeatmapObjectSpawnMovementData))]
     [NoodlePatch("GetObstacleSpawnData")]
@@ -22,7 +11,13 @@
     {
         private static void Postfix(Vector3 ____centerPos, ObstacleData obstacleData, ref BeatmapObjectSpawnMovementData.ObstacleSpawnData __result)
         {
-            NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[obstacleData];
+            if (!NoodleObjectDatas.TryGetValue(obstacleData, out NoodleObjectData noodleObjectData))
+            {
+                return;
+            }
+
+            NoodleObstacleData noodleData = (NoodleObstacleData)noodleObjectData;
+
             float? njs = noodleData.NJS;
             float? spawnoffset = noodleData.SpawnOffset;
 
@@ -37,13 +32,11 @@
             Vector3 moveEndPos = __result.moveEndPos;
             Vector3 jumpEndPos = __result.jumpEndPos;
             float obstacleHeight = __result.obstacleHeight;
-            GetNoteJumpValues(njs, spawnoffset, out float jumpDuration, out float _, out Vector3 _, out Vector3 _, out Vector3 _);
+            GetNoteJumpValues(njs, spawnoffset, out float jumpDuration, out float _, out Vector3 localMoveStartPos, out Vector3 localMoveEndPos, out Vector3 localJumpEndPos);
 
             // Actual wall stuff
             if (startX.HasValue || startY.HasValue || njs.HasValue || spawnoffset.HasValue)
             {
-                GetNoteJumpValues(njs, spawnoffset, out float _, out float _, out Vector3 localMoveStartPos, out Vector3 localMoveEndPos, out Vector3 localJumpEndPos);
-
                 // Ripped from base game
                 Vector3 noteOffset = GetNoteOffset(obstacleData, startX, null);
                 noteOffset.y = startY.HasValue ? VerticalObstaclePosY + (startY.GetValueOrDefault(0) * NoteLinesDistance) : ((obstacleData.obstacleType == ObstacleType.Top)
@@ -82,7 +75,13 @@
     {
         private static void Postfix(BeatmapObjectSpawnMovementData __instance, Vector3 ____centerPos, float ____jumpDuration, NoteData noteData, ref BeatmapObjectSpawnMovementData.NoteSpawnData __result)
         {
-            NoodleNoteData noodleData = (NoodleNoteData)NoodleObjectDatas[noteData];
+            if (!NoodleObjectDatas.TryGetValue(noteData, out NoodleObjectData noodleObjectData))
+            {
+                return;
+            }
+
+            NoodleNoteData noodleData = (NoodleNoteData)noodleObjectData;
+
             float? flipLineIndex = noodleData.FlipLineIndexInternal;
             float? njs = noodleData.NJS;
             float? spawnoffset = noodleData.SpawnOffset;
