@@ -38,6 +38,9 @@
 
             IDictionary<string, Property> pathProperties = track.PathProperties;
             pathProperties.Add(COLOR, new Property(PropertyType.Vector4));
+
+            // For Environment Enhancements
+            properties.Add("_localPosition", new Property(PropertyType.Vector3));
         }
     }
 }

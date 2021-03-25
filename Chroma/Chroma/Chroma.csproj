@@ -43,12 +43,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AnimationHelper.cs" />
-    <Compile Include="ChromaEventData.cs" />
+    <Compile Include="Lighting\ChromaEventData.cs" />
     <Compile Include="ChromaObjectData.cs" />
     <Compile Include="ChromaPatch.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataZenModeTransform.cs" />
+    <Compile Include="Lighting\ChromaGradientController.cs" />
     <Compile Include="Lighting\ChromaRingsRotationEffect.cs" />
     <Compile Include="HarmonyPatches\GameplayCoreInstaller.cs" />
+    <Compile Include="Lighting\EnvironmentEnhancement\EnvironmentEnhancementManager.cs" />
+    <Compile Include="Lighting\EnvironmentEnhancement\GameObjectInfo.cs" />
+    <Compile Include="Lighting\EnvironmentEnhancement\GameObjectTrackController.cs" />
+    <Compile Include="Lighting\EnvironmentEnhancement\LegacyEnvironmentRemoval.cs" />
     <Compile Include="Lighting\LightIDTableManager.cs" />
     <Compile Include="Colorizer\BombColorizer.cs" />
     <Compile Include="Colorizer\SaberColorizer.cs" />
@@ -68,7 +73,6 @@
     <Compile Include="HarmonyPatches\ScenesTransition\StandardLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="Lighting\LightColorManager.cs" />
     <Compile Include="Utils\Easings.cs" />
-    <Compile Include="ChromaGradientController.cs" />
     <Compile Include="ChromaController.cs" />
     <Compile Include="Colorizer\LightColorizer.cs" />
     <Compile Include="HarmonyPatches\ColorNoteVisuals.cs" />

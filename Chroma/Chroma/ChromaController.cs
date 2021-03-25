@@ -124,46 +124,7 @@
                 {
                     if (ChromaConfig.Instance.EnvironmentEnhancementsEnabled)
                     {
-                        // Spaghetti code below until I can figure out a better way of doing this
-                        dynamic dynData = customBeatmap.beatmapCustomData;
-                        List<object> objectsToKill = Trees.at(dynData, ENVIRONMENTREMOVAL);
-
-                        // seriously what the fuck beat games
-                        // GradientBackground permanently yeeted because it looks awful and can ruin multi-colored chroma maps
-                        if (objectsToKill == null)
-                        {
-                            objectsToKill = new List<object>();
-                        }
-
-                        objectsToKill.Add("GradientBackground");
-
-                        if (objectsToKill != null)
-                        {
-                            IEnumerable<GameObject> gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-                            foreach (string s in objectsToKill.Cast<string>())
-                            {
-                                if (s == "TrackLaneRing" || s == "BigTrackLaneRing")
-                                {
-                                    foreach (GameObject n in gameObjects.Where(obj => obj.name.Contains(s)))
-                                    {
-                                        if (s == "TrackLaneRing" && n.name.Contains("Big"))
-                                        {
-                                            continue;
-                                        }
-
-                                        n.SetActive(false);
-                                    }
-                                }
-                                else
-                                {
-                                    foreach (GameObject n in gameObjects
-                                        .Where(obj => obj.name.Contains(s) && (obj.scene.name?.Contains("Environment") ?? false) && (!obj.scene.name?.Contains("Menu") ?? false)))
-                                    {
-                                        n.SetActive(false);
-                                    }
-                                }
-                            }
-                        }
+                        EnvironmentEnhancementManager.Init(customBeatmap, beatmapObjectSpawnController.noteLinesDistance);
                     }
                 }
 

@@ -74,6 +74,7 @@
             if (ChromaUtils.IsNoodleExtensionsInstalled())
             {
                 AnimationHelper.SubscribeColorEvents();
+                EnvironmentEnhancementManager.SubscribeTrackManagerCreated();
                 NoodleExtensionsInstalled = true;
             }
             else
