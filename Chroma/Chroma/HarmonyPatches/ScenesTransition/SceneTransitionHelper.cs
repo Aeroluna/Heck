@@ -50,7 +50,9 @@
             if (difficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
             {
                 bool chromaRequirement = BasicPatch(customBeatmapData);
-                if (chromaRequirement && ChromaConfig.Instance.EnvironmentEnhancementsEnabled && Trees.at(customBeatmapData.beatmapCustomData, "_environmentRemoval") != null)
+                if (chromaRequirement &&
+                    ChromaConfig.Instance.EnvironmentEnhancementsEnabled &&
+                    (Trees.at(customBeatmapData.beatmapCustomData, "_environmentRemoval") != null || Trees.at(customBeatmapData.beatmapCustomData, "_environment") != null))
                 {
                     overrideEnvironmentSettings = null;
                 }

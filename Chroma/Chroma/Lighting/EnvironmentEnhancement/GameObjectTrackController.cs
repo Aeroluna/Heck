@@ -12,20 +12,23 @@
 
         private float _noteLinesDistance;
 
-        internal static void HandleTrackData(GameObject gameObject, dynamic gameObjectData, IReadonlyBeatmapData beatmapData, float noteLinesDistance)
+        private TrackLaneRing _trackLaneRing;
+
+        internal static void HandleTrackData(GameObject gameObject, dynamic gameObjectData, IReadonlyBeatmapData beatmapData, float noteLinesDistance, TrackLaneRing trackLaneRing)
         {
             Track track = NoodleExtensions.Animation.AnimationHelper.GetTrackPreload(gameObjectData, beatmapData);
             if (track != null)
             {
                 GameObjectTrackController trackController = gameObject.AddComponent<GameObjectTrackController>();
-                trackController.Init(track, noteLinesDistance);
+                trackController.Init(track, noteLinesDistance, trackLaneRing);
             }
         }
 
-        internal void Init(Track track, float noteLinesDistance)
+        internal void Init(Track track, float noteLinesDistance, TrackLaneRing trackLaneRing)
         {
             _track = track;
             _noteLinesDistance = noteLinesDistance;
+            _trackLaneRing = trackLaneRing;
         }
 
         private void Update()
@@ -53,12 +56,24 @@
 
             if (localPosition.HasValue && transform.localPosition != localPosition.Value)
             {
-                transform.localPosition = localPosition.Value;
+                transform.localPosition = localPosition.Value * _noteLinesDistance;
             }
 
             if (scale.HasValue && transform.localScale != scale.Value)
             {
                 transform.localScale = scale.Value;
+            }
+
+            if (_trackLaneRing != null)
+            {
+                if (position.HasValue || localPosition.HasValue || rotation.HasValue || localRotation.HasValue)
+                {
+                    EnvironmentEnhancementManager.SkipRingUpdate[_trackLaneRing] = true;
+                }
+                else
+                {
+                    EnvironmentEnhancementManager.SkipRingUpdate[_trackLaneRing] = false;
+                }
             }
         }
 

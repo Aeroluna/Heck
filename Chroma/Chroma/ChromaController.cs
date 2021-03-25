@@ -7,7 +7,6 @@
     using System.Reflection;
     using Chroma.Colorizer;
     using Chroma.Settings;
-    using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
     using IPA.Utilities;
@@ -19,7 +18,6 @@
     {
         private static readonly FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectCallbackController>.Accessor _callbackControllerAccessor = FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
         private static readonly FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.Accessor _beatmapObjectSpawnAccessor = FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.GetAccessor("_beatmapObjectSpawner");
-        private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
         private static readonly FieldAccessor<BeatmapObjectCallbackController, IAudioTimeSource>.Accessor _audioTimeSourceAccessor = FieldAccessor<BeatmapObjectCallbackController, IAudioTimeSource>.GetAccessor("_audioTimeSource");
         private static readonly FieldAccessor<BeatmapObjectCallbackController, IReadonlyBeatmapData>.Accessor _beatmapDataAccessor = FieldAccessor<BeatmapObjectCallbackController, IReadonlyBeatmapData>.GetAccessor("_beatmapData");
 

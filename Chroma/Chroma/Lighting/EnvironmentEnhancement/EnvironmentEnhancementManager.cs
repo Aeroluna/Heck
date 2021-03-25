@@ -6,6 +6,7 @@
     using System.Text.RegularExpressions;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using IPA.Utilities;
     using NoodleExtensions;
     using NoodleExtensions.Animation;
     using UnityEngine;
@@ -19,7 +20,15 @@
 
     internal static class EnvironmentEnhancementManager
     {
+        private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
+        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _prevRotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_prevRotZ");
+        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
+        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _prevPosZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_prevPosZ");
+        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
+
         private static List<GameObjectInfo> _gameObjectInfos;
+
+        internal static Dictionary<TrackLaneRing, bool> SkipRingUpdate { get; set; }
 
         internal static void SubscribeTrackManagerCreated()
         {
@@ -48,6 +57,8 @@
             GetAllGameObjects();
             if (environmentData != null)
             {
+                SkipRingUpdate = new Dictionary<TrackLaneRing, bool>();
+
                 foreach (dynamic gameObjectData in environmentData)
                 {
                     string id = Trees.at(gameObjectData, "_id");
@@ -92,7 +103,7 @@
 
                         if (localPosition.HasValue)
                         {
-                            transform.localPosition = localPosition.Value;
+                            transform.localPosition = localPosition.Value * noteLinesDistance;
                         }
 
                         if (localRotation.HasValue)
@@ -100,9 +111,29 @@
                             transform.localEulerAngles = localRotation.Value;
                         }
 
+                        // Handle TrackLaneRing
+                        TrackLaneRing trackLaneRing = gameObject.GetComponent<TrackLaneRing>();
+                        if (trackLaneRing != null)
+                        {
+                            if (position.HasValue || localPosition.HasValue)
+                            {
+                                _positionOffsetAccessor(ref trackLaneRing) = transform.position;
+                                float zPosition = transform.position.z;
+                                _prevPosZAccessor(ref trackLaneRing) = zPosition;
+                                _posZAccessor(ref trackLaneRing) = zPosition;
+                            }
+
+                            if (rotation.HasValue || localRotation.HasValue)
+                            {
+                                float zRotation = transform.rotation.z;
+                                _prevRotZAccessor(ref trackLaneRing) = zRotation;
+                                _rotZAccessor(ref trackLaneRing) = zRotation;
+                            }
+                        }
+
                         if (Plugin.NoodleExtensionsInstalled && NoodleController.NoodleExtensionsActive)
                         {
-                            GameObjectTrackController.HandleTrackData(gameObject, gameObjectData, customBeatmapData, noteLinesDistance);
+                            GameObjectTrackController.HandleTrackData(gameObject, gameObjectData, customBeatmapData, noteLinesDistance, trackLaneRing);
                         }
                     }
 
