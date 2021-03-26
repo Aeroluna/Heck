@@ -12,12 +12,18 @@
 
         internal static void ColorLightSwitch(MonoBehaviour monobehaviour, BeatmapEventData beatmapEventData)
         {
+            if (!ChromaEventDatas.TryGetValue(beatmapEventData, out ChromaEventData chromaEventData))
+            {
+                return;
+            }
+
+            ChromaLightEventData chromaData = (ChromaLightEventData)chromaEventData;
+
             Color? color = null;
 
             // legacy was a mistake
             color = LegacyLightHelper.GetLegacyColor(beatmapEventData) ?? color;
 
-            ChromaLightEventData chromaData = (ChromaLightEventData)ChromaEventDatas[beatmapEventData];
             if (monobehaviour is LightSwitchEventEffect lightSwitchEventEffect)
             {
                 object lightID = chromaData.LightID;
