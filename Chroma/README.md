@@ -23,12 +23,19 @@ Example of _customData:
             }
         },
 
-## Info.dat Data
-* Environment Removal
-  * Hate the Green Day logo or the cars in RocketEnvironment? This allows you to disable any objects in the environment.
-  * This goes within the per-level _customData, NOT the top level _customData.
-  * `"_customData"`
-    * `"_environmentRemoval"`: `[List of objects you want to remove goes here, with commas between]` Recommended to use UnityIPADebugger to find the name of the objects. e.g. `RocketCar` for cars in RocketEnvironment, `Logo` for Green Day logo.
+## Environment Enhancement
+* Environment
+  * Set `"PrintEnvironmentEnhancementDebug"` to true in the Chroma.json config file to print environment enhancement information to your console.
+  *  `"_customData"` -> `"_environment"`
+     *  `"_id"`: (string) The ID to use when looking up the GameObject.
+     *  `"_lookupMethod"`: (string) How to use the ID to search. (Regex, Exact, Contains)
+     *  `"_hide"`: (bool) When true, disables the GameObject.
+     *  `"_scale"`: `[x, y, z]` (float) Sets scale of GameObject.
+     *  `"_position"`: `[x, y, z]` (float) Sets position of GameObject.
+     *  `"_localPosition"`: `[x, y, z]` (float) Sets localPosition of GameObject.
+     *  `"_rotation"`: `[x, y, z]` (float) Sets rotation of GameObject.
+     *  `"_localRotation"`: `[x, y, z]` (float) Sets localRotation of GameObject.
+     *  `"_track"`: (string) For use with Noodle Extensions.
 
 ## Color Data
 * RGB
@@ -87,3 +94,10 @@ Example of _customData:
     
 ## Animation
 See [Noodle Extensions documentation](https://github.com/Aeroluna/NoodleExtensions/blob/master/Documentation/AnimationDocs.md#_color)
+
+## Info.dat Data
+* Environment Removal
+  * DEPRECATED use _environment.
+  * This goes within the per-level _customData, NOT the top level _customData.
+  * `"_customData"`
+    * `"_environmentRemoval"`: `[List of objects you want to remove goes here, with commas between]` Recommended to use UnityIPADebugger to find the name of the objects. e.g. `RocketCar` for cars in RocketEnvironment, `Logo` for Green Day logo.
