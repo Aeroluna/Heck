@@ -5,6 +5,7 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
+    using IPA.Utilities;
     using NoodleExtensions.Animation;
     using UnityEngine;
 
@@ -24,6 +25,8 @@
         private static readonly FieldInfo _endRotationField = AccessTools.Field(typeof(NoteJump), "_endRotation");
         private static readonly FieldInfo _playerTransformsField = AccessTools.Field(typeof(NoteJump), "_playerTransforms");
         private static readonly FieldInfo _rotatedObjectField = AccessTools.Field(typeof(NoteJump), "_rotatedObject");
+        private static readonly FieldAccessor<PlayerTransforms, Transform>.Accessor _headTransformAccessor = FieldAccessor<PlayerTransforms, Transform>.GetAccessor("_headTransform");
+        private static readonly FieldAccessor<PlayerTransforms, Transform>.Accessor _originTransformAccessor = FieldAccessor<PlayerTransforms, Transform>.GetAccessor("_originTransform");
 
         // This field is used by reflection
 #pragma warning disable CS0414 // The field is assigned but its value is never used
@@ -163,6 +166,7 @@
         }
 
         // Performs all note look rotation from world space
+        // Never want to touch this again....
         private static void DoNoteLook(
             float num2,
             Quaternion startRotation,
@@ -183,11 +187,19 @@
             }
 
             Vector3 vector = playerTransforms.headWorldPos;
-            vector.y = Mathf.Lerp(vector.y, baseTransform.position.y, 0.8f);
+
+            // This line but super complicated so that "y" = "originTransform.up"
+            // vector.y = Mathf.Lerp(vector.y, this._localPosition.y, 0.8f);
+            Transform headTransform = _headTransformAccessor(ref playerTransforms);
+            Transform originTransform = _originTransformAccessor(ref playerTransforms);
+            float baseUpMagnitude = Vector3.Dot(baseTransform.position, originTransform.up);
+            float headUpMagnitude = Vector3.Dot(headTransform.position, originTransform.up);
+            float mult = Mathf.Lerp(headUpMagnitude, baseUpMagnitude, 0.8f) - headUpMagnitude;
+            vector += originTransform.up.normalized * mult;
+
+            // Rest is normal
             Vector3 normalized = (baseTransform.position - vector).normalized;
-            Quaternion b = default;
-            Vector3 point = rotatedObject.up;
-            b.SetLookRotation(normalized, point);
+            Quaternion b = Quaternion.LookRotation(normalized, rotatedObject.up);
             rotatedObject.rotation = Quaternion.Lerp(a, b, num2 * 2f);
         }
     }
