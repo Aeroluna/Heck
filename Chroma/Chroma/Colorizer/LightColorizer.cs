@@ -252,7 +252,7 @@
             internal void SetActiveColors()
             {
                 // Replace with ProcessLightSwitchEvent
-                if (_lastValue == 0)
+                if (_lastValue <= 0)
                 {
                     return;
                 }

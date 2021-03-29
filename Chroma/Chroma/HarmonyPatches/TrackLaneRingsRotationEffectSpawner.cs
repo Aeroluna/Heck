@@ -34,7 +34,12 @@
         {
             if (beatmapEventData.type == ____beatmapEventType)
             {
-                ChromaRingRotationEventData chromaData = (ChromaRingRotationEventData)ChromaEventDatas[beatmapEventData];
+                if (!ChromaEventDatas.TryGetValue(beatmapEventData, out ChromaEventData chromaEventData))
+                {
+                    return true;
+                }
+
+                ChromaRingRotationEventData chromaData = (ChromaRingRotationEventData)chromaEventData;
 
                 // Added in 1.8
                 float rotationStep = 0f;
