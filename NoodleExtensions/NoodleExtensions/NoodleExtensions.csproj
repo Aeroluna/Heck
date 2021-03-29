@@ -115,13 +115,13 @@
     <Compile Include="Animation\PointDefinitionInterpolation.cs" />
     <Compile Include="FakeNoteRecount.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataTransformHelper.cs" />
-    <Compile Include="HarmonyPatches\FakeNotes\BasicBeatmapObjectManager.cs" />
+    <Compile Include="HarmonyPatches\BasicBeatmapObjectManager.cs" />
     <Compile Include="HarmonyPatches\MultiplayerConnectedPlayerInstaller.cs" />
     <Compile Include="HarmonyPatches\GameplayCoreInstaller.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectCallBackController.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\BeatmapObjectExecutionRatingsRecorder.cs" />
-    <Compile Include="HarmonyPatches\FakeNotes\BeatmapObjectManager.cs" />
+    <Compile Include="HarmonyPatches\BeatmapObjectManager.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\NoteCutCoreEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\BombNoteController.cs" />
     <Compile Include="HarmonyPatches\FakeNotes\GameNoteController.cs" />

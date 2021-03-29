@@ -4,11 +4,10 @@
     using System.Collections.Generic;
     using HarmonyLib;
 
-    // Too lazy to make noodle patches support constructors
-    [HarmonyPatch(typeof(BasicBeatmapObjectManager))]
-    [HarmonyPatch(MethodType.Constructor)]
-    [HarmonyPatch(new Type[] { typeof(BasicBeatmapObjectManager.InitData), typeof(GameNoteController.Pool), typeof(BombNoteController.Pool), typeof(ObstacleController.Pool) })]
-    internal static class BasicBeatmapObjectManagerCtor
+    [NoodlePatch(typeof(BasicBeatmapObjectManager))]
+    [NoodlePatch(MethodType.Constructor)]
+    [NoodlePatch(new Type[] { typeof(BasicBeatmapObjectManager.InitData), typeof(GameNoteController.Pool), typeof(BombNoteController.Pool), typeof(ObstacleController.Pool) })]
+    internal static class BasicBeatmapObjectManagerSpawnObstacleInternal
     {
         private static void Postfix()
         {

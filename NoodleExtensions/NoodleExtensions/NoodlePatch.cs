@@ -2,10 +2,11 @@
 {
     using System;
     using System.Reflection;
+    using HarmonyLib;
 
     internal struct NoodlePatchData
     {
-        internal NoodlePatchData(MethodInfo orig, MethodInfo pre, MethodInfo post, MethodInfo tran)
+        internal NoodlePatchData(MethodBase orig, MethodInfo pre, MethodInfo post, MethodInfo tran)
         {
             OriginalMethod = orig;
             Prefix = pre;
@@ -13,7 +14,7 @@
             Transpiler = tran;
         }
 
-        internal MethodInfo OriginalMethod { get; }
+        internal MethodBase OriginalMethod { get; }
 
         internal MethodInfo Prefix { get; }
 
@@ -40,6 +41,11 @@
             Parameters = parameters;
         }
 
+        internal NoodlePatch(MethodType methodType)
+        {
+            MethodType = methodType;
+        }
+
         internal NoodlePatch(Type declaringType, string methodName)
         {
             DeclaringType = declaringType;
@@ -51,5 +57,7 @@
         internal string MethodName { get; }
 
         internal Type[] Parameters { get; }
+
+        internal MethodType? MethodType { get; }
     }
 }

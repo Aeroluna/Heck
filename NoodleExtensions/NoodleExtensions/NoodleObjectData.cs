@@ -189,6 +189,8 @@
         internal CutoutAnimateEffect CutoutAnimateEffect { get; set; }
 
         internal float XOffset { get; set; }
+
+        internal bool DoUnhide { get; set; }
     }
 
     internal class NoodleObjectData

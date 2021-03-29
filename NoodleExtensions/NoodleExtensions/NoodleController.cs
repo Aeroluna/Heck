@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Reflection;
     using HarmonyLib;
     using static NoodleExtensions.Plugin;
@@ -61,6 +60,7 @@
                         Type declaringType = null;
                         List<string> methodNames = new List<string>();
                         Type[] parameters = null;
+                        MethodType methodType = MethodType.Normal;
                         foreach (NoodlePatch n in noodleattributes)
                         {
                             if (n.DeclaringType != null)
@@ -77,36 +77,71 @@
                             {
                                 parameters = n.Parameters;
                             }
+
+                            if (n.MethodType != null)
+                            {
+                                methodType = n.MethodType.Value;
+                            }
                         }
 
-                        if (declaringType == null || !methodNames.Any())
+                        if (declaringType == null)
                         {
-                            throw new ArgumentException("Type or Method Name not described");
+                            throw new ArgumentException("Type not described");
                         }
 
                         MethodInfo prefix = AccessTools.Method(type, "Prefix");
                         MethodInfo postfix = AccessTools.Method(type, "Postfix");
                         MethodInfo transpiler = AccessTools.Method(type, "Transpiler");
 
-                        foreach (string methodName in methodNames)
+                        BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+                        switch (methodType)
                         {
-                            BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
-                            MethodInfo methodInfo;
-                            if (parameters != null)
-                            {
-                                methodInfo = declaringType.GetMethod(methodName, flags, null, parameters, null);
-                            }
-                            else
-                            {
-                                methodInfo = declaringType.GetMethod(methodName, flags);
-                            }
+                            case MethodType.Normal:
+                                foreach (string methodName in methodNames)
+                                {
+                                    MethodBase normalMethodBase;
 
-                            if (methodInfo == null)
-                            {
-                                throw new ArgumentException($"Could not find method '{methodName}' of '{declaringType}'");
-                            }
+                                    if (parameters != null)
+                                    {
+                                        normalMethodBase = declaringType.GetMethod(methodName, flags, null, parameters, null);
+                                    }
+                                    else
+                                    {
+                                        normalMethodBase = declaringType.GetMethod(methodName, flags);
+                                    }
 
-                            _noodlePatches.Add(new NoodlePatchData(methodInfo, prefix, postfix, transpiler));
+                                    if (normalMethodBase == null)
+                                    {
+                                        throw new ArgumentException($"Could not find method '{methodName}' of '{declaringType}'");
+                                    }
+
+                                    _noodlePatches.Add(new NoodlePatchData(normalMethodBase, prefix, postfix, transpiler));
+                                }
+
+                                break;
+
+                            case MethodType.Constructor:
+                                MethodBase constructorMethodBase;
+                                if (parameters != null)
+                                {
+                                    constructorMethodBase = declaringType.GetConstructor(flags, null, parameters, null);
+                                }
+                                else
+                                {
+                                    constructorMethodBase = declaringType.GetConstructor(flags, null, Type.EmptyTypes, null);
+                                }
+
+                                if (constructorMethodBase == null)
+                                {
+                                    throw new ArgumentException($"Could not find constructor for '{declaringType}'");
+                                }
+
+                                _noodlePatches.Add(new NoodlePatchData(constructorMethodBase, prefix, postfix, transpiler));
+
+                                break;
+
+                            default:
+                                continue;
                         }
                     }
                 }

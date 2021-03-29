@@ -359,6 +359,11 @@
                     cutoutAnimateEffect.SetCutout(1 - dissolve.Value);
                 }
             }
+
+            if (noodleData.DoUnhide)
+            {
+                __instance.hide = false;
+            }
         }
     }
 
