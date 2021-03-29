@@ -135,10 +135,16 @@
 
             internal void SetActiveColors()
             {
+                Color finalColor = _color ?? _globalColor ?? _color_Original;
                 ParametricBoxFrameController obstacleFrame = _obstacleFrameAccessor(ref _stretchableObstacle);
+
+                if (finalColor == obstacleFrame.color)
+                {
+                    return;
+                }
+
                 ParametricBoxFakeGlowController obstacleFakeGlow = _obstacleFakeGlowAccessor(ref _stretchableObstacle);
                 MaterialPropertyBlockController[] materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref _stretchableObstacle);
-                Color finalColor = _color ?? _globalColor ?? _color_Original;
                 obstacleFrame.color = finalColor;
                 obstacleFrame.Refresh();
                 obstacleFakeGlow.color = finalColor;

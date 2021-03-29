@@ -126,7 +126,7 @@
 
             internal void SetBombColor(Color? color)
             {
-                if (color.HasValue)
+                if (color.HasValue && color.Value != _bombMaterial.GetColor("_SimpleColor"))
                 {
                     _bombMaterial.SetColor("_SimpleColor", color.Value);
                 }

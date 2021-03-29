@@ -56,6 +56,7 @@
 
             private readonly Saber _bsm;
             private readonly SaberType _saberType;
+            private Color _lastColor;
 
             private BSMColorManager(Saber bsm, SaberType saberType)
             {
@@ -83,7 +84,13 @@
 
             internal void SetSaberColor(Color color)
             {
+                if (color == _lastColor)
+                {
+                    return;
+                }
+
                 _bsm.ChangeColor(color);
+                _lastColor = color;
 
                 SaberBurnMarkArea saberBurnMarkArea = SaberBurnMarkArea;
                 LineRenderer[] lineRenderers = _lineRenderersAccessor(ref saberBurnMarkArea);

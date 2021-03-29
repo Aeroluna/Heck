@@ -113,6 +113,7 @@
             private static readonly int _colorID = Shader.PropertyToID("_Color");
 
             private static readonly FieldAccessor<ColorNoteVisuals, ColorManager>.Accessor _colorManagerAccessor = FieldAccessor<ColorNoteVisuals, ColorManager>.GetAccessor("_colorManager");
+            private static readonly FieldAccessor<ColorNoteVisuals, Color>.Accessor _noteColorAccessor = FieldAccessor<ColorNoteVisuals, Color>.GetAccessor("_noteColor");
 
             private readonly ColorNoteVisuals _cnv;
             private readonly NoteController _nc;
@@ -216,6 +217,12 @@
 
                 Color noteColor = ColorForCNVManager();
 
+                if (noteColor == _noteColorAccessor(ref colorNoteVisuals))
+                {
+                    return;
+                }
+
+                _noteColorAccessor(ref colorNoteVisuals) = noteColor;
                 SpriteRenderer arrowGlowSpriteRenderer = _arrowGlowSpriteRendererAccessor(ref colorNoteVisuals);
                 SpriteRenderer circleGlowSpriteRenderer = _circleGlowSpriteRendererAccessor(ref colorNoteVisuals);
                 arrowGlowSpriteRenderer.color = noteColor.ColorWithAlpha(arrowGlowSpriteRenderer.color.a);
