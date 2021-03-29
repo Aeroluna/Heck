@@ -11,15 +11,13 @@
     [HarmonyPatch("ProcessAllNotesInTimeRow")]
     internal static class NotesInTimeRowProcessorProcessAllNotesInTimeRow
     {
-        private static readonly Dictionary<float, List<CustomNoteData>> _notesInColumns = new Dictionary<float, List<CustomNoteData>>();
-
         private static void Postfix(List<NoteData> notes)
         {
             if (notes.FirstOrDefault() is CustomNoteData)
             {
                 List<CustomNoteData> customNotes = notes.Cast<CustomNoteData>().ToList();
 
-                _notesInColumns.Clear();
+                Dictionary<float, List<CustomNoteData>> notesInColumns = new Dictionary<float, List<CustomNoteData>>();
                 for (int i = 0; i < customNotes.Count; i++)
                 {
                     CustomNoteData noteData = customNotes[i];
@@ -28,10 +26,10 @@
                     float lineIndex = position?.ElementAtOrDefault(0) ?? (noteData.lineIndex - 2);
                     float lineLayer = position?.ElementAtOrDefault(1) ?? (float)noteData.noteLineLayer;
 
-                    if (!_notesInColumns.TryGetValue(lineIndex, out List<CustomNoteData> list))
+                    if (!notesInColumns.TryGetValue(lineIndex, out List<CustomNoteData> list))
                     {
                         list = new List<CustomNoteData>();
-                        _notesInColumns.Add(lineIndex, list);
+                        notesInColumns.Add(lineIndex, list);
                     }
 
                     bool flag = false;
@@ -53,7 +51,7 @@
                     }
                 }
 
-                foreach (KeyValuePair<float, List<CustomNoteData>> keyValue in _notesInColumns)
+                foreach (KeyValuePair<float, List<CustomNoteData>> keyValue in notesInColumns)
                 {
                     List<CustomNoteData> list2 = keyValue.Value;
                     for (int m = 0; m < list2.Count; m++)
