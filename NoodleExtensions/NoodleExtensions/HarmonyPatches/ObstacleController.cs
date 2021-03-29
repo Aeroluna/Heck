@@ -16,6 +16,8 @@
     [NoodlePatch("Init")]
     internal static class ObstacleControllerInit
     {
+        internal static readonly List<ObstacleController> _activeObstacles = new List<ObstacleController>();
+
         private static readonly MethodInfo _getCustomWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(0, null));
         private static readonly MethodInfo _getWorldRotation = SymbolExtensions.GetMethodInfo(() => GetWorldRotation(null, 0));
         private static readonly MethodInfo _getCustomLength = SymbolExtensions.GetMethodInfo(() => GetCustomLength(0, null));
@@ -126,6 +128,10 @@
             if (cuttable.HasValue && !cuttable.Value)
             {
                 ____bounds.size = _vectorZero;
+            }
+            else
+            {
+                _activeObstacles.Add(__instance);
             }
 
             noodleData.StartPos = ____startPos;

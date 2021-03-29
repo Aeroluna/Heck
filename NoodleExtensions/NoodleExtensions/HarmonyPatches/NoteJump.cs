@@ -18,12 +18,11 @@
         private static readonly MethodInfo _definiteNoteJump = SymbolExtensions.GetMethodInfo(() => DefiniteNoteJump(Vector3.zero, 0));
         private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), "_definitePosition");
         private static readonly MethodInfo _getTransform = typeof(Component).GetProperty("transform").GetGetMethod();
-        private static readonly MethodInfo _doNoteLook = SymbolExtensions.GetMethodInfo(() => DoNoteLook(0, Quaternion.identity, Quaternion.identity, Quaternion.identity, null, Quaternion.identity, null, null));
+        private static readonly MethodInfo _doNoteLook = SymbolExtensions.GetMethodInfo(() => DoNoteLook(0, Quaternion.identity, Quaternion.identity, Quaternion.identity, null, null, null));
         private static readonly FieldInfo _startRotationField = AccessTools.Field(typeof(NoteJump), "_startRotation");
         private static readonly FieldInfo _middleRotationField = AccessTools.Field(typeof(NoteJump), "_middleRotation");
         private static readonly FieldInfo _endRotationField = AccessTools.Field(typeof(NoteJump), "_endRotation");
         private static readonly FieldInfo _playerTransformsField = AccessTools.Field(typeof(NoteJump), "_playerTransforms");
-        private static readonly FieldInfo _inverseWorldRotationField = AccessTools.Field(typeof(NoteJump), "_inverseWorldRotation");
         private static readonly FieldInfo _rotatedObjectField = AccessTools.Field(typeof(NoteJump), "_rotatedObject");
 
         // This field is used by reflection
@@ -113,8 +112,6 @@
                         new CodeInstruction(OpCodes.Ldarg_0),
                         new CodeInstruction(OpCodes.Ldfld, _playerTransformsField),
                         new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Ldfld, _inverseWorldRotationField),
-                        new CodeInstruction(OpCodes.Ldarg_0),
                         new CodeInstruction(OpCodes.Ldfld, _rotatedObjectField),
                         new CodeInstruction(OpCodes.Ldarg_0),
                         new CodeInstruction(OpCodes.Call, _getTransform),
@@ -165,13 +162,13 @@
             return original;
         }
 
+        // Performs all note look rotation from world space
         private static void DoNoteLook(
             float num2,
             Quaternion startRotation,
             Quaternion middleRotation,
             Quaternion endRotation,
             PlayerTransforms playerTransforms,
-            Quaternion inverseWorldRotation,
             Transform rotatedObject,
             Transform baseTransform)
         {
@@ -187,11 +184,10 @@
 
             Vector3 vector = playerTransforms.headWorldPos;
             vector.y = Mathf.Lerp(vector.y, baseTransform.position.y, 0.8f);
-            vector = inverseWorldRotation * vector;
             Vector3 normalized = (baseTransform.position - vector).normalized;
             Quaternion b = default;
             Vector3 point = rotatedObject.up;
-            b.SetLookRotation(normalized, inverseWorldRotation * point);
+            b.SetLookRotation(normalized, point);
             rotatedObject.rotation = Quaternion.Lerp(a, b, num2 * 2f);
         }
     }

@@ -47,11 +47,20 @@
                 _noodlePatches = new List<NoodlePatchData>();
                 foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
                 {
+                    // The nuclear option, should we ever need it
+                    /*MethodInfo manualPatch = AccessTools.Method(type, "ManualPatch");
+                    if (manualPatch != null)
+                    {
+                        _noodlePatches.Add((NoodlePatchData)manualPatch.Invoke(null, null));
+                        continue;
+                    }*/
+
                     object[] noodleattributes = type.GetCustomAttributes(typeof(NoodlePatch), true);
                     if (noodleattributes.Length > 0)
                     {
                         Type declaringType = null;
                         List<string> methodNames = new List<string>();
+                        Type[] parameters = null;
                         foreach (NoodlePatch n in noodleattributes)
                         {
                             if (n.DeclaringType != null)
@@ -62,6 +71,11 @@
                             if (n.MethodName != null)
                             {
                                 methodNames.Add(n.MethodName);
+                            }
+
+                            if (n.Parameters != null)
+                            {
+                                parameters = n.Parameters;
                             }
                         }
 
@@ -76,7 +90,17 @@
 
                         foreach (string methodName in methodNames)
                         {
-                            MethodInfo methodInfo = declaringType.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+                            BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+                            MethodInfo methodInfo;
+                            if (parameters != null)
+                            {
+                                methodInfo = declaringType.GetMethod(methodName, flags, null, parameters, null);
+                            }
+                            else
+                            {
+                                methodInfo = declaringType.GetMethod(methodName, flags);
+                            }
+
                             if (methodInfo == null)
                             {
                                 throw new ArgumentException($"Could not find method '{methodName}' of '{declaringType}'");

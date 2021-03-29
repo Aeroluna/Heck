@@ -35,6 +35,11 @@
             MethodName = methodName;
         }
 
+        internal NoodlePatch(Type[] parameters)
+        {
+            Parameters = parameters;
+        }
+
         internal NoodlePatch(Type declaringType, string methodName)
         {
             DeclaringType = declaringType;
@@ -44,5 +49,7 @@
         internal Type DeclaringType { get; }
 
         internal string MethodName { get; }
+
+        internal Type[] Parameters { get; }
     }
 }
