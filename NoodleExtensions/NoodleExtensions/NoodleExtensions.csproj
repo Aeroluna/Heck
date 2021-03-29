@@ -146,6 +146,7 @@
     <Compile Include="HarmonyPatches\SceneTransition\MissionLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\SceneTransition\SceneTransitionHelper.cs" />
     <Compile Include="HarmonyPatches\SceneTransition\MultiplayerLevelScenesTransitionSetupDataSO.cs" />
+    <Compile Include="HarmonyPatches\SceneTransition\TutorialScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\SpawnDataHelper.cs" />
     <Compile Include="HarmonyPatches\DisappearingArrowController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
