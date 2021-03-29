@@ -7,7 +7,7 @@
 
     public static class LightColorizer
     {
-        private static readonly HashSet<LSEColorManager> _lseColorManagers = new HashSet<LSEColorManager>();
+        private static readonly Dictionary<MonoBehaviour, LSEColorManager> _lseColorManagers = new Dictionary<MonoBehaviour, LSEColorManager>();
 
         public static void Reset(this MonoBehaviour lse)
         {
@@ -16,9 +16,9 @@
 
         public static void ResetAllLightingColors()
         {
-            foreach (LSEColorManager lseColorManager in _lseColorManagers)
+            foreach (KeyValuePair<MonoBehaviour, LSEColorManager> lseColorManager in _lseColorManagers)
             {
-                lseColorManager.Reset();
+                lseColorManager.Value.Reset();
             }
         }
 
@@ -37,9 +37,9 @@
 
         public static void SetAllLightingColors(Color? color0, Color? color1, Color? color0Boost = null, Color? color1Boost = null)
         {
-            foreach (LSEColorManager lseColorManager in _lseColorManagers)
+            foreach (KeyValuePair<MonoBehaviour, LSEColorManager> lseColorManager in _lseColorManagers)
             {
-                lseColorManager.SetLightingColors(color0, color1, color0Boost, color1Boost);
+                lseColorManager.Value.SetLightingColors(color0, color1, color0Boost, color1Boost);
             }
         }
 
@@ -53,9 +53,9 @@
 
         public static void SetAllActiveColors()
         {
-            foreach (LSEColorManager lseColorManager in _lseColorManagers)
+            foreach (KeyValuePair<MonoBehaviour, LSEColorManager> lseColorManager in _lseColorManagers)
             {
-                lseColorManager.SetActiveColors();
+                lseColorManager.Value.SetActiveColors();
             }
         }
 
@@ -186,19 +186,24 @@
 
             internal static IEnumerable<LSEColorManager> GetLSEColorManager(BeatmapEventType type)
             {
-                return _lseColorManagers.Where(n => n._type == type);
+                return _lseColorManagers.Where(n => n.Value._type == type).Select(n => n.Value);
             }
 
             internal static LSEColorManager GetLSEColorManager(MonoBehaviour lse)
             {
-                return _lseColorManagers.FirstOrDefault(n => n._lse == lse);
+                if (_lseColorManagers.TryGetValue(lse, out LSEColorManager colorManager))
+                {
+                    return colorManager;
+                }
+
+                return null;
             }
 
             internal static LSEColorManager CreateLSEColorManager(MonoBehaviour lse, BeatmapEventType type)
             {
                 LSEColorManager lsecm;
                 lsecm = new LSEColorManager(lse, type);
-                _lseColorManagers.Add(lsecm);
+                _lseColorManagers.Add(lse, lsecm);
                 return lsecm;
             }
 

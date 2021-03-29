@@ -9,7 +9,7 @@
 
     public static class NoteColorizer
     {
-        private static readonly HashSet<CNVColorManager> _cnvColorManagers = new HashSet<CNVColorManager>();
+        private static readonly Dictionary<NoteController, CNVColorManager> _cnvColorManagers = new Dictionary<NoteController, CNVColorManager>();
 
         internal static Color?[] NoteColorOverride { get; } = new Color?[2] { null, null };
 
@@ -22,9 +22,9 @@
         {
             CNVColorManager.ResetGlobal();
 
-            foreach (CNVColorManager cnvColorManager in _cnvColorManagers)
+            foreach (KeyValuePair<NoteController, CNVColorManager> cnvColorManager in _cnvColorManagers)
             {
-                cnvColorManager.Reset();
+                cnvColorManager.Value.Reset();
             }
         }
 
@@ -37,9 +37,9 @@
         {
             CNVColorManager.SetGlobalNoteColors(color0, color1);
 
-            foreach (CNVColorManager cnvColorManager in _cnvColorManagers)
+            foreach (KeyValuePair<NoteController, CNVColorManager> cnvColorManager in _cnvColorManagers)
             {
-                cnvColorManager.Reset();
+                cnvColorManager.Value.Reset();
             }
         }
 
@@ -50,9 +50,9 @@
 
         public static void SetAllActiveColors()
         {
-            foreach (CNVColorManager cnvColorManager in _cnvColorManagers)
+            foreach (KeyValuePair<NoteController, CNVColorManager> cnvColorManager in _cnvColorManagers)
             {
-                cnvColorManager.SetActiveColors();
+                cnvColorManager.Value.SetActiveColors();
             }
         }
 
@@ -134,7 +134,12 @@
 
             internal static CNVColorManager GetCNVColorManager(NoteController nc)
             {
-                return _cnvColorManagers.FirstOrDefault(n => n._nc == nc);
+                if (_cnvColorManagers.TryGetValue(nc, out CNVColorManager colorManager))
+                {
+                    return colorManager;
+                }
+
+                return null;
             }
 
             internal static CNVColorManager CreateCNVColorManager(ColorNoteVisuals cnv, NoteController nc)
@@ -155,7 +160,7 @@
 
                 CNVColorManager cnvcm;
                 cnvcm = new CNVColorManager(cnv, nc);
-                _cnvColorManagers.Add(cnvcm);
+                _cnvColorManagers.Add(nc, cnvcm);
                 return cnvcm;
             }
 

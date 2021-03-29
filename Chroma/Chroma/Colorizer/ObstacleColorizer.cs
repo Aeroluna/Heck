@@ -7,7 +7,7 @@
 
     public static class ObstacleColorizer
     {
-        private static readonly HashSet<OCColorManager> _ocColorManagers = new HashSet<OCColorManager>();
+        private static readonly Dictionary<ObstacleController, OCColorManager> _ocColorManagers = new Dictionary<ObstacleController, OCColorManager>();
 
         public static void Reset(this ObstacleController oc)
         {
@@ -18,25 +18,20 @@
         {
             OCColorManager.ResetGlobal();
 
-            foreach (OCColorManager ocColorManager in _ocColorManagers)
+            foreach (KeyValuePair<ObstacleController, OCColorManager> ocColorManager in _ocColorManagers)
             {
-                ocColorManager.Reset();
+                ocColorManager.Value.Reset();
             }
         }
 
-        public static void SetObstacleColor(this ObstacleController oc, Color? color)
+        public static void SetObstacleColor(this ObstacleController oc, Color color)
         {
             OCColorManager.GetOCColorManager(oc)?.SetObstacleColor(color);
         }
 
-        public static void SetAllObstacleColors(Color? color)
+        public static void SetAllObstacleColors(Color color)
         {
             OCColorManager.SetGlobalObstacleColor(color);
-
-            foreach (OCColorManager ocColorManager in _ocColorManagers)
-            {
-                ocColorManager.Reset();
-            }
         }
 
         public static void SetActiveColors(this ObstacleController oc)
@@ -46,9 +41,9 @@
 
         public static void SetAllActiveColors()
         {
-            foreach (OCColorManager ocColorManager in _ocColorManagers)
+            foreach (KeyValuePair<ObstacleController, OCColorManager> ocColorManager in _ocColorManagers)
             {
-                ocColorManager.SetActiveColors();
+                ocColorManager.Value.SetActiveColors();
             }
         }
 
@@ -80,18 +75,15 @@
 
             private static Color? _globalColor = null;
 
-            private readonly ObstacleController _oc;
-
             private readonly Color _color_Original;
 
-            private Color _color;
+            private Color? _color;
 
             private StretchableObstacle _stretchableObstacle;
 
             private OCColorManager(ObstacleController oc, Color original)
             {
-                _oc = oc;
-                _stretchableObstacle = _stretchableObstacleAccessor(ref _oc);
+                _stretchableObstacle = _stretchableObstacleAccessor(ref oc);
 
                 _color_Original = original;
 
@@ -100,7 +92,12 @@
 
             internal static OCColorManager GetOCColorManager(ObstacleController oc)
             {
-                return _ocColorManagers.FirstOrDefault(n => n._oc == oc);
+                if (_ocColorManagers.TryGetValue(oc, out OCColorManager colorManager))
+                {
+                    return colorManager;
+                }
+
+                return null;
             }
 
             internal static OCColorManager CreateOCColorManager(ObstacleController oc, Color original)
@@ -112,16 +109,13 @@
 
                 OCColorManager occm;
                 occm = new OCColorManager(oc, original);
-                _ocColorManagers.Add(occm);
+                _ocColorManagers.Add(oc, occm);
                 return occm;
             }
 
-            internal static void SetGlobalObstacleColor(Color? color)
+            internal static void SetGlobalObstacleColor(Color color)
             {
-                if (color.HasValue)
-                {
-                    _globalColor = color.Value;
-                }
+                _globalColor = color;
             }
 
             internal static void ResetGlobal()
@@ -131,22 +125,12 @@
 
             internal void Reset()
             {
-                if (_globalColor.HasValue)
-                {
-                    _color = _globalColor.Value;
-                }
-                else
-                {
-                    _color = _color_Original;
-                }
+                _color = null;
             }
 
-            internal void SetObstacleColor(Color? color)
+            internal void SetObstacleColor(Color color)
             {
-                if (color.HasValue)
-                {
-                    _color = color.Value;
-                }
+                _color = color;
             }
 
             internal void SetActiveColors()
@@ -154,7 +138,7 @@
                 ParametricBoxFrameController obstacleFrame = _obstacleFrameAccessor(ref _stretchableObstacle);
                 ParametricBoxFakeGlowController obstacleFakeGlow = _obstacleFakeGlowAccessor(ref _stretchableObstacle);
                 MaterialPropertyBlockController[] materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref _stretchableObstacle);
-                Color finalColor = _color;
+                Color finalColor = _color ?? _globalColor ?? _color_Original;
                 obstacleFrame.color = finalColor;
                 obstacleFrame.Refresh();
                 obstacleFakeGlow.color = finalColor;

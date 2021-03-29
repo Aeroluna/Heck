@@ -6,7 +6,7 @@
 
     public static class BombColorizer
     {
-        private static readonly HashSet<BNCColorManager> _bncColorManagers = new HashSet<BNCColorManager>();
+        private static readonly Dictionary<BombNoteController, BNCColorManager> _bncColorManagers = new Dictionary<BombNoteController, BNCColorManager>();
 
         public static void Reset(this BombNoteController bnc)
         {
@@ -17,9 +17,9 @@
         {
             BNCColorManager.ResetGlobal();
 
-            foreach (BNCColorManager bncColorManager in _bncColorManagers)
+            foreach (KeyValuePair<BombNoteController, BNCColorManager> bncColorManager in _bncColorManagers)
             {
-                bncColorManager.Reset();
+                bncColorManager.Value.Reset();
             }
         }
 
@@ -32,9 +32,9 @@
         {
             BNCColorManager.SetGlobalBombColor(color);
 
-            foreach (BNCColorManager bncColorManager in _bncColorManagers)
+            foreach (KeyValuePair<BombNoteController, BNCColorManager> bncColorManager in _bncColorManagers)
             {
-                bncColorManager.Reset();
+                bncColorManager.Value.Reset();
             }
         }
 
@@ -78,7 +78,12 @@
 
             internal static BNCColorManager GetBNCColorManager(BombNoteController nc)
             {
-                return _bncColorManagers.FirstOrDefault(n => n._nc == nc);
+                if (_bncColorManagers.TryGetValue(nc, out BNCColorManager colorManager))
+                {
+                    return colorManager;
+                }
+
+                return null;
             }
 
             internal static BNCColorManager CreateBNCColorManager(BombNoteController nc)
@@ -90,7 +95,7 @@
 
                 BNCColorManager bnccm;
                 bnccm = new BNCColorManager(nc);
-                _bncColorManagers.Add(bnccm);
+                _bncColorManagers.Add(nc, bnccm);
                 return bnccm;
             }
 
