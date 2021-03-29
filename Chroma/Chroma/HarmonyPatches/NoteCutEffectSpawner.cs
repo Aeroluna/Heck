@@ -10,7 +10,10 @@
         [HarmonyPriority(Priority.Low)]
         private static void Prefix(NoteController noteController)
         {
-            NoteColorizer.EnableNoteColorOverride(noteController);
+            if (!(noteController is MultiplayerConnectedPlayerNoteController) && !(noteController is TutorialNoteController))
+            {
+                NoteColorizer.EnableNoteColorOverride(noteController);
+            }
         }
 
         private static void Postfix()

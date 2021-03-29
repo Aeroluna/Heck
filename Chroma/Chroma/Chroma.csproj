@@ -43,6 +43,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AnimationHelper.cs" />
+    <Compile Include="HarmonyPatches\ScenesTransition\TutorialScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\TrackLaneRing.cs" />
     <Compile Include="Lighting\ChromaEventData.cs" />
     <Compile Include="ChromaObjectData.cs" />

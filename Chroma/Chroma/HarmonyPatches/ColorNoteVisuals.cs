@@ -12,7 +12,7 @@
         [HarmonyPriority(Priority.High)]
         private static void Prefix(ColorNoteVisuals __instance, NoteController noteController)
         {
-            if (!(noteController is MultiplayerConnectedPlayerNoteController))
+            if (!(noteController is MultiplayerConnectedPlayerNoteController) && !(noteController is TutorialNoteController))
             {
                 NoteColorizer.CNVStart(__instance, noteController);
             }
@@ -26,7 +26,7 @@
         [HarmonyPriority(Priority.Low)]
         private static void Prefix(NoteController noteController)
         {
-            if (!(noteController is MultiplayerConnectedPlayerNoteController))
+            if (!(noteController is MultiplayerConnectedPlayerNoteController) && !(noteController is TutorialNoteController))
             {
                 NoteColorizer.EnableNoteColorOverride(noteController);
             }
