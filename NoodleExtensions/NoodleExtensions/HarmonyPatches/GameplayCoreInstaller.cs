@@ -10,7 +10,6 @@
     [NoodlePatch("InstallBindings")]
     internal static class GameplayCoreInstallerInstallBindings
     {
-        private static readonly MethodInfo _readCustomData = SymbolExtensions.GetMethodInfo(() => ReadCustomData(null));
         private static readonly MethodInfo _cacheNoteJumpValues = SymbolExtensions.GetMethodInfo(() => CacheNoteJumpValues(0, 0));
 
         internal static float CachedNoteJumpMovementSpeed { get; private set; }
@@ -28,8 +27,6 @@
                     ((MethodInfo)instructionList[i].operand).Name == "CreateTransformedBeatmapData")
                 {
                     foundBeatmapData = true;
-
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _readCustomData));
 
                     instructionList.Insert(i - 8, new CodeInstruction(OpCodes.Ldloc_S, 9));
                     instructionList.Insert(i - 7, new CodeInstruction(OpCodes.Ldloc_S, 10));
@@ -49,13 +46,6 @@
         {
             CachedNoteJumpMovementSpeed = defaultNoteJumpMovementSpeed;
             CachedNoteJumpStartBeatOffset = defaultNoteJumpStartBeatOffset;
-        }
-
-        private static IReadonlyBeatmapData ReadCustomData(IReadonlyBeatmapData result)
-        {
-            NoodleObjectDataManager.DeserializeBeatmapData(result);
-            Animation.NoodleEventDataManager.DeserializeBeatmapData(result);
-            return result;
         }
     }
 }
