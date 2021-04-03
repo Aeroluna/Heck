@@ -6,7 +6,7 @@
 
     [HarmonyPatch(typeof(BeatmapDataTransformHelper))]
     [HarmonyPatch("CreateTransformedBeatmapData")]
-    internal static class GameplayCoreInstallerInstallBindings
+    internal static class BeatmapDataTransformHelperCreateTransformedBeatmapData
     {
         private static void Postfix(IReadonlyBeatmapData __result)
         {
