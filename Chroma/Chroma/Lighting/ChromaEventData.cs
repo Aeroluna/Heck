@@ -64,7 +64,6 @@
                             break;
 
                         case 8:
-                        case 9:
                             chromaEventData = new ChromaRingRotationEventData()
                             {
                                 NameFilter = Trees.at(customData, NAMEFILTER),
@@ -78,6 +77,13 @@
                                 StepMult = ((float?)Trees.at(customData, STEPMULT)).GetValueOrDefault(1f),
                                 PropMult = ((float?)Trees.at(customData, PROPMULT)).GetValueOrDefault(1f),
                                 SpeedMult = ((float?)Trees.at(customData, SPEEDMULT)).GetValueOrDefault(1f),
+                            };
+                            break;
+
+                        case 9:
+                            chromaEventData = new ChromaRingStepEventData()
+                            {
+                                Step = (float?)Trees.at(customData, STEP),
                             };
                             break;
 
@@ -146,6 +152,11 @@
         internal float PropMult { get; set; }
 
         internal float SpeedMult { get; set; }
+    }
+
+    internal class ChromaRingStepEventData : ChromaEventData
+    {
+        internal float? Step { get; set; }
     }
 
     internal class ChromaLaserSpeedEventData : ChromaEventData
