@@ -19,12 +19,11 @@
             for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundLabel &&
-                    instructionList[i].operand is Label operandLabel &&
-                    instructionList[i].operand.GetHashCode() == 0)
+                    instructionList[i].opcode == OpCodes.Br)
                 {
                     foundLabel = true;
 
-                    label = operandLabel;
+                    label = (Label)instructionList[i].operand;
                 }
 
                 if (!foundBounds &&
