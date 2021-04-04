@@ -92,7 +92,7 @@
                             chromaEventData = new ChromaLaserSpeedEventData()
                             {
                                 LockPosition = ((bool?)Trees.at(customData, LOCKPOSITION)).GetValueOrDefault(false),
-                                PreciseSpeed = ((float?)Trees.at(customData, PRECISESPEED)).GetValueOrDefault(beatmapEventData.value),
+                                PreciseSpeed = ((float?)Trees.at(customData, SPEED)).GetValueOrDefault(((float?)Trees.at(customData, PRECISESPEED)).GetValueOrDefault(beatmapEventData.value)),
                                 Direction = ((int?)Trees.at(customData, DIRECTION)).GetValueOrDefault(-1),
                             };
                             break;

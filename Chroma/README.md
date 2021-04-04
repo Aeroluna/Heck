@@ -72,7 +72,7 @@ Example of _customData:
   * `"_events"` -> `"_customData"`
     * Can only be applied to laser speed events
     * `"_lockPosition"`: (bool) Set to true and the event it is attached to will not reset laser positions.
-    * `"_preciseSpeed"`: (float) Identical to just setting value, but allows for decimals. Will overwrite value (Because the game will randomize laser position on anything other than value 0, a small trick you can do is set value to 1 and _preciseSpeed to 0, creating 0 speed lasers with a randomized position).
+    * `"_speed"`: (float) Identical to just setting value, but allows for decimals. `"_preciseSpeed"` will alias to this. Will overwrite value (Because the game will randomize laser position on anything other than value 0, a small trick you can do is set value to 1 and _preciseSpeed to 0, creating 0 speed lasers with a randomized position).
     * `"_direction"`: (int) Set the spin direction (0 left lasers spin CCW, 1 left lasers spin CW).
 * Precise Rotation Event
   * `"_events"` -> `"_customData"`
