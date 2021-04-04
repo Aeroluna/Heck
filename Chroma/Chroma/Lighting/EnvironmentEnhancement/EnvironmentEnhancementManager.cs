@@ -74,7 +74,7 @@
 
                     int? dupeAmount = (int?)Trees.at(gameObjectData, "_duplicate");
 
-                    bool hide = ((bool?)Trees.at(gameObjectData, "_hide")).GetValueOrDefault(false);
+                    bool? active = (bool?)Trees.at(gameObjectData, "_active");
 
                     Vector3? scale = GetVectorData(gameObjectData, "_scale");
                     Vector3? position = GetVectorData(gameObjectData, "_position");
@@ -127,9 +127,9 @@
                     {
                         GameObject gameObject = gameObjectInfo.GameObject;
 
-                        if (hide)
+                        if (active.HasValue)
                         {
-                            gameObjectInfo.GameObject.SetActive(false);
+                            gameObjectInfo.GameObject.SetActive(active.Value);
                         }
 
                         Transform transform = gameObject.transform;
