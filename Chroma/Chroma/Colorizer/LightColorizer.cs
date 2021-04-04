@@ -1,12 +1,20 @@
 ﻿namespace Chroma.Colorizer
 {
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using IPA.Utilities;
     using UnityEngine;
 
     public static class LightColorizer
     {
+        private static readonly FieldAccessor<LightWithIdMonoBehaviour, LightWithIdManager>.Accessor _lightWithIdMonoBehaviourManagerAccessor = FieldAccessor<LightWithIdMonoBehaviour, LightWithIdManager>.GetAccessor("_lightManager");
+        private static readonly FieldAccessor<LightWithIds, LightWithIdManager>.Accessor _lightWithIdsManagerAccessor = FieldAccessor<LightWithIds, LightWithIdManager>.GetAccessor("_lightManager");
+        private static readonly MethodInfo _lightWithIdMonoBehaviourStart = typeof(LightWithIdMonoBehaviour).GetMethod("Start", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly MethodInfo _lightWithIdsStart = typeof(LightWithIds).GetMethod("Start", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly FieldInfo _lightWithIdsData = typeof(LightWithIds).GetField("_lightIntensityData");
+
         private static readonly Dictionary<MonoBehaviour, LSEColorManager> _lseColorManagers = new Dictionary<MonoBehaviour, LSEColorManager>();
 
         public static void Reset(this MonoBehaviour lse)
@@ -56,6 +64,45 @@
             foreach (KeyValuePair<MonoBehaviour, LSEColorManager> lseColorManager in _lseColorManagers)
             {
                 lseColorManager.Value.SetActiveColors();
+            }
+        }
+
+        public static void RegisterLight(MonoBehaviour lightWithId)
+        {
+            switch (lightWithId)
+            {
+                case LightWithIdMonoBehaviour monoBehaviour:
+                    LSEColorManager monomanager = LSEColorManager.GetLSEColorManager((BeatmapEventType)(monoBehaviour.lightId - 1))?.Where(n => n.Lights != null).First();
+                    if (monomanager == null)
+                    {
+                        break;
+                    }
+
+                    _lightWithIdMonoBehaviourManagerAccessor(ref monoBehaviour) = monomanager.LightManager;
+                    _lightWithIdMonoBehaviourStart.Invoke(monoBehaviour, null);
+                    LightIDTableManager.RegisterIndex(monoBehaviour.lightId - 1, monomanager.Lights.Count);
+                    monomanager.Lights.Add(monoBehaviour);
+                    break;
+
+                case LightWithIds lightWithIds:
+                    LightWithIdManager lightManager = _lseColorManagers.First().Value.LightManager;
+                    _lightWithIdsManagerAccessor(ref lightWithIds) = lightManager;
+                    _lightWithIdsStart.Invoke(lightWithIds, null);
+
+                    IEnumerable<ILightWithId> lightsWithId = ((IEnumerable)_lightWithIdsData.GetValue(lightWithId)).Cast<ILightWithId>();
+                    foreach (ILightWithId light in lightsWithId)
+                    {
+                        LSEColorManager manager = LSEColorManager.GetLSEColorManager((BeatmapEventType)(light.lightId - 1))?.Where(n => n.Lights != null).First();
+                        if (manager == null)
+                        {
+                            continue;
+                        }
+
+                        LightIDTableManager.RegisterIndex(light.lightId - 1, manager.Lights.Count);
+                        manager.Lights.Add(light);
+                    }
+
+                    break;
             }
         }
 
@@ -134,9 +181,11 @@
                     InitializeSOs(mono, "_highlightColor1Boost", ref _lightColor1Boost, ref _lightColor1Boost_Original, ref _mHighlightColor1Boost);
                     _supportBoostColor = true;
 
-                    Lights = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager").GetField<List<ILightWithId>[], LightWithIdManager>("_lights")[lse.lightsId].Select(x => x).ToList();
+                    LightManager = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager");
+                    Lights = LightManager.GetField<List<ILightWithId>[], LightWithIdManager>("_lights")[lse.lightsId].ToList();
+
                     IDictionary<int, List<ILightWithId>> lightsPreGroup = new Dictionary<int, List<ILightWithId>>();
-                    TrackLaneRingsManager[] managers = Object.FindObjectsOfType<TrackLaneRingsManager>();
+                    TrackLaneRingsManager[] managers = UnityEngine.Object.FindObjectsOfType<TrackLaneRingsManager>();
                     foreach (ILightWithId light in Lights)
                     {
                         if (light is MonoBehaviour monoBehaviour)
@@ -180,9 +229,11 @@
                 }
             }
 
-            internal List<ILightWithId> Lights { get; private set; }
+            internal LightWithIdManager LightManager { get; }
 
-            internal ILightWithId[][] LightsPropagationGrouped { get; private set; }
+            internal List<ILightWithId> Lights { get; }
+
+            internal ILightWithId[][] LightsPropagationGrouped { get; }
 
             internal static IEnumerable<LSEColorManager> GetLSEColorManager(BeatmapEventType type)
             {

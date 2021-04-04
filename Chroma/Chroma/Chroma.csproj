@@ -43,15 +43,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AnimationHelper.cs" />
+    <Compile Include="HarmonyPatches\GameplayCoreInstaller.cs" />
+    <Compile Include="HarmonyPatches\PlayerHeadAndObstacleInteraction.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\TutorialScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\TrackLaneRing.cs" />
+    <Compile Include="HarmonyPatches\TrackLaneRingsManager.cs" />
     <Compile Include="Lighting\ChromaEventData.cs" />
     <Compile Include="ChromaObjectData.cs" />
     <Compile Include="ChromaPatch.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataZenModeTransform.cs" />
     <Compile Include="Lighting\ChromaGradientController.cs" />
     <Compile Include="Lighting\ChromaRingsRotationEffect.cs" />
-    <Compile Include="HarmonyPatches\GameplayCoreInstaller.cs" />
+    <Compile Include="HarmonyPatches\BeatmapDataTransformHelper.cs" />
+    <Compile Include="Lighting\EnvironmentEnhancement\ComponentInitializer.cs" />
     <Compile Include="Lighting\EnvironmentEnhancement\EnvironmentEnhancementManager.cs" />
     <Compile Include="Lighting\EnvironmentEnhancement\GameObjectInfo.cs" />
     <Compile Include="Lighting\EnvironmentEnhancement\GameObjectTrackController.cs" />
@@ -74,6 +78,7 @@
     <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\StandardLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="Lighting\LightColorManager.cs" />
+    <Compile Include="HarmonyPatches\TrackLaneRingsPositionStepEffectSpawner.cs" />
     <Compile Include="Utils\Easings.cs" />
     <Compile Include="ChromaController.cs" />
     <Compile Include="Colorizer\LightColorizer.cs" />

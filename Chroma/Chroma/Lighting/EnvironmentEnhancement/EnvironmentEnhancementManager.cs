@@ -10,6 +10,7 @@
     using NoodleExtensions;
     using NoodleExtensions.Animation;
     using UnityEngine;
+    using UnityEngine.SceneManagement;
 
     internal enum LookupMethod
     {
@@ -59,12 +60,19 @@
             {
                 SkipRingUpdate = new Dictionary<TrackLaneRing, bool>();
 
+                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                {
+                    ChromaLogger.Log($"=====================================");
+                }
+
                 foreach (dynamic gameObjectData in environmentData)
                 {
                     string id = Trees.at(gameObjectData, "_id");
 
                     string lookupString = Trees.at(gameObjectData, "_lookupMethod");
                     LookupMethod lookupMethod = (LookupMethod)Enum.Parse(typeof(LookupMethod), lookupString);
+
+                    int? dupeAmount = (int?)Trees.at(gameObjectData, "_duplicate");
 
                     bool hide = ((bool?)Trees.at(gameObjectData, "_hide")).GetValueOrDefault(false);
 
@@ -75,7 +83,47 @@
                     Vector3? localRotation = GetVectorData(gameObjectData, "_localRotation");
 
                     List<GameObjectInfo> foundObjects = LookupID(id, lookupMethod);
-                    foreach (GameObjectInfo gameObjectInfo in foundObjects)
+                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                    {
+                        ChromaLogger.Log($"ID [\"{id}\"] using method [{lookupMethod.ToString("G")}] found:");
+                        foundObjects.ForEach(n => ChromaLogger.Log(n.FullID));
+                    }
+
+                    List<GameObjectInfo> gameObjectInfos;
+
+                    if (dupeAmount.HasValue)
+                    {
+                        gameObjectInfos = new List<GameObjectInfo>();
+                        foreach (GameObjectInfo gameObjectInfo in foundObjects)
+                        {
+                            if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                            {
+                                ChromaLogger.Log($"Duplicating [{gameObjectInfo.FullID}]:");
+                            }
+
+                            GameObject gameObject = gameObjectInfo.GameObject;
+                            Transform parent = gameObject.transform.parent;
+                            Scene scene = gameObject.scene;
+
+                            for (int i = 0; i < dupeAmount.Value; i++)
+                            {
+                                GameObject newGameObject = UnityEngine.Object.Instantiate(gameObject);
+                                SceneManager.MoveGameObjectToScene(newGameObject, scene);
+                                newGameObject.transform.SetParent(parent, true);
+                                ComponentInitializer.InitializeComponents(newGameObject.transform, gameObject.transform);
+                                GameObjectInfo newGameObjectInfo = new GameObjectInfo(newGameObject);
+                                gameObjectInfos.Add(newGameObjectInfo);
+                            }
+                        }
+
+                        _gameObjectInfos.AddRange(gameObjectInfos);
+                    }
+                    else
+                    {
+                        gameObjectInfos = foundObjects;
+                    }
+
+                    foreach (GameObjectInfo gameObjectInfo in gameObjectInfos)
                     {
                         GameObject gameObject = gameObjectInfo.GameObject;
 
@@ -139,8 +187,6 @@
 
                     if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                     {
-                        ChromaLogger.Log($"ID [\"{id}\"] using method [{lookupMethod.ToString("G")}] found:");
-                        foundObjects.ForEach(n => ChromaLogger.Log(n.FullID));
                         ChromaLogger.Log($"=====================================");
                     }
                 }

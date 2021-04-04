@@ -52,7 +52,7 @@
                 bool chromaRequirement = BasicPatch(customBeatmapData);
                 if (chromaRequirement &&
                     ChromaConfig.Instance.EnvironmentEnhancementsEnabled &&
-                    (Trees.at(customBeatmapData.beatmapCustomData, "_environmentRemoval") != null || Trees.at(customBeatmapData.beatmapCustomData, "_environment") != null))
+                    (Trees.at(customBeatmapData.beatmapCustomData, "_environmentRemoval") != null || Trees.at(customBeatmapData.customData, "_environment") != null))
                 {
                     overrideEnvironmentSettings = null;
                 }

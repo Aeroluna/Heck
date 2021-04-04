@@ -33,12 +33,23 @@
         {
             if (_lightIDTable.TryGetValue(environmentName, out Dictionary<int, int>[] activeTable))
             {
-                _activeTable = activeTable;
+                _activeTable = activeTable.Select(n => new Dictionary<int, int>(n)).ToArray();
             }
             else
             {
                 _activeTable = null;
                 ChromaLogger.Log($"Table not found for: {environmentName}", IPA.Logging.Logger.Level.Warning);
+            }
+        }
+
+        internal static void RegisterIndex(int type, int index)
+        {
+            Dictionary<int, int> dictioanry = _activeTable[type];
+            int maxKey = dictioanry.Keys.Max();
+            dictioanry.Add(maxKey + 1, index);
+            if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+            {
+                ChromaLogger.Log($"Registered key [{maxKey + 1}] to type [{type}]");
             }
         }
 

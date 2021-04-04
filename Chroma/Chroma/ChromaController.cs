@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Reflection;
     using Chroma.Colorizer;
+    using Chroma.HarmonyPatches;
     using Chroma.Settings;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
@@ -140,6 +141,8 @@
                 BombColorizer.ClearBNCColorManagers();
                 NoteColorizer.ClearCNVColorManagers();
                 SaberColorizer.ClearBSMColorManagers();
+
+                TrackLaneRingsManagerAwake.RingManagers.Clear();
             }
         }
     }
