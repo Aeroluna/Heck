@@ -14,6 +14,8 @@
         private static readonly FieldAccessor<LightPairRotationEventEffect, IBeatmapObjectCallbackController>.Accessor _lightPairCallbackControllerAccessor = FieldAccessor<LightPairRotationEventEffect, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
         private static readonly FieldAccessor<LightPairRotationEventEffect, Transform>.Accessor _transformLAccessor = FieldAccessor<LightPairRotationEventEffect, Transform>.GetAccessor("_transformL");
         private static readonly FieldAccessor<LightPairRotationEventEffect, Transform>.Accessor _transformRAccessor = FieldAccessor<LightPairRotationEventEffect, Transform>.GetAccessor("_transformR");
+        private static readonly FieldAccessor<ParticleSystemEventEffect, IBeatmapObjectCallbackController>.Accessor _particleCallbackControllerAccessor = FieldAccessor<ParticleSystemEventEffect, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
+        private static readonly FieldAccessor<ParticleSystemEventEffect, ParticleSystem>.Accessor _particleSystemAccessor = FieldAccessor<ParticleSystemEventEffect, ParticleSystem>.GetAccessor("_particleSystem");
 
         internal static void InitializeComponents(Transform root, Transform original)
         {
@@ -101,6 +103,22 @@
                 if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                 {
                     ChromaLogger.Log($"Initialized LightPairRotationEventEffect");
+                }
+            }
+
+            ParticleSystemEventEffect particleSystemEvent = root.GetComponent<ParticleSystemEventEffect>();
+            if (particleSystemEvent != null)
+            {
+                ParticleSystemEventEffect originalParticleSystemEvent = original.GetComponent<ParticleSystemEventEffect>();
+
+                _particleCallbackControllerAccessor(ref particleSystemEvent) = _particleCallbackControllerAccessor(ref originalParticleSystemEvent);
+                _particleSystemAccessor(ref particleSystemEvent) = root.GetComponent<ParticleSystem>();
+
+                particleSystemEvent.enabled = true;
+
+                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                {
+                    ChromaLogger.Log($"Initialized ParticleSystemEventEffect");
                 }
             }
 
