@@ -1,7 +1,5 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using System;
-    using IPA.Utilities;
     using UnityEngine;
     using static ChromaEventDataManager;
 
@@ -30,15 +28,13 @@
     [ChromaPatch("UpdateRotationData")]
     internal static class LightPairRotationEventEffectUpdateRotationData
     {
-        private static Type _rotationDataType = null;
-
-        private static void GetRotationData()
-        {
-            // Since LightPairRotationEventEffect.RotationData is a private internal member, we need to get its type dynamically.
-            _rotationDataType = Type.GetType("LightPairRotationEventEffect+RotationData,Main");
-        }
-
-        private static bool Prefix(LightPairRotationEventEffect __instance, BeatmapEventType ____eventL, float startRotationOffset, float direction, object ____rotationDataL, object ____rotationDataR)
+        private static bool Prefix(
+            BeatmapEventType ____eventL,
+            float startRotationOffset,
+            float direction,
+            LightPairRotationEventEffect.RotationData ____rotationDataL,
+            LightPairRotationEventEffect.RotationData ____rotationDataR,
+            Vector3 ____rotationVector)
         {
             BeatmapEventData beatmapEventData = LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.LastLightPairRotationEventEffectData;
 
@@ -49,12 +45,7 @@
 
             bool isLeftEvent = beatmapEventData.type == ____eventL;
 
-            if (_rotationDataType == null)
-            {
-                GetRotationData();
-            }
-
-            object rotationData = isLeftEvent ? ____rotationDataL : ____rotationDataR;
+            LightPairRotationEventEffect.RotationData rotationData = isLeftEvent ? ____rotationDataL : ____rotationDataR;
 
             ChromaLaserSpeedEventData chromaData = (ChromaLaserSpeedEventData)chromaEventData;
 
@@ -74,27 +65,27 @@
             }
 
             // Actual lasering
-            Transform transform = (Transform)_rotationDataType.GetField("transform").GetValue(rotationData);
-            Quaternion startRotation = (Quaternion)_rotationDataType.GetField("startRotation").GetValue(rotationData);
-            float startRotationAngle = (float)_rotationDataType.GetField("startRotationAngle").GetValue(rotationData);
-            Vector3 rotationVector = __instance.GetField<Vector3, LightPairRotationEventEffect>("_rotationVector");
+            Transform transform = rotationData.transform;
+            Quaternion startRotation = rotationData.startRotation;
+            float startRotationAngle = rotationData.startRotationAngle;
+            Vector3 rotationVector = ____rotationVector;
             if (beatmapEventData.value == 0)
             {
-                _rotationDataType.GetField("enabled").SetValue(rotationData, false);
+                rotationData.enabled = false;
                 if (!lockPosition)
                 {
-                    _rotationDataType.GetField("rotationAngle").SetValue(rotationData, startRotationAngle);
+                    rotationData.rotationAngle = startRotationAngle;
                     transform.localRotation = startRotation * Quaternion.Euler(rotationVector * startRotationAngle);
                 }
             }
             else if (beatmapEventData.value > 0)
             {
-                _rotationDataType.GetField("enabled").SetValue(rotationData, true);
-                _rotationDataType.GetField("rotationSpeed").SetValue(rotationData, precisionSpeed * 20f * direction);
+                rotationData.enabled = true;
+                rotationData.rotationSpeed = precisionSpeed * 20f * direction;
                 if (!lockPosition)
                 {
                     float rotationAngle = startRotationOffset + startRotationAngle;
-                    _rotationDataType.GetField("rotationAngle").SetValue(rotationData, rotationAngle);
+                    rotationData.rotationAngle = rotationAngle;
                     transform.localRotation = startRotation * Quaternion.Euler(rotationVector * rotationAngle);
                 }
             }
