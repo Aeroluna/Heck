@@ -10,6 +10,10 @@
     {
         private static readonly FieldAccessor<TrackLaneRingsManager, TrackLaneRing[]>.Accessor _ringsAccessor = FieldAccessor<TrackLaneRingsManager, TrackLaneRing[]>.GetAccessor("_rings");
         private static readonly FieldAccessor<Spectrogram, BasicSpectrogramData>.Accessor _spectrogramDataAccessor = FieldAccessor<Spectrogram, BasicSpectrogramData>.GetAccessor("_spectrogramData");
+        private static readonly FieldAccessor<LightRotationEventEffect, IBeatmapObjectCallbackController>.Accessor _lightCallbackControllerAccessor = FieldAccessor<LightRotationEventEffect, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
+        private static readonly FieldAccessor<LightPairRotationEventEffect, IBeatmapObjectCallbackController>.Accessor _lightPairCallbackControllerAccessor = FieldAccessor<LightPairRotationEventEffect, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
+        private static readonly FieldAccessor<LightPairRotationEventEffect, Transform>.Accessor _transformLAccessor = FieldAccessor<LightPairRotationEventEffect, Transform>.GetAccessor("_transformL");
+        private static readonly FieldAccessor<LightPairRotationEventEffect, Transform>.Accessor _transformRAccessor = FieldAccessor<LightPairRotationEventEffect, Transform>.GetAccessor("_transformR");
 
         internal static void InitializeComponents(Transform root, Transform original)
         {
@@ -62,6 +66,41 @@
                 if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                 {
                     ChromaLogger.Log($"Initialized Spectrogram");
+                }
+            }
+
+            LightRotationEventEffect lightRotationEvent = root.GetComponent<LightRotationEventEffect>();
+            if (lightRotationEvent != null)
+            {
+                LightRotationEventEffect originalLightRotationEvent = original.GetComponent<LightRotationEventEffect>();
+
+                _lightCallbackControllerAccessor(ref lightRotationEvent) = _lightCallbackControllerAccessor(ref originalLightRotationEvent);
+
+                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                {
+                    ChromaLogger.Log($"Initialized LightRotationEventEffect");
+                }
+            }
+
+            LightPairRotationEventEffect lightPairRotationEvent = root.GetComponent<LightPairRotationEventEffect>();
+            if (lightPairRotationEvent != null)
+            {
+                LightPairRotationEventEffect originalLightPairRotationEvent = original.GetComponent<LightPairRotationEventEffect>();
+
+                _lightPairCallbackControllerAccessor(ref lightPairRotationEvent) = _lightPairCallbackControllerAccessor(ref originalLightPairRotationEvent);
+
+                Transform transformL = _transformLAccessor(ref originalLightPairRotationEvent);
+                Transform transformR = _transformRAccessor(ref originalLightPairRotationEvent);
+
+                _transformLAccessor(ref lightPairRotationEvent) = root.GetChild(transformL.GetSiblingIndex());
+                _transformRAccessor(ref lightPairRotationEvent) = root.GetChild(transformR.GetSiblingIndex());
+
+                // We have to enable the object to tell unity to run Start
+                lightPairRotationEvent.enabled = true;
+
+                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                {
+                    ChromaLogger.Log($"Initialized LightPairRotationEventEffect");
                 }
             }
 

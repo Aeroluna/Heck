@@ -11,8 +11,6 @@
     {
         private static readonly FieldAccessor<LightWithIdMonoBehaviour, LightWithIdManager>.Accessor _lightWithIdMonoBehaviourManagerAccessor = FieldAccessor<LightWithIdMonoBehaviour, LightWithIdManager>.GetAccessor("_lightManager");
         private static readonly FieldAccessor<LightWithIds, LightWithIdManager>.Accessor _lightWithIdsManagerAccessor = FieldAccessor<LightWithIds, LightWithIdManager>.GetAccessor("_lightManager");
-        private static readonly MethodInfo _lightWithIdMonoBehaviourStart = typeof(LightWithIdMonoBehaviour).GetMethod("Start", BindingFlags.Instance | BindingFlags.NonPublic);
-        private static readonly MethodInfo _lightWithIdsStart = typeof(LightWithIds).GetMethod("Start", BindingFlags.Instance | BindingFlags.NonPublic);
         private static readonly FieldInfo _lightWithIdsData = typeof(LightWithIds).GetField("_lightIntensityData");
 
         private static readonly Dictionary<MonoBehaviour, LSEColorManager> _lseColorManagers = new Dictionary<MonoBehaviour, LSEColorManager>();
@@ -79,7 +77,6 @@
                     }
 
                     _lightWithIdMonoBehaviourManagerAccessor(ref monoBehaviour) = monomanager.LightManager;
-                    _lightWithIdMonoBehaviourStart.Invoke(monoBehaviour, null);
                     LightIDTableManager.RegisterIndex(monoBehaviour.lightId - 1, monomanager.Lights.Count);
                     monomanager.Lights.Add(monoBehaviour);
                     break;
@@ -87,7 +84,6 @@
                 case LightWithIds lightWithIds:
                     LightWithIdManager lightManager = _lseColorManagers.First().Value.LightManager;
                     _lightWithIdsManagerAccessor(ref lightWithIds) = lightManager;
-                    _lightWithIdsStart.Invoke(lightWithIds, null);
 
                     IEnumerable<ILightWithId> lightsWithId = ((IEnumerable)_lightWithIdsData.GetValue(lightWithId)).Cast<ILightWithId>();
                     foreach (ILightWithId light in lightsWithId)
