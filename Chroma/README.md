@@ -29,7 +29,8 @@ Example of _customData:
   *  `"_customData"` -> `"_environment"`
      *  `"_id"`: (string) The ID to use when looking up the GameObject.
      *  `"_lookupMethod"`: (string) How to use the ID to search. (Regex, Exact, Contains)
-     *  `"_hide"`: (bool) When true, disables the GameObject.
+     *  `"_duplicate"`: (int) How many instances of this GameObject to create. Note: this changes the scope and all the following properties will affect the duplicated objects instead.
+     *  `"_active"`: (bool) When false, disables the GameObject.
      *  `"_scale"`: `[x, y, z]` (float) Sets scale of GameObject.
      *  `"_position"`: `[x, y, z]` (float) Sets position of GameObject.
      *  `"_localPosition"`: `[x, y, z]` (float) Sets localPosition of GameObject.
