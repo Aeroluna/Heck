@@ -16,11 +16,14 @@
 
         internal static void HandleTrackData(GameObject gameObject, dynamic gameObjectData, IReadonlyBeatmapData beatmapData, float noteLinesDistance, TrackLaneRing trackLaneRing)
         {
-            Track track = NoodleExtensions.Animation.AnimationHelper.GetTrackPreload(gameObjectData, beatmapData);
-            if (track != null)
+            if (NoodleController.NoodleExtensionsActive)
             {
-                GameObjectTrackController trackController = gameObject.AddComponent<GameObjectTrackController>();
-                trackController.Init(track, noteLinesDistance, trackLaneRing);
+                Track track = NoodleExtensions.Animation.AnimationHelper.GetTrackPreload(gameObjectData, beatmapData);
+                if (track != null)
+                {
+                    GameObjectTrackController trackController = gameObject.AddComponent<GameObjectTrackController>();
+                    trackController.Init(track, noteLinesDistance, trackLaneRing);
+                }
             }
         }
 

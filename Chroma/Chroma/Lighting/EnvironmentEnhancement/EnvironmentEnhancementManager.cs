@@ -7,10 +7,10 @@
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using IPA.Utilities;
-    using NoodleExtensions;
     using NoodleExtensions.Animation;
     using UnityEngine;
     using UnityEngine.SceneManagement;
+    using static Chroma.Plugin;
 
     internal enum LookupMethod
     {
@@ -38,7 +38,7 @@
 
         internal static void CreateEnvironmentTracks(object trackManager, CustomBeatmapData customBeatmapData)
         {
-            List<dynamic> environmentData = Trees.at(customBeatmapData.customData, "_environment");
+            List<dynamic> environmentData = Trees.at(customBeatmapData.customData, ENVIRONMENT);
             if (environmentData != null)
             {
                 foreach (dynamic gameObjectData in environmentData)
@@ -54,7 +54,7 @@
 
         internal static void Init(CustomBeatmapData customBeatmapData, float noteLinesDistance)
         {
-            List<dynamic> environmentData = Trees.at(customBeatmapData.customData, "_environment");
+            List<dynamic> environmentData = Trees.at(customBeatmapData.customData, ENVIRONMENT);
             GetAllGameObjects();
             if (environmentData != null)
             {
@@ -67,25 +67,25 @@
 
                 foreach (dynamic gameObjectData in environmentData)
                 {
-                    string id = Trees.at(gameObjectData, "_id");
+                    string id = Trees.at(gameObjectData, ID);
 
-                    string lookupString = Trees.at(gameObjectData, "_lookupMethod");
+                    string lookupString = Trees.at(gameObjectData, LOOKUPMETHOD);
                     LookupMethod lookupMethod = (LookupMethod)Enum.Parse(typeof(LookupMethod), lookupString);
 
-                    int? dupeAmount = (int?)Trees.at(gameObjectData, "_duplicate");
+                    int? dupeAmount = (int?)Trees.at(gameObjectData, DUPLICATIONAMOUNT);
 
-                    bool? active = (bool?)Trees.at(gameObjectData, "_active");
+                    bool? active = (bool?)Trees.at(gameObjectData, ACTIVE);
 
-                    Vector3? scale = GetVectorData(gameObjectData, "_scale");
-                    Vector3? position = GetVectorData(gameObjectData, "_position");
-                    Vector3? rotation = GetVectorData(gameObjectData, "_rotation");
-                    Vector3? localPosition = GetVectorData(gameObjectData, "_localPosition");
-                    Vector3? localRotation = GetVectorData(gameObjectData, "_localRotation");
+                    Vector3? scale = GetVectorData(gameObjectData, SCALE);
+                    Vector3? position = GetVectorData(gameObjectData, POSITION);
+                    Vector3? rotation = GetVectorData(gameObjectData, OBJECTROTATION);
+                    Vector3? localPosition = GetVectorData(gameObjectData, LOCALPOSITION);
+                    Vector3? localRotation = GetVectorData(gameObjectData, LOCALROTATION);
 
                     List<GameObjectInfo> foundObjects = LookupID(id, lookupMethod);
                     if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                     {
-                        ChromaLogger.Log($"ID [\"{id}\"] using method [{lookupMethod.ToString("G")}] found:");
+                        ChromaLogger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
                         foundObjects.ForEach(n => ChromaLogger.Log(n.FullID));
                     }
 
@@ -179,7 +179,7 @@
                             }
                         }
 
-                        if (Plugin.NoodleExtensionsInstalled && NoodleController.NoodleExtensionsActive)
+                        if (NoodleExtensionsInstalled)
                         {
                             GameObjectTrackController.HandleTrackData(gameObject, gameObjectData, customBeatmapData, noteLinesDistance, trackLaneRing);
                         }

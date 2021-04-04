@@ -70,7 +70,7 @@
             {
                 ChromaNoodleData chromaNoodleData = new ChromaNoodleData();
 
-                dynamic animationObjectDyn = Trees.at(dynData, "_animation");
+                dynamic animationObjectDyn = Trees.at(dynData, ANIMATION);
                 Dictionary<string, PointDefinition> pointDefinitions = Trees.at(((CustomBeatmapData)beatmapData).customData, "pointDefinitions");
 
                 NoodleExtensions.Animation.AnimationHelper.TryGetPointData(animationObjectDyn, COLOR, out PointDefinition localColor, pointDefinitions);

@@ -43,6 +43,17 @@
         internal const string STEPMULT = "_stepMult";
         internal const string ROTATION = "_rotation";
 
+        internal const string ENVIRONMENT = "_environment";
+        internal const string ID = "_id";
+        internal const string LOOKUPMETHOD = "_lookupMethod";
+        internal const string DUPLICATIONAMOUNT = "_duplicate";
+        internal const string ACTIVE = "_active";
+        internal const string SCALE = "_scale";
+        internal const string POSITION = "_position";
+        internal const string LOCALPOSITION = "_localPosition";
+        internal const string OBJECTROTATION = "_rotation";
+        internal const string LOCALROTATION = "_localRotation";
+
         internal static readonly Harmony _harmonyInstanceCore = new Harmony(HARMONYIDCORE);
         internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
 
