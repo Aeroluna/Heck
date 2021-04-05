@@ -143,7 +143,7 @@
 
         private static Quaternion InvertQuaternion(Quaternion quaternion)
         {
-            return Quaternion.Euler(-quaternion.eulerAngles);
+            return Quaternion.Inverse(quaternion);
         }
 
         private static Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
@@ -305,7 +305,7 @@
                     if (rotationOffset.HasValue)
                     {
                         worldRotationQuatnerion *= rotationOffset.Value;
-                        Quaternion inverseWorldRotation = Quaternion.Euler(-worldRotationQuatnerion.eulerAngles);
+                        Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
                         ____worldRotation = worldRotationQuatnerion;
                         ____inverseWorldRotation = inverseWorldRotation;
                     }

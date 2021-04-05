@@ -71,7 +71,7 @@
                 if (worldRotationQuaternion.HasValue)
                 {
                     Quaternion quatVal = worldRotationQuaternion.Value;
-                    Quaternion inverseWorldRotation = Quaternion.Euler(-quatVal.eulerAngles);
+                    Quaternion inverseWorldRotation = Quaternion.Inverse(quatVal);
                     _worldRotationJumpAccessor(ref noteJump) = quatVal;
                     _inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
                     _worldRotationFloorAccessor(ref floorMovement) = quatVal;
@@ -231,7 +231,7 @@
                     if (rotationOffset.HasValue)
                     {
                         worldRotationQuatnerion *= rotationOffset.Value;
-                        Quaternion inverseWorldRotation = Quaternion.Euler(-worldRotationQuatnerion.eulerAngles);
+                        Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
                         NoteControllerInit._worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
                         NoteControllerInit._inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
                         NoteControllerInit._worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;

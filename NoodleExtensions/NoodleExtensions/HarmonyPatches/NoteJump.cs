@@ -19,14 +19,14 @@
         private static readonly MethodInfo _definiteNoteJump = SymbolExtensions.GetMethodInfo(() => DefiniteNoteJump(Vector3.zero, 0));
         private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), "_definitePosition");
         private static readonly MethodInfo _getTransform = typeof(Component).GetProperty("transform").GetGetMethod();
-        private static readonly MethodInfo _doNoteLook = SymbolExtensions.GetMethodInfo(() => DoNoteLook(0, Quaternion.identity, Quaternion.identity, Quaternion.identity, null, null, null));
+        private static readonly MethodInfo _doNoteLook = SymbolExtensions.GetMethodInfo(() => DoNoteLook(0, Quaternion.identity, Quaternion.identity, Quaternion.identity, null, null, null, Quaternion.identity));
         private static readonly FieldInfo _startRotationField = AccessTools.Field(typeof(NoteJump), "_startRotation");
         private static readonly FieldInfo _middleRotationField = AccessTools.Field(typeof(NoteJump), "_middleRotation");
         private static readonly FieldInfo _endRotationField = AccessTools.Field(typeof(NoteJump), "_endRotation");
         private static readonly FieldInfo _playerTransformsField = AccessTools.Field(typeof(NoteJump), "_playerTransforms");
         private static readonly FieldInfo _rotatedObjectField = AccessTools.Field(typeof(NoteJump), "_rotatedObject");
+        private static readonly FieldInfo _inverseWorldRotationField = AccessTools.Field(typeof(NoteJump), "_inverseWorldRotation");
         private static readonly FieldAccessor<PlayerTransforms, Transform>.Accessor _headTransformAccessor = FieldAccessor<PlayerTransforms, Transform>.GetAccessor("_headTransform");
-        private static readonly FieldAccessor<PlayerTransforms, Transform>.Accessor _originTransformAccessor = FieldAccessor<PlayerTransforms, Transform>.GetAccessor("_originTransform");
 
         // This field is used by reflection
 #pragma warning disable CS0414 // The field is assigned but its value is never used
@@ -118,6 +118,8 @@
                         new CodeInstruction(OpCodes.Ldfld, _rotatedObjectField),
                         new CodeInstruction(OpCodes.Ldarg_0),
                         new CodeInstruction(OpCodes.Call, _getTransform),
+                        new CodeInstruction(OpCodes.Ldarg_0),
+                        new CodeInstruction(OpCodes.Ldfld, _inverseWorldRotationField),
                         new CodeInstruction(OpCodes.Call, _doNoteLook),
                     };
                     instructionList.InsertRange(i + 1, codeInstructions);
@@ -174,7 +176,8 @@
             Quaternion endRotation,
             PlayerTransforms playerTransforms,
             Transform rotatedObject,
-            Transform baseTransform)
+            Transform baseTransform,
+            Quaternion inverseWorldRotation)
         {
             Quaternion a;
             if (num2 < 0.125f)
@@ -188,17 +191,27 @@
 
             Vector3 vector = playerTransforms.headWorldPos;
 
+            // idk whats happening anymore
+            Quaternion worldRot = inverseWorldRotation;
+            if (baseTransform.parent != null)
+            {
+                // Handle parenting
+                worldRot *= Quaternion.Inverse(baseTransform.parent.rotation);
+            }
+
             // This line but super complicated so that "y" = "originTransform.up"
             // vector.y = Mathf.Lerp(vector.y, this._localPosition.y, 0.8f);
             Transform headTransform = _headTransformAccessor(ref playerTransforms);
-            Transform originTransform = _originTransformAccessor(ref playerTransforms);
-            float baseUpMagnitude = Vector3.Dot(baseTransform.position, originTransform.up);
-            float headUpMagnitude = Vector3.Dot(headTransform.position, originTransform.up);
+            Quaternion inverse = Quaternion.Inverse(worldRot);
+            Vector3 upVector = inverse * Vector3.up;
+            float baseUpMagnitude = Vector3.Dot(worldRot * baseTransform.position, Vector3.up);
+            float headUpMagnitude = Vector3.Dot(worldRot * headTransform.position, Vector3.up);
             float mult = Mathf.Lerp(headUpMagnitude, baseUpMagnitude, 0.8f) - headUpMagnitude;
-            vector += originTransform.up.normalized * mult;
+            vector += upVector * mult;
 
-            // Rest is normal
-            Vector3 normalized = (baseTransform.position - vector).normalized;
+            // more wtf
+            Vector3 normalized = baseTransform.rotation * (worldRot * (baseTransform.position - vector).normalized);
+
             Quaternion b = Quaternion.LookRotation(normalized, rotatedObject.up);
             rotatedObject.rotation = Quaternion.Lerp(a, b, num2 * 2f);
         }
