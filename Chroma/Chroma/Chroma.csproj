@@ -47,6 +47,7 @@
     <Compile Include="HarmonyPatches\PlayerHeadAndObstacleInteraction.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\TutorialScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\TrackLaneRing.cs" />
+    <Compile Include="HarmonyPatches\LightWithIdManager.cs" />
     <Compile Include="HarmonyPatches\TrackLaneRingsManager.cs" />
     <Compile Include="Lighting\ChromaEventData.cs" />
     <Compile Include="ChromaObjectData.cs" />
