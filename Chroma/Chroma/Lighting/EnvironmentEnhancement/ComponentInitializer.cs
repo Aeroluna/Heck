@@ -17,7 +17,7 @@
         private static readonly FieldAccessor<ParticleSystemEventEffect, IBeatmapObjectCallbackController>.Accessor _particleCallbackControllerAccessor = FieldAccessor<ParticleSystemEventEffect, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
         private static readonly FieldAccessor<ParticleSystemEventEffect, ParticleSystem>.Accessor _particleSystemAccessor = FieldAccessor<ParticleSystemEventEffect, ParticleSystem>.GetAccessor("_particleSystem");
 
-        internal static void InitializeComponents(Transform root, Transform original)
+        internal static void InitializeComponents(Transform root, Transform original, List<GameObjectInfo> gameObjectInfos)
         {
             LightWithIdMonoBehaviour lightWithIdMonoBehaviour = root.GetComponent<LightWithIdMonoBehaviour>();
             if (lightWithIdMonoBehaviour != null)
@@ -122,6 +122,9 @@
                 }
             }
 
+            GameObjectInfo newGameObjectInfo = new GameObjectInfo(root.gameObject);
+            gameObjectInfos.Add(newGameObjectInfo);
+
             foreach (Transform transform in root)
             {
                 if (transform == root)
@@ -130,7 +133,7 @@
                 }
 
                 int index = transform.GetSiblingIndex();
-                InitializeComponents(transform, original.GetChild(index));
+                InitializeComponents(transform, original.GetChild(index), gameObjectInfos);
             }
         }
     }

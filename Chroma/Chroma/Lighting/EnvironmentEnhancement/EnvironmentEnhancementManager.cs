@@ -29,7 +29,9 @@
 
         private static List<GameObjectInfo> _gameObjectInfos;
 
-        internal static Dictionary<TrackLaneRing, bool> SkipRingUpdate { get; set; }
+        internal static Dictionary<TrackLaneRing, bool> SkipRingUpdate { get; } = new Dictionary<TrackLaneRing, bool>();
+
+        internal static Dictionary<TrackLaneRing, Vector3> RingRotationOffsets { get; } = new Dictionary<TrackLaneRing, Vector3>();
 
         internal static void SubscribeTrackManagerCreated()
         {
@@ -58,7 +60,8 @@
             GetAllGameObjects();
             if (environmentData != null)
             {
-                SkipRingUpdate = new Dictionary<TrackLaneRing, bool>();
+                SkipRingUpdate.Clear();
+                RingRotationOffsets.Clear();
 
                 if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                 {
@@ -110,13 +113,10 @@
                                 GameObject newGameObject = UnityEngine.Object.Instantiate(gameObject);
                                 SceneManager.MoveGameObjectToScene(newGameObject, scene);
                                 newGameObject.transform.SetParent(parent, true);
-                                ComponentInitializer.InitializeComponents(newGameObject.transform, gameObject.transform);
-                                GameObjectInfo newGameObjectInfo = new GameObjectInfo(newGameObject);
-                                gameObjectInfos.Add(newGameObjectInfo);
+                                ComponentInitializer.InitializeComponents(newGameObject.transform, gameObject.transform, _gameObjectInfos);
+                                gameObjectInfos.AddRange(_gameObjectInfos.Where(n => n.GameObject == newGameObject));
                             }
                         }
-
-                        _gameObjectInfos.AddRange(gameObjectInfos);
                     }
                     else
                     {
@@ -165,7 +165,7 @@
                         {
                             if (position.HasValue || localPosition.HasValue)
                             {
-                                _positionOffsetAccessor(ref trackLaneRing) = transform.position;
+                                _positionOffsetAccessor(ref trackLaneRing) = transform.localPosition;
                                 float zPosition = transform.position.z;
                                 _prevPosZAccessor(ref trackLaneRing) = zPosition;
                                 _posZAccessor(ref trackLaneRing) = zPosition;
@@ -173,6 +173,7 @@
 
                             if (rotation.HasValue || localRotation.HasValue)
                             {
+                                RingRotationOffsets[trackLaneRing] = transform.localEulerAngles;
                                 float zRotation = transform.rotation.z;
                                 _prevRotZAccessor(ref trackLaneRing) = zRotation;
                                 _rotZAccessor(ref trackLaneRing) = zRotation;
