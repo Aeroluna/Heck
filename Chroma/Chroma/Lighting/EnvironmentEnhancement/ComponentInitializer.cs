@@ -16,6 +16,8 @@
         private static readonly FieldAccessor<LightPairRotationEventEffect, Transform>.Accessor _transformRAccessor = FieldAccessor<LightPairRotationEventEffect, Transform>.GetAccessor("_transformR");
         private static readonly FieldAccessor<ParticleSystemEventEffect, IBeatmapObjectCallbackController>.Accessor _particleCallbackControllerAccessor = FieldAccessor<ParticleSystemEventEffect, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
         private static readonly FieldAccessor<ParticleSystemEventEffect, ParticleSystem>.Accessor _particleSystemAccessor = FieldAccessor<ParticleSystemEventEffect, ParticleSystem>.GetAccessor("_particleSystem");
+        private static readonly FieldAccessor<Mirror, MirrorRendererSO>.Accessor _mirrorRendererAccessor = FieldAccessor<Mirror, MirrorRendererSO>.GetAccessor("_mirrorRenderer");
+        private static readonly FieldAccessor<Mirror, Material>.Accessor _mirrorMaterialAccessor = FieldAccessor<Mirror, Material>.GetAccessor("_mirrorMaterial");
 
         internal static void InitializeComponents(Transform root, Transform original, List<GameObjectInfo> gameObjectInfos)
         {
@@ -119,6 +121,18 @@
                 if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                 {
                     ChromaLogger.Log($"Initialized ParticleSystemEventEffect");
+                }
+            }
+
+            Mirror mirror = root.GetComponent<Mirror>();
+            if (mirror != null)
+            {
+                _mirrorRendererAccessor(ref mirror) = Object.Instantiate(_mirrorRendererAccessor(ref mirror));
+                _mirrorMaterialAccessor(ref mirror) = Object.Instantiate(_mirrorMaterialAccessor(ref mirror));
+
+                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                {
+                    ChromaLogger.Log($"Initialized Mirror");
                 }
             }
 

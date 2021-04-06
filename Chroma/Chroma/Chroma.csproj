@@ -204,6 +204,11 @@
       <HintPath>$(BeatSaberDir)\Plugins\NoodleExtensions.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Rendering">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Rendering.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="SemVer">
       <HintPath>$(BeatSaberDir)\Libs\SemVer.dll</HintPath>
       <Private>False</Private>
