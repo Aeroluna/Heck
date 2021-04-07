@@ -31,7 +31,7 @@
 
         private static readonly MethodInfo _getFlipYSide = SymbolExtensions.GetMethodInfo(() => GetFlipYSide(null, 0));
 
-        private static void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos)
+        private static void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float endRotation)
         {
             if (__instance is MultiplayerConnectedPlayerNoteController)
             {
@@ -107,6 +107,7 @@
                 ParentObject.ResetTransformParent(transform);
             }
 
+            noodleData.EndRotation = endRotation;
             noodleData.MoveStartPos = moveStartPos;
             noodleData.MoveEndPos = moveEndPos;
             noodleData.JumpEndPos = jumpEndPos;

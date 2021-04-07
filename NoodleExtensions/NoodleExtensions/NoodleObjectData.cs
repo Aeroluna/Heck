@@ -128,6 +128,7 @@
             noodleNoteData.StartNoteLineLayerInternal = (float?)Trees.at(dynData, "startNoteLineLayer");
 
             noodleNoteData.DisableGravity = (bool?)Trees.at(dynData, NOTEGRAVITYDISABLE) ?? false;
+            noodleNoteData.DisableLook = (bool?)Trees.at(dynData, NOTELOOKDISABLE) ?? false;
 
             return noodleNoteData;
         }
@@ -168,6 +169,10 @@
         internal float? StartNoteLineLayerInternal { get; set; }
 
         internal bool DisableGravity { get; set; }
+
+        internal bool DisableLook { get; set; }
+
+        internal float EndRotation { get; set; }
     }
 
     internal class NoodleObstacleData : NoodleObjectData

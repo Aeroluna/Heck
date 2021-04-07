@@ -26,6 +26,7 @@
         internal const string NAME = "_name";
         internal const string NOTEGRAVITYDISABLE = "_disableNoteGravity";
         internal const string NOTEJUMPSPEED = "_noteJumpMovementSpeed";
+        internal const string NOTELOOKDISABLE = "_disableNoteLook";
         internal const string NOTESPAWNOFFSET = "_noteJumpStartBeatOffset";
         internal const string POINTDEFINITIONS = "_pointDefinitions";
         internal const string POINTS = "_points";

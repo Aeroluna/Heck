@@ -179,6 +179,13 @@
             Transform baseTransform,
             Quaternion inverseWorldRotation)
         {
+            NoodleNoteData noodleData = (NoodleNoteData)NoteControllerUpdate.NoodleData;
+            if (noodleData != null && noodleData.DisableLook)
+            {
+                rotatedObject.localRotation = endRotation;
+                return;
+            }
+
             Quaternion a;
             if (num2 < 0.125f)
             {

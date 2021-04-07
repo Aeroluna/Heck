@@ -55,4 +55,18 @@
             return original;
         }
     }
+
+    [NoodlePatch(typeof(NoteFloorMovement))]
+    [NoodlePatch("SetToStart")]
+    internal static class NoteFloorMovementSetToStart
+    {
+        private static void Postfix(Transform ____rotatedObject)
+        {
+            NoodleNoteData noodleData = (NoodleNoteData)NoteControllerUpdate.NoodleData;
+            if (noodleData != null && noodleData.DisableLook)
+            {
+                ____rotatedObject.localRotation = Quaternion.Euler(0, 0, noodleData.EndRotation);
+            }
+        }
+    }
 }
