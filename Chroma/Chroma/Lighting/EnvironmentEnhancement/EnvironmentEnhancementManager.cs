@@ -264,7 +264,6 @@
 
                 foreach (Transform transform in allChildren)
                 {
-                    ChromaLogger.Log("iterated: " + transform.gameObject.name);
                     if (!gameObjects.Contains(transform.gameObject))
                     {
                         gameObjects.Add(transform.gameObject);
