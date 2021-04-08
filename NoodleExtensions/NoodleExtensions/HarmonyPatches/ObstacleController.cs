@@ -104,7 +104,10 @@
                 transform.localRotation = ____worldRotation * localRotation;
             }
 
-            transform.localScale = Vector3.one; // This is a fix for animation due to obstacles being recycled
+            if (transform.localScale != Vector3.one)
+            {
+                transform.localScale = Vector3.one; // This is a fix for animation due to obstacles being recycled
+            }
 
             Track track = noodleData.Track;
             if (track != null && ParentObject.Controller != null)

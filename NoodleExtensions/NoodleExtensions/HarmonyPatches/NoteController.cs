@@ -87,7 +87,10 @@
                 }
             }
 
-            transform.localScale = Vector3.one; // This is a fix for animation due to notes being recycled
+            if (transform.localScale != Vector3.one)
+            {
+                transform.localScale = Vector3.one; // This is a fix for animation due to notes being recycled
+            }
 
             Track track = noodleData.Track;
             if (track != null && ParentObject.Controller != null)

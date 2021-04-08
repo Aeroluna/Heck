@@ -151,6 +151,7 @@
     <Compile Include="HarmonyPatches\DisappearingArrowController.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
     <Compile Include="HarmonyPatches\CutoutEffect.cs" />
+    <Compile Include="HarmonyPatches\MemoryPoolBase.cs" />
     <Compile Include="HarmonyPatches\SpawnRotationProcessor.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />
     <Compile Include="HarmonyPatches\SceneTransition\StandardLevelScenesTransitionSetupDataSO.cs" />

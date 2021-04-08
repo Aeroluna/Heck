@@ -351,7 +351,7 @@
         {
             Property pathProperty = null;
             track?.PathProperties.TryGetValue(propertyName, out pathProperty);
-            if (pathProperty != null && pathProperty.PropertyType == propertyType)
+            if (pathProperty != null)
             {
                 PointDefinitionInterpolation pointDataInterpolation = (PointDefinitionInterpolation)pathProperty.Value;
 
