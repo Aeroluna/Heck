@@ -141,11 +141,6 @@
 
             foreach (Transform transform in root)
             {
-                if (transform == root)
-                {
-                    continue;
-                }
-
                 int index = transform.GetSiblingIndex();
                 InitializeComponents(transform, original.GetChild(index), gameObjectInfos);
             }

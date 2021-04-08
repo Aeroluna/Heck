@@ -237,23 +237,60 @@
         {
             _gameObjectInfos = new List<GameObjectInfo>();
 
-            GameObject[] gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+            // I'll probably revist this formula for getting objects by only grabbing the root objects and adding all the children
+            List<GameObject> gameObjects = Resources.FindObjectsOfTypeAll<GameObject>().Where(n =>
+            {
+                if (n != null)
+                {
+                    string sceneName = n.scene.name;
+                    if (sceneName != null)
+                    {
+                        if ((sceneName.Contains("Environment") && !sceneName.Contains("Menu")) || n.GetComponent<TrackLaneRing>() != null)
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }).ToList();
+
+            // Adds the children of whitelist GameObjects
+            // Mainly for grabbing cone objects in KaleidoscopeEnvironment
+            gameObjects.ToList().ForEach(n =>
+            {
+                List<Transform> allChildren = new List<Transform>();
+                GetChildRecursive(n.transform, ref allChildren);
+
+                foreach (Transform transform in allChildren)
+                {
+                    ChromaLogger.Log("iterated: " + transform.gameObject.name);
+                    if (!gameObjects.Contains(transform.gameObject))
+                    {
+                        gameObjects.Add(transform.gameObject);
+                    }
+                }
+            });
 
             foreach (GameObject gameObject in gameObjects)
             {
-                // 14 = "Environment" layer
-                // 15 = "Neon Tube" layer
-                if (gameObject.activeInHierarchy && (gameObject.scene.name.Contains("Environment") || gameObject.layer == 14 || gameObject.layer == 13))
-                {
-                    _gameObjectInfos.Add(new GameObjectInfo(gameObject));
+                _gameObjectInfos.Add(new GameObjectInfo(gameObject));
 
-                    // seriously what the fuck beat games
-                    // GradientBackground permanently yeeted because it looks awful and can ruin multi-colored chroma maps
-                    if (gameObject.name == "GradientBackground")
-                    {
-                        gameObject.SetActive(false);
-                    }
+                // seriously what the fuck beat games
+                // GradientBackground permanently yeeted because it looks awful and can ruin multi-colored chroma maps
+                if (gameObject.name == "GradientBackground")
+                {
+                    gameObject.SetActive(false);
                 }
+            }
+        }
+
+        private static void GetChildRecursive(Transform gameObject, ref List<Transform> children)
+        {
+            foreach (Transform child in gameObject)
+            {
+                children.Add(child);
+                GetChildRecursive(child, ref children);
             }
         }
     }
