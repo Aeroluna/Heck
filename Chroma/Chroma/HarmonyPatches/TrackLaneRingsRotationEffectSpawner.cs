@@ -9,11 +9,15 @@
     {
         private static void Prefix(ref TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect)
         {
-            TrackLaneRingsRotationEffect oldRotationEffect = ____trackLaneRingsRotationEffect;
-            ChromaRingsRotationEffect newRotationEffect = oldRotationEffect.gameObject.AddComponent<ChromaRingsRotationEffect>();
-            newRotationEffect.CopyValues(oldRotationEffect);
+            if (____trackLaneRingsRotationEffect.GetType() == typeof(TrackLaneRingsRotationEffect))
+            {
+                TrackLaneRingsRotationEffect oldRotationEffect = ____trackLaneRingsRotationEffect;
+                ChromaRingsRotationEffect newRotationEffect = oldRotationEffect.gameObject.AddComponent<ChromaRingsRotationEffect>();
+                newRotationEffect.CopyValues(oldRotationEffect);
+                UnityEngine.Object.Destroy(oldRotationEffect);
 
-            ____trackLaneRingsRotationEffect = newRotationEffect;
+                ____trackLaneRingsRotationEffect = newRotationEffect;
+            }
         }
     }
 

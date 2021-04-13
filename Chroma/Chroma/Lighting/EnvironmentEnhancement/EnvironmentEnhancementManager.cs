@@ -22,10 +22,6 @@
     internal static class EnvironmentEnhancementManager
     {
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
-        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _prevRotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_prevRotZ");
-        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
-        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _prevPosZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_prevPosZ");
-        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
 
         private static List<GameObjectInfo> _gameObjectInfos;
 
@@ -110,10 +106,13 @@
 
                             for (int i = 0; i < dupeAmount.Value; i++)
                             {
+                                List<IComponentData> componentDatas = new List<IComponentData>();
+                                ComponentInitializer.PrefillComponentsData(gameObject.transform, componentDatas);
                                 GameObject newGameObject = UnityEngine.Object.Instantiate(gameObject);
+                                ComponentInitializer.PostfillComponentsData(newGameObject.transform, gameObject.transform, componentDatas);
                                 SceneManager.MoveGameObjectToScene(newGameObject, scene);
                                 newGameObject.transform.SetParent(parent, true);
-                                ComponentInitializer.InitializeComponents(newGameObject.transform, gameObject.transform, _gameObjectInfos);
+                                ComponentInitializer.InitializeComponents(newGameObject.transform, gameObject.transform, _gameObjectInfos, componentDatas);
                                 gameObjectInfos.AddRange(_gameObjectInfos.Where(n => n.GameObject == newGameObject));
                             }
                         }
@@ -166,17 +165,11 @@
                             if (position.HasValue || localPosition.HasValue)
                             {
                                 _positionOffsetAccessor(ref trackLaneRing) = transform.localPosition;
-                                float zPosition = transform.position.z;
-                                _prevPosZAccessor(ref trackLaneRing) = zPosition;
-                                _posZAccessor(ref trackLaneRing) = zPosition;
                             }
 
                             if (rotation.HasValue || localRotation.HasValue)
                             {
                                 RingRotationOffsets[trackLaneRing] = transform.localEulerAngles;
-                                float zRotation = transform.rotation.z;
-                                _prevRotZAccessor(ref trackLaneRing) = zRotation;
-                                _rotZAccessor(ref trackLaneRing) = zRotation;
                             }
                         }
 

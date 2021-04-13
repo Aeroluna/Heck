@@ -56,6 +56,7 @@
     <Compile Include="Lighting\ChromaGradientController.cs" />
     <Compile Include="Lighting\ChromaRingsRotationEffect.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataTransformHelper.cs" />
+    <Compile Include="Lighting\EnvironmentEnhancement\ComponentData.cs" />
     <Compile Include="Lighting\EnvironmentEnhancement\ComponentInitializer.cs" />
     <Compile Include="Lighting\EnvironmentEnhancement\EnvironmentEnhancementManager.cs" />
     <Compile Include="Lighting\EnvironmentEnhancement\GameObjectInfo.cs" />

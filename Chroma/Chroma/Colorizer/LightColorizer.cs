@@ -9,8 +9,6 @@
 
     public static class LightColorizer
     {
-        private static readonly FieldAccessor<LightWithIdMonoBehaviour, LightWithIdManager>.Accessor _lightWithIdMonoBehaviourManagerAccessor = FieldAccessor<LightWithIdMonoBehaviour, LightWithIdManager>.GetAccessor("_lightManager");
-        private static readonly FieldAccessor<LightWithIds, LightWithIdManager>.Accessor _lightWithIdsManagerAccessor = FieldAccessor<LightWithIds, LightWithIdManager>.GetAccessor("_lightManager");
         private static readonly FieldInfo _lightWithIdsData = typeof(LightWithIds).GetField("_lightIntensityData");
 
         private static readonly Dictionary<MonoBehaviour, LSEColorManager> _lseColorManagers = new Dictionary<MonoBehaviour, LSEColorManager>();
@@ -76,15 +74,11 @@
                         break;
                     }
 
-                    _lightWithIdMonoBehaviourManagerAccessor(ref monoBehaviour) = monomanager.LightManager;
                     LightIDTableManager.RegisterIndex(monoBehaviour.lightId - 1, monomanager.Lights.Count);
                     monomanager.Lights.Add(monoBehaviour);
                     break;
 
                 case LightWithIds lightWithIds:
-                    LightWithIdManager lightManager = _lseColorManagers.First().Value.LightManager;
-                    _lightWithIdsManagerAccessor(ref lightWithIds) = lightManager;
-
                     IEnumerable<ILightWithId> lightsWithId = ((IEnumerable)_lightWithIdsData.GetValue(lightWithId)).Cast<ILightWithId>();
                     foreach (ILightWithId light in lightsWithId)
                     {
@@ -177,11 +171,11 @@
                     InitializeSOs(mono, "_highlightColor1Boost", ref _lightColor1Boost, ref _lightColor1Boost_Original, ref _mHighlightColor1Boost);
                     _supportBoostColor = true;
 
-                    LightManager = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager");
-                    Lights = LightManager.GetField<List<ILightWithId>[], LightWithIdManager>("_lights")[lse.lightsId].ToList();
+                    LightWithIdManager lightManager = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager");
+                    Lights = lightManager.GetField<List<ILightWithId>[], LightWithIdManager>("_lights")[lse.lightsId].ToList();
 
                     IDictionary<int, List<ILightWithId>> lightsPreGroup = new Dictionary<int, List<ILightWithId>>();
-                    TrackLaneRingsManager[] managers = UnityEngine.Object.FindObjectsOfType<TrackLaneRingsManager>();
+                    TrackLaneRingsManager[] managers = Object.FindObjectsOfType<TrackLaneRingsManager>();
                     foreach (ILightWithId light in Lights)
                     {
                         if (light is MonoBehaviour monoBehaviour)
@@ -224,8 +218,6 @@
                     }
                 }
             }
-
-            internal LightWithIdManager LightManager { get; }
 
             internal List<ILightWithId> Lights { get; }
 

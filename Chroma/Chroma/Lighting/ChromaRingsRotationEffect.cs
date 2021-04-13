@@ -31,6 +31,11 @@
             _activeRingRotationEffects.Add(ringRotationEffect);
         }
 
+        internal void SetNewRingManager(TrackLaneRingsManager trackLaneRingsManager)
+        {
+            _trackLaneRingsManager = trackLaneRingsManager;
+        }
+
         internal void CopyValues(TrackLaneRingsRotationEffect trackLaneRingsRotationEffect)
         {
             _trackLaneRingsManager = _trackLaneRingsManagerAccessor(ref trackLaneRingsRotationEffect);

@@ -1,11 +1,17 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using HarmonyLib;
     using UnityEngine;
+
+    // This whole file effectively changes _rotZ and _posZ from directly affecting the coordinate to being an offset
+    [ChromaPatch(typeof(TrackLaneRing))]
+    [ChromaPatch("Init")]
+    internal static class TrackLaneRingInit
+    {
+        private static void Postfix(ref float ____posZ, Vector3 position)
+        {
+            ____posZ = position.z;
+        }
+    }
 
     [ChromaPatch(typeof(TrackLaneRing))]
     [ChromaPatch("FixedUpdateRing")]
