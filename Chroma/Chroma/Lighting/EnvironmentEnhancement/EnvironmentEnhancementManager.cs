@@ -58,6 +58,7 @@
             {
                 SkipRingUpdate.Clear();
                 RingRotationOffsets.Clear();
+                ParametricBoxControllerParameters.TransformParameters.Clear();
 
                 if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                 {
@@ -173,9 +174,24 @@
                             }
                         }
 
+                        // Handle ParametricBoxController
+                        ParametricBoxController parametricBoxController = gameObject.GetComponent<ParametricBoxController>();
+                        if (parametricBoxController != null)
+                        {
+                            if (position.HasValue || localPosition.HasValue)
+                            {
+                                ParametricBoxControllerParameters.SetTransformPosition(parametricBoxController, transform.localPosition);
+                            }
+
+                            if (scale.HasValue)
+                            {
+                                ParametricBoxControllerParameters.SetTransformScale(parametricBoxController, transform.localScale);
+                            }
+                        }
+
                         if (NoodleExtensionsInstalled)
                         {
-                            GameObjectTrackController.HandleTrackData(gameObject, gameObjectData, customBeatmapData, noteLinesDistance, trackLaneRing);
+                            GameObjectTrackController.HandleTrackData(gameObject, gameObjectData, customBeatmapData, noteLinesDistance, trackLaneRing, parametricBoxController);
                         }
                     }
 

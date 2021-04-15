@@ -1,5 +1,6 @@
 ﻿namespace Chroma
 {
+    using IPA.Utilities;
     using NoodleExtensions;
     using NoodleExtensions.Animation;
     using UnityEngine;
@@ -8,13 +9,23 @@
 
     internal class GameObjectTrackController : MonoBehaviour
     {
+        private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
+
         private Track _track;
 
         private float _noteLinesDistance;
 
         private TrackLaneRing _trackLaneRing;
 
-        internal static void HandleTrackData(GameObject gameObject, dynamic gameObjectData, IReadonlyBeatmapData beatmapData, float noteLinesDistance, TrackLaneRing trackLaneRing)
+        private ParametricBoxController _parametricBoxController;
+
+        internal static void HandleTrackData(
+            GameObject gameObject,
+            dynamic gameObjectData,
+            IReadonlyBeatmapData beatmapData,
+            float noteLinesDistance,
+            TrackLaneRing trackLaneRing,
+            ParametricBoxController parametricBoxController)
         {
             if (NoodleController.NoodleExtensionsActive)
             {
@@ -22,16 +33,17 @@
                 if (track != null)
                 {
                     GameObjectTrackController trackController = gameObject.AddComponent<GameObjectTrackController>();
-                    trackController.Init(track, noteLinesDistance, trackLaneRing);
+                    trackController.Init(track, noteLinesDistance, trackLaneRing, parametricBoxController);
                 }
             }
         }
 
-        internal void Init(Track track, float noteLinesDistance, TrackLaneRing trackLaneRing)
+        internal void Init(Track track, float noteLinesDistance, TrackLaneRing trackLaneRing, ParametricBoxController parametricBoxController)
         {
             _track = track;
             _noteLinesDistance = noteLinesDistance;
             _trackLaneRing = trackLaneRing;
+            _parametricBoxController = parametricBoxController;
         }
 
         private void Update()
@@ -71,11 +83,35 @@
             {
                 if (position.HasValue || localPosition.HasValue || rotation.HasValue || localRotation.HasValue)
                 {
+                    if (position.HasValue || localPosition.HasValue)
+                    {
+                        _positionOffsetAccessor(ref _trackLaneRing) = transform.localPosition;
+                    }
+
+                    if (rotation.HasValue || localRotation.HasValue)
+                    {
+                        EnvironmentEnhancementManager.RingRotationOffsets[_trackLaneRing] = transform.localEulerAngles;
+                    }
+
                     EnvironmentEnhancementManager.SkipRingUpdate[_trackLaneRing] = true;
                 }
                 else
                 {
                     EnvironmentEnhancementManager.SkipRingUpdate[_trackLaneRing] = false;
+                }
+            }
+
+            // Handle ParametricBoxController
+            if (_parametricBoxController != null)
+            {
+                if (position.HasValue || localPosition.HasValue)
+                {
+                    ParametricBoxControllerParameters.SetTransformPosition(_parametricBoxController, transform.localPosition);
+                }
+
+                if (scale.HasValue)
+                {
+                    ParametricBoxControllerParameters.SetTransformScale(_parametricBoxController, transform.localScale);
                 }
             }
         }

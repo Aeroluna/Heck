@@ -49,6 +49,7 @@
     <Compile Include="HarmonyPatches\TrackLaneRing.cs" />
     <Compile Include="HarmonyPatches\LightWithIdManager.cs" />
     <Compile Include="HarmonyPatches\TrackLaneRingsManager.cs" />
+    <Compile Include="HarmonyPatches\ParametricBoxController.cs" />
     <Compile Include="Lighting\ChromaEventData.cs" />
     <Compile Include="ChromaObjectData.cs" />
     <Compile Include="ChromaPatch.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="Lighting\EnvironmentEnhancement\GameObjectInfo.cs" />
     <Compile Include="Lighting\EnvironmentEnhancement\GameObjectTrackController.cs" />
     <Compile Include="Lighting\EnvironmentEnhancement\LegacyEnvironmentRemoval.cs" />
+    <Compile Include="Lighting\EnvironmentEnhancement\ParametricBoxControllerParameters.cs" />
     <Compile Include="Lighting\LightIDTableManager.cs" />
     <Compile Include="Colorizer\BombColorizer.cs" />
     <Compile Include="Colorizer\SaberColorizer.cs" />
