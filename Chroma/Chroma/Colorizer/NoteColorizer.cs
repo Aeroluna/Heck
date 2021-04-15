@@ -1,7 +1,6 @@
 ﻿namespace Chroma.Colorizer
 {
     using System.Collections.Generic;
-    using System.Linq;
     using CustomJSONData.CustomBeatmap;
     using IPA.Utilities;
     using UnityEngine;
@@ -64,9 +63,9 @@
 
         internal static void EnableNoteColorOverride(NoteController noteController)
         {
-            ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[noteController.noteData];
-            NoteColorOverride[0] = chromaData.Color0 ?? CNVColorManager.GlobalColor[0];
-            NoteColorOverride[1] = chromaData.Color1 ?? CNVColorManager.GlobalColor[1];
+            ChromaObjectData chromaData = ChromaObjectDatas[noteController.noteData];
+            NoteColorOverride[0] = chromaData.Color ?? CNVColorManager.GlobalColor[0];
+            NoteColorOverride[1] = chromaData.Color ?? CNVColorManager.GlobalColor[1];
         }
 
         internal static void DisableNoteColorOverride()
@@ -186,20 +185,20 @@
 
             internal void Reset()
             {
-                _chromaData.Color0 = null;
-                _chromaData.Color1 = null;
+                _chromaData.Color = null;
             }
 
             internal void SetNoteColors(Color? color0, Color? color1)
             {
-                if (color0.HasValue)
+                switch (_noteData.colorType)
                 {
-                    _chromaData.Color0 = color0.Value;
-                }
+                    case ColorType.ColorA:
+                        _chromaData.Color = color0.Value;
+                        break;
 
-                if (color1.HasValue)
-                {
-                    _chromaData.Color1 = color1.Value;
+                    case ColorType.ColorB:
+                        _chromaData.Color = color1.Value;
+                        break;
                 }
             }
 
