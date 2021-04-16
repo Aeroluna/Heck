@@ -10,6 +10,8 @@
     internal class GameObjectTrackController : MonoBehaviour
     {
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
+        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
+        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
 
         private Track _track;
 
@@ -86,11 +88,13 @@
                     if (position.HasValue || localPosition.HasValue)
                     {
                         _positionOffsetAccessor(ref _trackLaneRing) = transform.localPosition;
+                        _posZAccessor(ref _trackLaneRing) = 0;
                     }
 
                     if (rotation.HasValue || localRotation.HasValue)
                     {
                         EnvironmentEnhancementManager.RingRotationOffsets[_trackLaneRing] = transform.localEulerAngles;
+                        _rotZAccessor(ref _trackLaneRing) = 0;
                     }
 
                     EnvironmentEnhancementManager.SkipRingUpdate[_trackLaneRing] = true;

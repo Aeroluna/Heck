@@ -22,6 +22,8 @@
     internal static class EnvironmentEnhancementManager
     {
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
+        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
+        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
 
         private static List<GameObjectInfo> _gameObjectInfos;
 
@@ -166,11 +168,13 @@
                             if (position.HasValue || localPosition.HasValue)
                             {
                                 _positionOffsetAccessor(ref trackLaneRing) = transform.localPosition;
+                                _posZAccessor(ref trackLaneRing) = 0;
                             }
 
                             if (rotation.HasValue || localRotation.HasValue)
                             {
                                 RingRotationOffsets[trackLaneRing] = transform.localEulerAngles;
+                                _rotZAccessor(ref trackLaneRing) = 0;
                             }
                         }
 
