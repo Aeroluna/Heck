@@ -1,5 +1,6 @@
 ﻿namespace Chroma
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Chroma.Colorizer;
@@ -66,7 +67,7 @@
             TrackLaneRingsRotationEffect rotationEffect = root.GetComponent<TrackLaneRingsRotationEffect>();
             if (rotationEffect != null)
             {
-                Object.Destroy(rotationEffect);
+                UnityEngine.Object.Destroy(rotationEffect);
             }
 
             foreach (Transform transform in root)
@@ -78,35 +79,44 @@
 
         internal static void InitializeComponents(Transform root, Transform original, List<GameObjectInfo> gameObjectInfos, List<IComponentData> componentDatas)
         {
-            LightWithIdMonoBehaviour lightWithIdMonoBehaviour = root.GetComponent<LightWithIdMonoBehaviour>();
-            if (lightWithIdMonoBehaviour != null)
+            void GetComponentAndOriginal<T>(Action<T, T> initializeDelegate)
             {
-                LightWithIdMonoBehaviour originalLight = original.GetComponent<LightWithIdMonoBehaviour>();
-                _lightWithIdMonoBehaviourManagerAccessor(ref lightWithIdMonoBehaviour) = _lightWithIdMonoBehaviourManagerAccessor(ref originalLight);
-                LightColorizer.RegisterLight(lightWithIdMonoBehaviour);
-            }
+                T[] rootComponents = root.GetComponents<T>();
+                T[] originalComponents = original.GetComponents<T>();
 
-            LightWithIds lightWithIds = root.GetComponent<LightWithIds>();
-            if (lightWithIds != null)
-            {
-                LightWithIds originalLight = original.GetComponent<LightWithIds>();
-                _lightWithIdsManagerAccessor(ref lightWithIds) = _lightWithIdsManagerAccessor(ref originalLight);
-                LightColorizer.RegisterLight(lightWithIds);
-            }
-
-            TrackLaneRing trackLaneRing = root.GetComponent<TrackLaneRing>();
-            if (trackLaneRing != null)
-            {
-                TrackLaneRing originalRing = original.GetComponent<TrackLaneRing>();
-
-                if (EnvironmentEnhancementManager.RingRotationOffsets.TryGetValue(originalRing, out Quaternion offset))
+                for (int i = 0; i < rootComponents.Length; i++)
                 {
-                    EnvironmentEnhancementManager.RingRotationOffsets.Add(trackLaneRing, offset);
+                    initializeDelegate(rootComponents[i], originalComponents[i]);
+
+                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                    {
+                        ChromaLogger.Log($"Initialized {typeof(T).Name}");
+                    }
+                }
+            }
+
+            GetComponentAndOriginal<LightWithIdMonoBehaviour>((rootComponent, originalComponent) =>
+            {
+                _lightWithIdMonoBehaviourManagerAccessor(ref rootComponent) = _lightWithIdMonoBehaviourManagerAccessor(ref originalComponent);
+                LightColorizer.RegisterLight(rootComponent);
+            });
+
+            GetComponentAndOriginal<LightWithIds>((rootComponent, originalComponent) =>
+            {
+                _lightWithIdsManagerAccessor(ref rootComponent) = _lightWithIdsManagerAccessor(ref originalComponent);
+                LightColorizer.RegisterLight(rootComponent);
+            });
+
+            GetComponentAndOriginal<TrackLaneRing>((rootComponent, originalComponent) =>
+            {
+                if (EnvironmentEnhancementManager.RingRotationOffsets.TryGetValue(originalComponent, out Quaternion offset))
+                {
+                    EnvironmentEnhancementManager.RingRotationOffsets.Add(rootComponent, offset);
                 }
 
-                _ringTransformAccessor(ref trackLaneRing) = root;
-                _positionOffsetAccessor(ref trackLaneRing) = _positionOffsetAccessor(ref originalRing);
-                _posZAccessor(ref trackLaneRing) = _posZAccessor(ref originalRing);
+                _ringTransformAccessor(ref rootComponent) = root;
+                _positionOffsetAccessor(ref rootComponent) = _positionOffsetAccessor(ref originalComponent);
+                _posZAccessor(ref rootComponent) = _posZAccessor(ref originalComponent);
 
                 TrackLaneRingsManager managerToAdd = null;
                 foreach (TrackLaneRingsManager manager in HarmonyPatches.TrackLaneRingsManagerAwake.RingManagers)
@@ -120,7 +130,7 @@
                     {
                         TrackLaneRingsManager managerRef = manager;
                         TrackLaneRing[] rings = _ringsAccessor(ref managerRef);
-                        if (rings.Contains(originalRing))
+                        if (rings.Contains(originalComponent))
                         {
                             managerToAdd = manager;
                         }
@@ -131,148 +141,79 @@
                         // ToList() to add and then back ToArray()
                         TrackLaneRing[] rings = _ringsAccessor(ref managerToAdd);
                         List<TrackLaneRing> ringsList = rings?.ToList() ?? new List<TrackLaneRing>();
-                        ringsList.Add(trackLaneRing);
+                        ringsList.Add(rootComponent);
                         _ringsAccessor(ref managerToAdd) = ringsList.ToArray();
 
-                        if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
-                        {
-                            ChromaLogger.Log($"Initialized TrackLaneRing");
-                        }
-
                         break;
                     }
                 }
-            }
+            });
 
-            TrackLaneRingsPositionStepEffectSpawner positionStepEffectSpawner = root.GetComponent<TrackLaneRingsPositionStepEffectSpawner>();
-            if (positionStepEffectSpawner != null)
+            GetComponentAndOriginal<TrackLaneRingsPositionStepEffectSpawner>((rootComponent, originalComponent) =>
             {
                 foreach (TrackLaneRingsManager manager in HarmonyPatches.TrackLaneRingsManagerAwake.RingManagers)
                 {
                     TrackLaneRingsManagerComponentData componentData = componentDatas.OfType<TrackLaneRingsManagerComponentData>().Where(n => n.OldTrackLaneRingsManager == manager).FirstOrDefault();
                     if (componentData != null)
                     {
-                        _stepSpawnerRingsManagerAccessor(ref positionStepEffectSpawner) = componentData.NewTrackLaneRingsManager;
-
-                        if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
-                        {
-                            ChromaLogger.Log($"Initialized TrackLaneRingsPositionStepEffectSpawner");
-                        }
+                        _stepSpawnerRingsManagerAccessor(ref rootComponent) = componentData.NewTrackLaneRingsManager;
 
                         break;
                     }
                 }
-            }
+            });
 
-            ChromaRingsRotationEffect ringsRotationEffect = root.GetComponent<ChromaRingsRotationEffect>();
-            if (ringsRotationEffect != null)
+            GetComponentAndOriginal<ChromaRingsRotationEffect>((rootComponent, originalComponent) =>
             {
                 foreach (TrackLaneRingsManager manager in HarmonyPatches.TrackLaneRingsManagerAwake.RingManagers)
                 {
                     TrackLaneRingsManagerComponentData componentData = componentDatas.OfType<TrackLaneRingsManagerComponentData>().Where(n => n.OldTrackLaneRingsManager == manager).FirstOrDefault();
                     if (componentData != null)
                     {
-                        ringsRotationEffect.SetNewRingManager(componentData.NewTrackLaneRingsManager);
-
-                        if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
-                        {
-                            ChromaLogger.Log($"Initialized ChromaRingsRotationEffect");
-                        }
+                        rootComponent.SetNewRingManager(componentData.NewTrackLaneRingsManager);
 
                         break;
                     }
                 }
+            });
 
-                TrackLaneRingsRotationEffectSpawner rotationEffectSpawner = root.GetComponent<TrackLaneRingsRotationEffectSpawner>();
-                if (rotationEffectSpawner != null)
-                {
-                    TrackLaneRingsRotationEffectSpawner originalRotationEffectSpawner = original.GetComponent<TrackLaneRingsRotationEffectSpawner>();
-
-                    _rotationEffectSpawnerCallbackControllerAccessor(ref rotationEffectSpawner) = _rotationEffectSpawnerCallbackControllerAccessor(ref originalRotationEffectSpawner);
-                    _trackLaneRingsRotationEffectAccessor(ref rotationEffectSpawner) = ringsRotationEffect;
-
-                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
-                    {
-                        ChromaLogger.Log($"Initialized TrackLaneRingsRotationEffectSpawner");
-                    }
-                }
-            }
-
-            Spectrogram spectrogram = root.GetComponent<Spectrogram>();
-            if (spectrogram != null)
+            GetComponentAndOriginal<TrackLaneRingsRotationEffectSpawner>((rootComponent, originalComponent) =>
             {
-                Spectrogram originalSpectrogram = original.GetComponent<Spectrogram>();
+                _rotationEffectSpawnerCallbackControllerAccessor(ref rootComponent) = _rotationEffectSpawnerCallbackControllerAccessor(ref originalComponent);
+                _trackLaneRingsRotationEffectAccessor(ref rootComponent) = rootComponent.GetComponent<ChromaRingsRotationEffect>();
+            });
 
-                _spectrogramDataAccessor(ref spectrogram) = _spectrogramDataAccessor(ref originalSpectrogram);
+            GetComponentAndOriginal<Spectrogram>((rootComponent, originalComponent) => _spectrogramDataAccessor(ref rootComponent) = _spectrogramDataAccessor(ref originalComponent));
 
-                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
-                {
-                    ChromaLogger.Log($"Initialized Spectrogram");
-                }
-            }
+            GetComponentAndOriginal<LightRotationEventEffect>((rootComponent, originalComponent) => _lightCallbackControllerAccessor(ref rootComponent) = _lightCallbackControllerAccessor(ref originalComponent));
 
-            LightRotationEventEffect lightRotationEvent = root.GetComponent<LightRotationEventEffect>();
-            if (lightRotationEvent != null)
+            GetComponentAndOriginal<LightPairRotationEventEffect>((rootComponent, originalComponent) =>
             {
-                LightRotationEventEffect originalLightRotationEvent = original.GetComponent<LightRotationEventEffect>();
+                _lightPairCallbackControllerAccessor(ref rootComponent) = _lightPairCallbackControllerAccessor(ref originalComponent);
 
-                _lightCallbackControllerAccessor(ref lightRotationEvent) = _lightCallbackControllerAccessor(ref originalLightRotationEvent);
+                Transform transformL = _transformLAccessor(ref originalComponent);
+                Transform transformR = _transformRAccessor(ref originalComponent);
 
-                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
-                {
-                    ChromaLogger.Log($"Initialized LightRotationEventEffect");
-                }
-            }
-
-            LightPairRotationEventEffect lightPairRotationEvent = root.GetComponent<LightPairRotationEventEffect>();
-            if (lightPairRotationEvent != null)
-            {
-                LightPairRotationEventEffect originalLightPairRotationEvent = original.GetComponent<LightPairRotationEventEffect>();
-
-                _lightPairCallbackControllerAccessor(ref lightPairRotationEvent) = _lightPairCallbackControllerAccessor(ref originalLightPairRotationEvent);
-
-                Transform transformL = _transformLAccessor(ref originalLightPairRotationEvent);
-                Transform transformR = _transformRAccessor(ref originalLightPairRotationEvent);
-
-                _transformLAccessor(ref lightPairRotationEvent) = root.GetChild(transformL.GetSiblingIndex());
-                _transformRAccessor(ref lightPairRotationEvent) = root.GetChild(transformR.GetSiblingIndex());
+                _transformLAccessor(ref rootComponent) = root.GetChild(transformL.GetSiblingIndex());
+                _transformRAccessor(ref rootComponent) = root.GetChild(transformR.GetSiblingIndex());
 
                 // We have to enable the object to tell unity to run Start
-                lightPairRotationEvent.enabled = true;
+                rootComponent.enabled = true;
+            });
 
-                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
-                {
-                    ChromaLogger.Log($"Initialized LightPairRotationEventEffect");
-                }
-            }
-
-            ParticleSystemEventEffect particleSystemEvent = root.GetComponent<ParticleSystemEventEffect>();
-            if (particleSystemEvent != null)
+            GetComponentAndOriginal<ParticleSystemEventEffect>((rootComponent, originalComponent) =>
             {
-                ParticleSystemEventEffect originalParticleSystemEvent = original.GetComponent<ParticleSystemEventEffect>();
+                _particleCallbackControllerAccessor(ref rootComponent) = _particleCallbackControllerAccessor(ref originalComponent);
+                _particleSystemAccessor(ref rootComponent) = root.GetComponent<ParticleSystem>();
 
-                _particleCallbackControllerAccessor(ref particleSystemEvent) = _particleCallbackControllerAccessor(ref originalParticleSystemEvent);
-                _particleSystemAccessor(ref particleSystemEvent) = root.GetComponent<ParticleSystem>();
+                rootComponent.enabled = true;
+            });
 
-                particleSystemEvent.enabled = true;
-
-                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
-                {
-                    ChromaLogger.Log($"Initialized ParticleSystemEventEffect");
-                }
-            }
-
-            Mirror mirror = root.GetComponent<Mirror>();
-            if (mirror != null)
+            GetComponentAndOriginal<Mirror>((rootComponent, originalComponent) =>
             {
-                _mirrorRendererAccessor(ref mirror) = Object.Instantiate(_mirrorRendererAccessor(ref mirror));
-                _mirrorMaterialAccessor(ref mirror) = Object.Instantiate(_mirrorMaterialAccessor(ref mirror));
-
-                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
-                {
-                    ChromaLogger.Log($"Initialized Mirror");
-                }
-            }
+                _mirrorRendererAccessor(ref rootComponent) = UnityEngine.Object.Instantiate(_mirrorRendererAccessor(ref originalComponent));
+                _mirrorMaterialAccessor(ref rootComponent) = UnityEngine.Object.Instantiate(_mirrorMaterialAccessor(ref originalComponent));
+            });
 
             GameObjectInfo newGameObjectInfo = new GameObjectInfo(root.gameObject);
             gameObjectInfos.Add(newGameObjectInfo);
