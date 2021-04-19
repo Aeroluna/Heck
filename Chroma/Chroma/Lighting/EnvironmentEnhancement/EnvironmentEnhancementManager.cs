@@ -27,9 +27,7 @@
 
         private static List<GameObjectInfo> _gameObjectInfos;
 
-        internal static Dictionary<TrackLaneRing, bool> SkipRingUpdate { get; } = new Dictionary<TrackLaneRing, bool>();
-
-        internal static Dictionary<TrackLaneRing, Vector3> RingRotationOffsets { get; } = new Dictionary<TrackLaneRing, Vector3>();
+        internal static Dictionary<TrackLaneRing, Quaternion> RingRotationOffsets { get; } = new Dictionary<TrackLaneRing, Quaternion>();
 
         internal static void SubscribeTrackManagerCreated()
         {
@@ -58,7 +56,6 @@
             GetAllGameObjects();
             if (environmentData != null)
             {
-                SkipRingUpdate.Clear();
                 RingRotationOffsets.Clear();
                 ParametricBoxControllerParameters.TransformParameters.Clear();
 
@@ -173,7 +170,7 @@
 
                             if (rotation.HasValue || localRotation.HasValue)
                             {
-                                RingRotationOffsets[trackLaneRing] = transform.localEulerAngles;
+                                RingRotationOffsets[trackLaneRing] = transform.localRotation;
                                 _rotZAccessor(ref trackLaneRing) = 0;
                             }
                         }

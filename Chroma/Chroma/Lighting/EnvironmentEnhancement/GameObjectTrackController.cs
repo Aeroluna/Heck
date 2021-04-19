@@ -10,8 +10,6 @@
     internal class GameObjectTrackController : MonoBehaviour
     {
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
-        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
-        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
 
         private Track _track;
 
@@ -58,51 +56,78 @@
 
             if (rotation.HasValue && transform.rotation != rotation.Value)
             {
-                transform.rotation = rotation.Value;
+                // Delegate positioning the object to TrackLaneRing
+                if (_trackLaneRing != null)
+                {
+                    Quaternion finalOffset;
+                    if (transform.parent != null)
+                    {
+                        finalOffset = Quaternion.Inverse(transform.parent.rotation) * rotation.Value;
+                    }
+                    else
+                    {
+                        finalOffset = rotation.Value;
+                    }
+
+                    EnvironmentEnhancementManager.RingRotationOffsets[_trackLaneRing] = finalOffset;
+                }
+                else
+                {
+                    transform.rotation = rotation.Value;
+                }
             }
 
             if (localRotation.HasValue && transform.localRotation != localRotation.Value)
             {
-                transform.localRotation = localRotation.Value;
+                if (_trackLaneRing != null)
+                {
+                    EnvironmentEnhancementManager.RingRotationOffsets[_trackLaneRing] = localRotation.Value;
+                }
+                else
+                {
+                    transform.localRotation = localRotation.Value;
+                }
             }
 
             if (position.HasValue && transform.position != (position.Value * _noteLinesDistance))
             {
-                transform.position = position.Value * _noteLinesDistance;
+                Vector3 positionValue = position.Value * _noteLinesDistance;
+                if (_trackLaneRing != null)
+                {
+                    Vector3 finalOffset;
+                    if (transform.parent != null)
+                    {
+                        finalOffset = transform.parent.InverseTransformPoint(positionValue);
+                    }
+                    else
+                    {
+                        finalOffset = positionValue;
+                    }
+
+                    _positionOffsetAccessor(ref _trackLaneRing) = finalOffset;
+                }
+                else
+                {
+                    transform.position = positionValue;
+                }
             }
 
             if (localPosition.HasValue && transform.localPosition != localPosition.Value)
             {
-                transform.localPosition = localPosition.Value * _noteLinesDistance;
+                Vector3 localPositionValue = localPosition.Value * _noteLinesDistance;
+                if (_trackLaneRing != null)
+                {
+                    _positionOffsetAccessor(ref _trackLaneRing) = localPositionValue;
+                }
+                else
+                {
+                    transform.localPosition = localPositionValue;
+                }
             }
 
             if (scale.HasValue && transform.localScale != scale.Value)
             {
                 transform.localScale = scale.Value;
-            }
-
-            if (_trackLaneRing != null)
-            {
-                if (position.HasValue || localPosition.HasValue || rotation.HasValue || localRotation.HasValue)
-                {
-                    if (position.HasValue || localPosition.HasValue)
-                    {
-                        _positionOffsetAccessor(ref _trackLaneRing) = transform.localPosition;
-                        _posZAccessor(ref _trackLaneRing) = 0;
-                    }
-
-                    if (rotation.HasValue || localRotation.HasValue)
-                    {
-                        EnvironmentEnhancementManager.RingRotationOffsets[_trackLaneRing] = transform.localEulerAngles;
-                        _rotZAccessor(ref _trackLaneRing) = 0;
-                    }
-
-                    EnvironmentEnhancementManager.SkipRingUpdate[_trackLaneRing] = true;
-                }
-                else
-                {
-                    EnvironmentEnhancementManager.SkipRingUpdate[_trackLaneRing] = false;
-                }
             }
 
             // Handle ParametricBoxController

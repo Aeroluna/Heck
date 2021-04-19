@@ -99,7 +99,7 @@
             {
                 TrackLaneRing originalRing = original.GetComponent<TrackLaneRing>();
 
-                if (EnvironmentEnhancementManager.RingRotationOffsets.TryGetValue(originalRing, out Vector3 offset))
+                if (EnvironmentEnhancementManager.RingRotationOffsets.TryGetValue(originalRing, out Quaternion offset))
                 {
                     EnvironmentEnhancementManager.RingRotationOffsets.Add(trackLaneRing, offset);
                 }

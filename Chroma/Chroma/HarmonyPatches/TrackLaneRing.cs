@@ -18,7 +18,6 @@
     internal static class TrackLaneRingFixedUpdateRing
     {
         private static bool Prefix(
-            TrackLaneRing __instance,
             float fixedDeltaTime,
             ref float ____prevRotZ,
             ref float ____rotZ,
@@ -29,14 +28,6 @@
             float ____destPosZ,
             float ____moveSpeed)
         {
-            if (EnvironmentEnhancementManager.SkipRingUpdate != null && EnvironmentEnhancementManager.SkipRingUpdate.TryGetValue(__instance, out bool doSkip))
-            {
-                if (doSkip)
-                {
-                    return false;
-                }
-            }
-
             ____prevRotZ = ____rotZ;
             ____rotZ = Mathf.Lerp(____rotZ, ____destRotZ, fixedDeltaTime * ____rotationSpeed);
             ____prevPosZ = ____posZ;
@@ -60,18 +51,9 @@
             float ____posZ,
             Transform ____transform)
         {
-            if (EnvironmentEnhancementManager.SkipRingUpdate != null && EnvironmentEnhancementManager.SkipRingUpdate.TryGetValue(__instance, out bool doSkip))
+            if (!EnvironmentEnhancementManager.RingRotationOffsets.TryGetValue(__instance, out Quaternion rotation))
             {
-                if (doSkip)
-                {
-                    return false;
-                }
-            }
-
-            Quaternion rotation = Quaternion.identity;
-            if (EnvironmentEnhancementManager.RingRotationOffsets.TryGetValue(__instance, out Vector3 rotationOffset))
-            {
-                rotation = Quaternion.Euler(rotationOffset);
+                rotation = Quaternion.identity;
             }
 
             float interpolatedZPos = ____prevPosZ + ((____posZ - ____prevPosZ) * interpolationFactor);
