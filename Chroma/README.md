@@ -89,6 +89,10 @@ Example of _customData:
     * `"_stepMult"`: (float) Deprecated. Step is multiplied by this value.
     * `"_propMult"`: (float) Deprecated. Prop is multiplied by this value.
     * `"_speedMult"`: (float) Deprecated. Speed is multiplied by this value.
+* Precise Zoom Event
+  * `"_events"` -> `"_customData"`
+    * Can only be applied to ring zoom events.
+    * `"_step"`: (float) Dictates how much position offset is added between each ring.
 * Hide Note Spawn Effect
   * `"_notes"` -> `"_customData"`
     * `"_disableSpawnEffect"`: (bool) Set to true and the note spawn effect will be hidden.
