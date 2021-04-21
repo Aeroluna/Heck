@@ -5,7 +5,7 @@
   "gameVersion": "1.14.0",
   "id": "Chroma",
   "name": "Chroma",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "dependsOn": {
     "BeatSaberMarkupLanguage": "^1.5.1",
     "CustomJSONData": "^1.1.4",
