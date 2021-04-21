@@ -45,6 +45,7 @@ Example of `_customData`:
     * `"_cutDirection"`: (float) Rotate notes 360 degrees with as much precision as you want (0 is down). Will override `"_cutDirection"`.
     * `"_flip"`: `[flip line index, flip jump]` (float) Flip notes from an initial spawn position to its true position. [PREVIEW](https://streamable.com/9o2puz) (Map by AaltopahWi). Flip line index is the initial `x` the note will spawn at and flip jump is how high (or low) the note will jump up (or down) when flipping to its true position. Base game behaviour will set one note's flip jump to -1 and the other to 1.
     * `"_disableNoteGravity"`: (bool) When true, notes will no longer do [their animation where they float up](https://streamable.com/28rqhy).
+    * `"_disableNoteLook"`: (bool) When true, notes will no longer rotate towards the player.
 
 ## Obstacles
   * `"_obstacles"` -> `"_customData"`
