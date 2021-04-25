@@ -12,12 +12,11 @@
 
         internal static void ColorLightSwitch(MonoBehaviour monobehaviour, BeatmapEventData beatmapEventData)
         {
-            if (!ChromaEventDatas.TryGetValue(beatmapEventData, out ChromaEventData chromaEventData))
+            ChromaLightEventData chromaData = TryGetEventData<ChromaLightEventData>(beatmapEventData);
+            if (chromaData == null)
             {
                 return;
             }
-
-            ChromaLightEventData chromaData = (ChromaLightEventData)chromaEventData;
 
             Color? color = null;
 

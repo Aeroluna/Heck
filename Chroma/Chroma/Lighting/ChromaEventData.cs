@@ -10,98 +10,123 @@
 
     internal static class ChromaEventDataManager
     {
-        internal static Dictionary<BeatmapEventData, ChromaEventData> ChromaEventDatas { get; private set; }
+        private static Dictionary<BeatmapEventData, ChromaEventData> _chromaEventDatas;
+
+        internal static T TryGetEventData<T>(BeatmapEventData beatmapEventData)
+        {
+            if (_chromaEventDatas.TryGetValue(beatmapEventData, out ChromaEventData chromaEventData))
+            {
+                if (chromaEventData is T t)
+                {
+                    return t;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"ChromaEventData was not of type {typeof(T).Name}");
+                }
+            }
+
+            return default;
+        }
 
         internal static void DeserializeBeatmapData(IReadonlyBeatmapData beatmapData)
         {
-            ChromaEventDatas = new Dictionary<BeatmapEventData, ChromaEventData>();
+            _chromaEventDatas = new Dictionary<BeatmapEventData, ChromaEventData>();
             foreach (BeatmapEventData beatmapEventData in beatmapData.beatmapEventsData)
             {
-                if (beatmapEventData is CustomBeatmapEventData customBeatmapEventData)
+                try
                 {
-                    ChromaEventData chromaEventData;
-                    dynamic customData = customBeatmapEventData.customData;
-
-                    switch ((int)beatmapEventData.type)
+                    if (beatmapEventData is CustomBeatmapEventData customBeatmapEventData)
                     {
-                        case 0:
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 4:
-                            ChromaLightEventData chromaLightEventData = new ChromaLightEventData()
-                            {
-                                LightID = Trees.at(customData, LIGHTID),
-                                PropID = Trees.at(customData, PROPAGATIONID),
-                                ColorData = ChromaUtils.GetColorFromData(customData),
-                            };
+                        ChromaEventData chromaEventData;
+                        dynamic customData = customBeatmapEventData.customData;
 
-                            dynamic gradientObject = Trees.at(customData, LIGHTGRADIENT);
-                            if (gradientObject != null)
-                            {
-                                string easingstring = (string)Trees.at(gradientObject, EASING);
-                                Functions easing;
-                                if (string.IsNullOrEmpty(easingstring))
+                        switch ((int)beatmapEventData.type)
+                        {
+                            case 0:
+                            case 1:
+                            case 2:
+                            case 3:
+                            case 4:
+                                ChromaLightEventData chromaLightEventData = new ChromaLightEventData()
                                 {
-                                    easing = Functions.easeLinear;
-                                }
-                                else
-                                {
-                                    easing = (Functions)Enum.Parse(typeof(Functions), easingstring);
-                                }
-
-                                chromaLightEventData.GradientObject = new ChromaLightEventData.GradientObjectData()
-                                {
-                                    Duration = (float)Trees.at(gradientObject, DURATION),
-                                    StartColor = ChromaUtils.GetColorFromData(gradientObject, STARTCOLOR),
-                                    EndColor = ChromaUtils.GetColorFromData(gradientObject, ENDCOLOR),
-                                    Easing = easing,
+                                    LightID = Trees.at(customData, LIGHTID),
+                                    PropID = Trees.at(customData, PROPAGATIONID),
+                                    ColorData = ChromaUtils.GetColorFromData(customData),
                                 };
-                            }
 
-                            chromaEventData = chromaLightEventData;
+                                dynamic gradientObject = Trees.at(customData, LIGHTGRADIENT);
+                                if (gradientObject != null)
+                                {
+                                    string easingstring = (string)Trees.at(gradientObject, EASING);
+                                    Functions easing;
+                                    if (string.IsNullOrEmpty(easingstring))
+                                    {
+                                        easing = Functions.easeLinear;
+                                    }
+                                    else
+                                    {
+                                        easing = (Functions)Enum.Parse(typeof(Functions), easingstring);
+                                    }
 
-                            break;
+                                    chromaLightEventData.GradientObject = new ChromaLightEventData.GradientObjectData()
+                                    {
+                                        Duration = (float)Trees.at(gradientObject, DURATION),
+                                        StartColor = ChromaUtils.GetColorFromData(gradientObject, STARTCOLOR),
+                                        EndColor = ChromaUtils.GetColorFromData(gradientObject, ENDCOLOR),
+                                        Easing = easing,
+                                    };
+                                }
 
-                        case 8:
-                            chromaEventData = new ChromaRingRotationEventData()
-                            {
-                                NameFilter = Trees.at(customData, NAMEFILTER),
-                                Direction = (int?)Trees.at(customData, DIRECTION),
-                                CounterSpin = Trees.at(customData, COUNTERSPIN),
-                                Reset = Trees.at(customData, RESET),
-                                Step = (float?)Trees.at(customData, STEP),
-                                Prop = (float?)Trees.at(customData, PROP),
-                                Speed = (float?)Trees.at(customData, SPEED),
-                                Rotation = (float?)Trees.at(customData, ROTATION),
-                                StepMult = ((float?)Trees.at(customData, STEPMULT)).GetValueOrDefault(1f),
-                                PropMult = ((float?)Trees.at(customData, PROPMULT)).GetValueOrDefault(1f),
-                                SpeedMult = ((float?)Trees.at(customData, SPEEDMULT)).GetValueOrDefault(1f),
-                            };
-                            break;
+                                chromaEventData = chromaLightEventData;
 
-                        case 9:
-                            chromaEventData = new ChromaRingStepEventData()
-                            {
-                                Step = (float?)Trees.at(customData, STEP),
-                            };
-                            break;
+                                break;
 
-                        case 12:
-                        case 13:
-                            chromaEventData = new ChromaLaserSpeedEventData()
-                            {
-                                LockPosition = ((bool?)Trees.at(customData, LOCKPOSITION)).GetValueOrDefault(false),
-                                PreciseSpeed = ((float?)Trees.at(customData, SPEED)).GetValueOrDefault(((float?)Trees.at(customData, PRECISESPEED)).GetValueOrDefault(beatmapEventData.value)),
-                                Direction = ((int?)Trees.at(customData, DIRECTION)).GetValueOrDefault(-1),
-                            };
-                            break;
+                            case 8:
+                                chromaEventData = new ChromaRingRotationEventData()
+                                {
+                                    NameFilter = Trees.at(customData, NAMEFILTER),
+                                    Direction = (int?)Trees.at(customData, DIRECTION),
+                                    CounterSpin = Trees.at(customData, COUNTERSPIN),
+                                    Reset = Trees.at(customData, RESET),
+                                    Step = (float?)Trees.at(customData, STEP),
+                                    Prop = (float?)Trees.at(customData, PROP),
+                                    Speed = (float?)Trees.at(customData, SPEED),
+                                    Rotation = (float?)Trees.at(customData, ROTATION),
+                                    StepMult = ((float?)Trees.at(customData, STEPMULT)).GetValueOrDefault(1f),
+                                    PropMult = ((float?)Trees.at(customData, PROPMULT)).GetValueOrDefault(1f),
+                                    SpeedMult = ((float?)Trees.at(customData, SPEEDMULT)).GetValueOrDefault(1f),
+                                };
+                                break;
 
-                        default:
-                            continue;
+                            case 9:
+                                chromaEventData = new ChromaRingStepEventData()
+                                {
+                                    Step = (float?)Trees.at(customData, STEP),
+                                };
+                                break;
+
+                            case 12:
+                            case 13:
+                                chromaEventData = new ChromaLaserSpeedEventData()
+                                {
+                                    LockPosition = ((bool?)Trees.at(customData, LOCKPOSITION)).GetValueOrDefault(false),
+                                    PreciseSpeed = ((float?)Trees.at(customData, SPEED)).GetValueOrDefault(((float?)Trees.at(customData, PRECISESPEED)).GetValueOrDefault(beatmapEventData.value)),
+                                    Direction = ((int?)Trees.at(customData, DIRECTION)).GetValueOrDefault(-1),
+                                };
+                                break;
+
+                            default:
+                                continue;
+                        }
+
+                        _chromaEventDatas.Add(beatmapEventData, chromaEventData);
                     }
-
-                    ChromaEventDatas.Add(beatmapEventData, chromaEventData);
+                }
+                catch (Exception e)
+                {
+                    ChromaLogger.Log($"Could not create ChromaEventData for event {beatmapEventData.GetType().Name} at {beatmapEventData.time}", IPA.Logging.Logger.Level.Error);
+                    ChromaLogger.Log(e, IPA.Logging.Logger.Level.Error);
                 }
             }
         }

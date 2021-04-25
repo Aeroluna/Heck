@@ -17,12 +17,11 @@
         {
             if (beatmapEventData.type == ____event)
             {
-                if (!ChromaEventDatas.TryGetValue(beatmapEventData, out ChromaEventData chromaEventData))
+                ChromaLaserSpeedEventData chromaData = TryGetEventData<ChromaLaserSpeedEventData>(beatmapEventData);
+                if (chromaData == null)
                 {
                     return true;
                 }
-
-                ChromaLaserSpeedEventData chromaData = (ChromaLaserSpeedEventData)chromaEventData;
 
                 bool isLeftEvent = ____event == BeatmapEventType.Event12;
 
