@@ -86,6 +86,8 @@
 
     internal class ChromaNoteData : ChromaObjectData
     {
+        internal Color? InternalColor { get; set; }
+
         internal bool? DisableSpawnEffect { get; set; }
     }
 

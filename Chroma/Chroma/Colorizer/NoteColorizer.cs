@@ -1,11 +1,11 @@
 ﻿namespace Chroma.Colorizer
 {
     using System.Collections.Generic;
-    using CustomJSONData.CustomBeatmap;
     using IPA.Utilities;
     using UnityEngine;
     using static ChromaObjectDataManager;
 
+    // TODO: jesus christ i need to rewrite all the colorizer stuff
     public static class NoteColorizer
     {
         private static readonly Dictionary<NoteController, CNVColorManager> _cnvColorManagers = new Dictionary<NoteController, CNVColorManager>();
@@ -63,9 +63,9 @@
 
         internal static void EnableNoteColorOverride(NoteController noteController)
         {
-            ChromaObjectData chromaData = ChromaObjectDatas[noteController.noteData];
-            NoteColorOverride[0] = chromaData.Color ?? CNVColorManager.GlobalColor[0];
-            NoteColorOverride[1] = chromaData.Color ?? CNVColorManager.GlobalColor[1];
+            ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[noteController.noteData];
+            NoteColorOverride[0] = chromaData.InternalColor ?? CNVColorManager.GlobalColor[0];
+            NoteColorOverride[1] = chromaData.InternalColor ?? CNVColorManager.GlobalColor[1];
         }
 
         internal static void DisableNoteColorOverride()
@@ -118,7 +118,7 @@
             private readonly NoteController _nc;
             private readonly ColorManager _colorManager;
             private ChromaNoteData _chromaData;
-            private CustomNoteData _noteData;
+            private NoteData _noteData;
 
             private CNVColorManager(ColorNoteVisuals cnv, NoteController nc)
             {
@@ -126,10 +126,7 @@
                 _nc = nc;
                 _colorManager = _colorManagerAccessor(ref cnv);
                 _chromaData = (ChromaNoteData)ChromaObjectDatas[nc.noteData];
-                if (nc.noteData is CustomNoteData customNoteData)
-                {
-                    _noteData = customNoteData;
-                }
+                _noteData = nc.noteData;
             }
 
             internal static CNVColorManager GetCNVColorManager(NoteController nc)
@@ -147,13 +144,10 @@
                 CNVColorManager cnvColorManager = GetCNVColorManager(nc);
                 if (cnvColorManager != null)
                 {
-                    if (nc.noteData is CustomNoteData customNoteData)
-                    {
-                        ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[nc.noteData];
-                        cnvColorManager._noteData = customNoteData;
-                        cnvColorManager._chromaData = chromaData;
-                        cnvColorManager.Reset();
-                    }
+                    ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[nc.noteData];
+                    cnvColorManager._noteData = nc.noteData;
+                    cnvColorManager._chromaData = chromaData;
+                    cnvColorManager.Reset();
 
                     return null;
                 }
@@ -185,7 +179,7 @@
 
             internal void Reset()
             {
-                _chromaData.Color = null;
+                _chromaData.InternalColor = null;
             }
 
             internal void SetNoteColors(Color? color0, Color? color1)
@@ -193,11 +187,11 @@
                 switch (_noteData.colorType)
                 {
                     case ColorType.ColorA:
-                        _chromaData.Color = color0.Value;
+                        _chromaData.InternalColor = color0.Value;
                         break;
 
                     case ColorType.ColorB:
-                        _chromaData.Color = color1.Value;
+                        _chromaData.InternalColor = color1.Value;
                         break;
                 }
             }
