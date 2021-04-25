@@ -46,7 +46,12 @@
         {
             if (!(noteController is MultiplayerConnectedPlayerNoteController))
             {
-                ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[noteController.noteData];
+                ChromaNoteData chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
+                if (chromaData == null)
+                {
+                    return;
+                }
+
                 Color? color = chromaData.Color;
 
                 if (color.HasValue)

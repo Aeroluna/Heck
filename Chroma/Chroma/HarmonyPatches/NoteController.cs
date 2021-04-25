@@ -27,7 +27,11 @@
         {
             if (NoodleExtensions.NoodleController.NoodleExtensionsActive)
             {
-                ChromaNoodleData chromaData = ChromaNoodleDatas[noteData];
+                ChromaNoodleData chromaData = TryGetNoodleData(noteData);
+                if (chromaData == null)
+                {
+                    return;
+                }
 
                 Track track = chromaData.Track;
                 PointDefinition pathPointDefinition = chromaData.LocalPathColor;

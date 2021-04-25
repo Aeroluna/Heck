@@ -32,11 +32,14 @@
         {
             if (!(noteController is MultiplayerConnectedPlayerNoteController))
             {
-                ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[noteController.noteData];
-                bool? disable = chromaData.DisableSpawnEffect;
-                if (disable.HasValue && disable == true)
+                ChromaNoteData chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
+                if (chromaData != null)
                 {
-                    return false;
+                    bool? disable = chromaData.DisableSpawnEffect;
+                    if (disable.HasValue && disable == true)
+                    {
+                        return false;
+                    }
                 }
             }
 

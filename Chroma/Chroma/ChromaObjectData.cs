@@ -1,5 +1,6 @@
 ﻿namespace Chroma
 {
+    using System;
     using System.Collections.Generic;
     using Chroma.Utils;
     using CustomJSONData;
@@ -10,57 +11,91 @@
 
     internal static class ChromaObjectDataManager
     {
-        internal static Dictionary<BeatmapObjectData, ChromaObjectData> ChromaObjectDatas { get; private set; }
+        private static Dictionary<BeatmapObjectData, ChromaObjectData> _chromaObjectDatas;
+        private static Dictionary<BeatmapObjectData, ChromaNoodleData> _chromaNoodleDatas;
 
-        internal static Dictionary<BeatmapObjectData, ChromaNoodleData> ChromaNoodleDatas { get; private set; }
+        internal static T TryGetObjectData<T>(BeatmapObjectData beatmapObjectData)
+        {
+            if (_chromaObjectDatas.TryGetValue(beatmapObjectData, out ChromaObjectData chromaObjectData))
+            {
+                if (chromaObjectData is T t)
+                {
+                    return t;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"ChromaObjectData was not of type {typeof(T).Name}");
+                }
+            }
+
+            return default;
+        }
+
+        internal static ChromaNoodleData TryGetNoodleData(BeatmapObjectData beatmapObjectData)
+        {
+            if (_chromaNoodleDatas.TryGetValue(beatmapObjectData, out ChromaNoodleData chromaNoodleData))
+            {
+                return chromaNoodleData;
+            }
+
+            return default;
+        }
 
         internal static void DeserializeBeatmapData(IReadonlyBeatmapData beatmapData)
         {
-            ChromaObjectDatas = new Dictionary<BeatmapObjectData, ChromaObjectData>();
+            _chromaObjectDatas = new Dictionary<BeatmapObjectData, ChromaObjectData>();
             if (NoodleExtensionsInstalled)
             {
-                ChromaNoodleDatas = new Dictionary<BeatmapObjectData, ChromaNoodleData>();
+                _chromaNoodleDatas = new Dictionary<BeatmapObjectData, ChromaNoodleData>();
             }
 
             foreach (BeatmapObjectData beatmapObjectData in beatmapData.beatmapObjectsData)
             {
-                ChromaObjectData chromaObjectData;
-                dynamic customData;
-
-                switch (beatmapObjectData)
+                try
                 {
-                    case CustomNoteData customNoteData:
-                        customData = customNoteData.customData;
-                        chromaObjectData = new ChromaNoteData()
-                        {
-                            Color = ChromaUtils.GetColorFromData(customData),
-                            DisableSpawnEffect = Trees.at(customData, DISABLESPAWNEFFECT),
-                        };
-                        break;
+                    ChromaObjectData chromaObjectData;
+                    dynamic customData;
 
-                    case CustomObstacleData customObstacleData:
-                        customData = customObstacleData.customData;
-                        chromaObjectData = new ChromaObjectData()
-                        {
-                            Color = ChromaUtils.GetColorFromData(customData),
-                        };
-                        break;
+                    switch (beatmapObjectData)
+                    {
+                        case CustomNoteData customNoteData:
+                            customData = customNoteData.customData;
+                            chromaObjectData = new ChromaNoteData()
+                            {
+                                Color = ChromaUtils.GetColorFromData(customData),
+                                DisableSpawnEffect = Trees.at(customData, DISABLESPAWNEFFECT),
+                            };
+                            break;
 
-                    case CustomWaypointData customWaypointData:
-                        customData = customWaypointData.customData;
-                        chromaObjectData = new ChromaObjectData();
-                        break;
+                        case CustomObstacleData customObstacleData:
+                            customData = customObstacleData.customData;
+                            chromaObjectData = new ChromaObjectData()
+                            {
+                                Color = ChromaUtils.GetColorFromData(customData),
+                            };
+                            break;
 
-                    default:
-                        continue;
+                        case CustomWaypointData customWaypointData:
+                            customData = customWaypointData.customData;
+                            chromaObjectData = new ChromaObjectData();
+                            break;
+
+                        default:
+                            continue;
+                    }
+
+                    if (NoodleExtensionsInstalled)
+                    {
+                        ApplyNoodleData(customData, beatmapObjectData, beatmapData);
+                    }
+
+                    _chromaObjectDatas.Add(beatmapObjectData, chromaObjectData);
                 }
-
-                if (NoodleExtensionsInstalled)
+                catch (Exception e)
                 {
-                    ApplyNoodleData(customData, beatmapObjectData, beatmapData);
+                    ChromaLogger.Log($"Could not create ChromaObjectData for object {beatmapObjectData.GetType().Name} at {beatmapObjectData.time}", IPA.Logging.Logger.Level.Error);
+                    ChromaLogger.Log(e, IPA.Logging.Logger.Level.Error);
                 }
-
-                ChromaObjectDatas.Add(beatmapObjectData, chromaObjectData);
             }
         }
 
@@ -79,7 +114,7 @@
 
                 chromaNoodleData.Track = NoodleExtensions.Animation.AnimationHelper.GetTrackPreload(dynData, beatmapData);
 
-                ChromaNoodleDatas.Add(beatmapObjectData, chromaNoodleData);
+                _chromaNoodleDatas.Add(beatmapObjectData, chromaNoodleData);
             }
         }
     }

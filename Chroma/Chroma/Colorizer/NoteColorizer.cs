@@ -63,9 +63,12 @@
 
         internal static void EnableNoteColorOverride(NoteController noteController)
         {
-            ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[noteController.noteData];
-            NoteColorOverride[0] = chromaData.InternalColor ?? CNVColorManager.GlobalColor[0];
-            NoteColorOverride[1] = chromaData.InternalColor ?? CNVColorManager.GlobalColor[1];
+            ChromaNoteData chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
+            if (chromaData != null)
+            {
+                NoteColorOverride[0] = chromaData.InternalColor ?? CNVColorManager.GlobalColor[0];
+                NoteColorOverride[1] = chromaData.InternalColor ?? CNVColorManager.GlobalColor[1];
+            }
         }
 
         internal static void DisableNoteColorOverride()
@@ -120,13 +123,13 @@
             private ChromaNoteData _chromaData;
             private NoteData _noteData;
 
-            private CNVColorManager(ColorNoteVisuals cnv, NoteController nc)
+            private CNVColorManager(ColorNoteVisuals cnv, NoteController nc, NoteData noteData, ChromaNoteData chromaNoteData)
             {
                 _cnv = cnv;
                 _nc = nc;
                 _colorManager = _colorManagerAccessor(ref cnv);
-                _chromaData = (ChromaNoteData)ChromaObjectDatas[nc.noteData];
-                _noteData = nc.noteData;
+                _chromaData = chromaNoteData;
+                _noteData = noteData;
             }
 
             internal static CNVColorManager GetCNVColorManager(NoteController nc)
@@ -142,20 +145,26 @@
             internal static CNVColorManager CreateCNVColorManager(ColorNoteVisuals cnv, NoteController nc)
             {
                 CNVColorManager cnvColorManager = GetCNVColorManager(nc);
-                if (cnvColorManager != null)
+                NoteData noteData = nc.noteData;
+                ChromaNoteData chromaData = TryGetObjectData<ChromaNoteData>(noteData);
+                if (chromaData != null)
                 {
-                    ChromaNoteData chromaData = (ChromaNoteData)ChromaObjectDatas[nc.noteData];
-                    cnvColorManager._noteData = nc.noteData;
-                    cnvColorManager._chromaData = chromaData;
-                    cnvColorManager.Reset();
+                    if (cnvColorManager != null)
+                    {
+                        cnvColorManager._noteData = noteData;
+                        cnvColorManager._chromaData = chromaData;
+                        cnvColorManager.Reset();
 
-                    return null;
+                        return null;
+                    }
+
+                    CNVColorManager cnvcm;
+                    cnvcm = new CNVColorManager(cnv, nc, noteData, chromaData);
+                    _cnvColorManagers.Add(nc, cnvcm);
+                    return cnvcm;
                 }
 
-                CNVColorManager cnvcm;
-                cnvcm = new CNVColorManager(cnv, nc);
-                _cnvColorManagers.Add(nc, cnvcm);
-                return cnvcm;
+                return null;
             }
 
             internal static void SetGlobalNoteColors(Color? color0, Color? color1)

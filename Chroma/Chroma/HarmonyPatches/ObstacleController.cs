@@ -37,7 +37,12 @@
         {
             if (!(__instance is MultiplayerConnectedPlayerObstacleController))
             {
-                ChromaObjectData chromaData = ChromaObjectDatas[obstacleData];
+                ChromaObjectData chromaData = TryGetObjectData<ChromaObjectData>(obstacleData);
+                if (chromaData == null)
+                {
+                    return;
+                }
+
                 Color? color = chromaData.Color;
 
                 if (color.HasValue)
@@ -68,7 +73,11 @@
         {
             if (NoodleExtensions.NoodleController.NoodleExtensionsActive)
             {
-                ChromaNoodleData chromaData = ChromaNoodleDatas[obstacleData];
+                ChromaNoodleData chromaData = TryGetNoodleData(obstacleData);
+                if (chromaData == null)
+                {
+                    return;
+                }
 
                 Track track = chromaData.Track;
                 PointDefinition pathPointDefinition = chromaData.LocalPathColor;

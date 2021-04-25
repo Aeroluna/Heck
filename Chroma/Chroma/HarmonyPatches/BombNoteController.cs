@@ -23,7 +23,12 @@
         private static void Prefix(BombNoteController __instance, NoteData noteData)
         {
             // They said it couldn't be done, they called me a madman
-            ChromaObjectData chromaData = ChromaObjectDatas[noteData];
+            ChromaObjectData chromaData = TryGetObjectData<ChromaObjectData>(noteData);
+            if (chromaData == null)
+            {
+                return;
+            }
+
             Color? color = chromaData.Color;
 
             if (color.HasValue)
