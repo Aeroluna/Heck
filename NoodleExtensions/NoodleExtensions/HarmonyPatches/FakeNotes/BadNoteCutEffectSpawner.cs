@@ -6,12 +6,7 @@
     {
         private static bool Prefix(NoteController noteController)
         {
-            if (!(noteController is MultiplayerConnectedPlayerNoteController))
-            {
-                return FakeNoteHelper.GetFakeNote(noteController);
-            }
-
-            return true;
+            return FakeNoteHelper.GetFakeNote(noteController);
         }
     }
 }

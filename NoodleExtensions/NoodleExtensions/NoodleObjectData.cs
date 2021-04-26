@@ -12,41 +12,68 @@
 
     internal static class NoodleObjectDataManager
     {
-        internal static Dictionary<BeatmapObjectData, NoodleObjectData> NoodleObjectDatas { get; private set; }
+        private static Dictionary<BeatmapObjectData, NoodleObjectData> _noodleObjectDatas;
+
+        internal static T TryGetObjectData<T>(BeatmapObjectData beatmapObjectData)
+        {
+            if (_noodleObjectDatas.TryGetValue(beatmapObjectData, out NoodleObjectData noodleObjectData))
+            {
+                if (noodleObjectData is T t)
+                {
+                    return t;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"NoodleObjectData was not of correct type. Expected: {typeof(T).Name}, was: {noodleObjectData.GetType().Name}");
+                }
+            }
+
+            return default;
+        }
 
         internal static void DeserializeBeatmapData(IReadonlyBeatmapData beatmapData)
         {
-            NoodleObjectDatas = new Dictionary<BeatmapObjectData, NoodleObjectData>();
+            _noodleObjectDatas = new Dictionary<BeatmapObjectData, NoodleObjectData>();
             foreach (BeatmapObjectData beatmapObjectData in beatmapData.beatmapObjectsData)
             {
-                NoodleObjectData noodleObjectData;
-
-                dynamic customData;
-
-                switch (beatmapObjectData)
+                try
                 {
-                    case CustomNoteData customNoteData:
-                        customData = customNoteData.customData;
-                        noodleObjectData = ProcessCustomNote(customData);
-                        break;
+                    NoodleObjectData noodleObjectData;
 
-                    case CustomObstacleData customObstacleData:
-                        customData = customObstacleData.customData;
-                        noodleObjectData = ProcessCustomObstacle(customData);
-                        break;
+                    dynamic customData;
 
-                    case CustomWaypointData customWaypointData:
-                        customData = customWaypointData.customData;
-                        noodleObjectData = new NoodleObjectData();
-                        break;
+                    switch (beatmapObjectData)
+                    {
+                        case CustomNoteData customNoteData:
+                            customData = customNoteData.customData;
+                            noodleObjectData = ProcessCustomNote(customData);
+                            break;
 
-                    default:
-                        continue;
+                        case CustomObstacleData customObstacleData:
+                            customData = customObstacleData.customData;
+                            noodleObjectData = ProcessCustomObstacle(customData);
+                            break;
+
+                        case CustomWaypointData customWaypointData:
+                            customData = customWaypointData.customData;
+                            noodleObjectData = new NoodleObjectData();
+                            break;
+
+                        default:
+                            continue;
+                    }
+
+                    if (noodleObjectData != null)
+                    {
+                        FinalizeCustomObject(customData, noodleObjectData, beatmapData);
+                        _noodleObjectDatas.Add(beatmapObjectData, noodleObjectData);
+                    }
                 }
-
-                FinalizeCustomObject(customData, noodleObjectData, beatmapData);
-
-                NoodleObjectDatas.Add(beatmapObjectData, noodleObjectData);
+                catch (Exception e)
+                {
+                    NoodleLogger.Log($"Could not create NoodleObjectData for object {beatmapObjectData.GetType().Name} at {beatmapObjectData.time}", IPA.Logging.Logger.Level.Error);
+                    NoodleLogger.Log(e, IPA.Logging.Logger.Level.Error);
+                }
             }
         }
 

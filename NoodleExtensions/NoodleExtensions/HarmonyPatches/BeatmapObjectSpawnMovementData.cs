@@ -11,12 +11,11 @@
     {
         private static void Postfix(Vector3 ____centerPos, ObstacleData obstacleData, ref BeatmapObjectSpawnMovementData.ObstacleSpawnData __result)
         {
-            if (!NoodleObjectDatas.TryGetValue(obstacleData, out NoodleObjectData noodleObjectData))
+            NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
+            if (noodleData == null)
             {
                 return;
             }
-
-            NoodleObstacleData noodleData = (NoodleObstacleData)noodleObjectData;
 
             float? njs = noodleData.NJS;
             float? spawnoffset = noodleData.SpawnOffset;
@@ -75,12 +74,11 @@
     {
         private static void Postfix(BeatmapObjectSpawnMovementData __instance, Vector3 ____centerPos, float ____jumpDuration, NoteData noteData, ref BeatmapObjectSpawnMovementData.NoteSpawnData __result)
         {
-            if (!NoodleObjectDatas.TryGetValue(noteData, out NoodleObjectData noodleObjectData))
+            NoodleNoteData noodleData = TryGetObjectData<NoodleNoteData>(noteData);
+            if (noodleData == null)
             {
                 return;
             }
-
-            NoodleNoteData noodleData = (NoodleNoteData)noodleObjectData;
 
             float? flipLineIndex = noodleData.FlipLineIndexInternal;
             float? njs = noodleData.NJS;

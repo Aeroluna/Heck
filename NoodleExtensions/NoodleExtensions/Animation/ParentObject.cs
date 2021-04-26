@@ -95,11 +95,14 @@
                 {
                     if (obstacleController?.obstacleData != null)
                     {
-                        NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[obstacleController.obstacleData];
-                        Track obstacleTrack = noodleData.Track;
-                        if (obstacleTrack == track)
+                        NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(obstacleController.obstacleData);
+                        if (noodleData != null)
                         {
-                            instance.ParentToObject(obstacleController.transform);
+                            Track obstacleTrack = noodleData.Track;
+                            if (obstacleTrack == track)
+                            {
+                                instance.ParentToObject(obstacleController.transform);
+                            }
                         }
                     }
                 }

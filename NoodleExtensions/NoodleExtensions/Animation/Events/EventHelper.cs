@@ -14,7 +14,7 @@
     {
         internal static void StartEventCoroutine(CustomEventData customEventData, EventType eventType)
         {
-            NoodleCoroutineEventData noodleData = (NoodleCoroutineEventData)NoodleEventDatas[customEventData];
+            NoodleCoroutineEventData noodleData = TryGetEventData<NoodleCoroutineEventData>(customEventData);
             if (noodleData == null)
             {
                 return;

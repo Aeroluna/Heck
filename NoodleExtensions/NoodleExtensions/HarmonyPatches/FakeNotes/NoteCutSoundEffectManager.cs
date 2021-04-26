@@ -24,7 +24,7 @@
         // Do not create a NoteCutSoundEffect for fake notes
         private static bool Prefix(NoteController noteController)
         {
-            if (!(noteController is MultiplayerConnectedPlayerNoteController) && FakeNoteHelper.GetFakeNote(noteController))
+            if (FakeNoteHelper.GetFakeNote(noteController))
             {
                 return NoodleManager.ProcessHitSound(noteController);
             }
@@ -77,7 +77,7 @@
             {
                 List<NoteController> noteControllers = new List<NoteController>(_hitsoundQueue);
                 _hitsoundQueue.Clear();
-                noteControllers.ForEach(n => _noteCutSoundEffectManager.HandleNoteWasSpawned(n));
+                noteControllers.ForEach(_noteCutSoundEffectManager.HandleNoteWasSpawned);
                 NoodleLogger.Log($"{noteControllers.Count} cut sounds moved to next frame!");
             }
         }

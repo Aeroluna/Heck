@@ -11,38 +11,66 @@
 
     internal static class NoodleEventDataManager
     {
-        internal static Dictionary<CustomEventData, NoodleEventData> NoodleEventDatas { get; private set; }
+        private static Dictionary<CustomEventData, NoodleEventData> _noodleEventDatas;
+
+        internal static T TryGetEventData<T>(CustomEventData customEventData)
+        {
+            if (_noodleEventDatas.TryGetValue(customEventData, out NoodleEventData noodleEventData))
+            {
+                if (noodleEventData is T t)
+                {
+                    return t;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"NoodleEventData was not of correct type. Expected: {typeof(T).Name}, was: {noodleEventData.GetType().Name}");
+                }
+            }
+
+            return default;
+        }
 
         internal static void DeserializeBeatmapData(IReadonlyBeatmapData beatmapData)
         {
-            NoodleEventDatas = new Dictionary<CustomEventData, NoodleEventData>();
+            _noodleEventDatas = new Dictionary<CustomEventData, NoodleEventData>();
             foreach (CustomEventData customEventData in ((CustomBeatmapData)beatmapData).customEventsData)
             {
-                NoodleEventData noodleEventData;
-
-                switch (customEventData.type)
+                try
                 {
-                    case ANIMATETRACK:
-                    case ASSIGNPATHANIMATION:
-                        noodleEventData = ProcessCoroutineEvent(customEventData, beatmapData);
-                        break;
+                    NoodleEventData noodleEventData;
 
-                    case ASSIGNPLAYERTOTRACK:
-                        noodleEventData = new NoodlePlayerTrackEventData()
-                        {
-                            Track = GetTrackPreload(customEventData.data, beatmapData),
-                        };
-                        break;
+                    switch (customEventData.type)
+                    {
+                        case ANIMATETRACK:
+                        case ASSIGNPATHANIMATION:
+                            noodleEventData = ProcessCoroutineEvent(customEventData, beatmapData);
+                            break;
 
-                    case ASSIGNTRACKPARENT:
-                        noodleEventData = ProcessParentTrackEvent(customEventData.data, beatmapData);
-                        break;
+                        case ASSIGNPLAYERTOTRACK:
+                            noodleEventData = new NoodlePlayerTrackEventData()
+                            {
+                                Track = GetTrackPreload(customEventData.data, beatmapData),
+                            };
+                            break;
 
-                    default:
-                        continue;
+                        case ASSIGNTRACKPARENT:
+                            noodleEventData = ProcessParentTrackEvent(customEventData.data, beatmapData);
+                            break;
+
+                        default:
+                            continue;
+                    }
+
+                    if (noodleEventData != null)
+                    {
+                        _noodleEventDatas.Add(customEventData, noodleEventData);
+                    }
                 }
-
-                NoodleEventDatas.Add(customEventData, noodleEventData);
+                catch (Exception e)
+                {
+                    NoodleLogger.Log($"Could not create NoodleEventData for event {customEventData.type} at {customEventData.time}", IPA.Logging.Logger.Level.Error);
+                    NoodleLogger.Log(e, IPA.Logging.Logger.Level.Error);
+                }
             }
         }
 

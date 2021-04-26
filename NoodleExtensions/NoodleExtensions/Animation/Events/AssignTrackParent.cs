@@ -25,16 +25,19 @@
         {
             if (customEventData.type == ASSIGNTRACKPARENT)
             {
-                NoodleParentTrackEventData noodleData = (NoodleParentTrackEventData)NoodleEventDatas[customEventData];
-                IEnumerable<Track> tracks = noodleData.ChildrenTracks;
-                Track parentTrack = noodleData.ParentTrack;
-                if (tracks != null && parentTrack != null)
+                NoodleParentTrackEventData noodleData = TryGetEventData<NoodleParentTrackEventData>(customEventData);
+                if (noodleData != null)
                 {
-                    ParentObject.AssignTrack(tracks, parentTrack, noodleData.Position, noodleData.Rotation, noodleData.LocalRotation, noodleData.Scale);
-                }
-                else
-                {
-                    NoodleLogger.Log($"Missing _parentTrack or _childrenTracks!", IPA.Logging.Logger.Level.Error);
+                    IEnumerable<Track> tracks = noodleData.ChildrenTracks;
+                    Track parentTrack = noodleData.ParentTrack;
+                    if (tracks != null && parentTrack != null)
+                    {
+                        ParentObject.AssignTrack(tracks, parentTrack, noodleData.Position, noodleData.Rotation, noodleData.LocalRotation, noodleData.Scale);
+                    }
+                    else
+                    {
+                        NoodleLogger.Log($"Missing _parentTrack or _childrenTracks!", IPA.Logging.Logger.Level.Error);
+                    }
                 }
             }
         }

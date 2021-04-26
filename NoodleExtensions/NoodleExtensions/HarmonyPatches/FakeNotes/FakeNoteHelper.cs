@@ -14,11 +14,14 @@
 
         internal static bool GetFakeNote(NoteController noteController)
         {
-            NoodleNoteData noodleData = (NoodleNoteData)NoodleObjectDatas[noteController.noteData];
-            bool? fake = noodleData.Fake;
-            if (fake.HasValue && fake.Value)
+            NoodleNoteData noodleData = TryGetObjectData<NoodleNoteData>(noteController.noteData);
+            if (noodleData != null)
             {
-                return false;
+                bool? fake = noodleData.Fake;
+                if (fake.HasValue && fake.Value)
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -26,11 +29,14 @@
 
         internal static bool GetCuttable(NoteData noteData)
         {
-            NoodleNoteData noodleData = (NoodleNoteData)NoodleObjectDatas[noteData];
-            bool? cuttable = noodleData.Cuttable;
-            if (cuttable.HasValue && !cuttable.Value)
+            NoodleNoteData noodleData = TryGetObjectData<NoodleNoteData>(noteData);
+            if (noodleData != null)
             {
-                return false;
+                bool? cuttable = noodleData.Cuttable;
+                if (cuttable.HasValue && !cuttable.Value)
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -45,9 +51,9 @@
         {
             return intersectingObstacles.Where(n =>
             {
-                if (!(n is MultiplayerConnectedPlayerObstacleController))
+                NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(n.obstacleData);
+                if (noodleData != null)
                 {
-                    NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[n.obstacleData];
                     bool? fake = noodleData.Fake;
                     if (fake.HasValue && fake.Value)
                     {

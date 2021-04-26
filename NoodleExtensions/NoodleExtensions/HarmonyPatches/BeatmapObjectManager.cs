@@ -17,7 +17,7 @@
         [HarmonyPriority(Priority.High)]
         private static bool Prefix(BeatmapObjectManager __instance, NoteController noteController, in NoteCutInfo noteCutInfo)
         {
-            if (!(noteController is MultiplayerConnectedPlayerNoteController) && !FakeNoteHelper.GetFakeNote(noteController))
+            if (!FakeNoteHelper.GetFakeNote(noteController))
             {
                 NoteCutCoreEffectsSpawnerStart.NoteCutCoreEffectsSpawner.HandleNoteWasCut(noteController, noteCutInfo);
                 _despawnMethod.Invoke(__instance, new object[] { noteController });
@@ -36,12 +36,7 @@
         [HarmonyPriority(Priority.High)]
         private static bool Prefix(NoteController noteController)
         {
-            if (!(noteController is MultiplayerConnectedPlayerNoteController))
-            {
-                return FakeNoteHelper.GetFakeNote(noteController);
-            }
-
-            return true;
+            return FakeNoteHelper.GetFakeNote(noteController);
         }
     }
 
@@ -79,14 +74,11 @@
 
         private static void Postfix(ObstacleController __result)
         {
-            if (__result is MultiplayerConnectedPlayerObstacleController)
+            NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(__result.obstacleData);
+            if (noodleData != null)
             {
-                return;
+                noodleData.DoUnhide = true;
             }
-
-            NoodleObstacleData noodleData = (NoodleObstacleData)NoodleObjectDatas[__result.obstacleData];
-
-            noodleData.DoUnhide = true;
         }
 
         private static bool GetHiddenForType(BeatmapObjectManager beatmapObjectManager)

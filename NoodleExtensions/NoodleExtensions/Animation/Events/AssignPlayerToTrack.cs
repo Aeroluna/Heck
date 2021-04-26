@@ -25,11 +25,14 @@
         {
             if (customEventData.type == ASSIGNPLAYERTOTRACK)
             {
-                NoodlePlayerTrackEventData noodleData = (NoodlePlayerTrackEventData)NoodleEventDatas[customEventData];
-                Track track = noodleData.Track;
-                if (track != null)
+                NoodlePlayerTrackEventData noodleData = TryGetEventData<NoodlePlayerTrackEventData>(customEventData);
+                if (noodleData != null)
                 {
-                    PlayerTrack.AssignTrack(track);
+                    Track track = noodleData.Track;
+                    if (track != null)
+                    {
+                        PlayerTrack.AssignTrack(track);
+                    }
                 }
             }
         }
