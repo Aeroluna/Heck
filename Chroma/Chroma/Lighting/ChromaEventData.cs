@@ -22,7 +22,7 @@
                 }
                 else
                 {
-                    throw new InvalidOperationException($"ChromaEventData was not of type {typeof(T).Name}");
+                    throw new InvalidOperationException($"ChromaEventData was not of correct type. Expected: {typeof(T).Name}, was: {chromaEventData.GetType().Name}");
                 }
             }
 
@@ -120,12 +120,15 @@
                                 continue;
                         }
 
-                        _chromaEventDatas.Add(beatmapEventData, chromaEventData);
+                        if (chromaEventData != null)
+                        {
+                            _chromaEventDatas.Add(beatmapEventData, chromaEventData);
+                        }
                     }
                 }
                 catch (Exception e)
                 {
-                    ChromaLogger.Log($"Could not create ChromaEventData for event {beatmapEventData.GetType().Name} at {beatmapEventData.time}", IPA.Logging.Logger.Level.Error);
+                    ChromaLogger.Log($"Could not create ChromaEventData for event {beatmapEventData.type} at {beatmapEventData.time}", IPA.Logging.Logger.Level.Error);
                     ChromaLogger.Log(e, IPA.Logging.Logger.Level.Error);
                 }
             }

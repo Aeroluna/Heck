@@ -12,10 +12,7 @@
         [HarmonyPriority(Priority.High)]
         private static void Prefix(ColorNoteVisuals __instance, NoteController noteController)
         {
-            if (!(noteController is MultiplayerConnectedPlayerNoteController) && !(noteController is TutorialNoteController))
-            {
-                NoteColorizer.CNVStart(__instance, noteController);
-            }
+            NoteColorizer.CNVStart(__instance, noteController);
         }
     }
 
@@ -26,10 +23,7 @@
         [HarmonyPriority(Priority.Low)]
         private static void Prefix(NoteController noteController)
         {
-            if (!(noteController is MultiplayerConnectedPlayerNoteController) && !(noteController is TutorialNoteController))
-            {
-                NoteColorizer.EnableNoteColorOverride(noteController);
-            }
+            NoteColorizer.EnableNoteColorOverride(noteController);
         }
 
         private static void Postfix()
@@ -44,24 +38,21 @@
     {
         private static void Prefix(NoteController noteController)
         {
-            if (!(noteController is MultiplayerConnectedPlayerNoteController))
+            ChromaNoteData chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
+            if (chromaData == null)
             {
-                ChromaNoteData chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
-                if (chromaData == null)
-                {
-                    return;
-                }
+                return;
+            }
 
-                Color? color = chromaData.Color;
+            Color? color = chromaData.Color;
 
-                if (color.HasValue)
-                {
-                    noteController.SetNoteColors(color.Value, color.Value);
-                }
-                else
-                {
-                    noteController.Reset();
-                }
+            if (color.HasValue)
+            {
+                noteController.SetNoteColors(color.Value, color.Value);
+            }
+            else
+            {
+                noteController.Reset();
             }
         }
     }

@@ -24,7 +24,7 @@
                 }
                 else
                 {
-                    throw new InvalidOperationException($"ChromaObjectData was not of type {typeof(T).Name}");
+                    throw new InvalidOperationException($"ChromaObjectData was not of correct type. Expected: {typeof(T).Name}, was: {chromaObjectData.GetType().Name}");
                 }
             }
 
@@ -89,7 +89,10 @@
                         ApplyNoodleData(customData, beatmapObjectData, beatmapData);
                     }
 
-                    _chromaObjectDatas.Add(beatmapObjectData, chromaObjectData);
+                    if (chromaObjectData != null)
+                    {
+                        _chromaObjectDatas.Add(beatmapObjectData, chromaObjectData);
+                    }
                 }
                 catch (Exception e)
                 {

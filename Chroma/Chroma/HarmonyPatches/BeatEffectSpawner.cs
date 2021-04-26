@@ -11,10 +11,7 @@
         [HarmonyPriority(Priority.Low)]
         private static void Prefix(NoteController noteController)
         {
-            if (!(noteController is MultiplayerConnectedPlayerNoteController) && !(noteController is TutorialNoteController))
-            {
-                NoteColorizer.EnableNoteColorOverride(noteController);
-            }
+            NoteColorizer.EnableNoteColorOverride(noteController);
         }
 
         private static void Postfix()
@@ -30,16 +27,13 @@
         [HarmonyPriority(Priority.High)]
         private static bool Prefix(NoteController noteController)
         {
-            if (!(noteController is MultiplayerConnectedPlayerNoteController))
+            ChromaNoteData chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
+            if (chromaData != null)
             {
-                ChromaNoteData chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
-                if (chromaData != null)
+                bool? disable = chromaData.DisableSpawnEffect;
+                if (disable.HasValue && disable == true)
                 {
-                    bool? disable = chromaData.DisableSpawnEffect;
-                    if (disable.HasValue && disable == true)
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
