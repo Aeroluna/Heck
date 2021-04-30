@@ -1,7 +1,9 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
-    [NoodlePatch(typeof(DisappearingArrowControllerBase<GameNoteController>))]
-    [NoodlePatch("SetArrowTransparency")]
+    using Heck;
+
+    [HeckPatch(typeof(DisappearingArrowControllerBase<GameNoteController>))]
+    [HeckPatch("SetArrowTransparency")]
     internal static class DisappearingArrowControllerSetArrowTransparency
     {
         // This makes _dissolveArrow work and I cannot figure out why

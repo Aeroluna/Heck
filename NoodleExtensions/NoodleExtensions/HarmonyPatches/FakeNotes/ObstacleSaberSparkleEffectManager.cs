@@ -5,9 +5,10 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
+    using Heck;
 
-    [NoodlePatch(typeof(ObstacleSaberSparkleEffectManager))]
-    [NoodlePatch("Update")]
+    [HeckPatch(typeof(ObstacleSaberSparkleEffectManager))]
+    [HeckPatch("Update")]
     internal static class ObstacleSaberSparkleEffectManagerUpdate
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -41,12 +42,12 @@
 
             if (!foundLabel)
             {
-                NoodleLogger.Log("Failed to find br to IL_0136!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find br to IL_0136!", IPA.Logging.Logger.Level.Error);
             }
 
             if (!foundBounds)
             {
-                NoodleLogger.Log("Failed to find callvirt to get_bounds!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find callvirt to get_bounds!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();

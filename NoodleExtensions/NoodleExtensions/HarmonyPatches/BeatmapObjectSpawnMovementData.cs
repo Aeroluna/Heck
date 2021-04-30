@@ -1,12 +1,13 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
+    using Heck;
     using UnityEngine;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
     using static NoodleExtensions.NoodleObjectDataManager;
 
-    [NoodlePatch(typeof(BeatmapObjectSpawnMovementData))]
-    [NoodlePatch("GetObstacleSpawnData")]
+    [HeckPatch(typeof(BeatmapObjectSpawnMovementData))]
+    [HeckPatch("GetObstacleSpawnData")]
     internal static class BeatmapObjectSpawnMovementDataGetObstacleSpawnData
     {
         private static void Postfix(Vector3 ____centerPos, ObstacleData obstacleData, ref BeatmapObjectSpawnMovementData.ObstacleSpawnData __result)
@@ -68,8 +69,8 @@
         }
     }
 
-    [NoodlePatch(typeof(BeatmapObjectSpawnMovementData))]
-    [NoodlePatch("GetJumpingNoteSpawnData")]
+    [HeckPatch(typeof(BeatmapObjectSpawnMovementData))]
+    [HeckPatch("GetJumpingNoteSpawnData")]
     internal static class BeatmapObjectSpawnMovementDataGetJumpingNoteSpawnData
     {
         private static void Postfix(BeatmapObjectSpawnMovementData __instance, Vector3 ____centerPos, float ____jumpDuration, NoteData noteData, ref BeatmapObjectSpawnMovementData.NoteSpawnData __result)

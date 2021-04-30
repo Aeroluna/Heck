@@ -5,6 +5,7 @@
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
+    using Heck;
     using static NoodleExtensions.Plugin;
 
     [HarmonyPatch(typeof(NotesInTimeRowProcessor))]

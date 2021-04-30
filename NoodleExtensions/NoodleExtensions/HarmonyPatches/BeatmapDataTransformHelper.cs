@@ -8,11 +8,12 @@
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
+    using Heck;
     using IPA.Utilities;
     using static NoodleExtensions.Plugin;
 
-    [NoodlePatch(typeof(BeatmapDataTransformHelper))]
-    [NoodlePatch("CreateTransformedBeatmapData")]
+    [HeckPatch(typeof(BeatmapDataTransformHelper))]
+    [HeckPatch("CreateTransformedBeatmapData")]
     internal static class BeatmapDataTransformHelperCreateTransformedBeatmapData
     {
         private static readonly MethodInfo _reorderLineData = SymbolExtensions.GetMethodInfo(() => ReorderLineData(null));
@@ -44,7 +45,7 @@
 
             if (!foundBeatmapData)
             {
-                NoodleLogger.Log("Failed to find GetCopy!", IPA.Logging.Logger.Level.Error);
+                Logger.Log("Failed to find GetCopy!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();
@@ -73,7 +74,7 @@
                         }
                         else
                         {
-                            NoodleLogger.Log("beatmapObjectData was not CustomObstacleData, CustomNoteData, or CustomWaypointData");
+                            Logger.Log("beatmapObjectData was not CustomObstacleData, CustomNoteData, or CustomWaypointData");
                             continue;
                         }
 
@@ -105,7 +106,7 @@
                 return customBeatmapData;
             }
 
-            NoodleLogger.Log("beatmapData was not CustomBeatmapData", IPA.Logging.Logger.Level.Error);
+            Logger.Log("beatmapData was not CustomBeatmapData", IPA.Logging.Logger.Level.Error);
             return beatmapData;
         }
 

@@ -1,7 +1,9 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
-    [NoodlePatch(typeof(NoteCutCoreEffectsSpawner))]
-    [NoodlePatch("Start")]
+    using Heck;
+
+    [HeckPatch(typeof(NoteCutCoreEffectsSpawner))]
+    [HeckPatch("Start")]
     internal static class NoteCutCoreEffectsSpawnerStart
     {
         internal static NoteCutCoreEffectsSpawner NoteCutCoreEffectsSpawner { get; private set; }

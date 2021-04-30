@@ -4,9 +4,10 @@
     using System.Linq;
     using System.Reflection.Emit;
     using HarmonyLib;
+    using Heck;
 
-    [NoodlePatch(typeof(PlayerHeadAndObstacleInteraction))]
-    [NoodlePatch("GetObstaclesContainingPoint")]
+    [HeckPatch(typeof(PlayerHeadAndObstacleInteraction))]
+    [HeckPatch("GetObstaclesContainingPoint")]
     internal static class PlayerHeadAndObstacleInteractionGetObstaclesContainingPoint
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -29,7 +30,7 @@
 
             if (!foundCondition)
             {
-                NoodleLogger.Log("Failed to find brtrue.s to IL_004E!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find brtrue.s to IL_004E!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();

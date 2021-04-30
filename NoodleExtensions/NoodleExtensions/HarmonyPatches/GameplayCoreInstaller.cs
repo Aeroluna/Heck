@@ -5,9 +5,10 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
+    using Heck;
 
-    [NoodlePatch(typeof(GameplayCoreInstaller))]
-    [NoodlePatch("InstallBindings")]
+    [HeckPatch(typeof(GameplayCoreInstaller))]
+    [HeckPatch("InstallBindings")]
     internal static class GameplayCoreInstallerInstallBindings
     {
         private static readonly MethodInfo _cacheNoteJumpValues = SymbolExtensions.GetMethodInfo(() => CacheNoteJumpValues(0, 0));
@@ -36,7 +37,7 @@
 
             if (!foundBeatmapData)
             {
-                NoodleLogger.Log("Failed to find Call to CreateTransformedBeatmapData!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find Call to CreateTransformedBeatmapData!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();

@@ -5,6 +5,8 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
+    using Heck;
+    using Heck.Animation;
     using IPA.Utilities;
     using NoodleExtensions.Animation;
     using UnityEngine;
@@ -12,8 +14,8 @@
     using static NoodleExtensions.NoodleObjectDataManager;
     using static NoodleExtensions.Plugin;
 
-    [NoodlePatch(typeof(ObstacleController))]
-    [NoodlePatch("Init")]
+    [HeckPatch(typeof(ObstacleController))]
+    [HeckPatch("Init")]
     internal static class ObstacleControllerInit
     {
         internal static readonly List<ObstacleController> _activeObstacles = new List<ObstacleController>();
@@ -68,17 +70,17 @@
 
             if (!foundRotation)
             {
-                NoodleLogger.Log("Failed to find _worldRotation stfld!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find _worldRotation stfld!", IPA.Logging.Logger.Level.Error);
             }
 
             if (!foundWidth)
             {
-                NoodleLogger.Log("Failed to find get_width call!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find get_width call!", IPA.Logging.Logger.Level.Error);
             }
 
             if (!foundLength)
             {
-                NoodleLogger.Log("Failed to find stloc.2!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find stloc.2!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();
@@ -96,7 +98,7 @@
 
             Transform transform = __instance.transform;
 
-            Quaternion localRotation = _quaternionIdentity;
+            Quaternion localRotation = Quaternion.identity;
             if (localRotationQuaternion.HasValue)
             {
                 localRotation = localRotationQuaternion.Value;
@@ -129,7 +131,7 @@
             bool? cuttable = noodleData.Cuttable;
             if (cuttable.HasValue && !cuttable.Value)
             {
-                ____bounds.size = _vectorZero;
+                ____bounds.size = Vector3.zero;
             }
             else
             {
@@ -198,8 +200,8 @@
         }
     }
 
-    [NoodlePatch(typeof(ObstacleController))]
-    [NoodlePatch("ManualUpdate")]
+    [HeckPatch(typeof(ObstacleController))]
+    [HeckPatch("ManualUpdate")]
     internal static class ObstacleControllerManualUpdate
     {
         private static readonly FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.Accessor _obstacleCutoutAnimateEffectAccessor = FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
@@ -231,7 +233,7 @@
 
             if (!foundTime)
             {
-                NoodleLogger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();
@@ -244,7 +246,7 @@
                 NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
                 if (noodleData != null)
                 {
-                    float? time = (float?)AnimationHelper.TryGetPropertyAsObject(noodleData.Track, TIME);
+                    float? time = (float?)Heck.Animation.AnimationHelper.TryGetPropertyAsObject(noodleData.Track, TIME);
                     if (time.HasValue)
                     {
                         return (time.Value * (finishMovementTime - move1Duration)) + move1Duration;
@@ -284,7 +286,7 @@
                 float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
                 float normalTime = (elapsedTime - ____move1Duration) / (____move2Duration + ____obstacleDuration);
 
-                AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _, out float? cuttable);
+                Animation.AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _, out float? cuttable);
 
                 if (positionOffset.HasValue)
                 {
@@ -330,9 +332,9 @@
                     cuttableEnabled = cuttable.Value >= 1;
                     if (cuttableEnabled)
                     {
-                        if (____bounds.size != _vectorZero)
+                        if (____bounds.size != Vector3.zero)
                         {
-                            ____bounds.size = _vectorZero;
+                            ____bounds.size = Vector3.zero;
                         }
                     }
                     else
@@ -371,8 +373,8 @@
         }
     }
 
-    [NoodlePatch(typeof(ObstacleController))]
-    [NoodlePatch("GetPosForTime")]
+    [HeckPatch(typeof(ObstacleController))]
+    [HeckPatch("GetPosForTime")]
     internal static class ObstacleControllerGetPosForTime
     {
         private static bool Prefix(
@@ -392,7 +394,7 @@
             }
 
             float jumpTime = Mathf.Clamp((time - ____move1Duration) / (____move2Duration + ____obstacleDuration), 0, 1);
-            AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, jumpTime, out Vector3? position);
+            Animation.AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, jumpTime, out Vector3? position);
 
             if (position.HasValue)
             {

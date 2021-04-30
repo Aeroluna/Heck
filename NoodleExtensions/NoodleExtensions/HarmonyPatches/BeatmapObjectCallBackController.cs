@@ -6,10 +6,11 @@
     using System.Reflection.Emit;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
+    using Heck;
     using static NoodleExtensions.NoodleObjectDataManager;
 
-    [NoodlePatch(typeof(BeatmapObjectCallbackController))]
-    [NoodlePatch("LateUpdate")]
+    [HeckPatch(typeof(BeatmapObjectCallbackController))]
+    [HeckPatch("LateUpdate")]
     internal static class BeatmapObjectCallBackControllerLateUpdate
     {
         private static readonly MethodInfo _getAheadTime = SymbolExtensions.GetMethodInfo(() => GetAheadTime(null, null, 0));
@@ -35,7 +36,7 @@
 
             if (!foundAheadTime)
             {
-                NoodleLogger.Log("Failed to find aheadTime ldfld!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find aheadTime ldfld!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();

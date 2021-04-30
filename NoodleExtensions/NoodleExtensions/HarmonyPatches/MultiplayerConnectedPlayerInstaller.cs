@@ -7,11 +7,12 @@
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
+    using Heck;
     using IPA.Utilities;
     using static NoodleExtensions.Plugin;
 
-    [NoodlePatch(typeof(MultiplayerConnectedPlayerInstaller))]
-    [NoodlePatch("InstallBindings")]
+    [HeckPatch(typeof(MultiplayerConnectedPlayerInstaller))]
+    [HeckPatch("InstallBindings")]
     internal static class MultiplayerConnectedPlayerInstallerInstallBindings
     {
         private static readonly MethodInfo _excludeFakeNote = SymbolExtensions.GetMethodInfo(() => ExcludeFakeNote(null));
@@ -36,7 +37,7 @@
 
             if (!foundBeatmapData)
             {
-                NoodleLogger.Log("Failed to find Call to CreateTransformedBeatmapData!", IPA.Logging.Logger.Level.Error);
+                Logger.Log("Failed to find Call to CreateTransformedBeatmapData!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();
@@ -78,15 +79,11 @@
             {
                 string[] excludedTypes = new string[]
                 {
-                    ANIMATETRACK,
-                    ASSIGNPATHANIMATION,
                     ASSIGNPLAYERTOTRACK,
                     ASSIGNTRACKPARENT,
                 };
 
                 customBeatmapData.customEventsData.RemoveAll(n => excludedTypes.Contains(n.type));
-
-                customBeatmapData.customData.isMultiplayer = true;
             }
 
             return result;

@@ -1,7 +1,9 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
-    [NoodlePatch(typeof(BombCutSoundEffectManager))]
-    [NoodlePatch("HandleNoteWasCut")]
+    using Heck;
+
+    [HeckPatch(typeof(BombCutSoundEffectManager))]
+    [HeckPatch("HandleNoteWasCut")]
     internal static class BombCutSoundEffectManagerHandleNoteWasCut
     {
         // Do not create a BombCutSoundEffect for fake notes

@@ -5,12 +5,13 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
+    using Heck;
     using IPA.Utilities;
     using NoodleExtensions.Animation;
     using UnityEngine;
 
-    [NoodlePatch(typeof(NoteJump))]
-    [NoodlePatch("ManualUpdate")]
+    [HeckPatch(typeof(NoteJump))]
+    [HeckPatch("ManualUpdate")]
     internal static class NoteJumpManualUpdate
     {
         private static readonly FieldInfo _jumpDurationField = AccessTools.Field(typeof(NoteJump), "_jumpDuration");
@@ -38,7 +39,7 @@
             NoodleObjectData noodleData = NoteControllerUpdate.NoodleData;
             if (noodleData != null)
             {
-                float? time = (float?)AnimationHelper.TryGetPropertyAsObject(noodleData.Track, Plugin.TIME);
+                float? time = (float?)Heck.Animation.AnimationHelper.TryGetPropertyAsObject(noodleData.Track, Plugin.TIME);
                 if (time.HasValue)
                 {
                     return time.Value * jumpDuration;
@@ -128,22 +129,22 @@
 
             if (!foundTime)
             {
-                NoodleLogger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
             }
 
             if (!foundFinalPosition)
             {
-                NoodleLogger.Log("Failed to find stind.r4!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find stind.r4!", IPA.Logging.Logger.Level.Error);
             }
 
             if (!foundZOffset)
             {
-                NoodleLogger.Log("Failed to find brfalse.s to Label21!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find brfalse.s to Label21!", IPA.Logging.Logger.Level.Error);
             }
 
             if (!foundLook)
             {
-                NoodleLogger.Log("Failed to find bge.un to Label6!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find bge.un to Label6!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();

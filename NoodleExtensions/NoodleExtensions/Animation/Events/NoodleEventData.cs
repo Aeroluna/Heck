@@ -5,8 +5,9 @@
     using System.Linq;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using Heck.Animation;
     using UnityEngine;
-    using static NoodleExtensions.Animation.AnimationHelper;
+    using static Heck.Animation.AnimationHelper;
     using static NoodleExtensions.Plugin;
 
     internal static class NoodleEventDataManager
@@ -41,11 +42,6 @@
 
                     switch (customEventData.type)
                     {
-                        case ANIMATETRACK:
-                        case ASSIGNPATHANIMATION:
-                            noodleEventData = ProcessCoroutineEvent(customEventData, beatmapData);
-                            break;
-
                         case ASSIGNPLAYERTOTRACK:
                             noodleEventData = new NoodlePlayerTrackEventData()
                             {
@@ -68,84 +64,10 @@
                 }
                 catch (Exception e)
                 {
-                    NoodleLogger.Log($"Could not create NoodleEventData for event {customEventData.type} at {customEventData.time}", IPA.Logging.Logger.Level.Error);
-                    NoodleLogger.Log(e, IPA.Logging.Logger.Level.Error);
+                    Plugin.Logger.Log($"Could not create NoodleEventData for event {customEventData.type} at {customEventData.time}", IPA.Logging.Logger.Level.Error);
+                    Plugin.Logger.Log(e, IPA.Logging.Logger.Level.Error);
                 }
             }
-        }
-
-        private static NoodleCoroutineEventData ProcessCoroutineEvent(CustomEventData customEventData, IReadonlyBeatmapData beatmapData)
-        {
-            NoodleCoroutineEventData noodleEventData = new NoodleCoroutineEventData();
-
-            string easingString = (string)Trees.at(customEventData.data, EASING);
-            noodleEventData.Easing = Functions.easeLinear;
-            if (easingString != null)
-            {
-                noodleEventData.Easing = (Functions)Enum.Parse(typeof(Functions), easingString);
-            }
-
-            noodleEventData.Duration = (float?)Trees.at(customEventData.data, DURATION) ?? 0f;
-
-            Track track = GetTrackPreload(customEventData.data, beatmapData);
-            if (track == null)
-            {
-                return null;
-            }
-
-            EventType eventType;
-            switch (customEventData.type)
-            {
-                case ANIMATETRACK:
-                    eventType = EventType.AnimateTrack;
-                    break;
-
-                case ASSIGNPATHANIMATION:
-                    eventType = EventType.AssignPathAnimation;
-                    break;
-
-                default:
-                    return null;
-            }
-
-            List<string> excludedStrings = new List<string> { TRACK, DURATION, EASING };
-            IDictionary<string, object> eventData = new Dictionary<string, object>(customEventData.data as IDictionary<string, object>); // Shallow copy
-            IDictionary<string, Property> properties = null;
-            switch (eventType)
-            {
-                case EventType.AnimateTrack:
-                    properties = track.Properties;
-                    break;
-
-                case EventType.AssignPathAnimation:
-                    properties = track.PathProperties;
-                    break;
-            }
-
-            foreach (KeyValuePair<string, object> valuePair in eventData)
-            {
-                if (!excludedStrings.Any(n => n == valuePair.Key))
-                {
-                    if (!properties.TryGetValue(valuePair.Key, out Property property))
-                    {
-                        NoodleLogger.Log($"Could not find property {valuePair.Key}!", IPA.Logging.Logger.Level.Error);
-                        continue;
-                    }
-
-                    Dictionary<string, PointDefinition> pointDefinitions = Trees.at(((CustomBeatmapData)beatmapData).customData, "pointDefinitions");
-                    TryGetPointData(customEventData.data, valuePair.Key, out PointDefinition pointData, pointDefinitions);
-
-                    NoodleCoroutineEventData.CoroutineInfo coroutineInfo = new NoodleCoroutineEventData.CoroutineInfo()
-                    {
-                        PointDefinition = pointData,
-                        Property = property,
-                    };
-
-                    noodleEventData.CoroutineInfos.Add(coroutineInfo);
-                }
-            }
-
-            return noodleEventData;
         }
 
         private static NoodleParentTrackEventData ProcessParentTrackEvent(dynamic customData, IReadonlyBeatmapData beatmapData)
@@ -187,22 +109,6 @@
                 LocalRotation = localRotQuaternion,
                 Scale = scaleVector,
             };
-        }
-    }
-
-    internal class NoodleCoroutineEventData : NoodleEventData
-    {
-        internal float Duration { get; set; }
-
-        internal Functions Easing { get; set; }
-
-        internal List<CoroutineInfo> CoroutineInfos { get; set; } = new List<CoroutineInfo>();
-
-        internal class CoroutineInfo
-        {
-            internal PointDefinition PointDefinition { get; set; }
-
-            internal Property Property { get; set; }
         }
     }
 

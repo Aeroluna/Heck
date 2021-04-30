@@ -1,9 +1,10 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
     using HarmonyLib;
+    using Heck;
 
-    [NoodlePatch(typeof(GameNoteController))]
-    [NoodlePatch("NoteDidStartJump")]
+    [HeckPatch(typeof(GameNoteController))]
+    [HeckPatch("NoteDidStartJump")]
     internal static class GameNoteControllerNoteDidStartJump
     {
         [HarmonyPriority(Priority.High)]

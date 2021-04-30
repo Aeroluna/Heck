@@ -6,11 +6,12 @@
     using System.Reflection.Emit;
     using HarmonyLib;*/
 
+    using Heck;
     using UnityEngine;
 
     // Possibly breaks in multiplayer? We don't support that anyways.
-    [NoodlePatch(typeof(PlayerTransforms))]
-    [NoodlePatch("Update")]
+    [HeckPatch(typeof(PlayerTransforms))]
+    [HeckPatch("Update")]
     internal static class PlayerTransformsUpdate
     {
         private static void Postfix(ref Vector3 ____headPseudoLocalPos, Transform ____headTransform)
@@ -50,7 +51,7 @@
 
             if (!foundHeadLocalPos)
             {
-                NoodleLogger.Log("Failed to find call to HeadOffsetZ!", IPA.Logging.Logger.Level.Error);
+                NoodleExtensions.Plugin.Logger.Log("Failed to find call to HeadOffsetZ!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();

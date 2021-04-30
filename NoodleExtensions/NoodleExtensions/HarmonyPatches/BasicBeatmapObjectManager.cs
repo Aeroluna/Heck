@@ -3,10 +3,11 @@
     using System;
     using System.Collections.Generic;
     using HarmonyLib;
+    using Heck;
 
-    [NoodlePatch(typeof(BasicBeatmapObjectManager))]
-    [NoodlePatch(MethodType.Constructor)]
-    [NoodlePatch(new Type[] { typeof(BasicBeatmapObjectManager.InitData), typeof(GameNoteController.Pool), typeof(BombNoteController.Pool), typeof(ObstacleController.Pool) })]
+    [HeckPatch(typeof(BasicBeatmapObjectManager))]
+    [HeckPatch(MethodType.Constructor)]
+    [HeckPatch(new Type[] { typeof(BasicBeatmapObjectManager.InitData), typeof(GameNoteController.Pool), typeof(BombNoteController.Pool), typeof(ObstacleController.Pool) })]
     internal static class BasicBeatmapObjectManagerSpawnObstacleInternal
     {
         private static void Postfix()
@@ -15,8 +16,8 @@
         }
     }
 
-    [NoodlePatch(typeof(BasicBeatmapObjectManager))]
-    [NoodlePatch("get_activeObstacleControllers")]
+    [HeckPatch(typeof(BasicBeatmapObjectManager))]
+    [HeckPatch("get_activeObstacleControllers")]
     internal static class BasicBeatmapObjectManagerGetActiveObstacleControllers
     {
         private static bool Prefix(ref List<ObstacleController> __result)
@@ -26,9 +27,9 @@
         }
     }
 
-    [NoodlePatch(typeof(BasicBeatmapObjectManager))]
-    [NoodlePatch("DespawnInternal")]
-    [NoodlePatch(new Type[] { typeof(ObstacleController) })]
+    [HeckPatch(typeof(BasicBeatmapObjectManager))]
+    [HeckPatch("DespawnInternal")]
+    [HeckPatch(new Type[] { typeof(ObstacleController) })]
     internal static class BasicBeatmapObjectManagerDespawnInternal
     {
         private static void Postfix(ObstacleController obstacleController)

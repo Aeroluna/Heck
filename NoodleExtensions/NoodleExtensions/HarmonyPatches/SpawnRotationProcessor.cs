@@ -2,10 +2,11 @@
 {
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using Heck;
     using static NoodleExtensions.Plugin;
 
-    [NoodlePatch(typeof(SpawnRotationProcessor))]
-    [NoodlePatch("ProcessBeatmapEventData")]
+    [HeckPatch(typeof(SpawnRotationProcessor))]
+    [HeckPatch("ProcessBeatmapEventData")]
     internal static class SpawnRotationProcessorProcessBeatmapEventData
     {
         private static bool Prefix(BeatmapEventData beatmapEventData, ref float ____rotation)

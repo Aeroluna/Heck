@@ -5,10 +5,11 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
+    using Heck;
     using UnityEngine;
 
-    [NoodlePatch(typeof(BeatEffectSpawner))]
-    [NoodlePatch("HandleNoteDidStartJump")]
+    [HeckPatch(typeof(BeatEffectSpawner))]
+    [HeckPatch("HandleNoteDidStartJump")]
     internal static class BeatEffectSpawnerHandleNoteDidStartJump
     {
         private static readonly MethodInfo _getNoteControllerPosition = SymbolExtensions.GetMethodInfo(() => GetNoteControllerPosition(null));
@@ -46,12 +47,12 @@
 
             if (!foundJumpStartPos)
             {
-                NoodleLogger.Log("Failed to find callvirt to get_jumpStartPos!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find callvirt to get_jumpStartPos!", IPA.Logging.Logger.Level.Error);
             }
 
             if (!foundInit)
             {
-                NoodleLogger.Log("Failed to find callvirt to Init!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find callvirt to Init!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();

@@ -6,6 +6,7 @@
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
+    using Heck;
     using UnityEngine;
     using static NoodleExtensions.Plugin;
 

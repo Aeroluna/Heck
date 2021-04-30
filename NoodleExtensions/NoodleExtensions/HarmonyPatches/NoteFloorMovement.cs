@@ -5,11 +5,12 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
+    using Heck;
     using NoodleExtensions.Animation;
     using UnityEngine;
 
-    [NoodlePatch(typeof(NoteFloorMovement))]
-    [NoodlePatch("ManualUpdate")]
+    [HeckPatch(typeof(NoteFloorMovement))]
+    [HeckPatch("ManualUpdate")]
     internal static class NoteFloorMovementManualUpdate
     {
         private static readonly MethodInfo _definiteNoteFloorMovement = SymbolExtensions.GetMethodInfo(() => DefiniteNoteFloorMovement(Vector3.zero, null));
@@ -32,7 +33,7 @@
 
             if (!foundFinalPosition)
             {
-                NoodleLogger.Log("Failed to find _localPosition stfld!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find _localPosition stfld!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();
@@ -56,8 +57,8 @@
         }
     }
 
-    [NoodlePatch(typeof(NoteFloorMovement))]
-    [NoodlePatch("SetToStart")]
+    [HeckPatch(typeof(NoteFloorMovement))]
+    [HeckPatch("SetToStart")]
     internal static class NoteFloorMovementSetToStart
     {
         private static void Postfix(Transform ____rotatedObject)

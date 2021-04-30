@@ -6,10 +6,11 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
+    using Heck;
     using static NoodleExtensions.NoodleObjectDataManager;
 
-    [NoodlePatch(typeof(BeatmapObjectManager))]
-    [NoodlePatch("HandleNoteControllerNoteWasCut")]
+    [HeckPatch(typeof(BeatmapObjectManager))]
+    [HeckPatch("HandleNoteControllerNoteWasCut")]
     internal static class BeatmapObjectManagerHandleNoteWasCut
     {
         private static readonly MethodInfo _despawnMethod = typeof(BeatmapObjectManager).GetMethod("Despawn", BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[] { typeof(NoteController) }, null);
@@ -29,8 +30,8 @@
         }
     }
 
-    [NoodlePatch(typeof(BeatmapObjectManager))]
-    [NoodlePatch("HandleNoteControllerNoteWasMissed")]
+    [HeckPatch(typeof(BeatmapObjectManager))]
+    [HeckPatch("HandleNoteControllerNoteWasMissed")]
     internal static class BeatmapObjectManagerHandleNoteWasMissed
     {
         [HarmonyPriority(Priority.High)]
@@ -41,8 +42,8 @@
     }
 
     // TODO: find out what actually causes obstacle flickering
-    [NoodlePatch(typeof(BeatmapObjectManager))]
-    [NoodlePatch("SpawnObstacle")]
+    [HeckPatch(typeof(BeatmapObjectManager))]
+    [HeckPatch("SpawnObstacle")]
     internal static class BeatmapObjectManagerSpawnObstacle
     {
         private static readonly MethodInfo _getHiddenForType = SymbolExtensions.GetMethodInfo(() => GetHiddenForType(null));
@@ -66,7 +67,7 @@
 
             if (!foundHide)
             {
-                NoodleLogger.Log("Failed to find call to get_spawnHidden!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find call to get_spawnHidden!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();

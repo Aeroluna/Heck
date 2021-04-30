@@ -5,9 +5,10 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
+    using Heck;
 
-    [NoodlePatch(typeof(BeatmapObjectExecutionRatingsRecorder))]
-    [NoodlePatch("Update")]
+    [HeckPatch(typeof(BeatmapObjectExecutionRatingsRecorder))]
+    [HeckPatch("Update")]
     internal static class BeatmapObjectExecutionRatingsRecorderUpdate
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -28,7 +29,7 @@
 
             if (!foundIntersectingObstacles)
             {
-                NoodleLogger.Log("Failed to find callvirt to get_intersectingObstacles!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find callvirt to get_intersectingObstacles!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();

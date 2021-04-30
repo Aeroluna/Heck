@@ -1,7 +1,9 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
-    [NoodlePatch(typeof(NoteCutScoreSpawner))]
-    [NoodlePatch("HandleNoteWasCut")]
+    using Heck;
+
+    [HeckPatch(typeof(NoteCutScoreSpawner))]
+    [HeckPatch("HandleNoteWasCut")]
     internal static class NoteCutScoreSpawnerHandleNoteWasCut
     {
         private static bool Prefix(NoteController noteController)

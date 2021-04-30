@@ -1,10 +1,11 @@
 ﻿namespace NoodleExtensions.Animation
 {
+    using Heck.Animation;
     using IPA.Utilities;
     using UnityEngine;
-    using static NoodleExtensions.Animation.AnimationHelper;
+    using static Heck.Animation.AnimationHelper;
+    using static Heck.NullableExtensions;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
-    using static NoodleExtensions.NullableExtensions;
     using static NoodleExtensions.Plugin;
 
     internal class PlayerTrack : MonoBehaviour
@@ -13,9 +14,9 @@
 
         private static PlayerTrack _instance;
         private static Track _track;
-        private static Vector3 _startPos = _vectorZero;
-        private static Quaternion _startRot = _quaternionIdentity;
-        private static Quaternion _startLocalRot = _quaternionIdentity;
+        private static Vector3 _startPos = Vector3.zero;
+        private static Quaternion _startRot = Quaternion.identity;
+        private static Quaternion _startLocalRot = Quaternion.identity;
         private static Transform _origin;
         private static PauseController _pauseController;
 
@@ -70,7 +71,7 @@
                 Quaternion? rotation = (Quaternion?)TryGetPropertyAsObject(_track, ROTATION);
                 if (rotation.HasValue)
                 {
-                    if (NoodleController.LeftHandedMode)
+                    if (LeftHandedMode)
                     {
                         MirrorQuaternionNullable(ref rotation);
                     }
@@ -79,7 +80,7 @@
                 Vector3? position = (Vector3?)TryGetPropertyAsObject(_track, POSITION);
                 if (position.HasValue)
                 {
-                    if (NoodleController.LeftHandedMode)
+                    if (LeftHandedMode)
                     {
                         MirrorVectorNullable(ref position);
                     }
@@ -89,9 +90,9 @@
                 Vector3 positionVector = _startPos;
                 if (rotation.HasValue || position.HasValue)
                 {
-                    Quaternion finalRot = rotation ?? _quaternionIdentity;
+                    Quaternion finalRot = rotation ?? Quaternion.identity;
                     worldRotationQuatnerion *= finalRot;
-                    Vector3 finalPos = position ?? _vectorZero;
+                    Vector3 finalPos = position ?? Vector3.zero;
                     positionVector = worldRotationQuatnerion * ((finalPos * NoteLinesDistance) + _startPos);
                 }
 
@@ -99,7 +100,7 @@
                 Quaternion? localRotation = (Quaternion?)TryGetPropertyAsObject(_track, LOCALROTATION);
                 if (localRotation.HasValue)
                 {
-                    if (NoodleController.LeftHandedMode)
+                    if (LeftHandedMode)
                     {
                         MirrorQuaternionNullable(ref localRotation);
                     }

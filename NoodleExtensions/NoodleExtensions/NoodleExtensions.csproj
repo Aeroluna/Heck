@@ -60,6 +60,11 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Heck">
+      <HintPath>$(BeatSaberDir)\Plugins\Heck.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="Microsoft.CSharp">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Microsoft.CSharp.dll</HintPath>
       <Private>False</Private>
@@ -101,18 +106,11 @@
   <ItemGroup>
     <Compile Include="Animation\AnimationController.cs" />
     <Compile Include="Animation\AnimationHelper.cs" />
-    <Compile Include="Animation\AnimationProperty.cs" />
-    <Compile Include="Animation\Easings.cs" />
-    <Compile Include="Animation\Events\AssignPathAnimation.cs" />
-    <Compile Include="Animation\Events\AnimateTrack.cs" />
     <Compile Include="Animation\Events\AssignPlayerToTrack.cs" />
     <Compile Include="Animation\Events\AssignTrackParent.cs" />
-    <Compile Include="Animation\Events\EventHelper.cs" />
     <Compile Include="Animation\Events\NoodleEventData.cs" />
     <Compile Include="Animation\ParentObject.cs" />
     <Compile Include="Animation\PlayerTrack.cs" />
-    <Compile Include="Animation\PointDefinition.cs" />
-    <Compile Include="Animation\PointDefinitionInterpolation.cs" />
     <Compile Include="FakeNoteRecount.cs" />
     <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataTransformHelper.cs" />
@@ -156,13 +154,9 @@
     <Compile Include="HarmonyPatches\ObstacleController.cs" />
     <Compile Include="HarmonyPatches\SceneTransition\StandardLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="NoodleObjectData.cs" />
-    <Compile Include="NoodlePatch.cs" />
-    <Compile Include="NullableExtensions.cs" />
     <Compile Include="Plugin.cs" />
-    <Compile Include="NoodleLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NoodleController.cs" />
-    <Compile Include="Animation\Track.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />

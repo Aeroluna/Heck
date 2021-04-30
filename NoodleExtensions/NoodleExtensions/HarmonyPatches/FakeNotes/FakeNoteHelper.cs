@@ -4,8 +4,8 @@
     using System.Linq;
     using System.Reflection;
     using HarmonyLib;
+    using UnityEngine;
     using static NoodleExtensions.NoodleObjectDataManager;
-    using static NoodleExtensions.Plugin;
 
     internal static class FakeNoteHelper
     {
@@ -44,7 +44,7 @@
 
         private static bool BoundsNullCheck(ObstacleController obstacleController)
         {
-            return obstacleController.bounds.size == _vectorZero;
+            return obstacleController.bounds.size == Vector3.zero;
         }
 
         private static List<ObstacleController> ObstacleFakeCheck(List<ObstacleController> intersectingObstacles)

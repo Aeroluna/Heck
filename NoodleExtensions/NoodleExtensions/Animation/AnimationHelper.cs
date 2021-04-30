@@ -1,13 +1,12 @@
 ﻿namespace NoodleExtensions.Animation
 {
     using System.Collections.Generic;
-    using System.Linq;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
+    using Heck.Animation;
     using IPA.Utilities;
     using UnityEngine;
+    using static Heck.Animation.AnimationHelper;
+    using static Heck.NullableExtensions;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
-    using static NoodleExtensions.NullableExtensions;
     using static NoodleExtensions.Plugin;
 
     public static class AnimationHelper
@@ -44,224 +43,8 @@
             }
         }
 
-        ////public static Dictionary<string, Track> Tracks => ((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData.tracks;
-
-        ////public static Dictionary<string, PointDefinition> PointDefinitions => Trees.at(((CustomBeatmapData)AnimationController.Instance.CustomEventCallbackController._beatmapData).customData, "pointDefinitions");
-
         private static BasicBeatmapObjectManager BeatmapObjectManager => HarmonyPatches.BeatmapObjectSpawnControllerStart.BeatmapObjectManager;
 
-        /*public static dynamic TryGetPathProperty(Track track, string propertyName, float time)
-        {
-            Property pathProperty = null;
-            track?.PathProperties.TryGetValue(propertyName, out pathProperty);
-            if (pathProperty == null)
-            {
-                return null;
-            }
-
-            PointDefinitionInterpolation pointDataInterpolation = (PointDefinitionInterpolation)pathProperty.Value;
-
-            switch (pathProperty.PropertyType)
-            {
-                case PropertyType.Linear:
-                    return pointDataInterpolation.InterpolateLinear(time);
-
-                case PropertyType.Quaternion:
-                    return pointDataInterpolation.InterpolateQuaternion(time);
-
-                case PropertyType.Vector3:
-                    return pointDataInterpolation.Interpolate(time);
-
-                case PropertyType.Vector4:
-                    return pointDataInterpolation.InterpolateVector4(time);
-
-                default:
-                    return null;
-            }
-        }*/
-
-        public static float? TryGetLinearPathProperty(Track track, string propertyName, float time)
-        {
-            PointDefinitionInterpolation pointDataInterpolation = GetPathInterpolation(track, propertyName, PropertyType.Linear);
-
-            if (pointDataInterpolation != null)
-            {
-                return pointDataInterpolation.InterpolateLinear(time);
-            }
-
-            return null;
-        }
-
-        public static Quaternion? TryGetQuaternionPathProperty(Track track, string propertyName, float time)
-        {
-            PointDefinitionInterpolation pointDataInterpolation = GetPathInterpolation(track, propertyName, PropertyType.Quaternion);
-
-            if (pointDataInterpolation != null)
-            {
-                return pointDataInterpolation.InterpolateQuaternion(time);
-            }
-
-            return null;
-        }
-
-        public static Vector3? TryGetVector3PathProperty(Track track, string propertyName, float time)
-        {
-            PointDefinitionInterpolation pointDataInterpolation = GetPathInterpolation(track, propertyName, PropertyType.Vector3);
-
-            if (pointDataInterpolation != null)
-            {
-                return pointDataInterpolation.Interpolate(time);
-            }
-
-            return null;
-        }
-
-        public static Vector4? TryGetVector4PathProperty(Track track, string propertyName, float time)
-        {
-            PointDefinitionInterpolation pointDataInterpolation = GetPathInterpolation(track, propertyName, PropertyType.Vector4);
-
-            if (pointDataInterpolation != null)
-            {
-                return pointDataInterpolation.InterpolateVector4(time);
-            }
-
-            return null;
-        }
-
-        /*public static dynamic TryGetProperty(Track track, string propertyName)
-        {
-            Property property = null;
-            track?.Properties.TryGetValue(propertyName, out property);
-            return property?.Value;
-        }*/
-
-        public static object TryGetPropertyAsObject(Track track, string propertyName)
-        {
-            Property property = null;
-            track?.Properties.TryGetValue(propertyName, out property);
-            return property?.Value;
-        }
-
-        public static void TryGetPointData(dynamic customData, string pointName, out PointDefinition pointData, Dictionary<string, PointDefinition> pointDefinitions)
-        {
-            dynamic pointString = Trees.at(customData, pointName);
-            switch (pointString)
-            {
-                case null:
-                    pointData = null;
-                    break;
-
-                case PointDefinition castedData:
-                    pointData = castedData;
-                    break;
-
-                case string castedString:
-                    if (!pointDefinitions.TryGetValue(castedString, out pointData))
-                    {
-                        NoodleLogger.Log($"Could not find point definition {castedString}!", IPA.Logging.Logger.Level.Error);
-                        pointData = null;
-                    }
-
-                    break;
-
-                default:
-                    pointData = PointDefinition.DynamicToPointData(pointString);
-                    if (pointData != null)
-                    {
-                        ((IDictionary<string, object>)customData)[pointName] = pointData;
-                    }
-
-                    break;
-            }
-        }
-
-        /*public static Track GetTrack(dynamic customData, string name = TRACK)
-        {
-            string trackName = Trees.at(customData, name);
-            if (trackName == null)
-            {
-                return null;
-            }
-
-            if (Tracks.TryGetValue(trackName, out Track track))
-            {
-                return track;
-            }
-            else
-            {
-                NoodleLogger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
-                return null;
-            }
-        }*/
-
-        public static Track GetTrackPreload(dynamic customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
-        {
-            string trackName = Trees.at(customData, name);
-            if (trackName == null)
-            {
-                return null;
-            }
-
-            if (((CustomBeatmapData)beatmapData).customData.tracks.TryGetValue(trackName, out Track track))
-            {
-                return track;
-            }
-            else
-            {
-                NoodleLogger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
-                return null;
-            }
-        }
-
-        /*public static IEnumerable<Track> GetTrackArray(dynamic customData, string name = TRACK)
-        {
-            IEnumerable<string> trackNames = ((List<object>)Trees.at(customData, name)).Cast<string>();
-            if (trackNames == null)
-            {
-                return null;
-            }
-
-            HashSet<Track> tracks = new HashSet<Track>();
-            foreach (string trackName in trackNames)
-            {
-                if (Tracks.TryGetValue(trackName, out Track track))
-                {
-                    tracks.Add(track);
-                }
-                else
-                {
-                    NoodleLogger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
-                }
-            }
-
-            return tracks;
-        }*/
-
-        public static IEnumerable<Track> GetTrackArrayPreload(dynamic customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
-        {
-            IEnumerable<string> trackNames = ((List<object>)Trees.at(customData, name)).Cast<string>();
-            if (trackNames == null)
-            {
-                return null;
-            }
-
-            HashSet<Track> tracks = new HashSet<Track>();
-            foreach (string trackName in trackNames)
-            {
-                if (((CustomBeatmapData)beatmapData).customData.tracks.TryGetValue(trackName, out Track track))
-                {
-                    tracks.Add(track);
-                }
-                else
-                {
-                    NoodleLogger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
-                }
-            }
-
-            return tracks;
-        }
-
-        // NE Specific properties below
         internal static void OnTrackCreated(Track track)
         {
             IDictionary<string, Property> properties = track.Properties;
@@ -297,7 +80,7 @@
                 Vector3? positionOffset = SumVectorNullables((Vector3?)TryGetPropertyAsObject(track, POSITION), pathPosition);
                 definitePosition = SumVectorNullables(positionOffset, pathDefinitePosition) * NoteLinesDistance;
 
-                if (NoodleController.LeftHandedMode)
+                if (LeftHandedMode)
                 {
                     MirrorVectorNullable(ref definitePosition);
                 }
@@ -326,7 +109,7 @@
             dissolveArrow = MultFloatNullables((float?)TryGetPropertyAsObject(track, DISSOLVEARROW), pathDissolveArrow);
             cuttable = MultFloatNullables((float?)TryGetPropertyAsObject(track, CUTTABLE), pathCuttable);
 
-            if (NoodleController.LeftHandedMode)
+            if (LeftHandedMode)
             {
                 MirrorVectorNullable(ref positionOffset);
                 MirrorQuaternionNullable(ref rotationOffset);
@@ -344,21 +127,6 @@
             TryGetPointData(customData, DISSOLVEARROW, out dissolveArrow, pointDefinitions);
             TryGetPointData(customData, CUTTABLE, out cuttable, pointDefinitions);
             TryGetPointData(customData, DEFINITEPOSITION, out definitePosition, pointDefinitions);
-        }
-
-        // End of NE specific
-        private static PointDefinitionInterpolation GetPathInterpolation(Track track, string propertyName, PropertyType propertyType)
-        {
-            Property pathProperty = null;
-            track?.PathProperties.TryGetValue(propertyName, out pathProperty);
-            if (pathProperty != null)
-            {
-                PointDefinitionInterpolation pointDataInterpolation = (PointDefinitionInterpolation)pathProperty.Value;
-
-                return pointDataInterpolation;
-            }
-
-            return null;
         }
     }
 }

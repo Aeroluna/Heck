@@ -9,9 +9,9 @@
     [HarmonyPatch("Init")]
     internal static class StandardLevelScenesTransitionSetupDataSOInit
     {
-        private static void Postfix(IDifficultyBeatmap difficultyBeatmap, PlayerSpecificSettings playerSpecificSettings)
+        private static void Postfix(IDifficultyBeatmap difficultyBeatmap)
         {
-            SceneTransitionHelper.Patch(difficultyBeatmap, playerSpecificSettings);
+            SceneTransitionHelper.Patch(difficultyBeatmap);
         }
     }
 }

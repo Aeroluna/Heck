@@ -6,7 +6,8 @@
     using System.Reflection;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using NoodleExtensions.Animation;
+    using Heck;
+    using Heck.Animation;
     using UnityEngine;
     using static NoodleExtensions.Plugin;
 
@@ -71,8 +72,8 @@
                 }
                 catch (Exception e)
                 {
-                    NoodleLogger.Log($"Could not create NoodleObjectData for object {beatmapObjectData.GetType().Name} at {beatmapObjectData.time}", IPA.Logging.Logger.Level.Error);
-                    NoodleLogger.Log(e, IPA.Logging.Logger.Level.Error);
+                    Plugin.Logger.Log($"Could not create NoodleObjectData for object {beatmapObjectData.GetType().Name} at {beatmapObjectData.time}", IPA.Logging.Logger.Level.Error);
+                    Plugin.Logger.Log(e, IPA.Logging.Logger.Level.Error);
                 }
             }
         }
@@ -103,7 +104,7 @@
 
             dynamic animationObjectDyn = Trees.at(dynData, "_animation");
             Dictionary<string, PointDefinition> pointDefinitions = Trees.at(((CustomBeatmapData)beatmapData).customData, "pointDefinitions");
-            AnimationHelper.GetAllPointData(
+            Animation.AnimationHelper.GetAllPointData(
                 animationObjectDyn,
                 pointDefinitions,
                 out PointDefinition localPosition,

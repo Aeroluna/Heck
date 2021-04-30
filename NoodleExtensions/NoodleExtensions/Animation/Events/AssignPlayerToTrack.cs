@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using Heck.Animation;
     using static NoodleExtensions.Animation.NoodleEventDataManager;
     using static NoodleExtensions.Plugin;
 

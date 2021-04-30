@@ -6,14 +6,15 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
+    using Heck;
+    using Heck.Animation;
     using IPA.Utilities;
     using NoodleExtensions.Animation;
     using UnityEngine;
     using static NoodleExtensions.NoodleObjectDataManager;
-    using static NoodleExtensions.Plugin;
 
-    [NoodlePatch(typeof(NoteController))]
-    [NoodlePatch("Init")]
+    [HeckPatch(typeof(NoteController))]
+    [HeckPatch("Init")]
     internal static class NoteControllerInit
     {
         internal static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
@@ -59,7 +60,7 @@
 
             Transform transform = __instance.transform;
 
-            Quaternion localRotation = _quaternionIdentity;
+            Quaternion localRotation = Quaternion.identity;
             if (worldRotationQuaternion.HasValue || localRotationQuaternion.HasValue)
             {
                 if (localRotationQuaternion.HasValue)
@@ -137,7 +138,7 @@
 
             if (!foundFlipYSide)
             {
-                NoodleLogger.Log("Failed to find Get_flipYSide call!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find Get_flipYSide call!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();
@@ -161,8 +162,8 @@
         }
     }
 
-    [NoodlePatch(typeof(NoteController))]
-    [NoodlePatch("ManualUpdate")]
+    [HeckPatch(typeof(NoteController))]
+    [HeckPatch("ManualUpdate")]
     internal static class NoteControllerUpdate
     {
         internal static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorEndPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_endPos");
@@ -207,7 +208,7 @@
                 elapsedTime = NoteJumpManualUpdate.NoteJumpTimeAdjust(elapsedTime, jumpDuration);
                 float normalTime = elapsedTime / jumpDuration;
 
-                AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow, out float? cuttable);
+                Animation.AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow, out float? cuttable);
 
                 if (positionOffset.HasValue)
                 {

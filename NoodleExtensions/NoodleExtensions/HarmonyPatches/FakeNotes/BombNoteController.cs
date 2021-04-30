@@ -1,9 +1,10 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
     using HarmonyLib;
+    using Heck;
 
-    [NoodlePatch(typeof(BombNoteController))]
-    [NoodlePatch("Init")]
+    [HeckPatch(typeof(BombNoteController))]
+    [HeckPatch("Init")]
     internal static class BombNoteControllerInit
     {
         [HarmonyPriority(Priority.High)]

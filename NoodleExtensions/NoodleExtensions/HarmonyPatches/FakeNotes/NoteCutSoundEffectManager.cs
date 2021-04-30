@@ -1,10 +1,11 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
     using System.Collections.Generic;
+    using Heck;
     using UnityEngine;
 
-    [NoodlePatch(typeof(NoteCutSoundEffectManager))]
-    [NoodlePatch("Start")]
+    [HeckPatch(typeof(NoteCutSoundEffectManager))]
+    [HeckPatch("Start")]
     internal static class NoteCutSoundEffectManagerStart
     {
         private static void Postfix(NoteCutSoundEffectManager __instance)
@@ -15,8 +16,8 @@
         }
     }
 
-    [NoodlePatch(typeof(NoteCutSoundEffectManager))]
-    [NoodlePatch("HandleNoteWasSpawned")]
+    [HeckPatch(typeof(NoteCutSoundEffectManager))]
+    [HeckPatch("HandleNoteWasSpawned")]
     internal static class NoteCutSoundEffectManagerHandleNoteWasSpawned
     {
         internal static NoodleCutSoundEffectManager NoodleManager { get; set; }
@@ -78,7 +79,7 @@
                 List<NoteController> noteControllers = new List<NoteController>(_hitsoundQueue);
                 _hitsoundQueue.Clear();
                 noteControllers.ForEach(_noteCutSoundEffectManager.HandleNoteWasSpawned);
-                NoodleLogger.Log($"{noteControllers.Count} cut sounds moved to next frame!");
+                Plugin.Logger.Log($"{noteControllers.Count} cut sounds moved to next frame!");
             }
         }
     }
