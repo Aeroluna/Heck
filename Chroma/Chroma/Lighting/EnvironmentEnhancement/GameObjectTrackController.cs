@@ -1,11 +1,11 @@
 ﻿namespace Chroma
 {
     using IPA.Utilities;
-    using NoodleExtensions;
-    using NoodleExtensions.Animation;
+    using Heck;
+    using Heck.Animation;
     using UnityEngine;
-    using static NoodleExtensions.Animation.AnimationHelper;
-    using static NoodleExtensions.NullableExtensions;
+    using static Heck.Animation.AnimationHelper;
+    using static Heck.NullableExtensions;
 
     internal class GameObjectTrackController : MonoBehaviour
     {
@@ -27,14 +27,11 @@
             TrackLaneRing trackLaneRing,
             ParametricBoxController parametricBoxController)
         {
-            if (NoodleController.NoodleExtensionsActive)
+            Track track = Heck.Animation.AnimationHelper.GetTrackPreload(gameObjectData, beatmapData);
+            if (track != null)
             {
-                Track track = NoodleExtensions.Animation.AnimationHelper.GetTrackPreload(gameObjectData, beatmapData);
-                if (track != null)
-                {
-                    GameObjectTrackController trackController = gameObject.AddComponent<GameObjectTrackController>();
-                    trackController.Init(track, noteLinesDistance, trackLaneRing, parametricBoxController);
-                }
+                GameObjectTrackController trackController = gameObject.AddComponent<GameObjectTrackController>();
+                trackController.Init(track, noteLinesDistance, trackLaneRing, parametricBoxController);
             }
         }
 
@@ -150,7 +147,7 @@
             Vector3? nullable = (Vector3?)TryGetPropertyAsObject(_track, property);
             if (nullable.HasValue)
             {
-                if (NoodleController.LeftHandedMode)
+                if (LeftHandedMode)
                 {
                     MirrorVectorNullable(ref nullable);
                 }
@@ -164,7 +161,7 @@
             Quaternion? nullable = (Quaternion?)TryGetPropertyAsObject(_track, property);
             if (nullable.HasValue)
             {
-                if (NoodleController.LeftHandedMode)
+                if (LeftHandedMode)
                 {
                     MirrorQuaternionNullable(ref nullable);
                 }

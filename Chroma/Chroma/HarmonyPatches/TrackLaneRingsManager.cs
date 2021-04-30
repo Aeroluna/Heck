@@ -1,9 +1,10 @@
 ﻿namespace Chroma.HarmonyPatches
 {
+    using Heck;
     using System.Collections.Generic;
 
-    [ChromaPatch(typeof(TrackLaneRingsManager))]
-    [ChromaPatch("Awake")]
+    [HeckPatch(typeof(TrackLaneRingsManager))]
+    [HeckPatch("Awake")]
     internal static class TrackLaneRingsManagerAwake
     {
         internal static List<TrackLaneRingsManager> RingManagers { get; } = new List<TrackLaneRingsManager>();

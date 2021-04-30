@@ -16,8 +16,8 @@
 
             if (objectsToKill != null)
             {
-                ChromaLogger.Log("Legacy Environment Removal Detected...", IPA.Logging.Logger.Level.Warning);
-                ChromaLogger.Log("Please do not use Legacy Environment Removal for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", IPA.Logging.Logger.Level.Warning);
+                Plugin.Logger.Log("Legacy Environment Removal Detected...", IPA.Logging.Logger.Level.Warning);
+                Plugin.Logger.Log("Please do not use Legacy Environment Removal for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", IPA.Logging.Logger.Level.Warning);
 
                 IEnumerable<GameObject> gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
                 foreach (string s in objectsToKill.Cast<string>())

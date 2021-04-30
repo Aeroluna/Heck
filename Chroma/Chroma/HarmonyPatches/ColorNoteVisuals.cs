@@ -3,6 +3,7 @@
     using Chroma.Colorizer;
     using HarmonyLib;
     using UnityEngine;
+    using Heck;
     using static ChromaObjectDataManager;
 
     [HarmonyPatch(typeof(ColorNoteVisuals))]
@@ -32,8 +33,8 @@
         }
     }
 
-    [ChromaPatch(typeof(ColorNoteVisuals))]
-    [ChromaPatch("HandleNoteControllerDidInit")]
+    [HeckPatch(typeof(ColorNoteVisuals))]
+    [HeckPatch("HandleNoteControllerDidInit")]
     internal static class ColorNoteVisualsHandleNoteControllerDidInit
     {
         private static void Prefix(NoteController noteController)

@@ -1,10 +1,10 @@
 ﻿namespace Chroma
 {
     using System.Collections.Generic;
-    using NoodleExtensions.Animation;
+    using Heck.Animation;
     using UnityEngine;
-    using static NoodleExtensions.Animation.AnimationHelper;
-    using static NoodleExtensions.NullableExtensions;
+    using static Heck.Animation.AnimationHelper;
+    using static Heck.NullableExtensions;
     using static Plugin;
 
     internal static class AnimationHelper

@@ -2,8 +2,9 @@
 {
     using Chroma.Colorizer;
     using HarmonyLib;
-    using NoodleExtensions.Animation;
+    using Heck.Animation;
     using UnityEngine;
+    using Heck;
     using static ChromaObjectDataManager;
     using static Plugin;
 
@@ -29,8 +30,8 @@
         }
     }
 
-    [ChromaPatch(typeof(ObstacleController))]
-    [ChromaPatch("Init")]
+    [HeckPatch(typeof(ObstacleController))]
+    [HeckPatch("Init")]
     internal static class ObstacleControllerInit
     {
         private static void Prefix(ObstacleController __instance, ObstacleData obstacleData)
@@ -57,43 +58,32 @@
         }
     }
 
-    [ChromaPatch(typeof(ObstacleController))]
-    [ChromaPatch("Update")]
+    [HeckPatch(typeof(ObstacleController))]
+    [HeckPatch("Update")]
     internal static class ObstacleControllerUpdate
     {
         private static void Postfix(ObstacleController __instance, ObstacleData ____obstacleData, AudioTimeSyncController ____audioTimeSyncController, float ____startTimeOffset, float ____move1Duration, float ____move2Duration, float ____obstacleDuration)
         {
-            if (!(__instance is MultiplayerConnectedPlayerObstacleController) && NoodleExtensionsInstalled)
+            ChromaObjectData chromaData = TryGetObjectData<ChromaObjectData>(____obstacleData);
+            if (chromaData == null)
             {
-                TrackColorize(__instance, ____obstacleData, ____audioTimeSyncController, ____startTimeOffset, ____move1Duration, ____move2Duration, ____obstacleDuration);
+                return;
             }
-        }
 
-        private static void TrackColorize(ObstacleController obstacleController, ObstacleData obstacleData, AudioTimeSyncController audioTimeSyncController, float startTimeOffset, float move1Duration, float move2Duration, float obstacleDuration)
-        {
-            if (NoodleExtensions.NoodleController.NoodleExtensionsActive)
+            Track track = chromaData.Track;
+            PointDefinition pathPointDefinition = chromaData.LocalPathColor;
+            if (track != null || pathPointDefinition != null)
             {
-                ChromaNoodleData chromaData = TryGetNoodleData(obstacleData);
-                if (chromaData == null)
+                float jumpDuration = ____move2Duration;
+                float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
+                float normalTime = (elapsedTime - ____move1Duration) / (jumpDuration + ____obstacleDuration);
+
+                Chroma.AnimationHelper.GetColorOffset(pathPointDefinition, track, normalTime, out Color? colorOffset);
+
+                if (colorOffset.HasValue)
                 {
-                    return;
-                }
-
-                Track track = chromaData.Track;
-                PointDefinition pathPointDefinition = chromaData.LocalPathColor;
-                if (track != null || pathPointDefinition != null)
-                {
-                    float jumpDuration = move2Duration;
-                    float elapsedTime = audioTimeSyncController.songTime - startTimeOffset;
-                    float normalTime = (elapsedTime - move1Duration) / (jumpDuration + obstacleDuration);
-
-                    Chroma.AnimationHelper.GetColorOffset(pathPointDefinition, track, normalTime, out Color? colorOffset);
-
-                    if (colorOffset.HasValue)
-                    {
-                        obstacleController.SetObstacleColor(colorOffset.Value);
-                        obstacleController.SetActiveColors();
-                    }
+                    __instance.SetObstacleColor(colorOffset.Value);
+                    __instance.SetActiveColors();
                 }
             }
         }

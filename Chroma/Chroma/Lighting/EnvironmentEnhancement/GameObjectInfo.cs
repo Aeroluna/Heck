@@ -41,7 +41,7 @@
             FullID = string.Join(".", nameList);
             if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
             {
-                ChromaLogger.Log(FullID);
+                Plugin.Logger.Log(FullID);
             }
 
             GameObject = gameObject;

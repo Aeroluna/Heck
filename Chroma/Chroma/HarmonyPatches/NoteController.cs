@@ -2,13 +2,14 @@
 {
     using Chroma.Colorizer;
     using IPA.Utilities;
-    using NoodleExtensions.Animation;
+    using Heck.Animation;
+    using Heck;
     using UnityEngine;
     using static ChromaObjectDataManager;
     using static Plugin;
 
-    [ChromaPatch(typeof(NoteController))]
-    [ChromaPatch("Update")]
+    [HeckPatch(typeof(NoteController))]
+    [HeckPatch("Update")]
     internal static class NoteControllerUpdate
     {
         private static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
@@ -17,46 +18,35 @@
 
         private static void Postfix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
-            if (NoodleExtensionsInstalled)
+            ChromaObjectData chromaData = TryGetObjectData<ChromaObjectData>(____noteData);
+            if (chromaData == null)
             {
-                TrackColorize(__instance, ____noteData, ____noteMovement);
+                return;
             }
-        }
 
-        private static void TrackColorize(NoteController instance, NoteData noteData, NoteMovement noteMovement)
-        {
-            if (NoodleExtensions.NoodleController.NoodleExtensionsActive)
+            Track track = chromaData.Track;
+            PointDefinition pathPointDefinition = chromaData.LocalPathColor;
+            if (track != null || pathPointDefinition != null)
             {
-                ChromaNoodleData chromaData = TryGetNoodleData(noteData);
-                if (chromaData == null)
+                NoteJump noteJump = _noteJumpAccessor(ref ____noteMovement);
+
+                float jumpDuration = _jumpDurationAccessor(ref noteJump);
+                float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - (jumpDuration * 0.5f));
+                float normalTime = elapsedTime / jumpDuration;
+
+                Chroma.AnimationHelper.GetColorOffset(pathPointDefinition, track, normalTime, out Color? colorOffset);
+
+                if (colorOffset.HasValue)
                 {
-                    return;
-                }
-
-                Track track = chromaData.Track;
-                PointDefinition pathPointDefinition = chromaData.LocalPathColor;
-                if (track != null || pathPointDefinition != null)
-                {
-                    NoteJump noteJump = _noteJumpAccessor(ref noteMovement);
-
-                    float jumpDuration = _jumpDurationAccessor(ref noteJump);
-                    float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (noteData.time - (jumpDuration * 0.5f));
-                    float normalTime = elapsedTime / jumpDuration;
-
-                    Chroma.AnimationHelper.GetColorOffset(pathPointDefinition, track, normalTime, out Color? colorOffset);
-
-                    if (colorOffset.HasValue)
+                    Color color = colorOffset.Value;
+                    if (__instance is BombNoteController bnc)
                     {
-                        Color color = colorOffset.Value;
-                        if (instance is BombNoteController bnc)
-                        {
-                            bnc.SetBombColor(color);
-                        }
-                        else
-                        {
-                            instance.SetNoteColors(color, color);
-                            instance.SetActiveColors();
-                        }
+                        bnc.SetBombColor(color);
+                    }
+                    else
+                    {
+                        __instance.SetNoteColors(color, color);
+                        __instance.SetActiveColors();
                     }
                 }
             }

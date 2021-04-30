@@ -7,6 +7,7 @@
     using HarmonyLib;
     using IPA;
     using IPA.Config;
+    using Heck;
     using IPA.Config.Stores;
     using UnityEngine.SceneManagement;
     using IPALogger = IPA.Logging.Logger;
@@ -57,14 +58,14 @@
         internal static readonly Harmony _harmonyInstanceCore = new Harmony(HARMONYIDCORE);
         internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
 
-        internal static bool NoodleExtensionsInstalled { get; private set; } = false;
+        internal static HeckLogger Logger { get; private set; }
 
         [Init]
         public void Init(IPALogger pluginLogger, Config conf)
         {
-            ChromaLogger.IPAlogger = pluginLogger;
+            Logger = new HeckLogger(pluginLogger);
             ChromaConfig.Instance = conf.Generated<ChromaConfig>();
-            ChromaController.InitChromaPatches();
+            HeckData.InitPatches(_harmonyInstance, Assembly.GetExecutingAssembly());
             LightIDTableManager.InitTable();
         }
 
@@ -82,16 +83,8 @@
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");
 
-            if (ChromaUtils.IsNoodleExtensionsInstalled())
-            {
-                AnimationHelper.SubscribeColorEvents();
-                EnvironmentEnhancementManager.SubscribeTrackManagerCreated();
-                NoodleExtensionsInstalled = true;
-            }
-            else
-            {
-                NoodleExtensionsInstalled = false;
-            }
+            AnimationHelper.SubscribeColorEvents();
+            EnvironmentEnhancementManager.SubscribeTrackManagerCreated();
         }
 
         [OnDisable]

@@ -5,14 +5,13 @@
     using Chroma.Utils;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using NoodleExtensions.Animation;
+    using Heck.Animation;
     using UnityEngine;
     using static Chroma.Plugin;
 
     internal static class ChromaObjectDataManager
     {
         private static Dictionary<BeatmapObjectData, ChromaObjectData> _chromaObjectDatas;
-        private static Dictionary<BeatmapObjectData, ChromaNoodleData> _chromaNoodleDatas;
 
         internal static T TryGetObjectData<T>(BeatmapObjectData beatmapObjectData)
         {
@@ -31,23 +30,9 @@
             return default;
         }
 
-        internal static ChromaNoodleData TryGetNoodleData(BeatmapObjectData beatmapObjectData)
-        {
-            if (_chromaNoodleDatas.TryGetValue(beatmapObjectData, out ChromaNoodleData chromaNoodleData))
-            {
-                return chromaNoodleData;
-            }
-
-            return default;
-        }
-
         internal static void DeserializeBeatmapData(IReadonlyBeatmapData beatmapData)
         {
             _chromaObjectDatas = new Dictionary<BeatmapObjectData, ChromaObjectData>();
-            if (NoodleExtensionsInstalled)
-            {
-                _chromaNoodleDatas = new Dictionary<BeatmapObjectData, ChromaNoodleData>();
-            }
 
             foreach (BeatmapObjectData beatmapObjectData in beatmapData.beatmapObjectsData)
             {
@@ -84,40 +69,25 @@
                             continue;
                     }
 
-                    if (NoodleExtensionsInstalled)
-                    {
-                        ApplyNoodleData(customData, beatmapObjectData, beatmapData);
-                    }
-
                     if (chromaObjectData != null)
                     {
+                        dynamic animationObjectDyn = Trees.at(customData, ANIMATION);
+                        Dictionary<string, PointDefinition> pointDefinitions = Trees.at(((CustomBeatmapData)beatmapData).customData, "pointDefinitions");
+
+                        Heck.Animation.AnimationHelper.TryGetPointData(animationObjectDyn, COLOR, out PointDefinition localColor, pointDefinitions);
+
+                        chromaObjectData.LocalPathColor = localColor;
+
+                        chromaObjectData.Track = Heck.Animation.AnimationHelper.GetTrackPreload(customData, beatmapData);
+
                         _chromaObjectDatas.Add(beatmapObjectData, chromaObjectData);
                     }
                 }
                 catch (Exception e)
                 {
-                    ChromaLogger.Log($"Could not create ChromaObjectData for object {beatmapObjectData.GetType().Name} at {beatmapObjectData.time}", IPA.Logging.Logger.Level.Error);
-                    ChromaLogger.Log(e, IPA.Logging.Logger.Level.Error);
+                    Plugin.Logger.Log($"Could not create ChromaObjectData for object {beatmapObjectData.GetType().Name} at {beatmapObjectData.time}", IPA.Logging.Logger.Level.Error);
+                    Plugin.Logger.Log(e, IPA.Logging.Logger.Level.Error);
                 }
-            }
-        }
-
-        private static void ApplyNoodleData(dynamic dynData, BeatmapObjectData beatmapObjectData, IReadonlyBeatmapData beatmapData)
-        {
-            if (NoodleExtensions.NoodleController.NoodleExtensionsActive)
-            {
-                ChromaNoodleData chromaNoodleData = new ChromaNoodleData();
-
-                dynamic animationObjectDyn = Trees.at(dynData, ANIMATION);
-                Dictionary<string, PointDefinition> pointDefinitions = Trees.at(((CustomBeatmapData)beatmapData).customData, "pointDefinitions");
-
-                NoodleExtensions.Animation.AnimationHelper.TryGetPointData(animationObjectDyn, COLOR, out PointDefinition localColor, pointDefinitions);
-
-                chromaNoodleData.LocalPathColor = localColor;
-
-                chromaNoodleData.Track = NoodleExtensions.Animation.AnimationHelper.GetTrackPreload(dynData, beatmapData);
-
-                _chromaNoodleDatas.Add(beatmapObjectData, chromaNoodleData);
             }
         }
     }
@@ -132,10 +102,7 @@
     internal class ChromaObjectData
     {
         internal Color? Color { get; set; }
-    }
 
-    internal class ChromaNoodleData
-    {
         internal Track Track { get; set; }
 
         internal PointDefinition LocalPathColor { get; set; }

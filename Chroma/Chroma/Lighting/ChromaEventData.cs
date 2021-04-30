@@ -128,8 +128,8 @@
                 }
                 catch (Exception e)
                 {
-                    ChromaLogger.Log($"Could not create ChromaEventData for event {beatmapEventData.type} at {beatmapEventData.time}", IPA.Logging.Logger.Level.Error);
-                    ChromaLogger.Log(e, IPA.Logging.Logger.Level.Error);
+                    Plugin.Logger.Log($"Could not create ChromaEventData for event {beatmapEventData.type} at {beatmapEventData.time}", IPA.Logging.Logger.Level.Error);
+                    Plugin.Logger.Log(e, IPA.Logging.Logger.Level.Error);
                 }
             }
         }

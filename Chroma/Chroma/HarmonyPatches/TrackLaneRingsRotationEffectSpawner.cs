@@ -1,10 +1,11 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using Chroma;
+    using Heck;
     using static ChromaEventDataManager;
 
-    [ChromaPatch(typeof(TrackLaneRingsRotationEffectSpawner))]
-    [ChromaPatch("Start")]
+    [HeckPatch(typeof(TrackLaneRingsRotationEffectSpawner))]
+    [HeckPatch("Start")]
     internal static class TrackLaneRingsRotationEffectSpawnerStart
     {
         private static void Prefix(ref TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect)
@@ -21,8 +22,8 @@
         }
     }
 
-    [ChromaPatch(typeof(TrackLaneRingsRotationEffectSpawner))]
-    [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    [HeckPatch(typeof(TrackLaneRingsRotationEffectSpawner))]
+    [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class TrackLaneRingsRotationEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
         private static bool Prefix(

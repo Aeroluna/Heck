@@ -3,6 +3,7 @@
     using System.Collections;
     using Chroma.Colorizer;
     using HarmonyLib;
+    using Heck;
     using UnityEngine;
 
     [HarmonyPatch(typeof(ParticleSystemEventEffect))]
@@ -21,8 +22,8 @@
         }
     }
 
-    [ChromaPatch(typeof(ParticleSystemEventEffect))]
-    [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    [HeckPatch(typeof(ParticleSystemEventEffect))]
+    [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class ParticleSystemEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
         private static void Prefix(ParticleSystemEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____colorEvent)

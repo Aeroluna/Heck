@@ -1,10 +1,11 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using UnityEngine;
+    using Heck;
 
     // This whole file effectively changes _rotZ and _posZ from directly affecting the coordinate to being an offset
-    [ChromaPatch(typeof(TrackLaneRing))]
-    [ChromaPatch("Init")]
+    [HeckPatch(typeof(TrackLaneRing))]
+    [HeckPatch("Init")]
     internal static class TrackLaneRingInit
     {
         private static void Postfix(ref float ____posZ, Vector3 position)
@@ -13,8 +14,8 @@
         }
     }
 
-    [ChromaPatch(typeof(TrackLaneRing))]
-    [ChromaPatch("FixedUpdateRing")]
+    [HeckPatch(typeof(TrackLaneRing))]
+    [HeckPatch("FixedUpdateRing")]
     internal static class TrackLaneRingFixedUpdateRing
     {
         private static bool Prefix(
@@ -37,8 +38,8 @@
         }
     }
 
-    [ChromaPatch(typeof(TrackLaneRing))]
-    [ChromaPatch("LateUpdateRing")]
+    [HeckPatch(typeof(TrackLaneRing))]
+    [HeckPatch("LateUpdateRing")]
     internal static class TrackLaneRingLateUpdateRing
     {
         private static bool Prefix(

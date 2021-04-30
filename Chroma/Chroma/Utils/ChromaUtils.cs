@@ -8,11 +8,6 @@
 
     internal static class ChromaUtils
     {
-        internal static bool IsNoodleExtensionsInstalled()
-        {
-            return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == "NoodleExtensions" && x.Version >= new SemVer.Version("1.3.10"));
-        }
-
         internal static Color? GetColorFromData(dynamic data, string member = COLOR)
         {
             IEnumerable<float> color = ((List<object>)CustomJSONData.Trees.at(data, member))?.Select(n => Convert.ToSingle(n));

@@ -2,6 +2,7 @@
 {
     using Chroma.Colorizer;
     using HarmonyLib;
+    using Heck;
     using UnityEngine;
     using static ChromaObjectDataManager;
 
@@ -16,8 +17,8 @@
         }
     }
 
-    [ChromaPatch(typeof(BombNoteController))]
-    [ChromaPatch("Init")]
+    [HeckPatch(typeof(BombNoteController))]
+    [HeckPatch("Init")]
     internal static class BombNoteControllerInit
     {
         private static void Prefix(BombNoteController __instance, NoteData noteData)

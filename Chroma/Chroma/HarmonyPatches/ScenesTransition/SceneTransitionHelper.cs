@@ -31,7 +31,7 @@
 
             if (!foundReturn)
             {
-                ChromaLogger.Log("Failed to find ret!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find ret!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();
@@ -74,8 +74,8 @@
             bool legacyOverride = customBeatmapData.beatmapEventsData.Any(n => n.value >= LegacyLightHelper.RGB_INT_OFFSET);
             if (legacyOverride)
             {
-                ChromaLogger.Log("Legacy Chroma Detected...", IPA.Logging.Logger.Level.Warning);
-                ChromaLogger.Log("Please do not use Legacy Chroma for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", IPA.Logging.Logger.Level.Warning);
+                Plugin.Logger.Log("Legacy Chroma Detected...", IPA.Logging.Logger.Level.Warning);
+                Plugin.Logger.Log("Please do not use Legacy Chroma for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", IPA.Logging.Logger.Level.Warning);
             }
 
             ChromaController.ToggleChromaPatches((chromaRequirement || legacyOverride) && ChromaConfig.Instance.CustomColorEventsEnabled);

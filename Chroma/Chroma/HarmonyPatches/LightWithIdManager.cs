@@ -1,9 +1,10 @@
 ﻿namespace Chroma.HarmonyPatches
 {
+    using Heck;
     using System.Collections.Generic;
 
-    [ChromaPatch(typeof(LightWithIdManager))]
-    [ChromaPatch("LateUpdate")]
+    [HeckPatch(typeof(LightWithIdManager))]
+    [HeckPatch("LateUpdate")]
     internal static class LightWithIdManagerLateUpdate
     {
         private static void Postfix(List<ILightWithId> ____lightsToUnregister)

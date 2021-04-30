@@ -5,11 +5,12 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using Chroma;
+    using Heck;
     using HarmonyLib;
     using static ChromaEventDataManager;
 
-    [ChromaPatch(typeof(TrackLaneRingsPositionStepEffectSpawner))]
-    [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    [HeckPatch(typeof(TrackLaneRingsPositionStepEffectSpawner))]
+    [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class TrackLaneRingsPositionStepEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
         private static readonly MethodInfo _getPrecisionStep = SymbolExtensions.GetMethodInfo(() => GetPrecisionStep(0, null));
@@ -37,7 +38,7 @@
 
             if (!foundStLoc)
             {
-                ChromaLogger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();

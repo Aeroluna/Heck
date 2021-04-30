@@ -22,8 +22,6 @@
         private static readonly FieldAccessor<BeatmapObjectCallbackController, IAudioTimeSource>.Accessor _audioTimeSourceAccessor = FieldAccessor<BeatmapObjectCallbackController, IAudioTimeSource>.GetAccessor("_audioTimeSource");
         private static readonly FieldAccessor<BeatmapObjectCallbackController, IReadonlyBeatmapData>.Accessor _beatmapDataAccessor = FieldAccessor<BeatmapObjectCallbackController, IReadonlyBeatmapData>.GetAccessor("_beatmapData");
 
-        private static List<ChromaPatchData> _chromaPatches;
-
         public static bool ChromaIsActive { get; private set; }
 
         public static bool DoColorizerSabers { get; set; }
@@ -34,72 +32,8 @@
 
         public static void ToggleChromaPatches(bool value)
         {
+            Heck.HeckData.TogglePatches(_harmonyInstance, value);
             ChromaIsActive = value;
-
-            if (value)
-            {
-                if (!Harmony.HasAnyPatches(HARMONYID))
-                {
-                    _chromaPatches.ForEach(n => _harmonyInstance.Patch(
-                        n.OriginalMethod,
-                        n.Prefix != null ? new HarmonyMethod(n.Prefix) : null,
-                        n.Postfix != null ? new HarmonyMethod(n.Postfix) : null,
-                        n.Transpiler != null ? new HarmonyMethod(n.Transpiler) : null));
-                }
-            }
-            else
-            {
-                _harmonyInstance.UnpatchAll(HARMONYID);
-            }
-        }
-
-        internal static void InitChromaPatches()
-        {
-            if (_chromaPatches == null)
-            {
-                _chromaPatches = new List<ChromaPatchData>();
-                foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
-                {
-                    object[] noodleattributes = type.GetCustomAttributes(typeof(ChromaPatch), true);
-                    if (noodleattributes.Length > 0)
-                    {
-                        Type declaringType = null;
-                        List<string> methodNames = new List<string>();
-                        foreach (ChromaPatch n in noodleattributes)
-                        {
-                            if (n.DeclaringType != null)
-                            {
-                                declaringType = n.DeclaringType;
-                            }
-
-                            if (n.MethodName != null)
-                            {
-                                methodNames.Add(n.MethodName);
-                            }
-                        }
-
-                        if (declaringType == null || !methodNames.Any())
-                        {
-                            throw new ArgumentException("Type or Method Name not described");
-                        }
-
-                        MethodInfo prefix = AccessTools.Method(type, "Prefix");
-                        MethodInfo postfix = AccessTools.Method(type, "Postfix");
-                        MethodInfo transpiler = AccessTools.Method(type, "Transpiler");
-
-                        foreach (string methodName in methodNames)
-                        {
-                            MethodInfo methodInfo = declaringType.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
-                            if (methodInfo == null)
-                            {
-                                throw new ArgumentException($"Could not find method '{methodName}' of '{declaringType}'");
-                            }
-
-                            _chromaPatches.Add(new ChromaPatchData(methodInfo, prefix, postfix, transpiler));
-                        }
-                    }
-                }
-            }
         }
 
         internal static IEnumerator DelayedStart(BeatmapObjectSpawnController beatmapObjectSpawnController)
@@ -117,7 +51,7 @@
             beatmapObjectManager.noteWasCutEvent -= NoteColorizer.ColorizeSaber;
             beatmapObjectManager.noteWasCutEvent += NoteColorizer.ColorizeSaber;
 
-            if (Harmony.HasAnyPatches(HARMONYID))
+            if (ChromaIsActive)
             {
                 if (beatmapData is CustomBeatmapData customBeatmap)
                 {

@@ -2,6 +2,7 @@
 {
     using Chroma.Colorizer;
     using HarmonyLib;
+    using Heck;
     using static ChromaObjectDataManager;
 
     [HarmonyPatch(typeof(BeatEffectSpawner))]
@@ -20,8 +21,8 @@
         }
     }
 
-    [ChromaPatch(typeof(BeatEffectSpawner))]
-    [ChromaPatch("HandleNoteDidStartJump")]
+    [HeckPatch(typeof(BeatEffectSpawner))]
+    [HeckPatch("HandleNoteDidStartJump")]
     internal static class BeatEffectSpawnerHandleNoteDidStartJump
     {
         [HarmonyPriority(Priority.High)]

@@ -5,6 +5,7 @@
     using System.Linq;
     using Chroma.Colorizer;
     using HarmonyLib;
+    using Heck;
     using UnityEngine;
 
     [HarmonyPatch(typeof(LightSwitchEventEffect))]
@@ -23,8 +24,8 @@
         }
     }
 
-    [ChromaPatch(typeof(LightSwitchEventEffect))]
-    [ChromaPatch("SetColor")]
+    [HeckPatch(typeof(LightSwitchEventEffect))]
+    [HeckPatch("SetColor")]
     internal static class LightSwitchEventEffectSetColor
     {
         private static bool Prefix(LightSwitchEventEffect __instance, BeatmapEventType ____event, Color color)
@@ -46,7 +47,7 @@
                     }
                     else
                     {
-                        ChromaLogger.Log($"Type [{type}] does not contain id [{id}].", IPA.Logging.Logger.Level.Warning);
+                        Plugin.Logger.Log($"Type [{type}] does not contain id [{id}].", IPA.Logging.Logger.Level.Warning);
                     }
                 }
 
@@ -73,8 +74,8 @@
         }
     }
 
-    [ChromaPatch(typeof(LightSwitchEventEffect))]
-    [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    [HeckPatch(typeof(LightSwitchEventEffect))]
+    [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
         internal static ILightWithId[] LegacyLightOverride { get; set; }

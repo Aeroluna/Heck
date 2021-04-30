@@ -7,7 +7,7 @@
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using IPA.Utilities;
-    using NoodleExtensions.Animation;
+    using Heck.Animation;
     using UnityEngine;
     using UnityEngine.SceneManagement;
     using static Chroma.Plugin;
@@ -61,7 +61,7 @@
 
                 if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                 {
-                    ChromaLogger.Log($"=====================================");
+                    Plugin.Logger.Log($"=====================================");
                 }
 
                 foreach (dynamic gameObjectData in environmentData)
@@ -84,8 +84,8 @@
                     List<GameObjectInfo> foundObjects = LookupID(id, lookupMethod);
                     if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                     {
-                        ChromaLogger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
-                        foundObjects.ForEach(n => ChromaLogger.Log(n.FullID));
+                        Plugin.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
+                        foundObjects.ForEach(n => Plugin.Logger.Log(n.FullID));
                     }
 
                     List<GameObjectInfo> gameObjectInfos;
@@ -97,7 +97,7 @@
                         {
                             if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                             {
-                                ChromaLogger.Log($"Duplicating [{gameObjectInfo.FullID}]:");
+                                Plugin.Logger.Log($"Duplicating [{gameObjectInfo.FullID}]:");
                             }
 
                             GameObject gameObject = gameObjectInfo.GameObject;
@@ -190,15 +190,12 @@
                             }
                         }
 
-                        if (NoodleExtensionsInstalled)
-                        {
-                            GameObjectTrackController.HandleTrackData(gameObject, gameObjectData, customBeatmapData, noteLinesDistance, trackLaneRing, parametricBoxController);
-                        }
+                        GameObjectTrackController.HandleTrackData(gameObject, gameObjectData, customBeatmapData, noteLinesDistance, trackLaneRing, parametricBoxController);
                     }
 
                     if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                     {
-                        ChromaLogger.Log($"=====================================");
+                        Plugin.Logger.Log($"=====================================");
                     }
                 }
             }

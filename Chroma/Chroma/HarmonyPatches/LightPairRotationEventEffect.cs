@@ -1,10 +1,11 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using UnityEngine;
+    using Heck;
     using static ChromaEventDataManager;
 
-    [ChromaPatch(typeof(LightPairRotationEventEffect))]
-    [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    [HeckPatch(typeof(LightPairRotationEventEffect))]
+    [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
         internal static BeatmapEventData LastLightPairRotationEventEffectData { get; private set; }
@@ -24,8 +25,8 @@
         }
     }
 
-    [ChromaPatch(typeof(LightPairRotationEventEffect))]
-    [ChromaPatch("UpdateRotationData")]
+    [HeckPatch(typeof(LightPairRotationEventEffect))]
+    [HeckPatch("UpdateRotationData")]
     internal static class LightPairRotationEventEffectUpdateRotationData
     {
         private static bool Prefix(

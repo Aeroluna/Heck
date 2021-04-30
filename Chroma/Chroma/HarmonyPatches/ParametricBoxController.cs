@@ -5,11 +5,12 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using Chroma;
+    using Heck;
     using HarmonyLib;
     using UnityEngine;
 
-    [ChromaPatch(typeof(ParametricBoxController))]
-    [ChromaPatch("Refresh")]
+    [HeckPatch(typeof(ParametricBoxController))]
+    [HeckPatch("Refresh")]
     internal static class ParametricBoxControllerRefresh
     {
         private static readonly MethodInfo _getTransformScale = SymbolExtensions.GetMethodInfo(() => GetTransformScale(Vector3.zero, null));
@@ -53,12 +54,12 @@
 
             if (!foundScale)
             {
-                ChromaLogger.Log("Failed to find callvirt to set_localScale!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find callvirt to set_localScale!", IPA.Logging.Logger.Level.Error);
             }
 
             if (!foundPosition)
             {
-                ChromaLogger.Log("Failed to find callvirt to set_localPosition!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find callvirt to set_localPosition!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();

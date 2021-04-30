@@ -1,10 +1,11 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using UnityEngine;
+    using Heck;
     using static ChromaEventDataManager;
 
-    [ChromaPatch(typeof(LightRotationEventEffect))]
-    [ChromaPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    [HeckPatch(typeof(LightRotationEventEffect))]
+    [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class LightRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
         private static bool Prefix(

@@ -90,7 +90,7 @@
 
                     if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                     {
-                        ChromaLogger.Log($"Initialized {typeof(T).Name}");
+                        Plugin.Logger.Log($"Initialized {typeof(T).Name}");
                     }
                 }
             }

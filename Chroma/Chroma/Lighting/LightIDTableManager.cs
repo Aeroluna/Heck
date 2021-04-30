@@ -22,7 +22,7 @@
                 }
                 else
                 {
-                    ChromaLogger.Log($"Unable to find value for type [{type}] and id [{id}].", IPA.Logging.Logger.Level.Warning);
+                    Plugin.Logger.Log($"Unable to find value for type [{type}] and id [{id}].", IPA.Logging.Logger.Level.Warning);
                 }
             }
 
@@ -38,7 +38,7 @@
             else
             {
                 _activeTable = null;
-                ChromaLogger.Log($"Table not found for: {environmentName}", IPA.Logging.Logger.Level.Warning);
+                Plugin.Logger.Log($"Table not found for: {environmentName}", IPA.Logging.Logger.Level.Warning);
             }
         }
 
@@ -49,7 +49,7 @@
             dictioanry.Add(maxKey + 1, index);
             if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
             {
-                ChromaLogger.Log($"Registered key [{maxKey + 1}] to type [{type}]");
+                Plugin.Logger.Log($"Registered key [{maxKey + 1}] to type [{type}]");
             }
         }
 
