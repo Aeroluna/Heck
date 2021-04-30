@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
+  "id": "Heck",
+  "name": "Heck",
+  "author": "Aeroluna",
+  "version": "1.0.0",
+  "description": "Utility library/mod for Aeroluna.",
+  "gameVersion": "1.15.0",
+  "dependsOn": {
+    "BSIPA": "^4.1.6"
+  }
+}
