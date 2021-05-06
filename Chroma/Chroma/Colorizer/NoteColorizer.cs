@@ -85,9 +85,12 @@
                 SaberType saberType = noteCutInfo.saberType;
                 if ((int)noteData.colorType == (int)saberType)
                 {
-                    Color color = CNVColorManager.GetCNVColorManager(noteController).ColorForCNVManager();
+                    Color? color = CNVColorManager.GetCNVColorManager(noteController)?.ColorForCNVManager();
 
-                    SaberColorizer.SetSaberColor(saberType, color);
+                    if (color.HasValue)
+                    {
+                        SaberColorizer.SetSaberColor(saberType, color.Value);
+                    }
                 }
             }
         }
