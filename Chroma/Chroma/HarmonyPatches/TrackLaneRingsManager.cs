@@ -1,7 +1,7 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using Heck;
     using System.Collections.Generic;
+    using Heck;
 
     [HeckPatch(typeof(TrackLaneRingsManager))]
     [HeckPatch("Awake")]

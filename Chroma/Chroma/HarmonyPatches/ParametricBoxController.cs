@@ -5,8 +5,8 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using Chroma;
-    using Heck;
     using HarmonyLib;
+    using Heck;
     using UnityEngine;
 
     [HeckPatch(typeof(ParametricBoxController))]

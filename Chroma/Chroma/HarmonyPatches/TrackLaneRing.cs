@@ -1,7 +1,7 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using UnityEngine;
     using Heck;
+    using UnityEngine;
 
     // This whole file effectively changes _rotZ and _posZ from directly affecting the coordinate to being an offset
     [HeckPatch(typeof(TrackLaneRing))]

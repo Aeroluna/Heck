@@ -2,11 +2,10 @@
 {
     using Chroma.Colorizer;
     using HarmonyLib;
+    using Heck;
     using Heck.Animation;
     using UnityEngine;
-    using Heck;
     using static ChromaObjectDataManager;
-    using static Plugin;
 
     [HarmonyPatch(typeof(ObstacleController))]
     [HarmonyPatch("Init")]

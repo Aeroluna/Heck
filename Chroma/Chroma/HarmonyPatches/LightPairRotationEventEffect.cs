@@ -1,7 +1,7 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using UnityEngine;
     using Heck;
+    using UnityEngine;
     using static ChromaEventDataManager;
 
     [HeckPatch(typeof(LightPairRotationEventEffect))]

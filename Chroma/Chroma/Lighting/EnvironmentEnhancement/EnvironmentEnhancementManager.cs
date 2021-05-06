@@ -6,8 +6,8 @@
     using System.Text.RegularExpressions;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using IPA.Utilities;
     using Heck.Animation;
+    using IPA.Utilities;
     using UnityEngine;
     using UnityEngine.SceneManagement;
     using static Chroma.Plugin;

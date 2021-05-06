@@ -2,8 +2,8 @@
 {
     using Chroma.Colorizer;
     using HarmonyLib;
-    using UnityEngine;
     using Heck;
+    using UnityEngine;
     using static ChromaObjectDataManager;
 
     [HarmonyPatch(typeof(ColorNoteVisuals))]

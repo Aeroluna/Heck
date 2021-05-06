@@ -1,12 +1,11 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using Chroma.Colorizer;
-    using IPA.Utilities;
-    using Heck.Animation;
     using Heck;
+    using Heck.Animation;
+    using IPA.Utilities;
     using UnityEngine;
     using static ChromaObjectDataManager;
-    using static Plugin;
 
     [HeckPatch(typeof(NoteController))]
     [HeckPatch("Update")]

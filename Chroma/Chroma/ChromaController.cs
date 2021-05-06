@@ -1,15 +1,10 @@
 ﻿namespace Chroma
 {
-    using System;
     using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
     using Chroma.Colorizer;
     using Chroma.HarmonyPatches;
     using Chroma.Settings;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
     using IPA.Utilities;
     using UnityEngine;
     using UnityEngine.SceneManagement;

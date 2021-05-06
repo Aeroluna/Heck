@@ -5,9 +5,9 @@
     using Chroma.Settings;
     using Chroma.Utils;
     using HarmonyLib;
+    using Heck;
     using IPA;
     using IPA.Config;
-    using Heck;
     using IPA.Config.Stores;
     using UnityEngine.SceneManagement;
     using IPALogger = IPA.Logging.Logger;

@@ -1,8 +1,7 @@
 ﻿namespace Chroma
 {
-    using IPA.Utilities;
-    using Heck;
     using Heck.Animation;
+    using IPA.Utilities;
     using UnityEngine;
     using static Heck.Animation.AnimationHelper;
     using static Heck.NullableExtensions;
