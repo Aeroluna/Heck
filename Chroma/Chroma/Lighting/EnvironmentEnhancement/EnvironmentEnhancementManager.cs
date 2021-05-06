@@ -278,9 +278,13 @@
                 }
             });
 
+            List<string> objectsToPrint = new List<string>();
+
             foreach (GameObject gameObject in gameObjects)
             {
+                GameObjectInfo gameObjectInfo = new GameObjectInfo(gameObject);
                 _gameObjectInfos.Add(new GameObjectInfo(gameObject));
+                objectsToPrint.Add(gameObjectInfo.FullID);
 
                 // seriously what the fuck beat games
                 // GradientBackground permanently yeeted because it looks awful and can ruin multi-colored chroma maps
@@ -288,6 +292,12 @@
                 {
                     gameObject.SetActive(false);
                 }
+            }
+
+            if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+            {
+                objectsToPrint.Sort();
+                objectsToPrint.ForEach(n => Plugin.Logger.Log(n));
             }
         }
 

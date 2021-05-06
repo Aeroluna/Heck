@@ -39,11 +39,6 @@
             nameList.Reverse();
 
             FullID = string.Join(".", nameList);
-            if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
-            {
-                Plugin.Logger.Log(FullID);
-            }
-
             GameObject = gameObject;
         }
 
