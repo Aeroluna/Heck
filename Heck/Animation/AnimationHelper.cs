@@ -90,10 +90,6 @@
 
                 default:
                     pointData = PointDefinition.DynamicToPointData(pointString);
-                    if (pointData != null)
-                    {
-                        ((IDictionary<string, object>)customData)[pointName] = pointData;
-                    }
 
                     break;
             }

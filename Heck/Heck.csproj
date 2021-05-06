@@ -100,7 +100,7 @@
   <ItemGroup>
     <Compile Include="Animation\AnimationController.cs" />
     <Compile Include="Animation\AnimationHelper.cs" />
-    <Compile Include="Animation\AnimationProperty.cs" />
+    <Compile Include="Animation\Property.cs" />
     <Compile Include="Animation\Easings.cs" />
     <Compile Include="Animation\Events\AnimateTrack.cs" />
     <Compile Include="Animation\Events\AssignPathAnimation.cs" />

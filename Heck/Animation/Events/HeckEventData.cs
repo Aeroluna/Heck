@@ -49,8 +49,8 @@
                 }
                 catch (Exception e)
                 {
-                    Plugin.Logger.Log($"Could not create HeckEventData for event {customEventData.type} at {customEventData.time}", IPA.Logging.Logger.Level.Error);
-                    Plugin.Logger.Log(e, IPA.Logging.Logger.Level.Error);
+                    Logger.Log($"Could not create HeckEventData for event {customEventData.type} at {customEventData.time}", IPA.Logging.Logger.Level.Error);
+                    Logger.Log(e, IPA.Logging.Logger.Level.Error);
                 }
             }
         }
@@ -90,7 +90,7 @@
             }
 
             List<string> excludedStrings = new List<string> { TRACK, DURATION, EASING };
-            IDictionary<string, object> eventData = new Dictionary<string, object>(customEventData.data as IDictionary<string, object>); // Shallow copy
+            IDictionary<string, object> eventData = (IDictionary<string, object>)customEventData.data;
             IDictionary<string, Property> properties = null;
             switch (eventType)
             {
@@ -109,7 +109,7 @@
                 {
                     if (!properties.TryGetValue(valuePair.Key, out Property property))
                     {
-                        Plugin.Logger.Log($"Could not find property {valuePair.Key}!", IPA.Logging.Logger.Level.Error);
+                        Logger.Log($"Could not find property {valuePair.Key}!", IPA.Logging.Logger.Level.Error);
                         continue;
                     }
 
