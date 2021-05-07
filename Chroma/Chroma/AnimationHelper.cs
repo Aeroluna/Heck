@@ -1,6 +1,5 @@
 ﻿namespace Chroma
 {
-    using System.Collections.Generic;
     using Heck.Animation;
     using UnityEngine;
     using static Heck.Animation.AnimationHelper;
@@ -33,14 +32,15 @@
 
         private static void OnTrackCreated(Track track)
         {
-            IDictionary<string, Property> properties = track.Properties;
-            properties.Add(COLOR, new Property(PropertyType.Vector4));
-
-            IDictionary<string, Property> pathProperties = track.PathProperties;
-            pathProperties.Add(COLOR, new Property(PropertyType.Vector4));
+            track.AddProperty(COLOR, PropertyType.Vector4);
+            track.AddPathProperty(COLOR, PropertyType.Vector4);
 
             // For Environment Enhancements
-            properties.Add("_localPosition", new Property(PropertyType.Vector3));
+            track.AddProperty(POSITION, PropertyType.Vector3);
+            track.AddProperty(LOCALPOSITION, PropertyType.Vector3);
+            track.AddProperty(OBJECTROTATION, PropertyType.Quaternion);
+            track.AddProperty(LOCALROTATION, PropertyType.Quaternion);
+            track.AddProperty(SCALE, PropertyType.Vector3);
         }
     }
 }
