@@ -47,25 +47,23 @@
 
         internal static void OnTrackCreated(Track track)
         {
-            IDictionary<string, Property> properties = track.Properties;
-            properties.Add(POSITION, new Property(PropertyType.Vector3));
-            properties.Add(ROTATION, new Property(PropertyType.Quaternion));
-            properties.Add(SCALE, new Property(PropertyType.Vector3));
-            properties.Add(LOCALROTATION, new Property(PropertyType.Quaternion));
-            properties.Add(DISSOLVE, new Property(PropertyType.Linear));
-            properties.Add(DISSOLVEARROW, new Property(PropertyType.Linear));
-            properties.Add(TIME, new Property(PropertyType.Linear));
-            properties.Add(CUTTABLE, new Property(PropertyType.Linear));
+            track.AddProperty(POSITION, PropertyType.Vector3);
+            track.AddProperty(ROTATION, PropertyType.Quaternion);
+            track.AddProperty(SCALE, PropertyType.Vector3);
+            track.AddProperty(LOCALROTATION, PropertyType.Quaternion);
+            track.AddProperty(DISSOLVE, PropertyType.Linear);
+            track.AddProperty(DISSOLVEARROW, PropertyType.Linear);
+            track.AddProperty(TIME, PropertyType.Linear);
+            track.AddProperty(CUTTABLE, PropertyType.Linear);
 
-            IDictionary<string, Property> pathProperties = track.PathProperties;
-            pathProperties.Add(POSITION, new Property(PropertyType.Vector3));
-            pathProperties.Add(ROTATION, new Property(PropertyType.Quaternion));
-            pathProperties.Add(SCALE, new Property(PropertyType.Vector3));
-            pathProperties.Add(LOCALROTATION, new Property(PropertyType.Quaternion));
-            pathProperties.Add(DEFINITEPOSITION, new Property(PropertyType.Vector3));
-            pathProperties.Add(DISSOLVE, new Property(PropertyType.Linear));
-            pathProperties.Add(DISSOLVEARROW, new Property(PropertyType.Linear));
-            pathProperties.Add(CUTTABLE, new Property(PropertyType.Linear));
+            track.AddPathProperty(POSITION, PropertyType.Vector3);
+            track.AddPathProperty(ROTATION, PropertyType.Quaternion);
+            track.AddPathProperty(SCALE, PropertyType.Vector3);
+            track.AddPathProperty(LOCALROTATION, PropertyType.Quaternion);
+            track.AddPathProperty(DEFINITEPOSITION, PropertyType.Vector3);
+            track.AddPathProperty(DISSOLVE, PropertyType.Linear);
+            track.AddPathProperty(DISSOLVEARROW, PropertyType.Linear);
+            track.AddPathProperty(CUTTABLE, PropertyType.Linear);
         }
 
         internal static void GetDefinitePositionOffset(NoodleObjectData.AnimationObjectData animationObject, Track track, float time, out Vector3? definitePosition)
