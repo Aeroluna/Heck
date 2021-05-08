@@ -37,6 +37,29 @@
 
         public IDictionary<string, Property> PathProperties { get; } = new Dictionary<string, Property>();
 
+        public void AddProperty(string name, PropertyType propertyType)
+        {
+            if (Properties.ContainsKey(name))
+            {
+                ////Plugin.Logger.Log($"Duplicate property {name}, skipping...");
+            }
+            else
+            {
+                Properties.Add(name, new Property(propertyType));
+            }
+        }
+
+        public void AddPathProperty(string name, PropertyType propertyType)
+        {
+            if (PathProperties.ContainsKey(name))
+            {
+                ////Plugin.Logger.Log($"Duplicate path property {name}, skipping...");
+            }
+            else
+            {
+                PathProperties.Add(name, new Property(propertyType));
+            }
+        }
         internal void ResetVariables()
         {
             foreach (KeyValuePair<string, Property> valuePair in Properties)
