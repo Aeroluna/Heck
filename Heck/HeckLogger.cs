@@ -8,12 +8,12 @@
 
     public class HeckLogger
     {
-        public Logger IPALogger { get; }
-
         public HeckLogger(Logger logger)
         {
             IPALogger = logger;
         }
+
+        public Logger IPALogger { get; }
 
         public void Log(object obj, Logger.Level level = Logger.Level.Debug, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
         {
