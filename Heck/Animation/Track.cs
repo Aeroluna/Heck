@@ -60,6 +60,7 @@
                 PathProperties.Add(name, new Property(propertyType));
             }
         }
+
         internal void ResetVariables()
         {
             foreach (KeyValuePair<string, Property> valuePair in Properties)

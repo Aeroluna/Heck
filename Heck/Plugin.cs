@@ -9,7 +9,6 @@
     internal class Plugin
     {
         internal const string HARMONYID = "com.aeroluna.BeatSaber.Heck";
-        internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
 
         internal const string DURATION = "_duration";
         internal const string EASING = "_easing";
@@ -21,6 +20,8 @@
 
         internal const string ANIMATETRACK = "AnimateTrack";
         internal const string ASSIGNPATHANIMATION = "AssignPathAnimation";
+
+        internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
 
         internal static HeckLogger Logger { get; private set; }
 

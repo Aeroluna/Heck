@@ -5,18 +5,37 @@
     using System.Reflection;
     using HarmonyLib;
 
+    internal struct HeckPatchData
+    {
+        internal HeckPatchData(MethodBase orig, MethodInfo pre, MethodInfo post, MethodInfo tran)
+        {
+            OriginalMethod = orig;
+            Prefix = pre;
+            Postfix = post;
+            Transpiler = tran;
+        }
+
+        internal MethodBase OriginalMethod { get; }
+
+        internal MethodInfo Prefix { get; }
+
+        internal MethodInfo Postfix { get; }
+
+        internal MethodInfo Transpiler { get; }
+    }
+
     public class HeckData
     {
-        public bool Enabled { get; internal set; }
+        private static readonly Dictionary<Harmony, HeckData> _heckPatches = new Dictionary<Harmony, HeckData>();
 
         private readonly List<HeckPatchData> _heckPatchDatas;
-
-        private readonly static Dictionary<Harmony, HeckData> _heckPatches = new Dictionary<Harmony, HeckData>();
 
         private HeckData(List<HeckPatchData> heckPatchDatas)
         {
             _heckPatchDatas = heckPatchDatas;
         }
+
+        public bool Enabled { get; internal set; }
 
         public static void TogglePatches(Harmony id, bool value)
         {
@@ -159,25 +178,6 @@
                 throw new InvalidOperationException($"Attempted to add duplicate entry {id}");
             }
         }
-    }
-
-    internal struct HeckPatchData
-    {
-        internal HeckPatchData(MethodBase orig, MethodInfo pre, MethodInfo post, MethodInfo tran)
-        {
-            OriginalMethod = orig;
-            Prefix = pre;
-            Postfix = post;
-            Transpiler = tran;
-        }
-
-        internal MethodBase OriginalMethod { get; }
-
-        internal MethodInfo Prefix { get; }
-
-        internal MethodInfo Postfix { get; }
-
-        internal MethodInfo Transpiler { get; }
     }
 
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
