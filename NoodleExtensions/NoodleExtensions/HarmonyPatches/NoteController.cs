@@ -1,6 +1,5 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -174,14 +173,9 @@
         private static readonly FieldAccessor<NoteJump, IAudioTimeSource>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<NoteJump, IAudioTimeSource>.GetAccessor("_audioTimeSyncController");
         private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
 
-        private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
-        private static readonly FieldAccessor<CutoutAnimateEffect, CutoutEffect[]>.Accessor _cutoutEffectAccessor = FieldAccessor<CutoutAnimateEffect, CutoutEffect[]>.GetAccessor("_cuttoutEffects");
-
         private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.Accessor _gameNoteBigCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.GetAccessor("_bigCuttableBySaberList");
         private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.Accessor _gameNoteSmallCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.GetAccessor("_smallCuttableBySaberList");
         private static readonly FieldAccessor<BombNoteController, CuttableBySaber>.Accessor _bombNoteCuttableAccessor = FieldAccessor<BombNoteController, CuttableBySaber>.GetAccessor("_cuttableBySaber");
-
-        private static readonly Dictionary<Type, MethodInfo> _setArrowTransparencyMethods = new Dictionary<Type, MethodInfo>();
 
         internal static NoodleObjectData NoodleData { get; private set; }
 
@@ -258,36 +252,18 @@
 
                 if (dissolve.HasValue)
                 {
-                    CutoutEffect cutoutEffect = noodleData.CutoutEffect;
-                    if (cutoutEffect == null)
+                    if (CutoutManager.NoteCutoutEffects.TryGetValue(__instance, out CutoutEffectWrapper cutoutEffect))
                     {
-                        BaseNoteVisuals baseNoteVisuals = __instance.gameObject.GetComponent<BaseNoteVisuals>();
-                        CutoutAnimateEffect cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
-                        CutoutEffect[] cutoutEffects = _cutoutEffectAccessor(ref cutoutAnimateEffect);
-                        cutoutEffect = cutoutEffects.First(n => n.name != "NoteArrow"); // 1.11 NoteArrow has been added to the CutoutAnimateEffect and we don't want that
-                        noodleData.CutoutEffect = cutoutEffect;
+                        cutoutEffect.SetCutout(dissolve.Value);
                     }
-
-                    cutoutEffect.SetCutout(1 - dissolve.Value);
                 }
 
                 if (dissolveArrow.HasValue && __instance.noteData.colorType != ColorType.None)
                 {
-                    MonoBehaviour disappearingArrowController = noodleData.DisappearingArrowController;
-                    if (disappearingArrowController == null)
+                    if (CutoutManager.NoteDisappearingArrowWrappers.TryGetValue(__instance, out DisappearingArrowWrapper disappearingArrowWrapper))
                     {
-                        disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowControllerBase<GameNoteController>>();
-                        if (disappearingArrowController == null)
-                        {
-                            disappearingArrowController = __instance.gameObject.GetComponent<DisappearingArrowControllerBase<MultiplayerConnectedPlayerGameNoteController>>();
-                        }
-
-                        noodleData.DisappearingArrowController = disappearingArrowController;
-                        noodleData.DisappearingArrowMethod = GetSetArrowTransparency(disappearingArrowController.GetType());
+                        disappearingArrowWrapper.SetCutout(dissolveArrow.Value);
                     }
-
-                    // gross nasty reflection
-                    noodleData.DisappearingArrowMethod.Invoke(disappearingArrowController, new object[] { dissolveArrow.Value });
                 }
 
                 if (cuttable.HasValue)
@@ -328,20 +304,6 @@
                     }
                 }
             }
-        }
-
-        private static MethodInfo GetSetArrowTransparency(Type type)
-        {
-            if (_setArrowTransparencyMethods.TryGetValue(type, out MethodInfo value))
-            {
-                return value;
-            }
-
-            Type baseType = type.BaseType;
-            ////NoodleLogger.IPAlogger.Debug($"Base type is {baseType.Name}<{string.Join(", ", baseType.GenericTypeArguments.Select(t => t.Name))}>");
-            MethodInfo method = baseType.GetMethod("SetArrowTransparency", BindingFlags.NonPublic | BindingFlags.Instance);
-            _setArrowTransparencyMethods[type] = method;
-            return method;
         }
     }
 }

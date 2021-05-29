@@ -60,7 +60,8 @@
                 }
 
                 if (!foundLength &&
-                    instructionList[i].opcode == OpCodes.Stloc_2)
+                    instructionList[i].opcode == OpCodes.Stfld &&
+                    ((FieldInfo)instructionList[i].operand).Name == "_length")
                 {
                     foundLength = true;
                     instructionList.Insert(i, new CodeInstruction(OpCodes.Ldarg_1));
@@ -80,7 +81,7 @@
 
             if (!foundLength)
             {
-                Plugin.Logger.Log("Failed to find stloc.2!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Failed to find stfld to _length!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();
@@ -354,15 +355,10 @@
 
                 if (dissolve.HasValue)
                 {
-                    CutoutAnimateEffect cutoutAnimateEffect = noodleData.CutoutAnimateEffect;
-                    if (cutoutAnimateEffect == null)
+                    if (CutoutManager.ObstacleCutoutEffects.TryGetValue(__instance, out CutoutAnimateEffectWrapper cutoutAnimateEffect))
                     {
-                        ObstacleDissolve obstacleDissolve = __instance.gameObject.GetComponent<ObstacleDissolve>();
-                        cutoutAnimateEffect = _obstacleCutoutAnimateEffectAccessor(ref obstacleDissolve);
-                        noodleData.CutoutAnimateEffect = cutoutAnimateEffect;
+                        cutoutAnimateEffect.SetCutout(dissolve.Value);
                     }
-
-                    cutoutAnimateEffect.SetCutout(1 - dissolve.Value);
                 }
             }
 

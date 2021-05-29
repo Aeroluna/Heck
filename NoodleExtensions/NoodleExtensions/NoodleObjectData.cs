@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using Heck;
@@ -186,12 +185,6 @@
 
         internal float? FlipYSideInternal { get; set; }
 
-        internal CutoutEffect CutoutEffect { get; set; }
-
-        internal MonoBehaviour DisappearingArrowController { get; set; }
-
-        internal MethodInfo DisappearingArrowMethod { get; set; }
-
         internal float? FlipLineIndexInternal { get; set; }
 
         internal float? StartNoteLineLayerInternal { get; set; }
@@ -218,8 +211,6 @@
         internal float? Height { get; set; }
 
         internal float? Length { get; set; }
-
-        internal CutoutAnimateEffect CutoutAnimateEffect { get; set; }
 
         internal float XOffset { get; set; }
 

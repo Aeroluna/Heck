@@ -5,6 +5,7 @@
     using Heck;
     using static NoodleExtensions.Plugin;
 
+    // i still dont even know if this works, but must maintain feature parity with mapping extensions!
     [HeckPatch(typeof(SpawnRotationProcessor))]
     [HeckPatch("ProcessBeatmapEventData")]
     internal static class SpawnRotationProcessorProcessBeatmapEventData

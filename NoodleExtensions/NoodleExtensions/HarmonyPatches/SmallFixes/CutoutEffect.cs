@@ -4,6 +4,7 @@
     using Heck;
     using UnityEngine;
 
+    // Do not run SetCutout if the new value is the same as old.
     [HeckPatch(typeof(CutoutEffect))]
     [HeckPatch("SetCutout")]
     [HeckPatch(new Type[] { typeof(float), typeof(Vector3) })]

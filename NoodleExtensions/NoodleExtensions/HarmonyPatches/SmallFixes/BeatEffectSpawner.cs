@@ -8,6 +8,7 @@
     using Heck;
     using UnityEngine;
 
+    // Readjust spawn effect to take global position instead of local
     [HeckPatch(typeof(BeatEffectSpawner))]
     [HeckPatch("HandleNoteDidStartJump")]
     internal static class BeatEffectSpawnerHandleNoteDidStartJump

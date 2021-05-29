@@ -74,7 +74,7 @@
                         }
                         else
                         {
-                            Logger.Log("beatmapObjectData was not CustomObstacleData, CustomNoteData, or CustomWaypointData");
+                            Logger.Log("beatmapObjectData was not CustomObstacleData, CustomNoteData, or CustomWaypointData", IPA.Logging.Logger.Level.Error);
                             continue;
                         }
 

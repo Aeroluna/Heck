@@ -10,6 +10,7 @@
     using UnityEngine;
 
     // Possibly breaks in multiplayer? We don't support that anyways.
+    // edit: we do support it, but it hasnt broken yet so fuck it
     [HeckPatch(typeof(PlayerTransforms))]
     [HeckPatch("Update")]
     internal static class PlayerTransformsUpdate
