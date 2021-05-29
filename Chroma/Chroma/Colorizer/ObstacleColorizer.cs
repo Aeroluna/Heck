@@ -146,8 +146,12 @@
                 MaterialPropertyBlockController[] materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref _stretchableObstacle);
                 obstacleFrame.color = finalColor;
                 obstacleFrame.Refresh();
-                obstacleFakeGlow.color = finalColor;
-                obstacleFakeGlow.Refresh();
+                if (obstacleFakeGlow != null)
+                {
+                    obstacleFakeGlow.color = finalColor;
+                    obstacleFakeGlow.Refresh();
+                }
+
                 Color value = finalColor * _addColorMultiplierAccessor(ref _stretchableObstacle);
                 value.a = 0f;
                 float obstacleCoreLerpToWhiteFactor = _obstacleCoreLerpToWhiteFactorAccessor(ref _stretchableObstacle);
