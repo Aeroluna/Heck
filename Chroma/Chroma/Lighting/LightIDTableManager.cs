@@ -62,7 +62,7 @@
             {
                 using (JsonReader reader = new JsonTextReader(new StreamReader(assembly.GetManifestResourceStream(tableName))))
                 {
-                    Dictionary<int, int>[] typeTable = new Dictionary<int, int>[5];
+                    Dictionary<int, int>[] typeTable = new Dictionary<int, int>[8];
 
                     JsonSerializer serializer = new JsonSerializer();
                     Dictionary<string, Dictionary<string, int>> rawDict = serializer.Deserialize<Dictionary<string, Dictionary<string, int>>>(reader);
