@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="AnimationHelper.cs" />
     <Compile Include="HarmonyPatches\GameplayCoreInstaller.cs" />
+    <Compile Include="HarmonyPatches\BeatmapObjectsAvoidance.cs" />
     <Compile Include="HarmonyPatches\PlayerHeadAndObstacleInteraction.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\TutorialScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\TrackLaneRing.cs" />

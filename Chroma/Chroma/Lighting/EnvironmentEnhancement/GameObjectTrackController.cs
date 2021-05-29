@@ -18,28 +18,32 @@
 
         private ParametricBoxController _parametricBoxController;
 
+        private BeatmapObjectsAvoidance _beatmapObjectsAvoidance;
+
         internal static void HandleTrackData(
             GameObject gameObject,
             dynamic gameObjectData,
             IReadonlyBeatmapData beatmapData,
             float noteLinesDistance,
             TrackLaneRing trackLaneRing,
-            ParametricBoxController parametricBoxController)
+            ParametricBoxController parametricBoxController,
+            BeatmapObjectsAvoidance beatmapObjectsAvoidance)
         {
             Track track = Heck.Animation.AnimationHelper.GetTrackPreload(gameObjectData, beatmapData);
             if (track != null)
             {
                 GameObjectTrackController trackController = gameObject.AddComponent<GameObjectTrackController>();
-                trackController.Init(track, noteLinesDistance, trackLaneRing, parametricBoxController);
+                trackController.Init(track, noteLinesDistance, trackLaneRing, parametricBoxController, beatmapObjectsAvoidance);
             }
         }
 
-        internal void Init(Track track, float noteLinesDistance, TrackLaneRing trackLaneRing, ParametricBoxController parametricBoxController)
+        internal void Init(Track track, float noteLinesDistance, TrackLaneRing trackLaneRing, ParametricBoxController parametricBoxController, BeatmapObjectsAvoidance beatmapObjectsAvoidance)
         {
             _track = track;
             _noteLinesDistance = noteLinesDistance;
             _trackLaneRing = trackLaneRing;
             _parametricBoxController = parametricBoxController;
+            _beatmapObjectsAvoidance = beatmapObjectsAvoidance;
         }
 
         private void Update()
@@ -53,19 +57,23 @@
             if (rotation.HasValue && transform.rotation != rotation.Value)
             {
                 // Delegate positioning the object to TrackLaneRing
+                Quaternion finalOffset;
+                if (transform.parent != null)
+                {
+                    finalOffset = Quaternion.Inverse(transform.parent.rotation) * rotation.Value;
+                }
+                else
+                {
+                    finalOffset = rotation.Value;
+                }
+
                 if (_trackLaneRing != null)
                 {
-                    Quaternion finalOffset;
-                    if (transform.parent != null)
-                    {
-                        finalOffset = Quaternion.Inverse(transform.parent.rotation) * rotation.Value;
-                    }
-                    else
-                    {
-                        finalOffset = rotation.Value;
-                    }
-
                     EnvironmentEnhancementManager.RingRotationOffsets[_trackLaneRing] = finalOffset;
+                }
+                else if (_beatmapObjectsAvoidance != null)
+                {
+                    EnvironmentEnhancementManager.AvoidanceRotation[_beatmapObjectsAvoidance] = finalOffset;
                 }
                 else
                 {
@@ -79,6 +87,10 @@
                 {
                     EnvironmentEnhancementManager.RingRotationOffsets[_trackLaneRing] = localRotation.Value;
                 }
+                else if (_beatmapObjectsAvoidance != null)
+                {
+                    EnvironmentEnhancementManager.AvoidanceRotation[_beatmapObjectsAvoidance] = localRotation.Value;
+                }
                 else
                 {
                     transform.localRotation = localRotation.Value;
@@ -88,19 +100,23 @@
             if (position.HasValue && transform.position != (position.Value * _noteLinesDistance))
             {
                 Vector3 positionValue = position.Value * _noteLinesDistance;
+                Vector3 finalOffset;
+                if (transform.parent != null)
+                {
+                    finalOffset = transform.parent.InverseTransformPoint(positionValue);
+                }
+                else
+                {
+                    finalOffset = positionValue;
+                }
+
                 if (_trackLaneRing != null)
                 {
-                    Vector3 finalOffset;
-                    if (transform.parent != null)
-                    {
-                        finalOffset = transform.parent.InverseTransformPoint(positionValue);
-                    }
-                    else
-                    {
-                        finalOffset = positionValue;
-                    }
-
                     _positionOffsetAccessor(ref _trackLaneRing) = finalOffset;
+                }
+                else if (_beatmapObjectsAvoidance != null)
+                {
+                    EnvironmentEnhancementManager.AvoidancePosition[_beatmapObjectsAvoidance] = finalOffset;
                 }
                 else
                 {
@@ -114,6 +130,10 @@
                 if (_trackLaneRing != null)
                 {
                     _positionOffsetAccessor(ref _trackLaneRing) = localPositionValue;
+                }
+                else if (_beatmapObjectsAvoidance != null)
+                {
+                    EnvironmentEnhancementManager.AvoidancePosition[_beatmapObjectsAvoidance] = localPositionValue;
                 }
                 else
                 {

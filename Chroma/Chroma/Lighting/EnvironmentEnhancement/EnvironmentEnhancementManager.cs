@@ -29,6 +29,10 @@
 
         internal static Dictionary<TrackLaneRing, Quaternion> RingRotationOffsets { get; } = new Dictionary<TrackLaneRing, Quaternion>();
 
+        internal static Dictionary<BeatmapObjectsAvoidance, Vector3> AvoidancePosition { get; } = new Dictionary<BeatmapObjectsAvoidance, Vector3>();
+
+        internal static Dictionary<BeatmapObjectsAvoidance, Quaternion> AvoidanceRotation { get; } = new Dictionary<BeatmapObjectsAvoidance, Quaternion>();
+
         internal static void SubscribeTrackManagerCreated()
         {
             TrackManager.TrackManagerCreated += CreateEnvironmentTracks;
@@ -190,7 +194,22 @@
                             }
                         }
 
-                        GameObjectTrackController.HandleTrackData(gameObject, gameObjectData, customBeatmapData, noteLinesDistance, trackLaneRing, parametricBoxController);
+                        // Handle BeatmapObjectsAvoidance
+                        BeatmapObjectsAvoidance beatmapObjectsAvoidance = gameObject.GetComponent<BeatmapObjectsAvoidance>();
+                        if (beatmapObjectsAvoidance != null)
+                        {
+                            if (position.HasValue || localPosition.HasValue)
+                            {
+                                AvoidancePosition[beatmapObjectsAvoidance] = transform.localPosition;
+                            }
+
+                            if (rotation.HasValue || localRotation.HasValue)
+                            {
+                                AvoidanceRotation[beatmapObjectsAvoidance] = transform.localRotation;
+                            }
+                        }
+
+                        GameObjectTrackController.HandleTrackData(gameObject, gameObjectData, customBeatmapData, noteLinesDistance, trackLaneRing, parametricBoxController, beatmapObjectsAvoidance);
                     }
 
                     if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
