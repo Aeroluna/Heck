@@ -5,7 +5,7 @@
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using UnityEngine;
-    using static Heck.Plugin;
+    using static Plugin;
 
     public static class AnimationHelper
     {
@@ -82,7 +82,7 @@
                 case string castedString:
                     if (!pointDefinitions.TryGetValue(castedString, out pointData))
                     {
-                        Plugin.Logger.Log($"Could not find point definition {castedString}!", IPA.Logging.Logger.Level.Error);
+                        Heck.Plugin.Logger.Log($"Could not find point definition {castedString}!", IPA.Logging.Logger.Level.Error);
                         pointData = null;
                     }
 
@@ -109,7 +109,7 @@
             }
             else
             {
-                Plugin.Logger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
+                Heck.Plugin.Logger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
                 return null;
             }
         }
@@ -131,7 +131,7 @@
                 }
                 else
                 {
-                    Plugin.Logger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
+                    Heck.Plugin.Logger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
                 }
             }
 
