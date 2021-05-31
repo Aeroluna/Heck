@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using Chroma.Colorizer;
-    using Chroma.Utils;
+    using Heck.Animation;
     using UnityEngine;
 
     internal class ChromaGradientController : MonoBehaviour

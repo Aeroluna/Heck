@@ -5,6 +5,7 @@
     using Chroma.Utils;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using Heck.Animation;
     using UnityEngine;
     using static Chroma.Plugin;
 

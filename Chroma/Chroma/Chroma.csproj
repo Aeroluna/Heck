@@ -98,7 +98,6 @@
     <Compile Include="HarmonyPatches\ScenesTransition\StandardLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="Lighting\LightColorManager.cs" />
     <Compile Include="HarmonyPatches\Events\TrackLaneRingsPositionStepEffectSpawner.cs" />
-    <Compile Include="Utils\Easings.cs" />
     <Compile Include="ChromaController.cs" />
     <Compile Include="HarmonyPatches\Colorizer\ColorNoteVisuals.cs" />
     <Compile Include="HarmonyPatches\Colorizer\ObstacleController.cs" />
