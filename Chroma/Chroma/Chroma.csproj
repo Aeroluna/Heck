@@ -65,6 +65,8 @@
     <Compile Include="HarmonyPatches\Colorizer\Saber\SaberBurnMarkSparkles.cs" />
     <Compile Include="HarmonyPatches\GameplayCoreInstaller.cs" />
     <Compile Include="HarmonyPatches\EnvironmentComponent\BeatmapObjectsAvoidance.cs" />
+    <Compile Include="HarmonyPatches\Mirror\MirroredObstacleController.cs" />
+    <Compile Include="HarmonyPatches\Mirror\MirroredNoteController.cs" />
     <Compile Include="HarmonyPatches\PlayerHeadAndObstacleInteraction.cs" />
     <Compile Include="HarmonyPatches\ScenesTransition\TutorialScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\EnvironmentComponent\TrackLaneRing.cs" />
