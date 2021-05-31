@@ -1,6 +1,5 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using Chroma.Colorizer;
     using HarmonyLib;
 
     [HarmonyPatch(typeof(NoteCutCoreEffectsSpawner))]
@@ -10,12 +9,12 @@
         [HarmonyPriority(Priority.Low)]
         private static void Prefix(NoteController noteController)
         {
-            NoteColorizer.EnableNoteColorOverride(noteController);
+            ColorManagerColorForType.EnableColorOverride(noteController);
         }
 
         private static void Postfix()
         {
-            NoteColorizer.DisableNoteColorOverride();
+            ColorManagerColorForType.DisableColorOverride();
         }
     }
 }

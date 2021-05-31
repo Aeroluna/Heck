@@ -38,14 +38,13 @@
                 if (colorOffset.HasValue)
                 {
                     Color color = colorOffset.Value;
-                    if (__instance is BombNoteController bnc)
+                    if (__instance is BombNoteController)
                     {
-                        bnc.SetBombColor(color);
+                        __instance.ColorizeBomb(color);
                     }
                     else
                     {
-                        __instance.SetNoteColors(color, color);
-                        __instance.SetActiveColors();
+                        __instance.ColorizeNote(color);
                     }
                 }
             }

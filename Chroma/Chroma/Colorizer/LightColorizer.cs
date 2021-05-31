@@ -1,434 +1,217 @@
 ﻿namespace Chroma.Colorizer
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using HarmonyLib;
     using IPA.Utilities;
     using UnityEngine;
 
-    public static class LightColorizer
+    public class LightColorizer
     {
-        private static readonly FieldInfo _lightWithIdsData = typeof(LightWithIds).GetField("_lightIntensityData");
+        private const int COLOR_FIELDS = 4;
 
-        private static readonly Dictionary<MonoBehaviour, LSEColorManager> _lseColorManagers = new Dictionary<MonoBehaviour, LSEColorManager>();
+        private static readonly FieldInfo _lightWithIdsData = AccessTools.Field(typeof(LightWithIds), "_lightIntensityData");
 
-        public static void Reset(this MonoBehaviour lse)
+        private static readonly FieldAccessor<MultipliedColorSO, Color>.Accessor _multiplierColorAccessor = FieldAccessor<MultipliedColorSO, Color>.GetAccessor("_multiplierColor");
+        private static readonly FieldAccessor<MultipliedColorSO, SimpleColorSO>.Accessor _baseColorAccessor = FieldAccessor<MultipliedColorSO, SimpleColorSO>.GetAccessor("_baseColor");
+
+        private static readonly FieldAccessor<LightSwitchEventEffect, int>.Accessor _prevValueAccessor = FieldAccessor<LightSwitchEventEffect, int>.GetAccessor("_prevLightSwitchBeatmapEventDataValue");
+        private static readonly FieldAccessor<LightSwitchEventEffect, LightWithIdManager>.Accessor _lightManagerAccessor = FieldAccessor<LightSwitchEventEffect, LightWithIdManager>.GetAccessor("_lightManager");
+        private static readonly FieldAccessor<LightWithIdManager, List<ILightWithId>[]>.Accessor _lightsAccessor = FieldAccessor<LightWithIdManager, List<ILightWithId>[]>.GetAccessor("_lights");
+
+        private readonly LightSwitchEventEffect _lightSwitchEventEffect;
+        private readonly BeatmapEventType _eventType;
+        private readonly Color?[] _colors = new Color?[COLOR_FIELDS];
+
+        private readonly Color[] _originalColors = new Color[COLOR_FIELDS];
+        private readonly SimpleColorSO[] _simpleColorSOs = new SimpleColorSO[COLOR_FIELDS];
+
+        internal LightColorizer(LightSwitchEventEffect lightSwitchEventEffect, BeatmapEventType beatmapEventType)
         {
-            LSEColorManager.GetLSEColorManager(lse)?.Reset();
+            _lightSwitchEventEffect = lightSwitchEventEffect;
+            _eventType = beatmapEventType;
+            InitializeSO("_lightColor0", 0);
+            InitializeSO("_highlightColor0", 0);
+            InitializeSO("_lightColor1", 1);
+            InitializeSO("_highlightColor1", 1);
+            InitializeSO("_lightColor0Boost", 2);
+            InitializeSO("_highlightColor0Boost", 2);
+            InitializeSO("_lightColor1Boost", 3);
+            InitializeSO("_highlightColor1Boost", 3);
+
+            // AAAAAA PROPAGATION STUFFF
+            LightWithIdManager lightManager = _lightManagerAccessor(ref lightSwitchEventEffect);
+            Lights = lightManager.GetField<List<ILightWithId>[], LightWithIdManager>("_lights")[lightSwitchEventEffect.lightsId].ToList();
+
+            IDictionary<int, List<ILightWithId>> lightsPreGroup = new Dictionary<int, List<ILightWithId>>();
+            TrackLaneRingsManager[] managers = UnityEngine.Object.FindObjectsOfType<TrackLaneRingsManager>();
+            foreach (ILightWithId light in Lights)
+            {
+                if (light is MonoBehaviour monoBehaviour)
+                {
+                    int z = Mathf.RoundToInt(monoBehaviour.transform.position.z);
+
+                    TrackLaneRing ring = monoBehaviour.GetComponentInParent<TrackLaneRing>();
+                    if (ring != null)
+                    {
+                        TrackLaneRingsManager mngr = managers.FirstOrDefault(it => it.Rings.IndexOf(ring) >= 0);
+                        if (mngr != null)
+                        {
+                            z = 1000 + mngr.Rings.IndexOf(ring);
+                        }
+                    }
+
+                    if (lightsPreGroup.TryGetValue(z, out List<ILightWithId> list))
+                    {
+                        list.Add(light);
+                    }
+                    else
+                    {
+                        list = new List<ILightWithId>() { light };
+                        lightsPreGroup.Add(z, list);
+                    }
+                }
+            }
+
+            LightsPropagationGrouped = new ILightWithId[lightsPreGroup.Count][];
+            int i = 0;
+            foreach (List<ILightWithId> lightList in lightsPreGroup.Values)
+            {
+                if (lightList is null)
+                {
+                    continue;
+                }
+
+                LightsPropagationGrouped[i] = lightList.ToArray();
+                i++;
+            }
+
+            // ok we done
+            Colorizers.Add(beatmapEventType, this);
         }
 
-        public static void ResetAllLightingColors()
+        internal static event Action<BeatmapEventType, Color[]> LightColorChanged;
+
+        public static Dictionary<BeatmapEventType, LightColorizer> Colorizers { get; } = new Dictionary<BeatmapEventType, LightColorizer>();
+
+        public static Color?[] GlobalColor { get; private set; } = new Color?[COLOR_FIELDS];
+
+        public List<ILightWithId> Lights { get; }
+
+        public ILightWithId[][] LightsPropagationGrouped { get; }
+
+        public Color[] Color
         {
-            foreach (KeyValuePair<MonoBehaviour, LSEColorManager> lseColorManager in _lseColorManagers)
+            get
             {
-                lseColorManager.Value.Reset();
+                Color[] colors = new Color[COLOR_FIELDS];
+                for (int i = 0; i < COLOR_FIELDS; i++)
+                {
+                    colors[i] = _colors[i] ?? GlobalColor[i] ?? _originalColors[i];
+                }
+
+                return colors;
             }
         }
 
-        public static void SetLightingColors(this MonoBehaviour lse, Color? color0, Color? color1, Color? color0Boost = null, Color? color1Boost = null)
+        public static void GlobalColorize(params Color?[] colors)
         {
-            LSEColorManager.GetLSEColorManager(lse)?.SetLightingColors(color0, color1, color0Boost, color1Boost);
-        }
-
-        public static void SetLightingColors(this BeatmapEventType lse, Color? color0, Color? color1, Color? color0Boost = null, Color? color1Boost = null)
-        {
-            foreach (LSEColorManager l in LSEColorManager.GetLSEColorManager(lse))
+            for (int i = 0; i < COLOR_FIELDS; i++)
             {
-                l.SetLightingColors(color0, color1, color0Boost, color1Boost);
+                GlobalColor[i] = colors[i];
             }
-        }
 
-        public static void SetAllLightingColors(Color? color0, Color? color1, Color? color0Boost = null, Color? color1Boost = null)
-        {
-            foreach (KeyValuePair<MonoBehaviour, LSEColorManager> lseColorManager in _lseColorManagers)
+            foreach (KeyValuePair<BeatmapEventType, LightColorizer> valuePair in Colorizers)
             {
-                lseColorManager.Value.SetLightingColors(color0, color1, color0Boost, color1Boost);
-            }
-        }
-
-        public static void SetActiveColors(this BeatmapEventType lse)
-        {
-            foreach (LSEColorManager l in LSEColorManager.GetLSEColorManager(lse))
-            {
-                l.SetActiveColors();
-            }
-        }
-
-        public static void SetAllActiveColors()
-        {
-            foreach (KeyValuePair<MonoBehaviour, LSEColorManager> lseColorManager in _lseColorManagers)
-            {
-                lseColorManager.Value.SetActiveColors();
+                valuePair.Value.Refresh();
             }
         }
 
         public static void RegisterLight(MonoBehaviour lightWithId)
         {
+            LightColorizer lightColorizer;
             switch (lightWithId)
             {
                 case LightWithIdMonoBehaviour monoBehaviour:
-                    LSEColorManager monomanager = LSEColorManager.GetLSEColorManager((BeatmapEventType)(monoBehaviour.lightId - 1))?.Where(n => n.Lights != null).First();
-                    if (monomanager == null)
+                    if (((BeatmapEventType)(monoBehaviour.lightId - 1)).TryGetLightColorizer(out lightColorizer))
                     {
-                        break;
+                        LightIDTableManager.RegisterIndex(monoBehaviour.lightId - 1, lightColorizer.Lights.Count);
+                        lightColorizer.Lights.Add(monoBehaviour);
                     }
 
-                    LightIDTableManager.RegisterIndex(monoBehaviour.lightId - 1, monomanager.Lights.Count);
-                    monomanager.Lights.Add(monoBehaviour);
                     break;
 
                 case LightWithIds lightWithIds:
                     IEnumerable<ILightWithId> lightsWithId = ((IEnumerable)_lightWithIdsData.GetValue(lightWithId)).Cast<ILightWithId>();
                     foreach (ILightWithId light in lightsWithId)
                     {
-                        LSEColorManager manager = LSEColorManager.GetLSEColorManager((BeatmapEventType)(light.lightId - 1))?.Where(n => n.Lights != null).First();
-                        if (manager == null)
+                        if (((BeatmapEventType)(light.lightId - 1)).TryGetLightColorizer(out lightColorizer))
                         {
-                            continue;
+                            LightIDTableManager.RegisterIndex(light.lightId - 1, lightColorizer.Lights.Count);
+                            lightColorizer.Lights.Add(light);
                         }
-
-                        LightIDTableManager.RegisterIndex(light.lightId - 1, manager.Lights.Count);
-                        manager.Lights.Add(light);
                     }
 
                     break;
             }
         }
 
-        internal static void ClearLSEColorManagers()
+        public void Colorize(params Color?[] colors)
         {
-            _lseColorManagers.Clear();
+            for (int i = 0; i < COLOR_FIELDS; i++)
+            {
+                _colors[i] = colors[i];
+            }
+
+            Refresh();
         }
 
-        internal static void SetLastValue(this MonoBehaviour lse, int value)
+        internal void Refresh()
         {
-            LSEColorManager.GetLSEColorManager(lse)?.SetLastValue(value);
+            Color[] colors = Color;
+            for (int i = 0; i < COLOR_FIELDS; i++)
+            {
+                _simpleColorSOs[i].SetColor(colors[i]);
+            }
+
+            LightSwitchEventEffect lightSwitchEventEffect = _lightSwitchEventEffect;
+            _lightSwitchEventEffect.ProcessLightSwitchEvent(_prevValueAccessor(ref lightSwitchEventEffect), true);
+
+            LightColorChanged?.Invoke(_eventType, colors);
         }
 
-        internal static List<ILightWithId> GetLights(this LightSwitchEventEffect lse)
+        private void InitializeSO(string id, int index)
         {
-            return LSEColorManager.GetLSEColorManager(lse)?.Lights;
-        }
+            LightSwitchEventEffect lightSwitchEventEffect = _lightSwitchEventEffect;
+            FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor colorSOAcessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor(id);
 
-        internal static ILightWithId[][] GetLightsPropagationGrouped(this LightSwitchEventEffect lse)
-        {
-            return LSEColorManager.GetLSEColorManager(lse)?.LightsPropagationGrouped;
-        }
+            MultipliedColorSO lightMultSO = (MultipliedColorSO)colorSOAcessor(ref lightSwitchEventEffect);
 
-        /*
-         * LSE ColorSO holders
-         */
+            Color multiplierColor = _multiplierColorAccessor(ref lightMultSO);
+            SimpleColorSO lightSO = _baseColorAccessor(ref lightMultSO);
+            _originalColors[index] = lightSO.color;
 
-        internal static void LSEStart(MonoBehaviour lse, BeatmapEventType type)
-        {
-            LSEColorManager.CreateLSEColorManager(lse, type);
-        }
+            MultipliedColorSO mColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
+            _multiplierColorAccessor(ref mColorSO) = multiplierColor;
 
-        private class LSEColorManager
-        {
-            private readonly MonoBehaviour _lse;
-            private readonly BeatmapEventType _type;
-
-            private readonly Color _lightColor0_Original;
-            private readonly Color _lightColor1_Original;
-            private readonly Color _lightColor0Boost_Original;
-            private readonly Color _lightColor1Boost_Original;
-
-            private readonly SimpleColorSO _lightColor0;
-            private readonly SimpleColorSO _lightColor1;
-            private readonly SimpleColorSO _lightColor0Boost;
-            private readonly SimpleColorSO _lightColor1Boost;
-
-            private readonly MultipliedColorSO _mLightColor0;
-            private readonly MultipliedColorSO _mHighlightColor0;
-            private readonly MultipliedColorSO _mLightColor1;
-            private readonly MultipliedColorSO _mHighlightColor1;
-
-            private readonly MultipliedColorSO _mLightColor0Boost;
-            private readonly MultipliedColorSO _mHighlightColor0Boost;
-            private readonly MultipliedColorSO _mLightColor1Boost;
-            private readonly MultipliedColorSO _mHighlightColor1Boost;
-
-            private readonly bool _supportBoostColor;
-
-            private float _lastValue;
-
-            private LSEColorManager(MonoBehaviour mono, BeatmapEventType type)
+            SimpleColorSO sColorSO;
+            if (_simpleColorSOs[index] == null)
             {
-                _lse = mono;
-                _type = type;
-                InitializeSOs(mono, "_lightColor0", ref _lightColor0, ref _lightColor0_Original, ref _mLightColor0);
-                InitializeSOs(mono, "_highlightColor0", ref _lightColor0, ref _lightColor0_Original, ref _mHighlightColor0);
-                InitializeSOs(mono, "_lightColor1", ref _lightColor1, ref _lightColor1_Original, ref _mLightColor1);
-                InitializeSOs(mono, "_highlightColor1", ref _lightColor1, ref _lightColor1_Original, ref _mHighlightColor1);
-
-                if (mono is LightSwitchEventEffect lse)
-                {
-                    InitializeSOs(mono, "_lightColor0Boost", ref _lightColor0Boost, ref _lightColor0Boost_Original, ref _mLightColor0Boost);
-                    InitializeSOs(mono, "_highlightColor0Boost", ref _lightColor0Boost, ref _lightColor0Boost_Original, ref _mHighlightColor0Boost);
-                    InitializeSOs(mono, "_lightColor1Boost", ref _lightColor1Boost, ref _lightColor1Boost_Original, ref _mLightColor1Boost);
-                    InitializeSOs(mono, "_highlightColor1Boost", ref _lightColor1Boost, ref _lightColor1Boost_Original, ref _mHighlightColor1Boost);
-                    _supportBoostColor = true;
-
-                    LightWithIdManager lightManager = lse.GetField<LightWithIdManager, LightSwitchEventEffect>("_lightManager");
-                    Lights = lightManager.GetField<List<ILightWithId>[], LightWithIdManager>("_lights")[lse.lightsId].ToList();
-
-                    IDictionary<int, List<ILightWithId>> lightsPreGroup = new Dictionary<int, List<ILightWithId>>();
-                    TrackLaneRingsManager[] managers = Object.FindObjectsOfType<TrackLaneRingsManager>();
-                    foreach (ILightWithId light in Lights)
-                    {
-                        if (light is MonoBehaviour monoBehaviour)
-                        {
-                            int z = Mathf.RoundToInt(monoBehaviour.transform.position.z);
-
-                            TrackLaneRing ring = monoBehaviour.GetComponentInParent<TrackLaneRing>();
-                            if (ring != null)
-                            {
-                                TrackLaneRingsManager mngr = managers.FirstOrDefault(it => it.Rings.IndexOf(ring) >= 0);
-                                if (mngr != null)
-                                {
-                                    z = 1000 + mngr.Rings.IndexOf(ring);
-                                }
-                            }
-
-                            if (lightsPreGroup.TryGetValue(z, out List<ILightWithId> list))
-                            {
-                                list.Add(light);
-                            }
-                            else
-                            {
-                                list = new List<ILightWithId>() { light };
-                                lightsPreGroup.Add(z, list);
-                            }
-                        }
-                    }
-
-                    LightsPropagationGrouped = new ILightWithId[lightsPreGroup.Count][];
-                    int i = 0;
-                    foreach (List<ILightWithId> lightList in lightsPreGroup.Values)
-                    {
-                        if (lightList is null)
-                        {
-                            continue;
-                        }
-
-                        LightsPropagationGrouped[i] = lightList.ToArray();
-                        i++;
-                    }
-                }
+                sColorSO = ScriptableObject.CreateInstance<SimpleColorSO>();
+                sColorSO.SetColor(lightSO.color);
+                _simpleColorSOs[index] = sColorSO;
+            }
+            else
+            {
+                sColorSO = _simpleColorSOs[index];
             }
 
-            internal List<ILightWithId> Lights { get; }
+            _baseColorAccessor(ref mColorSO) = sColorSO;
 
-            internal ILightWithId[][] LightsPropagationGrouped { get; }
-
-            internal static IEnumerable<LSEColorManager> GetLSEColorManager(BeatmapEventType type)
-            {
-                return _lseColorManagers.Where(n => n.Value._type == type).Select(n => n.Value);
-            }
-
-            internal static LSEColorManager GetLSEColorManager(MonoBehaviour lse)
-            {
-                if (_lseColorManagers.TryGetValue(lse, out LSEColorManager colorManager))
-                {
-                    return colorManager;
-                }
-
-                return null;
-            }
-
-            internal static LSEColorManager CreateLSEColorManager(MonoBehaviour lse, BeatmapEventType type)
-            {
-                LSEColorManager lsecm;
-                lsecm = new LSEColorManager(lse, type);
-                _lseColorManagers.Add(lse, lsecm);
-                return lsecm;
-            }
-
-            internal void Reset()
-            {
-                _lightColor0.SetColor(_lightColor0_Original);
-                _lightColor1.SetColor(_lightColor1_Original);
-                if (_supportBoostColor)
-                {
-                    _lightColor0Boost.SetColor(_lightColor0Boost_Original);
-                    _lightColor1Boost.SetColor(_lightColor1Boost_Original);
-                }
-            }
-
-            internal void SetLightingColors(Color? color0, Color? color1, Color? color0Boost = null, Color? color1Boost = null)
-            {
-                if (color0.HasValue)
-                {
-                    _lightColor0.SetColor(color0.Value);
-                }
-
-                if (color1.HasValue)
-                {
-                    _lightColor1.SetColor(color1.Value);
-                }
-
-                if (_supportBoostColor)
-                {
-                    if (color0Boost.HasValue)
-                    {
-                        _lightColor0Boost.SetColor(color0Boost.Value);
-                    }
-
-                    if (color1Boost.HasValue)
-                    {
-                        _lightColor1Boost.SetColor(color1Boost.Value);
-                    }
-                }
-            }
-
-            internal void SetLastValue(int value)
-            {
-                _lastValue = value;
-            }
-
-            internal void SetActiveColors()
-            {
-                // Replace with ProcessLightSwitchEvent
-                if (_lastValue <= 0)
-                {
-                    return;
-                }
-
-                bool warm;
-                switch (_lastValue)
-                {
-                    case 1:
-                    case 2:
-                    case 3:
-                    default:
-                        warm = false;
-                        break;
-
-                    case 5:
-                    case 6:
-                    case 7:
-                        warm = true;
-                        break;
-                }
-
-                Color c;
-                switch (_lastValue)
-                {
-                    case 1:
-                    case 5:
-                    default:
-                        c = warm ? _mLightColor0.color : _mLightColor1.color;
-                        break;
-
-                    case 2:
-                    case 6:
-                    case 3:
-                    case 7:
-                        c = warm ? _mHighlightColor0.color : _mHighlightColor1.color;
-                        break;
-                }
-
-                if (_lse.enabled)
-                {
-                    if (_lse is LightSwitchEventEffect l1)
-                    {
-                        l1.SetField("_highlightColor", c);
-                    }
-                    else if (_lse is ParticleSystemEventEffect p1)
-                    {
-                        p1.SetField("_highlightColor", c);
-                    }
-
-                    if (_lastValue == 3 || _lastValue == 7)
-                    {
-                        if (_lse is LightSwitchEventEffect l2)
-                        {
-                            l2.SetField("_afterHighlightColor", c.ColorWithAlpha(0f));
-                        }
-                        else if (_lse is ParticleSystemEventEffect p2)
-                        {
-                            p2.SetField("_afterHighlightColor", c.ColorWithAlpha(0f));
-                        }
-                    }
-                    else
-                    {
-                        if (_lse is LightSwitchEventEffect l3)
-                        {
-                            l3.SetField("_afterHighlightColor", c);
-                        }
-                        else if (_lse is ParticleSystemEventEffect p3)
-                        {
-                            p3.SetField("_afterHighlightColor", c);
-                        }
-                    }
-                }
-                else
-                {
-                    if (_lastValue == 1 || _lastValue == 5 || _lastValue == 2 || _lastValue == 6)
-                    {
-                        if (_lse is LightSwitchEventEffect l4)
-                        {
-                            l4.SetColor(c);
-                        }
-                        else if (_lse is ParticleSystemEventEffect p4)
-                        {
-                            p4.SetField("_particleColor", c);
-                            p4.RefreshParticles();
-                        }
-                    }
-                }
-
-                if (_lse is LightSwitchEventEffect l5)
-                {
-                    l5.SetField("_offColor", c.ColorWithAlpha(0f));
-                }
-                else if (_lse is ParticleSystemEventEffect p5)
-                {
-                    p5.SetField("_offColor", c.ColorWithAlpha(0f));
-                }
-            }
-
-            private void InitializeSOs(MonoBehaviour lse, string id, ref SimpleColorSO sColorSO, ref Color originalColor, ref MultipliedColorSO mColorSO)
-            {
-                MultipliedColorSO lightMultSO = null;
-                if (lse is LightSwitchEventEffect l1)
-                {
-                    lightMultSO = (MultipliedColorSO)l1.GetField<ColorSO, LightSwitchEventEffect>(id);
-                }
-                else if (lse is ParticleSystemEventEffect p1)
-                {
-                    lightMultSO = (MultipliedColorSO)p1.GetField<ColorSO, ParticleSystemEventEffect>(id);
-                }
-
-                Color multiplierColor = lightMultSO.GetField<Color, MultipliedColorSO>("_multiplierColor");
-                SimpleColorSO lightSO = lightMultSO.GetField<SimpleColorSO, MultipliedColorSO>("_baseColor");
-                originalColor = lightSO.color;
-
-                if (mColorSO == null)
-                {
-                    mColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
-                    mColorSO.SetField("_multiplierColor", multiplierColor);
-
-                    if (sColorSO == null)
-                    {
-                        sColorSO = ScriptableObject.CreateInstance<SimpleColorSO>();
-                        sColorSO.SetColor(originalColor);
-                    }
-
-                    mColorSO.SetField("_baseColor", sColorSO);
-                }
-
-                if (lse is LightSwitchEventEffect l2)
-                {
-                    l2.SetField<LightSwitchEventEffect, ColorSO>(id, mColorSO);
-                }
-                else if (lse is ParticleSystemEventEffect p2)
-                {
-                    p2.SetField<ParticleSystemEventEffect, ColorSO>(id, mColorSO);
-                }
-            }
+            colorSOAcessor(ref lightSwitchEventEffect) = mColorSO;
         }
     }
 }

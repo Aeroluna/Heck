@@ -3,133 +3,44 @@
     using System.Collections.Generic;
     using UnityEngine;
 
-    public static class BombColorizer
+    public class BombColorizer : ObjectColorizer
     {
-        private static readonly Dictionary<BombNoteController, BNCColorManager> _bncColorManagers = new Dictionary<BombNoteController, BNCColorManager>();
+        private readonly Renderer _bombRenderer;
 
-        public static void Reset(this BombNoteController bnc)
+        internal BombColorizer(NoteControllerBase noteController)
         {
-            BNCColorManager.GetBNCColorManager(bnc)?.Reset();
+            _bombRenderer = noteController.gameObject.GetComponentInChildren<Renderer>();
+            OriginalColor = _bombRenderer.material.GetColor("_SimpleColor");
+
+            Colorizers.Add(noteController, this);
         }
 
-        public static void ResetAllBombColors()
-        {
-            BNCColorManager.ResetGlobal();
+        public static Dictionary<NoteControllerBase, BombColorizer> Colorizers { get; } = new Dictionary<NoteControllerBase, BombColorizer>();
 
-            foreach (KeyValuePair<BombNoteController, BNCColorManager> bncColorManager in _bncColorManagers)
+        public static Color? GlobalColor { get; private set; }
+
+        protected override Color? GlobalColorGetter => GlobalColor;
+
+        public static void GlobalColorize(Color? color)
+        {
+            GlobalColor = color;
+            foreach (KeyValuePair<NoteControllerBase, BombColorizer> valuePair in Colorizers)
             {
-                bncColorManager.Value.Reset();
-            }
-        }
-
-        public static void SetBombColor(this BombNoteController bnc, Color? color)
-        {
-            BNCColorManager.GetBNCColorManager(bnc)?.SetBombColor(color);
-        }
-
-        public static void SetAllBombColors(Color? color)
-        {
-            BNCColorManager.SetGlobalBombColor(color);
-
-            foreach (KeyValuePair<BombNoteController, BNCColorManager> bncColorManager in _bncColorManagers)
-            {
-                bncColorManager.Value.Reset();
+                valuePair.Value.Refresh();
             }
         }
 
-        internal static void ClearBNCColorManagers()
+        protected override void Refresh()
         {
-            ResetAllBombColors();
-            _bncColorManagers.Clear();
-        }
-
-        /*
-         * NC ColorSO holders
-         */
-
-        internal static void BNCStart(BombNoteController bnc)
-        {
-            BNCColorManager.CreateBNCColorManager(bnc);
-        }
-
-        private class BNCColorManager
-        {
-            private static Color? _globalColor = null;
-
-            private readonly BombNoteController _nc;
-
-            private readonly Color _color_Original;
-
-            private readonly Material _bombMaterial;
-
-            private BNCColorManager(BombNoteController nc)
+            Material bombMaterial = _bombRenderer.material;
+            Color color = Color;
+            if (color == bombMaterial.GetColor("_SimpleColor"))
             {
-                _nc = nc;
-
-                _bombMaterial = nc.noteTransform.gameObject.GetComponent<Renderer>().material;
-
-                _color_Original = _bombMaterial.GetColor("_SimpleColor");
-                if (_globalColor.HasValue)
-                {
-                    _bombMaterial.SetColor("_SimpleColor", _globalColor.Value);
-                }
+                Plugin.Logger.Log("Refresh SKIPPED");
+                return;
             }
 
-            internal static BNCColorManager GetBNCColorManager(BombNoteController nc)
-            {
-                if (_bncColorManagers.TryGetValue(nc, out BNCColorManager colorManager))
-                {
-                    return colorManager;
-                }
-
-                return null;
-            }
-
-            internal static BNCColorManager CreateBNCColorManager(BombNoteController nc)
-            {
-                if (GetBNCColorManager(nc) != null)
-                {
-                    return null;
-                }
-
-                BNCColorManager bnccm;
-                bnccm = new BNCColorManager(nc);
-                _bncColorManagers.Add(nc, bnccm);
-                return bnccm;
-            }
-
-            internal static void SetGlobalBombColor(Color? color)
-            {
-                if (color.HasValue)
-                {
-                    _globalColor = color.Value;
-                }
-            }
-
-            internal static void ResetGlobal()
-            {
-                _globalColor = null;
-            }
-
-            internal void Reset()
-            {
-                if (_globalColor.HasValue)
-                {
-                    _bombMaterial.SetColor("_SimpleColor", _globalColor.Value);
-                }
-                else
-                {
-                    _bombMaterial.SetColor("_SimpleColor", _color_Original);
-                }
-            }
-
-            internal void SetBombColor(Color? color)
-            {
-                if (color.HasValue && color.Value != _bombMaterial.GetColor("_SimpleColor"))
-                {
-                    _bombMaterial.SetColor("_SimpleColor", color.Value);
-                }
-            }
+            bombMaterial.SetColor("_SimpleColor", color);
         }
     }
 }

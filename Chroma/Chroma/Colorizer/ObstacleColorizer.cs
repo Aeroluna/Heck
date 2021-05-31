@@ -4,163 +4,85 @@
     using IPA.Utilities;
     using UnityEngine;
 
-    public static class ObstacleColorizer
+    public class ObstacleColorizer : ObjectColorizer
     {
-        private static readonly Dictionary<ObstacleController, OCColorManager> _ocColorManagers = new Dictionary<ObstacleController, OCColorManager>();
+        private static readonly FieldAccessor<ObstacleController, ColorManager>.Accessor _colorManagerAccessor = FieldAccessor<ObstacleController, ColorManager>.GetAccessor("_colorManager");
 
-        public static void Reset(this ObstacleController oc)
+        private static readonly FieldAccessor<StretchableObstacle, ParametricBoxFrameController>.Accessor _obstacleFrameAccessor = FieldAccessor<StretchableObstacle, ParametricBoxFrameController>.GetAccessor("_obstacleFrame");
+        private static readonly FieldAccessor<StretchableObstacle, ParametricBoxFakeGlowController>.Accessor _obstacleFakeGlowAccessor = FieldAccessor<StretchableObstacle, ParametricBoxFakeGlowController>.GetAccessor("_obstacleFakeGlow");
+        private static readonly FieldAccessor<StretchableObstacle, float>.Accessor _addColorMultiplierAccessor = FieldAccessor<StretchableObstacle, float>.GetAccessor("_addColorMultiplier");
+        private static readonly FieldAccessor<StretchableObstacle, float>.Accessor _obstacleCoreLerpToWhiteFactorAccessor = FieldAccessor<StretchableObstacle, float>.GetAccessor("_obstacleCoreLerpToWhiteFactor");
+        private static readonly FieldAccessor<StretchableObstacle, MaterialPropertyBlockController[]>.Accessor _materialPropertyBlockControllersAccessor = FieldAccessor<StretchableObstacle, MaterialPropertyBlockController[]>.GetAccessor("_materialPropertyBlockControllers");
+
+        private static readonly int _tintColorID = Shader.PropertyToID("_TintColor");
+        private static readonly int _addColorID = Shader.PropertyToID("_AddColor");
+
+        private readonly ParametricBoxFrameController _obstacleFrame;
+        private readonly ParametricBoxFakeGlowController _obstacleFakeGlow;
+        private readonly float _addColorMultiplier;
+        private readonly float _obstacleCoreLerpToWhiteFactor;
+        private readonly MaterialPropertyBlockController[] _materialPropertyBlockControllers;
+
+        internal ObstacleColorizer(ObstacleControllerBase obstacleController)
         {
-            OCColorManager.GetOCColorManager(oc)?.Reset();
+            StretchableObstacle stretchableObstacle = obstacleController.GetComponent<StretchableObstacle>();
+            _obstacleFrame = _obstacleFrameAccessor(ref stretchableObstacle);
+            _obstacleFakeGlow = _obstacleFakeGlowAccessor(ref stretchableObstacle);
+            _addColorMultiplier = _addColorMultiplierAccessor(ref stretchableObstacle);
+            _obstacleCoreLerpToWhiteFactor = _obstacleCoreLerpToWhiteFactorAccessor(ref stretchableObstacle);
+            _materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref stretchableObstacle);
+
+            if (obstacleController is ObstacleController trueObstacleController)
+            {
+                OriginalColor = _colorManagerAccessor(ref trueObstacleController).obstaclesColor;
+            }
+            else
+            {
+                // Fallback
+                OriginalColor = Color.white;
+            }
+
+            Colorizers.Add(obstacleController, this);
         }
 
-        public static void ResetAllObstacleColors()
-        {
-            OCColorManager.ResetGlobal();
+        public static Dictionary<ObstacleControllerBase, ObstacleColorizer> Colorizers { get; } = new Dictionary<ObstacleControllerBase, ObstacleColorizer>();
 
-            foreach (KeyValuePair<ObstacleController, OCColorManager> ocColorManager in _ocColorManagers)
+        public static Color? GlobalColor { get; private set; }
+
+        protected override Color? GlobalColorGetter => GlobalColor;
+
+        public static void GlobalColorize(Color? color)
+        {
+            GlobalColor = color;
+            foreach (KeyValuePair<ObstacleControllerBase, ObstacleColorizer> valuePair in Colorizers)
             {
-                ocColorManager.Value.Reset();
+                valuePair.Value.Refresh();
             }
         }
 
-        public static void SetObstacleColor(this ObstacleController oc, Color color)
+        protected override void Refresh()
         {
-            OCColorManager.GetOCColorManager(oc)?.SetObstacleColor(color);
-        }
-
-        public static void SetAllObstacleColors(Color color)
-        {
-            OCColorManager.SetGlobalObstacleColor(color);
-        }
-
-        public static void SetActiveColors(this ObstacleController oc)
-        {
-            OCColorManager.GetOCColorManager(oc).SetActiveColors();
-        }
-
-        public static void SetAllActiveColors()
-        {
-            foreach (KeyValuePair<ObstacleController, OCColorManager> ocColorManager in _ocColorManagers)
+            Color color = Color;
+            if (color == _obstacleFrame.color)
             {
-                ocColorManager.Value.SetActiveColors();
-            }
-        }
-
-        internal static void ClearOCColorManagers()
-        {
-            ResetAllObstacleColors();
-            _ocColorManagers.Clear();
-        }
-
-        /*
-         * OC ColorSO holders
-         */
-
-        internal static void OCStart(ObstacleController oc, Color original)
-        {
-            OCColorManager.CreateOCColorManager(oc, original);
-        }
-
-        private class OCColorManager
-        {
-            private static readonly FieldAccessor<ObstacleController, StretchableObstacle>.Accessor _stretchableObstacleAccessor = FieldAccessor<ObstacleController, StretchableObstacle>.GetAccessor("_stretchableObstacle");
-            private static readonly FieldAccessor<StretchableObstacle, ParametricBoxFrameController>.Accessor _obstacleFrameAccessor = FieldAccessor<StretchableObstacle, ParametricBoxFrameController>.GetAccessor("_obstacleFrame");
-            private static readonly FieldAccessor<StretchableObstacle, ParametricBoxFakeGlowController>.Accessor _obstacleFakeGlowAccessor = FieldAccessor<StretchableObstacle, ParametricBoxFakeGlowController>.GetAccessor("_obstacleFakeGlow");
-            private static readonly FieldAccessor<StretchableObstacle, float>.Accessor _addColorMultiplierAccessor = FieldAccessor<StretchableObstacle, float>.GetAccessor("_addColorMultiplier");
-            private static readonly FieldAccessor<StretchableObstacle, float>.Accessor _obstacleCoreLerpToWhiteFactorAccessor = FieldAccessor<StretchableObstacle, float>.GetAccessor("_obstacleCoreLerpToWhiteFactor");
-            private static readonly FieldAccessor<StretchableObstacle, MaterialPropertyBlockController[]>.Accessor _materialPropertyBlockControllersAccessor = FieldAccessor<StretchableObstacle, MaterialPropertyBlockController[]>.GetAccessor("_materialPropertyBlockControllers");
-            private static readonly int _tintColorID = Shader.PropertyToID("_TintColor");
-            private static readonly int _addColorID = Shader.PropertyToID("_AddColor");
-
-            private static Color? _globalColor = null;
-
-            private readonly Color _color_Original;
-
-            private Color? _color;
-
-            private StretchableObstacle _stretchableObstacle;
-
-            private OCColorManager(ObstacleController oc, Color original)
-            {
-                _stretchableObstacle = _stretchableObstacleAccessor(ref oc);
-
-                _color_Original = original;
-
-                _color = _color_Original;
+                return;
             }
 
-            internal static OCColorManager GetOCColorManager(ObstacleController oc)
+            _obstacleFrame.color = color;
+            _obstacleFrame.Refresh();
+            if (_obstacleFakeGlow != null)
             {
-                if (_ocColorManagers.TryGetValue(oc, out OCColorManager colorManager))
-                {
-                    return colorManager;
-                }
-
-                return null;
+                _obstacleFakeGlow.color = color;
+                _obstacleFakeGlow.Refresh();
             }
 
-            internal static OCColorManager CreateOCColorManager(ObstacleController oc, Color original)
+            Color value = color * _addColorMultiplier;
+            value.a = 0f;
+            foreach (MaterialPropertyBlockController materialPropertyBlockController in _materialPropertyBlockControllers)
             {
-                if (GetOCColorManager(oc) != null)
-                {
-                    return null;
-                }
-
-                OCColorManager occm;
-                occm = new OCColorManager(oc, original);
-                _ocColorManagers.Add(oc, occm);
-                return occm;
-            }
-
-            internal static void SetGlobalObstacleColor(Color color)
-            {
-                _globalColor = color;
-            }
-
-            internal static void ResetGlobal()
-            {
-                _globalColor = null;
-            }
-
-            internal void Reset()
-            {
-                _color = null;
-            }
-
-            internal void SetObstacleColor(Color color)
-            {
-                _color = color;
-            }
-
-            internal void SetActiveColors()
-            {
-                Color finalColor = _color ?? _globalColor ?? _color_Original;
-                ParametricBoxFrameController obstacleFrame = _obstacleFrameAccessor(ref _stretchableObstacle);
-
-                if (finalColor == obstacleFrame.color)
-                {
-                    return;
-                }
-
-                ParametricBoxFakeGlowController obstacleFakeGlow = _obstacleFakeGlowAccessor(ref _stretchableObstacle);
-                MaterialPropertyBlockController[] materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref _stretchableObstacle);
-                obstacleFrame.color = finalColor;
-                obstacleFrame.Refresh();
-                if (obstacleFakeGlow != null)
-                {
-                    obstacleFakeGlow.color = finalColor;
-                    obstacleFakeGlow.Refresh();
-                }
-
-                Color value = finalColor * _addColorMultiplierAccessor(ref _stretchableObstacle);
-                value.a = 0f;
-                float obstacleCoreLerpToWhiteFactor = _obstacleCoreLerpToWhiteFactorAccessor(ref _stretchableObstacle);
-                foreach (MaterialPropertyBlockController materialPropertyBlockController in materialPropertyBlockControllers)
-                {
-                    materialPropertyBlockController.materialPropertyBlock.SetColor(_addColorID, value);
-                    materialPropertyBlockController.materialPropertyBlock.SetColor(_tintColorID, Color.Lerp(finalColor, Color.white, obstacleCoreLerpToWhiteFactor));
-                    materialPropertyBlockController.ApplyChanges();
-                }
+                materialPropertyBlockController.materialPropertyBlock.SetColor(_addColorID, value);
+                materialPropertyBlockController.materialPropertyBlock.SetColor(_tintColorID, Color.Lerp(color, Color.white, _obstacleCoreLerpToWhiteFactor));
+                materialPropertyBlockController.ApplyChanges();
             }
         }
     }

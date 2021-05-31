@@ -10,7 +10,7 @@
     {
         internal static List<int> LightIDOverride { get; set; }
 
-        internal static void ColorLightSwitch(MonoBehaviour monobehaviour, BeatmapEventData beatmapEventData)
+        internal static void ColorLightSwitch(LightSwitchEventEffect lightSwitchEventEffect, BeatmapEventData beatmapEventData)
         {
             ChromaLightEventData chromaData = TryGetEventData<ChromaLightEventData>(beatmapEventData);
             if (chromaData == null)
@@ -23,63 +23,60 @@
             // legacy was a mistake
             color = LegacyLightHelper.GetLegacyColor(beatmapEventData) ?? color;
 
-            if (monobehaviour is LightSwitchEventEffect lightSwitchEventEffect)
+            object lightID = chromaData.LightID;
+            if (lightID != null)
             {
-                object lightID = chromaData.LightID;
-                if (lightID != null)
+                switch (lightID)
                 {
-                    switch (lightID)
-                    {
-                        case List<object> lightIDobjects:
-                            LightIDOverride = lightIDobjects.Select(n => System.Convert.ToInt32(n)).ToList();
+                    case List<object> lightIDobjects:
+                        LightIDOverride = lightIDobjects.Select(n => System.Convert.ToInt32(n)).ToList();
 
-                            break;
+                        break;
 
-                        case long lightIDint:
-                            LightIDOverride = new List<int> { (int)lightIDint };
+                    case long lightIDint:
+                        LightIDOverride = new List<int> { (int)lightIDint };
 
-                            break;
-                    }
+                        break;
                 }
+            }
 
-                // propID is now DEPRECATED!!!!!!!!
-                object propID = chromaData.PropID;
-                if (propID != null)
+            // propID is now DEPRECATED!!!!!!!!
+            object propID = chromaData.PropID;
+            if (propID != null && beatmapEventData.type.TryGetLightColorizer(out LightColorizer lightColorizer))
+            {
+                ILightWithId[][] lights = lightColorizer.LightsPropagationGrouped;
+                int lightCount = lights.Length;
+                switch (propID)
                 {
-                    ILightWithId[][] lights = lightSwitchEventEffect.GetLightsPropagationGrouped();
-                    int lightCount = lights.Length;
-                    switch (propID)
-                    {
-                        case List<object> propIDobjects:
-                            int[] propIDArray = propIDobjects.Select(n => System.Convert.ToInt32(n)).ToArray();
-                            List<ILightWithId> overrideLights = new List<ILightWithId>();
-                            for (int i = 0; i < propIDArray.Length; i++)
+                    case List<object> propIDobjects:
+                        int[] propIDArray = propIDobjects.Select(n => System.Convert.ToInt32(n)).ToArray();
+                        List<ILightWithId> overrideLights = new List<ILightWithId>();
+                        for (int i = 0; i < propIDArray.Length; i++)
+                        {
+                            if (lightCount > propIDArray[i])
                             {
-                                if (lightCount > propIDArray[i])
-                                {
-                                    overrideLights.AddRange(lights[propIDArray[i]]);
-                                }
+                                overrideLights.AddRange(lights[propIDArray[i]]);
                             }
+                        }
 
-                            SetLegacyPropIdOverride(overrideLights.ToArray());
+                        SetLegacyPropIdOverride(overrideLights.ToArray());
 
-                            break;
+                        break;
 
-                        case long propIDlong:
-                            if (lightCount > propIDlong)
-                            {
-                                SetLegacyPropIdOverride(lights[propIDlong]);
-                            }
+                    case long propIDlong:
+                        if (lightCount > propIDlong)
+                        {
+                            SetLegacyPropIdOverride(lights[propIDlong]);
+                        }
 
-                            break;
-                    }
+                        break;
                 }
+            }
 
-                ChromaLightEventData.GradientObjectData gradientObject = chromaData.GradientObject;
-                if (gradientObject != null)
-                {
-                    color = ChromaGradientController.AddGradient(gradientObject, beatmapEventData.type, beatmapEventData.time);
-                }
+            ChromaLightEventData.GradientObjectData gradientObject = chromaData.GradientObject;
+            if (gradientObject != null)
+            {
+                color = ChromaGradientController.AddGradient(gradientObject, beatmapEventData.type, beatmapEventData.time);
             }
 
             Color? colorData = chromaData.ColorData;
@@ -91,11 +88,12 @@
 
             if (color.HasValue)
             {
-                monobehaviour.SetLightingColors(color.Value, color.Value, color.Value, color.Value);
+                Color finalColor = color.Value;
+                beatmapEventData.type.ColorizeLight(finalColor, finalColor, finalColor, finalColor);
             }
             else if (!ChromaGradientController.IsGradientActive(beatmapEventData.type))
             {
-                monobehaviour.Reset();
+                beatmapEventData.type.ColorizeLight(null, null, null, null);
             }
         }
 

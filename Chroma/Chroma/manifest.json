@@ -11,7 +11,6 @@
     "BeatSaberMarkupLanguage": "^1.5.1",
     "CustomJSONData": "^1.1.4",
     "SongCore": "^3.2.1",
-    "BSIPA": "^4.1.6",
-    "SiraUtil": "^2.5.2"
+    "BSIPA": "^4.1.6"
   }
 }

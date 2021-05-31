@@ -1,28 +1,10 @@
 ﻿namespace Chroma.HarmonyPatches
 {
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using Chroma.Colorizer;
-    using HarmonyLib;
     using Heck;
     using UnityEngine;
-
-    [HarmonyPatch(typeof(LightSwitchEventEffect))]
-    [HarmonyPatch("Start")]
-    internal static class LightSwitchEventEffectStart
-    {
-        private static void Postfix(LightSwitchEventEffect __instance, BeatmapEventType ____event)
-        {
-            __instance.StartCoroutine(WaitThenStart(__instance, ____event));
-        }
-
-        private static IEnumerator WaitThenStart(LightSwitchEventEffect instance, BeatmapEventType eventType)
-        {
-            yield return new WaitForEndOfFrame();
-            LightColorizer.LSEStart(instance, eventType);
-        }
-    }
 
     [HeckPatch(typeof(LightSwitchEventEffect))]
     [HeckPatch("SetColor")]
@@ -30,14 +12,13 @@
     {
         private static bool Prefix(LightSwitchEventEffect __instance, BeatmapEventType ____event, Color color)
         {
-            if (LightColorManager.LightIDOverride != null)
+            if (LightColorManager.LightIDOverride != null && ____event.TryGetLightColorizer(out LightColorizer lightColorizer))
             {
-                List<ILightWithId> lights = __instance.GetLights();
                 int type = (int)____event;
                 IEnumerable<int> newIds = LightColorManager.LightIDOverride.Select(n => LightIDTableManager.GetActiveTableValue(type, n) ?? n);
                 foreach (int id in newIds)
                 {
-                    ILightWithId lightWithId = lights.ElementAtOrDefault(id);
+                    ILightWithId lightWithId = lightColorizer.Lights.ElementAtOrDefault(id);
                     if (lightWithId != null)
                     {
                         if (lightWithId.isRegistered)
@@ -89,19 +70,6 @@
             if (beatmapEventData.type == ____event)
             {
                 LightColorManager.ColorLightSwitch(__instance, beatmapEventData);
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(LightSwitchEventEffect))]
-    [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
-    internal static class LightSwitchEventEffectSetLastEvent
-    {
-        private static void Prefix(LightSwitchEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____event)
-        {
-            if (beatmapEventData.type == ____event)
-            {
-                __instance.SetLastValue(beatmapEventData.value);
             }
         }
     }

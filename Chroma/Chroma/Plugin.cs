@@ -1,5 +1,6 @@
 ﻿namespace Chroma
 {
+    using System.Linq;
     using System.Reflection;
     using BeatSaberMarkupLanguage.GameplaySetup;
     using Chroma.Settings;
@@ -58,6 +59,8 @@
         internal static readonly Harmony _harmonyInstanceCore = new Harmony(HARMONYIDCORE);
         internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
 
+        internal static bool SiraUtilInstalled { get; private set; } = false;
+
         internal static HeckLogger Logger { get; private set; }
 
         [Init]
@@ -73,6 +76,8 @@
         public void OnEnable()
         {
             _harmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
+
+            SiraUtilInstalled = IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == "SiraUtil");
 
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
 

@@ -65,12 +65,6 @@
         {
             if (current.name == "GameCore")
             {
-                LightColorizer.ClearLSEColorManagers();
-                ObstacleColorizer.ClearOCColorManagers();
-                BombColorizer.ClearBNCColorManagers();
-                NoteColorizer.ClearCNVColorManagers();
-                SaberColorizer.ClearBSMColorManagers();
-
                 TrackLaneRingsManagerAwake.RingManagers.Clear();
             }
         }
