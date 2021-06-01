@@ -65,6 +65,12 @@
         {
             if (current.name == "GameCore")
             {
+                BombColorizer.Reset();
+                LightColorizer.Reset();
+                NoteColorizer.Reset();
+                ObstacleColorizer.Reset();
+                SaberColorizer.Reset();
+
                 TrackLaneRingsManagerAwake.RingManagers.Clear();
             }
         }

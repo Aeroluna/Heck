@@ -1,16 +1,24 @@
 ﻿namespace Chroma.HarmonyPatches
 {
+    using System.Collections;
     using Chroma.Colorizer;
     using HarmonyLib;
+    using UnityEngine;
 
     [HarmonyPatch(typeof(LightSwitchEventEffect))]
     [HarmonyPatch("Start")]
     internal static class LightSwitchEventEffectStart
     {
-        [HarmonyPriority(Priority.High)]
         private static void Postfix(LightSwitchEventEffect __instance, BeatmapEventType ____event)
         {
-            new LightColorizer(__instance, ____event);
+            __instance.StartCoroutine(WaitThenStart(__instance, ____event));
+        }
+
+        // For some reason, not waiting for end of frame causes the SO initializer to grab colors from the previous map, so whatever
+        private static IEnumerator WaitThenStart(LightSwitchEventEffect instance, BeatmapEventType eventType)
+        {
+            yield return new WaitForEndOfFrame();
+            new LightColorizer(instance, eventType);
         }
     }
 

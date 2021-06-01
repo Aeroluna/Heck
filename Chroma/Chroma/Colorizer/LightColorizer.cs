@@ -119,7 +119,7 @@
 
         public static void GlobalColorize(bool refresh, params Color?[] colors)
         {
-            for (int i = 0; i < COLOR_FIELDS; i++)
+            for (int i = 0; i < colors.Length; i++)
             {
                 GlobalColor[i] = colors[i];
             }
@@ -169,7 +169,7 @@
 
         public void Colorize(bool refresh, params Color?[] colors)
         {
-            for (int i = 0; i < COLOR_FIELDS; i++)
+            for (int i = 0; i < colors.Length; i++)
             {
                 _colors[i] = colors[i];
             }
@@ -185,12 +185,22 @@
             }
         }
 
-        private void SetSOs(Color[] colors)
+        internal static void Reset()
         {
             for (int i = 0; i < COLOR_FIELDS; i++)
             {
+                GlobalColor[i] = null;
+            }
+        }
+
+        private void SetSOs(Color[] colors)
+        {
+            for (int i = 0; i < colors.Length; i++)
+            {
                 _simpleColorSOs[i].SetColor(colors[i]);
             }
+
+            LightColorChanged?.Invoke(_eventType, colors);
         }
 
         private void Refresh()
@@ -200,8 +210,6 @@
 
             LightSwitchEventEffect lightSwitchEventEffect = _lightSwitchEventEffect;
             _lightSwitchEventEffect.ProcessLightSwitchEvent(_prevValueAccessor(ref lightSwitchEventEffect), true);
-
-            LightColorChanged?.Invoke(_eventType, colors);
         }
 
         private void InitializeSO(string id, int index)

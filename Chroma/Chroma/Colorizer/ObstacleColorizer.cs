@@ -60,6 +60,11 @@
             }
         }
 
+        internal static void Reset()
+        {
+            GlobalColor = null;
+        }
+
         protected override void Refresh()
         {
             Color color = Color;

@@ -30,6 +30,11 @@
             }
         }
 
+        internal static void Reset()
+        {
+            GlobalColor = null;
+        }
+
         protected override void Refresh()
         {
             Material bombMaterial = _bombRenderer.material;

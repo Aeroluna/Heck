@@ -31,9 +31,9 @@
 
         public static Dictionary<NoteControllerBase, NoteColorizer> Colorizers { get; } = new Dictionary<NoteControllerBase, NoteColorizer>();
 
-        public static Color?[] GlobalColor { get; private set; } = new Color?[2];
+        public static Color?[] GlobalColor { get; } = new Color?[2];
 
-        public Color[] OriginalColors { get; private set; } = new Color[2];
+        public Color[] OriginalColors { get; } = new Color[2];
 
         public ColorType ColorType
         {
@@ -63,6 +63,12 @@
             {
                 valuePair.Value.Refresh();
             }
+        }
+
+        internal static void Reset()
+        {
+            GlobalColor[0] = null;
+            GlobalColor[1] = null;
         }
 
         internal static void ColorizeSaber(NoteController noteController, in NoteCutInfo noteCutInfo)

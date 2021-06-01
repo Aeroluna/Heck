@@ -6,6 +6,7 @@
 
     public class ParticleColorizer
     {
+        // ParticleSystemEventEffect still doesn't support boost colors!
         private const int COLOR_FIELDS = 2;
 
         private static readonly FieldAccessor<MultipliedColorSO, Color>.Accessor _multiplierColorAccessor = FieldAccessor<MultipliedColorSO, Color>.GetAccessor("_multiplierColor");

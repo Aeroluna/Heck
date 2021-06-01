@@ -1,16 +1,23 @@
 ﻿namespace Chroma.HarmonyPatches
 {
+    using System.Collections;
     using Chroma.Colorizer;
     using HarmonyLib;
+    using UnityEngine;
 
     [HarmonyPatch(typeof(ParticleSystemEventEffect))]
     [HarmonyPatch("Start")]
     internal static class ParticleSystemEventEffectStart
     {
-        [HarmonyPriority(Priority.High)]
         private static void Postfix(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)
         {
-            new ParticleColorizer(__instance, ____colorEvent);
+            __instance.StartCoroutine(WaitThenStart(__instance, ____colorEvent));
+        }
+
+        private static IEnumerator WaitThenStart(ParticleSystemEventEffect instance, BeatmapEventType eventType)
+        {
+            yield return new WaitForEndOfFrame();
+            new ParticleColorizer(instance, eventType);
         }
     }
 
