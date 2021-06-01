@@ -98,7 +98,6 @@
             _harmonyInstanceCore.UnpatchAll(HARMONYID);
 
             GameplaySetup.instance.RemoveTab("Chroma");
-            GameplaySetup.instance.RemoveTab("Lightshow Modifiers");
 
             ChromaUtils.SetSongCoreCapability(REQUIREMENTNAME, false);
 

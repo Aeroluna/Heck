@@ -29,16 +29,18 @@
         private readonly SaberType _saberType;
         private readonly bool _doColor;
         private Color _lastColor;
-        private IColorable _colorable;
+        private SaberModelController _saberModelController;
 
         internal SaberColorizer(Saber saber)
         {
             _saberType = saber.saberType;
 
             SaberModelController saberModelController = saber.gameObject.GetComponentInChildren<SaberModelController>(true);
-            if (Plugin.SiraUtilInstalled && SetColorable(saberModelController))
+            if (Plugin.SiraUtilInstalled)
             {
                 _doColor = false;
+
+                _saberModelController = saberModelController;
             }
             else
             {
@@ -62,12 +64,12 @@
 
         protected override Color? GlobalColorGetter => GlobalColor[(int)_saberType];
 
-        public static void GlobalColorize(Color? color, ColorType colorType)
+        public static void GlobalColorize(Color? color, SaberType colorType)
         {
             GlobalColor[(int)colorType] = color;
-            foreach (KeyValuePair<SaberType, SaberColorizer> valuePair in Colorizers)
+            if (colorType.TryGetSaberColorizer(out SaberColorizer saberColorizer))
             {
-                valuePair.Value.Refresh();
+                saberColorizer.Refresh();
             }
         }
 
@@ -122,17 +124,12 @@
         }
 
         // SiraUtil stuff
-        private void ColorColorable(Color color) => _colorable.SetColor(color);
-
-        private bool SetColorable(SaberModelController saberModelController)
+        private void ColorColorable(Color color)
         {
-            if (saberModelController is IColorable colorable)
+            if (_saberModelController is IColorable colorable)
             {
-                _colorable = colorable;
-                return true;
+                colorable.SetColor(color);
             }
-
-            return false;
         }
     }
 }

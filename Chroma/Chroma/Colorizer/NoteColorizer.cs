@@ -41,7 +41,11 @@
             {
                 if (_noteController is GameNoteController gameNoteController)
                 {
-                    return gameNoteController.noteData.colorType;
+                    NoteData noteData = gameNoteController.noteData;
+                    if (noteData != null)
+                    {
+                        return noteData.colorType;
+                    }
                 }
 
                 return ColorType.ColorA;

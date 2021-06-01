@@ -117,7 +117,7 @@
             }
         }
 
-        public static void GlobalColorize(params Color?[] colors)
+        public static void GlobalColorize(bool refresh, params Color?[] colors)
         {
             for (int i = 0; i < COLOR_FIELDS; i++)
             {
@@ -126,7 +126,15 @@
 
             foreach (KeyValuePair<BeatmapEventType, LightColorizer> valuePair in Colorizers)
             {
-                valuePair.Value.Refresh();
+                // Allow light colorizer to not force color
+                if (refresh)
+                {
+                    valuePair.Value.Refresh();
+                }
+                else
+                {
+                    valuePair.Value.SetSOs(valuePair.Value.Color);
+                }
             }
         }
 
