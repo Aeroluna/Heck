@@ -112,6 +112,7 @@
     <Compile Include="HarmonyPatches\BeatmapDataLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataTransformHelper.cs" />
     <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
+    <Compile Include="HarmonyPatches\MirroredObstacleController.cs" />
     <Compile Include="HarmonyPatches\MultiplayerConnectedPlayerInstaller.cs" />
     <Compile Include="HarmonyPatches\SceneTransition\MissionLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="HarmonyPatches\SceneTransition\MultiplayerLevelScenesTransitionSetupDataSO.cs" />
