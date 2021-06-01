@@ -44,7 +44,7 @@
 
             // AAAAAA PROPAGATION STUFFF
             LightWithIdManager lightManager = _lightManagerAccessor(ref lightSwitchEventEffect);
-            Lights = lightManager.GetField<List<ILightWithId>[], LightWithIdManager>("_lights")[lightSwitchEventEffect.lightsId].ToList();
+            Lights = _lightsAccessor(ref lightManager)[lightSwitchEventEffect.lightsId].ToList();
 
             IDictionary<int, List<ILightWithId>> lightsPreGroup = new Dictionary<int, List<ILightWithId>>();
             TrackLaneRingsManager[] managers = UnityEngine.Object.FindObjectsOfType<TrackLaneRingsManager>();
@@ -159,23 +159,36 @@
             }
         }
 
-        public void Colorize(params Color?[] colors)
+        public void Colorize(bool refresh, params Color?[] colors)
         {
             for (int i = 0; i < COLOR_FIELDS; i++)
             {
                 _colors[i] = colors[i];
             }
 
-            Refresh();
+            // Allow light colorizer to not force color
+            if (refresh)
+            {
+                Refresh();
+            }
+            else
+            {
+                SetSOs(Color);
+            }
         }
 
-        internal void Refresh()
+        private void SetSOs(Color[] colors)
         {
-            Color[] colors = Color;
             for (int i = 0; i < COLOR_FIELDS; i++)
             {
                 _simpleColorSOs[i].SetColor(colors[i]);
             }
+        }
+
+        private void Refresh()
+        {
+            Color[] colors = Color;
+            SetSOs(colors);
 
             LightSwitchEventEffect lightSwitchEventEffect = _lightSwitchEventEffect;
             _lightSwitchEventEffect.ProcessLightSwitchEvent(_prevValueAccessor(ref lightSwitchEventEffect), true);

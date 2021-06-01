@@ -10,7 +10,7 @@
     {
         internal static List<int> LightIDOverride { get; set; }
 
-        internal static void ColorLightSwitch(LightSwitchEventEffect lightSwitchEventEffect, BeatmapEventData beatmapEventData)
+        internal static void ColorLightSwitch(BeatmapEventData beatmapEventData)
         {
             ChromaLightEventData chromaData = TryGetEventData<ChromaLightEventData>(beatmapEventData);
             if (chromaData == null)
@@ -30,12 +30,10 @@
                 {
                     case List<object> lightIDobjects:
                         LightIDOverride = lightIDobjects.Select(n => System.Convert.ToInt32(n)).ToList();
-
                         break;
 
                     case long lightIDint:
                         LightIDOverride = new List<int> { (int)lightIDint };
-
                         break;
                 }
             }
@@ -89,11 +87,11 @@
             if (color.HasValue)
             {
                 Color finalColor = color.Value;
-                beatmapEventData.type.ColorizeLight(finalColor, finalColor, finalColor, finalColor);
+                beatmapEventData.type.ColorizeLight(false, finalColor, finalColor, finalColor, finalColor);
             }
             else if (!ChromaGradientController.IsGradientActive(beatmapEventData.type))
             {
-                beatmapEventData.type.ColorizeLight(null, null, null, null);
+                beatmapEventData.type.ColorizeLight(false, null, null, null, null);
             }
         }
 

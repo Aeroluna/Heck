@@ -36,7 +36,6 @@
             Color color = Color;
             if (color == bombMaterial.GetColor("_SimpleColor"))
             {
-                Plugin.Logger.Log("Refresh SKIPPED");
                 return;
             }
 

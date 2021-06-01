@@ -10,7 +10,7 @@
     [HeckPatch("SetColor")]
     internal static class LightSwitchEventEffectSetColor
     {
-        private static bool Prefix(LightSwitchEventEffect __instance, BeatmapEventType ____event, Color color)
+        private static bool Prefix(BeatmapEventType ____event, Color color)
         {
             if (LightColorManager.LightIDOverride != null && ____event.TryGetLightColorizer(out LightColorizer lightColorizer))
             {
@@ -61,15 +61,11 @@
     {
         internal static ILightWithId[] LegacyLightOverride { get; set; }
 
-        // 0 = off
-        // 1 = blue on, 5 = red on
-        // 2 = blue flash, 6 = red flash
-        // 3 = blue fade, 7 = red fade
-        private static void Prefix(LightSwitchEventEffect __instance, BeatmapEventData beatmapEventData, BeatmapEventType ____event)
+        private static void Prefix(BeatmapEventData beatmapEventData, BeatmapEventType ____event)
         {
             if (beatmapEventData.type == ____event)
             {
-                LightColorManager.ColorLightSwitch(__instance, beatmapEventData);
+                LightColorManager.ColorLightSwitch(beatmapEventData);
             }
         }
     }

@@ -109,11 +109,11 @@
             }
         }
 
-        public static void ColorizeLight(this BeatmapEventType eventType, params Color?[] colors)
+        public static void ColorizeLight(this BeatmapEventType eventType, bool refresh, params Color?[] colors)
         {
             if (eventType.TryGetLightColorizer(out LightColorizer colorizer))
             {
-                colorizer.Colorize(colors);
+                colorizer.Colorize(refresh, colors);
             }
         }
     }
