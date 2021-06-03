@@ -8,15 +8,18 @@
     [HeckPatch("HandleNoteControllerDidInit")]
     internal static class ColorNoteVisualsHandleNoteControllerDidInit
     {
-        private static void Postfix(NoteController noteController)
+        private static void Postfix(NoteControllerBase noteController)
         {
-            ChromaNoteData chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
-            if (chromaData == null)
+            if (noteController is NoteController)
             {
-                return;
+                ChromaNoteData chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
+                if (chromaData != null)
+                {
+                    noteController.ColorizeNote(chromaData.Color);
+                }
             }
 
-            noteController.ColorizeNote(chromaData.Color);
+            return;
         }
     }
 }

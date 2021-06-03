@@ -8,6 +8,8 @@
 
     public class SaberColorizer : ObjectColorizer
     {
+        private static readonly FieldAccessor<SaberModelController, ColorManager>.Accessor _colorManagerAccessor = FieldAccessor<SaberModelController, ColorManager>.GetAccessor("_colorManager");
+
         private static readonly FieldAccessor<SaberTrail, Color>.Accessor _colorAccessor = FieldAccessor<SaberTrail, Color>.GetAccessor("_color");
         private static readonly FieldAccessor<SaberModelController, SaberModelController.InitData>.Accessor _initDataAccessor = FieldAccessor<SaberModelController, SaberModelController.InitData>.GetAccessor("_initData");
         private static readonly FieldAccessor<SaberModelController, SetSaberGlowColor[]>.Accessor _setSaberGlowColorsAccessor = FieldAccessor<SaberModelController, SetSaberGlowColor[]>.GetAccessor("_setSaberGlowColors");
@@ -33,43 +35,57 @@
 
         internal SaberColorizer(Saber saber)
         {
-            _saberType = saber.saberType;
-
-            SaberModelController saberModelController = saber.gameObject.GetComponentInChildren<SaberModelController>(true);
-            if (Plugin.SiraUtilInstalled)
+            if (Colorizers.TryGetValue(_saberType, out List<SaberColorizer> colorizers))
             {
-                _doColor = false;
+                _saberType = saber.saberType;
 
-                _saberModelController = saberModelController;
+                SaberModelController saberModelController = saber.gameObject.GetComponentInChildren<SaberModelController>(true);
+                if (Plugin.SiraUtilInstalled && IsColorable(saberModelController))
+                {
+                    _doColor = false;
+
+                    _saberModelController = saberModelController;
+                }
+                else
+                {
+                    _doColor = true;
+
+                    _saberTrail = _saberTrailAccessor(ref saberModelController);
+                    _trailTintColor = _initDataAccessor(ref saberModelController).trailTintColor;
+                    _setSaberGlowColors = _setSaberGlowColorsAccessor(ref saberModelController);
+                    _setSaberFakeGlowColors = _setSaberFakeGlowColorsAccessor(ref saberModelController);
+                    _saberLight = _saberLightAccessor(ref saberModelController);
+                }
+
+                _lastColor = _colorManagerAccessor(ref saberModelController).ColorForSaberType(_saberType);
+                OriginalColor = _lastColor;
+
+                colorizers.Add(this);
             }
             else
             {
-                _doColor = true;
-
-                _saberTrail = _saberTrailAccessor(ref saberModelController);
-                _trailTintColor = _initDataAccessor(ref saberModelController).trailTintColor;
-                _setSaberGlowColors = _setSaberGlowColorsAccessor(ref saberModelController);
-                _setSaberFakeGlowColors = _setSaberFakeGlowColorsAccessor(ref saberModelController);
-                _saberLight = _saberLightAccessor(ref saberModelController);
+                Plugin.Logger.Log($"Could not create SaberColorizer for saber type [{_saberType}]");
             }
-
-            Colorizers.Add(_saberType, this);
         }
 
         internal static event Action<SaberType, Color> SaberColorChanged;
 
-        public static Dictionary<SaberType, SaberColorizer> Colorizers { get; } = new Dictionary<SaberType, SaberColorizer>();
+        public static Dictionary<SaberType, List<SaberColorizer>> Colorizers { get; } = new Dictionary<SaberType, List<SaberColorizer>>()
+        {
+            { SaberType.SaberA, new List<SaberColorizer>() },
+            { SaberType.SaberB, new List<SaberColorizer>() },
+        };
 
         public static Color?[] GlobalColor { get; private set; } = new Color?[2];
 
         protected override Color? GlobalColorGetter => GlobalColor[(int)_saberType];
 
-        public static void GlobalColorize(Color? color, SaberType colorType)
+        public static void GlobalColorize(Color? color, SaberType saberType)
         {
-            GlobalColor[(int)colorType] = color;
-            if (colorType.TryGetSaberColorizer(out SaberColorizer saberColorizer))
+            GlobalColor[(int)saberType] = color;
+            if (saberType.TryGetSaberColorizer(out List<SaberColorizer> colorizers))
             {
-                saberColorizer.Refresh();
+                colorizers.ForEach(n => n.Refresh());
             }
         }
 
@@ -130,6 +146,11 @@
         }
 
         // SiraUtil stuff
+        private bool IsColorable(SaberModelController saberModelController)
+        {
+            return saberModelController is IColorable;
+        }
+
         private void ColorColorable(Color color)
         {
             if (_saberModelController is IColorable colorable)

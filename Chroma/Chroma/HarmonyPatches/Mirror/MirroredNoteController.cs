@@ -2,7 +2,6 @@
 {
     using Chroma.Colorizer;
     using HarmonyLib;
-    using Heck;
 
     internal static class MirroredNoteControllerHelper
     {

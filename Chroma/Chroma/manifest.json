@@ -7,7 +7,7 @@
   "name": "Chroma",
   "version": "2.4.5",
   "dependsOn": {
-    "Heck": "1.0.0",
+    " Heck": "^1.0.0",
     "BeatSaberMarkupLanguage": "^1.5.3",
     "CustomJSONData": "^1.1.4",
     "SongCore": "^3.4.1",

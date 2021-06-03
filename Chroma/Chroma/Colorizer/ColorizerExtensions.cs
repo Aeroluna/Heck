@@ -1,6 +1,7 @@
 ﻿namespace Chroma.Colorizer
 {
     using System;
+    using System.Collections.Generic;
     using UnityEngine;
 
     public static class ColorizerExtensions
@@ -41,7 +42,7 @@
             }
         }
 
-        public static bool TryGetSaberColorizer(this SaberType saber, out SaberColorizer colorizer)
+        public static bool TryGetSaberColorizer(this SaberType saber, out List<SaberColorizer> colorizer)
         {
             if (SaberColorizer.Colorizers.TryGetValue(saber, out colorizer))
             {
@@ -103,9 +104,9 @@
 
         public static void ColorizeSaber(this SaberType saber, Color? color)
         {
-            if (saber.TryGetSaberColorizer(out SaberColorizer colorizer))
+            if (saber.TryGetSaberColorizer(out List<SaberColorizer> colorizers))
             {
-                colorizer.Colorize(color);
+                colorizers.ForEach(n => n.Colorize(color));
             }
         }
 
