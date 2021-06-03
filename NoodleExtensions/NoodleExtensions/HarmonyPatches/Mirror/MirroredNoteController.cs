@@ -5,6 +5,26 @@
 
     internal static class MirroredNoteControllerHelper
     {
+        internal static bool CheckSkip(Transform noteTransform, Transform followedNoteTransform)
+        {
+            if (followedNoteTransform.position.y < 0)
+            {
+                if (noteTransform.gameObject.activeInHierarchy)
+                {
+                    noteTransform.gameObject.SetActive(false);
+                }
+
+                return false;
+            }
+
+            if (!noteTransform.gameObject.activeInHierarchy)
+            {
+                noteTransform.gameObject.SetActive(true);
+            }
+
+            return true;
+        }
+
         internal static void UpdateMirror(Transform objectTransform, Transform noteTransform, Transform followedObjectTransform, Transform followedNoteTransform, NoteControllerBase noteController, NoteControllerBase followedNote)
         {
             if (objectTransform.localScale != followedObjectTransform.localScale)
@@ -40,6 +60,11 @@
     [HeckPatch("UpdatePositionAndRotation")]
     internal static class MirroredNoteControllerINoteMirrorableUpdatePositionAndRotation
     {
+        private static bool Prefix(Transform ____noteTransform, Transform ____followedNoteTransform)
+        {
+            return MirroredNoteControllerHelper.CheckSkip(____noteTransform, ____followedNoteTransform);
+        }
+
         private static void Postfix(MirroredNoteController<INoteMirrorable> __instance, INoteMirrorable ___followedNote, Transform ____objectTransform, Transform ____noteTransform, Transform ____followedObjectTransform, Transform ____followedNoteTransform)
         {
             MirroredNoteControllerHelper.UpdateMirror(____objectTransform, ____noteTransform, ____followedObjectTransform, ____followedNoteTransform, __instance, (NoteControllerBase)___followedNote);
@@ -50,6 +75,11 @@
     [HeckPatch("UpdatePositionAndRotation")]
     internal static class MirroredNoteControllerICubeNoteMirrorableUpdatePositionAndRotation
     {
+        private static bool Prefix(Transform ____noteTransform, Transform ____followedNoteTransform)
+        {
+            return MirroredNoteControllerHelper.CheckSkip(____noteTransform, ____followedNoteTransform);
+        }
+
         private static void Postfix(MirroredNoteController<ICubeNoteMirrorable> __instance, ICubeNoteMirrorable ___followedNote, Transform ____objectTransform, Transform ____noteTransform, Transform ____followedObjectTransform, Transform ____followedNoteTransform)
         {
             MirroredNoteControllerHelper.UpdateMirror(____objectTransform, ____noteTransform, ____followedObjectTransform, ____followedNoteTransform, __instance, (NoteControllerBase)___followedNote);

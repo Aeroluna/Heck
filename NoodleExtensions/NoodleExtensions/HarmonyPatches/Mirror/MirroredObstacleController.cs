@@ -1,10 +1,5 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using HarmonyLib;
     using Heck;
     using UnityEngine;
 
@@ -13,8 +8,16 @@
     internal static class MirroredObstacleControllerUpdatePositionAndRotation
     {
         // Must be overwritten to compensate for rotation
-        private static void Postfix(MirroredObstacleController __instance, ObstacleController ____followedObstacle, Transform ____transform, Transform ____followedTransform)
+        private static bool Prefix(MirroredObstacleController __instance, ObstacleController ____followedObstacle, Transform ____transform, Transform ____followedTransform)
         {
+            // do not reflection walls above the mirror
+            if (____followedTransform.position.y < 0)
+            {
+                // idk how to hide it without disabling the update
+                ____transform.position = new Vector3(0, 100, 0);
+                return false;
+            }
+
             Vector3 position = ____followedTransform.position;
             Quaternion quaternion = ____followedTransform.rotation;
             position.y = -position.y;
@@ -33,6 +36,8 @@
                     cutoutAnimateEffect.SetCutout(followedCutoutAnimateEffect.Cutout);
                 }
             }
+
+            return false;
         }
     }
 }
