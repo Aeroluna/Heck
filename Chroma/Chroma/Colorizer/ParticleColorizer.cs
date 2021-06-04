@@ -34,18 +34,29 @@
             InitializeSO("_lightColor1", 1);
             InitializeSO("_highlightColor1", 1, true);
 
-            Colorizers.Add(beatmapEventType, this);
+            GetOrCreateColorizerList(beatmapEventType).Add(this);
 
             LightColorizer.LightColorChanged += OnLightColorChanged;
         }
 
-        public static Dictionary<BeatmapEventType, ParticleColorizer> Colorizers { get; } = new Dictionary<BeatmapEventType, ParticleColorizer>();
+        public static Dictionary<BeatmapEventType, List<ParticleColorizer>> Colorizers { get; } = new Dictionary<BeatmapEventType, List<ParticleColorizer>>();
 
         internal int PreviousValue { get; set; }
 
         internal void UnsubscribeEvent()
         {
             LightColorizer.LightColorChanged -= OnLightColorChanged;
+        }
+
+        private static List<ParticleColorizer> GetOrCreateColorizerList(BeatmapEventType eventType)
+        {
+            if (!Colorizers.TryGetValue(eventType, out List<ParticleColorizer> colorizers))
+            {
+                colorizers = new List<ParticleColorizer>();
+                Colorizers.Add(eventType, colorizers);
+            }
+
+            return colorizers;
         }
 
         private void OnLightColorChanged(BeatmapEventType eventType, Color[] colors)

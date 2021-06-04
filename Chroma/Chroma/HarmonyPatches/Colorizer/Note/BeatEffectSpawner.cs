@@ -13,10 +13,7 @@
         {
             if (noteController.noteData.colorType == ColorType.None)
             {
-                if (noteController.TryGetBombColorizer(out BombColorizer bombColorizer))
-                {
-                    ____bombColorEffect = bombColorizer.Color.ColorWithAlpha(0.5f);
-                }
+                ____bombColorEffect = noteController.GetBombColorizer().Color.ColorWithAlpha(0.5f);
             }
             else
             {

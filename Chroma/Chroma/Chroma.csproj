@@ -44,8 +44,9 @@
   <ItemGroup>
     <Compile Include="AnimationHelper.cs" />
     <Compile Include="Colorizer\BombColorizer.cs" />
-    <Compile Include="Colorizer\Saber\ChromaClashEffectController.cs" />
-    <Compile Include="Colorizer\Saber\ChromaSaberController.cs" />
+    <Compile Include="Colorizer\Monobehaviours\ChromaClashEffectController.cs" />
+    <Compile Include="Colorizer\Monobehaviours\ChromaParticleEventController.cs" />
+    <Compile Include="Colorizer\Monobehaviours\ChromaSaberController.cs" />
     <Compile Include="Colorizer\ColorizerExtensions.cs" />
     <Compile Include="Colorizer\ParticleColorizer.cs" />
     <Compile Include="Colorizer\LightColorizer.cs" />

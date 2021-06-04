@@ -22,9 +22,13 @@
             _materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref colorNoteVisuals);
             _noteController = noteController;
 
+            // Custom notes means there is a chance that _colorManager is null
             ColorManager colorManager = _colorManagerAccessor(ref colorNoteVisuals);
-            OriginalColors[0] = colorManager.ColorForType(ColorType.ColorA);
-            OriginalColors[1] = colorManager.ColorForType(ColorType.ColorB);
+            if (colorManager != null)
+            {
+                OriginalColors[0] = colorManager.ColorForType(ColorType.ColorA);
+                OriginalColors[1] = colorManager.ColorForType(ColorType.ColorB);
+            }
 
             Colorizers.Add(noteController, this);
         }
@@ -79,10 +83,7 @@
                 SaberType saberType = noteCutInfo.saberType;
                 if ((int)noteData.colorType == (int)saberType)
                 {
-                    if (noteController.TryGetNoteColorizer(out NoteColorizer noteColorizer))
-                    {
-                        saberType.ColorizeSaber(noteColorizer.Color);
-                    }
+                    saberType.ColorizeSaber(noteController.GetNoteColorizer().Color);
                 }
             }
         }

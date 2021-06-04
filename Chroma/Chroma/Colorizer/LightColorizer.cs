@@ -144,11 +144,9 @@
             switch (lightWithId)
             {
                 case LightWithIdMonoBehaviour monoBehaviour:
-                    if (((BeatmapEventType)(monoBehaviour.lightId - 1)).TryGetLightColorizer(out lightColorizer))
-                    {
-                        LightIDTableManager.RegisterIndex(monoBehaviour.lightId - 1, lightColorizer.Lights.Count);
-                        lightColorizer.Lights.Add(monoBehaviour);
-                    }
+                    lightColorizer = ((BeatmapEventType)(monoBehaviour.lightId - 1)).GetLightColorizer();
+                    LightIDTableManager.RegisterIndex(monoBehaviour.lightId - 1, lightColorizer.Lights.Count);
+                    lightColorizer.Lights.Add(monoBehaviour);
 
                     break;
 
@@ -156,11 +154,9 @@
                     IEnumerable<ILightWithId> lightsWithId = ((IEnumerable)_lightWithIdsData.GetValue(lightWithId)).Cast<ILightWithId>();
                     foreach (ILightWithId light in lightsWithId)
                     {
-                        if (((BeatmapEventType)(light.lightId - 1)).TryGetLightColorizer(out lightColorizer))
-                        {
-                            LightIDTableManager.RegisterIndex(light.lightId - 1, lightColorizer.Lights.Count);
-                            lightColorizer.Lights.Add(light);
-                        }
+                        lightColorizer = ((BeatmapEventType)(light.lightId - 1)).GetLightColorizer();
+                        LightIDTableManager.RegisterIndex(light.lightId - 1, lightColorizer.Lights.Count);
+                        lightColorizer.Lights.Add(light);
                     }
 
                     break;

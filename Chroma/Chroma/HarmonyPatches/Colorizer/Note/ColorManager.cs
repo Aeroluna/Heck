@@ -12,10 +12,7 @@
 
         internal static void EnableColorOverride(NoteControllerBase noteController)
         {
-            if (noteController.TryGetNoteColorizer(out NoteColorizer noteColorizer))
-            {
-                _noteColorOverride = noteColorizer.Color;
-            }
+            _noteColorOverride = noteController.GetNoteColorizer().Color;
         }
 
         internal static void DisableColorOverride()

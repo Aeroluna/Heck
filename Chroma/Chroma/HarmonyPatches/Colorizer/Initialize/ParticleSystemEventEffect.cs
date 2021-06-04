@@ -1,6 +1,7 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using System.Collections;
+    using System.Collections.Generic;
     using Chroma.Colorizer;
     using HarmonyLib;
     using UnityEngine;
@@ -11,29 +12,20 @@
     {
         private static void Postfix(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)
         {
+            // If duplicated, clean up before duping
+            ChromaParticleEventController oldController = __instance.GetComponent<ChromaParticleEventController>();
+            if (oldController != null)
+            {
+                Object.Destroy(oldController);
+            }
+
             __instance.StartCoroutine(WaitThenStart(__instance, ____colorEvent));
         }
 
         private static IEnumerator WaitThenStart(ParticleSystemEventEffect instance, BeatmapEventType eventType)
         {
             yield return new WaitForEndOfFrame();
-            new ParticleColorizer(instance, eventType);
-        }
-    }
-
-    [HarmonyPatch(typeof(ParticleSystemEventEffect))]
-    [HarmonyPatch("OnDestroy")]
-    internal static class ParticleSystemEventEffectOnDestroy
-    {
-        [HarmonyPriority(Priority.Low)]
-        private static void Postfix(BeatmapEventType ____colorEvent)
-        {
-            if (____colorEvent.TryGetParticleColorizer(out ParticleColorizer particleColorizer))
-            {
-                particleColorizer.UnsubscribeEvent();
-            }
-
-            ParticleColorizer.Colorizers.Remove(____colorEvent);
+            instance.gameObject.AddComponent<ChromaParticleEventController>().Init(instance, eventType);
         }
     }
 
@@ -43,9 +35,10 @@
     {
         private static void Prefix(BeatmapEventData beatmapEventData, BeatmapEventType ____colorEvent)
         {
-            if (beatmapEventData.type == ____colorEvent && ParticleColorizer.Colorizers.TryGetValue(____colorEvent, out ParticleColorizer particleColorizer))
+            if (beatmapEventData.type == ____colorEvent)
             {
-                particleColorizer.PreviousValue = beatmapEventData.value;
+                // Some redundancy here but fuck it
+                ____colorEvent.GetParticleColorizers().ForEach(n => n.PreviousValue = beatmapEventData.value);
             }
         }
     }

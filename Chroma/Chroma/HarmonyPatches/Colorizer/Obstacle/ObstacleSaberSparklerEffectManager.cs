@@ -50,11 +50,8 @@
 
         private static void SetObstacleSaberSparkleColor(ObstacleSaberSparkleEffect obstacleSaberSparkleEffect, ObstacleController obstacleController)
         {
-            if (obstacleController.TryGetObstacleColorizer(out ObstacleColorizer obstacleColorizer))
-            {
-                Color.RGBToHSV(obstacleColorizer.Color, out float h, out float s, out _);
-                obstacleSaberSparkleEffect.color = Color.HSVToRGB(h, s, 1);
-            }
+            Color.RGBToHSV(obstacleController.GetObstacleColorizer().Color, out float h, out float s, out _);
+            obstacleSaberSparkleEffect.color = Color.HSVToRGB(h, s, 1);
         }
     }
 }

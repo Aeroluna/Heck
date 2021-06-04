@@ -6,116 +6,26 @@
 
     public static class ColorizerExtensions
     {
-        public static bool TryGetNoteColorizer(this NoteControllerBase noteController, out NoteColorizer colorizer)
-        {
-            if (NoteColorizer.Colorizers.TryGetValue(noteController, out colorizer))
-            {
-                return true;
-            }
-            else
-            {
-                throw new InvalidOperationException("Could not find NoteColorizer");
-            }
-        }
+        public static NoteColorizer GetNoteColorizer(this NoteControllerBase noteController) => NoteColorizer.Colorizers[noteController];
 
-        public static bool TryGetBombColorizer(this NoteControllerBase noteController, out BombColorizer colorizer)
-        {
-            if (BombColorizer.Colorizers.TryGetValue(noteController, out colorizer))
-            {
-                return true;
-            }
-            else
-            {
-                throw new InvalidOperationException("Could not find BombColorizer");
-            }
-        }
+        public static BombColorizer GetBombColorizer(this NoteControllerBase noteController) => BombColorizer.Colorizers[noteController];
 
-        public static bool TryGetObstacleColorizer(this ObstacleControllerBase obstactleController, out ObstacleColorizer colorizer)
-        {
-            if (ObstacleColorizer.Colorizers.TryGetValue(obstactleController, out colorizer))
-            {
-                return true;
-            }
-            else
-            {
-                throw new InvalidOperationException("Could not find ObstacleColorizer");
-            }
-        }
+        public static ObstacleColorizer GetObstacleColorizer(this ObstacleControllerBase obstactleController) => ObstacleColorizer.Colorizers[obstactleController];
 
-        public static bool TryGetSaberColorizer(this SaberType saber, out List<SaberColorizer> colorizer)
-        {
-            if (SaberColorizer.Colorizers.TryGetValue(saber, out colorizer))
-            {
-                return true;
-            }
-            else
-            {
-                throw new InvalidOperationException("Could not find SaberColorizer");
-            }
-        }
+        public static List<SaberColorizer> GetSaberColorizers(this SaberType saber) => SaberColorizer.Colorizers[saber];
 
-        public static bool TryGetLightColorizer(this BeatmapEventType eventType, out LightColorizer colorizer)
-        {
-            if (LightColorizer.Colorizers.TryGetValue(eventType, out colorizer))
-            {
-                return true;
-            }
-            else
-            {
-                throw new InvalidOperationException("Could not find LightColorizer");
-            }
-        }
+        public static LightColorizer GetLightColorizer(this BeatmapEventType eventType) => LightColorizer.Colorizers[eventType];
 
-        public static bool TryGetParticleColorizer(this BeatmapEventType eventType, out ParticleColorizer colorizer)
-        {
-            if (ParticleColorizer.Colorizers.TryGetValue(eventType, out colorizer))
-            {
-                return true;
-            }
-            else
-            {
-                throw new InvalidOperationException("Could not find ParticleColorizer");
-            }
-        }
+        public static List<ParticleColorizer> GetParticleColorizers(this BeatmapEventType eventType) => ParticleColorizer.Colorizers[eventType];
 
-        public static void ColorizeNote(this NoteControllerBase noteController, Color? color)
-        {
-            if (noteController.TryGetNoteColorizer(out NoteColorizer colorizer))
-            {
-                colorizer.Colorize(color);
-            }
-        }
+        public static void ColorizeNote(this NoteControllerBase noteController, Color? color) => noteController.GetNoteColorizer().Colorize(color);
 
-        public static void ColorizeBomb(this NoteControllerBase noteController, Color? color)
-        {
-            if (noteController.TryGetBombColorizer(out BombColorizer colorizer))
-            {
-                colorizer.Colorize(color);
-            }
-        }
+        public static void ColorizeBomb(this NoteControllerBase noteController, Color? color) => noteController.GetBombColorizer().Colorize(color);
 
-        public static void ColorizeObstacle(this ObstacleControllerBase obstactleController, Color? color)
-        {
-            if (obstactleController.TryGetObstacleColorizer(out ObstacleColorizer colorizer))
-            {
-                colorizer.Colorize(color);
-            }
-        }
+        public static void ColorizeObstacle(this ObstacleControllerBase obstactleController, Color? color) => obstactleController.GetObstacleColorizer().Colorize(color);
 
-        public static void ColorizeSaber(this SaberType saber, Color? color)
-        {
-            if (saber.TryGetSaberColorizer(out List<SaberColorizer> colorizers))
-            {
-                colorizers.ForEach(n => n.Colorize(color));
-            }
-        }
+        public static void ColorizeSaber(this SaberType saber, Color? color) => saber.GetSaberColorizers().ForEach(n => n.Colorize(color));
 
-        public static void ColorizeLight(this BeatmapEventType eventType, bool refresh, params Color?[] colors)
-        {
-            if (eventType.TryGetLightColorizer(out LightColorizer colorizer))
-            {
-                colorizer.Colorize(refresh, colors);
-            }
-        }
+        public static void ColorizeLight(this BeatmapEventType eventType, bool refresh, params Color?[] colors) => eventType.GetLightColorizer().Colorize(refresh, colors);
     }
 }

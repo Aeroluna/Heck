@@ -9,10 +9,7 @@
     {
         private static void Postfix(MirroredObstacleController __instance, ObstacleController ____followedObstacle)
         {
-            if (____followedObstacle.TryGetObstacleColorizer(out ObstacleColorizer obstacleColorizer))
-            {
-                __instance.ColorizeObstacle(obstacleColorizer.Color);
-            }
+            __instance.ColorizeObstacle(____followedObstacle.GetObstacleColorizer().Color);
         }
     }
 }

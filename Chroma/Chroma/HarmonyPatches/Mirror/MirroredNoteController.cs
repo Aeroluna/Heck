@@ -9,17 +9,11 @@
         {
             if (noteController is MirroredBombNoteController)
             {
-                if (followedNote.TryGetBombColorizer(out BombColorizer bombColorizer))
-                {
-                    noteController.ColorizeBomb(bombColorizer.Color);
-                }
+                noteController.ColorizeBomb(followedNote.GetBombColorizer().Color);
             }
             else
             {
-                if (followedNote.TryGetNoteColorizer(out NoteColorizer noteColorizer))
-                {
-                    noteController.ColorizeNote(noteColorizer.Color);
-                }
+                noteController.ColorizeNote(followedNote.GetNoteColorizer().Color);
             }
         }
     }

@@ -40,9 +40,9 @@
 
             // propID is now DEPRECATED!!!!!!!!
             object propID = chromaData.PropID;
-            if (propID != null && beatmapEventData.type.TryGetLightColorizer(out LightColorizer lightColorizer))
+            if (propID != null)
             {
-                ILightWithId[][] lights = lightColorizer.LightsPropagationGrouped;
+                ILightWithId[][] lights = beatmapEventData.type.GetLightColorizer().LightsPropagationGrouped;
                 int lightCount = lights.Length;
                 switch (propID)
                 {

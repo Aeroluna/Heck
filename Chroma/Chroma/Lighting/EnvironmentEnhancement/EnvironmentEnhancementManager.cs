@@ -219,7 +219,15 @@
                 }
             }
 
-            LegacyEnvironmentRemoval.Init(customBeatmapData);
+            try
+            {
+                LegacyEnvironmentRemoval.Init(customBeatmapData);
+            }
+            catch (Exception e)
+            {
+                Plugin.Logger.Log("Could not run Legacy Enviroment Removal");
+                Plugin.Logger.Log(e);
+            }
         }
 
         private static List<GameObjectInfo> LookupID(string id, LookupMethod lookupMethod)

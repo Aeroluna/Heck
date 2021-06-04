@@ -12,13 +12,14 @@
     {
         private static bool Prefix(BeatmapEventType ____event, Color color)
         {
-            if (LightColorManager.LightIDOverride != null && ____event.TryGetLightColorizer(out LightColorizer lightColorizer))
+            if (LightColorManager.LightIDOverride != null)
             {
+                List<ILightWithId> lights = ____event.GetLightColorizer().Lights;
                 int type = (int)____event;
                 IEnumerable<int> newIds = LightColorManager.LightIDOverride.Select(n => LightIDTableManager.GetActiveTableValue(type, n) ?? n);
                 foreach (int id in newIds)
                 {
-                    ILightWithId lightWithId = lightColorizer.Lights.ElementAtOrDefault(id);
+                    ILightWithId lightWithId = lights.ElementAtOrDefault(id);
                     if (lightWithId != null)
                     {
                         if (lightWithId.isRegistered)
