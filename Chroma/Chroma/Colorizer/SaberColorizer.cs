@@ -37,6 +37,8 @@
         {
             if (Colorizers.TryGetValue(_saberType, out List<SaberColorizer> colorizers))
             {
+                Saber = saber;
+
                 _saberType = saber.saberType;
 
                 SaberModelController saberModelController = saber.gameObject.GetComponentInChildren<SaberModelController>(true);
@@ -64,7 +66,7 @@
             }
             else
             {
-                Plugin.Logger.Log($"Could not create SaberColorizer for saber type [{_saberType}]");
+                Plugin.Logger.Log($"Could not create SaberColorizer for saber type [{_saberType}]", IPA.Logging.Logger.Level.Error);
             }
         }
 
@@ -77,6 +79,8 @@
         };
 
         public static Color?[] GlobalColor { get; private set; } = new Color?[2];
+
+        internal Saber Saber { get; set; }
 
         protected override Color? GlobalColorGetter => GlobalColor[(int)_saberType];
 
