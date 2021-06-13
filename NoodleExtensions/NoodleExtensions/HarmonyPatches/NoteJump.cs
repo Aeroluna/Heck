@@ -62,46 +62,59 @@
                     instructionList[i].opcode == OpCodes.Stloc_0)
                 {
                     foundTime = true;
-                    instructionList.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldfld, _jumpDurationField));
-                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Call, _noteJumpTimeAdjust));
+                    CodeInstruction[] codeInstructions = new CodeInstruction[]
+                    {
+                        new CodeInstruction(OpCodes.Ldarg_0),
+                        new CodeInstruction(OpCodes.Ldfld, _jumpDurationField),
+                        new CodeInstruction(OpCodes.Call, _noteJumpTimeAdjust),
+                    };
+
+                    instructionList.InsertRange(i, codeInstructions);
                 }
 
                 if (!foundFinalPosition &&
                     instructionList[i].opcode == OpCodes.Stind_R4)
                 {
                     foundFinalPosition = true;
-                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Ldarg_0));
-                    instructionList.Insert(i + 3, new CodeInstruction(OpCodes.Ldarg_0));
-                    instructionList.Insert(i + 4, new CodeInstruction(OpCodes.Ldfld, _localPositionField));
-                    instructionList.Insert(i + 5, new CodeInstruction(OpCodes.Ldloc_1));
-                    instructionList.Insert(i + 6, new CodeInstruction(OpCodes.Call, _definiteNoteJump));
-                    instructionList.Insert(i + 7, new CodeInstruction(OpCodes.Stfld, _localPositionField));
+                    CodeInstruction[] codeInstructions = new CodeInstruction[]
+                    {
+                        new CodeInstruction(OpCodes.Ldarg_0),
+                        new CodeInstruction(OpCodes.Ldarg_0),
+                        new CodeInstruction(OpCodes.Ldfld, _localPositionField),
+                        new CodeInstruction(OpCodes.Ldloc_1),
+                        new CodeInstruction(OpCodes.Call, _definiteNoteJump),
+                        new CodeInstruction(OpCodes.Stfld, _localPositionField),
+                    };
+                    instructionList.InsertRange(i + 2, codeInstructions);
                 }
 
-                // is there a better way of checking labels?
+                // temporarily replacing label checks
                 if (!foundZOffset &&
-                    instructionList[i].operand is Label &&
-                    instructionList[i].operand.GetHashCode() == 21)
+                    instructionList[i].opcode == OpCodes.Ldfld &&
+                    ((FieldInfo)instructionList[i].operand).Name == "_endDistanceOffset")
                 {
                     foundZOffset = true;
 
                     // Add addition check to our quirky little variable to skip end position offset when we are using definitePosition
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldsfld, _definitePositionField));
-                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Brtrue_S, instructionList[i].operand));
+                    CodeInstruction[] codeInstructions = new CodeInstruction[]
+                    {
+                        new CodeInstruction(OpCodes.Ldsfld, _definitePositionField),
+                        new CodeInstruction(OpCodes.Brtrue_S, instructionList[i - 20].operand),
+                    };
+                    instructionList.InsertRange(i - 19, codeInstructions);
                 }
 
                 // Override all the rotation stuff
                 if (!foundLook &&
-                    instructionList[i].opcode == OpCodes.Bge_Un &&
-                    instructionList[i].operand.GetHashCode() == 6)
+                    instructionList[i].opcode == OpCodes.Ldfld &&
+                    ((FieldInfo)instructionList[i].operand).Name == "_startRotation")
                 {
-                    Label label = (Label)instructionList[i].operand;
+                    Label label = (Label)instructionList[i - 5].operand;
                     int endIndex = instructionList.FindIndex(n => n.labels.Contains(label));
 
                     foundLook = true;
 
-                    instructionList.RemoveRange(i + 1, endIndex - i - 1);
+                    instructionList.RemoveRange(i - 4, endIndex - i + 4);
 
                     // This is where the fun begins
                     CodeInstruction[] codeInstructions = new CodeInstruction[]
@@ -123,7 +136,7 @@
                         new CodeInstruction(OpCodes.Ldfld, _inverseWorldRotationField),
                         new CodeInstruction(OpCodes.Call, _doNoteLook),
                     };
-                    instructionList.InsertRange(i + 1, codeInstructions);
+                    instructionList.InsertRange(i - 4, codeInstructions);
                 }
             }
 

@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
     using Heck;
@@ -17,14 +18,18 @@
             for (int i = 0; i < instructionList.Count; i++)
             {
                 if (!foundCondition &&
-                    instructionList[i].operand is Label &&
-                    instructionList[i].operand.GetHashCode() == 1)
+                    instructionList[i].opcode == OpCodes.Callvirt &&
+                    ((MethodInfo)instructionList[i].operand).Name == "get_hasPassedAvoidedMark")
                 {
                     foundCondition = true;
 
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldloc_1));
-                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Call, FakeNoteHelper._boundsNullCheck));
-                    instructionList.Insert(i + 3, new CodeInstruction(OpCodes.Brtrue_S, instructionList[i].operand));
+                    CodeInstruction[] codeInstructions = new CodeInstruction[]
+                    {
+                        new CodeInstruction(OpCodes.Ldloc_1),
+                        new CodeInstruction(OpCodes.Call, FakeNoteHelper._boundsNullCheck),
+                        new CodeInstruction(OpCodes.Brtrue_S, instructionList[i + 1].operand),
+                    };
+                    instructionList.InsertRange(i + 2, codeInstructions);
                 }
             }
 
