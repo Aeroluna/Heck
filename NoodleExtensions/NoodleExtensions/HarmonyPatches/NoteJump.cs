@@ -39,7 +39,7 @@
             NoodleObjectData noodleData = NoteControllerUpdate.NoodleData;
             if (noodleData != null)
             {
-                float? time = (float?)Heck.Animation.AnimationHelper.TryGetPropertyAsObject(noodleData.Track, Plugin.TIME);
+                float? time = (float?)Heck.Animation.AnimationHelper.TryGetProperty(noodleData.Track, Plugin.TIME);
                 if (time.HasValue)
                 {
                     return time.Value * jumpDuration;

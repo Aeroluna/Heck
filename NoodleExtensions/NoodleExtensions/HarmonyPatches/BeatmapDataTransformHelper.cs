@@ -67,23 +67,13 @@
                     BeatmapLineData beatmapLineData = customBeatmapData.beatmapLinesData[i] as BeatmapLineData;
                     foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
                     {
-                        dynamic customData;
-                        if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData || beatmapObjectData is CustomWaypointData)
-                        {
-                            customData = beatmapObjectData;
-                        }
-                        else
-                        {
-                            Logger.Log("beatmapObjectData was not CustomObstacleData, CustomNoteData, or CustomWaypointData", IPA.Logging.Logger.Level.Error);
-                            continue;
-                        }
+                        Dictionary<string, object> dynData = beatmapObjectData.GetDataForObject();
 
-                        dynamic dynData = customData.customData;
-                        float noteJumpMovementSpeed = (float?)Trees.at(dynData, NOTEJUMPSPEED) ?? GameplayCoreInstallerInstallBindings.CachedNoteJumpMovementSpeed;
-                        float noteJumpStartBeatOffset = (float?)Trees.at(dynData, NOTESPAWNOFFSET) ?? GameplayCoreInstallerInstallBindings.CachedNoteJumpStartBeatOffset;
+                        float noteJumpMovementSpeed = dynData.Get<float?>(NOTEJUMPSPEED) ?? GameplayCoreInstallerInstallBindings.CachedNoteJumpMovementSpeed;
+                        float noteJumpStartBeatOffset = dynData.Get<float?>(NOTESPAWNOFFSET) ?? GameplayCoreInstallerInstallBindings.CachedNoteJumpStartBeatOffset;
 
                         // how do i not repeat this in a reasonable way
-                        float num = 60f / (float)Trees.at(dynData, "bpm");
+                        float num = 60f / dynData.Get<float>("bpm");
                         float num2 = startHalfJumpDurationInBeats;
                         while (noteJumpMovementSpeed * num * num2 > maxHalfJumpDistance)
                         {
@@ -97,10 +87,10 @@
                         }
 
                         float jumpDuration = num * num2 * 2f;
-                        dynData.aheadTime = moveDuration + (jumpDuration * 0.5f);
+                        dynData["aheadTime"] = moveDuration + (jumpDuration * 0.5f);
                     }
 
-                    _beatmapObjectsDataAccessor(ref beatmapLineData) = beatmapLineData.beatmapObjectsData.OrderBy(n => n.time - (float)((dynamic)n).customData.aheadTime).ToList();
+                    _beatmapObjectsDataAccessor(ref beatmapLineData) = beatmapLineData.beatmapObjectsData.OrderBy(n => n.time - (float)n.GetDataForObject()["aheadTime"]).ToList();
                 }
 
                 return customBeatmapData;

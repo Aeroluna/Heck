@@ -45,7 +45,7 @@
         private static float GetAheadTime(BeatmapObjectCallbackData beatmapObjectCallbackData, BeatmapObjectData beatmapObjectData, float @default)
         {
             if (beatmapObjectCallbackData.callback.Method == _beatmapObjectSpawnControllerCallback &&
-                (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData || beatmapObjectData is WaypointData))
+                (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData))
             {
                 NoodleObjectData noodleData = TryGetObjectData<NoodleObjectData>(beatmapObjectData);
                 if (noodleData != null)

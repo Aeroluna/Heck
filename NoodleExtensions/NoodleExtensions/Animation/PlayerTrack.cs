@@ -68,7 +68,7 @@
 
             if (!paused)
             {
-                Quaternion? rotation = (Quaternion?)TryGetPropertyAsObject(_track, ROTATION);
+                Quaternion? rotation = (Quaternion?)TryGetProperty(_track, ROTATION);
                 if (rotation.HasValue)
                 {
                     if (LeftHandedMode)
@@ -77,7 +77,7 @@
                     }
                 }
 
-                Vector3? position = (Vector3?)TryGetPropertyAsObject(_track, POSITION);
+                Vector3? position = (Vector3?)TryGetProperty(_track, POSITION);
                 if (position.HasValue)
                 {
                     if (LeftHandedMode)
@@ -97,7 +97,7 @@
                 }
 
                 worldRotationQuatnerion *= _startLocalRot;
-                Quaternion? localRotation = (Quaternion?)TryGetPropertyAsObject(_track, LOCALROTATION);
+                Quaternion? localRotation = (Quaternion?)TryGetProperty(_track, LOCALROTATION);
                 if (localRotation.HasValue)
                 {
                     if (LeftHandedMode)

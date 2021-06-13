@@ -18,11 +18,11 @@
         {
             if (__instance is CustomObstacleData customData)
             {
-                dynamic dynData = customData.customData;
-                IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
-                IEnumerable<float?> scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
-                List<float> localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n)).ToList();
-                dynamic rotation = Trees.at(dynData, ROTATION);
+                Dictionary<string, object> dynData = customData.customData;
+                IEnumerable<float?> position = dynData.GetNullableFloats(POSITION);
+                IEnumerable<float?> scale = dynData.GetNullableFloats(SCALE);
+                List<float> localrot = dynData.Get<List<object>>(LOCALROTATION)?.Select(n => Convert.ToSingle(n)).ToList();
+                object rotation = dynData.Get<object>(ROTATION);
 
                 float? startX = position?.ElementAtOrDefault(0);
                 float? scaleX = scale?.ElementAtOrDefault(0);
@@ -59,7 +59,7 @@
                     }
                     else
                     {
-                        dictdata[ROTATION] = rotation * -1;
+                        dictdata[ROTATION] = Convert.ToSingle(rotation) * -1;
                     }
                 }
             }

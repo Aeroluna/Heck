@@ -45,9 +45,9 @@
             Logger = new HeckLogger(pluginLogger);
             HeckData.InitPatches(_harmonyInstance, Assembly.GetExecutingAssembly());
 
-            Heck.Animation.TrackManager.TrackManagerCreated += Animation.AssignPlayerToTrack.OnTrackManagerCreated;
-            Heck.Animation.TrackManager.TrackManagerCreated += Animation.AssignTrackParent.OnTrackManagerCreated;
-            Heck.Animation.TrackManager.TrackCreated += Animation.AnimationHelper.OnTrackCreated;
+            Heck.Animation.TrackBuilder.TrackManagerCreated += Animation.AssignPlayerToTrack.OnTrackManagerCreated;
+            Heck.Animation.TrackBuilder.TrackManagerCreated += Animation.AssignTrackParent.OnTrackManagerCreated;
+            Heck.Animation.TrackBuilder.TrackCreated += Animation.AnimationHelper.OnTrackCreated;
         }
 
         [OnEnable]

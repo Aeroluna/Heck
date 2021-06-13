@@ -40,18 +40,18 @@
                 {
                     NoodleObjectData noodleObjectData;
 
-                    dynamic customData;
+                    Dictionary<string, object> customData;
 
                     switch (beatmapObjectData)
                     {
-                        case CustomNoteData customNoteData:
-                            customData = customNoteData.customData;
-                            noodleObjectData = ProcessCustomNote(customData);
-                            break;
-
                         case CustomObstacleData customObstacleData:
                             customData = customObstacleData.customData;
                             noodleObjectData = ProcessCustomObstacle(customData);
+                            break;
+
+                        case CustomNoteData customNoteData:
+                            customData = customNoteData.customData;
+                            noodleObjectData = ProcessCustomNote(customData);
                             break;
 
                         case CustomWaypointData customWaypointData:
@@ -77,9 +77,9 @@
             }
         }
 
-        private static void FinalizeCustomObject(dynamic dynData, NoodleObjectData noodleObjectData, IReadonlyBeatmapData beatmapData)
+        private static void FinalizeCustomObject(Dictionary<string, object> dynData, NoodleObjectData noodleObjectData, IReadonlyBeatmapData beatmapData)
         {
-            dynamic rotation = Trees.at(dynData, ROTATION);
+            object rotation = dynData.Get<object>(ROTATION);
             if (rotation != null)
             {
                 if (rotation is List<object> list)
@@ -89,82 +89,89 @@
                 }
                 else
                 {
-                    noodleObjectData.WorldRotationQuaternion = Quaternion.Euler(0, (float)rotation, 0);
+                    noodleObjectData.WorldRotationQuaternion = Quaternion.Euler(0, Convert.ToSingle(rotation), 0);
                 }
             }
 
-            IEnumerable<float> localrot = ((List<object>)Trees.at(dynData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
+            IEnumerable<float> localrot = dynData.Get<List<object>>(LOCALROTATION)?.Select(n => Convert.ToSingle(n));
             if (localrot != null)
             {
                 noodleObjectData.LocalRotationQuaternion = Quaternion.Euler(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
             }
 
-            noodleObjectData.Track = AnimationHelper.GetTrackPreload(dynData, beatmapData);
+            noodleObjectData.Track = AnimationHelper.GetTrack(dynData, beatmapData);
 
-            dynamic animationObjectDyn = Trees.at(dynData, "_animation");
-            Dictionary<string, PointDefinition> pointDefinitions = Trees.at(((CustomBeatmapData)beatmapData).customData, "pointDefinitions");
-            Animation.AnimationHelper.GetAllPointData(
-                animationObjectDyn,
-                pointDefinitions,
-                out PointDefinition localPosition,
-                out PointDefinition localRotation,
-                out PointDefinition localScale,
-                out PointDefinition localLocalRotation,
-                out PointDefinition localDissolve,
-                out PointDefinition localDissolveArrow,
-                out PointDefinition localCuttable,
-                out PointDefinition localDefinitePosition);
-            NoodleObjectData.AnimationObjectData animationObjectData = new NoodleObjectData.AnimationObjectData
+            Dictionary<string, object> animationObjectDyn = dynData.Get<Dictionary<string, object>>("_animation");
+            if (animationObjectDyn != null)
             {
-                LocalPosition = localPosition,
-                LocalRotation = localRotation,
-                LocalScale = localScale,
-                LocalLocalRotation = localLocalRotation,
-                LocalDissolve = localDissolve,
-                LocalDissolveArrow = localDissolveArrow,
-                LocalCuttable = localCuttable,
-                LocalDefinitePosition = localDefinitePosition,
-            };
-            noodleObjectData.AnimationObject = animationObjectData;
+                Dictionary<string, PointDefinition> pointDefinitions = ((CustomBeatmapData)beatmapData).customData.Get<Dictionary<string, PointDefinition>>("pointDefinitions");
+                Animation.AnimationHelper.GetAllPointData(
+                    animationObjectDyn,
+                    pointDefinitions,
+                    out PointDefinition localPosition,
+                    out PointDefinition localRotation,
+                    out PointDefinition localScale,
+                    out PointDefinition localLocalRotation,
+                    out PointDefinition localDissolve,
+                    out PointDefinition localDissolveArrow,
+                    out PointDefinition localCuttable,
+                    out PointDefinition localDefinitePosition);
+                NoodleObjectData.AnimationObjectData animationObjectData = new NoodleObjectData.AnimationObjectData
+                {
+                    LocalPosition = localPosition,
+                    LocalRotation = localRotation,
+                    LocalScale = localScale,
+                    LocalLocalRotation = localLocalRotation,
+                    LocalDissolve = localDissolve,
+                    LocalDissolveArrow = localDissolveArrow,
+                    LocalCuttable = localCuttable,
+                    LocalDefinitePosition = localDefinitePosition,
+                };
+                noodleObjectData.AnimationObject = animationObjectData;
+            }
+            else
+            {
+                noodleObjectData.AnimationObject = new NoodleObjectData.AnimationObjectData();
+            }
 
-            noodleObjectData.Cuttable = Trees.at(dynData, CUTTABLE);
-            noodleObjectData.Fake = Trees.at(dynData, FAKENOTE);
+            noodleObjectData.Cuttable = dynData.Get<bool?>(CUTTABLE);
+            noodleObjectData.Fake = dynData.Get<bool?>(FAKENOTE);
 
-            IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
+            IEnumerable<float?> position = dynData.GetNullableFloats(POSITION);
             noodleObjectData.StartX = position?.ElementAtOrDefault(0);
             noodleObjectData.StartY = position?.ElementAtOrDefault(1);
 
-            noodleObjectData.NJS = (float?)Trees.at(dynData, NOTEJUMPSPEED);
-            noodleObjectData.SpawnOffset = (float?)Trees.at(dynData, NOTESPAWNOFFSET);
-            noodleObjectData.AheadTimeInternal = (float?)Trees.at(dynData, "aheadTime");
+            noodleObjectData.NJS = dynData.Get<float?>(NOTEJUMPSPEED);
+            noodleObjectData.SpawnOffset = dynData.Get<float?>(NOTESPAWNOFFSET);
+            noodleObjectData.AheadTimeInternal = dynData.Get<float?>("aheadTime");
         }
 
-        private static NoodleNoteData ProcessCustomNote(dynamic dynData)
+        private static NoodleNoteData ProcessCustomNote(Dictionary<string, object> dynData)
         {
             NoodleNoteData noodleNoteData = new NoodleNoteData();
 
-            float? cutDir = (float?)Trees.at(dynData, CUTDIRECTION);
+            float? cutDir = dynData.Get<float?>(CUTDIRECTION);
             if (cutDir.HasValue)
             {
                 noodleNoteData.CutQuaternion = Quaternion.Euler(0, 0, cutDir.Value);
             }
 
-            noodleNoteData.FlipYSideInternal = (float?)Trees.at(dynData, "flipYSide");
-            noodleNoteData.FlipLineIndexInternal = (float?)Trees.at(dynData, "flipLineIndex");
+            noodleNoteData.FlipYSideInternal = dynData.Get<float?>("flipYSide");
+            noodleNoteData.FlipLineIndexInternal = dynData.Get<float?>("flipLineIndex");
 
-            noodleNoteData.StartNoteLineLayerInternal = (float?)Trees.at(dynData, "startNoteLineLayer");
+            noodleNoteData.StartNoteLineLayerInternal = dynData.Get<float?>("startNoteLineLayer");
 
-            noodleNoteData.DisableGravity = (bool?)Trees.at(dynData, NOTEGRAVITYDISABLE) ?? false;
-            noodleNoteData.DisableLook = (bool?)Trees.at(dynData, NOTELOOKDISABLE) ?? false;
+            noodleNoteData.DisableGravity = dynData.Get<bool?>(NOTEGRAVITYDISABLE) ?? false;
+            noodleNoteData.DisableLook = dynData.Get<bool?>(NOTELOOKDISABLE) ?? false;
 
             return noodleNoteData;
         }
 
-        private static NoodleObstacleData ProcessCustomObstacle(dynamic dynData)
+        private static NoodleObstacleData ProcessCustomObstacle(Dictionary<string, object> dynData)
         {
             NoodleObstacleData noodleObstacleData = new NoodleObstacleData();
 
-            IEnumerable<float?> scale = ((List<object>)Trees.at(dynData, SCALE))?.Select(n => n.ToNullableFloat());
+            IEnumerable<float?> scale = dynData.GetNullableFloats(SCALE);
             noodleObstacleData.Width = scale?.ElementAtOrDefault(0);
             noodleObstacleData.Height = scale?.ElementAtOrDefault(1);
             noodleObstacleData.Length = scale?.ElementAtOrDefault(2);

@@ -15,7 +15,7 @@
     [HeckPatch("InstallBindings")]
     internal static class MultiplayerConnectedPlayerInstallerInstallBindings
     {
-        private static readonly MethodInfo _excludeFakeNote = SymbolExtensions.GetMethodInfo(() => ExcludeFakeNote(null));
+        private static readonly MethodInfo _excludeFakeNote = SymbolExtensions.GetMethodInfo(() => ExcludeFakeNoteAndAllWalls(null));
 
         private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
 
@@ -43,14 +43,14 @@
             return instructionList.AsEnumerable();
         }
 
-        private static IReadonlyBeatmapData ExcludeFakeNote(IReadonlyBeatmapData result)
+        private static IReadonlyBeatmapData ExcludeFakeNoteAndAllWalls(IReadonlyBeatmapData result)
         {
             foreach (BeatmapLineData b in result.beatmapLinesData)
             {
                 BeatmapLineData refBeatmapLineData = b;
                 _beatmapObjectsDataAccessor(ref refBeatmapLineData) = b.beatmapObjectsData.Where(n =>
                 {
-                    dynamic dynData = null;
+                    Dictionary<string, object> dynData;
 
                     switch (n)
                     {
@@ -65,7 +65,7 @@
                             return true;
                     }
 
-                    bool? fake = Trees.at(dynData, FAKENOTE);
+                    bool? fake = dynData.Get<bool?>(FAKENOTE);
                     if (fake.HasValue && fake.Value)
                     {
                         return false;

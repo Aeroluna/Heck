@@ -1,5 +1,6 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
+    using System.Collections.Generic;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
 
@@ -15,22 +16,12 @@
                 {
                     foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
                     {
-                        dynamic customData;
-                        if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData || beatmapObjectData is WaypointData)
-                        {
-                            customData = beatmapObjectData;
-                        }
-                        else
-                        {
-                            continue;
-                        }
-
-                        dynamic dynData = customData.customData;
+                        Dictionary<string, object> dynData = beatmapObjectData.GetDataForObject();
 
                         // TODO: account for base game bpm changes
                         // for per object njs and spawn offset
                         float bpm = startBpm;
-                        dynData.bpm = bpm;
+                        dynData["bpm"] = bpm;
                     }
                 }
             }

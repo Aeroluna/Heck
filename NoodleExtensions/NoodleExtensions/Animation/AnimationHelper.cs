@@ -75,7 +75,7 @@
             if (pathDefinitePosition.HasValue)
             {
                 Vector3? pathPosition = animationObject.LocalPosition?.Interpolate(time) ?? TryGetVector3PathProperty(track, POSITION, time);
-                Vector3? positionOffset = SumVectorNullables((Vector3?)TryGetPropertyAsObject(track, POSITION), pathPosition);
+                Vector3? positionOffset = SumVectorNullables((Vector3?)TryGetProperty(track, POSITION), pathPosition);
                 definitePosition = SumVectorNullables(positionOffset, pathDefinitePosition) * NoteLinesDistance;
 
                 if (LeftHandedMode)
@@ -99,13 +99,13 @@
             float? pathDissolveArrow = animationObject.LocalDissolveArrow?.InterpolateLinear(time) ?? TryGetLinearPathProperty(track, DISSOLVEARROW, time);
             float? pathCuttable = animationObject.LocalCuttable?.InterpolateLinear(time) ?? TryGetLinearPathProperty(track, CUTTABLE, time);
 
-            positionOffset = SumVectorNullables((Vector3?)TryGetPropertyAsObject(track, POSITION), pathPosition) * NoteLinesDistance;
-            rotationOffset = MultQuaternionNullables((Quaternion?)TryGetPropertyAsObject(track, ROTATION), pathRotation);
-            scaleOffset = MultVectorNullables((Vector3?)TryGetPropertyAsObject(track, SCALE), pathScale);
-            localRotationOffset = MultQuaternionNullables((Quaternion?)TryGetPropertyAsObject(track, LOCALROTATION), pathLocalRotation);
-            dissolve = MultFloatNullables((float?)TryGetPropertyAsObject(track, DISSOLVE), pathDissolve);
-            dissolveArrow = MultFloatNullables((float?)TryGetPropertyAsObject(track, DISSOLVEARROW), pathDissolveArrow);
-            cuttable = MultFloatNullables((float?)TryGetPropertyAsObject(track, CUTTABLE), pathCuttable);
+            positionOffset = SumVectorNullables((Vector3?)TryGetProperty(track, POSITION), pathPosition) * NoteLinesDistance;
+            rotationOffset = MultQuaternionNullables((Quaternion?)TryGetProperty(track, ROTATION), pathRotation);
+            scaleOffset = MultVectorNullables((Vector3?)TryGetProperty(track, SCALE), pathScale);
+            localRotationOffset = MultQuaternionNullables((Quaternion?)TryGetProperty(track, LOCALROTATION), pathLocalRotation);
+            dissolve = MultFloatNullables((float?)TryGetProperty(track, DISSOLVE), pathDissolve);
+            dissolveArrow = MultFloatNullables((float?)TryGetProperty(track, DISSOLVEARROW), pathDissolveArrow);
+            cuttable = MultFloatNullables((float?)TryGetProperty(track, CUTTABLE), pathCuttable);
 
             if (LeftHandedMode)
             {
@@ -115,7 +115,7 @@
             }
         }
 
-        internal static void GetAllPointData(dynamic customData, Dictionary<string, PointDefinition> pointDefinitions, out PointDefinition position, out PointDefinition rotation, out PointDefinition scale, out PointDefinition localRotation, out PointDefinition dissolve, out PointDefinition dissolveArrow, out PointDefinition cuttable, out PointDefinition definitePosition)
+        internal static void GetAllPointData(Dictionary<string, object> customData, Dictionary<string, PointDefinition> pointDefinitions, out PointDefinition position, out PointDefinition rotation, out PointDefinition scale, out PointDefinition localRotation, out PointDefinition dissolve, out PointDefinition dissolveArrow, out PointDefinition cuttable, out PointDefinition definitePosition)
         {
             TryGetPointData(customData, POSITION, out position, pointDefinitions);
             TryGetPointData(customData, ROTATION, out rotation, pointDefinitions);

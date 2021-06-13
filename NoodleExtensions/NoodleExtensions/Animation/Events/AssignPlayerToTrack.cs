@@ -9,15 +9,15 @@
 
     internal static class AssignPlayerToTrack
     {
-        internal static void OnTrackManagerCreated(object trackManager, CustomBeatmapData customBeatmapData)
+        internal static void OnTrackManagerCreated(TrackBuilder trackManager, CustomBeatmapData customBeatmapData)
         {
             List<CustomEventData> customEventsData = customBeatmapData.customEventsData;
             foreach (CustomEventData customEventData in customEventsData)
             {
                 if (customEventData.type == ASSIGNPLAYERTOTRACK)
                 {
-                    string trackName = Trees.at(customEventData.data, TRACK);
-                    ((TrackManager)trackManager).AddTrack(trackName);
+                    string trackName = customEventData.data.Get<string>(TRACK);
+                    trackManager.AddTrack(trackName);
                 }
             }
         }

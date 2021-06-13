@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
     using Heck;
@@ -23,7 +22,7 @@
                 {
                     CustomNoteData noteData = customNotes[i];
 
-                    IEnumerable<float?> position = ((List<object>)Trees.at(noteData.customData, POSITION))?.Select(n => n.ToNullableFloat());
+                    IEnumerable<float?> position = noteData.customData.GetNullableFloats(POSITION);
                     float lineIndex = position?.ElementAtOrDefault(0) ?? (noteData.lineIndex - 2);
                     float lineLayer = position?.ElementAtOrDefault(1) ?? (float)noteData.noteLineLayer;
 
@@ -36,7 +35,7 @@
                     bool flag = false;
                     for (int k = 0; k < list.Count; k++)
                     {
-                        IEnumerable<float?> listPosition = ((List<object>)Trees.at(list[k].customData, POSITION))?.Select(n => n.ToNullableFloat());
+                        IEnumerable<float?> listPosition = list[k].customData.GetNullableFloats(POSITION);
                         float listLineLayer = listPosition?.ElementAtOrDefault(1) ?? (float)list[k].noteLineLayer;
                         if (listLineLayer > lineLayer)
                         {
@@ -57,7 +56,7 @@
                     List<CustomNoteData> list2 = keyValue.Value;
                     for (int m = 0; m < list2.Count; m++)
                     {
-                        list2[m].customData.startNoteLineLayer = m;
+                        list2[m].customData["startNoteLineLayer"] = m;
                     }
                 }
 
@@ -65,27 +64,27 @@
                 List<CustomNoteData> flipNotes = new List<CustomNoteData>(customNotes);
                 for (int i = flipNotes.Count - 1; i >= 0; i--)
                 {
-                    dynamic dynData = flipNotes[i].customData;
-                    IEnumerable<float?> flip = ((List<object>)Trees.at(dynData, FLIP))?.Select(n => n.ToNullableFloat());
+                    Dictionary<string, object> dynData = flipNotes[i].customData;
+                    IEnumerable<float?> flip = dynData.GetNullableFloats(FLIP);
                     float? flipX = flip?.ElementAtOrDefault(0);
                     float? flipY = flip?.ElementAtOrDefault(1);
                     if (flipX.HasValue || flipY.HasValue)
                     {
                         if (flipX.HasValue)
                         {
-                            dynData.flipLineIndex = flipX.Value;
+                            dynData["flipLineIndex"] = flipX.Value;
                         }
 
                         if (flipY.HasValue)
                         {
-                            dynData.flipYSide = flipY.Value;
+                            dynData["flipYSide"] = flipY.Value;
                         }
 
                         flipNotes.Remove(flipNotes[i]);
                     }
                 }
 
-                flipNotes.ForEach(c => c.customData.flipYSide = 0);
+                flipNotes.ForEach(c => c.customData["flipYSide"] = 0);
             }
         }
     }
@@ -107,8 +106,8 @@
                     float[] lineLayers = new float[2];
                     for (int i = 0; i < customNoteCount; i++)
                     {
-                        dynamic dynData = customNotes[i].customData;
-                        IEnumerable<float?> position = ((List<object>)Trees.at(dynData, POSITION))?.Select(n => n.ToNullableFloat());
+                        Dictionary<string, object> dynData = customNotes[i].customData;
+                        IEnumerable<float?> position = dynData.GetNullableFloats(POSITION);
                         lineIndexes[i] = position?.ElementAtOrDefault(0) ?? (customNotes[i].lineIndex - 2);
                         lineLayers[i] = position?.ElementAtOrDefault(1) ?? (float)customNotes[i].noteLineLayer;
                     }
@@ -119,8 +118,9 @@
                         for (int i = 0; i < customNoteCount; i++)
                         {
                             // apparently I can use customData to store my own variables in noteData, neat
-                            dynamic dynData = customNotes[i].customData;
-                            dynData.flipLineIndex = lineIndexes[1 - i];
+                            // ^ comment from a very young and naive aero
+                            Dictionary<string, object> dynData = customNotes[i].customData;
+                            dynData["flipLineIndex"] = lineIndexes[1 - i];
 
                             float flipYSide = (lineIndexes[i] > lineIndexes[1 - i]) ? 1 : -1;
                             if ((lineIndexes[i] > lineIndexes[1 - i] && lineLayers[i] < lineLayers[1 - i]) || (lineIndexes[i] < lineIndexes[1 - i] &&
@@ -129,7 +129,7 @@
                                 flipYSide *= -1f;
                             }
 
-                            dynData.flipYSide = flipYSide;
+                            dynData["flipYSide"] = flipYSide;
                         }
                     }
                 }

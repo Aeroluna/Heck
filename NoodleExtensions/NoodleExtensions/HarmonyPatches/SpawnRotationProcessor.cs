@@ -14,8 +14,7 @@
         {
             if (beatmapEventData.type.IsRotationEvent() && beatmapEventData is CustomBeatmapEventData customData)
             {
-                dynamic dynData = customData.customData;
-                float? rotation = (float?)Trees.at(dynData, ROTATION);
+                float? rotation = customData.customData.Get<float?>(ROTATION);
 
                 if (rotation.HasValue)
                 {

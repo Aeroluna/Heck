@@ -15,11 +15,11 @@
                 NoodleExtensionsActive = value;
                 if (NoodleExtensionsActive)
                 {
-                    CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit += Animation.AnimationController.CustomEventCallbackInit;
+                    CustomJSONData.CustomEventCallbackController.didInitEvent += Animation.AnimationController.CustomEventCallbackInit;
                 }
                 else
                 {
-                    CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit -= Animation.AnimationController.CustomEventCallbackInit;
+                    CustomJSONData.CustomEventCallbackController.didInitEvent -= Animation.AnimationController.CustomEventCallbackInit;
                 }
             }
         }

@@ -45,7 +45,7 @@
                         case ASSIGNPLAYERTOTRACK:
                             noodleEventData = new NoodlePlayerTrackEventData()
                             {
-                                Track = GetTrackPreload(customEventData.data, beatmapData),
+                                Track = GetTrack(customEventData.data, beatmapData),
                             };
                             break;
 
@@ -70,30 +70,30 @@
             }
         }
 
-        private static NoodleParentTrackEventData ProcessParentTrackEvent(dynamic customData, IReadonlyBeatmapData beatmapData)
+        private static NoodleParentTrackEventData ProcessParentTrackEvent(Dictionary<string, object> customData, IReadonlyBeatmapData beatmapData)
         {
-            IEnumerable<float> position = ((List<object>)Trees.at(customData, POSITION))?.Select(n => Convert.ToSingle(n));
+            IEnumerable<float> position = customData.Get<List<object>>(POSITION)?.Select(n => Convert.ToSingle(n));
             Vector3? posVector = null;
             if (position != null)
             {
                 posVector = new Vector3(position.ElementAt(0), position.ElementAt(1), position.ElementAt(2));
             }
 
-            IEnumerable<float> rotation = ((List<object>)Trees.at(customData, ROTATION))?.Select(n => Convert.ToSingle(n));
+            IEnumerable<float> rotation = customData.Get<List<object>>(ROTATION)?.Select(n => Convert.ToSingle(n));
             Quaternion? rotQuaternion = null;
             if (rotation != null)
             {
                 rotQuaternion = Quaternion.Euler(rotation.ElementAt(0), rotation.ElementAt(1), rotation.ElementAt(2));
             }
 
-            IEnumerable<float> localrot = ((List<object>)Trees.at(customData, LOCALROTATION))?.Select(n => Convert.ToSingle(n));
+            IEnumerable<float> localrot = customData.Get<List<object>>(LOCALROTATION)?.Select(n => Convert.ToSingle(n));
             Quaternion? localRotQuaternion = null;
             if (localrot != null)
             {
                 localRotQuaternion = Quaternion.Euler(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
             }
 
-            IEnumerable<float> scale = ((List<object>)Trees.at(customData, SCALE))?.Select(n => Convert.ToSingle(n));
+            IEnumerable<float> scale = customData.Get<List<object>>(SCALE)?.Select(n => Convert.ToSingle(n));
             Vector3? scaleVector = null;
             if (scale != null)
             {
@@ -102,8 +102,8 @@
 
             return new NoodleParentTrackEventData()
             {
-                ParentTrack = GetTrackPreload(customData, beatmapData, "_parentTrack"),
-                ChildrenTracks = GetTrackArrayPreload(customData, beatmapData, "_childrenTracks"),
+                ParentTrack = GetTrack(customData, beatmapData, "_parentTrack"),
+                ChildrenTracks = GetTrackArray(customData, beatmapData, "_childrenTracks"),
                 Position = posVector,
                 Rotation = rotQuaternion,
                 LocalRotation = localRotQuaternion,

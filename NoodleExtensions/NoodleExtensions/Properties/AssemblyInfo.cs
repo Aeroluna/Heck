@@ -5,11 +5,17 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("NoodleExtensions")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Aeroluna")]
+[assembly: AssemblyDescription("Gives mappers a host of new options for mapping, and you the player to play said maps!")]
+#if DEBUG
+
+[assembly: AssemblyConfiguration("Debug")]
+#else
+
+[assembly: AssemblyConfiguration("Release")]
+#endif
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("NoodleExtensions")]
-[assembly: AssemblyCopyright("Copyright © Ramen Noodle 2020")]
+[assembly: AssemblyCopyright("Copyright © Aeroluna 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,5 +37,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.3.16")]
-[assembly: AssemblyFileVersion("1.3.16")]
+[assembly: AssemblyVersion("1.3.17")]
+[assembly: AssemblyFileVersion("1.3.17")]

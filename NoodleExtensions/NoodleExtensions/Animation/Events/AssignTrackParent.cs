@@ -9,15 +9,15 @@
 
     internal class AssignTrackParent
     {
-        internal static void OnTrackManagerCreated(object trackManager, CustomBeatmapData customBeatmapData)
+        internal static void OnTrackManagerCreated(TrackBuilder trackManager, CustomBeatmapData customBeatmapData)
         {
             List<CustomEventData> customEventsData = customBeatmapData.customEventsData;
             foreach (CustomEventData customEventData in customEventsData)
             {
                 if (customEventData.type == ASSIGNTRACKPARENT)
                 {
-                    string trackName = Trees.at(customEventData.data, "_parentTrack");
-                    ((TrackManager)trackManager).AddTrack(trackName);
+                    string trackName = customEventData.data.Get<string>("_parentTrack");
+                    trackManager.AddTrack(trackName);
                 }
             }
         }

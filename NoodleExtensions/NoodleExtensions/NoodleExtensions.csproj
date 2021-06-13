@@ -164,6 +164,7 @@
     <Compile Include="HarmonyPatches\SpawnRotationProcessor.cs" />
     <Compile Include="HarmonyPatches\ObstacleController.cs" />
     <Compile Include="HarmonyPatches\SceneTransition\StandardLevelScenesTransitionSetupDataSO.cs" />
+    <Compile Include="NoodleExtensionsExtensions.cs" />
     <Compile Include="NoodleObjectData.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

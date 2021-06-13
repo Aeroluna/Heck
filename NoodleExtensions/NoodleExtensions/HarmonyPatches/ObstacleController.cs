@@ -7,7 +7,6 @@
     using HarmonyLib;
     using Heck;
     using Heck.Animation;
-    using IPA.Utilities;
     using NoodleExtensions.Animation;
     using UnityEngine;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
@@ -245,7 +244,7 @@
                 NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
                 if (noodleData != null)
                 {
-                    float? time = (float?)Heck.Animation.AnimationHelper.TryGetPropertyAsObject(noodleData.Track, TIME);
+                    float? time = (float?)Heck.Animation.AnimationHelper.TryGetProperty(noodleData.Track, TIME);
                     if (time.HasValue)
                     {
                         return (time.Value * (finishMovementTime - move1Duration)) + move1Duration;

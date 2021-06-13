@@ -15,7 +15,7 @@
 
         internal static void OnCustomBeatmapDataCreated(CustomBeatmapData customBeatmapData)
         {
-            IEnumerable<string> requirements = ((List<object>)Trees.at(customBeatmapData.beatmapCustomData, "_requirements"))?.Cast<string>();
+            IEnumerable<string> requirements = customBeatmapData.beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>();
             bool noodleRequirement = requirements?.Contains(CAPABILITY) ?? false;
 
             if (noodleRequirement)
@@ -31,9 +31,9 @@
                     {
                         if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData)
                         {
-                            dynamic customObjectData = beatmapObjectData;
-                            dynamic dynData = customObjectData.customData;
-                            bool? fake = Trees.at(dynData, FAKENOTE);
+                            Dictionary<string, object> dynData = beatmapObjectData.GetDataForObject();
+
+                            bool? fake = dynData.Get<bool?>(FAKENOTE);
                             if (fake.HasValue && fake.Value)
                             {
                                 continue;
