@@ -1,7 +1,6 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using System.Collections;
-    using System.Collections.Generic;
     using Chroma.Colorizer;
     using HarmonyLib;
     using UnityEngine;

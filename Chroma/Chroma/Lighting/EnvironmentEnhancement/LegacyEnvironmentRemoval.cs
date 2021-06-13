@@ -11,8 +11,7 @@
     {
         internal static void Init(CustomBeatmapData customBeatmap)
         {
-            dynamic dynData = customBeatmap.beatmapCustomData;
-            List<object> objectsToKill = Trees.at(dynData, ENVIRONMENTREMOVAL);
+            IEnumerable<string> objectsToKill = customBeatmap.beatmapCustomData.Get<List<object>>(ENVIRONMENTREMOVAL)?.Cast<string>();
 
             if (objectsToKill != null)
             {
@@ -20,7 +19,7 @@
                 Plugin.Logger.Log("Please do not use Legacy Environment Removal for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", IPA.Logging.Logger.Level.Warning);
 
                 IEnumerable<GameObject> gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-                foreach (string s in objectsToKill.Cast<string>())
+                foreach (string s in objectsToKill)
                 {
                     if (s == "TrackLaneRing" || s == "BigTrackLaneRing")
                     {

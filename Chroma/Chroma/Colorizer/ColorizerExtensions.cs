@@ -1,6 +1,5 @@
 ﻿namespace Chroma.Colorizer
 {
-    using System;
     using System.Collections.Generic;
     using UnityEngine;
 

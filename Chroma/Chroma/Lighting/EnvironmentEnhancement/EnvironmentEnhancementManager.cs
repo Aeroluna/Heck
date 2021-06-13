@@ -35,20 +35,20 @@
 
         internal static void SubscribeTrackManagerCreated()
         {
-            TrackManager.TrackManagerCreated += CreateEnvironmentTracks;
+            TrackBuilder.TrackManagerCreated += CreateEnvironmentTracks;
         }
 
-        internal static void CreateEnvironmentTracks(object trackManager, CustomBeatmapData customBeatmapData)
+        internal static void CreateEnvironmentTracks(TrackBuilder trackManager, CustomBeatmapData customBeatmapData)
         {
-            List<dynamic> environmentData = Trees.at(customBeatmapData.customData, ENVIRONMENT);
+            IEnumerable<Dictionary<string, object>> environmentData = customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object>>();
             if (environmentData != null)
             {
-                foreach (dynamic gameObjectData in environmentData)
+                foreach (Dictionary<string, object> gameObjectData in environmentData)
                 {
-                    string trackName = Trees.at(gameObjectData, "_track");
+                    string trackName = gameObjectData.Get<string>("_track");
                     if (trackName != null)
                     {
-                        ((TrackManager)trackManager).AddTrack(trackName);
+                        trackManager.AddTrack(trackName);
                     }
                 }
             }
@@ -56,7 +56,7 @@
 
         internal static void Init(CustomBeatmapData customBeatmapData, float noteLinesDistance)
         {
-            List<dynamic> environmentData = Trees.at(customBeatmapData.customData, ENVIRONMENT);
+            IEnumerable<Dictionary<string, object>> environmentData = customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object>>();
             GetAllGameObjects();
             if (environmentData != null)
             {
@@ -68,16 +68,16 @@
                     Plugin.Logger.Log($"=====================================");
                 }
 
-                foreach (dynamic gameObjectData in environmentData)
+                foreach (Dictionary<string, object> gameObjectData in environmentData)
                 {
-                    string id = Trees.at(gameObjectData, ID);
+                    string id = gameObjectData.Get<string>(ID);
 
-                    string lookupString = Trees.at(gameObjectData, LOOKUPMETHOD);
+                    string lookupString = gameObjectData.Get<string>(LOOKUPMETHOD);
                     LookupMethod lookupMethod = (LookupMethod)Enum.Parse(typeof(LookupMethod), lookupString);
 
-                    int? dupeAmount = (int?)Trees.at(gameObjectData, DUPLICATIONAMOUNT);
+                    int? dupeAmount = gameObjectData.Get<int?>(DUPLICATIONAMOUNT);
 
-                    bool? active = (bool?)Trees.at(gameObjectData, ACTIVE);
+                    bool? active = gameObjectData.Get<bool?>(ACTIVE);
 
                     Vector3? scale = GetVectorData(gameObjectData, SCALE);
                     Vector3? position = GetVectorData(gameObjectData, POSITION);
@@ -255,9 +255,9 @@
             return _gameObjectInfos.Where(predicate).ToList();
         }
 
-        private static Vector3? GetVectorData(dynamic dynData, string name)
+        private static Vector3? GetVectorData(Dictionary<string, object> dynData, string name)
         {
-            IEnumerable<float> data = ((List<object>)Trees.at(dynData, name))?.Select(n => Convert.ToSingle(n));
+            IEnumerable<float> data = dynData.Get<List<object>>(name)?.Select(n => Convert.ToSingle(n));
             Vector3? final = null;
             if (data != null)
             {

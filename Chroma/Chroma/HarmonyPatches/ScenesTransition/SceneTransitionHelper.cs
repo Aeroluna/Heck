@@ -52,7 +52,7 @@
                 bool chromaRequirement = BasicPatch(customBeatmapData);
                 if (chromaRequirement &&
                     ChromaConfig.Instance.EnvironmentEnhancementsEnabled &&
-                    (Trees.at(customBeatmapData.beatmapCustomData, Chroma.Plugin.ENVIRONMENTREMOVAL) != null || Trees.at(customBeatmapData.customData, Chroma.Plugin.ENVIRONMENT) != null))
+                    (customBeatmapData.beatmapCustomData.Get<object>(Plugin.ENVIRONMENTREMOVAL) != null || (customBeatmapData.customData.Get<object>(Plugin.ENVIRONMENT) != null)))
                 {
                     overrideEnvironmentSettings = null;
                 }
@@ -66,16 +66,16 @@
 
         private static bool BasicPatch(CustomBeatmapData customBeatmapData)
         {
-            IEnumerable<string> requirements = ((List<object>)Trees.at(customBeatmapData.beatmapCustomData, "_requirements"))?.Cast<string>();
-            IEnumerable<string> suggestions = ((List<object>)Trees.at(customBeatmapData.beatmapCustomData, "_suggestions"))?.Cast<string>();
-            bool chromaRequirement = (requirements?.Contains(Chroma.Plugin.REQUIREMENTNAME) ?? false) || (suggestions?.Contains(Chroma.Plugin.REQUIREMENTNAME) ?? false);
+            IEnumerable<string> requirements = customBeatmapData.beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>();
+            IEnumerable<string> suggestions = customBeatmapData.beatmapCustomData.Get<List<object>>("_suggestions")?.Cast<string>();
+            bool chromaRequirement = (requirements?.Contains(Plugin.REQUIREMENTNAME) ?? false) || (suggestions?.Contains(Plugin.REQUIREMENTNAME) ?? false);
 
             // please let me remove this shit
             bool legacyOverride = customBeatmapData.beatmapEventsData.Any(n => n.value >= LegacyLightHelper.RGB_INT_OFFSET);
             if (legacyOverride)
             {
                 Plugin.Logger.Log("Legacy Chroma Detected...", IPA.Logging.Logger.Level.Warning);
-                Plugin.Logger.Log("Please do not use Legacy Chroma for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", IPA.Logging.Logger.Level.Warning);
+                Plugin.Logger.Log("Please do not use Legacy Chroma Lights for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", IPA.Logging.Logger.Level.Warning);
             }
 
             ChromaController.ToggleChromaPatches((chromaRequirement || legacyOverride) && ChromaConfig.Instance.CustomColorEventsEnabled);

@@ -39,7 +39,7 @@
                 try
                 {
                     ChromaObjectData chromaObjectData;
-                    dynamic customData;
+                    Dictionary<string, object> customData;
 
                     switch (beatmapObjectData)
                     {
@@ -48,7 +48,7 @@
                             chromaObjectData = new ChromaNoteData()
                             {
                                 Color = ChromaUtils.GetColorFromData(customData),
-                                DisableSpawnEffect = Trees.at(customData, DISABLESPAWNEFFECT),
+                                DisableSpawnEffect = customData.Get<bool?>(DISABLESPAWNEFFECT),
                             };
                             break;
 
@@ -71,14 +71,17 @@
 
                     if (chromaObjectData != null)
                     {
-                        dynamic animationObjectDyn = Trees.at(customData, ANIMATION);
-                        Dictionary<string, PointDefinition> pointDefinitions = Trees.at(((CustomBeatmapData)beatmapData).customData, "pointDefinitions");
+                        Dictionary<string, object> animationObjectDyn = customData.Get<Dictionary<string, object>>(ANIMATION);
+                        if (animationObjectDyn != null)
+                        {
+                            Dictionary<string, PointDefinition> pointDefinitions = ((CustomBeatmapData)beatmapData).customData.Get<Dictionary<string, PointDefinition>>("pointDefinitions");
 
-                        Heck.Animation.AnimationHelper.TryGetPointData(animationObjectDyn, COLOR, out PointDefinition localColor, pointDefinitions);
+                            Heck.Animation.AnimationHelper.TryGetPointData(animationObjectDyn, COLOR, out PointDefinition localColor, pointDefinitions);
 
-                        chromaObjectData.LocalPathColor = localColor;
+                            chromaObjectData.LocalPathColor = localColor;
+                        }
 
-                        chromaObjectData.Track = Heck.Animation.AnimationHelper.GetTrackPreload(customData, beatmapData);
+                        chromaObjectData.Track = Heck.Animation.AnimationHelper.GetTrack(customData, beatmapData);
 
                         _chromaObjectDatas.Add(beatmapObjectData, chromaObjectData);
                     }

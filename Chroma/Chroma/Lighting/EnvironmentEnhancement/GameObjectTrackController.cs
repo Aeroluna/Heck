@@ -1,5 +1,6 @@
 ﻿namespace Chroma
 {
+    using System.Collections.Generic;
     using Heck.Animation;
     using IPA.Utilities;
     using UnityEngine;
@@ -22,14 +23,14 @@
 
         internal static void HandleTrackData(
             GameObject gameObject,
-            dynamic gameObjectData,
+            Dictionary<string, object> gameObjectData,
             IReadonlyBeatmapData beatmapData,
             float noteLinesDistance,
             TrackLaneRing trackLaneRing,
             ParametricBoxController parametricBoxController,
             BeatmapObjectsAvoidance beatmapObjectsAvoidance)
         {
-            Track track = Heck.Animation.AnimationHelper.GetTrackPreload(gameObjectData, beatmapData);
+            Track track = GetTrack(gameObjectData, beatmapData);
             if (track != null)
             {
                 GameObjectTrackController trackController = gameObject.AddComponent<GameObjectTrackController>();
@@ -163,7 +164,7 @@
 
         private Vector3? GetVectorNullable(string property)
         {
-            Vector3? nullable = (Vector3?)TryGetPropertyAsObject(_track, property);
+            Vector3? nullable = (Vector3?)TryGetProperty(_track, property);
             if (nullable.HasValue)
             {
                 if (LeftHandedMode)
@@ -177,7 +178,7 @@
 
         private Quaternion? GetQuaternionNullable(string property)
         {
-            Quaternion? nullable = (Quaternion?)TryGetPropertyAsObject(_track, property);
+            Quaternion? nullable = (Quaternion?)TryGetProperty(_track, property);
             if (nullable.HasValue)
             {
                 if (LeftHandedMode)

@@ -40,7 +40,7 @@
                     if (beatmapEventData is CustomBeatmapEventData customBeatmapEventData)
                     {
                         ChromaEventData chromaEventData;
-                        dynamic customData = customBeatmapEventData.customData;
+                        Dictionary<string, object> customData = customBeatmapEventData.customData;
 
                         switch ((int)beatmapEventData.type)
                         {
@@ -51,15 +51,15 @@
                             case 4:
                                 ChromaLightEventData chromaLightEventData = new ChromaLightEventData()
                                 {
-                                    LightID = Trees.at(customData, LIGHTID),
-                                    PropID = Trees.at(customData, PROPAGATIONID),
+                                    LightID = customData.Get<object>(LIGHTID),
+                                    PropID = customData.Get<object>(PROPAGATIONID),
                                     ColorData = ChromaUtils.GetColorFromData(customData),
                                 };
 
-                                dynamic gradientObject = Trees.at(customData, LIGHTGRADIENT);
+                                Dictionary<string, object> gradientObject = customData.Get<Dictionary<string, object>>(LIGHTGRADIENT);
                                 if (gradientObject != null)
                                 {
-                                    string easingstring = (string)Trees.at(gradientObject, EASING);
+                                    string easingstring = gradientObject.Get<string>(EASING);
                                     Functions easing;
                                     if (string.IsNullOrEmpty(easingstring))
                                     {
@@ -72,9 +72,9 @@
 
                                     chromaLightEventData.GradientObject = new ChromaLightEventData.GradientObjectData()
                                     {
-                                        Duration = (float)Trees.at(gradientObject, DURATION),
-                                        StartColor = ChromaUtils.GetColorFromData(gradientObject, STARTCOLOR),
-                                        EndColor = ChromaUtils.GetColorFromData(gradientObject, ENDCOLOR),
+                                        Duration = gradientObject.Get<float>(DURATION),
+                                        StartColor = ChromaUtils.GetColorFromData(gradientObject, STARTCOLOR) ?? Color.white,
+                                        EndColor = ChromaUtils.GetColorFromData(gradientObject, ENDCOLOR) ?? Color.white,
                                         Easing = easing,
                                     };
                                 }
@@ -86,24 +86,24 @@
                             case 8:
                                 chromaEventData = new ChromaRingRotationEventData()
                                 {
-                                    NameFilter = Trees.at(customData, NAMEFILTER),
-                                    Direction = (int?)Trees.at(customData, DIRECTION),
-                                    CounterSpin = Trees.at(customData, COUNTERSPIN),
-                                    Reset = Trees.at(customData, RESET),
-                                    Step = (float?)Trees.at(customData, STEP),
-                                    Prop = (float?)Trees.at(customData, PROP),
-                                    Speed = (float?)Trees.at(customData, SPEED),
-                                    Rotation = (float?)Trees.at(customData, ROTATION),
-                                    StepMult = ((float?)Trees.at(customData, STEPMULT)).GetValueOrDefault(1f),
-                                    PropMult = ((float?)Trees.at(customData, PROPMULT)).GetValueOrDefault(1f),
-                                    SpeedMult = ((float?)Trees.at(customData, SPEEDMULT)).GetValueOrDefault(1f),
+                                    NameFilter = customData.Get<string>(NAMEFILTER),
+                                    Direction = customData.Get<int?>(DIRECTION),
+                                    CounterSpin = customData.Get<bool?>(COUNTERSPIN),
+                                    Reset = customData.Get<bool?>(RESET),
+                                    Step = customData.Get<float?>(STEP),
+                                    Prop = customData.Get<float?>(PROP),
+                                    Speed = customData.Get<float?>(SPEED),
+                                    Rotation = customData.Get<float?>(ROTATION),
+                                    StepMult = customData.Get<float?>(STEPMULT).GetValueOrDefault(1f),
+                                    PropMult = customData.Get<float?>(PROPMULT).GetValueOrDefault(1f),
+                                    SpeedMult = customData.Get<float?>(SPEEDMULT).GetValueOrDefault(1f),
                                 };
                                 break;
 
                             case 9:
                                 chromaEventData = new ChromaRingStepEventData()
                                 {
-                                    Step = (float?)Trees.at(customData, STEP),
+                                    Step = customData.Get<float?>(STEP),
                                 };
                                 break;
 
@@ -111,9 +111,9 @@
                             case 13:
                                 chromaEventData = new ChromaLaserSpeedEventData()
                                 {
-                                    LockPosition = ((bool?)Trees.at(customData, LOCKPOSITION)).GetValueOrDefault(false),
-                                    PreciseSpeed = ((float?)Trees.at(customData, SPEED)).GetValueOrDefault(((float?)Trees.at(customData, PRECISESPEED)).GetValueOrDefault(beatmapEventData.value)),
-                                    Direction = ((int?)Trees.at(customData, DIRECTION)).GetValueOrDefault(-1),
+                                    LockPosition = customData.Get<bool?>(LOCKPOSITION).GetValueOrDefault(false),
+                                    PreciseSpeed = customData.Get<float?>(SPEED).GetValueOrDefault(customData.Get<float?>(PRECISESPEED).GetValueOrDefault(beatmapEventData.value)),
+                                    Direction = customData.Get<int?>(DIRECTION).GetValueOrDefault(-1),
                                 };
                                 break;
 

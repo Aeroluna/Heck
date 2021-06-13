@@ -1,16 +1,16 @@
 ﻿{
   "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "author": "Aeroluna",
-  "description": "RGB Lightmapping and custom lighting events",
-  "gameVersion": "1.16.1",
+  "description": "RGB Lightmapping and custom lighting events.",
+  "gameVersion": "1.16.2",
   "id": "Chroma",
   "name": "Chroma",
-  "version": "2.4.7",
+  "version": "2.4.8",
   "dependsOn": {
-    "_Heck": "^1.0.0",
+    "_Heck": "^1.1.0",
     "BeatSaberMarkupLanguage": "^1.5.3",
-    "CustomJSONData": "^1.1.4",
-    "SongCore": "^3.4.1",
+    "CustomJSONData": "^2.0.0",
+    "SongCore": "^3.4.0",
     "BSIPA": "^4.1.6"
   }
 }

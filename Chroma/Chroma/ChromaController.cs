@@ -56,8 +56,16 @@
                     }
                 }
 
-                // please let me kill legacy
-                LegacyLightHelper.Activate(beatmapData.beatmapEventsData);
+                try
+                {
+                    // please let me kill legacy
+                    LegacyLightHelper.Activate(beatmapData.beatmapEventsData);
+                }
+                catch (System.Exception e)
+                {
+                    Plugin.Logger.Log("Could not run Legacy Chroma Lights");
+                    Plugin.Logger.Log(e);
+                }
             }
         }
 
