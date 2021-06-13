@@ -20,7 +20,7 @@
         {
             while (true)
             {
-                float elapsedTime = Instance.CustomEventCallbackController._audioTimeSource.songTime - startTime;
+                float elapsedTime = Instance.CustomEventCallbackController.AudioTimeSource.songTime - startTime;
                 float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
                 switch (property.PropertyType)
                 {

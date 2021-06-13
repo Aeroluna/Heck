@@ -35,14 +35,14 @@
         public void OnEnable()
         {
             _harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
-            CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit += Animation.AnimationController.CustomEventCallbackInit;
+            CustomJSONData.CustomEventCallbackController.didInitEvent += Animation.AnimationController.CustomEventCallbackInit;
         }
 
         [OnDisable]
         public void OnDisable()
         {
             _harmonyInstance.UnpatchAll(HARMONYID);
-            CustomJSONData.CustomEventCallbackController.customEventCallbackControllerInit -= Animation.AnimationController.CustomEventCallbackInit;
+            CustomJSONData.CustomEventCallbackController.didInitEvent -= Animation.AnimationController.CustomEventCallbackInit;
         }
     }
 }

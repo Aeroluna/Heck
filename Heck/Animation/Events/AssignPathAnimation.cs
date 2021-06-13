@@ -21,7 +21,7 @@
             PointDefinitionInterpolation pointDataInterpolation = property.Value as PointDefinitionInterpolation;
             while (true)
             {
-                float elapsedTime = Instance.CustomEventCallbackController._audioTimeSource.songTime - startTime;
+                float elapsedTime = Instance.CustomEventCallbackController.AudioTimeSource.songTime - startTime;
                 pointDataInterpolation.Time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
 
                 if (elapsedTime < duration)

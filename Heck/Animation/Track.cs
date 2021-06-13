@@ -4,14 +4,14 @@
     using System.Collections.Generic;
     using CustomJSONData.CustomBeatmap;
 
-    public class TrackManager
+    public class TrackBuilder
     {
-        internal TrackManager(CustomBeatmapData beatmapData)
+        internal TrackBuilder(CustomBeatmapData beatmapData)
         {
             TrackManagerCreated?.Invoke(this, beatmapData);
         }
 
-        public static event EventHandler<CustomBeatmapData> TrackManagerCreated;
+        public static event Action<TrackBuilder, CustomBeatmapData> TrackManagerCreated;
 
         public static event Action<Track> TrackCreated;
 

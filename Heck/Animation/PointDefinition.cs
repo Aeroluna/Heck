@@ -10,10 +10,9 @@
     {
         private List<PointData> _points;
 
-        public static PointDefinition DynamicToPointData(dynamic dyn)
+        public static PointDefinition ListToPointData(IEnumerable<object> list)
         {
-            IEnumerable<List<object>> points = ((IEnumerable<object>)dyn)
-                        ?.Cast<List<object>>();
+            IEnumerable<List<object>> points = list?.Cast<List<object>>();
             if (points == null)
             {
                 return null;
@@ -378,7 +377,7 @@
         }
     }
 
-    internal class PointDefinitionManager
+    internal class PointDefinitionBuilder
     {
         internal IDictionary<string, PointDefinition> PointData { get; private set; } = new Dictionary<string, PointDefinition>();
 

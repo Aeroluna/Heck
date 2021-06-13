@@ -3,11 +3,11 @@
   "id": "_Heck",
   "name": "Heck",
   "author": "Aeroluna",
-  "version": "1.0.0",
-  "description": "Utility library/mod for Aeroluna.",
-  "gameVersion": "1.16.1",
+  "version": "1.1.0",
+  "description": "heck.",
+  "gameVersion": "1.16.2",
   "dependsOn": {
-    "CustomJSONData":  "^1.1.4",
+    "CustomJSONData": "^2.0.0",
     "BSIPA": "^4.1.6"
   }
 }

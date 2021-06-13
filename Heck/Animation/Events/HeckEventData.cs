@@ -59,16 +59,16 @@
         {
             HeckEventData heckEventData = new HeckEventData();
 
-            string easingString = (string)Trees.at(customEventData.data, EASING);
+            string easingString = customEventData.data.Get<string>(EASING);
             heckEventData.Easing = Functions.easeLinear;
             if (easingString != null)
             {
                 heckEventData.Easing = (Functions)Enum.Parse(typeof(Functions), easingString);
             }
 
-            heckEventData.Duration = (float?)Trees.at(customEventData.data, DURATION) ?? 0f;
+            heckEventData.Duration = customEventData.data.Get<float?>(DURATION) ?? 0f;
 
-            Track track = GetTrackPreload(customEventData.data, beatmapData);
+            Track track = GetTrack(customEventData.data, beatmapData);
             if (track == null)
             {
                 return null;
@@ -90,7 +90,6 @@
             }
 
             List<string> excludedStrings = new List<string> { TRACK, DURATION, EASING };
-            IDictionary<string, object> eventData = (IDictionary<string, object>)customEventData.data;
             IDictionary<string, Property> properties = null;
             switch (eventType)
             {
@@ -103,7 +102,7 @@
                     break;
             }
 
-            foreach (KeyValuePair<string, object> valuePair in eventData)
+            foreach (KeyValuePair<string, object> valuePair in customEventData.data)
             {
                 if (!excludedStrings.Any(n => n == valuePair.Key))
                 {
@@ -113,7 +112,7 @@
                         continue;
                     }
 
-                    Dictionary<string, PointDefinition> pointDefinitions = Trees.at(((CustomBeatmapData)beatmapData).customData, "pointDefinitions");
+                    Dictionary<string, PointDefinition> pointDefinitions = (Dictionary<string, PointDefinition>)((CustomBeatmapData)beatmapData).customData["pointDefinitions"];
                     TryGetPointData(customEventData.data, valuePair.Key, out PointDefinition pointData, pointDefinitions);
 
                     HeckEventData.CoroutineInfo coroutineInfo = new HeckEventData.CoroutineInfo()
