@@ -59,24 +59,20 @@
             return null;
         }
 
-        public static object TryGetPropertyAsObject(Track track, string propertyName)
+        public static object TryGetProperty(Track track, string propertyName)
         {
             Property property = null;
             track?.Properties.TryGetValue(propertyName, out property);
             return property?.Value;
         }
 
-        public static void TryGetPointData(dynamic customData, string pointName, out PointDefinition pointData, Dictionary<string, PointDefinition> pointDefinitions)
+        public static void TryGetPointData(Dictionary<string, object> customData, string pointName, out PointDefinition pointData, Dictionary<string, PointDefinition> pointDefinitions)
         {
-            dynamic pointString = Trees.at(customData, pointName);
+            object pointString = customData.Get<object>(pointName);
             switch (pointString)
             {
                 case null:
                     pointData = null;
-                    break;
-
-                case PointDefinition castedData:
-                    pointData = castedData;
                     break;
 
                 case string castedString:
@@ -88,22 +84,25 @@
 
                     break;
 
-                default:
-                    pointData = PointDefinition.DynamicToPointData(pointString);
+                case List<object> list:
+                    pointData = PointDefinition.ListToPointData(list);
 
                     break;
+
+                default:
+                    throw new System.ArgumentException($"Point was not a valid type. Got {pointString.GetType().FullName}");
             }
         }
 
-        public static Track GetTrackPreload(dynamic customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
+        public static Track GetTrack(Dictionary<string, object> customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
         {
-            string trackName = Trees.at(customData, name);
+            string trackName = customData.Get<string>(name);
             if (trackName == null)
             {
                 return null;
             }
 
-            if (((CustomBeatmapData)beatmapData).customData.tracks.TryGetValue(trackName, out Track track))
+            if (((Dictionary<string, Track>)((CustomBeatmapData)beatmapData).customData["tracks"]).TryGetValue(trackName, out Track track))
             {
                 return track;
             }
@@ -114,9 +113,9 @@
             }
         }
 
-        public static IEnumerable<Track> GetTrackArrayPreload(dynamic customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
+        public static IEnumerable<Track> GetTrackArray(Dictionary<string, object> customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
         {
-            IEnumerable<string> trackNames = ((List<object>)Trees.at(customData, name)).Cast<string>();
+            IEnumerable<string> trackNames = customData.Get<List<object>>(name).Cast<string>();
             if (trackNames == null)
             {
                 return null;
@@ -125,7 +124,7 @@
             HashSet<Track> tracks = new HashSet<Track>();
             foreach (string trackName in trackNames)
             {
-                if (((CustomBeatmapData)beatmapData).customData.tracks.TryGetValue(trackName, out Track track))
+                if (((Dictionary<string, Track>)((CustomBeatmapData)beatmapData).customData["tracks"]).TryGetValue(trackName, out Track track))
                 {
                     tracks.Add(track);
                 }

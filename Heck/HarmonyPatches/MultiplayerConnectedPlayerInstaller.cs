@@ -6,7 +6,6 @@
     using System.Reflection.Emit;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
-    using IPA.Utilities;
     using static Heck.Plugin;
 
     [HarmonyPatch(typeof(MultiplayerConnectedPlayerInstaller))]
@@ -14,8 +13,6 @@
     internal static class MultiplayerConnectedPlayerInstallerInstallBindings
     {
         private static readonly MethodInfo _exclude = SymbolExtensions.GetMethodInfo(() => Exclude(null));
-
-        private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -53,7 +50,7 @@
 
                 customBeatmapData.customEventsData.RemoveAll(n => excludedTypes.Contains(n.type));
 
-                customBeatmapData.customData.isMultiplayer = true;
+                customBeatmapData.customData["isMultiplayer"] = true;
             }
 
             return result;

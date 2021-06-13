@@ -12,7 +12,8 @@
             if (difficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
             {
                 // Reset tracks when entering game scene
-                Dictionary<string, Track> tracks = Trees.at(customBeatmapData.customData, "tracks");
+                // Possibly don't need with CJD 2.0.0?
+                Dictionary<string, Track> tracks = customBeatmapData.customData.Get<Dictionary<string, Track>>("tracks");
                 if (tracks != null)
                 {
                     foreach (KeyValuePair<string, Track> track in tracks)

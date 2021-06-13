@@ -6,6 +6,7 @@
     /// Easing Functions enumeration
     /// </summary>
 #pragma warning disable SA1300 // Element should begin with upper-case letter
+
     public enum Functions
     {
         easeLinear,

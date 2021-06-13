@@ -1,6 +1,7 @@
 ﻿namespace Heck.HarmonyPatches
 {
     using System.Collections.Generic;
+    using System.Linq;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
@@ -15,49 +16,52 @@
         {
             if (__result is CustomBeatmapData customBeatmapData)
             {
-                TrackManager trackManager = new TrackManager(customBeatmapData);
+                TrackBuilder trackManager = new TrackBuilder(customBeatmapData);
                 foreach (BeatmapLineData beatmapLineData in customBeatmapData.beatmapLinesData)
                 {
                     foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
                     {
-                        dynamic customData;
-                        if (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData || beatmapObjectData is WaypointData)
+                        Dictionary<string, object> dynData;
+                        switch (beatmapObjectData)
                         {
-                            customData = beatmapObjectData;
-                        }
-                        else
-                        {
-                            continue;
-                        }
+                            case CustomObstacleData obstacleData:
+                                dynData = obstacleData.customData;
+                                break;
 
-                        dynamic dynData = customData.customData;
+                            case CustomNoteData noteData:
+                                dynData = noteData.customData;
+                                break;
+
+                            default:
+                                continue;
+                        }
 
                         // for epic tracks thing
-                        string trackName = Trees.at(dynData, TRACK);
+                        string trackName = dynData.Get<string>(TRACK);
                         if (trackName != null)
                         {
-                            dynData.track = trackManager.AddTrack(trackName);
+                            dynData["track"] = trackManager.AddTrack(trackName);
                         }
                     }
                 }
 
-                customBeatmapData.customData.tracks = trackManager.Tracks;
+                customBeatmapData.customData["tracks"] = trackManager.Tracks;
 
-                IEnumerable<dynamic> pointDefinitions = (IEnumerable<dynamic>)Trees.at(customBeatmapData.customData, POINTDEFINITIONS);
+                IEnumerable<Dictionary<string, object>> pointDefinitions = customBeatmapData.customData.Get<List<object>>(POINTDEFINITIONS)?.Cast<Dictionary<string, object>>();
                 if (pointDefinitions == null)
                 {
                     return;
                 }
 
-                PointDefinitionManager pointDataManager = new PointDefinitionManager();
-                foreach (dynamic pointDefintion in pointDefinitions)
+                PointDefinitionBuilder pointDataManager = new PointDefinitionBuilder();
+                foreach (Dictionary<string, object> pointDefintion in pointDefinitions)
                 {
-                    string pointName = Trees.at(pointDefintion, NAME);
-                    PointDefinition pointData = PointDefinition.DynamicToPointData(Trees.at(pointDefintion, POINTS));
+                    string pointName = pointDefintion.Get<string>(NAME);
+                    PointDefinition pointData = PointDefinition.ListToPointData(pointDefintion.Get<List<object>>(POINTS));
                     pointDataManager.AddPoint(pointName, pointData);
                 }
 
-                customBeatmapData.customData.pointDefinitions = pointDataManager.PointData;
+                customBeatmapData.customData["pointDefinitions"] = pointDataManager.PointData;
             }
         }
     }
