@@ -29,15 +29,24 @@
                 OriginalColors[0] = colorManager.ColorForType(ColorType.ColorA);
                 OriginalColors[1] = colorManager.ColorForType(ColorType.ColorB);
             }
+            else
+            {
+                Plugin.Logger.Log("_colorManager was null, defaulting to red/blue", IPA.Logging.Logger.Level.Warning);
+            }
 
-            Colorizers.Add(noteController, this);
+            // Override old key because custom notes creates 2 colornotevisuals for every notecontroller
+            Colorizers[noteController] = this;
         }
 
         public static Dictionary<NoteControllerBase, NoteColorizer> Colorizers { get; } = new Dictionary<NoteControllerBase, NoteColorizer>();
 
         public static Color?[] GlobalColor { get; } = new Color?[2];
 
-        public Color[] OriginalColors { get; } = new Color[2];
+        public Color[] OriginalColors { get; } = new Color[2]
+        {
+            new Color(0.784f, 0.078f, 0.078f),
+            new Color(0, 0.463f, 0.823f),
+        };
 
         public ColorType ColorType
         {
