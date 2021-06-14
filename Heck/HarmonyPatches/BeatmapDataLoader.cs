@@ -47,18 +47,16 @@
 
                 customBeatmapData.customData["tracks"] = trackManager.Tracks;
 
-                IEnumerable<Dictionary<string, object>> pointDefinitions = customBeatmapData.customData.Get<List<object>>(POINTDEFINITIONS)?.Cast<Dictionary<string, object>>();
-                if (pointDefinitions == null)
-                {
-                    return;
-                }
-
                 PointDefinitionBuilder pointDataManager = new PointDefinitionBuilder();
-                foreach (Dictionary<string, object> pointDefintion in pointDefinitions)
+                IEnumerable<Dictionary<string, object>> pointDefinitions = customBeatmapData.customData.Get<List<object>>(POINTDEFINITIONS)?.Cast<Dictionary<string, object>>();
+                if (pointDefinitions != null)
                 {
-                    string pointName = pointDefintion.Get<string>(NAME);
-                    PointDefinition pointData = PointDefinition.ListToPointData(pointDefintion.Get<List<object>>(POINTS));
-                    pointDataManager.AddPoint(pointName, pointData);
+                    foreach (Dictionary<string, object> pointDefintion in pointDefinitions)
+                    {
+                        string pointName = pointDefintion.Get<string>(NAME);
+                        PointDefinition pointData = PointDefinition.ListToPointData(pointDefintion.Get<List<object>>(POINTS));
+                        pointDataManager.AddPoint(pointName, pointData);
+                    }
                 }
 
                 customBeatmapData.customData["pointDefinitions"] = pointDataManager.PointData;
