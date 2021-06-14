@@ -29,6 +29,10 @@
             {
                 new BombColorizer(____noteController);
             }
+            else
+            {
+                new NoteColorizer(____noteController);
+            }
         }
     }
 
@@ -42,6 +46,10 @@
             if (BaseNoteVisualsAwake.IsBombType(____noteController))
             {
                 BombColorizer.Colorizers.Remove(____noteController);
+            }
+            else
+            {
+                NoteColorizer.Colorizers.Remove(____noteController);
             }
         }
     }

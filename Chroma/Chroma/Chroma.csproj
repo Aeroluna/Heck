@@ -58,7 +58,6 @@
     <Compile Include="HarmonyPatches\Colorizer\NoteController.cs" />
     <Compile Include="HarmonyPatches\Colorizer\Note\BeatEffectSpawner.cs" />
     <Compile Include="HarmonyPatches\Colorizer\Initialize\BaseNoteVisuals.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\Initialize\ColorNoteVisuals.cs" />
     <Compile Include="HarmonyPatches\Colorizer\Initialize\ObstacleDissolve.cs" />
     <Compile Include="HarmonyPatches\Colorizer\Initialize\SaberModelContainer.cs" />
     <Compile Include="HarmonyPatches\Colorizer\Obstacle\ObstacleSaberSparklerEffectManager.cs" />
