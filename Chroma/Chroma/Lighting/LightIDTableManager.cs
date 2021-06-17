@@ -42,14 +42,28 @@
             }
         }
 
-        internal static void RegisterIndex(int type, int index)
+        internal static void RegisterIndex(int type, int index, int? requestedKey)
         {
             Dictionary<int, int> dictioanry = _activeTable[type];
-            int maxKey = dictioanry.Keys.Max();
-            dictioanry.Add(maxKey + 1, index);
+            int key;
+
+            if (requestedKey.HasValue)
+            {
+                key = requestedKey.Value;
+                while (dictioanry.ContainsKey(key))
+                {
+                    key++;
+                }
+            }
+            else
+            {
+                key = dictioanry.Keys.Max() + 1;
+            }
+
+            dictioanry.Add(key, index);
             if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
             {
-                Plugin.Logger.Log($"Registered key [{maxKey + 1}] to type [{type}]");
+                Plugin.Logger.Log($"Registered key [{key}] to type [{type}]");
             }
         }
 

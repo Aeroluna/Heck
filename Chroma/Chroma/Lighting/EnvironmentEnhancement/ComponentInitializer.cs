@@ -77,7 +77,7 @@
             }
         }
 
-        internal static void InitializeComponents(Transform root, Transform original, List<GameObjectInfo> gameObjectInfos, List<IComponentData> componentDatas)
+        internal static void InitializeComponents(Transform root, Transform original, List<GameObjectInfo> gameObjectInfos, List<IComponentData> componentDatas, int? lightID)
         {
             void GetComponentAndOriginal<T>(Action<T, T> initializeDelegate)
             {
@@ -98,13 +98,13 @@
             GetComponentAndOriginal<LightWithIdMonoBehaviour>((rootComponent, originalComponent) =>
             {
                 _lightWithIdMonoBehaviourManagerAccessor(ref rootComponent) = _lightWithIdMonoBehaviourManagerAccessor(ref originalComponent);
-                LightColorizer.RegisterLight(rootComponent);
+                LightColorizer.RegisterLight(rootComponent, lightID);
             });
 
             GetComponentAndOriginal<LightWithIds>((rootComponent, originalComponent) =>
             {
                 _lightWithIdsManagerAccessor(ref rootComponent) = _lightWithIdsManagerAccessor(ref originalComponent);
-                LightColorizer.RegisterLight(rootComponent);
+                LightColorizer.RegisterLight(rootComponent, lightID);
             });
 
             GetComponentAndOriginal<TrackLaneRing>((rootComponent, originalComponent) =>
@@ -221,7 +221,7 @@
             foreach (Transform transform in root)
             {
                 int index = transform.GetSiblingIndex();
-                InitializeComponents(transform, original.GetChild(index), gameObjectInfos, componentDatas);
+                InitializeComponents(transform, original.GetChild(index), gameObjectInfos, componentDatas, lightID);
             }
         }
     }

@@ -85,11 +85,20 @@
                     Vector3? localPosition = GetVectorData(gameObjectData, LOCALPOSITION);
                     Vector3? localRotation = GetVectorData(gameObjectData, LOCALROTATION);
 
+                    int? lightID = gameObjectData.Get<int?>(LIGHTID);
+
                     List<GameObjectInfo> foundObjects = LookupID(id, lookupMethod);
                     if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                     {
-                        Plugin.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
-                        foundObjects.ForEach(n => Plugin.Logger.Log(n.FullID));
+                        if (foundObjects.Count > 0)
+                        {
+                            Plugin.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
+                            foundObjects.ForEach(n => Plugin.Logger.Log(n.FullID));
+                        }
+                        else
+                        {
+                            Plugin.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.", IPA.Logging.Logger.Level.Error);
+                        }
                     }
 
                     List<GameObjectInfo> gameObjectInfos;
@@ -116,13 +125,25 @@
                                 ComponentInitializer.PostfillComponentsData(newGameObject.transform, gameObject.transform, componentDatas);
                                 SceneManager.MoveGameObjectToScene(newGameObject, scene);
                                 newGameObject.transform.SetParent(parent, true);
-                                ComponentInitializer.InitializeComponents(newGameObject.transform, gameObject.transform, _gameObjectInfos, componentDatas);
-                                gameObjectInfos.AddRange(_gameObjectInfos.Where(n => n.GameObject == newGameObject));
+                                ComponentInitializer.InitializeComponents(newGameObject.transform, gameObject.transform, _gameObjectInfos, componentDatas, lightID);
+
+                                List<GameObjectInfo> gameObjects = _gameObjectInfos.Where(n => n.GameObject == newGameObject).ToList();
+                                gameObjectInfos.AddRange(gameObjects);
+
+                                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                                {
+                                    gameObjects.ForEach(n => Plugin.Logger.Log(n.FullID));
+                                }
                             }
                         }
                     }
                     else
                     {
+                        if (lightID.HasValue)
+                        {
+                            Plugin.Logger.Log($"LightID requested but no duplicated object to apply to.", IPA.Logging.Logger.Level.Error);
+                        }
+
                         gameObjectInfos = foundObjects;
                     }
 

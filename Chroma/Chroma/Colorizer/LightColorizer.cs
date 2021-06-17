@@ -138,14 +138,14 @@
             }
         }
 
-        public static void RegisterLight(MonoBehaviour lightWithId)
+        public static void RegisterLight(MonoBehaviour lightWithId, int? lightId)
         {
             LightColorizer lightColorizer;
             switch (lightWithId)
             {
                 case LightWithIdMonoBehaviour monoBehaviour:
                     lightColorizer = ((BeatmapEventType)(monoBehaviour.lightId - 1)).GetLightColorizer();
-                    LightIDTableManager.RegisterIndex(monoBehaviour.lightId - 1, lightColorizer.Lights.Count);
+                    LightIDTableManager.RegisterIndex(monoBehaviour.lightId - 1, lightColorizer.Lights.Count, lightId);
                     lightColorizer.Lights.Add(monoBehaviour);
 
                     break;
@@ -155,7 +155,7 @@
                     foreach (ILightWithId light in lightsWithId)
                     {
                         lightColorizer = ((BeatmapEventType)(light.lightId - 1)).GetLightColorizer();
-                        LightIDTableManager.RegisterIndex(light.lightId - 1, lightColorizer.Lights.Count);
+                        LightIDTableManager.RegisterIndex(light.lightId - 1, lightColorizer.Lights.Count, lightId);
                         lightColorizer.Lights.Add(light);
                     }
 
