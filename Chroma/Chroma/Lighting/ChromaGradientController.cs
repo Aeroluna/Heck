@@ -34,7 +34,7 @@
             Instance.Gradients.Remove(eventType);
         }
 
-        internal static Color AddGradient(ChromaLightEventData.GradientObjectData gradientObject, BeatmapEventType id, float time)
+        internal static Color AddGradient(ChromaEventData.GradientObjectData gradientObject, BeatmapEventType id, float time)
         {
             CancelGradient(id);
 

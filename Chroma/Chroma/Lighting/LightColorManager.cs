@@ -12,7 +12,7 @@
 
         internal static void ColorLightSwitch(BeatmapEventData beatmapEventData)
         {
-            ChromaLightEventData chromaData = TryGetEventData<ChromaLightEventData>(beatmapEventData);
+            ChromaEventData chromaData = TryGetEventData(beatmapEventData);
             if (chromaData == null)
             {
                 return;
@@ -71,7 +71,7 @@
                 }
             }
 
-            ChromaLightEventData.GradientObjectData gradientObject = chromaData.GradientObject;
+            ChromaEventData.GradientObjectData gradientObject = chromaData.GradientObject;
             if (gradientObject != null)
             {
                 color = ChromaGradientController.AddGradient(gradientObject, beatmapEventData.type, beatmapEventData.time);

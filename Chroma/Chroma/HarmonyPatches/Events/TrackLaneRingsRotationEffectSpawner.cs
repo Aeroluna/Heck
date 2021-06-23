@@ -39,7 +39,7 @@
         {
             if (beatmapEventData.type == ____beatmapEventType)
             {
-                ChromaRingRotationEventData chromaData = TryGetEventData<ChromaRingRotationEventData>(beatmapEventData);
+                ChromaEventData chromaData = TryGetEventData(beatmapEventData);
                 if (chromaData == null)
                 {
                     return true;

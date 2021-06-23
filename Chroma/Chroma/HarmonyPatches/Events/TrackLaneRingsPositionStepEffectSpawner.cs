@@ -46,13 +46,10 @@
 
         private static float GetPrecisionStep(float @default, BeatmapEventData beatmapEventData)
         {
-            ChromaRingStepEventData chromaData = TryGetEventData<ChromaRingStepEventData>(beatmapEventData);
-            if (chromaData != null)
+            ChromaEventData chromaData = TryGetEventData(beatmapEventData);
+            if (chromaData != null && chromaData.Step.HasValue)
             {
-                if (chromaData.Step.HasValue)
-                {
-                    return chromaData.Step.Value;
-                }
+                return chromaData.Step.Value;
             }
 
             return @default;

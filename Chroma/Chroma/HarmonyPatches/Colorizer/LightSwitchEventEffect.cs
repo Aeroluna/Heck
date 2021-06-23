@@ -29,7 +29,7 @@
                     }
                     else
                     {
-                        Plugin.Logger.Log($"Type [{type}] does not contain id [{id}].", IPA.Logging.Logger.Level.Warning);
+                        Plugin.Logger.Log($"Type [{type}] does not contain id [{id}].", IPA.Logging.Logger.Level.Error);
                     }
                 }
 

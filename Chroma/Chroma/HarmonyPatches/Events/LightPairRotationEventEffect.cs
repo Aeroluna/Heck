@@ -39,7 +39,7 @@
         {
             BeatmapEventData beatmapEventData = LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.LastLightPairRotationEventEffectData;
 
-            ChromaLaserSpeedEventData chromaData = TryGetEventData<ChromaLaserSpeedEventData>(beatmapEventData);
+            ChromaEventData chromaData = TryGetEventData(beatmapEventData);
             if (chromaData == null)
             {
                 return true;
@@ -50,7 +50,7 @@
             LightPairRotationEventEffect.RotationData rotationData = isLeftEvent ? ____rotationDataL : ____rotationDataR;
 
             bool lockPosition = chromaData.LockPosition;
-            float precisionSpeed = chromaData.PreciseSpeed;
+            float precisionSpeed = chromaData.Speed.GetValueOrDefault(beatmapEventData.value);
             int? dir = chromaData.Direction;
 
             switch (dir)

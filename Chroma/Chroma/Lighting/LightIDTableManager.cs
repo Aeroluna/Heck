@@ -22,7 +22,7 @@
                 }
                 else
                 {
-                    Plugin.Logger.Log($"Unable to find value for type [{type}] and id [{id}].", IPA.Logging.Logger.Level.Warning);
+                    Plugin.Logger.Log($"Unable to find value for type [{type}] and id [{id}].", IPA.Logging.Logger.Level.Error);
                 }
             }
 

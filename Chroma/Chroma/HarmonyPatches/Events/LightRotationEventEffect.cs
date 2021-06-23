@@ -18,7 +18,7 @@
         {
             if (beatmapEventData.type == ____event)
             {
-                ChromaLaserSpeedEventData chromaData = TryGetEventData<ChromaLaserSpeedEventData>(beatmapEventData);
+                ChromaEventData chromaData = TryGetEventData(beatmapEventData);
                 if (chromaData == null)
                 {
                     return true;
@@ -27,7 +27,7 @@
                 bool isLeftEvent = ____event == BeatmapEventType.Event12;
 
                 bool lockPosition = chromaData.LockPosition;
-                float precisionSpeed = chromaData.PreciseSpeed;
+                float precisionSpeed = chromaData.Speed.GetValueOrDefault(beatmapEventData.value);
                 int? dir = chromaData.Direction;
 
                 float direction = (Random.value > 0.5f) ? 1f : -1f;
