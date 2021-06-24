@@ -66,7 +66,7 @@
             for (int i = _activeRingRotationEffects.Count - 1; i >= 0; i--)
             {
                 ChromaRotationEffect ringRotationEffect = _activeRingRotationEffects[i];
-                int num = (int)ringRotationEffect.ProgressPos;
+                long num = (long)ringRotationEffect.ProgressPos;
                 ringRotationEffect.ProgressPos += ringRotationEffect.RotationPropagationSpeed;
                 while (num < ringRotationEffect.ProgressPos && num < rings.Length)
                 {
@@ -74,7 +74,7 @@
                     num++;
                 }
 
-                if ((int)ringRotationEffect.ProgressPos >= rings.Length)
+                if (ringRotationEffect.ProgressPos >= rings.Length)
                 {
                     RecycleRingRotationEffect(_activeRingRotationEffects[i]);
                     _activeRingRotationEffects.RemoveAt(i);

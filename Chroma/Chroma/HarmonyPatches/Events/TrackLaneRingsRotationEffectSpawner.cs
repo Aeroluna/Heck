@@ -123,7 +123,11 @@
             float rotationPropagationSpeed,
             float rotationFlexySpeed)
         {
-            ((ChromaRingsRotationEffect)trackLaneRingsRotationEffect).AddRingRotationEffect(trackLaneRingsRotationEffect.GetFirstRingDestinationRotationAngle() + (rotation * (rotRight ? -1 : 1)), rotationStep, rotationPropagationSpeed, rotationFlexySpeed);
+            ((ChromaRingsRotationEffect)trackLaneRingsRotationEffect).AddRingRotationEffect(
+                trackLaneRingsRotationEffect.GetFirstRingDestinationRotationAngle() + (rotation * (rotRight ? -1 : 1)),
+                rotationStep,
+                rotationPropagationSpeed,
+                rotationFlexySpeed);
         }
     }
 }
