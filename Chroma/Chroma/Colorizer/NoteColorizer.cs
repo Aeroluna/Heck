@@ -18,6 +18,7 @@
         // seriously, its annoying. whatever saber factory does is much more consistent
         private ColorNoteVisuals _colorNoteVisuals;
         private MaterialPropertyBlockController[] _materialPropertyBlockControllers;
+        private Color[] _originalColors;
 
         internal NoteColorizer(NoteControllerBase noteController)
         {
@@ -30,11 +31,36 @@
 
         public static Color?[] GlobalColor { get; } = new Color?[2];
 
-        public Color[] OriginalColors { get; } = new Color[2]
+        public Color[] OriginalColors
         {
-            new Color(0.784f, 0.078f, 0.078f),
-            new Color(0, 0.463f, 0.823f),
-        };
+            get
+            {
+                if (_originalColors == null)
+                {
+                    ColorNoteVisuals colorNoteVisuals = ColorNoteVisuals;
+                    ColorManager colorManager = _colorManagerAccessor(ref colorNoteVisuals);
+                    if (colorManager != null)
+                    {
+                        _originalColors = new Color[2]
+                        {
+                            colorManager.ColorForType(ColorType.ColorA),
+                            colorManager.ColorForType(ColorType.ColorB),
+                        };
+                    }
+                    else
+                    {
+                        Plugin.Logger.Log("_colorManager was null, defaulting to red/blue", IPA.Logging.Logger.Level.Warning);
+                        _originalColors = new Color[2]
+                        {
+                            new Color(0.784f, 0.078f, 0.078f),
+                            new Color(0, 0.463f, 0.823f),
+                        };
+                    }
+                }
+
+                return _originalColors;
+            }
+        }
 
         public ColorType ColorType
         {
@@ -56,6 +82,23 @@
         protected override Color? GlobalColorGetter => GlobalColor[(int)ColorType];
 
         protected override Color OriginalColorGetter => OriginalColors[(int)ColorType];
+
+        private ColorNoteVisuals ColorNoteVisuals
+        {
+            get
+            {
+                // Retrieve colornotevisuals on the fly
+                if (_colorNoteVisuals == null)
+                {
+                    ColorNoteVisuals colorNoteVisuals = _noteController.GetComponent<ColorNoteVisuals>();
+                    _colorNoteVisuals = colorNoteVisuals;
+
+                    _materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref colorNoteVisuals);
+                }
+
+                return _colorNoteVisuals;
+            }
+        }
 
         public static void GlobalColorize(Color? color, ColorType colorType)
         {
@@ -87,28 +130,8 @@
 
         protected override void Refresh()
         {
-            ColorNoteVisuals colorNoteVisuals = _colorNoteVisuals;
-
-            // Retrieve colornotevisuals on the fly
-            if (colorNoteVisuals == null)
-            {
-                colorNoteVisuals = _noteController.GetComponent<ColorNoteVisuals>();
-                _colorNoteVisuals = colorNoteVisuals;
-
-                _materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref colorNoteVisuals);
-                ColorManager colorManager = _colorManagerAccessor(ref colorNoteVisuals);
-                if (colorManager != null)
-                {
-                    OriginalColors[0] = colorManager.ColorForType(ColorType.ColorA);
-                    OriginalColors[1] = colorManager.ColorForType(ColorType.ColorB);
-                }
-                else
-                {
-                    Plugin.Logger.Log("_colorManager was null, defaulting to red/blue", IPA.Logging.Logger.Level.Warning);
-                }
-            }
-
             Color color = Color;
+            ColorNoteVisuals colorNoteVisuals = ColorNoteVisuals;
             if (color == _noteColorAccessor(ref colorNoteVisuals))
             {
                 return;
