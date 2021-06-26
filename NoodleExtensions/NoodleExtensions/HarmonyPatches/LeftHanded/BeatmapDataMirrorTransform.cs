@@ -1,5 +1,7 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
+    using System.Collections.Generic;
+    using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
     using static NoodleExtensions.Plugin;
@@ -16,12 +18,12 @@
                 {
                     if (beatmapEventData is CustomBeatmapEventData customData)
                     {
-                        dynamic dynData = customData.customData;
+                        Dictionary<string, object> dynData = customData.customData;
                         float? rotation = dynData.Get<float?>(ROTATION);
 
                         if (rotation.HasValue)
                         {
-                            dynData._rotation = rotation * -1;
+                            dynData["_rotation"] = rotation * -1;
                         }
                     }
                 }
