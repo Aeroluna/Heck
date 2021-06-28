@@ -64,7 +64,7 @@
                 List<CustomNoteData> flipNotes = new List<CustomNoteData>(customNotes);
                 for (int i = flipNotes.Count - 1; i >= 0; i--)
                 {
-                    Dictionary<string, object> dynData = flipNotes[i].customData;
+                    Dictionary<string, object?> dynData = flipNotes[i].customData;
                     IEnumerable<float?> flip = dynData.GetNullableFloats(FLIP);
                     float? flipX = flip?.ElementAtOrDefault(0);
                     float? flipY = flip?.ElementAtOrDefault(1);
@@ -106,7 +106,7 @@
                     float[] lineLayers = new float[2];
                     for (int i = 0; i < customNoteCount; i++)
                     {
-                        Dictionary<string, object> dynData = customNotes[i].customData;
+                        Dictionary<string, object?> dynData = customNotes[i].customData;
                         IEnumerable<float?> position = dynData.GetNullableFloats(POSITION);
                         lineIndexes[i] = position?.ElementAtOrDefault(0) ?? (customNotes[i].lineIndex - 2);
                         lineLayers[i] = position?.ElementAtOrDefault(1) ?? (float)customNotes[i].noteLineLayer;
@@ -119,7 +119,7 @@
                         {
                             // apparently I can use customData to store my own variables in noteData, neat
                             // ^ comment from a very young and naive aero
-                            Dictionary<string, object> dynData = customNotes[i].customData;
+                            Dictionary<string, object?> dynData = customNotes[i].customData;
                             dynData["flipLineIndex"] = lineIndexes[1 - i];
 
                             float flipYSide = (lineIndexes[i] > lineIndexes[1 - i]) ? 1 : -1;

@@ -16,7 +16,7 @@
     [HeckPatch("CreateTransformedBeatmapData")]
     internal static class BeatmapDataTransformHelperCreateTransformedBeatmapData
     {
-        private static readonly MethodInfo _reorderLineData = SymbolExtensions.GetMethodInfo(() => ReorderLineData(null));
+        private static readonly MethodInfo _reorderLineData = AccessTools.Method(typeof(BeatmapDataTransformHelperCreateTransformedBeatmapData), nameof(ReorderLineData));
 
         private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
 
@@ -64,10 +64,10 @@
 
                 for (int i = 0; i < customBeatmapData.beatmapLinesData.Count; i++)
                 {
-                    BeatmapLineData beatmapLineData = customBeatmapData.beatmapLinesData[i] as BeatmapLineData;
+                    BeatmapLineData beatmapLineData = (BeatmapLineData)customBeatmapData.beatmapLinesData[i];
                     foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
                     {
-                        Dictionary<string, object> dynData = beatmapObjectData.GetDataForObject();
+                        Dictionary<string, object?> dynData = beatmapObjectData.GetDataForObject();
 
                         float noteJumpMovementSpeed = dynData.Get<float?>(NOTEJUMPSPEED) ?? GameplayCoreInstallerInstallBindings.CachedNoteJumpMovementSpeed;
                         float noteJumpStartBeatOffset = dynData.Get<float?>(NOTESPAWNOFFSET) ?? GameplayCoreInstallerInstallBindings.CachedNoteJumpStartBeatOffset;
@@ -90,7 +90,9 @@
                         dynData["aheadTime"] = moveDuration + (jumpDuration * 0.5f);
                     }
 
-                    _beatmapObjectsDataAccessor(ref beatmapLineData) = beatmapLineData.beatmapObjectsData.OrderBy(n => n.time - (float)n.GetDataForObject()["aheadTime"]).ToList();
+                    _beatmapObjectsDataAccessor(ref beatmapLineData) = beatmapLineData.beatmapObjectsData
+                        .OrderBy(n => n.time - (float)(n.GetDataForObject()["aheadTime"] ?? throw new System.InvalidOperationException($"Could not get aheadTime for [{n.GetType().FullName}] at time [{n.time}]")))
+                        .ToList();
                 }
 
                 return customBeatmapData;

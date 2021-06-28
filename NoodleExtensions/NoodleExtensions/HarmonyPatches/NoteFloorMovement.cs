@@ -13,7 +13,7 @@
     [HeckPatch("ManualUpdate")]
     internal static class NoteFloorMovementManualUpdate
     {
-        private static readonly MethodInfo _definiteNoteFloorMovement = SymbolExtensions.GetMethodInfo(() => DefiniteNoteFloorMovement(Vector3.zero, null));
+        private static readonly MethodInfo _definiteNoteFloorMovement = AccessTools.Method(typeof(NoteFloorMovementManualUpdate), nameof(DefiniteNoteFloorMovement));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -41,7 +41,7 @@
 
         private static Vector3 DefiniteNoteFloorMovement(Vector3 original, NoteFloorMovement noteFloorMovement)
         {
-            NoodleObjectData noodleData = NoteControllerUpdate.NoodleData;
+            NoodleObjectData? noodleData = NoteControllerUpdate.NoodleData;
             if (noodleData != null)
             {
                 AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, 0, out Vector3? position);
@@ -63,7 +63,7 @@
     {
         private static void Postfix(Transform ____rotatedObject)
         {
-            NoodleNoteData noodleData = (NoodleNoteData)NoteControllerUpdate.NoodleData;
+            NoodleNoteData? noodleData = (NoodleNoteData?)NoteControllerUpdate.NoodleData;
             if (noodleData != null && noodleData.DisableLook)
             {
                 ____rotatedObject.localRotation = Quaternion.Euler(0, 0, noodleData.EndRotation);

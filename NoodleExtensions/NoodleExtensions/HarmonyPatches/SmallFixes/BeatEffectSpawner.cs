@@ -13,8 +13,8 @@
     [HeckPatch("HandleNoteDidStartJump")]
     internal static class BeatEffectSpawnerHandleNoteDidStartJump
     {
-        private static readonly MethodInfo _getNoteControllerPosition = SymbolExtensions.GetMethodInfo(() => GetNoteControllerPosition(null));
-        private static readonly MethodInfo _getNoteControllerRotation = SymbolExtensions.GetMethodInfo(() => GetNoteControllerRotation(null));
+        private static readonly MethodInfo _getNoteControllerPosition = AccessTools.Method(typeof(BeatEffectSpawnerHandleNoteDidStartJump), nameof(GetNoteControllerPosition));
+        private static readonly MethodInfo _getNoteControllerRotation = AccessTools.Method(typeof(BeatEffectSpawnerHandleNoteDidStartJump), nameof(GetNoteControllerRotation));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {

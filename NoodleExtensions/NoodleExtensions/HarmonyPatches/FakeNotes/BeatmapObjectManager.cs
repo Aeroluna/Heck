@@ -9,14 +9,14 @@
     [HeckPatch("HandleNoteControllerNoteWasCut")]
     internal static class BeatmapObjectManagerHandleNoteWasCut
     {
-        private static readonly MethodInfo _despawnMethod = typeof(BeatmapObjectManager).GetMethod("Despawn", BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[] { typeof(NoteController) }, null);
+        private static readonly MethodInfo _despawnMethod = AccessTools.Method(typeof(BeatmapObjectManager), "Despawn", new Type[] { typeof(NoteController) });
 
         [HarmonyPriority(Priority.High)]
         private static bool Prefix(BeatmapObjectManager __instance, NoteController noteController, in NoteCutInfo noteCutInfo)
         {
             if (!FakeNoteHelper.GetFakeNote(noteController))
             {
-                NoteCutCoreEffectsSpawnerStart.NoteCutCoreEffectsSpawner.HandleNoteWasCut(noteController, noteCutInfo);
+                NoteCutCoreEffectsSpawnerStart.NoteCutCoreEffectsSpawner!.HandleNoteWasCut(noteController, noteCutInfo);
                 _despawnMethod.Invoke(__instance, new object[] { noteController });
 
                 return false;

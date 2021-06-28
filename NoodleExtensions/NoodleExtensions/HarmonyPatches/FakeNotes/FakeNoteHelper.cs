@@ -9,12 +9,12 @@
 
     internal static class FakeNoteHelper
     {
-        internal static readonly MethodInfo _boundsNullCheck = SymbolExtensions.GetMethodInfo(() => BoundsNullCheck(null));
-        internal static readonly MethodInfo _obstacleFakeCheck = SymbolExtensions.GetMethodInfo(() => ObstacleFakeCheck(null));
+        internal static readonly MethodInfo _boundsNullCheck = AccessTools.Method(typeof(FakeNoteHelper), nameof(BoundsNullCheck));
+        internal static readonly MethodInfo _obstacleFakeCheck = AccessTools.Method(typeof(FakeNoteHelper), nameof(ObstacleFakeCheck));
 
         internal static bool GetFakeNote(NoteController noteController)
         {
-            NoodleNoteData noodleData = TryGetObjectData<NoodleNoteData>(noteController.noteData);
+            NoodleNoteData? noodleData = TryGetObjectData<NoodleNoteData>(noteController.noteData);
             if (noodleData != null)
             {
                 bool? fake = noodleData.Fake;
@@ -29,7 +29,7 @@
 
         internal static bool GetCuttable(NoteData noteData)
         {
-            NoodleNoteData noodleData = TryGetObjectData<NoodleNoteData>(noteData);
+            NoodleNoteData? noodleData = TryGetObjectData<NoodleNoteData>(noteData);
             if (noodleData != null)
             {
                 bool? cuttable = noodleData.Cuttable;
@@ -51,7 +51,7 @@
         {
             return intersectingObstacles.Where(n =>
             {
-                NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(n.obstacleData);
+                NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(n.obstacleData);
                 if (noodleData != null)
                 {
                     bool? fake = noodleData.Fake;

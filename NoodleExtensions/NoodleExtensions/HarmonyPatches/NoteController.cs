@@ -29,11 +29,11 @@
         private static readonly FieldAccessor<NoteJump, Vector3[]>.Accessor _randomRotationsAccessor = FieldAccessor<NoteJump, Vector3[]>.GetAccessor("_randomRotations");
         private static readonly FieldAccessor<NoteJump, int>.Accessor _randomRotationIdxAccessor = FieldAccessor<NoteJump, int>.GetAccessor("_randomRotationIdx");
 
-        private static readonly MethodInfo _getFlipYSide = SymbolExtensions.GetMethodInfo(() => GetFlipYSide(null, 0));
+        private static readonly MethodInfo _getFlipYSide = AccessTools.Method(typeof(NoteControllerInit), nameof(GetFlipYSide));
 
         private static void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float endRotation)
         {
-            NoodleNoteData noodleData = TryGetObjectData<NoodleNoteData>(noteData);
+            NoodleNoteData? noodleData = TryGetObjectData<NoodleNoteData>(noteData);
             if (noodleData == null)
             {
                 return;
@@ -91,10 +91,10 @@
                 transform.localScale = Vector3.one; // This is a fix for animation due to notes being recycled
             }
 
-            Track track = noodleData.Track;
+            Track? track = noodleData.Track;
             if (track != null && ParentObject.Controller != null)
             {
-                ParentObject parentObject = ParentObject.Controller.GetParentObjectTrack(track);
+                ParentObject? parentObject = ParentObject.Controller.GetParentObjectTrack(track);
                 if (parentObject != null)
                 {
                     parentObject.ParentToObject(transform);
@@ -147,7 +147,7 @@
         {
             float output = @default;
 
-            NoodleNoteData noodleData = TryGetObjectData<NoodleNoteData>(noteData);
+            NoodleNoteData? noodleData = TryGetObjectData<NoodleNoteData>(noteData);
             if (noodleData != null)
             {
                 float? flipYSide = noodleData.FlipYSideInternal;
@@ -177,7 +177,7 @@
         private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.Accessor _gameNoteSmallCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.GetAccessor("_smallCuttableBySaberList");
         private static readonly FieldAccessor<BombNoteController, CuttableBySaber>.Accessor _bombNoteCuttableAccessor = FieldAccessor<BombNoteController, CuttableBySaber>.GetAccessor("_cuttableBySaber");
 
-        internal static NoodleObjectData NoodleData { get; private set; }
+        internal static NoodleObjectData? NoodleData { get; private set; }
 
         private static void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
@@ -189,8 +189,8 @@
 
             NoodleNoteData noodleData = (NoodleNoteData)NoodleData;
 
-            Track track = noodleData.Track;
-            NoodleObjectData.AnimationObjectData animationObject = noodleData.AnimationObject;
+            Track? track = noodleData.Track;
+            NoodleObjectData.AnimationObjectData? animationObject = noodleData.AnimationObject;
             if (track != null || animationObject != null)
             {
                 NoteJump noteJump = NoteControllerInit._noteJumpAccessor(ref ____noteMovement);

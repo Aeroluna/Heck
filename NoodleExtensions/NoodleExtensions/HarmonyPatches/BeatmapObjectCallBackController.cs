@@ -13,8 +13,8 @@
     [HeckPatch("LateUpdate")]
     internal static class BeatmapObjectCallBackControllerLateUpdate
     {
-        private static readonly MethodInfo _getAheadTime = SymbolExtensions.GetMethodInfo(() => GetAheadTime(null, null, 0));
-        private static readonly MethodInfo _beatmapObjectSpawnControllerCallback = typeof(BeatmapObjectSpawnController).GetMethod("HandleBeatmapObjectCallback", BindingFlags.Public | BindingFlags.Instance);
+        private static readonly MethodInfo _getAheadTime = AccessTools.Method(typeof(BeatmapObjectCallBackControllerLateUpdate), nameof(GetAheadTime));
+        private static readonly MethodInfo _beatmapObjectSpawnControllerCallback = AccessTools.Method(typeof(BeatmapObjectSpawnController), nameof(BeatmapObjectSpawnController.HandleBeatmapObjectCallback));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -47,7 +47,7 @@
             if (beatmapObjectCallbackData.callback.Method == _beatmapObjectSpawnControllerCallback &&
                 (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData))
             {
-                NoodleObjectData noodleData = TryGetObjectData<NoodleObjectData>(beatmapObjectData);
+                NoodleObjectData? noodleData = TryGetObjectData<NoodleObjectData>(beatmapObjectData);
                 if (noodleData != null)
                 {
                     float? aheadTime = noodleData.AheadTimeInternal;

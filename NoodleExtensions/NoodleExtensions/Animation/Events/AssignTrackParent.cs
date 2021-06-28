@@ -16,8 +16,11 @@
             {
                 if (customEventData.type == ASSIGNTRACKPARENT)
                 {
-                    string trackName = customEventData.data.Get<string>("_parentTrack");
-                    trackManager.AddTrack(trackName);
+                    string? trackName = customEventData.data.Get<string>("_parentTrack");
+                    if (trackName != null)
+                    {
+                        trackManager.AddTrack(trackName);
+                    }
                 }
             }
         }
@@ -26,7 +29,7 @@
         {
             if (customEventData.type == ASSIGNTRACKPARENT)
             {
-                NoodleParentTrackEventData noodleData = TryGetEventData<NoodleParentTrackEventData>(customEventData);
+                NoodleParentTrackEventData? noodleData = TryGetEventData<NoodleParentTrackEventData>(customEventData);
                 if (noodleData != null)
                 {
                     IEnumerable<Track> tracks = noodleData.ChildrenTracks;

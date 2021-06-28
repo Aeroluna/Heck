@@ -11,7 +11,7 @@
     [HeckPatch("InstallBindings")]
     internal static class GameplayCoreInstallerInstallBindings
     {
-        private static readonly MethodInfo _cacheNoteJumpValues = SymbolExtensions.GetMethodInfo(() => CacheNoteJumpValues(0, 0));
+        private static readonly MethodInfo _cacheNoteJumpValues = AccessTools.Method(typeof(GameplayCoreInstallerInstallBindings), nameof(CacheNoteJumpValues));
 
         internal static float CachedNoteJumpMovementSpeed { get; private set; }
 

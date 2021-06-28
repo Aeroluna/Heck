@@ -18,19 +18,19 @@
         {
             if (__instance is CustomNoteData customData)
             {
-                Dictionary<string, object> dynData = customData.customData;
+                Dictionary<string, object?> dynData = customData.customData;
                 IEnumerable<float?> position = dynData.GetNullableFloats(POSITION);
                 float? flipLineIndex = dynData.Get<float?>("flipLineIndex");
                 IEnumerable<float?> flip = dynData.GetNullableFloats(FLIP);
-                List<float> localrot = dynData.Get<List<object>>(LOCALROTATION)?.Select(n => Convert.ToSingle(n)).ToList();
-                object rotation = dynData.Get<object>(ROTATION);
+                List<float>? localrot = dynData.Get<List<object>>(LOCALROTATION)?.Select(n => Convert.ToSingle(n)).ToList();
+                object? rotation = dynData.Get<object>(ROTATION);
 
                 float? startRow = position?.ElementAtOrDefault(0);
                 float? flipX = flip?.ElementAtOrDefault(0);
 
                 if (startRow.HasValue)
                 {
-                    dynData[POSITION] = new List<object>() { ((startRow.Value + 0.5f) * -1) - 0.5f, position.ElementAtOrDefault(1) };
+                    dynData[POSITION] = new List<object?>() { ((startRow.Value + 0.5f) * -1) - 0.5f, position.ElementAtOrDefault(1) };
                 }
 
                 if (flipLineIndex.HasValue)
@@ -40,7 +40,7 @@
 
                 if (flipX.HasValue)
                 {
-                    dynData[FLIP] = new List<object>() { ((flipX.Value + 0.5f) * -1) - 0.5f, flip.ElementAtOrDefault(1) };
+                    dynData[FLIP] = new List<object?>() { ((flipX.Value + 0.5f) * -1) - 0.5f, flip.ElementAtOrDefault(1) };
                 }
 
                 if (localrot != null)
@@ -77,7 +77,7 @@
         {
             if (__instance is CustomNoteData customData)
             {
-                Dictionary<string, object> dynData = customData.customData;
+                Dictionary<string, object?> dynData = customData.customData;
                 float? rotation = dynData.Get<float?>(CUTDIRECTION);
 
                 if (rotation.HasValue)

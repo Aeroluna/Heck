@@ -12,9 +12,9 @@
 
     internal static class NoodleObjectDataManager
     {
-        private static Dictionary<BeatmapObjectData, NoodleObjectData> _noodleObjectDatas;
+        private static Dictionary<BeatmapObjectData, NoodleObjectData> _noodleObjectDatas = new Dictionary<BeatmapObjectData, NoodleObjectData>();
 
-        internal static T TryGetObjectData<T>(BeatmapObjectData beatmapObjectData)
+        internal static T? TryGetObjectData<T>(BeatmapObjectData beatmapObjectData)
         {
             if (_noodleObjectDatas.TryGetValue(beatmapObjectData, out NoodleObjectData noodleObjectData))
             {
@@ -40,7 +40,7 @@
                 {
                     NoodleObjectData noodleObjectData;
 
-                    Dictionary<string, object> customData;
+                    Dictionary<string, object?> customData;
 
                     switch (beatmapObjectData)
                     {
@@ -77,14 +77,14 @@
             }
         }
 
-        private static void FinalizeCustomObject(Dictionary<string, object> dynData, NoodleObjectData noodleObjectData, IReadonlyBeatmapData beatmapData)
+        private static void FinalizeCustomObject(Dictionary<string, object?> dynData, NoodleObjectData noodleObjectData, IReadonlyBeatmapData beatmapData)
         {
-            object rotation = dynData.Get<object>(ROTATION);
+            object? rotation = dynData.Get<object>(ROTATION);
             if (rotation != null)
             {
                 if (rotation is List<object> list)
                 {
-                    IEnumerable<float> rot = list?.Select(n => Convert.ToSingle(n));
+                    IEnumerable<float> rot = list.Select(n => Convert.ToSingle(n));
                     noodleObjectData.WorldRotationQuaternion = Quaternion.Euler(rot.ElementAt(0), rot.ElementAt(1), rot.ElementAt(2));
                 }
                 else
@@ -93,7 +93,7 @@
                 }
             }
 
-            IEnumerable<float> localrot = dynData.Get<List<object>>(LOCALROTATION)?.Select(n => Convert.ToSingle(n));
+            IEnumerable<float>? localrot = dynData.Get<List<object>>(LOCALROTATION)?.Select(n => Convert.ToSingle(n));
             if (localrot != null)
             {
                 noodleObjectData.LocalRotationQuaternion = Quaternion.Euler(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
@@ -101,10 +101,11 @@
 
             noodleObjectData.Track = AnimationHelper.GetTrack(dynData, beatmapData);
 
-            Dictionary<string, object> animationObjectDyn = dynData.Get<Dictionary<string, object>>("_animation");
+            Dictionary<string, object?>? animationObjectDyn = dynData.Get<Dictionary<string, object?>>("_animation");
             if (animationObjectDyn != null)
             {
-                Dictionary<string, PointDefinition> pointDefinitions = ((CustomBeatmapData)beatmapData).customData.Get<Dictionary<string, PointDefinition>>("pointDefinitions");
+                Dictionary<string, PointDefinition>? pointDefinitions = ((CustomBeatmapData)beatmapData).customData.Get<Dictionary<string, PointDefinition>>("pointDefinitions")
+                    ?? throw new InvalidOperationException("Could not retrieve point definitions.");
                 Animation.AnimationHelper.GetAllPointData(
                     animationObjectDyn,
                     pointDefinitions,
@@ -129,10 +130,6 @@
                 };
                 noodleObjectData.AnimationObject = animationObjectData;
             }
-            else
-            {
-                noodleObjectData.AnimationObject = new NoodleObjectData.AnimationObjectData();
-            }
 
             noodleObjectData.Cuttable = dynData.Get<bool?>(CUTTABLE);
             noodleObjectData.Fake = dynData.Get<bool?>(FAKENOTE);
@@ -146,7 +143,7 @@
             noodleObjectData.AheadTimeInternal = dynData.Get<float?>("aheadTime");
         }
 
-        private static NoodleNoteData ProcessCustomNote(Dictionary<string, object> dynData)
+        private static NoodleNoteData ProcessCustomNote(Dictionary<string, object?> dynData)
         {
             NoodleNoteData noodleNoteData = new NoodleNoteData();
 
@@ -167,7 +164,7 @@
             return noodleNoteData;
         }
 
-        private static NoodleObstacleData ProcessCustomObstacle(Dictionary<string, object> dynData)
+        private static NoodleObstacleData ProcessCustomObstacle(Dictionary<string, object?> dynData)
         {
             NoodleObstacleData noodleObstacleData = new NoodleObstacleData();
 
@@ -180,7 +177,7 @@
         }
     }
 
-    internal class NoodleNoteData : NoodleObjectData
+    internal record NoodleNoteData : NoodleObjectData
     {
         internal Quaternion? CutQuaternion { get; set; }
 
@@ -203,7 +200,7 @@
         internal float EndRotation { get; set; }
     }
 
-    internal class NoodleObstacleData : NoodleObjectData
+    internal record NoodleObstacleData : NoodleObjectData
     {
         internal Vector3 StartPos { get; set; }
 
@@ -224,19 +221,19 @@
         internal bool DoUnhide { get; set; }
     }
 
-    internal class NoodleObjectData
+    internal record NoodleObjectData
     {
         internal Quaternion? WorldRotationQuaternion { get; set; }
 
         internal Quaternion? LocalRotationQuaternion { get; set; }
 
-        internal Track Track { get; set; }
+        internal Track? Track { get; set; }
 
         internal Quaternion WorldRotation { get; set; }
 
         internal Quaternion LocalRotation { get; set; }
 
-        internal AnimationObjectData AnimationObject { get; set; }
+        internal AnimationObjectData? AnimationObject { get; set; }
 
         internal Vector3 NoteOffset { get; set; }
 
@@ -254,23 +251,23 @@
 
         internal float? AheadTimeInternal { get; set; }
 
-        internal class AnimationObjectData
+        internal record AnimationObjectData
         {
-            internal PointDefinition LocalPosition { get; set; }
+            internal PointDefinition? LocalPosition { get; set; }
 
-            internal PointDefinition LocalRotation { get; set; }
+            internal PointDefinition? LocalRotation { get; set; }
 
-            internal PointDefinition LocalScale { get; set; }
+            internal PointDefinition? LocalScale { get; set; }
 
-            internal PointDefinition LocalLocalRotation { get; set; }
+            internal PointDefinition? LocalLocalRotation { get; set; }
 
-            internal PointDefinition LocalDissolve { get; set; }
+            internal PointDefinition? LocalDissolve { get; set; }
 
-            internal PointDefinition LocalDissolveArrow { get; set; }
+            internal PointDefinition? LocalDissolveArrow { get; set; }
 
-            internal PointDefinition LocalCuttable { get; set; }
+            internal PointDefinition? LocalCuttable { get; set; }
 
-            internal PointDefinition LocalDefinitePosition { get; set; }
+            internal PointDefinition? LocalDefinitePosition { get; set; }
         }
     }
 }

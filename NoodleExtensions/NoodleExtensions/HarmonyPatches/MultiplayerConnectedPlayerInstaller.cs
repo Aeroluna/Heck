@@ -15,7 +15,7 @@
     [HeckPatch("InstallBindings")]
     internal static class MultiplayerConnectedPlayerInstallerInstallBindings
     {
-        private static readonly MethodInfo _excludeFakeNote = SymbolExtensions.GetMethodInfo(() => ExcludeFakeNoteAndAllWalls(null));
+        private static readonly MethodInfo _excludeFakeNote = AccessTools.Method(typeof(MultiplayerConnectedPlayerInstallerInstallBindings), nameof(ExcludeFakeNoteAndAllWalls));
 
         private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
 
@@ -50,7 +50,7 @@
                 BeatmapLineData refBeatmapLineData = b;
                 _beatmapObjectsDataAccessor(ref refBeatmapLineData) = b.beatmapObjectsData.Where(n =>
                 {
-                    Dictionary<string, object> dynData;
+                    Dictionary<string, object?> dynData;
 
                     switch (n)
                     {

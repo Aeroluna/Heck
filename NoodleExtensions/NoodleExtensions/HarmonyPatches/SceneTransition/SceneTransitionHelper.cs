@@ -12,7 +12,7 @@
         {
             if (difficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
             {
-                IEnumerable<string> requirements = customBeatmapData.beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>();
+                IEnumerable<string>? requirements = customBeatmapData.beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>();
                 bool noodleRequirement = requirements?.Contains(CAPABILITY) ?? false;
                 NoodleController.ToggleNoodlePatches(noodleRequirement);
             }

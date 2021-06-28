@@ -16,8 +16,11 @@
             {
                 if (customEventData.type == ASSIGNPLAYERTOTRACK)
                 {
-                    string trackName = customEventData.data.Get<string>(TRACK);
-                    trackManager.AddTrack(trackName);
+                    string? trackName = customEventData.data.Get<string>(TRACK);
+                    if (trackName != null)
+                    {
+                        trackManager.AddTrack(trackName);
+                    }
                 }
             }
         }
@@ -26,7 +29,7 @@
         {
             if (customEventData.type == ASSIGNPLAYERTOTRACK)
             {
-                NoodlePlayerTrackEventData noodleData = TryGetEventData<NoodlePlayerTrackEventData>(customEventData);
+                NoodlePlayerTrackEventData? noodleData = TryGetEventData<NoodlePlayerTrackEventData>(customEventData);
                 if (noodleData != null)
                 {
                     Track track = noodleData.Track;

@@ -3,10 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoodleExtensions", "NoodleExtensions\NoodleExtensions.csproj", "{6F22A5D9-D726-490F-A46C-B89CA4D76B41}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoodleExtensions", "NoodleExtensions\NoodleExtensions.csproj", "{6F22A5D9-D726-490F-A46C-B89CA4D76B41}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C716C2DD-39D3-4AC0-8B2D-E129E72F4828}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		README.md = README.md
 	EndProjectSection
 EndProject

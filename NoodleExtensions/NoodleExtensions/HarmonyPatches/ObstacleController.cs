@@ -19,10 +19,10 @@
     {
         internal static readonly List<ObstacleController> _activeObstacles = new List<ObstacleController>();
 
-        private static readonly MethodInfo _getCustomWidth = SymbolExtensions.GetMethodInfo(() => GetCustomWidth(0, null));
-        private static readonly MethodInfo _getWorldRotation = SymbolExtensions.GetMethodInfo(() => GetWorldRotation(null, 0));
-        private static readonly MethodInfo _getCustomLength = SymbolExtensions.GetMethodInfo(() => GetCustomLength(0, null));
-        private static readonly MethodInfo _invertQuaternion = SymbolExtensions.GetMethodInfo(() => InvertQuaternion(Quaternion.identity));
+        private static readonly MethodInfo _getCustomWidth = AccessTools.Method(typeof(ObstacleControllerInit), nameof(GetCustomWidth));
+        private static readonly MethodInfo _getWorldRotation = AccessTools.Method(typeof(ObstacleControllerInit), nameof(GetWorldRotation));
+        private static readonly MethodInfo _getCustomLength = AccessTools.Method(typeof(ObstacleControllerInit), nameof(GetCustomLength));
+        private static readonly MethodInfo _invertQuaternion = AccessTools.Method(typeof(ObstacleControllerInit), nameof(InvertQuaternion));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -88,7 +88,7 @@
 
         private static void Postfix(ObstacleController __instance, Quaternion ____worldRotation, ObstacleData obstacleData, Vector3 ____startPos, Vector3 ____midPos, Vector3 ____endPos, ref Bounds ____bounds)
         {
-            NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
+            NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
             if (noodleData == null)
             {
                 return;
@@ -110,10 +110,10 @@
                 transform.localScale = Vector3.one; // This is a fix for animation due to obstacles being recycled
             }
 
-            Track track = noodleData.Track;
+            Track? track = noodleData.Track;
             if (track != null && ParentObject.Controller != null)
             {
-                ParentObject parentObject = ParentObject.Controller.GetParentObjectTrack(track);
+                ParentObject? parentObject = ParentObject.Controller.GetParentObjectTrack(track);
                 if (parentObject != null)
                 {
                     parentObject.ParentToObject(transform);
@@ -154,7 +154,7 @@
         {
             Quaternion worldRotation = Quaternion.Euler(0, @default, 0);
 
-            NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
+            NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
             if (noodleData != null)
             {
                 Quaternion? worldRotationQuaternion = noodleData.WorldRotationQuaternion;
@@ -171,7 +171,7 @@
 
         private static float GetCustomWidth(float @default, ObstacleData obstacleData)
         {
-            NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
+            NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
             if (noodleData != null)
             {
                 float? width = noodleData.Width;
@@ -186,7 +186,7 @@
 
         private static float GetCustomLength(float @default, ObstacleData obstacleData)
         {
-            NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
+            NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
             if (noodleData != null)
             {
                 float? length = noodleData.Length;
@@ -207,7 +207,7 @@
         private static readonly FieldInfo _obstacleDataField = AccessTools.Field(typeof(ObstacleController), "_obstacleData");
         private static readonly FieldInfo _move1DurationField = AccessTools.Field(typeof(ObstacleController), "_move1Duration");
         private static readonly FieldInfo _finishMovementTime = AccessTools.Field(typeof(ObstacleController), "_finishMovementTime");
-        private static readonly MethodInfo _obstacleTimeAdjust = SymbolExtensions.GetMethodInfo(() => ObstacleTimeAdjust(0, null, 0, 0));
+        private static readonly MethodInfo _obstacleTimeAdjust = AccessTools.Method(typeof(ObstacleControllerManualUpdate), nameof(ObstacleTimeAdjust));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -241,7 +241,7 @@
         {
             if (original > move1Duration)
             {
-                NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
+                NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
                 if (noodleData != null)
                 {
                     float? time = (float?)Heck.Animation.AnimationHelper.TryGetProperty(noodleData.Track, TIME);
@@ -270,14 +270,14 @@
             ref Quaternion ____inverseWorldRotation,
             ref Bounds ____bounds)
         {
-            NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(____obstacleData);
+            NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(____obstacleData);
             if (noodleData == null)
             {
                 return;
             }
 
-            Track track = noodleData.Track;
-            NoodleObjectData.AnimationObjectData animationObject = noodleData.AnimationObject;
+            Track? track = noodleData.Track;
+            NoodleObjectData.AnimationObjectData? animationObject = noodleData.AnimationObject;
             if (track != null || animationObject != null)
             {
                 // idk i just copied base game time
@@ -380,7 +380,7 @@
             float ____obstacleDuration,
             float time)
         {
-            NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(____obstacleData);
+            NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(____obstacleData);
             if (noodleData == null)
             {
                 return true;

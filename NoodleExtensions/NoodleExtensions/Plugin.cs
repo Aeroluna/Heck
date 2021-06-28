@@ -37,7 +37,9 @@
         internal static readonly Harmony _harmonyInstanceCore = new Harmony(HARMONYIDCORE);
         internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
 
+#pragma warning disable CS8618
         internal static HeckLogger Logger { get; private set; }
+#pragma warning restore CS8618
 
         [Init]
         public void Init(IPALogger pluginLogger)
@@ -55,8 +57,6 @@
         {
             SongCore.Collections.RegisterCapability(CAPABILITY);
             _harmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
-
-            CustomJSONData.CustomBeatmap.CustomBeatmapData.CustomBeatmapDataWasCreated += FakeNoteRecount.OnCustomBeatmapDataCreated;
         }
 
         [OnDisable]
@@ -65,8 +65,6 @@
             SongCore.Collections.DeregisterizeCapability(CAPABILITY);
             _harmonyInstanceCore.UnpatchAll(HARMONYIDCORE);
             _harmonyInstanceCore.UnpatchAll(HARMONYID);
-
-            CustomJSONData.CustomBeatmap.CustomBeatmapData.CustomBeatmapDataWasCreated -= FakeNoteRecount.OnCustomBeatmapDataCreated;
         }
     }
 }

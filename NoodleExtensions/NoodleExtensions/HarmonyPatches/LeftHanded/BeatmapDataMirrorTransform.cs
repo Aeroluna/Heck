@@ -18,7 +18,7 @@
                 {
                     if (beatmapEventData is CustomBeatmapEventData customData)
                     {
-                        Dictionary<string, object> dynData = customData.customData;
+                        Dictionary<string, object?> dynData = customData.customData;
                         float? rotation = dynData.Get<float?>(ROTATION);
 
                         if (rotation.HasValue)

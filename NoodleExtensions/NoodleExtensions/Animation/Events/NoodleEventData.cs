@@ -12,9 +12,9 @@
 
     internal static class NoodleEventDataManager
     {
-        private static Dictionary<CustomEventData, NoodleEventData> _noodleEventDatas;
+        private static Dictionary<CustomEventData, NoodleEventData> _noodleEventDatas = new Dictionary<CustomEventData, NoodleEventData>();
 
-        internal static T TryGetEventData<T>(CustomEventData customEventData)
+        internal static T? TryGetEventData<T>(CustomEventData customEventData)
         {
             if (_noodleEventDatas.TryGetValue(customEventData, out NoodleEventData noodleEventData))
             {
@@ -43,10 +43,7 @@
                     switch (customEventData.type)
                     {
                         case ASSIGNPLAYERTOTRACK:
-                            noodleEventData = new NoodlePlayerTrackEventData()
-                            {
-                                Track = GetTrack(customEventData.data, beatmapData),
-                            };
+                            noodleEventData = new NoodlePlayerTrackEventData(GetTrack(customEventData.data, beatmapData));
                             break;
 
                         case ASSIGNTRACKPARENT:
@@ -70,69 +67,82 @@
             }
         }
 
-        private static NoodleParentTrackEventData ProcessParentTrackEvent(Dictionary<string, object> customData, IReadonlyBeatmapData beatmapData)
+        private static NoodleParentTrackEventData ProcessParentTrackEvent(Dictionary<string, object?> customData, IReadonlyBeatmapData beatmapData)
         {
-            IEnumerable<float> position = customData.Get<List<object>>(POSITION)?.Select(n => Convert.ToSingle(n));
+            IEnumerable<float>? position = customData.Get<List<object>>(POSITION)?.Select(n => Convert.ToSingle(n));
             Vector3? posVector = null;
             if (position != null)
             {
                 posVector = new Vector3(position.ElementAt(0), position.ElementAt(1), position.ElementAt(2));
             }
 
-            IEnumerable<float> rotation = customData.Get<List<object>>(ROTATION)?.Select(n => Convert.ToSingle(n));
+            IEnumerable<float>? rotation = customData.Get<List<object>>(ROTATION)?.Select(n => Convert.ToSingle(n));
             Quaternion? rotQuaternion = null;
             if (rotation != null)
             {
                 rotQuaternion = Quaternion.Euler(rotation.ElementAt(0), rotation.ElementAt(1), rotation.ElementAt(2));
             }
 
-            IEnumerable<float> localrot = customData.Get<List<object>>(LOCALROTATION)?.Select(n => Convert.ToSingle(n));
+            IEnumerable<float>? localrot = customData.Get<List<object>>(LOCALROTATION)?.Select(n => Convert.ToSingle(n));
             Quaternion? localRotQuaternion = null;
             if (localrot != null)
             {
                 localRotQuaternion = Quaternion.Euler(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
             }
 
-            IEnumerable<float> scale = customData.Get<List<object>>(SCALE)?.Select(n => Convert.ToSingle(n));
+            IEnumerable<float>? scale = customData.Get<List<object>>(SCALE)?.Select(n => Convert.ToSingle(n));
             Vector3? scaleVector = null;
             if (scale != null)
             {
                 scaleVector = new Vector3(scale.ElementAt(0), scale.ElementAt(1), scale.ElementAt(2));
             }
 
-            return new NoodleParentTrackEventData()
-            {
-                ParentTrack = GetTrack(customData, beatmapData, "_parentTrack"),
-                ChildrenTracks = GetTrackArray(customData, beatmapData, "_childrenTracks"),
-                Position = posVector,
-                Rotation = rotQuaternion,
-                LocalRotation = localRotQuaternion,
-                Scale = scaleVector,
-            };
+            return new NoodleParentTrackEventData(
+                GetTrack(customData, beatmapData, "_parentTrack") ?? throw new InvalidOperationException("No parent track found."),
+                GetTrackArray(customData, beatmapData, "_childrenTracks") ?? throw new InvalidOperationException("No children tracks found."),
+                posVector,
+                rotQuaternion,
+                localRotQuaternion,
+                scaleVector);
         }
     }
 
-    internal class NoodlePlayerTrackEventData : NoodleEventData
+    internal record NoodlePlayerTrackEventData : NoodleEventData
     {
+        internal NoodlePlayerTrackEventData(Track track)
+        {
+            Track = track;
+        }
+
         internal Track Track { get; set; }
     }
 
-    internal class NoodleParentTrackEventData : NoodleEventData
+    internal record NoodleParentTrackEventData : NoodleEventData
     {
-        internal Track ParentTrack { get; set; }
+        internal NoodleParentTrackEventData(Track parentTrack, IEnumerable<Track> childrenTracks, Vector3? position, Quaternion? rotation, Quaternion? localRotation, Vector3? scale)
+        {
+            ParentTrack = parentTrack;
+            ChildrenTracks = childrenTracks;
+            Position = position;
+            Rotation = rotation;
+            LocalRotation = localRotation;
+            Scale = scale;
+        }
 
-        internal IEnumerable<Track> ChildrenTracks { get; set; }
+        internal Track ParentTrack { get; }
 
-        internal Vector3? Position { get; set; }
+        internal IEnumerable<Track> ChildrenTracks { get; }
 
-        internal Quaternion? Rotation { get; set; }
+        internal Vector3? Position { get; }
 
-        internal Quaternion? LocalRotation { get; set; }
+        internal Quaternion? Rotation { get; }
 
-        internal Vector3? Scale { get; set; }
+        internal Quaternion? LocalRotation { get; }
+
+        internal Vector3? Scale { get; }
     }
 
-    internal class NoodleEventData
+    internal record NoodleEventData
     {
     }
 }

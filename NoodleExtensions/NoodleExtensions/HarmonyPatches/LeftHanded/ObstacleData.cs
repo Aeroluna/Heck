@@ -18,26 +18,24 @@
         {
             if (__instance is CustomObstacleData customData)
             {
-                Dictionary<string, object> dynData = customData.customData;
+                Dictionary<string, object?> dynData = customData.customData;
                 IEnumerable<float?> position = dynData.GetNullableFloats(POSITION);
                 IEnumerable<float?> scale = dynData.GetNullableFloats(SCALE);
-                List<float> localrot = dynData.Get<List<object>>(LOCALROTATION)?.Select(n => Convert.ToSingle(n)).ToList();
-                object rotation = dynData.Get<object>(ROTATION);
+                List<float>? localrot = dynData.Get<List<object>>(LOCALROTATION)?.Select(n => Convert.ToSingle(n)).ToList();
+                object? rotation = dynData.Get<object>(ROTATION);
 
                 float? startX = position?.ElementAtOrDefault(0);
                 float? scaleX = scale?.ElementAtOrDefault(0);
 
-                IDictionary<string, object> dictdata = dynData as IDictionary<string, object>;
-
                 float width = scaleX.GetValueOrDefault(__instance.width);
                 if (startX.HasValue)
                 {
-                    dictdata[POSITION] = new List<object>() { (startX.Value + width) * -1, position.ElementAtOrDefault(1) };
+                    dynData[POSITION] = new List<object?>() { (startX.Value + width) * -1, position.ElementAtOrDefault(1) };
                 }
                 else if (scaleX.HasValue)
                 {
                     float lineIndex = __instance.lineIndex - 2;
-                    dictdata[POSITION] = new List<object>() { (lineIndex + width) * -1, position?.ElementAtOrDefault(1) ?? 0 };
+                    dynData[POSITION] = new List<object?>() { (lineIndex + width) * -1, position?.ElementAtOrDefault(1) ?? 0 };
                 }
 
                 if (localrot != null)
@@ -45,7 +43,7 @@
                     List<float> rot = localrot.Select(n => Convert.ToSingle(n)).ToList();
                     Quaternion modifiedVector = Quaternion.Euler(rot[0], rot[1], rot[2]);
                     Vector3 vector = new Quaternion(modifiedVector.x, modifiedVector.y * -1, modifiedVector.z * -1, modifiedVector.w).eulerAngles;
-                    dictdata[LOCALROTATION] = new List<object> { vector.x, vector.y, vector.z };
+                    dynData[LOCALROTATION] = new List<object> { vector.x, vector.y, vector.z };
                 }
 
                 if (rotation != null)
@@ -55,11 +53,11 @@
                         List<float> rot = list.Select(n => Convert.ToSingle(n)).ToList();
                         Quaternion modifiedVector = Quaternion.Euler(rot[0], rot[1], rot[2]);
                         Vector3 vector = new Quaternion(modifiedVector.x, modifiedVector.y * -1, modifiedVector.z * -1, modifiedVector.w).eulerAngles;
-                        dictdata[ROTATION] = new List<object> { vector.x, vector.y, vector.z };
+                        dynData[ROTATION] = new List<object> { vector.x, vector.y, vector.z };
                     }
                     else
                     {
-                        dictdata[ROTATION] = Convert.ToSingle(rotation) * -1;
+                        dynData[ROTATION] = Convert.ToSingle(rotation) * -1;
                     }
                 }
             }

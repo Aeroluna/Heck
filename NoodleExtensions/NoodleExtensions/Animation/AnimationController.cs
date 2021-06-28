@@ -5,13 +5,13 @@
 
     public class AnimationController : MonoBehaviour
     {
-        public static AnimationController Instance { get; private set; }
+        public static AnimationController? Instance { get; private set; }
 
-        public CustomEventCallbackController CustomEventCallbackController { get; private set; }
+        public CustomEventCallbackController? CustomEventCallbackController { get; private set; }
 
         internal static void CustomEventCallbackInit(CustomEventCallbackController customEventCallbackController)
         {
-            if (customEventCallbackController.BeatmapData.customData.Get<bool>("isMultiplayer"))
+            if (customEventCallbackController.BeatmapData?.customData.Get<bool>("isMultiplayer") ?? false)
             {
                 return;
             }

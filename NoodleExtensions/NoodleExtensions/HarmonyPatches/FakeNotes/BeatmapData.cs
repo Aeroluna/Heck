@@ -1,17 +1,50 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
     using CustomJSONData;
+    using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
+
+    [HarmonyPatch(typeof(BeatmapData))]
+    [HarmonyPatch(MethodType.Constructor)]
+    [HarmonyPatch(new Type[] { typeof(int) })]
+    internal static class BeatmapDataCtor
+    {
+        private static void Postfix()
+        {
+            BeatmapDataAddBeatmapObjectData.NeedsCheck = true;
+        }
+    }
 
     [HarmonyPatch(typeof(BeatmapData))]
     [HarmonyPatch("AddBeatmapObjectData")]
     internal static class BeatmapDataAddBeatmapObjectData
     {
         private static readonly MethodInfo _fakeObjectCheck = AccessTools.Method(typeof(BeatmapDataAddBeatmapObjectData), nameof(FakeObjectCheck));
+        private static bool _noodleRequirement;
+
+        internal static bool NeedsCheck { get; set; }
+
+        private static void Prefix(BeatmapData __instance)
+        {
+            if (NeedsCheck)
+            {
+                NeedsCheck = false;
+                if (__instance is CustomBeatmapData customBeatmapData)
+                {
+                    IEnumerable<string>? requirements = customBeatmapData.beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>();
+                    _noodleRequirement = requirements?.Contains(Plugin.CAPABILITY) ?? false;
+                }
+                else
+                {
+                    _noodleRequirement = false;
+                }
+            }
+        }
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -84,12 +117,13 @@
 
         private static int FakeObjectCheck(int objectCount, BeatmapObjectData beatmapObjectData)
         {
-            Dictionary<string, object> dynData = beatmapObjectData.GetDataForObject();
-
-            bool? fake = dynData.Get<bool?>(Plugin.FAKENOTE);
-            if (fake.HasValue && fake.Value)
+            if (_noodleRequirement)
             {
-                return objectCount;
+                bool? fake = beatmapObjectData.GetDataForObject().Get<bool?>(Plugin.FAKENOTE);
+                if (fake.HasValue && fake.Value)
+                {
+                    return objectCount;
+                }
             }
 
             return objectCount + 1;

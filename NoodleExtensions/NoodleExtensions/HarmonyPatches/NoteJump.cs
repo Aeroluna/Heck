@@ -15,12 +15,12 @@
     internal static class NoteJumpManualUpdate
     {
         private static readonly FieldInfo _jumpDurationField = AccessTools.Field(typeof(NoteJump), "_jumpDuration");
-        private static readonly MethodInfo _noteJumpTimeAdjust = SymbolExtensions.GetMethodInfo(() => NoteJumpTimeAdjust(0, 0));
+        private static readonly MethodInfo _noteJumpTimeAdjust = AccessTools.Method(typeof(NoteJumpManualUpdate), nameof(NoteJumpTimeAdjust));
         private static readonly FieldInfo _localPositionField = AccessTools.Field(typeof(NoteJump), "_localPosition");
-        private static readonly MethodInfo _definiteNoteJump = SymbolExtensions.GetMethodInfo(() => DefiniteNoteJump(Vector3.zero, 0));
-        private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), "_definitePosition");
-        private static readonly MethodInfo _getTransform = typeof(Component).GetProperty("transform").GetGetMethod();
-        private static readonly MethodInfo _doNoteLook = SymbolExtensions.GetMethodInfo(() => DoNoteLook(0, Quaternion.identity, Quaternion.identity, Quaternion.identity, null, null, null, Quaternion.identity));
+        private static readonly MethodInfo _definiteNoteJump = AccessTools.Method(typeof(NoteJumpManualUpdate), nameof(DefiniteNoteJump));
+        private static readonly FieldInfo _definitePositionField = AccessTools.Field(typeof(NoteJumpManualUpdate), nameof(_definitePosition));
+        private static readonly MethodInfo _getTransform = AccessTools.PropertyGetter(typeof(Component), nameof(Component.transform));
+        private static readonly MethodInfo _doNoteLook = AccessTools.Method(typeof(NoteJumpManualUpdate), nameof(DoNoteLook));
         private static readonly FieldInfo _startRotationField = AccessTools.Field(typeof(NoteJump), "_startRotation");
         private static readonly FieldInfo _middleRotationField = AccessTools.Field(typeof(NoteJump), "_middleRotation");
         private static readonly FieldInfo _endRotationField = AccessTools.Field(typeof(NoteJump), "_endRotation");
@@ -30,13 +30,13 @@
         private static readonly FieldAccessor<PlayerTransforms, Transform>.Accessor _headTransformAccessor = FieldAccessor<PlayerTransforms, Transform>.GetAccessor("_headTransform");
 
         // This field is used by reflection
-#pragma warning disable CS0414 // The field is assigned but its value is never used
+#pragma warning disable CS0414
         private static bool _definitePosition = false;
-#pragma warning restore CS0414 // The field is assigned but its value is never used
+#pragma warning restore CS0414
 
         internal static float NoteJumpTimeAdjust(float original, float jumpDuration)
         {
-            NoodleObjectData noodleData = NoteControllerUpdate.NoodleData;
+            NoodleObjectData? noodleData = NoteControllerUpdate.NoodleData;
             if (noodleData != null)
             {
                 float? time = (float?)Heck.Animation.AnimationHelper.TryGetProperty(noodleData.Track, Plugin.TIME);
@@ -165,7 +165,7 @@
 
         private static Vector3 DefiniteNoteJump(Vector3 original, float time)
         {
-            NoodleObjectData noodleData = NoteControllerUpdate.NoodleData;
+            NoodleObjectData? noodleData = NoteControllerUpdate.NoodleData;
             if (noodleData != null)
             {
                 AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, time, out Vector3? position);
@@ -193,7 +193,7 @@
             Transform baseTransform,
             Quaternion inverseWorldRotation)
         {
-            NoodleNoteData noodleData = (NoodleNoteData)NoteControllerUpdate.NoodleData;
+            NoodleNoteData? noodleData = (NoodleNoteData?)NoteControllerUpdate.NoodleData;
             if (noodleData != null && noodleData.DisableLook)
             {
                 rotatedObject.localRotation = endRotation;

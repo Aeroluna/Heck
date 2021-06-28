@@ -12,13 +12,13 @@
     {
         private static readonly FieldAccessor<PauseController, bool>.Accessor _pausedAccessor = FieldAccessor<PauseController, bool>.GetAccessor("_paused");
 
-        private static PlayerTrack _instance;
-        private static Track _track;
+        private static PlayerTrack? _instance;
+        private static Track? _track;
         private static Vector3 _startPos = Vector3.zero;
         private static Quaternion _startRot = Quaternion.identity;
         private static Quaternion _startLocalRot = Quaternion.identity;
-        private static Transform _origin;
-        private static PauseController _pauseController;
+        private static Transform? _origin;
+        private static PauseController? _pauseController;
 
         internal static void AssignTrack(Track track)
         {
@@ -46,8 +46,8 @@
 
         private void OnDidPauseEvent()
         {
-            _origin.localRotation = _startLocalRot;
-            _origin.localPosition = _startPos;
+            _origin!.localRotation = _startLocalRot;
+            _origin!.localPosition = _startPos;
         }
 
         private void OnDestroy()
@@ -105,10 +105,10 @@
                         MirrorQuaternionNullable(ref localRotation);
                     }
 
-                    worldRotationQuatnerion *= localRotation.Value;
+                    worldRotationQuatnerion *= localRotation!.Value;
                 }
 
-                if (_origin.localRotation != worldRotationQuatnerion)
+                if (_origin!.localRotation != worldRotationQuatnerion)
                 {
                     _origin.localRotation = worldRotationQuatnerion;
                 }

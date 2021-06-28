@@ -6,9 +6,9 @@
     [HeckPatch("Start")]
     internal static class BeatmapObjectSpawnControllerStart
     {
-        internal static BasicBeatmapObjectManager BeatmapObjectManager { get; private set; }
+        internal static BasicBeatmapObjectManager? BeatmapObjectManager { get; private set; }
 
-        private static void Postfix(BeatmapObjectSpawnController __instance, IBeatmapObjectSpawner ____beatmapObjectSpawner, BeatmapObjectSpawnMovementData ____beatmapObjectSpawnMovementData)
+        private static void Postfix(IBeatmapObjectSpawner ____beatmapObjectSpawner, BeatmapObjectSpawnMovementData ____beatmapObjectSpawnMovementData)
         {
             if (____beatmapObjectSpawner is BasicBeatmapObjectManager basicBeatmapObjectManager)
             {

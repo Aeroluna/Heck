@@ -13,14 +13,14 @@
 
     internal class ParentObject : MonoBehaviour
     {
-        private Track _track;
-        private Transform _origin;
+        private Track? _track;
+        private Transform? _origin;
         private Vector3 _startPos = Vector3.zero;
         private Quaternion _startRot = Quaternion.identity;
         private Quaternion _startLocalRot = Quaternion.identity;
         private Vector3 _startScale = Vector3.one;
 
-        internal static ParentController Controller { get; private set; }
+        internal static ParentController? Controller { get; private set; }
 
         internal HashSet<Track> ChildrenTracks { get; } = new HashSet<Track>();
 
@@ -97,10 +97,10 @@
                 {
                     if (obstacleController?.obstacleData != null)
                     {
-                        NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(obstacleController.obstacleData);
+                        NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleController.obstacleData);
                         if (noodleData != null)
                         {
-                            Track obstacleTrack = noodleData.Track;
+                            Track? obstacleTrack = noodleData.Track;
                             if (obstacleTrack == track)
                             {
                                 instance.ParentToObject(obstacleController.transform);
@@ -117,7 +117,7 @@
 
         internal void ParentToObject(Transform transform)
         {
-            transform.SetParent(_origin.transform, false);
+            transform.SetParent(_origin!.transform, false);
         }
 
         private void Update()
@@ -159,7 +159,7 @@
                     MirrorQuaternionNullable(ref localRotation);
                 }
 
-                worldRotationQuatnerion *= localRotation.Value;
+                worldRotationQuatnerion *= localRotation!.Value;
             }
 
             Vector3 scaleVector = _startScale;
@@ -169,7 +169,7 @@
                 scaleVector = Vector3.Scale(_startScale, scale.Value);
             }
 
-            if (_origin.localRotation != worldRotationQuatnerion)
+            if (_origin!.localRotation != worldRotationQuatnerion)
             {
                 _origin.localRotation = worldRotationQuatnerion;
             }
@@ -190,7 +190,7 @@
     {
         internal HashSet<ParentObject> ParentObjects { get; } = new HashSet<ParentObject>();
 
-        internal ParentObject GetParentObjectTrack(Track track)
+        internal ParentObject? GetParentObjectTrack(Track track)
         {
             IEnumerable<ParentObject> filteredParents = ParentObjects.Where(n => n.ChildrenTracks.Contains(track));
             if (filteredParents != null)

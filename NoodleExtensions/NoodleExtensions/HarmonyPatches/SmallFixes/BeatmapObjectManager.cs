@@ -13,7 +13,7 @@
     [HeckPatch("SpawnObstacle")]
     internal static class BeatmapObjectManagerSpawnObstacle
     {
-        private static readonly MethodInfo _getHiddenForType = SymbolExtensions.GetMethodInfo(() => GetHiddenForType(null));
+        private static readonly MethodInfo _getHiddenForType = AccessTools.Method(typeof(BeatmapObjectManagerSpawnObstacle), nameof(GetHiddenForType));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -42,7 +42,7 @@
 
         private static void Postfix(ObstacleController __result)
         {
-            NoodleObstacleData noodleData = TryGetObjectData<NoodleObstacleData>(__result.obstacleData);
+            NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(__result.obstacleData);
             if (noodleData != null)
             {
                 noodleData.DoUnhide = true;

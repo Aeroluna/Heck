@@ -16,7 +16,7 @@
                 {
                     foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
                     {
-                        Dictionary<string, object> dynData = beatmapObjectData.GetDataForObject();
+                        Dictionary<string, object?> dynData = beatmapObjectData.GetDataForObject();
 
                         // TODO: account for base game bpm changes
                         // for per object njs and spawn offset
