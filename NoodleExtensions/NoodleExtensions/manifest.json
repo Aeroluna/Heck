@@ -1,7 +1,7 @@
 ﻿{
   "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "author": "Aeroluna",
-  "description": "Gives mappers a host of new options for mapping, and you the player to play said maps!",
+  "description": "This mod lets you see cool things that mappers have put in their maps. Report all issues to Reaxt.",
   "gameVersion": "1.16.2",
   "id": "NoodleExtensions",
   "name": "NoodleExtensions",

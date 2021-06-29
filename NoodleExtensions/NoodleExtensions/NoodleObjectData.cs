@@ -109,14 +109,14 @@
                 Animation.AnimationHelper.GetAllPointData(
                     animationObjectDyn,
                     pointDefinitions,
-                    out PointDefinition localPosition,
-                    out PointDefinition localRotation,
-                    out PointDefinition localScale,
-                    out PointDefinition localLocalRotation,
-                    out PointDefinition localDissolve,
-                    out PointDefinition localDissolveArrow,
-                    out PointDefinition localCuttable,
-                    out PointDefinition localDefinitePosition);
+                    out PointDefinition? localPosition,
+                    out PointDefinition? localRotation,
+                    out PointDefinition? localScale,
+                    out PointDefinition? localLocalRotation,
+                    out PointDefinition? localDissolve,
+                    out PointDefinition? localDissolveArrow,
+                    out PointDefinition? localCuttable,
+                    out PointDefinition? localDefinitePosition);
                 NoodleObjectData.AnimationObjectData animationObjectData = new NoodleObjectData.AnimationObjectData
                 {
                     LocalPosition = localPosition,
@@ -134,7 +134,7 @@
             noodleObjectData.Cuttable = dynData.Get<bool?>(CUTTABLE);
             noodleObjectData.Fake = dynData.Get<bool?>(FAKENOTE);
 
-            IEnumerable<float?> position = dynData.GetNullableFloats(POSITION);
+            IEnumerable<float?>? position = dynData.GetNullableFloats(POSITION);
             noodleObjectData.StartX = position?.ElementAtOrDefault(0);
             noodleObjectData.StartY = position?.ElementAtOrDefault(1);
 
@@ -168,7 +168,7 @@
         {
             NoodleObstacleData noodleObstacleData = new NoodleObstacleData();
 
-            IEnumerable<float?> scale = dynData.GetNullableFloats(SCALE);
+            IEnumerable<float?>? scale = dynData.GetNullableFloats(SCALE);
             noodleObstacleData.Width = scale?.ElementAtOrDefault(0);
             noodleObstacleData.Height = scale?.ElementAtOrDefault(1);
             noodleObstacleData.Length = scale?.ElementAtOrDefault(2);

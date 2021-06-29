@@ -22,7 +22,7 @@
                 {
                     CustomNoteData noteData = customNotes[i];
 
-                    IEnumerable<float?> position = noteData.customData.GetNullableFloats(POSITION);
+                    IEnumerable<float?>? position = noteData.customData.GetNullableFloats(POSITION);
                     float lineIndex = position?.ElementAtOrDefault(0) ?? (noteData.lineIndex - 2);
                     float lineLayer = position?.ElementAtOrDefault(1) ?? (float)noteData.noteLineLayer;
 
@@ -35,7 +35,7 @@
                     bool flag = false;
                     for (int k = 0; k < list.Count; k++)
                     {
-                        IEnumerable<float?> listPosition = list[k].customData.GetNullableFloats(POSITION);
+                        IEnumerable<float?>? listPosition = list[k].customData.GetNullableFloats(POSITION);
                         float listLineLayer = listPosition?.ElementAtOrDefault(1) ?? (float)list[k].noteLineLayer;
                         if (listLineLayer > lineLayer)
                         {
@@ -65,7 +65,7 @@
                 for (int i = flipNotes.Count - 1; i >= 0; i--)
                 {
                     Dictionary<string, object?> dynData = flipNotes[i].customData;
-                    IEnumerable<float?> flip = dynData.GetNullableFloats(FLIP);
+                    IEnumerable<float?>? flip = dynData.GetNullableFloats(FLIP);
                     float? flipX = flip?.ElementAtOrDefault(0);
                     float? flipY = flip?.ElementAtOrDefault(1);
                     if (flipX.HasValue || flipY.HasValue)
@@ -107,7 +107,7 @@
                     for (int i = 0; i < customNoteCount; i++)
                     {
                         Dictionary<string, object?> dynData = customNotes[i].customData;
-                        IEnumerable<float?> position = dynData.GetNullableFloats(POSITION);
+                        IEnumerable<float?>? position = dynData.GetNullableFloats(POSITION);
                         lineIndexes[i] = position?.ElementAtOrDefault(0) ?? (customNotes[i].lineIndex - 2);
                         lineLayers[i] = position?.ElementAtOrDefault(1) ?? (float)customNotes[i].noteLineLayer;
                     }

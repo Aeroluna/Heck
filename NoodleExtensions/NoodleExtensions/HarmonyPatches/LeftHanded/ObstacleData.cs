@@ -19,8 +19,8 @@
             if (__instance is CustomObstacleData customData)
             {
                 Dictionary<string, object?> dynData = customData.customData;
-                IEnumerable<float?> position = dynData.GetNullableFloats(POSITION);
-                IEnumerable<float?> scale = dynData.GetNullableFloats(SCALE);
+                IEnumerable<float?>? position = dynData.GetNullableFloats(POSITION);
+                IEnumerable<float?>? scale = dynData.GetNullableFloats(SCALE);
                 List<float>? localrot = dynData.Get<List<object>>(LOCALROTATION)?.Select(n => Convert.ToSingle(n)).ToList();
                 object? rotation = dynData.Get<object>(ROTATION);
 

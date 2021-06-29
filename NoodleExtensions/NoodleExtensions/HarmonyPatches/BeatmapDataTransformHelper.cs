@@ -91,7 +91,7 @@
                     }
 
                     _beatmapObjectsDataAccessor(ref beatmapLineData) = beatmapLineData.beatmapObjectsData
-                        .OrderBy(n => n.time - (float)(n.GetDataForObject()["aheadTime"] ?? throw new System.InvalidOperationException($"Could not get aheadTime for [{n.GetType().FullName}] at time [{n.time}]")))
+                        .OrderBy(n => n.time - (float)(n.GetDataForObject()["aheadTime"] ?? throw new System.InvalidOperationException($"Could not get aheadTime for [{n.GetType().FullName}] at time [{n.time}].")))
                         .ToList();
                 }
 

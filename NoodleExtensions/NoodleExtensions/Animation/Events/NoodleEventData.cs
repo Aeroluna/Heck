@@ -43,7 +43,7 @@
                     switch (customEventData.type)
                     {
                         case ASSIGNPLAYERTOTRACK:
-                            noodleEventData = new NoodlePlayerTrackEventData(GetTrack(customEventData.data, beatmapData));
+                            noodleEventData = new NoodlePlayerTrackEventData(GetTrack(customEventData.data, beatmapData) ?? throw new InvalidOperationException("Track was not defined."));
                             break;
 
                         case ASSIGNTRACKPARENT:
@@ -98,8 +98,8 @@
             }
 
             return new NoodleParentTrackEventData(
-                GetTrack(customData, beatmapData, "_parentTrack") ?? throw new InvalidOperationException("No parent track found."),
-                GetTrackArray(customData, beatmapData, "_childrenTracks") ?? throw new InvalidOperationException("No children tracks found."),
+                GetTrack(customData, beatmapData, "_parentTrack") ?? throw new InvalidOperationException("Parent track was not defined."),
+                GetTrackArray(customData, beatmapData, "_childrenTracks") ?? throw new InvalidOperationException("Children track was not defined."),
                 posVector,
                 rotQuaternion,
                 localRotQuaternion,

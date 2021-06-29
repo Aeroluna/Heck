@@ -19,9 +19,9 @@
             if (__instance is CustomNoteData customData)
             {
                 Dictionary<string, object?> dynData = customData.customData;
-                IEnumerable<float?> position = dynData.GetNullableFloats(POSITION);
+                IEnumerable<float?>? position = dynData.GetNullableFloats(POSITION);
                 float? flipLineIndex = dynData.Get<float?>("flipLineIndex");
-                IEnumerable<float?> flip = dynData.GetNullableFloats(FLIP);
+                IEnumerable<float?>? flip = dynData.GetNullableFloats(FLIP);
                 List<float>? localrot = dynData.Get<List<object>>(LOCALROTATION)?.Select(n => Convert.ToSingle(n)).ToList();
                 object? rotation = dynData.Get<object>(ROTATION);
 

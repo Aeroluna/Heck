@@ -115,7 +115,17 @@
             }
         }
 
-        internal static void GetAllPointData(Dictionary<string, object?> customData, Dictionary<string, PointDefinition> pointDefinitions, out PointDefinition position, out PointDefinition rotation, out PointDefinition scale, out PointDefinition localRotation, out PointDefinition dissolve, out PointDefinition dissolveArrow, out PointDefinition cuttable, out PointDefinition definitePosition)
+        internal static void GetAllPointData(
+            Dictionary<string, object?> customData,
+            Dictionary<string, PointDefinition> pointDefinitions,
+            out PointDefinition? position,
+            out PointDefinition? rotation,
+            out PointDefinition? scale,
+            out PointDefinition? localRotation,
+            out PointDefinition? dissolve,
+            out PointDefinition? dissolveArrow,
+            out PointDefinition? cuttable,
+            out PointDefinition? definitePosition)
         {
             TryGetPointData(customData, POSITION, out position, pointDefinitions);
             TryGetPointData(customData, ROTATION, out rotation, pointDefinitions);
