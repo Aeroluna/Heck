@@ -1,128 +1,105 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{6F47BF06-51D9-4349-9B2C-C0F963BE896A}</ProjectGuid>
+    <TargetFramework>net48</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Chroma</RootNamespace>
-    <AssemblyName>Chroma</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
+    <LangVersion>9</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
     <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
     <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
-    <!--<PathMap>$(AppOutputBase)=X:\$(AssemblyName)\</PathMap>-->
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <CodeAnalysisRuleSet>..\..\NoodleExtensions\NoodleExtensions\NoodleExtensions.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\..\NoodleExtensions\NoodleExtensions\NoodleExtensions.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
+
   <PropertyGroup Condition="$(DefineConstants.Contains('CIBuild')) OR '$(NCrunch)' == '1'">
     <DisableCopyToPlugins>True</DisableCopyToPlugins>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(NCrunch)' == '1'">
     <DisableCopyToPlugins>True</DisableCopyToPlugins>
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
+
   <ItemGroup>
-    <Compile Include="AnimationHelper.cs" />
-    <Compile Include="Colorizer\BombColorizer.cs" />
-    <Compile Include="Colorizer\Monobehaviours\ChromaClashEffectController.cs" />
-    <Compile Include="Colorizer\Monobehaviours\ChromaParticleEventController.cs" />
-    <Compile Include="Colorizer\Monobehaviours\ChromaSaberController.cs" />
-    <Compile Include="Colorizer\ColorizerExtensions.cs" />
-    <Compile Include="Colorizer\ParticleColorizer.cs" />
-    <Compile Include="Colorizer\LightColorizer.cs" />
-    <Compile Include="Colorizer\SaberColorizer.cs" />
-    <Compile Include="Colorizer\ObstacleColorizer.cs" />
-    <Compile Include="Colorizer\ObjectColorizer.cs" />
-    <Compile Include="Colorizer\NoteColorizer.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\Initialize\LightSwitchEventEffect.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\NoteController.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\Note\BeatEffectSpawner.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\Initialize\BaseNoteVisuals.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\Initialize\ObstacleDissolve.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\Initialize\SaberModelContainer.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\Obstacle\ObstacleSaberSparklerEffectManager.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\Saber\SaberClashEffect.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\Saber\SaberBurnMarkSparkles.cs" />
-    <Compile Include="HarmonyPatches\GameplayCoreInstaller.cs" />
-    <Compile Include="HarmonyPatches\EnvironmentComponent\BeatmapObjectsAvoidance.cs" />
-    <Compile Include="HarmonyPatches\Mirror\MirroredObstacleController.cs" />
-    <Compile Include="HarmonyPatches\Mirror\MirroredNoteController.cs" />
-    <Compile Include="HarmonyPatches\PlayerHeadAndObstacleInteraction.cs" />
-    <Compile Include="HarmonyPatches\ScenesTransition\TutorialScenesTransitionSetupDataSO.cs" />
-    <Compile Include="HarmonyPatches\EnvironmentComponent\TrackLaneRing.cs" />
-    <Compile Include="HarmonyPatches\EnvironmentComponent\LightWithIdManager.cs" />
-    <Compile Include="HarmonyPatches\EnvironmentComponent\TrackLaneRingsManager.cs" />
-    <Compile Include="HarmonyPatches\EnvironmentComponent\ParametricBoxController.cs" />
-    <Compile Include="Lighting\ChromaEventData.cs" />
-    <Compile Include="ChromaObjectData.cs" />
-    <Compile Include="HarmonyPatches\BeatmapDataZenModeTransform.cs" />
-    <Compile Include="Lighting\ChromaGradientController.cs" />
-    <Compile Include="Lighting\ChromaRingsRotationEffect.cs" />
-    <Compile Include="HarmonyPatches\BeatmapDataTransformHelper.cs" />
-    <Compile Include="Lighting\EnvironmentEnhancement\ComponentData.cs" />
-    <Compile Include="Lighting\EnvironmentEnhancement\ComponentInitializer.cs" />
-    <Compile Include="Lighting\EnvironmentEnhancement\EnvironmentEnhancementManager.cs" />
-    <Compile Include="Lighting\EnvironmentEnhancement\GameObjectInfo.cs" />
-    <Compile Include="Lighting\EnvironmentEnhancement\GameObjectTrackController.cs" />
-    <Compile Include="Lighting\EnvironmentEnhancement\LegacyEnvironmentRemoval.cs" />
-    <Compile Include="Lighting\EnvironmentEnhancement\ParametricBoxControllerParameters.cs" />
-    <Compile Include="Lighting\LightIDTableManager.cs" />
-    <Compile Include="HarmonyPatches\BeatmapObjectSpawnController.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\BombNoteController.cs" />
-    <Compile Include="HarmonyPatches\Events\LightRotationEventEffect.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\Saber\SaberBurnMarkArea.cs" />
-    <Compile Include="HarmonyPatches\ScenesTransition\MissionLevelScenesTransitionSetupDataSO.cs" />
-    <Compile Include="HarmonyPatches\ScenesTransition\SceneTransitionHelper.cs" />
-    <Compile Include="HarmonyPatches\ScenesTransition\MultiplayerLevelScenesTransitionSetupDataSO.cs" />
-    <Compile Include="HarmonyPatches\Events\TrackLaneRingsRotationEffect.cs" />
-    <Compile Include="Lighting\LegacyLightHelper.cs" />
-    <Compile Include="HarmonyPatches\BeatEffectSpawner.cs" />
-    <Compile Include="HarmonyPatches\ScenesTransition\StandardLevelScenesTransitionSetupDataSO.cs" />
-    <Compile Include="Lighting\LightColorManager.cs" />
-    <Compile Include="HarmonyPatches\Events\TrackLaneRingsPositionStepEffectSpawner.cs" />
-    <Compile Include="ChromaController.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\ColorNoteVisuals.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\ObstacleController.cs" />
-    <Compile Include="HarmonyPatches\Events\LightPairRotationEventEffect.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\Initialize\ParticleSystemEventEffect.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\Note\ColorManager.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\LightSwitchEventEffect.cs" />
-    <Compile Include="HarmonyPatches\Colorizer\Note\NoteCutEffectSpawner.cs" />
-    <Compile Include="HarmonyPatches\Events\TrackLaneRingsRotationEffectSpawner.cs" />
-    <Compile Include="Settings\ChromaConfig.cs" />
-    <Compile Include="Settings\ChromaSettingsUI.cs" />
-    <Compile Include="Plugin.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\ChromaUtils.cs" />
+    <Reference Include="0Harmony">
+      <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="BeatmapCore">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="BSML">
+      <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Colors">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="CustomJSONData">
+      <HintPath>$(BeatSaberDir)\Plugins\CustomJSONData.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="GameplayCore">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Heck">
+      <HintPath>$(BeatSaberDir)\Plugins\Heck.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="HMLib">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="HMRendering">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="IPA.Loader">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Main">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Rendering">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Rendering.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SiraUtil">
+      <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SongCore">
+      <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="manifest.json" />
-    <EmbeddedResource Include="Settings\modifiers.bsml" />
-  </ItemGroup>
+
   <ItemGroup>
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="Chroma.csproj.user" Condition="Exists('Chroma.csproj.user')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="LightIDTables\BigMirrorEnvironment.json" />
     <EmbeddedResource Include="LightIDTables\BTSEnvironment.json" />
     <EmbeddedResource Include="LightIDTables\CrabRaveEnvironment.json" />
@@ -143,121 +120,18 @@
     <EmbeddedResource Include="LightIDTables\TriangleEnvironment.json" />
     <EmbeddedResource Include="LightIDTables\KaleidoscopeEnvironment.json" />
     <EmbeddedResource Include="LightIDTables\InterscopeEnvironment.json" />
+    <EmbeddedResource Include="Settings\modifiers.bsml" />
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="BeatSaberModdingTools.Tasks">
-      <Version>1.3.2</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    <PackageReference Include="BeatSaberModdingTools.Tasks" Version="1.4.3">
       <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers">
-      <Version>1.1.118</Version>
+      <Version>1.2.0-beta.354</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="0Harmony, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="BeatmapCore, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="BSML, Version=1.5.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Colors, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="CustomJSONData, Version=1.1.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Plugins\CustomJSONData.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="GameplayCore, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Heck">
-      <HintPath>$(BeatSaberDir)\Plugins\Heck.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="HMLib, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="HMRendering, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="IPA.Loader, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Main, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.CSharp">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Microsoft.CSharp.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Rendering">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Rendering.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="SemVer">
-      <HintPath>$(BeatSaberDir)\Libs\SemVer.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="SiraUtil, Version=2.5.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SongCore, Version=3.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

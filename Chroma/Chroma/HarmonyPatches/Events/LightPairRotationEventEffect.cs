@@ -2,13 +2,13 @@
 {
     using Heck;
     using UnityEngine;
-    using static ChromaEventDataManager;
+    using static Chroma.ChromaEventDataManager;
 
     [HeckPatch(typeof(LightPairRotationEventEffect))]
     [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
-        internal static BeatmapEventData LastLightPairRotationEventEffectData { get; private set; }
+        internal static BeatmapEventData? LastLightPairRotationEventEffectData { get; private set; }
 
         // Laser rotation
         private static void Prefix(BeatmapEventData beatmapEventData, BeatmapEventType ____eventL, BeatmapEventType ____eventR)
@@ -37,9 +37,9 @@
             LightPairRotationEventEffect.RotationData ____rotationDataR,
             Vector3 ____rotationVector)
         {
-            BeatmapEventData beatmapEventData = LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.LastLightPairRotationEventEffectData;
+            BeatmapEventData beatmapEventData = LightPairRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger.LastLightPairRotationEventEffectData!;
 
-            ChromaEventData chromaData = TryGetEventData(beatmapEventData);
+            ChromaEventData? chromaData = TryGetEventData(beatmapEventData);
             if (chromaData == null)
             {
                 return true;

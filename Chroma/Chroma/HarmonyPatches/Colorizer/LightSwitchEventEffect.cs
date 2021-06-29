@@ -60,7 +60,7 @@
     [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class LightSwitchEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
-        internal static ILightWithId[] LegacyLightOverride { get; set; }
+        internal static ILightWithId[]? LegacyLightOverride { get; set; }
 
         private static void Prefix(BeatmapEventData beatmapEventData, BeatmapEventType ____event)
         {

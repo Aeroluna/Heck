@@ -10,7 +10,7 @@
     {
         private static readonly Dictionary<string, Dictionary<int, int>[]> _lightIDTable = new Dictionary<string, Dictionary<int, int>[]>();
 
-        private static Dictionary<int, int>[] _activeTable;
+        private static Dictionary<int, int>[]? _activeTable;
 
         internal static int? GetActiveTableValue(int type, int id)
         {
@@ -44,26 +44,33 @@
 
         internal static void RegisterIndex(int type, int index, int? requestedKey)
         {
-            Dictionary<int, int> dictioanry = _activeTable[type];
-            int key;
-
-            if (requestedKey.HasValue)
+            if (_activeTable != null)
             {
-                key = requestedKey.Value;
-                while (dictioanry.ContainsKey(key))
+                Dictionary<int, int> dictioanry = _activeTable[type];
+                int key;
+
+                if (requestedKey.HasValue)
                 {
-                    key++;
+                    key = requestedKey.Value;
+                    while (dictioanry.ContainsKey(key))
+                    {
+                        key++;
+                    }
+                }
+                else
+                {
+                    key = dictioanry.Keys.Max() + 1;
+                }
+
+                dictioanry.Add(key, index);
+                if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
+                {
+                    Plugin.Logger.Log($"Registered key [{key}] to type [{type}]");
                 }
             }
             else
             {
-                key = dictioanry.Keys.Max() + 1;
-            }
-
-            dictioanry.Add(key, index);
-            if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
-            {
-                Plugin.Logger.Log($"Registered key [{key}] to type [{type}]");
+                Plugin.Logger.Log($"No active table, could not register index.", IPA.Logging.Logger.Level.Warning);
             }
         }
 
@@ -74,21 +81,19 @@
             IEnumerable<string> tableNames = assembly.GetManifestResourceNames().Where(n => n.StartsWith(tableNamespace));
             foreach (string tableName in tableNames)
             {
-                using (JsonReader reader = new JsonTextReader(new StreamReader(assembly.GetManifestResourceStream(tableName))))
+                using JsonReader reader = new JsonTextReader(new StreamReader(assembly.GetManifestResourceStream(tableName)));
+                Dictionary<int, int>[] typeTable = new Dictionary<int, int>[8];
+
+                JsonSerializer serializer = new JsonSerializer();
+                Dictionary<string, Dictionary<string, int>> rawDict = serializer.Deserialize<Dictionary<string, Dictionary<string, int>>>(reader) ?? throw new System.InvalidOperationException($"Failed to deserialize ID table [{tableName}].");
+
+                foreach (KeyValuePair<string, Dictionary<string, int>> typePair in rawDict)
                 {
-                    Dictionary<int, int>[] typeTable = new Dictionary<int, int>[8];
-
-                    JsonSerializer serializer = new JsonSerializer();
-                    Dictionary<string, Dictionary<string, int>> rawDict = serializer.Deserialize<Dictionary<string, Dictionary<string, int>>>(reader);
-
-                    foreach (KeyValuePair<string, Dictionary<string, int>> typePair in rawDict)
-                    {
-                        typeTable[int.Parse(typePair.Key)] = typePair.Value.ToDictionary(n => int.Parse(n.Key), n => n.Value);
-                    }
-
-                    string tableNameWithoutExtension = Path.GetFileNameWithoutExtension(tableName.Remove(tableName.IndexOf(tableNamespace), tableNamespace.Length));
-                    _lightIDTable.Add(tableNameWithoutExtension, typeTable);
+                    typeTable[int.Parse(typePair.Key)] = typePair.Value.ToDictionary(n => int.Parse(n.Key), n => n.Value);
                 }
+
+                string tableNameWithoutExtension = Path.GetFileNameWithoutExtension(tableName.Remove(tableName.IndexOf(tableNamespace), tableNamespace.Length));
+                _lightIDTable.Add(tableNameWithoutExtension, typeTable);
             }
         }
     }

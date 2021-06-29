@@ -4,7 +4,7 @@
     using Heck;
     using Heck.Animation;
     using UnityEngine;
-    using static ChromaObjectDataManager;
+    using static Chroma.ChromaObjectDataManager;
 
     [HeckPatch(typeof(ObstacleController))]
     [HeckPatch("Init")]
@@ -14,7 +14,7 @@
         {
             if (!(__instance is MultiplayerConnectedPlayerObstacleController))
             {
-                ChromaObjectData chromaData = TryGetObjectData<ChromaObjectData>(obstacleData);
+                ChromaObjectData? chromaData = TryGetObjectData<ChromaObjectData>(obstacleData);
                 if (chromaData == null)
                 {
                     return;
@@ -31,14 +31,14 @@
     {
         private static void Postfix(ObstacleController __instance, ObstacleData ____obstacleData, AudioTimeSyncController ____audioTimeSyncController, float ____startTimeOffset, float ____move1Duration, float ____move2Duration, float ____obstacleDuration)
         {
-            ChromaObjectData chromaData = TryGetObjectData<ChromaObjectData>(____obstacleData);
+            ChromaObjectData? chromaData = TryGetObjectData<ChromaObjectData>(____obstacleData);
             if (chromaData == null)
             {
                 return;
             }
 
-            Track track = chromaData.Track;
-            PointDefinition pathPointDefinition = chromaData.LocalPathColor;
+            Track? track = chromaData.Track;
+            PointDefinition? pathPointDefinition = chromaData.LocalPathColor;
             if (track != null || pathPointDefinition != null)
             {
                 float jumpDuration = ____move2Duration;

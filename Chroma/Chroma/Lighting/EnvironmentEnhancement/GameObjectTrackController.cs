@@ -11,26 +11,26 @@
     {
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
 
-        private Track _track;
+        private Track? _track;
 
         private float _noteLinesDistance;
 
-        private TrackLaneRing _trackLaneRing;
+        private TrackLaneRing? _trackLaneRing;
 
-        private ParametricBoxController _parametricBoxController;
+        private ParametricBoxController? _parametricBoxController;
 
-        private BeatmapObjectsAvoidance _beatmapObjectsAvoidance;
+        private BeatmapObjectsAvoidance? _beatmapObjectsAvoidance;
 
         internal static void HandleTrackData(
             GameObject gameObject,
-            Dictionary<string, object> gameObjectData,
+            Dictionary<string, object?> gameObjectData,
             IReadonlyBeatmapData beatmapData,
             float noteLinesDistance,
-            TrackLaneRing trackLaneRing,
-            ParametricBoxController parametricBoxController,
-            BeatmapObjectsAvoidance beatmapObjectsAvoidance)
+            TrackLaneRing? trackLaneRing,
+            ParametricBoxController? parametricBoxController,
+            BeatmapObjectsAvoidance? beatmapObjectsAvoidance)
         {
-            Track track = GetTrack(gameObjectData, beatmapData);
+            Track? track = GetTrack(gameObjectData, beatmapData);
             if (track != null)
             {
                 GameObjectTrackController trackController = gameObject.AddComponent<GameObjectTrackController>();
@@ -38,7 +38,7 @@
             }
         }
 
-        internal void Init(Track track, float noteLinesDistance, TrackLaneRing trackLaneRing, ParametricBoxController parametricBoxController, BeatmapObjectsAvoidance beatmapObjectsAvoidance)
+        internal void Init(Track track, float noteLinesDistance, TrackLaneRing? trackLaneRing, ParametricBoxController? parametricBoxController, BeatmapObjectsAvoidance? beatmapObjectsAvoidance)
         {
             _track = track;
             _noteLinesDistance = noteLinesDistance;

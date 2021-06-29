@@ -11,7 +11,7 @@
 
     internal static class SceneTransitionHelper
     {
-        private static readonly MethodInfo _setEnvironmentTable = SymbolExtensions.GetMethodInfo(() => SetEnvironmentTable(null));
+        private static readonly MethodInfo _setEnvironmentTable = AccessTools.Method(typeof(SceneTransitionHelper), nameof(SetEnvironmentTable));
 
         internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -45,13 +45,13 @@
             }
         }
 
-        internal static void Patch(IDifficultyBeatmap difficultyBeatmap, ref OverrideEnvironmentSettings overrideEnvironmentSettings)
+        internal static void Patch(IDifficultyBeatmap difficultyBeatmap, ref OverrideEnvironmentSettings? overrideEnvironmentSettings)
         {
             if (difficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
             {
                 bool chromaRequirement = BasicPatch(customBeatmapData);
                 if (chromaRequirement &&
-                    ChromaConfig.Instance.EnvironmentEnhancementsEnabled &&
+                    ChromaConfig.Instance!.EnvironmentEnhancementsEnabled &&
                     (customBeatmapData.beatmapCustomData.Get<object>(Plugin.ENVIRONMENTREMOVAL) != null || (customBeatmapData.customData.Get<object>(Plugin.ENVIRONMENT) != null)))
                 {
                     overrideEnvironmentSettings = null;
@@ -66,8 +66,8 @@
 
         private static bool BasicPatch(CustomBeatmapData customBeatmapData)
         {
-            IEnumerable<string> requirements = customBeatmapData.beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>();
-            IEnumerable<string> suggestions = customBeatmapData.beatmapCustomData.Get<List<object>>("_suggestions")?.Cast<string>();
+            IEnumerable<string>? requirements = customBeatmapData.beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>();
+            IEnumerable<string>? suggestions = customBeatmapData.beatmapCustomData.Get<List<object>>("_suggestions")?.Cast<string>();
             bool chromaRequirement = (requirements?.Contains(Plugin.REQUIREMENTNAME) ?? false) || (suggestions?.Contains(Plugin.REQUIREMENTNAME) ?? false);
 
             // please let me remove this shit
@@ -78,8 +78,8 @@
                 Plugin.Logger.Log("Please do not use Legacy Chroma Lights for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", IPA.Logging.Logger.Level.Warning);
             }
 
-            ChromaController.ToggleChromaPatches((chromaRequirement || legacyOverride) && ChromaConfig.Instance.CustomColorEventsEnabled);
-            ChromaController.DoColorizerSabers = chromaRequirement && ChromaConfig.Instance.CustomColorEventsEnabled;
+            ChromaController.ToggleChromaPatches((chromaRequirement || legacyOverride) && ChromaConfig.Instance!.CustomColorEventsEnabled);
+            ChromaController.DoColorizerSabers = chromaRequirement && ChromaConfig.Instance!.CustomColorEventsEnabled;
 
             return chromaRequirement;
         }

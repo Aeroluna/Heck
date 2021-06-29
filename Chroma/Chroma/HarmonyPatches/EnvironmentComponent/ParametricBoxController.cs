@@ -13,8 +13,8 @@
     [HeckPatch("Refresh")]
     internal static class ParametricBoxControllerRefresh
     {
-        private static readonly MethodInfo _getTransformScale = SymbolExtensions.GetMethodInfo(() => GetTransformScale(Vector3.zero, null));
-        private static readonly MethodInfo _getTransformPosition = SymbolExtensions.GetMethodInfo(() => GetTransformPosition(Vector3.zero, null));
+        private static readonly MethodInfo _getTransformScale = AccessTools.Method(typeof(ParametricBoxControllerRefresh), nameof(GetTransformScale));
+        private static readonly MethodInfo _getTransformPosition = AccessTools.Method(typeof(ParametricBoxControllerRefresh), nameof(GetTransformPosition));
 
         internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {

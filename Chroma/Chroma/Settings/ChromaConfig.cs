@@ -4,7 +4,7 @@
     {
         private static bool _customColorEventsEnabled = true;
 
-        public static ChromaConfig Instance { get; set; }
+        public static ChromaConfig? Instance { get; set; }
 
         public bool CustomColorEventsEnabled
         {

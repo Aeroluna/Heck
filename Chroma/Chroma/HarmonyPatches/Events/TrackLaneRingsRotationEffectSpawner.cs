@@ -2,7 +2,7 @@
 {
     using Chroma;
     using Heck;
-    using static ChromaEventDataManager;
+    using static Chroma.ChromaEventDataManager;
 
     [HeckPatch(typeof(TrackLaneRingsRotationEffectSpawner))]
     [HeckPatch("Start")]
@@ -39,7 +39,7 @@
         {
             if (beatmapEventData.type == ____beatmapEventType)
             {
-                ChromaEventData chromaData = TryGetEventData(beatmapEventData);
+                ChromaEventData? chromaData = TryGetEventData(beatmapEventData);
                 if (chromaData == null)
                 {
                     return true;
@@ -62,7 +62,7 @@
                         break;
                 }
 
-                string nameFilter = chromaData.NameFilter;
+                string? nameFilter = chromaData.NameFilter;
                 if (nameFilter != null)
                 {
                     if (!__instance.name.ToLower().Equals(nameFilter.ToLower()))

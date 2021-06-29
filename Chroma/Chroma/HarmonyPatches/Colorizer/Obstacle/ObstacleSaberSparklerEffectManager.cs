@@ -12,7 +12,7 @@
     [HarmonyPatch("Update")]
     internal static class ObstacleSaberSparkleEffectManagerUpdate
     {
-        private static readonly MethodInfo _setObstacleSaberSparklerColor = SymbolExtensions.GetMethodInfo(() => SetObstacleSaberSparkleColor(null, null));
+        private static readonly MethodInfo _setObstacleSaberSparklerColor = AccessTools.Method(typeof(ObstacleSaberSparkleEffectManagerUpdate), nameof(SetObstacleSaberSparkleColor));
         private static readonly FieldInfo _effectsField = AccessTools.Field(typeof(ObstacleSaberSparkleEffectManager), "_effects");
 
         internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)

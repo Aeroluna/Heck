@@ -15,7 +15,7 @@
             return SceneTransitionHelper.Transpiler(instructions);
         }
 
-        private static void Prefix(IDifficultyBeatmap difficultyBeatmap, ref OverrideEnvironmentSettings overrideEnvironmentSettings)
+        private static void Prefix(IDifficultyBeatmap difficultyBeatmap, ref OverrideEnvironmentSettings? overrideEnvironmentSettings)
         {
             SceneTransitionHelper.Patch(difficultyBeatmap, ref overrideEnvironmentSettings);
         }

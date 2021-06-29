@@ -5,7 +5,7 @@
     using Heck.Animation;
     using IPA.Utilities;
     using UnityEngine;
-    using static ChromaObjectDataManager;
+    using static Chroma.ChromaObjectDataManager;
 
     [HeckPatch(typeof(NoteController))]
     [HeckPatch("Update")]
@@ -17,14 +17,14 @@
 
         private static void Postfix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
-            ChromaObjectData chromaData = TryGetObjectData<ChromaObjectData>(____noteData);
+            ChromaObjectData? chromaData = TryGetObjectData<ChromaObjectData>(____noteData);
             if (chromaData == null)
             {
                 return;
             }
 
-            Track track = chromaData.Track;
-            PointDefinition pathPointDefinition = chromaData.LocalPathColor;
+            Track? track = chromaData.Track;
+            PointDefinition? pathPointDefinition = chromaData.LocalPathColor;
             if (track != null || pathPointDefinition != null)
             {
                 NoteJump noteJump = _noteJumpAccessor(ref ____noteMovement);

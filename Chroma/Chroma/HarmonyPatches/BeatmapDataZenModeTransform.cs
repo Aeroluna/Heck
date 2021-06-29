@@ -8,7 +8,7 @@
     {
         private static bool Prefix(IReadonlyBeatmapData beatmapData, ref IReadonlyBeatmapData __result)
         {
-            if (Settings.ChromaConfig.Instance.ForceZenWallsEnabled)
+            if (Settings.ChromaConfig.Instance!.ForceZenWallsEnabled)
             {
                 BeatmapData copyWithoutBeatmapObjects = beatmapData.GetCopyWithoutBeatmapObjects();
                 BeatmapData.CopyBeatmapObjectsWaypointsOnly(beatmapData, copyWithoutBeatmapObjects);

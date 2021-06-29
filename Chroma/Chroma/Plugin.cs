@@ -61,7 +61,9 @@
 
         internal static bool SiraUtilInstalled { get; private set; } = false;
 
+#pragma warning disable CS8618
         internal static HeckLogger Logger { get; private set; }
+#pragma warning restore CS8618
 
         [Init]
         public void Init(IPALogger pluginLogger, Config conf)
@@ -81,7 +83,7 @@
 
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
 
-            ChromaUtils.SetSongCoreCapability(REQUIREMENTNAME, ChromaConfig.Instance.CustomColorEventsEnabled);
+            ChromaUtils.SetSongCoreCapability(REQUIREMENTNAME, ChromaConfig.Instance!.CustomColorEventsEnabled);
 
             SceneManager.activeSceneChanged += ChromaController.OnActiveSceneChanged;
 

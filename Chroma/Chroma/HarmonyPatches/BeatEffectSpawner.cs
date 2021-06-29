@@ -2,7 +2,7 @@
 {
     using HarmonyLib;
     using Heck;
-    using static ChromaObjectDataManager;
+    using static Chroma.ChromaObjectDataManager;
 
     [HeckPatch(typeof(BeatEffectSpawner))]
     [HeckPatch("HandleNoteDidStartJump")]
@@ -11,7 +11,7 @@
         [HarmonyPriority(Priority.High)]
         private static bool Prefix(NoteController noteController)
         {
-            ChromaNoteData chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
+            ChromaNoteData? chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
             if (chromaData != null)
             {
                 bool? disable = chromaData.DisableSpawnEffect;

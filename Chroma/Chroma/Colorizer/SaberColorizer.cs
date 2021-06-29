@@ -22,16 +22,17 @@
         private static readonly FieldAccessor<SetSaberFakeGlowColor, Color>.Accessor _tintColorAccessor = FieldAccessor<SetSaberFakeGlowColor, Color>.GetAccessor("_tintColor");
         private static readonly FieldAccessor<SaberModelController, TubeBloomPrePassLight>.Accessor _saberLightAccessor = FieldAccessor<SaberModelController, TubeBloomPrePassLight>.GetAccessor("_saberLight");
 
-        private readonly SaberTrail _saberTrail;
+        private readonly SaberTrail? _saberTrail;
         private readonly Color _trailTintColor;
-        private readonly SetSaberGlowColor[] _setSaberGlowColors;
-        private readonly SetSaberFakeGlowColor[] _setSaberFakeGlowColors;
-        private readonly TubeBloomPrePassLight _saberLight;
+        private readonly SetSaberGlowColor[]? _setSaberGlowColors;
+        private readonly SetSaberFakeGlowColor[]? _setSaberFakeGlowColors;
+        private readonly TubeBloomPrePassLight? _saberLight;
+
+        private readonly SaberModelController? _saberModelController;
 
         private readonly SaberType _saberType;
         private readonly bool _doColor;
         private Color _lastColor;
-        private SaberModelController _saberModelController;
 
         internal SaberColorizer(Saber saber)
         {
@@ -61,7 +62,7 @@
             GetOrCreateColorizerList(_saberType).Add(this);
         }
 
-        internal static event Action<SaberType, Color> SaberColorChanged;
+        internal static event Action<SaberType, Color>? SaberColorChanged;
 
         public static Dictionary<SaberType, List<SaberColorizer>> Colorizers { get; } = new Dictionary<SaberType, List<SaberColorizer>>();
 
@@ -92,10 +93,10 @@
             _lastColor = color;
             if (_doColor)
             {
-                SaberTrail saberTrail = _saberTrail;
-                _colorAccessor(ref saberTrail) = (color * _trailTintColor).linear;
+                SaberTrail saberTrail = _saberTrail!;
+                _colorAccessor(ref saberTrail!) = (color * _trailTintColor).linear;
 
-                for (int i = 0; i < _setSaberGlowColors.Length; i++)
+                for (int i = 0; i < _setSaberGlowColors!.Length; i++)
                 {
                     SetSaberGlowColor setSaberGlowColor = _setSaberGlowColors[i];
                     SetSaberGlowColor.PropertyTintColorPair[] propertyTintColorPairs = _propertyTintColorPairsAccessor(ref setSaberGlowColor);
@@ -114,7 +115,7 @@
                     _meshRendererAccessor(ref setSaberGlowColor).SetPropertyBlock(materialPropertyBlock);
                 }
 
-                for (int i = 0; i < _setSaberFakeGlowColors.Length; i++)
+                for (int i = 0; i < _setSaberFakeGlowColors!.Length; i++)
                 {
                     SetSaberFakeGlowColor setSaberFakeGlowColor = _setSaberFakeGlowColors[i];
                     Parametric3SliceSpriteController parametric3SliceSprite = _parametric3SliceSpriteAccessor(ref setSaberFakeGlowColor);

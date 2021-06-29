@@ -5,13 +5,13 @@
     using System.Linq;
     using CustomJSONData;
     using UnityEngine;
-    using static Plugin;
+    using static Chroma.Plugin;
 
     internal static class ChromaUtils
     {
-        internal static Color? GetColorFromData(Dictionary<string, object> data, string member = COLOR)
+        internal static Color? GetColorFromData(Dictionary<string, object?> data, string member = COLOR)
         {
-            IEnumerable<float> color = data.Get<List<object>>(member)?.Select(n => Convert.ToSingle(n));
+            IEnumerable<float>? color = data.Get<List<object>>(member)?.Select(n => Convert.ToSingle(n));
             if (color == null)
             {
                 return null;

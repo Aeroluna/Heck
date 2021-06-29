@@ -5,7 +5,7 @@
   <PropertyGroup>
     <BuildTargetsVersion>2.0</BuildTargetsVersion>
     <!--Set this to true if you edit this file to prevent automatic updates-->
-    <BuildTargetsModified>true</BuildTargetsModified>
+    <BuildTargetsModified>false</BuildTargetsModified>
     <!--Output assembly path without extension-->
     <OutputAssemblyName>$(OutputPath)$(AssemblyName)</OutputAssemblyName>
     <!--Path to folder to be zipped. Needs to be relative to the project directory to work without changes to the 'BuildForCI' target.-->
@@ -20,20 +20,21 @@
   <!--Runs a build task to get info about the project used by later targets.-->
   <Target Name="GetProjectInfo" AfterTargets="CheckBSMTInstalled" DependsOnTargets="CheckBSMTInstalled" Condition="'$(BSMTTaskAssembly)' != ''">
     <Message Text="Using AssemblyVersion defined in project instead of 'Properties\AssemblyInfo.cs'" Importance="high" Condition="'$(AssemblyVersion)' != ''" />
-    <GetAssemblyInfo Condition="'$(AssemblyVersion)' == ''" >
-      <Output TaskParameter="AssemblyVersion" PropertyName="AssemblyVersion" />
-    </GetAssemblyInfo>
     <GetManifestInfo FailOnError="$(ErrorOnMismatchedVersions)">
       <Output TaskParameter="PluginVersion" PropertyName="PluginVersion" />
-      <Output TaskParameter="GameVersion" PropertyName="GameVersion" />
       <Output TaskParameter="BasePluginVersion" PropertyName="BasePluginVersion" />
+      <Output TaskParameter="GameVersion" PropertyName="GameVersion" />
     </GetManifestInfo>
+    <PropertyGroup>
+      <AssemblyVersion>$(BasePluginVersion)</AssemblyVersion>
+      <FileVersion>$(BasePluginVersion)</FileVersion>
+      <InformationalVersion>$(BasePluginVersion)</InformationalVersion>
+    </PropertyGroup>
     <GetCommitInfo ProjectDir="$(ProjectDir)">
       <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
       <Output TaskParameter="Branch" PropertyName="Branch" />
       <Output TaskParameter="Modified" PropertyName="GitModified" />
     </GetCommitInfo>
-    <CompareVersions ErrorOnMismatch="$(ErrorOnMismatchedVersions)" PluginVersion="$(BasePluginVersion)" AssemblyVersion="$(AssemblyVersion)" />
     <PropertyGroup>
       <!--Build name for artifact/zip file-->
       <ArtifactName>$(AssemblyName)</ArtifactName>

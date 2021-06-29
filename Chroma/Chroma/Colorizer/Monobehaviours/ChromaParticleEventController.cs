@@ -4,7 +4,7 @@
 
     internal class ChromaParticleEventController : MonoBehaviour
     {
-        private ParticleColorizer _colorizer;
+        private ParticleColorizer? _colorizer;
         private BeatmapEventType _eventType;
 
         internal void Init(ParticleSystemEventEffect particleSystemEventEffect, BeatmapEventType eventType)

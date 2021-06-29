@@ -21,9 +21,9 @@
 
         public static bool DoColorizerSabers { get; set; }
 
-        internal static BeatmapObjectSpawnController BeatmapObjectSpawnController { get; private set; }
+        internal static BeatmapObjectSpawnController? BeatmapObjectSpawnController { get; private set; }
 
-        internal static IAudioTimeSource IAudioTimeSource { get; private set; }
+        internal static IAudioTimeSource? IAudioTimeSource { get; private set; }
 
         public static void ToggleChromaPatches(bool value)
         {
@@ -37,8 +37,8 @@
             BeatmapObjectSpawnController = beatmapObjectSpawnController;
 
             // prone to breaking if anything else implements these interfaces
-            BeatmapObjectManager beatmapObjectManager = _beatmapObjectSpawnAccessor(ref beatmapObjectSpawnController) as BeatmapObjectManager;
-            BeatmapObjectCallbackController coreSetup = _callbackControllerAccessor(ref beatmapObjectSpawnController) as BeatmapObjectCallbackController;
+            BeatmapObjectManager beatmapObjectManager = (BeatmapObjectManager)_beatmapObjectSpawnAccessor(ref beatmapObjectSpawnController);
+            BeatmapObjectCallbackController coreSetup = (BeatmapObjectCallbackController)_callbackControllerAccessor(ref beatmapObjectSpawnController);
 
             IAudioTimeSource = _audioTimeSourceAccessor(ref coreSetup);
             IReadonlyBeatmapData beatmapData = _beatmapDataAccessor(ref coreSetup);
@@ -50,7 +50,7 @@
             {
                 if (beatmapData is CustomBeatmapData customBeatmap)
                 {
-                    if (ChromaConfig.Instance.EnvironmentEnhancementsEnabled)
+                    if (ChromaConfig.Instance!.EnvironmentEnhancementsEnabled)
                     {
                         EnvironmentEnhancementManager.Init(customBeatmap, beatmapObjectSpawnController.noteLinesDistance);
                     }

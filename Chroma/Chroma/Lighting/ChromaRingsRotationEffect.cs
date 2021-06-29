@@ -12,8 +12,8 @@
         private static readonly FieldAccessor<TrackLaneRingsRotationEffect, int>.Accessor _startupRotationPropagationSpeedAccessor = FieldAccessor<TrackLaneRingsRotationEffect, int>.GetAccessor("_startupRotationPropagationSpeed");
         private static readonly FieldAccessor<TrackLaneRingsRotationEffect, float>.Accessor _startupRotationFlexySpeedAccessor = FieldAccessor<TrackLaneRingsRotationEffect, float>.GetAccessor("_startupRotationFlexySpeed");
 
-        private new List<ChromaRotationEffect> _activeRingRotationEffects;
-        private new List<ChromaRotationEffect> _ringRotationEffectsPool;
+        private new List<ChromaRotationEffect>? _activeRingRotationEffects;
+        private new List<ChromaRotationEffect>? _ringRotationEffectsPool;
 
         public override void AddRingRotationEffect(float angle, float step, int propagationSpeed, float flexySpeed)
         {
@@ -28,7 +28,7 @@
             ringRotationEffect.RotationStep = step;
             ringRotationEffect.RotationPropagationSpeed = propagationSpeed;
             ringRotationEffect.RotationFlexySpeed = flexySpeed;
-            _activeRingRotationEffects.Add(ringRotationEffect);
+            _activeRingRotationEffects!.Add(ringRotationEffect);
         }
 
         internal void SetNewRingManager(TrackLaneRingsManager trackLaneRingsManager)
@@ -63,7 +63,7 @@
         private new void FixedUpdate()
         {
             TrackLaneRing[] rings = _trackLaneRingsManager.Rings;
-            for (int i = _activeRingRotationEffects.Count - 1; i >= 0; i--)
+            for (int i = _activeRingRotationEffects!.Count - 1; i >= 0; i--)
             {
                 ChromaRotationEffect ringRotationEffect = _activeRingRotationEffects[i];
                 long num = (long)ringRotationEffect.ProgressPos;
@@ -85,7 +85,7 @@
         private new ChromaRotationEffect SpawnRingRotationEffect()
         {
             ChromaRotationEffect result;
-            if (_ringRotationEffectsPool.Count > 0)
+            if (_ringRotationEffectsPool!.Count > 0)
             {
                 result = _ringRotationEffectsPool[0];
                 _ringRotationEffectsPool.RemoveAt(0);
@@ -100,7 +100,7 @@
 
         private void RecycleRingRotationEffect(ChromaRotationEffect ringRotationEffect)
         {
-            _ringRotationEffectsPool.Add(ringRotationEffect);
+            _ringRotationEffectsPool!.Add(ringRotationEffect);
         }
 
         private class ChromaRotationEffect

@@ -2,7 +2,7 @@
 {
     using Chroma.Colorizer;
     using Heck;
-    using static ChromaObjectDataManager;
+    using static Chroma.ChromaObjectDataManager;
 
     [HeckPatch(typeof(ColorNoteVisuals))]
     [HeckPatch("HandleNoteControllerDidInit")]
@@ -12,7 +12,7 @@
         {
             if (noteController is NoteController)
             {
-                ChromaNoteData chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
+                ChromaNoteData? chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
                 if (chromaData != null)
                 {
                     noteController.ColorizeNote(chromaData.Color);

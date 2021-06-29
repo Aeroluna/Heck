@@ -11,9 +11,9 @@
 
     internal static class ChromaObjectDataManager
     {
-        private static Dictionary<BeatmapObjectData, ChromaObjectData> _chromaObjectDatas;
+        private static Dictionary<BeatmapObjectData, ChromaObjectData> _chromaObjectDatas = new Dictionary<BeatmapObjectData, ChromaObjectData>();
 
-        internal static T TryGetObjectData<T>(BeatmapObjectData beatmapObjectData)
+        internal static T? TryGetObjectData<T>(BeatmapObjectData beatmapObjectData)
         {
             if (_chromaObjectDatas.TryGetValue(beatmapObjectData, out ChromaObjectData chromaObjectData))
             {
@@ -39,7 +39,7 @@
                 try
                 {
                     ChromaObjectData chromaObjectData;
-                    Dictionary<string, object> customData;
+                    Dictionary<string, object?> customData;
 
                     switch (beatmapObjectData)
                     {
@@ -71,12 +71,12 @@
 
                     if (chromaObjectData != null)
                     {
-                        Dictionary<string, object> animationObjectDyn = customData.Get<Dictionary<string, object>>(ANIMATION);
+                        Dictionary<string, object?>? animationObjectDyn = customData.Get<Dictionary<string, object?>>(ANIMATION);
                         if (animationObjectDyn != null)
                         {
-                            Dictionary<string, PointDefinition> pointDefinitions = ((CustomBeatmapData)beatmapData).customData.Get<Dictionary<string, PointDefinition>>("pointDefinitions");
-
-                            Heck.Animation.AnimationHelper.TryGetPointData(animationObjectDyn, COLOR, out PointDefinition localColor, pointDefinitions);
+                            Dictionary<string, PointDefinition>? pointDefinitions = ((CustomBeatmapData)beatmapData).customData.Get<Dictionary<string, PointDefinition>>("pointDefinitions")
+                                ?? throw new InvalidOperationException("Could not retrieve point definitions.");
+                            Heck.Animation.AnimationHelper.TryGetPointData(animationObjectDyn, COLOR, out PointDefinition? localColor, pointDefinitions);
 
                             chromaObjectData.LocalPathColor = localColor;
                         }
@@ -104,8 +104,8 @@
     {
         internal Color? Color { get; set; }
 
-        internal Track Track { get; set; }
+        internal Track? Track { get; set; }
 
-        internal PointDefinition LocalPathColor { get; set; }
+        internal PointDefinition? LocalPathColor { get; set; }
     }
 }

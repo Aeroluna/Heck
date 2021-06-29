@@ -8,12 +8,15 @@
     [HarmonyPatch("Start")]
     internal static class SaberBurnMarkSparklesStart
     {
-        private static ParticleSystem[] _burnMarksPS;
+        private static ParticleSystem[]? _burnMarksPS;
 
         internal static void OnSaberColorChanged(SaberType saberType, Color color)
         {
-            ParticleSystem.MainModule main = _burnMarksPS[(int)saberType].main;
-            main.startColor = color;
+            if (_burnMarksPS != null)
+            {
+                ParticleSystem.MainModule main = _burnMarksPS[(int)saberType].main;
+                main.startColor = color;
+            }
         }
 
         private static void Postfix(ParticleSystem[] ____burnMarksPS)

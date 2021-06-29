@@ -7,13 +7,13 @@
     using Chroma;
     using HarmonyLib;
     using Heck;
-    using static ChromaEventDataManager;
+    using static Chroma.ChromaEventDataManager;
 
     [HeckPatch(typeof(TrackLaneRingsPositionStepEffectSpawner))]
     [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class TrackLaneRingsPositionStepEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
-        private static readonly MethodInfo _getPrecisionStep = SymbolExtensions.GetMethodInfo(() => GetPrecisionStep(0, null));
+        private static readonly MethodInfo _getPrecisionStep = AccessTools.Method(typeof(TrackLaneRingsPositionStepEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger), nameof(GetPrecisionStep));
 
         internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -46,7 +46,7 @@
 
         private static float GetPrecisionStep(float @default, BeatmapEventData beatmapEventData)
         {
-            ChromaEventData chromaData = TryGetEventData(beatmapEventData);
+            ChromaEventData? chromaData = TryGetEventData(beatmapEventData);
             if (chromaData != null && chromaData.Step.HasValue)
             {
                 return chromaData.Step.Value;

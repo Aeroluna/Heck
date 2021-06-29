@@ -11,7 +11,7 @@
     {
         internal static void Init(CustomBeatmapData customBeatmap)
         {
-            IEnumerable<string> objectsToKill = customBeatmap.beatmapCustomData.Get<List<object>>(ENVIRONMENTREMOVAL)?.Cast<string>();
+            IEnumerable<string>? objectsToKill = customBeatmap.beatmapCustomData.Get<List<object>>(ENVIRONMENTREMOVAL)?.Cast<string>();
 
             if (objectsToKill != null)
             {

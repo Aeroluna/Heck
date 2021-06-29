@@ -11,9 +11,9 @@
 
     internal static class ChromaEventDataManager
     {
-        private static Dictionary<BeatmapEventData, ChromaEventData> _chromaEventDatas;
+        private static Dictionary<BeatmapEventData, ChromaEventData> _chromaEventDatas = new Dictionary<BeatmapEventData, ChromaEventData>();
 
-        internal static ChromaEventData TryGetEventData(BeatmapEventData beatmapEventData)
+        internal static ChromaEventData? TryGetEventData(BeatmapEventData beatmapEventData)
         {
             if (_chromaEventDatas.TryGetValue(beatmapEventData, out ChromaEventData chromaEventData))
             {
@@ -32,30 +32,28 @@
                 {
                     if (beatmapEventData is CustomBeatmapEventData customBeatmapEventData)
                     {
-                        Dictionary<string, object> customData = customBeatmapEventData.customData;
-                        ChromaEventData chromaEventData = new ChromaEventData()
-                        {
-                            LightID = customData.Get<object>(LIGHTID),
-                            PropID = customData.Get<object>(PROPAGATIONID),
-                            ColorData = ChromaUtils.GetColorFromData(customData),
-                            NameFilter = customData.Get<string>(NAMEFILTER),
-                            Direction = customData.Get<int?>(DIRECTION),
-                            CounterSpin = customData.Get<bool?>(COUNTERSPIN),
-                            Reset = customData.Get<bool?>(RESET),
-                            Step = customData.Get<float?>(STEP),
-                            Prop = customData.Get<float?>(PROP),
-                            Speed = customData.Get<float?>(SPEED) ?? customData.Get<float?>(PRECISESPEED),
-                            Rotation = customData.Get<float?>(ROTATION),
-                            StepMult = customData.Get<float?>(STEPMULT).GetValueOrDefault(1f),
-                            PropMult = customData.Get<float?>(PROPMULT).GetValueOrDefault(1f),
-                            SpeedMult = customData.Get<float?>(SPEEDMULT).GetValueOrDefault(1f),
-                            LockPosition = customData.Get<bool?>(LOCKPOSITION).GetValueOrDefault(false),
-                        };
+                        Dictionary<string, object?> customData = customBeatmapEventData.customData;
+                        ChromaEventData chromaEventData = new ChromaEventData(
+                            customData.Get<object>(LIGHTID),
+                            customData.Get<object>(PROPAGATIONID),
+                            ChromaUtils.GetColorFromData(customData),
+                            customData.Get<bool?>(LOCKPOSITION).GetValueOrDefault(false),
+                            customData.Get<string>(NAMEFILTER),
+                            customData.Get<int?>(DIRECTION),
+                            customData.Get<bool?>(COUNTERSPIN),
+                            customData.Get<bool?>(RESET),
+                            customData.Get<float?>(STEP),
+                            customData.Get<float?>(PROP),
+                            customData.Get<float?>(SPEED) ?? customData.Get<float?>(PRECISESPEED),
+                            customData.Get<float?>(ROTATION),
+                            customData.Get<float?>(STEPMULT).GetValueOrDefault(1f),
+                            customData.Get<float?>(PROPMULT).GetValueOrDefault(1f),
+                            customData.Get<float?>(SPEEDMULT).GetValueOrDefault(1f));
 
-                        Dictionary<string, object> gradientObject = customData.Get<Dictionary<string, object>>(LIGHTGRADIENT);
+                        Dictionary<string, object?>? gradientObject = customData.Get<Dictionary<string, object?>>(LIGHTGRADIENT);
                         if (gradientObject != null)
                         {
-                            string easingstring = gradientObject.Get<string>(EASING);
+                            string? easingstring = gradientObject.Get<string>(EASING);
                             Functions easing;
                             if (string.IsNullOrEmpty(easingstring))
                             {
@@ -66,13 +64,11 @@
                                 easing = (Functions)Enum.Parse(typeof(Functions), easingstring);
                             }
 
-                            chromaEventData.GradientObject = new ChromaEventData.GradientObjectData()
-                            {
-                                Duration = gradientObject.Get<float>(DURATION),
-                                StartColor = ChromaUtils.GetColorFromData(gradientObject, STARTCOLOR) ?? Color.white,
-                                EndColor = ChromaUtils.GetColorFromData(gradientObject, ENDCOLOR) ?? Color.white,
-                                Easing = easing,
-                            };
+                            chromaEventData.GradientObject = new ChromaEventData.GradientObjectData(
+                                gradientObject.Get<float>(DURATION),
+                                ChromaUtils.GetColorFromData(gradientObject, STARTCOLOR) ?? Color.white,
+                                ChromaUtils.GetColorFromData(gradientObject, ENDCOLOR) ?? Color.white,
+                                easing);
                         }
 
                         _chromaEventDatas.Add(beatmapEventData, chromaEventData);
@@ -87,49 +83,91 @@
         }
     }
 
-    internal class ChromaEventData
+    internal record ChromaEventData
     {
-        internal object LightID { get; set; }
-
-        internal object PropID { get; set; }
-
-        internal Color? ColorData { get; set; }
-
-        internal GradientObjectData GradientObject { get; set; }
-
-        internal bool LockPosition { get; set; }
-
-        internal string NameFilter { get; set; }
-
-        internal int? Direction { get; set; }
-
-        internal bool? CounterSpin { get; set; }
-
-        internal bool? Reset { get; set; }
-
-        internal float? Step { get; set; }
-
-        internal float? Prop { get; set; }
-
-        internal float? Speed { get; set; }
-
-        internal float? Rotation { get; set; }
-
-        internal float StepMult { get; set; }
-
-        internal float PropMult { get; set; }
-
-        internal float SpeedMult { get; set; }
-
-        internal class GradientObjectData
+        internal ChromaEventData(
+            object? lightID,
+            object? propID,
+            Color? colorData,
+            bool lockPosition,
+            string? nameFilter,
+            int? direction,
+            bool? counterSpin,
+            bool? reset,
+            float? step,
+            float? prop,
+            float? speed,
+            float? rotation,
+            float stepMult,
+            float propMult,
+            float speedMult)
         {
-            internal float Duration { get; set; }
+            LightID = lightID;
+            PropID = propID;
+            ColorData = colorData;
+            LockPosition = lockPosition;
+            NameFilter = nameFilter;
+            Direction = direction;
+            CounterSpin = counterSpin;
+            Reset = reset;
+            Step = step;
+            Prop = prop;
+            Speed = speed;
+            Rotation = rotation;
+            StepMult = stepMult;
+            PropMult = propMult;
+            SpeedMult = speedMult;
+        }
 
-            internal Color StartColor { get; set; }
+        internal object? LightID { get; }
 
-            internal Color EndColor { get; set; }
+        internal object? PropID { get; }
 
-            internal Functions Easing { get; set; }
+        internal Color? ColorData { get; }
+
+        internal GradientObjectData? GradientObject { get; set; }
+
+        internal bool LockPosition { get; }
+
+        internal string? NameFilter { get; }
+
+        internal int? Direction { get; }
+
+        internal bool? CounterSpin { get; }
+
+        internal bool? Reset { get; }
+
+        internal float? Step { get; }
+
+        internal float? Prop { get; }
+
+        internal float? Speed { get; }
+
+        internal float? Rotation { get; }
+
+        internal float StepMult { get; }
+
+        internal float PropMult { get; }
+
+        internal float SpeedMult { get; }
+
+        internal record GradientObjectData
+        {
+            internal GradientObjectData(float duration, Color startColor, Color endColor, Functions easing)
+            {
+                Duration = duration;
+                StartColor = startColor;
+                EndColor = endColor;
+                Easing = easing;
+            }
+
+            internal float Duration { get; }
+
+            internal Color StartColor { get; }
+
+            internal Color EndColor { get; }
+
+            internal Functions Easing { get; }
         }
     }
 }

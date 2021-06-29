@@ -5,7 +5,7 @@
 
     internal class ParametricBoxControllerParameters
     {
-        internal static Dictionary<ParametricBoxController, ParametricBoxControllerParameters> TransformParameters { get; } = new Dictionary<ParametricBoxController, ParametricBoxControllerParameters>();
+        internal static Dictionary<ParametricBoxController, ParametricBoxControllerParameters> TransformParameters { get; set; } = new Dictionary<ParametricBoxController, ParametricBoxControllerParameters>();
 
         internal Vector3? Scale { get; private set; }
 

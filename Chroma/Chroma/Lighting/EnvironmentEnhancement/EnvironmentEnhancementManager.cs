@@ -25,13 +25,13 @@
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
 
-        private static List<GameObjectInfo> _gameObjectInfos;
+        private static List<GameObjectInfo> _gameObjectInfos = new List<GameObjectInfo>();
 
-        internal static Dictionary<TrackLaneRing, Quaternion> RingRotationOffsets { get; } = new Dictionary<TrackLaneRing, Quaternion>();
+        internal static Dictionary<TrackLaneRing, Quaternion> RingRotationOffsets { get; private set; } = new Dictionary<TrackLaneRing, Quaternion>();
 
-        internal static Dictionary<BeatmapObjectsAvoidance, Vector3> AvoidancePosition { get; } = new Dictionary<BeatmapObjectsAvoidance, Vector3>();
+        internal static Dictionary<BeatmapObjectsAvoidance, Vector3> AvoidancePosition { get; private set; } = new Dictionary<BeatmapObjectsAvoidance, Vector3>();
 
-        internal static Dictionary<BeatmapObjectsAvoidance, Quaternion> AvoidanceRotation { get; } = new Dictionary<BeatmapObjectsAvoidance, Quaternion>();
+        internal static Dictionary<BeatmapObjectsAvoidance, Quaternion> AvoidanceRotation { get; private set; } = new Dictionary<BeatmapObjectsAvoidance, Quaternion>();
 
         internal static void SubscribeTrackManagerCreated()
         {
@@ -40,12 +40,12 @@
 
         internal static void CreateEnvironmentTracks(TrackBuilder trackManager, CustomBeatmapData customBeatmapData)
         {
-            IEnumerable<Dictionary<string, object>> environmentData = customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object>>();
+            IEnumerable<Dictionary<string, object?>>? environmentData = customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object?>>();
             if (environmentData != null)
             {
-                foreach (Dictionary<string, object> gameObjectData in environmentData)
+                foreach (Dictionary<string, object?> gameObjectData in environmentData)
                 {
-                    string trackName = gameObjectData.Get<string>("_track");
+                    string? trackName = gameObjectData.Get<string>("_track");
                     if (trackName != null)
                     {
                         trackManager.AddTrack(trackName);
@@ -56,23 +56,29 @@
 
         internal static void Init(CustomBeatmapData customBeatmapData, float noteLinesDistance)
         {
-            IEnumerable<Dictionary<string, object>> environmentData = customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object>>();
+            IEnumerable<Dictionary<string, object?>>? environmentData = customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object?>>();
             GetAllGameObjects();
+
+            RingRotationOffsets = new Dictionary<TrackLaneRing, Quaternion>();
+            AvoidancePosition = new Dictionary<BeatmapObjectsAvoidance, Vector3>();
+            AvoidanceRotation = new Dictionary<BeatmapObjectsAvoidance, Quaternion>();
+            ParametricBoxControllerParameters.TransformParameters = new Dictionary<ParametricBoxController, ParametricBoxControllerParameters>();
+
             if (environmentData != null)
             {
                 RingRotationOffsets.Clear();
                 ParametricBoxControllerParameters.TransformParameters.Clear();
 
-                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
                 {
                     Plugin.Logger.Log($"=====================================");
                 }
 
-                foreach (Dictionary<string, object> gameObjectData in environmentData)
+                foreach (Dictionary<string, object?> gameObjectData in environmentData)
                 {
-                    string id = gameObjectData.Get<string>(ID);
+                    string id = gameObjectData.Get<string>(ID) ?? throw new InvalidOperationException("Id was not defined.");
 
-                    string lookupString = gameObjectData.Get<string>(LOOKUPMETHOD);
+                    string lookupString = gameObjectData.Get<string>(LOOKUPMETHOD) ?? throw new InvalidOperationException("Lookup method was not defined.");
                     LookupMethod lookupMethod = (LookupMethod)Enum.Parse(typeof(LookupMethod), lookupString);
 
                     int? dupeAmount = gameObjectData.Get<int?>(DUPLICATIONAMOUNT);
@@ -88,7 +94,7 @@
                     int? lightID = gameObjectData.Get<int?>(LIGHTID);
 
                     List<GameObjectInfo> foundObjects = LookupID(id, lookupMethod);
-                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                    if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
                     {
                         if (foundObjects.Count > 0)
                         {
@@ -108,7 +114,7 @@
                         gameObjectInfos = new List<GameObjectInfo>();
                         foreach (GameObjectInfo gameObjectInfo in foundObjects)
                         {
-                            if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                            if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
                             {
                                 Plugin.Logger.Log($"Duplicating [{gameObjectInfo.FullID}]:");
                             }
@@ -130,7 +136,7 @@
                                 List<GameObjectInfo> gameObjects = _gameObjectInfos.Where(n => n.GameObject == newGameObject).ToList();
                                 gameObjectInfos.AddRange(gameObjects);
 
-                                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                                if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
                                 {
                                     gameObjects.ForEach(n => Plugin.Logger.Log(n.FullID));
                                 }
@@ -233,7 +239,7 @@
                         GameObjectTrackController.HandleTrackData(gameObject, gameObjectData, customBeatmapData, noteLinesDistance, trackLaneRing, parametricBoxController, beatmapObjectsAvoidance);
                     }
 
-                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                    if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
                     {
                         Plugin.Logger.Log($"=====================================");
                     }
@@ -270,15 +276,15 @@
                     break;
 
                 default:
-                    return null;
+                    throw new ArgumentOutOfRangeException("Invalid lookup method.", nameof(lookupMethod));
             }
 
             return _gameObjectInfos.Where(predicate).ToList();
         }
 
-        private static Vector3? GetVectorData(Dictionary<string, object> dynData, string name)
+        private static Vector3? GetVectorData(Dictionary<string, object?> dynData, string name)
         {
-            IEnumerable<float> data = dynData.Get<List<object>>(name)?.Select(n => Convert.ToSingle(n));
+            IEnumerable<float>? data = dynData.Get<List<object>>(name)?.Select(n => Convert.ToSingle(n));
             Vector3? final = null;
             if (data != null)
             {
@@ -342,7 +348,7 @@
                 }
             }
 
-            if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+            if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
             {
                 objectsToPrint.Sort();
                 objectsToPrint.ForEach(n => Plugin.Logger.Log(n));

@@ -8,11 +8,11 @@
 
     internal static class LightColorManager
     {
-        internal static List<int> LightIDOverride { get; set; }
+        internal static List<int>? LightIDOverride { get; set; }
 
         internal static void ColorLightSwitch(BeatmapEventData beatmapEventData)
         {
-            ChromaEventData chromaData = TryGetEventData(beatmapEventData);
+            ChromaEventData? chromaData = TryGetEventData(beatmapEventData);
             if (chromaData == null)
             {
                 return;
@@ -23,7 +23,7 @@
             // legacy was a mistake
             color = LegacyLightHelper.GetLegacyColor(beatmapEventData) ?? color;
 
-            object lightID = chromaData.LightID;
+            object? lightID = chromaData.LightID;
             if (lightID != null)
             {
                 switch (lightID)
@@ -39,7 +39,7 @@
             }
 
             // propID is now DEPRECATED!!!!!!!!
-            object propID = chromaData.PropID;
+            object? propID = chromaData.PropID;
             if (propID != null)
             {
                 ILightWithId[][] lights = beatmapEventData.type.GetLightColorizer().LightsPropagationGrouped;
@@ -71,7 +71,7 @@
                 }
             }
 
-            ChromaEventData.GradientObjectData gradientObject = chromaData.GradientObject;
+            ChromaEventData.GradientObjectData? gradientObject = chromaData.GradientObject;
             if (gradientObject != null)
             {
                 color = ChromaGradientController.AddGradient(gradientObject, beatmapEventData.type, beatmapEventData.time);

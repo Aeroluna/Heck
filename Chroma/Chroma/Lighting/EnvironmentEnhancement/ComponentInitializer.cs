@@ -88,7 +88,7 @@
                 {
                     initializeDelegate(rootComponents[i], originalComponents[i]);
 
-                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                    if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
                     {
                         Plugin.Logger.Log($"Initialized {typeof(T).Name}");
                     }
@@ -118,7 +118,7 @@
                 _positionOffsetAccessor(ref rootComponent) = _positionOffsetAccessor(ref originalComponent);
                 _posZAccessor(ref rootComponent) = _posZAccessor(ref originalComponent);
 
-                TrackLaneRingsManager managerToAdd = null;
+                TrackLaneRingsManager? managerToAdd = null;
                 foreach (TrackLaneRingsManager manager in HarmonyPatches.TrackLaneRingsManagerAwake.RingManagers)
                 {
                     TrackLaneRingsManagerComponentData componentData = componentDatas.OfType<TrackLaneRingsManagerComponentData>().Where(n => n.OldTrackLaneRingsManager == manager).FirstOrDefault();
@@ -153,10 +153,10 @@
             {
                 foreach (TrackLaneRingsManager manager in HarmonyPatches.TrackLaneRingsManagerAwake.RingManagers)
                 {
-                    TrackLaneRingsManagerComponentData componentData = componentDatas.OfType<TrackLaneRingsManagerComponentData>().Where(n => n.OldTrackLaneRingsManager == manager).FirstOrDefault();
+                    TrackLaneRingsManagerComponentData? componentData = componentDatas.OfType<TrackLaneRingsManagerComponentData>().Where(n => n.OldTrackLaneRingsManager == manager).FirstOrDefault();
                     if (componentData != null)
                     {
-                        _stepSpawnerRingsManagerAccessor(ref rootComponent) = componentData.NewTrackLaneRingsManager;
+                        _stepSpawnerRingsManagerAccessor(ref rootComponent) = componentData.NewTrackLaneRingsManager!;
 
                         break;
                     }
@@ -167,10 +167,10 @@
             {
                 foreach (TrackLaneRingsManager manager in HarmonyPatches.TrackLaneRingsManagerAwake.RingManagers)
                 {
-                    TrackLaneRingsManagerComponentData componentData = componentDatas.OfType<TrackLaneRingsManagerComponentData>().Where(n => n.OldTrackLaneRingsManager == manager).FirstOrDefault();
+                    TrackLaneRingsManagerComponentData? componentData = componentDatas.OfType<TrackLaneRingsManagerComponentData>().Where(n => n.OldTrackLaneRingsManager == manager).FirstOrDefault();
                     if (componentData != null)
                     {
-                        rootComponent.SetNewRingManager(componentData.NewTrackLaneRingsManager);
+                        rootComponent.SetNewRingManager(componentData.NewTrackLaneRingsManager!);
 
                         break;
                     }

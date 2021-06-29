@@ -16,9 +16,9 @@
 
         // ColorNoteVisuals is not grabbed up front because whatever method that Custom Notes uses to replace ColorNoteVisuals causes wild inconsistency
         // seriously, its annoying. whatever saber factory does is much more consistent
-        private ColorNoteVisuals _colorNoteVisuals;
-        private MaterialPropertyBlockController[] _materialPropertyBlockControllers;
-        private Color[] _originalColors;
+        private ColorNoteVisuals? _colorNoteVisuals;
+        private MaterialPropertyBlockController[]? _materialPropertyBlockControllers;
+        private Color[]? _originalColors;
 
         internal NoteColorizer(NoteControllerBase noteController)
         {
@@ -138,7 +138,7 @@
             }
 
             _noteColorAccessor(ref colorNoteVisuals) = color;
-            foreach (MaterialPropertyBlockController materialPropertyBlockController in _materialPropertyBlockControllers)
+            foreach (MaterialPropertyBlockController materialPropertyBlockController in _materialPropertyBlockControllers!)
             {
                 materialPropertyBlockController.materialPropertyBlock.SetColor(_colorID, color);
                 materialPropertyBlockController.ApplyChanges();

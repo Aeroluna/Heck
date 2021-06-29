@@ -1,7 +1,7 @@
 ﻿{
   "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "author": "Aeroluna",
-  "description": "RGB Lightmapping and custom lighting events.",
+  "description": "Chroma™ boasts the most power in color customization you've ever seen, allowing mappers to customize blocks, lights, sabers, and barriers into not just one but multiple colors!",
   "gameVersion": "1.16.2",
   "id": "Chroma",
   "name": "Chroma",

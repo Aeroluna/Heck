@@ -2,7 +2,7 @@
 {
     using Heck;
     using UnityEngine;
-    using static ChromaEventDataManager;
+    using static Chroma.ChromaEventDataManager;
 
     [HeckPatch(typeof(LightRotationEventEffect))]
     [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
@@ -18,7 +18,7 @@
         {
             if (beatmapEventData.type == ____event)
             {
-                ChromaEventData chromaData = TryGetEventData(beatmapEventData);
+                ChromaEventData? chromaData = TryGetEventData(beatmapEventData);
                 if (chromaData == null)
                 {
                     return true;

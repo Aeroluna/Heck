@@ -93,7 +93,7 @@
             Colorizers.Add(beatmapEventType, this);
         }
 
-        internal static event Action<BeatmapEventType, Color[]> LightColorChanged;
+        internal static event Action<BeatmapEventType, Color[]>? LightColorChanged;
 
         public static Dictionary<BeatmapEventType, LightColorizer> Colorizers { get; } = new Dictionary<BeatmapEventType, LightColorizer>();
 
