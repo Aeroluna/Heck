@@ -28,9 +28,10 @@
         public void PrintHarmonyInfo(MethodBase method)
         {
             Patches patches = Harmony.GetPatchInfo(method);
-            if (patches is null)
+            if (patches == null)
             {
                 Log($"{method.Name} is not patched");
+                return;
             }
 
             Log("all owners: " + string.Join(", ", patches.Owners));

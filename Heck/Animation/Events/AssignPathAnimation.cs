@@ -18,10 +18,10 @@
 
         internal static IEnumerator AssignPathAnimationCoroutine(Property property, float duration, float startTime, Functions easing)
         {
-            PointDefinitionInterpolation pointDataInterpolation = property.Value as PointDefinitionInterpolation;
+            PointDefinitionInterpolation pointDataInterpolation = ((PathProperty)property).Interpolation;
             while (true)
             {
-                float elapsedTime = Instance.CustomEventCallbackController.AudioTimeSource.songTime - startTime;
+                float elapsedTime = Instance!.CustomEventCallbackController!.AudioTimeSource!.songTime - startTime;
                 pointDataInterpolation.Time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
 
                 if (elapsedTime < duration)

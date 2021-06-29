@@ -14,21 +14,21 @@
     {
         internal static void StartEventCoroutine(CustomEventData customEventData, EventType eventType)
         {
-            HeckEventData heckData = TryGetEventData(customEventData);
+            HeckEventData? heckData = TryGetEventData(customEventData);
             if (heckData == null)
             {
                 return;
             }
 
             float duration = heckData.Duration;
-            duration = 60f * duration / Instance.BeatmapObjectSpawnController.currentBpm; // Convert to real time;
+            duration = 60f * duration / Instance!.BeatmapObjectSpawnController!.currentBpm; // Convert to real time;
 
             Functions easing = heckData.Easing;
 
             foreach (HeckEventData.CoroutineInfo coroutineInfo in heckData.CoroutineInfos)
             {
                 Property property = coroutineInfo.Property;
-                PointDefinition pointData = coroutineInfo.PointDefinition;
+                PointDefinition? pointData = coroutineInfo.PointDefinition;
 
                 if (property.Coroutine != null)
                 {
@@ -44,7 +44,7 @@
                             break;
 
                         case EventType.AssignPathAnimation:
-                            ((PointDefinitionInterpolation)property.Value).Init(null);
+                            ((PathProperty)property).Interpolation.Init(null);
                             break;
                     }
                 }
@@ -57,7 +57,7 @@
                             break;
 
                         case EventType.AssignPathAnimation:
-                            ((PointDefinitionInterpolation)property.Value).Init(pointData);
+                            ((PathProperty)property).Interpolation.Init(pointData);
                             property.Coroutine = Instance.StartCoroutine(AssignPathAnimation.AssignPathAnimationCoroutine(property, duration, customEventData.time, easing));
                             break;
                     }

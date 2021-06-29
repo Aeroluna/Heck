@@ -4,8 +4,8 @@
 
     internal class PointDefinitionInterpolation
     {
-        private PointDefinition _basePointData;
-        private PointDefinition _previousPointData;
+        private PointDefinition? _basePointData;
+        private PointDefinition? _previousPointData;
 
         internal float Time { get; set; }
 
@@ -74,7 +74,7 @@
             return Vector4.LerpUnclamped(_previousPointData.InterpolateVector4(time), _basePointData.InterpolateVector4(time), Time);
         }
 
-        internal void Init(PointDefinition newPointData)
+        internal void Init(PointDefinition? newPointData)
         {
             Time = 0;
             _previousPointData = _basePointData ?? new PointDefinition();

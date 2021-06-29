@@ -8,17 +8,23 @@
 
     public class PointDefinition
     {
-        private List<PointData> _points;
+        private readonly List<PointData> _points;
 
-        public static PointDefinition ListToPointData(IEnumerable<object> list)
+        public PointDefinition()
+            : this(new List<PointData>())
         {
-            IEnumerable<List<object>> points = list?.Cast<List<object>>();
-            if (points == null)
-            {
-                return null;
-            }
+        }
 
-            PointDefinition pointData = new PointDefinition();
+        private PointDefinition(List<PointData> points)
+        {
+            _points = points;
+        }
+
+        public static PointDefinition ListToPointDefinition(IEnumerable<object> list)
+        {
+            IEnumerable<List<object>> points = list.Cast<List<object>>();
+
+            List<PointData> pointData = new List<PointData>();
             foreach (List<object> rawPoint in points)
             {
                 int flagIndex = -1;
@@ -74,7 +80,7 @@
                 }
             }
 
-            return pointData;
+            return new PointDefinition(pointData);
         }
 
         public override string ToString()
@@ -301,16 +307,6 @@
                     r = m;
                 }
             }
-        }
-
-        private void Add(PointData point)
-        {
-            if (_points == null)
-            {
-                _points = new List<PointData>();
-            }
-
-            _points.Add(point);
         }
 
         private struct Vector5

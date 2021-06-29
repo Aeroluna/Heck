@@ -23,7 +23,9 @@
 
         internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
 
+#pragma warning disable CS8618
         internal static HeckLogger Logger { get; private set; }
+#pragma warning restore CS8618
 
         [Init]
         public void Init(IPALogger pluginLogger)

@@ -1,5 +1,6 @@
 ﻿namespace Heck.HarmonyPatches
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using CustomJSONData;
@@ -21,7 +22,7 @@
                 {
                     foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
                     {
-                        Dictionary<string, object> dynData;
+                        Dictionary<string, object?> dynData;
                         switch (beatmapObjectData)
                         {
                             case CustomObstacleData obstacleData:
@@ -37,7 +38,7 @@
                         }
 
                         // for epic tracks thing
-                        string trackName = dynData.Get<string>(TRACK);
+                        string? trackName = dynData.Get<string>(TRACK);
                         if (trackName != null)
                         {
                             dynData["track"] = trackManager.AddTrack(trackName);
@@ -48,13 +49,13 @@
                 customBeatmapData.customData["tracks"] = trackManager.Tracks;
 
                 PointDefinitionBuilder pointDataManager = new PointDefinitionBuilder();
-                IEnumerable<Dictionary<string, object>> pointDefinitions = customBeatmapData.customData.Get<List<object>>(POINTDEFINITIONS)?.Cast<Dictionary<string, object>>();
+                IEnumerable<Dictionary<string, object?>>? pointDefinitions = customBeatmapData.customData.Get<List<object>>(POINTDEFINITIONS)?.Cast<Dictionary<string, object?>>();
                 if (pointDefinitions != null)
                 {
-                    foreach (Dictionary<string, object> pointDefintion in pointDefinitions)
+                    foreach (Dictionary<string, object?> pointDefintion in pointDefinitions)
                     {
-                        string pointName = pointDefintion.Get<string>(NAME);
-                        PointDefinition pointData = PointDefinition.ListToPointData(pointDefintion.Get<List<object>>(POINTS));
+                        string pointName = pointDefintion.Get<string>(NAME) ?? throw new InvalidOperationException("Failed to retrieve point name.");
+                        PointDefinition pointData = PointDefinition.ListToPointDefinition(pointDefintion.Get<List<object>>(POINTS) ?? throw new InvalidOperationException("Failed to retrieve point array."));
                         pointDataManager.AddPoint(pointName, pointData);
                     }
                 }
