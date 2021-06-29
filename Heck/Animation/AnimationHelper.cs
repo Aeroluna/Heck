@@ -1,5 +1,6 @@
 ﻿namespace Heck.Animation
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using CustomJSONData;
@@ -11,9 +12,9 @@
     {
         public static bool LeftHandedMode { get; internal set; }
 
-        public static float? TryGetLinearPathProperty(Track track, string propertyName, float time)
+        public static float? TryGetLinearPathProperty(Track? track, string propertyName, float time)
         {
-            PointDefinitionInterpolation pointDataInterpolation = GetPathInterpolation(track, propertyName);
+            PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
 
             if (pointDataInterpolation != null)
             {
@@ -23,9 +24,9 @@
             return null;
         }
 
-        public static Quaternion? TryGetQuaternionPathProperty(Track track, string propertyName, float time)
+        public static Quaternion? TryGetQuaternionPathProperty(Track? track, string propertyName, float time)
         {
-            PointDefinitionInterpolation pointDataInterpolation = GetPathInterpolation(track, propertyName);
+            PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
 
             if (pointDataInterpolation != null)
             {
@@ -35,9 +36,9 @@
             return null;
         }
 
-        public static Vector3? TryGetVector3PathProperty(Track track, string propertyName, float time)
+        public static Vector3? TryGetVector3PathProperty(Track? track, string propertyName, float time)
         {
-            PointDefinitionInterpolation pointDataInterpolation = GetPathInterpolation(track, propertyName);
+            PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
 
             if (pointDataInterpolation != null)
             {
@@ -47,9 +48,9 @@
             return null;
         }
 
-        public static Vector4? TryGetVector4PathProperty(Track track, string propertyName, float time)
+        public static Vector4? TryGetVector4PathProperty(Track? track, string propertyName, float time)
         {
-            PointDefinitionInterpolation pointDataInterpolation = GetPathInterpolation(track, propertyName);
+            PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
 
             if (pointDataInterpolation != null)
             {
@@ -59,16 +60,16 @@
             return null;
         }
 
-        public static object TryGetProperty(Track track, string propertyName)
+        public static object? TryGetProperty(Track? track, string propertyName)
         {
-            Property property = null;
+            Property? property = null;
             track?.Properties.TryGetValue(propertyName, out property);
             return property?.Value;
         }
 
-        public static void TryGetPointData(Dictionary<string, object> customData, string pointName, out PointDefinition pointData, Dictionary<string, PointDefinition> pointDefinitions)
+        public static void TryGetPointData(Dictionary<string, object?> customData, string pointName, out PointDefinition? pointData, Dictionary<string, PointDefinition> pointDefinitions)
         {
-            object pointString = customData.Get<object>(pointName);
+            object? pointString = customData.Get<object>(pointName);
             switch (pointString)
             {
                 case null:
@@ -85,35 +86,34 @@
                     break;
 
                 case List<object> list:
-                    pointData = PointDefinition.ListToPointData(list);
+                    pointData = PointDefinition.ListToPointDefinition(list);
 
                     break;
 
                 default:
-                    throw new System.ArgumentException($"Point was not a valid type. Got {pointString.GetType().FullName}");
+                    throw new InvalidOperationException($"Point was not a valid type. Got {pointString.GetType().FullName}");
             }
         }
 
-        public static Track GetTrack(Dictionary<string, object> customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
+        public static Track? GetTrack(Dictionary<string, object?> customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
         {
-            string trackName = customData.Get<string>(name);
+            string? trackName = customData.Get<string>(name);
             if (trackName == null)
             {
                 return null;
             }
 
-            if (((Dictionary<string, Track>)((CustomBeatmapData)beatmapData).customData["tracks"]).TryGetValue(trackName, out Track track))
+            if (((Dictionary<string, Track>)(((CustomBeatmapData)beatmapData).customData["tracks"] ?? throw new InvalidOperationException("Could not find tracks in BeatmapData."))).TryGetValue(trackName, out Track track))
             {
                 return track;
             }
             else
             {
-                Plugin.Logger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
-                return null;
+                throw new InvalidOperationException($"Could not find track {trackName}.");
             }
         }
 
-        public static IEnumerable<Track> GetTrackArray(Dictionary<string, object> customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
+        public static IEnumerable<Track>? GetTrackArray(Dictionary<string, object?> customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
         {
             IEnumerable<string> trackNames = customData.Get<List<object>>(name).Cast<string>();
             if (trackNames == null)
@@ -124,28 +124,26 @@
             HashSet<Track> tracks = new HashSet<Track>();
             foreach (string trackName in trackNames)
             {
-                if (((Dictionary<string, Track>)((CustomBeatmapData)beatmapData).customData["tracks"]).TryGetValue(trackName, out Track track))
+                if (((Dictionary<string, Track>)(((CustomBeatmapData)beatmapData).customData["tracks"] ?? throw new InvalidOperationException("Could not find tracks in BeatmapData."))).TryGetValue(trackName, out Track track))
                 {
                     tracks.Add(track);
                 }
                 else
                 {
-                    Plugin.Logger.Log($"Could not find track {trackName}!", IPA.Logging.Logger.Level.Error);
+                    throw new InvalidOperationException($"Could not find track {trackName}.");
                 }
             }
 
             return tracks;
         }
 
-        private static PointDefinitionInterpolation GetPathInterpolation(Track track, string propertyName)
+        private static PointDefinitionInterpolation? GetPathInterpolation(Track? track, string propertyName)
         {
-            Property pathProperty = null;
+            Property? pathProperty = null;
             track?.PathProperties.TryGetValue(propertyName, out pathProperty);
             if (pathProperty != null)
             {
-                PointDefinitionInterpolation pointDataInterpolation = (PointDefinitionInterpolation)pathProperty.Value;
-
-                return pointDataInterpolation;
+                return ((PathProperty)pathProperty).Interpolation;
             }
 
             return null;

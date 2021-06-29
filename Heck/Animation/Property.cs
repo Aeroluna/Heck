@@ -10,17 +10,29 @@
         Linear,
     }
 
-    public class Property
+    internal class PathProperty : Property
     {
-        public Property(PropertyType propertyType)
+        internal PathProperty(PropertyType propertyType)
+            : base(propertyType)
+        {
+        }
+
+        internal PointDefinitionInterpolation Interpolation { get; } = new PointDefinitionInterpolation();
+
+        internal override object? Value => Interpolation;
+    }
+
+    internal class Property
+    {
+        internal Property(PropertyType propertyType)
         {
             PropertyType = propertyType;
         }
 
-        public PropertyType PropertyType { get; }
+        internal PropertyType PropertyType { get; }
 
-        public Coroutine Coroutine { get; set; }
+        internal Coroutine? Coroutine { get; set; }
 
-        public object Value { get; set; }
+        internal virtual object? Value { get; set; }
     }
 }

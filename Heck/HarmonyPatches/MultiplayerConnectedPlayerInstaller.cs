@@ -12,7 +12,7 @@
     [HarmonyPatch("InstallBindings")]
     internal static class MultiplayerConnectedPlayerInstallerInstallBindings
     {
-        private static readonly MethodInfo _exclude = SymbolExtensions.GetMethodInfo(() => Exclude(null));
+        private static readonly MethodInfo _exclude = AccessTools.Method(typeof(MultiplayerConnectedPlayerInstallerInstallBindings), nameof(Exclude));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {

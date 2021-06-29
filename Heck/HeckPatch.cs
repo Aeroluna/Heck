@@ -82,9 +82,9 @@
                     object[] attributes = type.GetCustomAttributes(typeof(HeckPatch), true);
                     if (attributes.Length > 0)
                     {
-                        Type declaringType = null;
+                        Type? declaringType = null;
                         List<string> methodNames = new List<string>();
-                        Type[] parameters = null;
+                        Type[]? parameters = null;
                         MethodType methodType = MethodType.Normal;
                         foreach (HeckPatch n in attributes)
                         {
@@ -175,7 +175,7 @@
             }
             else
             {
-                throw new InvalidOperationException($"Attempted to add duplicate entry {id}");
+                throw new ArgumentException($"Attempted to add duplicate entry {id}.", nameof(id));
             }
         }
     }
@@ -209,11 +209,11 @@
             MethodName = methodName;
         }
 
-        internal Type DeclaringType { get; }
+        internal Type? DeclaringType { get; }
 
-        internal string MethodName { get; }
+        internal string? MethodName { get; }
 
-        internal Type[] Parameters { get; }
+        internal Type[]? Parameters { get; }
 
         internal MethodType? MethodType { get; }
     }

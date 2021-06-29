@@ -11,9 +11,9 @@
             TrackManagerCreated?.Invoke(this, beatmapData);
         }
 
-        public static event Action<TrackBuilder, CustomBeatmapData> TrackManagerCreated;
+        public static event Action<TrackBuilder, CustomBeatmapData>? TrackManagerCreated;
 
-        public static event Action<Track> TrackCreated;
+        public static event Action<Track>? TrackCreated;
 
         public IDictionary<string, Track> Tracks { get; } = new Dictionary<string, Track>();
 
@@ -23,7 +23,6 @@
             {
                 track = new Track();
                 TrackCreated?.Invoke(track);
-                track.ResetVariables();
                 Tracks.Add(trackName, track);
             }
 
@@ -33,9 +32,9 @@
 
     public class Track
     {
-        public IDictionary<string, Property> Properties { get; } = new Dictionary<string, Property>();
+        internal IDictionary<string, Property> Properties { get; } = new Dictionary<string, Property>();
 
-        public IDictionary<string, Property> PathProperties { get; } = new Dictionary<string, Property>();
+        internal IDictionary<string, Property> PathProperties { get; } = new Dictionary<string, Property>();
 
         public void AddProperty(string name, PropertyType propertyType)
         {
@@ -57,20 +56,7 @@
             }
             else
             {
-                PathProperties.Add(name, new Property(propertyType));
-            }
-        }
-
-        internal void ResetVariables()
-        {
-            foreach (KeyValuePair<string, Property> valuePair in Properties)
-            {
-                valuePair.Value.Value = null;
-            }
-
-            foreach (KeyValuePair<string, Property> valuePair in PathProperties)
-            {
-                valuePair.Value.Value = new PointDefinitionInterpolation();
+                PathProperties.Add(name, new PathProperty(propertyType));
             }
         }
     }

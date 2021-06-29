@@ -8,7 +8,10 @@
 
     public static class NullableExtensions
     {
-        public static IEnumerable<float?> GetNullableFloats(this Dictionary<string, object> dynData, string key) => dynData.Get<List<object>>(key)?.Select(n => n.ToNullableFloat());
+        public static IEnumerable<float?>? GetNullableFloats(this Dictionary<string, object?> dynData, string key)
+        {
+            return dynData.Get<List<object>>(key)?.Select(n => n.ToNullableFloat());
+        }
 
         public static float? ToNullableFloat(this object @this)
         {
