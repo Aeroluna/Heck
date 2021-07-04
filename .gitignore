@@ -132,6 +132,9 @@ _ReSharper*/
 *.[Rr]e[Ss]harper
 *.DotSettings.user
 
+# JustCode is a .NET coding add-in
+.JustCode
+
 # TeamCity is a build add-in
 _TeamCity*
 
@@ -309,8 +312,12 @@ paket-files/
 # FAKE - F# Make
 .fake/
 
-# CodeRush personal settings
-.cr/personal
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# CodeRush
+.cr/
 
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
