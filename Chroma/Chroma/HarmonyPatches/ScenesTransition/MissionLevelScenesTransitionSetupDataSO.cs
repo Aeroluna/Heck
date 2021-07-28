@@ -1,7 +1,6 @@
 ﻿namespace Chroma.HarmonyPatches
 {
     using System;
-    using System.Collections.Generic;
     using HarmonyLib;
 
     [HarmonyPatch(
@@ -10,11 +9,6 @@
     [HarmonyPatch("Init")]
     internal static class MissionLevelScenesTransitionSetupDataSOInit
     {
-        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            return SceneTransitionHelper.Transpiler(instructions);
-        }
-
         private static void Postfix(IDifficultyBeatmap difficultyBeatmap)
         {
             SceneTransitionHelper.Patch(difficultyBeatmap);

@@ -2,46 +2,17 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
-    using System.Reflection.Emit;
     using Chroma.Settings;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
 
     internal static class SceneTransitionHelper
     {
-        private static readonly MethodInfo _setEnvironmentTable = AccessTools.Method(typeof(SceneTransitionHelper), nameof(SetEnvironmentTable));
-
-        internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            List<CodeInstruction> instructionList = instructions.ToList();
-            bool foundReturn = false;
-            for (int i = 0; i < instructionList.Count; i++)
-            {
-                if (!foundReturn &&
-                    instructionList[i].opcode == OpCodes.Ret)
-                {
-                    foundReturn = true;
-
-                    instructionList.Insert(i, new CodeInstruction(OpCodes.Ldloc_0));
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _setEnvironmentTable));
-                }
-            }
-
-            if (!foundReturn)
-            {
-                Plugin.Logger.Log("Failed to find ret!", IPA.Logging.Logger.Level.Error);
-            }
-
-            return instructionList.AsEnumerable();
-        }
-
         internal static void Patch(IDifficultyBeatmap difficultyBeatmap)
         {
             if (difficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
             {
-                BasicPatch(customBeatmapData);
+                BasicPatch(difficultyBeatmap, customBeatmapData);
             }
         }
 
@@ -49,7 +20,7 @@
         {
             if (difficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
             {
-                bool chromaRequirement = BasicPatch(customBeatmapData);
+                bool chromaRequirement = BasicPatch(difficultyBeatmap, customBeatmapData);
                 if (chromaRequirement &&
                     ChromaConfig.Instance!.EnvironmentEnhancementsEnabled &&
                     (customBeatmapData.beatmapCustomData.Get<object>(Plugin.ENVIRONMENTREMOVAL) != null || (customBeatmapData.customData.Get<object>(Plugin.ENVIRONMENT) != null)))
@@ -59,12 +30,7 @@
             }
         }
 
-        private static void SetEnvironmentTable(EnvironmentInfoSO environmentInfo)
-        {
-            LightIDTableManager.SetEnvironment(environmentInfo.serializedName);
-        }
-
-        private static bool BasicPatch(CustomBeatmapData customBeatmapData)
+        private static bool BasicPatch(IDifficultyBeatmap difficultyBeatmap, CustomBeatmapData customBeatmapData)
         {
             IEnumerable<string>? requirements = customBeatmapData.beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>();
             IEnumerable<string>? suggestions = customBeatmapData.beatmapCustomData.Get<List<object>>("_suggestions")?.Cast<string>();
@@ -80,6 +46,8 @@
 
             ChromaController.ToggleChromaPatches((chromaRequirement || legacyOverride) && ChromaConfig.Instance!.CustomColorEventsEnabled);
             ChromaController.DoColorizerSabers = chromaRequirement && ChromaConfig.Instance!.CustomColorEventsEnabled;
+
+            LightIDTableManager.SetEnvironment(difficultyBeatmap.GetEnvironmentInfo().serializedName);
 
             return chromaRequirement;
         }

@@ -2,10 +2,10 @@
   "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "author": "Aeroluna",
   "description": "Chroma™ boasts the most power in color customization you've ever seen, allowing mappers to customize blocks, lights, sabers, and barriers into not just one but multiple colors!",
-  "gameVersion": "1.16.2",
+  "gameVersion": "1.16.4",
   "id": "Chroma",
   "name": "Chroma",
-  "version": "2.4.9",
+  "version": "2.4.10",
   "dependsOn": {
     "_Heck": "^1.1.0",
     "BeatSaberMarkupLanguage": "^1.5.3",
