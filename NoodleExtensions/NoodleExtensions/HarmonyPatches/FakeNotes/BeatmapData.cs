@@ -24,6 +24,13 @@
     [HarmonyPatch("AddBeatmapObjectData")]
     internal static class BeatmapDataAddBeatmapObjectData
     {
+        private static readonly List<object> _countGetters = new List<object>
+        {
+            AccessTools.PropertyGetter(typeof(BeatmapData), nameof(BeatmapData.obstaclesCount)),
+            AccessTools.PropertyGetter(typeof(BeatmapData), nameof(BeatmapData.cuttableNotesType)),
+            AccessTools.PropertyGetter(typeof(BeatmapData), nameof(BeatmapData.bombsCount)),
+        };
+
         private static readonly MethodInfo _fakeObjectCheck = AccessTools.Method(typeof(BeatmapDataAddBeatmapObjectData), nameof(FakeObjectCheck));
         private static bool _noodleRequirement;
 
@@ -48,71 +55,16 @@
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            List<CodeInstruction> instructionList = instructions.ToList();
-
-            void ModifyInstructions(int i)
-            {
-                instructionList.RemoveRange(i + 1, 5);
-
-                CodeInstruction[] codeInstructions = new CodeInstruction[]
-                {
+            return new CodeMatcher(instructions)
+                .MatchForward(false, new CodeMatch(OpCodes.Call) { operands = _countGetters })
+                .Repeat(n => n
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                    .Advance(1)
+                    .InsertAndAdvance(
                         new CodeInstruction(OpCodes.Ldarg_1),
-                        new CodeInstruction(OpCodes.Call, _fakeObjectCheck),
-                };
-                instructionList.InsertRange(i + 1, codeInstructions);
-
-                instructionList.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
-            }
-
-            bool foundObstacles = false;
-            bool foundNotes = false;
-            bool foundBombs = false;
-            for (int i = 0; i < instructionList.Count; i++)
-            {
-                if (!foundObstacles &&
-                    instructionList[i].opcode == OpCodes.Call &&
-                    ((MethodInfo)instructionList[i].operand).Name == "get_obstaclesCount")
-                {
-                    foundObstacles = true;
-
-                    ModifyInstructions(i);
-                }
-
-                if (!foundNotes &&
-                    instructionList[i].opcode == OpCodes.Call &&
-                    ((MethodInfo)instructionList[i].operand).Name == "get_cuttableNotesType")
-                {
-                    foundNotes = true;
-
-                    ModifyInstructions(i);
-                }
-
-                if (!foundBombs &&
-                    instructionList[i].opcode == OpCodes.Call &&
-                    ((MethodInfo)instructionList[i].operand).Name == "get_bombsCount")
-                {
-                    foundBombs = true;
-
-                    ModifyInstructions(i);
-                }
-            }
-
-            if (!foundObstacles)
-            {
-                Plugin.Logger.Log("Failed to find call to get_obstaclesCount!", IPA.Logging.Logger.Level.Error);
-            }
-
-            if (!foundNotes)
-            {
-                Plugin.Logger.Log("Failed to find call to get_cuttableNotesType!", IPA.Logging.Logger.Level.Error);
-            }
-
-            if (!foundBombs)
-            {
-                Plugin.Logger.Log("Failed to find call to get_bombsCount!", IPA.Logging.Logger.Level.Error);
-            }
-
-            return instructionList.AsEnumerable();
+                        new CodeInstruction(OpCodes.Call, _fakeObjectCheck))
+                    .RemoveInstructions(5))
+                .InstructionEnumeration();
         }
 
         private static int FakeObjectCheck(int objectCount, BeatmapObjectData beatmapObjectData)

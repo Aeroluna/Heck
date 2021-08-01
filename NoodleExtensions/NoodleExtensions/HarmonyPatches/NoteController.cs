@@ -1,7 +1,6 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
@@ -28,6 +27,9 @@
         private static readonly FieldAccessor<NoteJump, Quaternion>.Accessor _middleRotationAccessor = FieldAccessor<NoteJump, Quaternion>.GetAccessor("_middleRotation");
         private static readonly FieldAccessor<NoteJump, Vector3[]>.Accessor _randomRotationsAccessor = FieldAccessor<NoteJump, Vector3[]>.GetAccessor("_randomRotations");
         private static readonly FieldAccessor<NoteJump, int>.Accessor _randomRotationIdxAccessor = FieldAccessor<NoteJump, int>.GetAccessor("_randomRotationIdx");
+
+        private static readonly FieldInfo _noteDataField = AccessTools.Field(typeof(NoteController), "_noteData");
+        private static readonly MethodInfo _flipYSideGetter = AccessTools.PropertyGetter(typeof(NoteData), nameof(NoteData.flipYSide));
 
         private static readonly MethodInfo _getFlipYSide = AccessTools.Method(typeof(NoteControllerInit), nameof(GetFlipYSide));
 
@@ -119,28 +121,14 @@
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            List<CodeInstruction> instructionList = instructions.ToList();
-            bool foundFlipYSide = false;
-            for (int i = 0; i < instructionList.Count; i++)
-            {
-                if (!foundFlipYSide &&
-                    instructionList[i].opcode == OpCodes.Callvirt &&
-                    ((MethodInfo)instructionList[i].operand).Name == "get_flipYSide")
-                {
-                    foundFlipYSide = true;
-
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _getFlipYSide));
-                    instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldarg_0));
-                    instructionList.Insert(i, new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(NoteController), "_noteData")));
-                }
-            }
-
-            if (!foundFlipYSide)
-            {
-                Plugin.Logger.Log("Failed to find Get_flipYSide call!", IPA.Logging.Logger.Level.Error);
-            }
-
-            return instructionList.AsEnumerable();
+            return new CodeMatcher(instructions)
+                .MatchForward(false, new CodeMatch(OpCodes.Call, _flipYSideGetter))
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _noteDataField))
+                .Advance(1)
+                .Insert(new CodeInstruction(OpCodes.Call, _getFlipYSide))
+                .InstructionEnumeration();
         }
 
         private static float GetFlipYSide(NoteData noteData, float @default)

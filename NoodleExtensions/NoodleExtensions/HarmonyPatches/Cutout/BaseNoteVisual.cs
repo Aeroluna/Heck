@@ -52,12 +52,7 @@
             Type baseType = type.BaseType;
             ////NoodleLogger.IPAlogger.Debug($"Base type is {baseType.Name}<{string.Join(", ", baseType.GenericTypeArguments.Select(t => t.Name))}>");
             MethodInfo method = baseType.GetMethod("SetArrowTransparency", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (method == null)
-            {
-                throw new InvalidOperationException($"Type [{type.FullName}] does not contain method [SetArrowTransparency]");
-            }
-
-            _setArrowTransparencyMethods[type] = method;
+            _setArrowTransparencyMethods[type] = method ?? throw new InvalidOperationException($"Type [{type.FullName}] does not contain method [SetArrowTransparency]");
             return method;
         }
     }

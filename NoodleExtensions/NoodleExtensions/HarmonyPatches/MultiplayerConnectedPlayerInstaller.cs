@@ -15,32 +15,19 @@
     [HeckPatch("InstallBindings")]
     internal static class MultiplayerConnectedPlayerInstallerInstallBindings
     {
+        private static readonly MethodInfo _createTransformedBeatmapData = AccessTools.Method(typeof(BeatmapDataTransformHelper), nameof(BeatmapDataTransformHelper.CreateTransformedBeatmapData));
+
         private static readonly MethodInfo _excludeFakeNote = AccessTools.Method(typeof(MultiplayerConnectedPlayerInstallerInstallBindings), nameof(ExcludeFakeNoteAndAllWalls));
 
         private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            List<CodeInstruction> instructionList = instructions.ToList();
-            bool foundBeatmapData = false;
-            for (int i = 0; i < instructionList.Count; i++)
-            {
-                if (!foundBeatmapData &&
-                    instructionList[i].opcode == OpCodes.Call &&
-                    ((MethodInfo)instructionList[i].operand).Name == "CreateTransformedBeatmapData")
-                {
-                    foundBeatmapData = true;
-
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _excludeFakeNote));
-                }
-            }
-
-            if (!foundBeatmapData)
-            {
-                Logger.Log("Failed to find Call to CreateTransformedBeatmapData!", IPA.Logging.Logger.Level.Error);
-            }
-
-            return instructionList.AsEnumerable();
+            return new CodeMatcher(instructions)
+                .MatchForward(false, new CodeMatch(OpCodes.Call, _createTransformedBeatmapData))
+                .Advance(1)
+                .Insert(new CodeInstruction(OpCodes.Call, _excludeFakeNote))
+                .InstructionEnumeration();
         }
 
         private static IReadonlyBeatmapData ExcludeFakeNoteAndAllWalls(IReadonlyBeatmapData result)

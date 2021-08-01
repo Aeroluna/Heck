@@ -22,33 +22,18 @@
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            List<CodeInstruction> instructionList = instructions.ToList();
-            bool foundBeatmapData = false;
-            for (int i = 0; i < instructionList.Count; i++)
-            {
-                if (!foundBeatmapData &&
-                    instructionList[i].opcode == OpCodes.Callvirt &&
-                    ((MethodInfo)instructionList[i].operand).Name == "GetCopy")
-                {
-                    foundBeatmapData = true;
-
-                    // yoink label5 so we can insert our code w/o breaking shit
-                    CodeInstruction sourceLabel = instructionList[i - 4];
-                    CodeInstruction newLabel = new CodeInstruction(instructionList[i - 4]);
-                    sourceLabel.labels.Clear();
-
-                    instructionList.Insert(i - 4, newLabel);
-                    instructionList.Insert(i - 3, new CodeInstruction(OpCodes.Call, _reorderLineData));
-                    instructionList.Insert(i - 2, new CodeInstruction(OpCodes.Stloc_0));
-                }
-            }
-
-            if (!foundBeatmapData)
-            {
-                Logger.Log("Failed to find GetCopy!", IPA.Logging.Logger.Level.Error);
-            }
-
-            return instructionList.AsEnumerable();
+            return new CodeMatcher(instructions)
+                .MatchForward(
+                    false,
+                    new CodeMatch(OpCodes.Ldloc_0),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Bne_Un))
+                .Advance(1)
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Call, _reorderLineData),
+                    new CodeInstruction(OpCodes.Stloc_0),
+                    new CodeInstruction(OpCodes.Ldloc_0)) // Replace the opcode we replace
+                .InstructionEnumeration();
         }
 
         private static IReadonlyBeatmapData ReorderLineData(IReadonlyBeatmapData beatmapData)

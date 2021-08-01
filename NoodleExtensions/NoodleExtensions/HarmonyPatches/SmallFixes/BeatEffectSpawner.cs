@@ -1,7 +1,6 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
@@ -13,50 +12,28 @@
     [HeckPatch("HandleNoteDidStartJump")]
     internal static class BeatEffectSpawnerHandleNoteDidStartJump
     {
+        private static readonly MethodInfo _jumpStartPosGetter = AccessTools.PropertyGetter(typeof(NoteController), nameof(NoteController.jumpStartPos));
+        private static readonly MethodInfo _beatEffectInit = AccessTools.Method(typeof(BeatEffect), nameof(BeatEffect.Init));
+
         private static readonly MethodInfo _getNoteControllerPosition = AccessTools.Method(typeof(BeatEffectSpawnerHandleNoteDidStartJump), nameof(GetNoteControllerPosition));
         private static readonly MethodInfo _getNoteControllerRotation = AccessTools.Method(typeof(BeatEffectSpawnerHandleNoteDidStartJump), nameof(GetNoteControllerRotation));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            List<CodeInstruction> instructionList = instructions.ToList();
-            bool foundInit = false;
-            bool foundJumpStartPos = false;
-            for (int i = 0; i < instructionList.Count; i++)
-            {
-                if (!foundJumpStartPos &&
-                    instructionList[i].opcode == OpCodes.Callvirt &&
-                    ((MethodInfo)instructionList[i].operand).Name == "get_jumpStartPos")
-                {
-                    foundJumpStartPos = true;
+            return new CodeMatcher(instructions)
 
-                    instructionList.RemoveRange(i - 2, 4);
-                    instructionList.Insert(i - 2, new CodeInstruction(OpCodes.Call, _getNoteControllerPosition));
-                }
-            }
+                // position
+                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _jumpStartPosGetter))
+                .Advance(-2)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Call, _getNoteControllerPosition))
+                .RemoveInstructions(4)
 
-            for (int i = 0; i < instructionList.Count; i++)
-            {
-                if (!foundInit &&
-                    instructionList[i].opcode == OpCodes.Callvirt &&
-                    ((MethodInfo)instructionList[i].operand).Name == "Init")
-                {
-                    foundInit = true;
+                // rotation
+                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _beatEffectInit))
+                .Advance(-1)
+                .Set(OpCodes.Call, _getNoteControllerRotation)
 
-                    instructionList[i - 1] = new CodeInstruction(OpCodes.Call, _getNoteControllerRotation);
-                }
-            }
-
-            if (!foundJumpStartPos)
-            {
-                Plugin.Logger.Log("Failed to find callvirt to get_jumpStartPos!", IPA.Logging.Logger.Level.Error);
-            }
-
-            if (!foundInit)
-            {
-                Plugin.Logger.Log("Failed to find callvirt to Init!", IPA.Logging.Logger.Level.Error);
-            }
-
-            return instructionList.AsEnumerable();
+                .InstructionEnumeration();
         }
 
         private static Vector3 GetNoteControllerPosition(NoteController noteController)

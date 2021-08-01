@@ -1,7 +1,6 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
     using CustomJSONData.CustomBeatmap;
@@ -13,33 +12,22 @@
     [HeckPatch("LateUpdate")]
     internal static class BeatmapObjectCallBackControllerLateUpdate
     {
+        private static readonly FieldInfo _aheadTimeField = AccessTools.Field(typeof(BeatmapObjectCallbackData), nameof(BeatmapObjectCallbackData.aheadTime));
+
         private static readonly MethodInfo _getAheadTime = AccessTools.Method(typeof(BeatmapObjectCallBackControllerLateUpdate), nameof(GetAheadTime));
         private static readonly MethodInfo _beatmapObjectSpawnControllerCallback = AccessTools.Method(typeof(BeatmapObjectSpawnController), nameof(BeatmapObjectSpawnController.HandleBeatmapObjectCallback));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            List<CodeInstruction> instructionList = instructions.ToList();
-            bool foundAheadTime = false;
-            for (int i = 0; i < instructionList.Count; i++)
-            {
-                if (!foundAheadTime &&
-                    instructionList[i].opcode == OpCodes.Ldfld &&
-                    ((FieldInfo)instructionList[i].operand).Name == "aheadTime")
-                {
-                    foundAheadTime = true;
-
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _getAheadTime));
-                    instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldloc_3));
-                    instructionList.Insert(i - 1, new CodeInstruction(OpCodes.Ldloc_1));
-                }
-            }
-
-            if (!foundAheadTime)
-            {
-                Plugin.Logger.Log("Failed to find aheadTime ldfld!", IPA.Logging.Logger.Level.Error);
-            }
-
-            return instructionList.AsEnumerable();
+            return new CodeMatcher(instructions)
+                .MatchForward(false, new CodeMatch(OpCodes.Ldfld, _aheadTimeField))
+                .Advance(-1)
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldloc_1),
+                    new CodeInstruction(OpCodes.Ldloc_3))
+                .Advance(2)
+                .Insert(new CodeInstruction(OpCodes.Call, _getAheadTime))
+                .InstructionEnumeration();
         }
 
         private static float GetAheadTime(BeatmapObjectCallbackData beatmapObjectCallbackData, BeatmapObjectData beatmapObjectData, float @default)

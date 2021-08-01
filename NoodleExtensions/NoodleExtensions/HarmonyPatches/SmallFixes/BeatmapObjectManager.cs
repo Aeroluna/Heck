@@ -1,7 +1,6 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
@@ -13,31 +12,16 @@
     [HeckPatch("SpawnObstacle")]
     internal static class BeatmapObjectManagerSpawnObstacle
     {
+        private static readonly MethodInfo _spawnhiddenGetter = AccessTools.PropertyGetter(typeof(BeatmapObjectManager), nameof(BeatmapObjectManager.spawnHidden));
+
         private static readonly MethodInfo _getHiddenForType = AccessTools.Method(typeof(BeatmapObjectManagerSpawnObstacle), nameof(GetHiddenForType));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            List<CodeInstruction> instructionList = instructions.ToList();
-            bool foundHide = false;
-            int instructrionListCount = instructionList.Count;
-            for (int i = 0; i < instructrionListCount; i++)
-            {
-                if (!foundHide &&
-                       instructionList[i].opcode == OpCodes.Call &&
-                       ((MethodInfo)instructionList[i].operand).Name == "get_spawnHidden")
-                {
-                    foundHide = true;
-
-                    instructionList[i].operand = _getHiddenForType;
-                }
-            }
-
-            if (!foundHide)
-            {
-                Plugin.Logger.Log("Failed to find call to get_spawnHidden!", IPA.Logging.Logger.Level.Error);
-            }
-
-            return instructionList.AsEnumerable();
+            return new CodeMatcher(instructions)
+                .MatchForward(false, new CodeMatch(OpCodes.Call, _spawnhiddenGetter))
+                .SetOperandAndAdvance(_getHiddenForType)
+                .InstructionEnumeration();
         }
 
         private static void Postfix(ObstacleController __result)

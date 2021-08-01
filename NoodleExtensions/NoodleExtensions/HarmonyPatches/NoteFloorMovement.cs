@@ -1,7 +1,6 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;
@@ -13,30 +12,18 @@
     [HeckPatch("ManualUpdate")]
     internal static class NoteFloorMovementManualUpdate
     {
+        private static readonly FieldInfo _localPosition = AccessTools.Field(typeof(NoteFloorMovement), "_localPosition");
+
         private static readonly MethodInfo _definiteNoteFloorMovement = AccessTools.Method(typeof(NoteFloorMovementManualUpdate), nameof(DefiniteNoteFloorMovement));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            List<CodeInstruction> instructionList = instructions.ToList();
-            bool foundFinalPosition = false;
-            for (int i = 0; i < instructionList.Count; i++)
-            {
-                if (!foundFinalPosition &&
-                    instructionList[i].opcode == OpCodes.Stfld &&
-                    ((FieldInfo)instructionList[i].operand).Name == "_localPosition")
-                {
-                    foundFinalPosition = true;
-                    instructionList.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _definiteNoteFloorMovement));
-                }
-            }
-
-            if (!foundFinalPosition)
-            {
-                Plugin.Logger.Log("Failed to find _localPosition stfld!", IPA.Logging.Logger.Level.Error);
-            }
-
-            return instructionList.AsEnumerable();
+            return new CodeMatcher(instructions)
+                .MatchForward(false, new CodeMatch(OpCodes.Stfld, _localPosition))
+                .Insert(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Call, _definiteNoteFloorMovement))
+                .InstructionEnumeration();
         }
 
         private static Vector3 DefiniteNoteFloorMovement(Vector3 original, NoteFloorMovement noteFloorMovement)

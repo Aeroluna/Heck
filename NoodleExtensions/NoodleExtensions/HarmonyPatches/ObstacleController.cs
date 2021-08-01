@@ -19,6 +19,11 @@
     {
         internal static readonly List<ObstacleController> _activeObstacles = new List<ObstacleController>();
 
+        private static readonly FieldInfo _worldRotationField = AccessTools.Field(typeof(ObstacleController), "_worldRotation");
+        private static readonly FieldInfo _inverseWorldRotationField = AccessTools.Field(typeof(ObstacleController), "_inverseWorldRotation");
+        private static readonly MethodInfo _widthGetter = AccessTools.PropertyGetter(typeof(ObstacleData), nameof(ObstacleData.width));
+        private static readonly FieldInfo _lengthField = AccessTools.Field(typeof(ObstacleController), "_length");
+
         private static readonly MethodInfo _getCustomWidth = AccessTools.Method(typeof(ObstacleControllerInit), nameof(GetCustomWidth));
         private static readonly MethodInfo _getWorldRotation = AccessTools.Method(typeof(ObstacleControllerInit), nameof(GetWorldRotation));
         private static readonly MethodInfo _getCustomLength = AccessTools.Method(typeof(ObstacleControllerInit), nameof(GetCustomLength));
@@ -26,64 +31,38 @@
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            List<CodeInstruction> instructionList = instructions.ToList();
-            bool foundRotation = false;
-            bool foundWidth = false;
-            bool foundLength = false;
-            int instructrionListCount = instructionList.Count;
-            for (int i = 0; i < instructrionListCount; i++)
-            {
-                if (!foundRotation &&
-                       instructionList[i].opcode == OpCodes.Stfld &&
-                       ((FieldInfo)instructionList[i].operand).Name == "_worldRotation")
-                {
-                    foundRotation = true;
+            return new CodeMatcher(instructions)
 
-                    instructionList[i - 1] = new CodeInstruction(OpCodes.Call, _getWorldRotation);
-                    instructionList[i - 4] = new CodeInstruction(OpCodes.Ldarg_1);
-                    instructionList.RemoveAt(i - 2);
+                // world rotation
+                .MatchForward(false, new CodeMatch(OpCodes.Stfld, _worldRotationField))
+                .Insert(
+                    new CodeInstruction(OpCodes.Ldarg_1),
+                    new CodeInstruction(OpCodes.Ldarg_2),
+                    new CodeInstruction(OpCodes.Call, _getWorldRotation))
+                .RemoveInstructionsWithOffsets(-4, -1)
 
-                    instructionList.RemoveRange(i + 1, 2);
-                    instructionList[i + 1] = new CodeInstruction(OpCodes.Ldarg_0);
-                    instructionList[i + 2] = new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ObstacleController), "_worldRotation"));
-                    instructionList[i + 3] = new CodeInstruction(OpCodes.Call, _invertQuaternion);
-                }
+                // inverse world rotation
+                .MatchForward(false, new CodeMatch(OpCodes.Stfld, _inverseWorldRotationField))
+                .Insert(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _worldRotationField),
+                    new CodeInstruction(OpCodes.Call, _invertQuaternion))
+                .RemoveInstructionsWithOffsets(-5, -1)
 
-                if (!foundWidth &&
-                    instructionList[i].opcode == OpCodes.Callvirt &&
-                    ((MethodInfo)instructionList[i].operand).Name == "get_width")
-                {
-                    foundWidth = true;
-                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Ldarg_1));
-                    instructionList.Insert(i + 3, new CodeInstruction(OpCodes.Call, _getCustomWidth));
-                }
+                // width
+                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _widthGetter))
+                .Advance(2)
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldarg_1),
+                    new CodeInstruction(OpCodes.Call, _getCustomWidth))
 
-                if (!foundLength &&
-                    instructionList[i].opcode == OpCodes.Stfld &&
-                    ((FieldInfo)instructionList[i].operand).Name == "_length")
-                {
-                    foundLength = true;
-                    instructionList.Insert(i, new CodeInstruction(OpCodes.Ldarg_1));
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _getCustomLength));
-                }
-            }
+                // length
+                .MatchForward(false, new CodeMatch(OpCodes.Stfld, _lengthField))
+                .Insert(
+                    new CodeInstruction(OpCodes.Ldarg_1),
+                    new CodeInstruction(OpCodes.Call, _getCustomLength))
 
-            if (!foundRotation)
-            {
-                Plugin.Logger.Log("Failed to find _worldRotation stfld!", IPA.Logging.Logger.Level.Error);
-            }
-
-            if (!foundWidth)
-            {
-                Plugin.Logger.Log("Failed to find get_width call!", IPA.Logging.Logger.Level.Error);
-            }
-
-            if (!foundLength)
-            {
-                Plugin.Logger.Log("Failed to find stfld to _length!", IPA.Logging.Logger.Level.Error);
-            }
-
-            return instructionList.AsEnumerable();
+                .InstructionEnumeration();
         }
 
         private static void Postfix(ObstacleController __instance, Quaternion ____worldRotation, ObstacleData obstacleData, Vector3 ____startPos, Vector3 ____midPos, Vector3 ____endPos, ref Bounds ____bounds)

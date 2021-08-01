@@ -14,6 +14,9 @@
     [HeckPatch("ManualUpdate")]
     internal static class NoteJumpManualUpdate
     {
+        private static readonly FieldInfo _threeQuartersMarkReportedField = AccessTools.Field(typeof(NoteJump), "_threeQuartersMarkReported");
+        private static readonly MethodInfo _localRotationSetter = AccessTools.PropertySetter(typeof(Transform), nameof(Transform.localRotation));
+
         private static readonly FieldInfo _jumpDurationField = AccessTools.Field(typeof(NoteJump), "_jumpDuration");
         private static readonly MethodInfo _noteJumpTimeAdjust = AccessTools.Method(typeof(NoteJumpManualUpdate), nameof(NoteJumpTimeAdjust));
         private static readonly FieldInfo _localPositionField = AccessTools.Field(typeof(NoteJump), "_localPosition");
@@ -51,116 +54,76 @@
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            List<CodeInstruction> instructionList = instructions.ToList();
-            bool foundTime = false;
-            bool foundFinalPosition = false;
-            bool foundZOffset = false;
-            bool foundLook = false;
-            for (int i = 0; i < instructionList.Count; i++)
-            {
-                if (!foundTime &&
-                    instructionList[i].opcode == OpCodes.Stloc_0)
-                {
-                    foundTime = true;
-                    CodeInstruction[] codeInstructions = new CodeInstruction[]
-                    {
-                        new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Ldfld, _jumpDurationField),
-                        new CodeInstruction(OpCodes.Call, _noteJumpTimeAdjust),
-                    };
+            CodeMatcher codeMatcher = new CodeMatcher(instructions);
+            object label;
 
-                    instructionList.InsertRange(i, codeInstructions);
-                }
+            // CodeMatcher needs some better label manipulating methods
+            // replace rotation stuff
+            codeMatcher
+                .MatchForward(
+                    false,
+                    new CodeMatch(OpCodes.Callvirt, _localRotationSetter))
+                .Advance(1);
+            int endPos = codeMatcher.Pos;
+            label = codeMatcher.Labels.First();
+            codeMatcher
+                .MatchBack(
+                    false,
+                    new CodeMatch(null, label))
+                .Advance(1)
+                .RemoveInstructions(endPos - codeMatcher.Pos)
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldloc_1),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _startRotationField),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _middleRotationField),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _endRotationField),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _playerTransformsField),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _rotatedObjectField),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Call, _getTransform),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _inverseWorldRotationField),
+                    new CodeInstruction(OpCodes.Call, _doNoteLook))
 
-                if (!foundFinalPosition &&
-                    instructionList[i].opcode == OpCodes.Stind_R4)
-                {
-                    foundFinalPosition = true;
-                    CodeInstruction[] codeInstructions = new CodeInstruction[]
-                    {
-                        new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Ldfld, _localPositionField),
-                        new CodeInstruction(OpCodes.Ldloc_1),
-                        new CodeInstruction(OpCodes.Call, _definiteNoteJump),
-                        new CodeInstruction(OpCodes.Stfld, _localPositionField),
-                    };
-                    instructionList.InsertRange(i + 2, codeInstructions);
-                }
+            // Add addition check to our quirky little variable to skip end position offset when we are using definitePosition
+                .MatchForward(
+                    true,
+                    new CodeMatch(OpCodes.Ldfld, _threeQuartersMarkReportedField),
+                    new CodeMatch(OpCodes.Brfalse));
+            label = codeMatcher.Operand;
+            codeMatcher
+                .Advance(1)
+                .Insert(
+                    new CodeInstruction(OpCodes.Ldsfld, _definitePositionField),
+                    new CodeInstruction(OpCodes.Brtrue_S, label))
+                .Start();
 
-                // temporarily replacing label checks
-                if (!foundZOffset &&
-                    instructionList[i].opcode == OpCodes.Ldfld &&
-                    ((FieldInfo)instructionList[i].operand).Name == "_endDistanceOffset")
-                {
-                    foundZOffset = true;
+            return codeMatcher
 
-                    // Add addition check to our quirky little variable to skip end position offset when we are using definitePosition
-                    CodeInstruction[] codeInstructions = new CodeInstruction[]
-                    {
-                        new CodeInstruction(OpCodes.Ldsfld, _definitePositionField),
-                        new CodeInstruction(OpCodes.Brtrue_S, instructionList[i - 20].operand),
-                    };
-                    instructionList.InsertRange(i - 19, codeInstructions);
-                }
+                // time adjust
+                .MatchForward(false, new CodeMatch(OpCodes.Stloc_0))
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _jumpDurationField),
+                    new CodeInstruction(OpCodes.Call, _noteJumpTimeAdjust))
 
-                // Override all the rotation stuff
-                if (!foundLook &&
-                    instructionList[i].opcode == OpCodes.Ldfld &&
-                    ((FieldInfo)instructionList[i].operand).Name == "_startRotation")
-                {
-                    Label label = (Label)instructionList[i - 5].operand;
-                    int endIndex = instructionList.FindIndex(n => n.labels.Contains(label));
+                // final position
+                .MatchForward(false, new CodeMatch(OpCodes.Stind_R4))
+                .Advance(2)
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _localPositionField),
+                    new CodeInstruction(OpCodes.Ldloc_1),
+                    new CodeInstruction(OpCodes.Call, _definiteNoteJump),
+                    new CodeInstruction(OpCodes.Stfld, _localPositionField))
 
-                    foundLook = true;
-
-                    instructionList.RemoveRange(i - 4, endIndex - i + 4);
-
-                    // This is where the fun begins
-                    CodeInstruction[] codeInstructions = new CodeInstruction[]
-                    {
-                        new CodeInstruction(OpCodes.Ldloc_1),
-                        new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Ldfld, _startRotationField),
-                        new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Ldfld, _middleRotationField),
-                        new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Ldfld, _endRotationField),
-                        new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Ldfld, _playerTransformsField),
-                        new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Ldfld, _rotatedObjectField),
-                        new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Call, _getTransform),
-                        new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Ldfld, _inverseWorldRotationField),
-                        new CodeInstruction(OpCodes.Call, _doNoteLook),
-                    };
-                    instructionList.InsertRange(i - 4, codeInstructions);
-                }
-            }
-
-            if (!foundTime)
-            {
-                Plugin.Logger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
-            }
-
-            if (!foundFinalPosition)
-            {
-                Plugin.Logger.Log("Failed to find stind.r4!", IPA.Logging.Logger.Level.Error);
-            }
-
-            if (!foundZOffset)
-            {
-                Plugin.Logger.Log("Failed to find brfalse.s to Label21!", IPA.Logging.Logger.Level.Error);
-            }
-
-            if (!foundLook)
-            {
-                Plugin.Logger.Log("Failed to find bge.un to Label6!", IPA.Logging.Logger.Level.Error);
-            }
-
-            return instructionList.AsEnumerable();
+                .InstructionEnumeration();
         }
 
         private static Vector3 DefiniteNoteJump(Vector3 original, float time)

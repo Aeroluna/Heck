@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Reflection.Emit;
     using HarmonyLib;
     using UnityEngine;
     using static NoodleExtensions.NoodleObjectDataManager;
@@ -10,7 +11,9 @@
     internal static class FakeNoteHelper
     {
         internal static readonly MethodInfo _boundsNullCheck = AccessTools.Method(typeof(FakeNoteHelper), nameof(BoundsNullCheck));
-        internal static readonly MethodInfo _obstacleFakeCheck = AccessTools.Method(typeof(FakeNoteHelper), nameof(ObstacleFakeCheck));
+
+        private static readonly MethodInfo _intersectingObstaclesGetter = AccessTools.PropertyGetter(typeof(PlayerHeadAndObstacleInteraction), nameof(PlayerHeadAndObstacleInteraction.intersectingObstacles));
+        private static readonly MethodInfo _obstacleFakeCheck = AccessTools.Method(typeof(FakeNoteHelper), nameof(ObstacleFakeCheck));
 
         internal static bool GetFakeNote(NoteController noteController)
         {
@@ -40,6 +43,15 @@
             }
 
             return true;
+        }
+
+        internal static IEnumerable<CodeInstruction> ObstaclesTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            return new CodeMatcher(instructions)
+                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _intersectingObstaclesGetter))
+                .Advance(1)
+                .Insert(new CodeInstruction(OpCodes.Call, _obstacleFakeCheck))
+                .InstructionEnumeration();
         }
 
         private static bool BoundsNullCheck(ObstacleController obstacleController)
