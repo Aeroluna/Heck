@@ -13,56 +13,24 @@
     [HeckPatch("Refresh")]
     internal static class ParametricBoxControllerRefresh
     {
+        private static readonly MethodInfo _localScaleGetter = AccessTools.PropertyGetter(typeof(Transform), nameof(Transform.localScale));
+        private static readonly MethodInfo _localPositionGetter = AccessTools.PropertyGetter(typeof(Transform), nameof(Transform.localPosition));
+
         private static readonly MethodInfo _getTransformScale = AccessTools.Method(typeof(ParametricBoxControllerRefresh), nameof(GetTransformScale));
         private static readonly MethodInfo _getTransformPosition = AccessTools.Method(typeof(ParametricBoxControllerRefresh), nameof(GetTransformPosition));
 
         internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            List<CodeInstruction> instructionList = instructions.ToList();
-            bool foundScale = false;
-            bool foundPosition = false;
-            for (int i = 0; i < instructionList.Count; i++)
-            {
-                if (!foundScale &&
-                    instructionList[i].opcode == OpCodes.Callvirt &&
-                    ((MethodInfo)instructionList[i].operand).Name == "set_localScale")
-                {
-                    foundScale = true;
-
-                    CodeInstruction[] codeInstructions = new CodeInstruction[]
-                    {
-                        new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Call, _getTransformScale),
-                    };
-                    instructionList.InsertRange(i, codeInstructions);
-                }
-
-                if (!foundPosition &&
-                    instructionList[i].opcode == OpCodes.Callvirt &&
-                    ((MethodInfo)instructionList[i].operand).Name == "set_localPosition")
-                {
-                    foundPosition = true;
-
-                    CodeInstruction[] codeInstructions = new CodeInstruction[]
-                    {
-                        new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Call, _getTransformPosition),
-                    };
-                    instructionList.InsertRange(i, codeInstructions);
-                }
-            }
-
-            if (!foundScale)
-            {
-                Plugin.Logger.Log("Failed to find callvirt to set_localScale!", IPA.Logging.Logger.Level.Error);
-            }
-
-            if (!foundPosition)
-            {
-                Plugin.Logger.Log("Failed to find callvirt to set_localPosition!", IPA.Logging.Logger.Level.Error);
-            }
-
-            return instructionList.AsEnumerable();
+            return new CodeMatcher(instructions)
+                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _localScaleGetter))
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Call, _getTransformScale))
+                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _localPositionGetter))
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Call, _getTransformPosition))
+                .InstructionEnumeration();
         }
 
         private static Vector3 GetTransformScale(Vector3 @default, ParametricBoxController parametricBoxController)
