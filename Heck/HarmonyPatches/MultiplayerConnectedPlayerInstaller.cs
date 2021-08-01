@@ -12,30 +12,17 @@
     [HarmonyPatch("InstallBindings")]
     internal static class MultiplayerConnectedPlayerInstallerInstallBindings
     {
+        private static readonly MethodInfo _createTransformedBeatmapData = AccessTools.Method(typeof(BeatmapDataTransformHelper), nameof(BeatmapDataTransformHelper.CreateTransformedBeatmapData));
+
         private static readonly MethodInfo _exclude = AccessTools.Method(typeof(MultiplayerConnectedPlayerInstallerInstallBindings), nameof(Exclude));
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            List<CodeInstruction> instructionList = instructions.ToList();
-            bool foundBeatmapData = false;
-            for (int i = 0; i < instructionList.Count; i++)
-            {
-                if (!foundBeatmapData &&
-                    instructionList[i].opcode == OpCodes.Call &&
-                    ((MethodInfo)instructionList[i].operand).Name == "CreateTransformedBeatmapData")
-                {
-                    foundBeatmapData = true;
-
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Call, _exclude));
-                }
-            }
-
-            if (!foundBeatmapData)
-            {
-                Logger.Log("Failed to find Call to CreateTransformedBeatmapData!", IPA.Logging.Logger.Level.Error);
-            }
-
-            return instructionList.AsEnumerable();
+            return new CodeMatcher(instructions)
+                .MatchForward(false, new CodeMatch(OpCodes.Call, _createTransformedBeatmapData))
+                .Advance(1)
+                .Insert(new CodeInstruction(OpCodes.Call, _exclude))
+                .InstructionEnumeration();
         }
 
         private static IReadonlyBeatmapData Exclude(IReadonlyBeatmapData result)

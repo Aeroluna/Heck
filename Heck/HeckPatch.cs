@@ -46,11 +46,22 @@
                     heck.Enabled = value;
                     if (value)
                     {
-                        heck._heckPatchDatas.ForEach(n => id.Patch(
-                            n.OriginalMethod,
-                            n.Prefix != null ? new HarmonyMethod(n.Prefix) : null,
-                            n.Postfix != null ? new HarmonyMethod(n.Postfix) : null,
-                            n.Transpiler != null ? new HarmonyMethod(n.Transpiler) : null));
+                        heck._heckPatchDatas.ForEach(n =>
+                        {
+                            try
+                            {
+                                id.Patch(
+                                n.OriginalMethod,
+                                n.Prefix != null ? new HarmonyMethod(n.Prefix) : null,
+                                n.Postfix != null ? new HarmonyMethod(n.Postfix) : null,
+                                n.Transpiler != null ? new HarmonyMethod(n.Transpiler) : null);
+                            }
+                            catch
+                            {
+                                Plugin.Logger.Log($"Exception while patching [{n.OriginalMethod}] of [{n.OriginalMethod.DeclaringType}].", IPA.Logging.Logger.Level.Critical);
+                                throw;
+                            }
+                        });
                     }
                     else
                     {
