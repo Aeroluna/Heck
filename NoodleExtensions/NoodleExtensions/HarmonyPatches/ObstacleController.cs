@@ -89,22 +89,32 @@
                 transform.localScale = Vector3.one; // This is a fix for animation due to obstacles being recycled
             }
 
-            Track? track = noodleData.Track;
-            if (track != null && ParentObject.Controller != null)
+            IEnumerable<Track>? tracks = noodleData.Track;
+            if (tracks != null)
             {
-                ParentObject? parentObject = ParentObject.Controller.GetParentObjectTrack(track);
-                if (parentObject != null)
+                foreach (Track track in tracks)
                 {
-                    parentObject.ParentToObject(transform);
+                    // add to gameobjects
+                    track.AddGameObject(__instance.gameObject);
+                }
+
+                // PAREMTNIGNG
+                if (ParentObject.Controller != null)
+                {
+                    ParentObject? parentObject = ParentObject.Controller.GetParentObjectTrackArray(tracks);
+                    if (parentObject != null)
+                    {
+                        parentObject.ParentToObject(transform);
+                    }
+                    else
+                    {
+                        ParentObject.ResetTransformParent(transform);
+                    }
                 }
                 else
                 {
                     ParentObject.ResetTransformParent(transform);
                 }
-            }
-            else
-            {
-                ParentObject.ResetTransformParent(transform);
             }
 
             bool? cuttable = noodleData.Cuttable;
@@ -223,7 +233,7 @@
                 NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
                 if (noodleData != null)
                 {
-                    float? time = (float?)Heck.Animation.AnimationHelper.TryGetProperty(noodleData.Track, TIME);
+                    float? time = noodleData.Track?.Select(n => Heck.Animation.AnimationHelper.TryGetProperty<float?>(n, TIME)).FirstOrDefault(n => n.HasValue);
                     if (time.HasValue)
                     {
                         return (time.Value * (finishMovementTime - move1Duration)) + move1Duration;
@@ -255,15 +265,15 @@
                 return;
             }
 
-            Track? track = noodleData.Track;
+            IEnumerable<Track>? tracks = noodleData.Track;
             NoodleObjectData.AnimationObjectData? animationObject = noodleData.AnimationObject;
-            if (track != null || animationObject != null)
+            if (tracks != null || animationObject != null)
             {
                 // idk i just copied base game time
                 float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
                 float normalTime = (elapsedTime - ____move1Duration) / (____move2Duration + ____obstacleDuration);
 
-                Animation.AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _, out float? cuttable);
+                Animation.AnimationHelper.GetObjectOffset(animationObject, tracks, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _, out float? cuttable);
 
                 if (positionOffset.HasValue)
                 {

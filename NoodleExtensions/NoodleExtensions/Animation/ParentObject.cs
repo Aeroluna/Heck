@@ -98,10 +98,9 @@
                     if (obstacleController?.obstacleData != null)
                     {
                         NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleController.obstacleData);
-                        if (noodleData != null)
+                        if (noodleData?.Track != null)
                         {
-                            Track? obstacleTrack = noodleData.Track;
-                            if (obstacleTrack == track)
+                            foreach (Track obstacleTrack in noodleData.Track.Where(n => n == track))
                             {
                                 instance.ParentToObject(obstacleController.transform);
                             }
@@ -122,7 +121,7 @@
 
         private void Update()
         {
-            Quaternion? rotation = (Quaternion?)TryGetProperty(_track, ROTATION);
+            Quaternion? rotation = TryGetProperty<Quaternion?>(_track, ROTATION);
             if (rotation.HasValue)
             {
                 if (LeftHandedMode)
@@ -131,7 +130,7 @@
                 }
             }
 
-            Vector3? position = (Vector3?)TryGetProperty(_track, POSITION);
+            Vector3? position = TryGetProperty<Vector3?>(_track, POSITION);
             if (position.HasValue)
             {
                 if (LeftHandedMode)
@@ -151,7 +150,7 @@
             }
 
             worldRotationQuatnerion *= _startLocalRot;
-            Quaternion? localRotation = (Quaternion?)TryGetProperty(_track, LOCALROTATION);
+            Quaternion? localRotation = TryGetProperty<Quaternion?>(_track, LOCALROTATION);
             if (localRotation.HasValue)
             {
                 if (LeftHandedMode)
@@ -163,7 +162,7 @@
             }
 
             Vector3 scaleVector = _startScale;
-            Vector3? scale = (Vector3?)TryGetProperty(_track, SCALE);
+            Vector3? scale = TryGetProperty<Vector3?>(_track, SCALE);
             if (scale.HasValue)
             {
                 scaleVector = Vector3.Scale(_startScale, scale.Value);
@@ -192,10 +191,23 @@
 
         internal ParentObject? GetParentObjectTrack(Track track)
         {
-            IEnumerable<ParentObject> filteredParents = ParentObjects.Where(n => n.ChildrenTracks.Contains(track));
-            if (filteredParents != null)
+            ParentObject filteredParent = ParentObjects.FirstOrDefault(n => n.ChildrenTracks.Contains(track));
+            if (filteredParent != null)
             {
-                return filteredParents.FirstOrDefault();
+                return filteredParent;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        internal ParentObject? GetParentObjectTrackArray(IEnumerable<Track> tracks)
+        {
+            ParentObject filteredParent = ParentObjects.FirstOrDefault(n => n.ChildrenTracks.Intersect(tracks).Any());
+            if (filteredParent != null)
+            {
+                return filteredParent;
             }
             else
             {
