@@ -23,106 +23,86 @@
             return Convert.ToSingle(@this);
         }
 
-        public static Vector3? SumVectorNullables(Vector3? vectorOne, Vector3? vectorTwo)
+        public static Vector3? SumVectorNullables(params Vector3?[] vectors)
         {
-            if (!vectorOne.HasValue && !vectorTwo.HasValue)
+            IEnumerable<Vector3> validVectors = vectors.Where(n => n.HasValue).Select(n => n!.Value);
+            if (validVectors.Any())
             {
-                return null;
-            }
-
-            Vector3 total = Vector3.zero;
-            if (vectorOne.HasValue)
-            {
-                total += vectorOne.Value;
-            }
-
-            if (vectorTwo.HasValue)
-            {
-                total += vectorTwo.Value;
-            }
-
-            return total;
-        }
-
-        public static Vector3? MultVectorNullables(Vector3? vectorOne, Vector3? vectorTwo)
-        {
-            if (vectorOne.HasValue)
-            {
-                if (vectorTwo.HasValue)
+                Vector3 total = Vector3.zero;
+                foreach (Vector3 vector in validVectors)
                 {
-                    return Vector3.Scale(vectorOne.Value, vectorTwo.Value);
+                    total += vector;
                 }
-                else
-                {
-                    return vectorOne;
-                }
-            }
-            else if (vectorTwo.HasValue)
-            {
-                return vectorTwo;
+
+                return total;
             }
 
             return null;
         }
 
-        public static Quaternion? MultQuaternionNullables(Quaternion? quaternionOne, Quaternion? quaternionTwo)
+        public static Vector3? MultVectorNullables(params Vector3?[] vectors)
         {
-            if (quaternionOne.HasValue)
+            IEnumerable<Vector3> validVectors = vectors.Where(n => n.HasValue).Select(n => n!.Value);
+            if (validVectors.Any())
             {
-                if (quaternionTwo.HasValue)
+                Vector3 total = Vector3.one;
+                foreach (Vector3 vector in validVectors)
                 {
-                    return quaternionOne.Value * quaternionTwo.Value;
+                    total = Vector3.Scale(total, vector);
                 }
-                else
-                {
-                    return quaternionOne;
-                }
-            }
-            else if (quaternionTwo.HasValue)
-            {
-                return quaternionTwo;
+
+                return total;
             }
 
             return null;
         }
 
-        public static float? MultFloatNullables(float? floatOne, float? floatTwo)
+        public static Quaternion? MultQuaternionNullables(params Quaternion?[] quaternions)
         {
-            if (floatOne.HasValue)
+            IEnumerable<Quaternion> validQuaternions = quaternions.Where(n => n.HasValue).Select(n => n!.Value);
+            if (validQuaternions.Any())
             {
-                if (floatTwo.HasValue)
+                Quaternion total = Quaternion.identity;
+                foreach (Quaternion quaternion in validQuaternions)
                 {
-                    return floatOne.Value * floatTwo.Value;
+                    total *= quaternion;
                 }
-                else
-                {
-                    return floatOne;
-                }
-            }
-            else if (floatTwo.HasValue)
-            {
-                return floatTwo;
+
+                return total;
             }
 
             return null;
         }
 
-        public static Vector4? MultVector4Nullables(Vector4? vectorOne, Vector4? vectorTwo)
+        public static float? MultFloatNullables(params float?[] floats)
         {
-            if (vectorOne.HasValue)
+            IEnumerable<float> validFloats = floats.Where(n => n.HasValue).Select(n => n!.Value);
+            if (validFloats.Any())
             {
-                if (vectorTwo.HasValue)
+                float total = 1;
+                foreach (float @float in validFloats)
                 {
-                    return Vector4.Scale(vectorOne.Value, vectorTwo.Value);
+                    total *= @float;
                 }
-                else
-                {
-                    return vectorOne;
-                }
+
+                return total;
             }
-            else if (vectorTwo.HasValue)
+
+            return null;
+        }
+
+        public static Vector4? MultVector4Nullables(params Vector4?[] vectors)
+        {
+            IEnumerable<Vector4> validVectors = vectors.Where(n => n.HasValue).Select(n => n!.Value);
+            if (validVectors.Any())
             {
-                return vectorTwo;
+                Vector4 total = Vector4.one;
+                foreach (Vector4 vector in validVectors)
+                {
+                    total = Vector4.Scale(total, vector);
+                }
+
+                return total;
             }
 
             return null;

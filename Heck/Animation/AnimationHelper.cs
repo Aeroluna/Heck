@@ -60,11 +60,11 @@
             return null;
         }
 
-        public static object? TryGetProperty(Track? track, string propertyName)
+        public static T? TryGetProperty<T>(Track? track, string propertyName)
         {
             Property? property = null;
             track?.Properties.TryGetValue(propertyName, out property);
-            return property?.Value;
+            return (T?)property?.Value;
         }
 
         public static void TryGetPointData(Dictionary<string, object?> customData, string pointName, out PointDefinition? pointData, Dictionary<string, PointDefinition> pointDefinitions)
@@ -115,16 +115,27 @@
 
         public static IEnumerable<Track>? GetTrackArray(Dictionary<string, object?> customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
         {
-            IEnumerable<string> trackNames = customData.Get<List<object>>(name).Cast<string>();
-            if (trackNames == null)
+            object? trackNameRaw = customData.Get<object>(name);
+            if (trackNameRaw == null)
             {
                 return null;
             }
 
+            IEnumerable<string> trackNames;
+            if (trackNameRaw is List<object> listTrack)
+            {
+                trackNames = listTrack.Cast<string>();
+            }
+            else
+            {
+                trackNames = new string[] { (string)trackNameRaw };
+            }
+
             HashSet<Track> tracks = new HashSet<Track>();
+            Dictionary<string, Track> beatmapTracks = (Dictionary<string, Track>)(((CustomBeatmapData)beatmapData).customData["tracks"] ?? throw new InvalidOperationException("Could not find tracks in BeatmapData."));
             foreach (string trackName in trackNames)
             {
-                if (((Dictionary<string, Track>)(((CustomBeatmapData)beatmapData).customData["tracks"] ?? throw new InvalidOperationException("Could not find tracks in BeatmapData."))).TryGetValue(trackName, out Track track))
+                if (beatmapTracks.TryGetValue(trackName, out Track track))
                 {
                     tracks.Add(track);
                 }
