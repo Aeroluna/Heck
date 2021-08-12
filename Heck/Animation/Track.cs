@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using CustomJSONData.CustomBeatmap;
+    using UnityEngine;
 
     public class TrackBuilder
     {
@@ -32,15 +33,43 @@
 
     public class Track
     {
+        public event Action<GameObject>? OnGameObjectAdded;
+
+        public event Action<GameObject>? OnGameObjectRemoved;
+
+        public HashSet<GameObject> GameObjects { get; } = new HashSet<GameObject>();
+
         internal IDictionary<string, Property> Properties { get; } = new Dictionary<string, Property>();
 
         internal IDictionary<string, Property> PathProperties { get; } = new Dictionary<string, Property>();
+
+        public void AddGameObject(GameObject gameObject)
+        {
+            if (gameObject == null)
+            {
+                throw new ArgumentNullException(nameof(gameObject));
+            }
+
+            GameObjects.Add(gameObject);
+            OnGameObjectAdded?.Invoke(gameObject);
+        }
+
+        public void RemoveGameObject(GameObject gameObject)
+        {
+            if (gameObject == null)
+            {
+                throw new ArgumentNullException(nameof(gameObject));
+            }
+
+            GameObjects.Remove(gameObject);
+            OnGameObjectRemoved?.Invoke(gameObject);
+        }
 
         public void AddProperty(string name, PropertyType propertyType)
         {
             if (Properties.ContainsKey(name))
             {
-                ////Plugin.Logger.Log($"Duplicate property {name}, skipping...");
+                Plugin.Logger.Log($"Duplicate property {name}, skipping...", IPA.Logging.Logger.Level.Trace);
             }
             else
             {
@@ -52,7 +81,7 @@
         {
             if (PathProperties.ContainsKey(name))
             {
-                ////Plugin.Logger.Log($"Duplicate path property {name}, skipping...");
+                Plugin.Logger.Log($"Duplicate path property {name}, skipping...", IPA.Logging.Logger.Level.Trace);
             }
             else
             {

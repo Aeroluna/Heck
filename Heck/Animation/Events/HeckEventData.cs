@@ -22,10 +22,10 @@
             return null;
         }
 
-        internal static void DeserializeBeatmapData(IReadonlyBeatmapData beatmapData)
+        internal static void DeserializeBeatmapData(CustomBeatmapData beatmapData)
         {
             _heckEventDatas = new Dictionary<CustomEventData, HeckEventData>();
-            foreach (CustomEventData customEventData in ((CustomBeatmapData)beatmapData).customEventsData)
+            foreach (CustomEventData customEventData in beatmapData.customEventsData)
             {
                 try
                 {
