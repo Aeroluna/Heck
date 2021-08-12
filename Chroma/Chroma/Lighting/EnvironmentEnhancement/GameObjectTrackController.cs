@@ -31,7 +31,7 @@
             BeatmapObjectsAvoidance? beatmapObjectsAvoidance)
         {
             Track? track = GetTrack(gameObjectData, beatmapData);
-            if (track != null)
+            if (track != null && gameObject.GetComponent<GameObjectTrackController>() == null)
             {
                 GameObjectTrackController trackController = gameObject.AddComponent<GameObjectTrackController>();
                 trackController.Init(track, noteLinesDistance, trackLaneRing, parametricBoxController, beatmapObjectsAvoidance);
@@ -45,6 +45,8 @@
             _trackLaneRing = trackLaneRing;
             _parametricBoxController = parametricBoxController;
             _beatmapObjectsAvoidance = beatmapObjectsAvoidance;
+
+            track.AddGameObject(gameObject);
         }
 
         private void Update()
@@ -164,7 +166,7 @@
 
         private Vector3? GetVectorNullable(string property)
         {
-            Vector3? nullable = (Vector3?)TryGetProperty(_track, property);
+            Vector3? nullable = TryGetProperty<Vector3?>(_track, property);
             if (nullable.HasValue)
             {
                 if (LeftHandedMode)
@@ -178,7 +180,7 @@
 
         private Quaternion? GetQuaternionNullable(string property)
         {
-            Quaternion? nullable = (Quaternion?)TryGetProperty(_track, property);
+            Quaternion? nullable = TryGetProperty<Quaternion?>(_track, property);
             if (nullable.HasValue)
             {
                 if (LeftHandedMode)

@@ -1,5 +1,7 @@
 ﻿namespace Chroma
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using Heck.Animation;
     using UnityEngine;
     using static Heck.Animation.AnimationHelper;
@@ -13,11 +15,20 @@
             TrackBuilder.TrackCreated += OnTrackCreated;
         }
 
-        internal static void GetColorOffset(PointDefinition? localColor, Track? track, float time, out Color? color)
+        internal static void GetColorOffset(PointDefinition? localColor, IEnumerable<Track>? tracks, float time, out Color? color)
         {
-            Vector4? pathColor = localColor?.InterpolateVector4(time) ?? TryGetVector4PathProperty(track, COLOR, time);
-
-            Vector4? colorVector = MultVector4Nullables((Vector4?)TryGetProperty(track, COLOR), pathColor);
+            Vector3? pathColor = localColor?.Interpolate(time);
+            Vector4? colorVector = null;
+            if (tracks != null)
+            {
+                pathColor ??= MultVector4Nullables(tracks.Select(n => TryGetVector4PathProperty(n, COLOR, time)).ToArray());
+                Vector4? trackColor = MultVector4Nullables(tracks.Select(n => TryGetProperty<Vector4?>(n, COLOR)).ToArray());
+                colorVector = MultVector4Nullables(trackColor, pathColor);
+            }
+            else
+            {
+                colorVector = pathColor;
+            }
 
             if (colorVector.HasValue)
             {

@@ -81,7 +81,7 @@
                             chromaObjectData.LocalPathColor = localColor;
                         }
 
-                        chromaObjectData.Track = Heck.Animation.AnimationHelper.GetTrack(customData, beatmapData);
+                        chromaObjectData.Track = Heck.Animation.AnimationHelper.GetTrackArray(customData, beatmapData);
 
                         _chromaObjectDatas.Add(beatmapObjectData, chromaObjectData);
                     }
@@ -104,7 +104,7 @@
     {
         internal Color? Color { get; set; }
 
-        internal Track? Track { get; set; }
+        internal IEnumerable<Track>? Track { get; set; }
 
         internal PointDefinition? LocalPathColor { get; set; }
     }

@@ -1,5 +1,6 @@
 ﻿namespace Chroma.HarmonyPatches
 {
+    using System.Collections.Generic;
     using Chroma.Colorizer;
     using Heck;
     using Heck.Animation;
@@ -37,15 +38,15 @@
                 return;
             }
 
-            Track? track = chromaData.Track;
+            IEnumerable<Track>? tracks = chromaData.Track;
             PointDefinition? pathPointDefinition = chromaData.LocalPathColor;
-            if (track != null || pathPointDefinition != null)
+            if (tracks != null || pathPointDefinition != null)
             {
                 float jumpDuration = ____move2Duration;
                 float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
                 float normalTime = (elapsedTime - ____move1Duration) / (jumpDuration + ____obstacleDuration);
 
-                Chroma.AnimationHelper.GetColorOffset(pathPointDefinition, track, normalTime, out Color? colorOffset);
+                Chroma.AnimationHelper.GetColorOffset(pathPointDefinition, tracks, normalTime, out Color? colorOffset);
 
                 if (colorOffset.HasValue)
                 {
