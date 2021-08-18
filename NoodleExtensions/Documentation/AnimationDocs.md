@@ -785,7 +785,7 @@ Point definition: `[red, green, blue, alpha, time, (optional)easing]`
     [0, 1, 0, 1, 0.4],
     [0, 0, 1, 1, 0.6],
     [0, 1, 1, 1, 0.8],
-    [1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1]
   ]
 }, {
   "_name": "LeftColorWallAnimate",
@@ -794,7 +794,7 @@ Point definition: `[red, green, blue, alpha, time, (optional)easing]`
     [0, 1, 0, 0, 0.4],
     [0, 0, 1, 0, 0.6],
     [0, 1, 1, 0, 0.8],
-    [1, 1, 1, 0, 1],
+    [1, 1, 1, 0, 1]
   ]
 }, {
   "_name": "GradientPathOne",
