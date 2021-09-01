@@ -1,2 +1,2 @@
 # Heck
-heck
+A library for noodle & chrome
