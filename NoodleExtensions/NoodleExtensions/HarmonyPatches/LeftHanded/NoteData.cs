@@ -11,8 +11,8 @@
     using static NoodleExtensions.Plugin;
 
     [HarmonyPatch(typeof(NoteData))]
-    [HarmonyPatch("MirrorLineIndex")]
-    internal static class NoteDataMirrorLineIndex
+    [HarmonyPatch("Mirror")]
+    internal static class NoteDataMirror
     {
         private static void Postfix(NoteData __instance)
         {
@@ -65,24 +65,12 @@
                         dynData[ROTATION] = Convert.ToSingle(rotation) * -1;
                     }
                 }
-            }
-        }
-    }
 
-    [HarmonyPatch(typeof(NoteData))]
-    [HarmonyPatch("MirrorTransformCutDirection")]
-    internal class NoteDataMirrorTransformCutDirection
-    {
-        private static void Postfix(NoteData __instance)
-        {
-            if (__instance is CustomNoteData customData)
-            {
-                Dictionary<string, object?> dynData = customData.customData;
-                float? rotation = dynData.Get<float?>(CUTDIRECTION);
+                float? cutDirection = dynData.Get<float?>(CUTDIRECTION);
 
-                if (rotation.HasValue)
+                if (cutDirection.HasValue)
                 {
-                    dynData[CUTDIRECTION] = 360 - rotation.Value;
+                    dynData[CUTDIRECTION] = 360 - cutDirection.Value;
                 }
             }
         }

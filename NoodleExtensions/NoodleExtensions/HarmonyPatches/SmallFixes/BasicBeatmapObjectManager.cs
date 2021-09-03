@@ -2,14 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using HarmonyLib;
     using Heck;
 
     // Do not add fake obstacles to active obstacles to increase performance
     [HeckPatch(typeof(BasicBeatmapObjectManager))]
-    [HeckPatch(MethodType.Constructor)]
-    [HeckPatch(new Type[] { typeof(BasicBeatmapObjectManager.InitData), typeof(GameNoteController.Pool), typeof(BombNoteController.Pool), typeof(ObstacleController.Pool) })]
-    internal static class BasicBeatmapObjectManagerSpawnObstacleInternal
+    [HeckPatch("Init")]
+    internal static class BasicBeatmapObjectManagerInit
     {
         private static void Postfix()
         {

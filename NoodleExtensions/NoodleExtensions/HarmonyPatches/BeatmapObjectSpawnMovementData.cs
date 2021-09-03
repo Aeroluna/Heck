@@ -98,7 +98,7 @@
             ////Vector3 jumpEndPos = __result.jumpEndPos;
             float jumpGravity = __result.jumpGravity;
 
-            Vector3 noteOffset = GetNoteOffset(noteData, startRow, startlinelayer ?? (float)noteData.startNoteLineLayer);
+            Vector3 noteOffset = GetNoteOffset(noteData, startRow, startlinelayer ?? (float)noteData.beforeJumpNoteLineLayer);
 
             if (startRow.HasValue || startHeight.HasValue || flipLineIndex.HasValue || njs.HasValue || spawnoffset.HasValue || startlinelayer.HasValue || gravityOverride)
             {
@@ -107,7 +107,7 @@
 
                 float localNoteJumpMovementSpeed = njs ?? NoteJumpMovementSpeed;
 
-                float startLayerLineYPos = LineYPosForLineLayer(noteData, startlinelayer ?? (float)noteData.startNoteLineLayer);
+                float startLayerLineYPos = LineYPosForLineLayer(noteData, startlinelayer ?? (float)noteData.beforeJumpNoteLineLayer);
                 float lineYPos = LineYPosForLineLayer(noteData, startHeight);
 
                 // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
@@ -119,7 +119,7 @@
                 Vector3 jumpEndPos = localJumpEndPos + noteOffset;
 
                 // IsBasicNote() check is skipped so bombs can flip too
-                Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? startRow, gravityOverride ? startHeight : startlinelayer ?? (float)noteData.startNoteLineLayer);
+                Vector3 noteOffset2 = GetNoteOffset(noteData, flipLineIndex ?? startRow, gravityOverride ? startHeight : startlinelayer ?? (float)noteData.beforeJumpNoteLineLayer);
                 Vector3 moveStartPos = localMoveStartPos + noteOffset2;
                 Vector3 moveEndPos = localMoveEndPos + noteOffset2;
 

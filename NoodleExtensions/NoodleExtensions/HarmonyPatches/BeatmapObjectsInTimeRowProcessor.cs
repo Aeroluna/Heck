@@ -7,15 +7,15 @@
     using Heck;
     using static NoodleExtensions.Plugin;
 
-    [HarmonyPatch(typeof(NotesInTimeRowProcessor))]
+    [HarmonyPatch(typeof(BeatmapObjectsInTimeRowProcessor))]
     [HarmonyPatch("ProcessAllNotesInTimeRow")]
     internal static class NotesInTimeRowProcessorProcessAllNotesInTimeRow
     {
-        private static void Postfix(List<NoteData> notes)
+        private static void Postfix(List<NoteData> notesInTimeRow)
         {
-            if (notes.FirstOrDefault() is CustomNoteData)
+            if (notesInTimeRow.FirstOrDefault() is CustomNoteData)
             {
-                List<CustomNoteData> customNotes = notes.Cast<CustomNoteData>().ToList();
+                List<CustomNoteData> customNotes = notesInTimeRow.Cast<CustomNoteData>().ToList();
 
                 Dictionary<float, List<CustomNoteData>> notesInColumns = new Dictionary<float, List<CustomNoteData>>();
                 for (int i = 0; i < customNotes.Count; i++)
@@ -89,7 +89,7 @@
         }
     }
 
-    [HarmonyPatch(typeof(NotesInTimeRowProcessor))]
+    [HarmonyPatch(typeof(BeatmapObjectsInTimeRowProcessor))]
     [HarmonyPatch("ProcessColorNotesInTimeRow")]
     internal static class NotesInTimeRowProcessorProcessColorNotesInTimeRow
     {
