@@ -93,22 +93,32 @@
                 transform.localScale = Vector3.one; // This is a fix for animation due to notes being recycled
             }
 
-            Track? track = noodleData.Track;
-            if (track != null && ParentObject.Controller != null)
+            IEnumerable<Track>? tracks = noodleData.Track;
+            if (tracks != null)
             {
-                ParentObject? parentObject = ParentObject.Controller.GetParentObjectTrack(track);
-                if (parentObject != null)
+                foreach (Track track in tracks)
                 {
-                    parentObject.ParentToObject(transform);
+                    // add to gameobjects
+                    track.AddGameObject(__instance.gameObject);
+                }
+
+                // PAREMTNIGNG
+                if (ParentObject.Controller != null)
+                {
+                    ParentObject? parentObject = ParentObject.Controller.GetParentObjectTrackArray(tracks);
+                    if (parentObject != null)
+                    {
+                        parentObject.ParentToObject(transform);
+                    }
+                    else
+                    {
+                        ParentObject.ResetTransformParent(transform);
+                    }
                 }
                 else
                 {
                     ParentObject.ResetTransformParent(transform);
                 }
-            }
-            else
-            {
-                ParentObject.ResetTransformParent(transform);
             }
 
             noodleData.EndRotation = endRotation;
@@ -177,9 +187,9 @@
 
             NoodleNoteData noodleData = (NoodleNoteData)NoodleData;
 
-            Track? track = noodleData.Track;
+            IEnumerable<Track>? tracks = noodleData.Track;
             NoodleObjectData.AnimationObjectData? animationObject = noodleData.AnimationObject;
-            if (track != null || animationObject != null)
+            if (tracks != null || animationObject != null)
             {
                 NoteJump noteJump = NoteControllerInit._noteJumpAccessor(ref ____noteMovement);
                 NoteFloorMovement floorMovement = NoteControllerInit._noteFloorMovementAccessor(ref ____noteMovement);
@@ -190,7 +200,7 @@
                 elapsedTime = NoteJumpManualUpdate.NoteJumpTimeAdjust(elapsedTime, jumpDuration);
                 float normalTime = elapsedTime / jumpDuration;
 
-                Animation.AnimationHelper.GetObjectOffset(animationObject, track, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow, out float? cuttable);
+                Animation.AnimationHelper.GetObjectOffset(animationObject, tracks, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow, out float? cuttable);
 
                 if (positionOffset.HasValue)
                 {

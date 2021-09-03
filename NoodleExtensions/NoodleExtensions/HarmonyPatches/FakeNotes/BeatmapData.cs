@@ -27,7 +27,7 @@
         private static readonly List<object> _countGetters = new List<object>
         {
             AccessTools.PropertyGetter(typeof(BeatmapData), nameof(BeatmapData.obstaclesCount)),
-            AccessTools.PropertyGetter(typeof(BeatmapData), nameof(BeatmapData.cuttableNotesType)),
+            AccessTools.PropertyGetter(typeof(BeatmapData), nameof(BeatmapData.cuttableNotesCount)),
             AccessTools.PropertyGetter(typeof(BeatmapData), nameof(BeatmapData.bombsCount)),
         };
 

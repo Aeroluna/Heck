@@ -99,7 +99,7 @@
                 noodleObjectData.LocalRotationQuaternion = Quaternion.Euler(localrot.ElementAt(0), localrot.ElementAt(1), localrot.ElementAt(2));
             }
 
-            noodleObjectData.Track = AnimationHelper.GetTrack(dynData, beatmapData);
+            noodleObjectData.Track = AnimationHelper.GetTrackArray(dynData, beatmapData);
 
             Dictionary<string, object?>? animationObjectDyn = dynData.Get<Dictionary<string, object?>>("_animation");
             if (animationObjectDyn != null)
@@ -227,7 +227,7 @@
 
         internal Quaternion? LocalRotationQuaternion { get; set; }
 
-        internal Track? Track { get; set; }
+        internal IEnumerable<Track>? Track { get; set; }
 
         internal Quaternion WorldRotation { get; set; }
 

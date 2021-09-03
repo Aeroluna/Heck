@@ -11,8 +11,8 @@
     using static NoodleExtensions.Plugin;
 
     [HarmonyPatch(typeof(ObstacleData))]
-    [HarmonyPatch("MirrorLineIndex")]
-    internal static class ObstacleDataMirrorLineIndex
+    [HarmonyPatch("Mirror")]
+    internal static class ObstacleDataMirror
     {
         private static void Prefix(ObstacleData __instance) // prefix because we need to know the lineIndex before it gets mirrored
         {

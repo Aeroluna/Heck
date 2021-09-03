@@ -1,10 +1,30 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
+    using System.Collections.Generic;
     using Heck;
+    using Heck.Animation;
     using UnityEngine;
+    using static NoodleExtensions.NoodleObjectDataManager;
 
     internal static class MirroredNoteControllerHelper
     {
+        internal static void AddToTrack(NoteData noteData, GameObject gameObject)
+        {
+            NoodleNoteData? noodleData = TryGetObjectData<NoodleNoteData>(noteData);
+            if (noodleData != null)
+            {
+                IEnumerable<Track>? tracks = noodleData.Track;
+                if (tracks != null)
+                {
+                    foreach (Track track in tracks)
+                    {
+                        // add to gameobjects
+                        track.AddGameObject(gameObject);
+                    }
+                }
+            }
+        }
+
         internal static bool CheckSkip(Transform noteTransform, Transform followedNoteTransform)
         {
             if (followedNoteTransform.position.y < 0)
@@ -56,6 +76,26 @@
     }
 
     // Fuck generics
+    [HeckPatch(typeof(MirroredNoteController<INoteMirrorable>))]
+    [HeckPatch("Mirror")]
+    internal static class MirroredNoteControllerINoteMirrorableMirror
+    {
+        private static void Postfix(MirroredNoteController<INoteMirrorable> __instance)
+        {
+            MirroredNoteControllerHelper.AddToTrack(__instance.noteData, __instance.gameObject);
+        }
+    }
+
+    [HeckPatch(typeof(MirroredNoteController<ICubeNoteMirrorable>))]
+    [HeckPatch("Mirror")]
+    internal static class MirroredNoteControllerICubeNoteMirrorableMirror
+    {
+        private static void Postfix(MirroredNoteController<ICubeNoteMirrorable> __instance)
+        {
+            MirroredNoteControllerHelper.AddToTrack(__instance.noteData, __instance.gameObject);
+        }
+    }
+
     [HeckPatch(typeof(MirroredNoteController<INoteMirrorable>))]
     [HeckPatch("UpdatePositionAndRotation")]
     internal static class MirroredNoteControllerINoteMirrorableUpdatePositionAndRotation
