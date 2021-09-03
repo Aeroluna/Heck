@@ -175,3 +175,5 @@ dotnet_diagnostic.SX1101.severity = warning
 dotnet_diagnostic.SX1309.severity = warning
 
 dotnet_diagnostic.SX1309S.severity = warning
+
+csharp_style_expression_bodied_methods = when_on_single_line

@@ -21,9 +21,17 @@
             Vector4? colorVector = null;
             if (tracks != null)
             {
-                pathColor ??= MultVector4Nullables(tracks.Select(n => TryGetVector4PathProperty(n, COLOR, time)).ToArray());
-                Vector4? trackColor = MultVector4Nullables(tracks.Select(n => TryGetProperty<Vector4?>(n, COLOR)).ToArray());
-                colorVector = MultVector4Nullables(trackColor, pathColor);
+                if (tracks.Count() > 1)
+                {
+                    pathColor ??= MultVector4Nullables(tracks.Select(n => TryGetVector4PathProperty(n, COLOR, time)));
+                    colorVector = MultVector4Nullables(MultVector4Nullables(tracks.Select(n => TryGetProperty<Vector4?>(n, COLOR))), pathColor);
+                }
+                else
+                {
+                    Track track = tracks.First();
+                    pathColor ??= TryGetVector4PathProperty(track, COLOR, time);
+                    colorVector = TryGetProperty<Vector4?>(track, COLOR);
+                }
             }
             else
             {
