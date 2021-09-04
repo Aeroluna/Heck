@@ -15,12 +15,15 @@
         {
             if (notesInTimeRow.FirstOrDefault() is CustomNoteData)
             {
+                List<CustomNoteData> notesToSetFlip = new List<CustomNoteData>();
+
                 Dictionary<float, List<CustomNoteData>> notesInColumns = new Dictionary<float, List<CustomNoteData>>();
                 for (int i = 0; i < notesInTimeRow.Count; i++)
                 {
                     CustomNoteData noteData = (CustomNoteData)notesInTimeRow[i];
+                    Dictionary<string, object?> dynData = noteData.customData;
 
-                    IEnumerable<float?>? position = noteData.customData.GetNullableFloats(POSITION);
+                    IEnumerable<float?>? position = dynData.GetNullableFloats(POSITION);
                     float lineIndex = position?.ElementAtOrDefault(0) ?? (noteData.lineIndex - 2);
                     float lineLayer = position?.ElementAtOrDefault(1) ?? (float)noteData.noteLineLayer;
 
@@ -47,22 +50,8 @@
                     {
                         list.Add(noteData);
                     }
-                }
 
-                foreach (KeyValuePair<float, List<CustomNoteData>> keyValue in notesInColumns)
-                {
-                    List<CustomNoteData> list2 = keyValue.Value;
-                    for (int m = 0; m < list2.Count; m++)
-                    {
-                        list2[m].customData["startNoteLineLayer"] = m;
-                    }
-                }
-
-                // Process flip data
-                List<CustomNoteData> flipNotes = notesInTimeRow.Cast<CustomNoteData>().ToList();
-                for (int i = flipNotes.Count - 1; i >= 0; i--)
-                {
-                    Dictionary<string, object?> dynData = flipNotes[i].customData;
+                    // Flippy stuff
                     IEnumerable<float?>? flip = dynData.GetNullableFloats(FLIP);
                     float? flipX = flip?.ElementAtOrDefault(0);
                     float? flipY = flip?.ElementAtOrDefault(1);
@@ -77,12 +66,24 @@
                         {
                             dynData["flipYSide"] = flipY.Value;
                         }
-
-                        flipNotes.Remove(flipNotes[i]);
+                    }
+                    else if (!dynData.ContainsKey("flipYSide"))
+                    {
+                        notesToSetFlip.Add(noteData);
                     }
                 }
 
-                flipNotes.ForEach(c => c.customData["flipYSide"] = 0);
+                foreach (KeyValuePair<float, List<CustomNoteData>> keyValue in notesInColumns)
+                {
+                    List<CustomNoteData> list2 = keyValue.Value;
+                    for (int m = 0; m < list2.Count; m++)
+                    {
+                        list2[m].customData["startNoteLineLayer"] = m;
+                    }
+                }
+
+                // Process flip data
+                notesToSetFlip.ForEach(c => c.customData["flipYSide"] = 0);
             }
         }
     }
