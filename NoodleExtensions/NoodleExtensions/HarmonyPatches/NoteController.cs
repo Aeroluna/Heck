@@ -132,7 +132,7 @@
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Call, _flipYSideGetter))
+                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _flipYSideGetter))
                 .InsertAndAdvance(
                     new CodeInstruction(OpCodes.Ldarg_0),
                     new CodeInstruction(OpCodes.Ldfld, _noteDataField))
