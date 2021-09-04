@@ -11,16 +11,14 @@
     [HarmonyPatch("ProcessAllNotesInTimeRow")]
     internal static class NotesInTimeRowProcessorProcessAllNotesInTimeRow
     {
-        private static void Postfix(List<NoteData> notesInTimeRow)
+        private static void Prefix(List<NoteData> notesInTimeRow)
         {
             if (notesInTimeRow.FirstOrDefault() is CustomNoteData)
             {
-                List<CustomNoteData> customNotes = notesInTimeRow.Cast<CustomNoteData>().ToList();
-
                 Dictionary<float, List<CustomNoteData>> notesInColumns = new Dictionary<float, List<CustomNoteData>>();
-                for (int i = 0; i < customNotes.Count; i++)
+                for (int i = 0; i < notesInTimeRow.Count; i++)
                 {
-                    CustomNoteData noteData = customNotes[i];
+                    CustomNoteData noteData = (CustomNoteData)notesInTimeRow[i];
 
                     IEnumerable<float?>? position = noteData.customData.GetNullableFloats(POSITION);
                     float lineIndex = position?.ElementAtOrDefault(0) ?? (noteData.lineIndex - 2);
@@ -61,7 +59,7 @@
                 }
 
                 // Process flip data
-                List<CustomNoteData> flipNotes = new List<CustomNoteData>(customNotes);
+                List<CustomNoteData> flipNotes = notesInTimeRow.Cast<CustomNoteData>().ToList();
                 for (int i = flipNotes.Count - 1; i >= 0; i--)
                 {
                     Dictionary<string, object?> dynData = flipNotes[i].customData;
@@ -93,33 +91,31 @@
     [HarmonyPatch("ProcessColorNotesInTimeRow")]
     internal static class NotesInTimeRowProcessorProcessColorNotesInTimeRow
     {
-        private static void Postfix(List<NoteData> colorNotesData)
+        private static void Prefix(List<NoteData> colorNotesData)
         {
             if (colorNotesData.FirstOrDefault() is CustomNoteData)
             {
-                List<CustomNoteData> customNotes = colorNotesData.Cast<CustomNoteData>().ToList();
-
-                int customNoteCount = customNotes.Count;
+                int customNoteCount = colorNotesData.Count;
                 if (customNoteCount == 2)
                 {
                     float[] lineIndexes = new float[2];
                     float[] lineLayers = new float[2];
                     for (int i = 0; i < customNoteCount; i++)
                     {
-                        Dictionary<string, object?> dynData = customNotes[i].customData;
+                        Dictionary<string, object?> dynData = ((CustomNoteData)colorNotesData[i]).customData;
                         IEnumerable<float?>? position = dynData.GetNullableFloats(POSITION);
-                        lineIndexes[i] = position?.ElementAtOrDefault(0) ?? (customNotes[i].lineIndex - 2);
-                        lineLayers[i] = position?.ElementAtOrDefault(1) ?? (float)customNotes[i].noteLineLayer;
+                        lineIndexes[i] = position?.ElementAtOrDefault(0) ?? (colorNotesData[i].lineIndex - 2);
+                        lineLayers[i] = position?.ElementAtOrDefault(1) ?? (float)colorNotesData[i].noteLineLayer;
                     }
 
-                    if (customNotes[0].colorType != customNotes[1].colorType && ((customNotes[0].colorType == ColorType.ColorA && lineIndexes[0] > lineIndexes[1]) ||
-                        (customNotes[0].colorType == ColorType.ColorB && lineIndexes[0] < lineIndexes[1])))
+                    if (colorNotesData[0].colorType != colorNotesData[1].colorType && ((colorNotesData[0].colorType == ColorType.ColorA && lineIndexes[0] > lineIndexes[1]) ||
+                        (colorNotesData[0].colorType == ColorType.ColorB && lineIndexes[0] < lineIndexes[1])))
                     {
                         for (int i = 0; i < customNoteCount; i++)
                         {
                             // apparently I can use customData to store my own variables in noteData, neat
                             // ^ comment from a very young and naive aero
-                            Dictionary<string, object?> dynData = customNotes[i].customData;
+                            Dictionary<string, object?> dynData = ((CustomNoteData)colorNotesData[i]).customData;
                             dynData["flipLineIndex"] = lineIndexes[1 - i];
 
                             float flipYSide = (lineIndexes[i] > lineIndexes[1 - i]) ? 1 : -1;
