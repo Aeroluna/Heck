@@ -17,7 +17,7 @@
 
         internal static void GetColorOffset(PointDefinition? localColor, IEnumerable<Track>? tracks, float time, out Color? color)
         {
-            Vector3? pathColor = localColor?.Interpolate(time);
+            Vector4? pathColor = localColor?.InterpolateVector4(time);
             Vector4? colorVector = null;
             if (tracks != null)
             {
@@ -30,7 +30,7 @@
                 {
                     Track track = tracks.First();
                     pathColor ??= TryGetVector4PathProperty(track, COLOR, time);
-                    colorVector = TryGetProperty<Vector4?>(track, COLOR);
+                    colorVector = MultVector4Nullables(TryGetProperty<Vector4?>(track, COLOR), pathColor);
                 }
             }
             else
