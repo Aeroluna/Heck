@@ -25,7 +25,7 @@
 
     internal class CutoutEffectWrapper : CutoutWrapper
     {
-        private CutoutEffect _cutoutEffect;
+        private readonly CutoutEffect _cutoutEffect;
 
         internal CutoutEffectWrapper(CutoutEffect cutoutEffect)
         {
@@ -41,7 +41,7 @@
 
     internal class CutoutAnimateEffectWrapper : CutoutWrapper
     {
-        private CutoutAnimateEffect _cutoutAnimateEffect;
+        private readonly CutoutAnimateEffect _cutoutAnimateEffect;
 
         internal CutoutAnimateEffectWrapper(CutoutAnimateEffect cutoutAnimateEffect)
         {
@@ -57,9 +57,9 @@
 
     internal class DisappearingArrowWrapper : CutoutWrapper
     {
-        private MonoBehaviour _disappearingArrowController;
+        private readonly MonoBehaviour _disappearingArrowController;
 
-        private MethodInfo _method;
+        private readonly MethodInfo _method;
 
         internal DisappearingArrowWrapper(MonoBehaviour disappearingArrowController, MethodInfo method)
         {
