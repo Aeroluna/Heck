@@ -213,7 +213,7 @@
                 localRotationOffset = MultQuaternionNullables(trackLocalRotation, pathLocalRotation);
                 dissolve = MultFloatNullables(trackDissolve, pathDissolve);
                 dissolveArrow = MultFloatNullables(trackDissolveArrow, pathDissolveArrow);
-                cuttable = MultFloatNullables(trackDissolve, pathCuttable);
+                cuttable = MultFloatNullables(trackCuttable, pathCuttable);
             }
             else
             {
