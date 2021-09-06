@@ -20,9 +20,17 @@
             _points = points;
         }
 
-        public static PointDefinition ListToPointDefinition(IEnumerable<object> list)
+        public static PointDefinition ListToPointDefinition(List<object> list)
         {
-            IEnumerable<List<object>> points = list.Cast<List<object>>();
+            IEnumerable<List<object>> points;
+            if (list.FirstOrDefault() is List<object>)
+            {
+                points = list.Cast<List<object>>();
+            }
+            else
+            {
+                points = new List<object>[] { list };
+            }
 
             List<PointData> pointData = new List<PointData>();
             foreach (List<object> rawPoint in points)
