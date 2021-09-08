@@ -41,7 +41,7 @@
         {
             if (type == null)
             {
-                throw new ArgumentNullException("Parameter [type] cannot be null");
+                throw new ArgumentNullException(nameof(type));
             }
 
             if (_setArrowTransparencyMethods.TryGetValue(type, out MethodInfo value))

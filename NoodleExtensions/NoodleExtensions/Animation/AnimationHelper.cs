@@ -1,10 +1,8 @@
 ﻿namespace NoodleExtensions.Animation
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Heck.Animation;
-    using IPA.Utilities;
     using UnityEngine;
     using static Heck.Animation.AnimationHelper;
     using static Heck.NullableExtensions;
@@ -13,37 +11,6 @@
 
     public static class AnimationHelper
     {
-        private static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<GameNoteController>>.Accessor _gameNotePoolAccessor = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<GameNoteController>>.GetAccessor("_gameNotePoolContainer");
-        private static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<BombNoteController>>.Accessor _bombNotePoolAccessor = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<BombNoteController>>.GetAccessor("_bombNotePoolContainer");
-        private static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<ObstacleController>>.Accessor _obstaclePoolAccessor = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<ObstacleController>>.GetAccessor("_obstaclePoolContainer");
-
-        public static MemoryPoolContainer<GameNoteController> GameNotePool
-        {
-            get
-            {
-                BasicBeatmapObjectManager beatmapObjectManager = BeatmapObjectManager ?? throw new InvalidOperationException("BeatmapObjectManager was null.");
-                return _gameNotePoolAccessor(ref beatmapObjectManager);
-            }
-        }
-
-        public static MemoryPoolContainer<BombNoteController> BombNotePool
-        {
-            get
-            {
-                BasicBeatmapObjectManager beatmapObjectManager = BeatmapObjectManager ?? throw new InvalidOperationException("BeatmapObjectManager was null.");
-                return _bombNotePoolAccessor(ref beatmapObjectManager);
-            }
-        }
-
-        public static MemoryPoolContainer<ObstacleController> ObstaclePool
-        {
-            get
-            {
-                BasicBeatmapObjectManager beatmapObjectManager = BeatmapObjectManager ?? throw new InvalidOperationException("BeatmapObjectManager was null.");
-                return _obstaclePoolAccessor(ref beatmapObjectManager);
-            }
-        }
-
         private static BasicBeatmapObjectManager? BeatmapObjectManager => HarmonyPatches.BeatmapObjectSpawnControllerStart.BeatmapObjectManager;
 
         internal static void OnTrackCreated(Track track)

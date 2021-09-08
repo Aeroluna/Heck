@@ -7,7 +7,6 @@
     using Heck;
     using Heck.Animation;
     using IPA.Utilities;
-    using NoodleExtensions.Animation;
     using UnityEngine;
     using static NoodleExtensions.NoodleObjectDataManager;
 
@@ -100,24 +99,6 @@
                 {
                     // add to gameobjects
                     track.AddGameObject(__instance.gameObject);
-                }
-
-                // PAREMTNIGNG
-                if (ParentObject.Controller != null)
-                {
-                    ParentObject? parentObject = ParentObject.Controller.GetParentObjectTrackArray(tracks);
-                    if (parentObject != null)
-                    {
-                        parentObject.ParentToObject(transform);
-                    }
-                    else
-                    {
-                        ParentObject.ResetTransformParent(transform);
-                    }
-                }
-                else
-                {
-                    ParentObject.ResetTransformParent(transform);
                 }
             }
 

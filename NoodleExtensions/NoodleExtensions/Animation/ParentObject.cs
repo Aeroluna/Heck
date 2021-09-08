@@ -6,9 +6,7 @@
     using UnityEngine;
     using static Heck.Animation.AnimationHelper;
     using static Heck.NullableExtensions;
-    using static NoodleExtensions.Animation.AnimationHelper;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
-    using static NoodleExtensions.NoodleObjectDataManager;
     using static NoodleExtensions.Plugin;
 
     internal class ParentObject : MonoBehaviour
@@ -24,13 +22,13 @@
 
         internal HashSet<Track> ChildrenTracks { get; } = new HashSet<Track>();
 
-        internal static void ResetTransformParent(Transform transform)
-        {
-            transform.SetParent(null, false);
-        }
-
         internal static void AssignTrack(IEnumerable<Track> tracks, Track parentTrack, Vector3? startPos, Quaternion? startRot, Quaternion? startLocalRot, Vector3? startScale)
         {
+            if (tracks.Contains(parentTrack))
+            {
+                throw new System.InvalidOperationException("How could a track contain itself?");
+            }
+
             if (Controller == null)
             {
                 GameObject gameObject = new GameObject("ParentController");
@@ -69,54 +67,58 @@
                 transform.localScale = instance._startScale;
             }
 
-            foreach (ParentObject parentObject in Controller.ParentObjects)
-            {
-                if (parentObject.ChildrenTracks.Contains(parentTrack))
-                {
-                    parentObject.ParentToObject(transform);
-                }
-                else
-                {
-                    ResetTransformParent(transform);
-                }
-            }
+            parentTrack.AddGameObject(parentGameObject);
 
             foreach (Track track in tracks)
             {
                 foreach (ParentObject parentObject in Controller.ParentObjects)
                 {
+                    track.OnGameObjectAdded -= parentObject.OnTrackGameObjectAdded;
+                    track.OnGameObjectRemoved -= parentObject.OnTrackGameObjectRemoved;
                     parentObject.ChildrenTracks.Remove(track);
-
-                    if (parentObject._track == track)
-                    {
-                        instance.ParentToObject(parentObject.transform);
-                    }
                 }
 
-                foreach (ObstacleController obstacleController in ObstaclePool.activeItems)
+                foreach (GameObject gameObject in track.GameObjects)
                 {
-                    if (obstacleController?.obstacleData != null)
-                    {
-                        NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleController.obstacleData);
-                        if (noodleData?.Track != null)
-                        {
-                            foreach (Track obstacleTrack in noodleData.Track.Where(n => n == track))
-                            {
-                                instance.ParentToObject(obstacleController.transform);
-                            }
-                        }
-                    }
+                    instance.ParentToObject(gameObject.transform);
                 }
 
                 instance.ChildrenTracks.Add(track);
+
+                track.OnGameObjectAdded += instance.OnTrackGameObjectAdded;
+                track.OnGameObjectRemoved += instance.OnTrackGameObjectRemoved;
             }
 
             Controller.ParentObjects.Add(instance);
         }
 
-        internal void ParentToObject(Transform transform)
+        private static void ResetTransformParent(Transform transform)
+        {
+            transform.SetParent(null, false);
+        }
+
+        private void OnTrackGameObjectAdded(GameObject gameObject)
+        {
+            ParentToObject(gameObject.transform);
+        }
+
+        private void OnTrackGameObjectRemoved(GameObject gameObject)
+        {
+            ResetTransformParent(gameObject.transform);
+        }
+
+        private void ParentToObject(Transform transform)
         {
             transform.SetParent(_origin!.transform, false);
+        }
+
+        private void OnDestroy()
+        {
+            foreach (Track track in ChildrenTracks)
+            {
+                track.OnGameObjectAdded -= OnTrackGameObjectAdded;
+                track.OnGameObjectRemoved -= OnTrackGameObjectRemoved;
+            }
         }
 
         private void Update()
