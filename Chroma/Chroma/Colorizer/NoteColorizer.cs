@@ -140,7 +140,9 @@
             _noteColorAccessor(ref colorNoteVisuals) = color;
             foreach (MaterialPropertyBlockController materialPropertyBlockController in _materialPropertyBlockControllers!)
             {
-                materialPropertyBlockController.materialPropertyBlock.SetColor(_colorID, color);
+                MaterialPropertyBlock propertyBlock = materialPropertyBlockController.materialPropertyBlock;
+                Color original = propertyBlock.GetColor(_colorID);
+                propertyBlock.SetColor(_colorID, color.ColorWithAlpha(original.a));
                 materialPropertyBlockController.ApplyChanges();
             }
         }
