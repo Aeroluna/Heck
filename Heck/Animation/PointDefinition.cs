@@ -29,7 +29,7 @@
             }
             else
             {
-                points = new List<object>[] { list };
+                points = new List<object>[] { list.Append(0).ToList() };
             }
 
             List<PointData> pointData = new List<PointData>();
