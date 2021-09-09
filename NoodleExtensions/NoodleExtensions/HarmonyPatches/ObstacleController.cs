@@ -214,7 +214,7 @@
                 NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
                 if (noodleData != null)
                 {
-                    float? time = noodleData.Track?.Select(n => Heck.Animation.AnimationHelper.TryGetProperty<float?>(n, TIME)).FirstOrDefault(n => n.HasValue);
+                    float? time = noodleData.Track?.Select(n => AnimationHelper.TryGetProperty<float?>(n, TIME)).FirstOrDefault(n => n.HasValue);
                     if (time.HasValue)
                     {
                         return (time.Value * (finishMovementTime - move1Duration)) + move1Duration;
