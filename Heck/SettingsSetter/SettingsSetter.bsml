@@ -1,0 +1,19 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+  <vertical anchor-max-y='1.25' child-control-height='false'>
+    <text text='This map recommends these settings, do you want to change to them?&#xA;(Your settings will be restored after the map.)' align='Center' font-size='4'/>
+  </vertical>
+  <vertical anchor-max-y='1.05' bg='round-rect-panel' horizontal-fit='PreferredSize' vertical-fit='PreferredSize'>
+    <scroll-view preferred-height='50' preferred-width='120'>
+      <macro.for-each hosts='contents'>
+        <horizontal preferred-width='100'>
+          <text text='~lefttext' align='Left' font-size='4'/>
+          <text text='~righttext' align='Right' font-size='4'/>
+        </horizontal>
+      </macro.for-each>
+    </scroll-view>
+  </vertical>
+  <horizontal anchor-max-y='0.25' horizontal-fit='PreferredSize' vertical-fit='PreferredSize' spacing='2'>
+    <button text='decline' on-click='decline-click' preferred-height='10' preferred-width='24'/>
+    <primary-button text='accept' on-click='accept-click' preferred-height='10' preferred-width='24'/>
+  </horizontal>
+</bg>
