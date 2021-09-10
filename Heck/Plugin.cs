@@ -1,8 +1,12 @@
 ﻿namespace Heck
 {
+    using System.Linq;
     using System.Reflection;
     using HarmonyLib;
     using IPA;
+    using UnityEngine;
+    using UnityEngine.SceneManagement;
+    using Zenject;
     using IPALogger = IPA.Logging.Logger;
 
     [Plugin(RuntimeOptions.DynamicInit)]
@@ -23,6 +27,9 @@
 
         internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
 
+        private static bool _hasInited;
+        private static GameScenesManager? _gameScenesManager;
+
 #pragma warning disable CS8618
         internal static HeckLogger Logger { get; private set; }
 #pragma warning restore CS8618
@@ -31,6 +38,8 @@
         public void Init(IPALogger pluginLogger)
         {
             Logger = new HeckLogger(pluginLogger);
+            SettingsSetter.SettingSetterSettableSettingsManager.SetupSettingsTable();
+            SceneManager.activeSceneChanged += OnActiveSceneChanged;
         }
 
         [OnEnable]
@@ -45,6 +54,31 @@
         {
             _harmonyInstance.UnpatchAll(HARMONYID);
             CustomJSONData.CustomEventCallbackController.didInitEvent -= Animation.AnimationController.CustomEventCallbackInit;
+        }
+
+        public void MenuLoadFresh(ScenesTransitionSetupDataSO _1, DiContainer _2)
+        {
+            SettingsSetter.SettingsSetterViewController.Instantiate();
+            _gameScenesManager!.transitionDidFinishEvent -= MenuLoadFresh;
+        }
+
+        public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
+        {
+            if (prevScene.name == "PCInit")
+            {
+                _hasInited = true;
+            }
+
+            if (_hasInited && nextScene.name.Contains("Menu") && prevScene.name == "EmptyTransition")
+            {
+                _hasInited = false;
+                if (_gameScenesManager == null)
+                {
+                    _gameScenesManager = Resources.FindObjectsOfTypeAll<GameScenesManager>().FirstOrDefault();
+                }
+
+                _gameScenesManager.transitionDidFinishEvent += MenuLoadFresh;
+            }
         }
     }
 }
