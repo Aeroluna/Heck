@@ -30,8 +30,14 @@
             ParametricBoxController? parametricBoxController,
             BeatmapObjectsAvoidance? beatmapObjectsAvoidance)
         {
+            GameObjectTrackController existingTrackController = gameObject.GetComponent<GameObjectTrackController>();
+            if (existingTrackController != null)
+            {
+                Destroy(existingTrackController);
+            }
+
             Track? track = GetTrack(gameObjectData, beatmapData);
-            if (track != null && gameObject.GetComponent<GameObjectTrackController>() == null)
+            if (track != null)
             {
                 GameObjectTrackController trackController = gameObject.AddComponent<GameObjectTrackController>();
                 trackController.Init(track, noteLinesDistance, trackLaneRing, parametricBoxController, beatmapObjectsAvoidance);
