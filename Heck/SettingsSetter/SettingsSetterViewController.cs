@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
     using BeatSaberMarkupLanguage.Attributes;
@@ -26,8 +27,15 @@
 
         private static ColorSchemesSettings? _overrideColorScheme;
 
+        private static string? _contentBSML;
+
         [UIValue("contents")]
-        private List<object>? _contents;
+        private readonly List<object> _contents = new List<object>();
+
+        [UIObject("contentObject")]
+#pragma warning disable CS0649
+        private readonly GameObject? _contentObject;
+#pragma warning restore CS0649
 
         private MenuTransitionsHelper? _menuTransitionsHelper;
 
@@ -59,6 +67,20 @@
         }
 
         internal bool DoPresent { get; private set; }
+
+        private static string ContentBSML
+        {
+            get
+            {
+                if (_contentBSML == null)
+                {
+                    using StreamReader reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("Heck.SettingsSetter.SettableSettingsContent.bsml"));
+                    _contentBSML = reader.ReadToEnd();
+                }
+
+                return _contentBSML;
+            }
+        }
 
         private static MainSettingsModelSO MainSettings => _mainSettings ?? throw new InvalidOperationException($"[{nameof(_mainSettings)}] was null.");
 
@@ -99,7 +121,7 @@
                 Dictionary<string, object?>? settings = customBeatmapData.beatmapCustomData.Get<Dictionary<string, object?>>("_settings");
                 if (settings != null)
                 {
-                    _contents = new List<object>();
+                    _contents.Clear();
                     _modifiedParameters = startParameters;
 
                     Dictionary<string, object?>? jsonPlayerOptions = settings.Get<Dictionary<string, object?>>("_playerOptions");
@@ -281,10 +303,16 @@
 
                     if (_contents.Any())
                     {
+                        if (_contentObject != null)
+                        {
+                            Destroy(_contentObject.transform.parent.gameObject);
+                        }
+
                         DoPresent = true;
                         _defaultParameters = startParameters;
                         _menuTransitionsHelper = menuTransitionsHelper;
                         _presentViewController(ActiveFlowCoordinator, this, null, AnimationDirection.Horizontal, false);
+                        BeatSaberMarkupLanguage.BSMLParser.instance.Parse(ContentBSML, gameObject, this);
                         return;
                     }
                 }
@@ -296,6 +324,7 @@
         [UIAction("decline-click")]
         private void OnDeclineClick()
         {
+            _cachedMainSettings = null;
             StartWithParameters(_defaultParameters);
         }
 
@@ -417,7 +446,7 @@
             private int _mainEffectGraphicsSettings;
             private bool _smokeGraphicsSettings;
             private bool _burnMarkTrailsEnabled;
-            private bool _screenDisplaceMentEffectsEnabled;
+            private bool _screenDisplacementEffectsEnabled;
             private int _maxShockwaveParticles;
 #pragma warning restore IDE0044
 
@@ -426,14 +455,14 @@
                 int mainEffectGraphicsSettings,
                 bool smokeGraphicsSettings,
                 bool burnMarkTrailsEnabled,
-                bool screenDisplaceEffectsEnabled,
+                bool screenDisplacementEffectsEnabled,
                 int maxShockwaveParticles)
             {
                 _mirrorGraphicsSettings = mirrorGraphicsSettings;
                 _mainEffectGraphicsSettings = mainEffectGraphicsSettings;
                 _smokeGraphicsSettings = smokeGraphicsSettings;
                 _burnMarkTrailsEnabled = burnMarkTrailsEnabled;
-                _screenDisplaceMentEffectsEnabled = screenDisplaceEffectsEnabled;
+                _screenDisplacementEffectsEnabled = screenDisplacementEffectsEnabled;
                 _maxShockwaveParticles = maxShockwaveParticles;
             }
 
@@ -445,7 +474,7 @@
 
             internal bool BurnMarkTrailsEnabled => _burnMarkTrailsEnabled;
 
-            internal bool ScreenDisplacementEffectsEnabled => _screenDisplaceMentEffectsEnabled;
+            internal bool ScreenDisplacementEffectsEnabled => _screenDisplacementEffectsEnabled;
 
             internal int MaxShockwaveParticles => _maxShockwaveParticles;
         }

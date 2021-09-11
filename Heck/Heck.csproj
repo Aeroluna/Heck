@@ -22,8 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="SettingsSetter\SettingsSetter.bsml" />
-    <None Remove="SettingsSetter\SettingsSetterSettableSettings.json" />
+    <None Remove="SettingsSetter\SettableSettingsContent.bsml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -83,10 +82,6 @@
       <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Rendering">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Rendering.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -97,6 +92,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
+    <EmbeddedResource Include="SettingsSetter\SettableSettingsContent.bsml" />
     <EmbeddedResource Include="SettingsSetter\SettingsSetter.bsml" />
     <EmbeddedResource Include="SettingsSetter\SettingsSetterSettableSettings.json" />
   </ItemGroup>
