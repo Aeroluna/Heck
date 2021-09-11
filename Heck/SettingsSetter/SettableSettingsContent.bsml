@@ -1,0 +1,12 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+  <vertical id='contentObject' anchor-max-y='1.05' bg='round-rect-panel' horizontal-fit='PreferredSize' vertical-fit='PreferredSize'>
+    <scroll-view preferred-height='50' preferred-width='120'>
+      <macro.for-each hosts='contents'>
+        <horizontal preferred-width='100'>
+          <text text='~lefttext' align='Left' font-size='4'/>
+          <text text='~righttext' align='Right' font-size='4'/>
+        </horizontal>
+      </macro.for-each>
+    </scroll-view>
+  </vertical>
+</bg>
