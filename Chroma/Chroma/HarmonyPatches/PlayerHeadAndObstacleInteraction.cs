@@ -11,7 +11,7 @@
 
         private static bool Prefix(ref List<ObstacleController> __result)
         {
-            if (Settings.ChromaConfig.Instance!.ForceZenWallsEnabled && GameplayCoreInstallerInstallBindings.ZenModeActive)
+            if (Settings.ChromaConfig.Instance.ForceZenWallsEnabled && GameplayCoreInstallerInstallBindings.ZenModeActive)
             {
                 __result = _emptyList;
                 return false;

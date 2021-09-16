@@ -88,7 +88,7 @@
                 {
                     initializeDelegate(rootComponents[i], originalComponents[i]);
 
-                    if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
+                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                     {
                         Plugin.Logger.Log($"Initialized {typeof(T).Name}");
                     }

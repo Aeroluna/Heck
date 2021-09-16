@@ -63,7 +63,7 @@
                 }
 
                 dictioanry.Add(key, index);
-                if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
+                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                 {
                     Plugin.Logger.Log($"Registered key [{key}] to type [{type}]");
                 }

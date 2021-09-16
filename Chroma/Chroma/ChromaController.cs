@@ -48,12 +48,9 @@
 
             if (ChromaIsActive)
             {
-                if (beatmapData is CustomBeatmapData customBeatmap)
+                if (!ChromaConfig.Instance.EnvironmentEnhancementsDisabled && beatmapData is CustomBeatmapData customBeatmap)
                 {
-                    if (ChromaConfig.Instance!.EnvironmentEnhancementsEnabled)
-                    {
-                        EnvironmentEnhancementManager.Init(customBeatmap, beatmapObjectSpawnController.noteLinesDistance);
-                    }
+                    EnvironmentEnhancementManager.Init(customBeatmap, beatmapObjectSpawnController.noteLinesDistance);
                 }
 
                 try

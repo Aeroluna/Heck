@@ -21,11 +21,20 @@
             if (difficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
             {
                 bool chromaRequirement = BasicPatch(difficultyBeatmap, customBeatmapData);
-                if (chromaRequirement &&
-                    ChromaConfig.Instance!.EnvironmentEnhancementsEnabled &&
-                    (customBeatmapData.beatmapCustomData.Get<object>(Plugin.ENVIRONMENTREMOVAL) != null || (customBeatmapData.customData.Get<object>(Plugin.ENVIRONMENT) != null)))
+
+                try
                 {
-                    overrideEnvironmentSettings = null;
+                    if (chromaRequirement &&
+                        !ChromaConfig.Instance.EnvironmentEnhancementsDisabled &&
+                        ((customBeatmapData.beatmapCustomData.Get<List<object>>(Plugin.ENVIRONMENTREMOVAL)?.Any() ?? false) || (customBeatmapData.customData.Get<Dictionary<string, object>>(Plugin.ENVIRONMENT)?.Any() ?? false)))
+                    {
+                        overrideEnvironmentSettings = null;
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    // for all you sussy bakas that use _environment to just force the environment: FUCK YOU!!!!!!!!!!!!!
+                    Plugin.Logger.Log(e, IPA.Logging.Logger.Level.Error);
                 }
             }
         }
@@ -44,8 +53,8 @@
                 Plugin.Logger.Log("Please do not use Legacy Chroma Lights for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", IPA.Logging.Logger.Level.Warning);
             }
 
-            ChromaController.ToggleChromaPatches((chromaRequirement || legacyOverride) && ChromaConfig.Instance!.CustomColorEventsEnabled);
-            ChromaController.DoColorizerSabers = chromaRequirement && ChromaConfig.Instance!.CustomColorEventsEnabled;
+            ChromaController.ToggleChromaPatches((chromaRequirement || legacyOverride) && !ChromaConfig.Instance.ChromaEventsDisabled);
+            ChromaController.DoColorizerSabers = chromaRequirement && !ChromaConfig.Instance.ChromaEventsDisabled;
 
             LightIDTableManager.SetEnvironment(difficultyBeatmap.GetEnvironmentInfo().serializedName);
 

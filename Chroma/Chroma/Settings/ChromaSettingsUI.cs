@@ -6,24 +6,24 @@
     {
         // Events
         [UIValue("rgbevents")]
-        public bool CustomColorEventsEnabled
+        public bool ChromaEventsDisabled
         {
-            get => !ChromaConfig.Instance!.CustomColorEventsEnabled;
-            set => ChromaConfig.Instance!.CustomColorEventsEnabled = !value;
+            get => ChromaConfig.Instance.ChromaEventsDisabled;
+            set => ChromaConfig.Instance.ChromaEventsDisabled = value;
         }
 
         [UIValue("platform")]
-        public bool EnvironmentEnhancementsEnabled
+        public bool EnvironmentEnhancementsDisabled
         {
-            get => !ChromaConfig.Instance!.EnvironmentEnhancementsEnabled;
-            set => ChromaConfig.Instance!.EnvironmentEnhancementsEnabled = !value;
+            get => ChromaConfig.Instance.EnvironmentEnhancementsDisabled;
+            set => ChromaConfig.Instance.EnvironmentEnhancementsDisabled = value;
         }
 
         [UIValue("zenwalls")]
         public bool ForceZenWallsEnabled
         {
-            get => ChromaConfig.Instance!.ForceZenWallsEnabled;
-            set => ChromaConfig.Instance!.ForceZenWallsEnabled = value;
+            get => ChromaConfig.Instance.ForceZenWallsEnabled;
+            set => ChromaConfig.Instance.ForceZenWallsEnabled = value;
         }
     }
 }

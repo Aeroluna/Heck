@@ -69,7 +69,7 @@
                 RingRotationOffsets.Clear();
                 ParametricBoxControllerParameters.TransformParameters.Clear();
 
-                if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
+                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                 {
                     Plugin.Logger.Log($"=====================================");
                 }
@@ -94,7 +94,7 @@
                     int? lightID = gameObjectData.Get<int?>(LIGHTID);
 
                     List<GameObjectInfo> foundObjects = LookupID(id, lookupMethod);
-                    if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
+                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                     {
                         if (foundObjects.Count > 0)
                         {
@@ -114,7 +114,7 @@
                         gameObjectInfos = new List<GameObjectInfo>();
                         foreach (GameObjectInfo gameObjectInfo in foundObjects)
                         {
-                            if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
+                            if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                             {
                                 Plugin.Logger.Log($"Duplicating [{gameObjectInfo.FullID}]:");
                             }
@@ -136,7 +136,7 @@
                                 List<GameObjectInfo> gameObjects = _gameObjectInfos.Where(n => n.GameObject == newGameObject).ToList();
                                 gameObjectInfos.AddRange(gameObjects);
 
-                                if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
+                                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                                 {
                                     gameObjects.ForEach(n => Plugin.Logger.Log(n.FullID));
                                 }
@@ -239,7 +239,7 @@
                         GameObjectTrackController.HandleTrackData(gameObject, gameObjectData, customBeatmapData, noteLinesDistance, trackLaneRing, parametricBoxController, beatmapObjectsAvoidance);
                     }
 
-                    if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
+                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                     {
                         Plugin.Logger.Log($"=====================================");
                     }
@@ -348,7 +348,7 @@
                 }
             }
 
-            if (Settings.ChromaConfig.Instance!.PrintEnvironmentEnhancementDebug)
+            if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
             {
                 objectsToPrint.Sort();
                 objectsToPrint.ForEach(n => Plugin.Logger.Log(n));

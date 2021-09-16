@@ -69,6 +69,7 @@
         public void Init(IPALogger pluginLogger, Config conf)
         {
             Logger = new HeckLogger(pluginLogger);
+            ChromaSettableSettings.SetupSettableSettings();
             ChromaConfig.Instance = conf.Generated<ChromaConfig>();
             HeckData.InitPatches(_harmonyInstance, Assembly.GetExecutingAssembly());
             LightIDTableManager.InitTable();
@@ -83,7 +84,7 @@
 
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
 
-            ChromaUtils.SetSongCoreCapability(REQUIREMENTNAME, ChromaConfig.Instance!.CustomColorEventsEnabled);
+            ChromaUtils.SetSongCoreCapability(REQUIREMENTNAME, !ChromaConfig.Instance.ChromaEventsDisabled);
 
             SceneManager.activeSceneChanged += ChromaController.OnActiveSceneChanged;
 
