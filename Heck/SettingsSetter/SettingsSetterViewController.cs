@@ -49,6 +49,8 @@
 
         private SettableMainSettings? _modifiedMainSettings;
 
+        private List<Tuple<ISettableSetting, object>>? _settableSettingsToSet;
+
         public override string ResourceName => "Heck.SettingsSetter.SettingsSetter.bsml";
 
         internal static SettingsSetterViewController Instance => _instance ?? throw new InvalidOperationException($"[{nameof(_instance)}] was not created.");
@@ -100,6 +102,18 @@
 
         internal void RestoreCached()
         {
+            if (_settableSettingsToSet != null)
+            {
+                foreach (Tuple<ISettableSetting, object> tuple in _settableSettingsToSet)
+                {
+                    ISettableSetting settableSetting = tuple.Item1;
+                    Plugin.Logger.Log($"Restored settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}].", IPA.Logging.Logger.Level.Trace);
+                    settableSetting.SetTemporary(null);
+                }
+
+                _settableSettingsToSet = null;
+            }
+
             if (_cachedMainSettings != null)
             {
                 Plugin.Logger.Log($"Main settings restored.", IPA.Logging.Logger.Level.Trace);
@@ -137,22 +151,25 @@
                             string name = (string)settablePlayerSetting["_name"];
                             string fieldName = (string)settablePlayerSetting["_fieldName"];
 
-                            FieldInfo field = typeof(PlayerSpecificSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-                            object activeValue = field.GetValue(playerSettings);
                             object? json = jsonPlayerOptions.Get<object>(fieldName);
-                            if (json is string jsonString)
+                            if (json != null)
                             {
-                                json = Enum.Parse(typeof(EnvironmentEffectsFilterPreset), jsonString);
-                            }
-                            else if (json is IConvertible)
-                            {
-                                json = Convert.ChangeType(json, activeValue.GetType());
-                            }
+                                FieldInfo field = typeof(PlayerSpecificSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                                object activeValue = field.GetValue(playerSettings);
+                                if (json is string jsonString)
+                                {
+                                    json = Enum.Parse(typeof(EnvironmentEffectsFilterPreset), jsonString);
+                                }
+                                else if (json is IConvertible)
+                                {
+                                    json = Convert.ChangeType(json, activeValue.GetType());
+                                }
 
-                            if (json != null && !json.Equals(activeValue))
-                            {
-                                _contents.Add(new ListObject($"[Player Options] {name}", $"{activeValue} > {json}"));
-                                field.SetValue(modifiedPlayerSettings, json);
+                                if (!json.Equals(activeValue))
+                                {
+                                    _contents.Add(new ListObject($"[Player Options] {name}", $"{activeValue} > {json}"));
+                                    field.SetValue(modifiedPlayerSettings, json);
+                                }
                             }
                         }
 
@@ -172,35 +189,38 @@
                             string name = (string)settableGameplayModifier["_name"];
                             string fieldName = (string)settableGameplayModifier["_fieldName"];
 
-                            FieldInfo field = typeof(GameplayModifiers).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-                            object activeValue = field.GetValue(gameplayModifiers);
                             object? json = jsonModifiers.Get<object>(fieldName);
-                            if (json is string jsonString)
+                            if (json != null)
                             {
-                                switch (fieldName)
+                                FieldInfo field = typeof(GameplayModifiers).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                                object activeValue = field.GetValue(gameplayModifiers);
+                                if (json is string jsonString)
                                 {
-                                    case "_energyType":
-                                        json = Enum.Parse(typeof(GameplayModifiers.EnergyType), jsonString);
-                                        break;
+                                    switch (fieldName)
+                                    {
+                                        case "_energyType":
+                                            json = Enum.Parse(typeof(GameplayModifiers.EnergyType), jsonString);
+                                            break;
 
-                                    case "_enabledObstacleType":
-                                        json = Enum.Parse(typeof(GameplayModifiers.EnabledObstacleType), jsonString);
-                                        break;
+                                        case "_enabledObstacleType":
+                                            json = Enum.Parse(typeof(GameplayModifiers.EnabledObstacleType), jsonString);
+                                            break;
 
-                                    case "_songSpeed":
-                                        json = Enum.Parse(typeof(GameplayModifiers.SongSpeed), jsonString);
-                                        break;
+                                        case "_songSpeed":
+                                            json = Enum.Parse(typeof(GameplayModifiers.SongSpeed), jsonString);
+                                            break;
+                                    }
                                 }
-                            }
-                            else if (json is IConvertible)
-                            {
-                                json = Convert.ChangeType(json, activeValue.GetType());
-                            }
+                                else if (json is IConvertible)
+                                {
+                                    json = Convert.ChangeType(json, activeValue.GetType());
+                                }
 
-                            if (json != null && !json.Equals(activeValue))
-                            {
-                                _contents.Add(new ListObject($"[Modifiers] {name}", $"{activeValue} > {json}"));
-                                field.SetValue(modifiedGameplayModifiers, json);
+                                if (!json.Equals(activeValue))
+                                {
+                                    _contents.Add(new ListObject($"[Modifiers] {name}", $"{activeValue} > {json}"));
+                                    field.SetValue(modifiedGameplayModifiers, json);
+                                }
                             }
                         }
 
@@ -279,24 +299,50 @@
                             string name = (string)settableGraphicSetting["_name"];
                             string fieldName = (string)settableGraphicSetting["_fieldName"];
 
-                            // substring is to remove underscore
-                            object valueSO = typeof(MainSettingsModelSO).GetField(fieldName.Substring(1), BindingFlags.Instance | BindingFlags.Public).GetValue(mainSettingsModel);
-                            object activeValue = valueSO switch
-                            {
-                                BoolSO boolSO => boolSO.value,
-                                IntSO intSO => intSO.value,
-                                _ => throw new InvalidOperationException($"How the hell did you reach this? [{valueSO.GetType()}]"),
-                            };
                             object? json = jsonGraphics.Get<object>(fieldName);
-                            if (json is IConvertible)
+                            if (json != null)
                             {
-                                json = Convert.ChangeType(json, activeValue.GetType());
-                            }
+                                // substring is to remove underscore
+                                object valueSO = typeof(MainSettingsModelSO).GetField(fieldName.Substring(1), BindingFlags.Instance | BindingFlags.Public).GetValue(mainSettingsModel);
+                                object activeValue = valueSO switch
+                                {
+                                    BoolSO boolSO => boolSO.value,
+                                    IntSO intSO => intSO.value,
+                                    _ => throw new InvalidOperationException($"How the hell did you reach this? [{valueSO.GetType()}]"),
+                                };
+                                if (json is IConvertible)
+                                {
+                                    json = Convert.ChangeType(json, activeValue.GetType());
+                                }
 
-                            if (json != null && !json.Equals(activeValue))
+                                if (!json.Equals(activeValue))
+                                {
+                                    _contents.Add(new ListObject($"[Graphics] {name}", $"{activeValue} > {json}"));
+                                    typeof(SettableMainSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(_modifiedMainSettings, json);
+                                }
+                            }
+                        }
+                    }
+
+                    _settableSettingsToSet = null;
+                    foreach (KeyValuePair<string, Dictionary<string, ISettableSetting>> groupSettingPair in SettingSetterSettableSettingsManager.SettableSettings)
+                    {
+                        Dictionary<string, object?>? jsonGroup = settings.Get<Dictionary<string, object?>>(groupSettingPair.Key);
+                        if (jsonGroup != null)
+                        {
+                            _settableSettingsToSet = new List<Tuple<ISettableSetting, object>>();
+
+                            foreach (KeyValuePair<string, ISettableSetting> settableSettingPair in groupSettingPair.Value)
                             {
-                                _contents.Add(new ListObject($"[Graphics] {name}", $"{activeValue} > {json}"));
-                                typeof(SettableMainSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(_modifiedMainSettings, json);
+                                object? json = jsonGroup.Get<object>(settableSettingPair.Key);
+                                ISettableSetting settableSetting = settableSettingPair.Value;
+                                object activeValue = settableSetting.TrueValue;
+                                if (json != null && !json.Equals(activeValue))
+                                {
+                                    Plugin.Logger.Log($"{json} | {activeValue}");
+                                    _contents.Add(new ListObject($"[{settableSetting.GroupName}] {settableSetting.FieldName}", $"{activeValue} > {json}"));
+                                    _settableSettingsToSet.Add(new Tuple<ISettableSetting, object>(settableSetting, json));
+                                }
                             }
                         }
                     }
@@ -305,7 +351,7 @@
                     {
                         if (_contentObject != null)
                         {
-                            Destroy(_contentObject.transform.parent.gameObject);
+                            Destroy(_contentObject);
                         }
 
                         DoPresent = true;
@@ -325,6 +371,8 @@
         private void OnDeclineClick()
         {
             _cachedMainSettings = null;
+            _modifiedMainSettings = null;
+            _settableSettingsToSet = null;
             StartWithParameters(_defaultParameters);
         }
 
@@ -339,6 +387,7 @@
             if (!force)
             {
                 _cachedParameters = startParameters;
+
                 if (_modifiedMainSettings != null)
                 {
                     Plugin.Logger.Log($"Main settings modified.", IPA.Logging.Logger.Level.Trace);
@@ -350,6 +399,16 @@
                     MainSettings.maxShockwaveParticles.value = _modifiedMainSettings.MaxShockwaveParticles;
                     _modifiedMainSettings = null;
                     _mainSystemInit!.Init();
+                }
+
+                if (_settableSettingsToSet != null)
+                {
+                    foreach (Tuple<ISettableSetting, object> tuple in _settableSettingsToSet)
+                    {
+                        ISettableSetting settableSetting = tuple.Item1;
+                        Plugin.Logger.Log($"Set settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}] to [{tuple.Item2}].", IPA.Logging.Logger.Level.Trace);
+                        settableSetting.SetTemporary(tuple.Item2);
+                    }
                 }
             }
 

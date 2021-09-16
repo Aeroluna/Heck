@@ -22,7 +22,14 @@
 
         public void Log(string message, Logger.Level level = Logger.Level.Debug, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
         {
-            IPALogger.Log(level, $"{member}({line}): {message}");
+            if (Plugin.CumDump)
+            {
+                IPALogger.Log(level, $"{member}({line}): {message}");
+            }
+            else
+            {
+                IPALogger.Log(level, message);
+            }
         }
 
         public void PrintHarmonyInfo(MethodBase method)

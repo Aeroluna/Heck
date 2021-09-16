@@ -30,6 +30,8 @@
         private static bool _hasInited;
         private static GameScenesManager? _gameScenesManager;
 
+        internal static bool CumDump { get; private set; }
+
 #pragma warning disable CS8618
         internal static HeckLogger Logger { get; private set; }
 #pragma warning restore CS8618
@@ -37,6 +39,16 @@
         [Init]
         public void Init(IPALogger pluginLogger)
         {
+            string[] arguments = System.Environment.GetCommandLineArgs();
+            foreach (string arg in arguments)
+            {
+                if (arg.ToLower() == "-cumdump")
+                {
+                    CumDump = true;
+                    Logger.Log("[-cumdump] launch argument detected, running in Cum Dump mode.");
+                }
+            }
+
             Logger = new HeckLogger(pluginLogger);
             SettingsSetter.SettingSetterSettableSettingsManager.SetupSettingsTable();
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
