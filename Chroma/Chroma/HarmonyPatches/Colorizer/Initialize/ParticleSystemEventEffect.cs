@@ -36,7 +36,6 @@
         {
             if (beatmapEventData.type == ____colorEvent)
             {
-                // Some redundancy here but fuck it
                 ____colorEvent.GetParticleColorizers().ForEach(n => n.PreviousValue = beatmapEventData.value);
             }
         }

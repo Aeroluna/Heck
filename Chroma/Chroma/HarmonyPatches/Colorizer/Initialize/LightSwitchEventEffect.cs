@@ -32,4 +32,18 @@
             LightColorizer.Colorizers.Remove(____event);
         }
     }
+
+    [HarmonyPatch(typeof(LightSwitchEventEffect))]
+    [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
+    internal static class LightSwitchEventEffectSetLastEvent
+    {
+        private static void Prefix(BeatmapEventData beatmapEventData, BeatmapEventType ____event)
+        {
+            if (beatmapEventData.type == ____event)
+            {
+                // Who just looks through source code? you weirdo.....
+                ____event.GetLightColorizer().PreviousEvent = beatmapEventData;
+            }
+        }
+    }
 }

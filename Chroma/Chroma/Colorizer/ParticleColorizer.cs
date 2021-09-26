@@ -59,6 +59,7 @@
             return colorizers;
         }
 
+        // Day 124789 of particles not having color boost code
         private void OnLightColorChanged(BeatmapEventType eventType, Color[] colors)
         {
             if (eventType == _eventType)

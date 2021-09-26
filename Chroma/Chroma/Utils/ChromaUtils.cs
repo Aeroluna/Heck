@@ -31,5 +31,10 @@
                 SongCore.Collections.DeregisterizeCapability(capability);
             }
         }
+
+        internal static Color MultAlpha(this Color color, float alpha)
+        {
+            return color.ColorWithAlpha(color.a * alpha);
+        }
     }
 }

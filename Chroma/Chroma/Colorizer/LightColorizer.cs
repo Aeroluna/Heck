@@ -5,8 +5,10 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Chroma.Utils;
     using HarmonyLib;
     using IPA.Utilities;
+    using Tweening;
     using UnityEngine;
 
     public class LightColorizer
@@ -18,9 +20,14 @@
         private static readonly FieldAccessor<MultipliedColorSO, Color>.Accessor _multiplierColorAccessor = FieldAccessor<MultipliedColorSO, Color>.GetAccessor("_multiplierColor");
         private static readonly FieldAccessor<MultipliedColorSO, SimpleColorSO>.Accessor _baseColorAccessor = FieldAccessor<MultipliedColorSO, SimpleColorSO>.GetAccessor("_baseColor");
 
-        private static readonly FieldAccessor<LightSwitchEventEffect, int>.Accessor _prevValueAccessor = FieldAccessor<LightSwitchEventEffect, int>.GetAccessor("_prevLightSwitchBeatmapEventDataValue");
         private static readonly FieldAccessor<LightSwitchEventEffect, LightWithIdManager>.Accessor _lightManagerAccessor = FieldAccessor<LightSwitchEventEffect, LightWithIdManager>.GetAccessor("_lightManager");
         private static readonly FieldAccessor<LightWithIdManager, List<ILightWithId>[]>.Accessor _lightsAccessor = FieldAccessor<LightWithIdManager, List<ILightWithId>[]>.GetAccessor("_lights");
+
+        private static readonly FieldAccessor<LightSwitchEventEffect, bool>.Accessor _usingBoostColorAccessor = FieldAccessor<LightSwitchEventEffect, bool>.GetAccessor("_usingBoostColors");
+        private static readonly FieldAccessor<LightSwitchEventEffect, float>.Accessor _offColorIntensityAccessor = FieldAccessor<LightSwitchEventEffect, float>.GetAccessor("_offColorIntensity");
+
+        private static readonly FieldAccessor<LightSwitchEventEffect, ColorTween>.Accessor _colorTweenAccessor = FieldAccessor<LightSwitchEventEffect, ColorTween>.GetAccessor("_colorTween");
+        private static readonly FieldAccessor<LightSwitchEventEffect, Color>.Accessor _alternativeToColorAccessor = FieldAccessor<LightSwitchEventEffect, Color>.GetAccessor("_alternativeToColor");
 
         private readonly LightSwitchEventEffect _lightSwitchEventEffect;
         private readonly BeatmapEventType _eventType;
@@ -117,6 +124,9 @@
             }
         }
 
+        // Possibly need to check _lightOnStart?
+        internal BeatmapEventData PreviousEvent { get; set; } = new BeatmapEventData(-1, BeatmapEventType.Event0, 0, 0);
+
         public static void GlobalColorize(bool refresh, params Color?[] colors)
         {
             for (int i = 0; i < colors.Length; i++)
@@ -170,14 +180,12 @@
                 _colors[i] = colors[i];
             }
 
+            SetSOs(Color);
+
             // Allow light colorizer to not force color
             if (refresh)
             {
                 Refresh();
-            }
-            else
-            {
-                SetSOs(Color);
             }
         }
 
@@ -201,11 +209,94 @@
 
         private void Refresh()
         {
-            Color[] colors = Color;
-            SetSOs(colors);
-
             LightSwitchEventEffect lightSwitchEventEffect = _lightSwitchEventEffect;
-            _lightSwitchEventEffect.ProcessLightSwitchEvent(_prevValueAccessor(ref lightSwitchEventEffect), true);
+            bool boost = _usingBoostColorAccessor(ref lightSwitchEventEffect);
+            BeatmapEventData beatmapEventData = PreviousEvent;
+            int previousValue = beatmapEventData.value;
+            float previousFloatValue = beatmapEventData.floatValue;
+
+            // I was very happy when beat games had their own method to do this, but then they removed it.....
+            // seriously the way they do boost colors now is so janky
+            // LOOK AT THIS SHIT
+            void CheckNextEventForFade()
+            {
+                BeatmapEventData nextSameTypeEvent = beatmapEventData.nextSameTypeEvent;
+                if (nextSameTypeEvent != null && (nextSameTypeEvent.value == 4 || nextSameTypeEvent.value == 8))
+                {
+                    float nextFloatValue = nextSameTypeEvent.floatValue;
+                    int nextValue = nextSameTypeEvent.value;
+                    Color nextColor = _lightSwitchEventEffect.GetNormalColor(nextValue, boost).MultAlpha(nextFloatValue);
+                    Color nextAltColor = _lightSwitchEventEffect.GetNormalColor(nextValue, !boost).MultAlpha(nextFloatValue);
+                    Color prevColor = _colorTweenAccessor(ref lightSwitchEventEffect).toValue;
+                    Color prevAltColor = _alternativeToColorAccessor(ref lightSwitchEventEffect);
+                    if (previousValue == 0)
+                    {
+                        prevColor = nextColor.ColorWithAlpha(0f);
+                        prevAltColor = nextAltColor.ColorWithAlpha(0f);
+                    }
+                    else if (!_lightSwitchEventEffect.IsFixedDurationLightSwitch(previousValue))
+                    {
+                        prevColor = _lightSwitchEventEffect.GetNormalColor(previousValue, boost).MultAlpha(previousFloatValue);
+                        prevAltColor = _lightSwitchEventEffect.GetNormalColor(previousValue, !boost).MultAlpha(previousFloatValue);
+                    }
+
+                    _lightSwitchEventEffect.SetupTweenAndSaveOtherColors(prevColor, nextColor, prevAltColor, nextAltColor);
+                }
+            }
+
+            switch (previousValue)
+            {
+                case 0:
+                    {
+                        // unfortunately, we cant get whether its color 0 or color 1, so we just always default color0 (unless i wanna get super pepega and implement that)
+                        float offAlpha = _offColorIntensityAccessor(ref lightSwitchEventEffect) * previousFloatValue;
+                        Color color = _lightSwitchEventEffect.GetNormalColor(0, boost).ColorWithAlpha(offAlpha);
+                        Color altColor = _lightSwitchEventEffect.GetNormalColor(0, !boost).ColorWithAlpha(offAlpha);
+                        _lightSwitchEventEffect.SetupTweenAndSaveOtherColors(color, color, altColor, altColor);
+                        CheckNextEventForFade();
+                    }
+
+                    break;
+
+                case 1:
+                case 5:
+                case 4:
+                case 8:
+                    {
+                        Color color = _lightSwitchEventEffect.GetNormalColor(previousValue, boost).MultAlpha(previousFloatValue);
+                        Color altColor = _lightSwitchEventEffect.GetNormalColor(previousValue, !boost).MultAlpha(previousFloatValue);
+                        _lightSwitchEventEffect.SetupTweenAndSaveOtherColors(color, color, altColor, altColor);
+                        CheckNextEventForFade();
+                    }
+
+                    break;
+
+                case 2:
+                case 6:
+                    {
+                        Color colorFrom = _lightSwitchEventEffect.GetHighlightColor(previousValue, boost).MultAlpha(previousFloatValue);
+                        Color colorTo = _lightSwitchEventEffect.GetNormalColor(previousValue, boost).MultAlpha(previousFloatValue);
+                        Color altColorFrom = _lightSwitchEventEffect.GetHighlightColor(previousValue, !boost).MultAlpha(previousFloatValue);
+                        Color altColorTo = _lightSwitchEventEffect.GetNormalColor(previousValue, !boost).MultAlpha(previousFloatValue);
+                        _lightSwitchEventEffect.SetupTweenAndSaveOtherColors(colorFrom, colorTo, altColorFrom, altColorTo);
+                    }
+
+                    break;
+
+                case 3:
+                case 7:
+                case -1:
+                    {
+                        float offAlpha = _offColorIntensityAccessor(ref lightSwitchEventEffect) * previousFloatValue;
+                        Color colorFrom = _lightSwitchEventEffect.GetHighlightColor(previousValue, boost).MultAlpha(previousFloatValue);
+                        Color colorTo = _lightSwitchEventEffect.GetNormalColor(previousValue, boost).ColorWithAlpha(offAlpha);
+                        Color altColorFrom = _lightSwitchEventEffect.GetHighlightColor(previousValue, !boost).MultAlpha(previousFloatValue);
+                        Color altColorTo = _lightSwitchEventEffect.GetNormalColor(previousValue, !boost).ColorWithAlpha(offAlpha);
+                        _lightSwitchEventEffect.SetupTweenAndSaveOtherColors(colorFrom, colorTo, altColorFrom, altColorTo);
+                    }
+
+                    break;
+            }
         }
 
         private void InitializeSO(string id, int index)
