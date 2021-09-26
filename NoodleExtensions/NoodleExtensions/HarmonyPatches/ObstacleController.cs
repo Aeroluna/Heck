@@ -294,11 +294,9 @@
                     transform.localRotation = worldRotationQuatnerion;
                 }
 
-                bool cuttableEnabled = true;
                 if (cuttable.HasValue)
                 {
-                    cuttableEnabled = cuttable.Value >= 1;
-                    if (cuttableEnabled)
+                    if (cuttable.Value >= 1)
                     {
                         if (____bounds.size != Vector3.zero)
                         {
