@@ -121,6 +121,7 @@
     <EmbeddedResource Include="LightIDTables\KaleidoscopeEnvironment.json" />
     <EmbeddedResource Include="LightIDTables\InterscopeEnvironment.json" />
     <EmbeddedResource Include="LightIDTables\SkrillexEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\BillieEnvironment.json" />
     <EmbeddedResource Include="Settings\modifiers.bsml" />
   </ItemGroup>
 
