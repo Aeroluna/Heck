@@ -59,7 +59,7 @@
                             }
                             catch
                             {
-                                Plugin.Logger.Log($"Exception while patching [{n.OriginalMethod}] of [{n.OriginalMethod.DeclaringType}].", IPA.Logging.Logger.Level.Critical);
+                                Plugin.Logger.Log($"[{id.Id}] Exception while patching [{n.OriginalMethod}] of [{n.OriginalMethod.DeclaringType}].", IPA.Logging.Logger.Level.Critical);
                                 throw;
                             }
                         });
