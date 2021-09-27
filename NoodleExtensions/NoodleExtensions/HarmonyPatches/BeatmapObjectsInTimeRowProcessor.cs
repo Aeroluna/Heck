@@ -29,7 +29,7 @@
 
                     if (!notesInColumns.TryGetValue(lineIndex, out List<CustomNoteData> list))
                     {
-                        list = new List<CustomNoteData>();
+                        list = new List<CustomNoteData>(1);
                         notesInColumns.Add(lineIndex, list);
                     }
 
