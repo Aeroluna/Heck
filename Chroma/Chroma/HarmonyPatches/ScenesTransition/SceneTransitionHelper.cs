@@ -26,7 +26,7 @@
                 {
                     if (chromaRequirement &&
                         !ChromaConfig.Instance.EnvironmentEnhancementsDisabled &&
-                        ((customBeatmapData.beatmapCustomData.Get<List<object>>(Plugin.ENVIRONMENTREMOVAL)?.Any() ?? false) || (customBeatmapData.customData.Get<Dictionary<string, object>>(Plugin.ENVIRONMENT)?.Any() ?? false)))
+                        ((customBeatmapData.beatmapCustomData.Get<List<object>>(Plugin.ENVIRONMENTREMOVAL)?.Any() ?? false) || (customBeatmapData.customData.Get<List<object>>(Plugin.ENVIRONMENT)?.Any() ?? false)))
                     {
                         overrideEnvironmentSettings = null;
                     }

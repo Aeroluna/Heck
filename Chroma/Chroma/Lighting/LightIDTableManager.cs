@@ -8,15 +8,15 @@
 
     internal static class LightIDTableManager
     {
-        private static readonly Dictionary<string, Dictionary<int, int>[]> _lightIDTable = new Dictionary<string, Dictionary<int, int>[]>();
+        private static readonly Dictionary<string, Dictionary<int, Dictionary<int, int>>> _lightIDTable = new Dictionary<string, Dictionary<int, Dictionary<int, int>>>();
 
-        private static Dictionary<int, int>[]? _activeTable;
+        private static Dictionary<int, Dictionary<int, int>>? _activeTable;
 
         internal static int? GetActiveTableValue(int type, int id)
         {
             if (_activeTable != null)
             {
-                if (_activeTable[type].TryGetValue(id, out int newId))
+                if (_activeTable.TryGetValue(type, out Dictionary<int, int> dictioanry) && dictioanry.TryGetValue(id, out int newId))
                 {
                     return newId;
                 }
@@ -31,9 +31,9 @@
 
         internal static void SetEnvironment(string environmentName)
         {
-            if (_lightIDTable.TryGetValue(environmentName, out Dictionary<int, int>[] activeTable))
+            if (_lightIDTable.TryGetValue(environmentName, out Dictionary<int, Dictionary<int, int>> activeTable))
             {
-                _activeTable = activeTable.Select(n => new Dictionary<int, int>(n)).ToArray();
+                _activeTable = activeTable.ToDictionary(n => n.Key, n => n.Value.ToDictionary(m => m.Key, m => m.Value));
             }
             else
             {
@@ -46,26 +46,32 @@
         {
             if (_activeTable != null)
             {
-                Dictionary<int, int> dictioanry = _activeTable[type];
-                int key;
-
-                if (requestedKey.HasValue)
+                if (_activeTable.TryGetValue(type, out Dictionary<int, int> dictioanry))
                 {
-                    key = requestedKey.Value;
-                    while (dictioanry.ContainsKey(key))
+                    int key;
+
+                    if (requestedKey.HasValue)
                     {
-                        key++;
+                        key = requestedKey.Value;
+                        while (dictioanry.ContainsKey(key))
+                        {
+                            key++;
+                        }
+                    }
+                    else
+                    {
+                        key = dictioanry.Keys.Max() + 1;
+                    }
+
+                    dictioanry.Add(key, index);
+                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                    {
+                        Plugin.Logger.Log($"Registered key [{key}] to type [{type}].");
                     }
                 }
                 else
                 {
-                    key = dictioanry.Keys.Max() + 1;
-                }
-
-                dictioanry.Add(key, index);
-                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
-                {
-                    Plugin.Logger.Log($"Registered key [{key}] to type [{type}]");
+                    Plugin.Logger.Log($"Table does not contain type [{type}].", IPA.Logging.Logger.Level.Warning);
                 }
             }
             else
@@ -82,7 +88,7 @@
             foreach (string tableName in tableNames)
             {
                 using JsonReader reader = new JsonTextReader(new StreamReader(assembly.GetManifestResourceStream(tableName)));
-                Dictionary<int, int>[] typeTable = new Dictionary<int, int>[8];
+                Dictionary<int, Dictionary<int, int>> typeTable = new Dictionary<int, Dictionary<int, int>>();
 
                 JsonSerializer serializer = new JsonSerializer();
                 Dictionary<string, Dictionary<string, int>> rawDict = serializer.Deserialize<Dictionary<string, Dictionary<string, int>>>(reader) ?? throw new System.InvalidOperationException($"Failed to deserialize ID table [{tableName}].");

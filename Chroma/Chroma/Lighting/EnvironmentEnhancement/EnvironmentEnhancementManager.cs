@@ -94,17 +94,17 @@
                     int? lightID = gameObjectData.Get<int?>(LIGHTID);
 
                     List<GameObjectInfo> foundObjects = LookupID(id, lookupMethod);
-                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                    if (foundObjects.Count > 0)
                     {
-                        if (foundObjects.Count > 0)
+                        if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                         {
                             Plugin.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
                             foundObjects.ForEach(n => Plugin.Logger.Log(n.FullID));
                         }
-                        else
-                        {
-                            Plugin.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.", IPA.Logging.Logger.Level.Error);
-                        }
+                    }
+                    else
+                    {
+                        Plugin.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.", IPA.Logging.Logger.Level.Error);
                     }
 
                     List<GameObjectInfo> gameObjectInfos;
