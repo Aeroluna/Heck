@@ -18,21 +18,6 @@
     }
 
     [HarmonyPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator))]
-    [HarmonyPatch("HandleStandardLevelDidFinish")]
-    internal static class SinglePlayerLevelSelectionFlowCoordinatorHandleStandardLevelDidFinish
-    {
-        private static readonly Action<FlowCoordinator, ViewController, ViewController.AnimationDirection, Action?, bool> _dismissViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, ViewController.AnimationDirection, Action?, bool>>.GetDelegate("DismissViewController");
-
-        private static void Prefix(SinglePlayerLevelSelectionFlowCoordinator __instance, LevelCompletionResults levelCompletionResults)
-        {
-            if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.Restart && __instance.topViewController == SettingsSetterViewController.Instance)
-            {
-                _dismissViewController(__instance, SettingsSetterViewController.Instance, ViewController.AnimationDirection.Horizontal, null, true);
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator))]
     [HarmonyPatch("HandleBasicLevelCompletionResults")]
     internal static class SinglePlayerLevelSelectionFlowCoordinatorHandleBasicLevelCompletionResults
     {
