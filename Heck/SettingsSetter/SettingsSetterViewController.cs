@@ -15,6 +15,7 @@
 
     internal class SettingsSetterViewController : BSMLResourceViewController
     {
+        private static readonly Action<FlowCoordinator, ViewController, AnimationDirection, Action?, bool> _dismissViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, AnimationDirection, Action?, bool>>.GetDelegate("DismissViewController");
         private static readonly Action<FlowCoordinator, ViewController, Action?, AnimationDirection, bool> _presentViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, Action?, AnimationDirection, bool>>.GetDelegate("PresentViewController");
 
         private static SettingsSetterViewController? _instance;
@@ -374,12 +375,19 @@
             _modifiedMainSettings = null;
             _settableSettingsToSet = null;
             StartWithParameters(_defaultParameters);
+            Dismiss();
         }
 
         [UIAction("accept-click")]
         private void OnAcceptClick()
         {
             StartWithParameters(_modifiedParameters);
+            Dismiss();
+        }
+
+        private void Dismiss()
+        {
+            _dismissViewController(ActiveFlowCoordinator, this, AnimationDirection.Horizontal, null, false);
         }
 
         private void StartWithParameters(StartStandardLevelParameters startParameters, bool force = false)
