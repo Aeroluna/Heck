@@ -253,6 +253,7 @@
                         Color color = _lightSwitchEventEffect.GetNormalColor(0, boost).ColorWithAlpha(offAlpha);
                         Color altColor = _lightSwitchEventEffect.GetNormalColor(0, !boost).ColorWithAlpha(offAlpha);
                         _lightSwitchEventEffect.SetupTweenAndSaveOtherColors(color, color, altColor, altColor);
+                        _lightSwitchEventEffect.SetColor(color); // HOW DO YOU FORGET TO SET THE FUCKING COLOR???????????????
                         CheckNextEventForFade();
                     }
 
@@ -266,6 +267,7 @@
                         Color color = _lightSwitchEventEffect.GetNormalColor(previousValue, boost).MultAlpha(previousFloatValue);
                         Color altColor = _lightSwitchEventEffect.GetNormalColor(previousValue, !boost).MultAlpha(previousFloatValue);
                         _lightSwitchEventEffect.SetupTweenAndSaveOtherColors(color, color, altColor, altColor);
+                        _lightSwitchEventEffect.SetColor(color);
                         CheckNextEventForFade();
                     }
 
