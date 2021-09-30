@@ -340,7 +340,6 @@
                                 object activeValue = settableSetting.TrueValue;
                                 if (json != null && !json.Equals(activeValue))
                                 {
-                                    Plugin.Logger.Log($"{json} | {activeValue}");
                                     _contents.Add(new ListObject($"[{settableSetting.GroupName}] {settableSetting.FieldName}", $"{activeValue} > {json}"));
                                     _settableSettingsToSet.Add(new Tuple<ISettableSetting, object>(settableSetting, json));
                                 }
