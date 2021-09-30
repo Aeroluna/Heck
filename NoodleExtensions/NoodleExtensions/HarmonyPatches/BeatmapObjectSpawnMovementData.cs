@@ -73,7 +73,7 @@
     [HeckPatch("GetJumpingNoteSpawnData")]
     internal static class BeatmapObjectSpawnMovementDataGetJumpingNoteSpawnData
     {
-        private static void Postfix(BeatmapObjectSpawnMovementData __instance, Vector3 ____centerPos, NoteData noteData, ref BeatmapObjectSpawnMovementData.NoteSpawnData __result)
+        private static void Postfix(BeatmapObjectSpawnMovementData __instance, Vector3 ____centerPos, float ____jumpDuration, NoteData noteData, ref BeatmapObjectSpawnMovementData.NoteSpawnData __result)
         {
             NoodleNoteData? noodleData = TryGetObjectData<NoodleNoteData>(noteData);
             if (noodleData == null)
@@ -91,19 +91,18 @@
             float? startRow = noodleData.StartX;
             float? startHeight = noodleData.StartY;
 
-            ////float jumpDuration = ____jumpDuration;
+            float jumpDuration = ____jumpDuration;
 
             ////Vector3 moveStartPos = __result.moveStartPos;
             ////Vector3 moveEndPos = __result.moveEndPos;
             ////Vector3 jumpEndPos = __result.jumpEndPos;
-            ////float jumpGravity = __result.jumpGravity;
+            float jumpGravity = __result.jumpGravity;
 
             Vector3 noteOffset = GetNoteOffset(noteData, startRow, startlinelayer ?? (float)noteData.beforeJumpNoteLineLayer);
 
             if (startRow.HasValue || startHeight.HasValue || flipLineIndex.HasValue || njs.HasValue || spawnoffset.HasValue || startlinelayer.HasValue || gravityOverride)
             {
-                GetNoteJumpValues(njs, spawnoffset, out float localJumpDuration, out float localJumpDistance, out Vector3 localMoveStartPos, out Vector3 localMoveEndPos, out Vector3 localJumpEndPos);
-                ////jumpDuration = localJumpDuration;
+                GetNoteJumpValues(njs, spawnoffset, out jumpDuration, out float localJumpDistance, out Vector3 localMoveStartPos, out Vector3 localMoveEndPos, out Vector3 localJumpEndPos);
 
                 float localNoteJumpMovementSpeed = njs ?? NoteJumpMovementSpeed;
 
@@ -113,8 +112,13 @@
                 // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
                 float highestJump = startHeight.HasValue ? (0.875f * lineYPos) + 0.639583f + JumpOffsetY :
                     __instance.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
-                float jumpGravity = 2f * (highestJump - (gravityOverride ? lineYPos : startLayerLineYPos)) /
+
+                float GetJumpGravity(float lineYPos) => 2f * (highestJump - (gravityOverride ? lineYPos : startLayerLineYPos)) /
                     Mathf.Pow(localJumpDistance / localNoteJumpMovementSpeed * 0.5f, 2f);
+
+                jumpGravity = GetJumpGravity(startLayerLineYPos);
+
+                float newJumpGravity = gravityOverride ? GetJumpGravity(lineYPos) : jumpGravity;
 
                 Vector3 jumpEndPos = localJumpEndPos + noteOffset;
 
@@ -123,12 +127,15 @@
                 Vector3 moveStartPos = localMoveStartPos + noteOffset2;
                 Vector3 moveEndPos = localMoveEndPos + noteOffset2;
 
-                __result = new BeatmapObjectSpawnMovementData.NoteSpawnData(moveStartPos, moveEndPos, jumpEndPos, jumpGravity, __result.moveDuration, localJumpDuration);
+                __result = new BeatmapObjectSpawnMovementData.NoteSpawnData(moveStartPos, moveEndPos, jumpEndPos, newJumpGravity, __result.moveDuration, jumpDuration);
             }
 
             // DEFINITE POSITION IS WEIRD, OK?
-            // recalculate note offset w/o startlinelayer or flip
-            noodleData.NoteOffset = ____centerPos + GetNoteOffset(noteData, startRow, startHeight);
+            // fuck
+            float num = jumpDuration * 0.5f;
+            float startVerticalVelocity = jumpGravity * num;
+            float yOffset = (startVerticalVelocity * num) - (jumpGravity * num * num * 0.5f);
+            noodleData.NoteOffset = ____centerPos + noteOffset + new Vector3(0, yOffset, 0);
         }
     }
 }
