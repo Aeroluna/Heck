@@ -84,8 +84,6 @@
 
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
 
-            ChromaUtils.SetSongCoreCapability(REQUIREMENTNAME, !ChromaConfig.Instance.ChromaEventsDisabled);
-
             SceneManager.activeSceneChanged += ChromaController.OnActiveSceneChanged;
 
             // Legacy support

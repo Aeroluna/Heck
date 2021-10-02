@@ -16,7 +16,12 @@
         public bool ChromaEventsDisabled
         {
             get => ChromaEventsDisabledSetting.Value;
-            set => ChromaEventsDisabledSetting.Value = value;
+            set
+            {
+                ChromaEventsDisabledSetting.Value = value;
+                Utils.ChromaUtils.SetSongCoreCapability(Plugin.REQUIREMENTNAME, !ChromaEventsDisabledSetting.Value);
+                SongCore.Loader.Instance?.RefreshSongs();
+            }
         }
 
         public bool EnvironmentEnhancementsDisabled
@@ -47,14 +52,6 @@
             SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_disableChromaEvents", ChromaEventsDisabledSetting);
             SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_disableEnvironmentEnhancements", EnvironmentEnhancementsDisabledSetting);
             SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_forceZenModeWalls", ForceZenWallsEnabledSetting);
-
-            ChromaEventsDisabledSetting.ValueChanged += ChromaEventsDidChange;
-        }
-
-        internal static void ChromaEventsDidChange()
-        {
-            Utils.ChromaUtils.SetSongCoreCapability(Plugin.REQUIREMENTNAME, !ChromaEventsDisabledSetting.Value);
-            SongCore.Loader.Instance?.RefreshSongs();
         }
     }
 }
