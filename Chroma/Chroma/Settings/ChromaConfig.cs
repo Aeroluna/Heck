@@ -30,6 +30,12 @@
             set => EnvironmentEnhancementsDisabledSetting.Value = value;
         }
 
+        public bool NoteColoringDisabled
+        {
+            get => NoteColoringDisabledSetting.Value;
+            set => NoteColoringDisabledSetting.Value = value;
+        }
+
         public bool ForceZenWallsEnabled
         {
             get => ForceZenWallsEnabledSetting.Value;
@@ -45,12 +51,15 @@
 
         internal static SettableSetting<bool> EnvironmentEnhancementsDisabledSetting { get; } = new SettableSetting<bool>("Chroma", "Disable Environment Enhancements");
 
+        internal static SettableSetting<bool> NoteColoringDisabledSetting { get; } = new SettableSetting<bool>("Chroma", "Disable Note Coloring");
+
         internal static SettableSetting<bool> ForceZenWallsEnabledSetting { get; } = new SettableSetting<bool>("Chroma", "Force Zen Mode Walls");
 
         internal static void SetupSettableSettings()
         {
             SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_disableChromaEvents", ChromaEventsDisabledSetting);
             SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_disableEnvironmentEnhancements", EnvironmentEnhancementsDisabledSetting);
+            SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_disableNoteColoring", NoteColoringDisabledSetting);
             SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_forceZenModeWalls", ForceZenWallsEnabledSetting);
         }
     }

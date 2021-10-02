@@ -18,34 +18,37 @@
 
         private static void Postfix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
-            ChromaObjectData? chromaData = TryGetObjectData<ChromaObjectData>(____noteData);
-            if (chromaData == null)
+            if (!Settings.ChromaConfig.Instance.NoteColoringDisabled)
             {
-                return;
-            }
-
-            IEnumerable<Track>? tracks = chromaData.Track;
-            PointDefinition? pathPointDefinition = chromaData.LocalPathColor;
-            if (tracks != null || pathPointDefinition != null)
-            {
-                NoteJump noteJump = _noteJumpAccessor(ref ____noteMovement);
-
-                float jumpDuration = _jumpDurationAccessor(ref noteJump);
-                float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - (jumpDuration * 0.5f));
-                float normalTime = elapsedTime / jumpDuration;
-
-                Chroma.AnimationHelper.GetColorOffset(pathPointDefinition, tracks, normalTime, out Color? colorOffset);
-
-                if (colorOffset.HasValue)
+                ChromaObjectData? chromaData = TryGetObjectData<ChromaObjectData>(____noteData);
+                if (chromaData == null)
                 {
-                    Color color = colorOffset.Value;
-                    if (__instance is BombNoteController)
+                    return;
+                }
+
+                IEnumerable<Track>? tracks = chromaData.Track;
+                PointDefinition? pathPointDefinition = chromaData.LocalPathColor;
+                if (tracks != null || pathPointDefinition != null)
+                {
+                    NoteJump noteJump = _noteJumpAccessor(ref ____noteMovement);
+
+                    float jumpDuration = _jumpDurationAccessor(ref noteJump);
+                    float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - (jumpDuration * 0.5f));
+                    float normalTime = elapsedTime / jumpDuration;
+
+                    Chroma.AnimationHelper.GetColorOffset(pathPointDefinition, tracks, normalTime, out Color? colorOffset);
+
+                    if (colorOffset.HasValue)
                     {
-                        __instance.ColorizeBomb(color);
-                    }
-                    else
-                    {
-                        __instance.ColorizeNote(color);
+                        Color color = colorOffset.Value;
+                        if (__instance is BombNoteController)
+                        {
+                            __instance.ColorizeBomb(color);
+                        }
+                        else
+                        {
+                            __instance.ColorizeNote(color);
+                        }
                     }
                 }
             }

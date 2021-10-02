@@ -10,7 +10,7 @@
     {
         private static void Postfix(NoteControllerBase noteController)
         {
-            if (noteController is NoteController)
+            if (!Settings.ChromaConfig.Instance.NoteColoringDisabled && noteController is NoteController)
             {
                 ChromaNoteData? chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
                 if (chromaData != null)

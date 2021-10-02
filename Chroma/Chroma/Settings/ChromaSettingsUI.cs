@@ -19,6 +19,13 @@
             set => ChromaConfig.Instance.EnvironmentEnhancementsDisabled = value;
         }
 
+        [UIValue("notecolors")]
+        public bool NoteColoringDisabled
+        {
+            get => ChromaConfig.Instance.NoteColoringDisabled;
+            set => ChromaConfig.Instance.NoteColoringDisabled = value;
+        }
+
         [UIValue("zenwalls")]
         public bool ForceZenWallsEnabled
         {
