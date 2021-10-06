@@ -1,6 +1,8 @@
 # Heck
 heck
 
+Documentation: https://github.com/Aeroluna/Heck/wiki
+
 ## Capabilities
 - Having undescriptive description.
 - Handle tracks and track animation events.
