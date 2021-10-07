@@ -21,9 +21,9 @@
     [HarmonyPatch("HandleBasicLevelCompletionResults")]
     internal static class SinglePlayerLevelSelectionFlowCoordinatorHandleBasicLevelCompletionResults
     {
-        private static bool Prefix(SinglePlayerLevelSelectionFlowCoordinator __instance, LevelCompletionResults levelCompletionResults)
+        private static bool Prefix(LevelCompletionResults levelCompletionResults)
         {
-            if (levelCompletionResults.levelEndAction == LevelCompletionResults.LevelEndAction.Restart && __instance.topViewController == SettingsSetterViewController.Instance)
+            if (levelCompletionResults.levelEndAction == LevelCompletionResults.LevelEndAction.Restart && SettingsSetterViewController.Instance.DoPresent)
             {
                 SettingsSetterViewController.Instance.ForceStart();
                 return false;
