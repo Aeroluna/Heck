@@ -39,40 +39,31 @@
             Action beforeSceneSwitchCallback,
             Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults> levelFinishedCallback)
         {
-            // When in doubt, wrap everything in one big try catch statement!
-            try
+            // In a perfect world I would patch SingePlayerLevelSelectionFlowCoordinator instead, but im a lazy mf
+            // SO WEIRD STACK TRACE JANKINESS WE GO!!!
+            StackTrace stackTrace = new StackTrace();
+            if (stackTrace.GetFrame(2).GetMethod().Name.Contains("SinglePlayerLevelSelectionFlowCoordinator"))
             {
-                // In a perfect world I would patch SingePlayerLevelSelectionFlowCoordinator instead, but im a lazy mf
-                // SO WEIRD STACK TRACE JANKINESS WE GO!!!
-                StackTrace stackTrace = new StackTrace();
-                if (stackTrace.GetFrame(2).GetMethod().Name.Contains("SinglePlayerLevelSelectionFlowCoordinator"))
-                {
-                    SettingsSetterViewController.StartStandardLevelParameters startStandardLevelParameters = new SettingsSetterViewController.StartStandardLevelParameters(
-                        gameMode,
-                        difficultyBeatmap,
-                        previewBeatmapLevel,
-                        overrideEnvironmentSettings,
-                        overrideColorScheme,
-                        gameplayModifiers,
-                        playerSpecificSettings,
-                        practiceSettings,
-                        backButtonText,
-                        useTestNoteCutSoundEffects,
-                        beforeSceneSwitchCallback,
-                        levelFinishedCallback);
+                SettingsSetterViewController.StartStandardLevelParameters startStandardLevelParameters = new SettingsSetterViewController.StartStandardLevelParameters(
+                    gameMode,
+                    difficultyBeatmap,
+                    previewBeatmapLevel,
+                    overrideEnvironmentSettings,
+                    overrideColorScheme,
+                    gameplayModifiers,
+                    playerSpecificSettings,
+                    practiceSettings,
+                    backButtonText,
+                    useTestNoteCutSoundEffects,
+                    beforeSceneSwitchCallback,
+                    levelFinishedCallback);
 
-                    SettingsSetterViewController.Instance.Init(startStandardLevelParameters, __instance);
-                    return !SettingsSetterViewController.Instance.DoPresent;
-                }
-                else
-                {
-                    Plugin.Logger.Log("Level started outside of SinglePlayerLevelSelectionFlowCoordinator, skipping settable settings.", IPA.Logging.Logger.Level.Trace);
-                }
+                SettingsSetterViewController.Instance.Init(startStandardLevelParameters, __instance);
+                return !SettingsSetterViewController.Instance.DoPresent;
             }
-            catch (Exception e)
+            else
             {
-                Plugin.Logger.Log($"Could not setup settable settings!", IPA.Logging.Logger.Level.Error);
-                Plugin.Logger.Log(e, IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log("Level started outside of SinglePlayerLevelSelectionFlowCoordinator, skipping settable settings.", IPA.Logging.Logger.Level.Trace);
             }
 
             return true;

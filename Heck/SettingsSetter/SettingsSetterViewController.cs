@@ -36,6 +36,7 @@
         [UIObject("contentObject")]
 #pragma warning disable CS0649
         private readonly GameObject? _contentObject;
+
 #pragma warning restore CS0649
 
         private MenuTransitionsHelper? _menuTransitionsHelper;
@@ -131,237 +132,246 @@
 
         internal void Init(StartStandardLevelParameters startParameters, MenuTransitionsHelper menuTransitionsHelper)
         {
-            if (startParameters.DifficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
+            // When in doubt, wrap everything in one big try catch statement!
+            try
             {
-                Dictionary<string, object?>? settings = customBeatmapData.beatmapCustomData.Get<Dictionary<string, object?>>("_settings");
-                if (settings != null)
+                if (startParameters.DifficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
                 {
-                    _contents.Clear();
-                    _modifiedParameters = startParameters;
-
-                    Dictionary<string, object?>? jsonPlayerOptions = settings.Get<Dictionary<string, object?>>("_playerOptions");
-                    if (jsonPlayerOptions != null)
+                    Dictionary<string, object?>? settings = customBeatmapData.beatmapCustomData.Get<Dictionary<string, object?>>("_settings");
+                    if (settings != null)
                     {
-                        PlayerSpecificSettings playerSettings = startParameters.PlayerSpecificSettings;
-                        List<Dictionary<string, object>> settablePlayerSettings = SettingSetterSettableSettingsManager.SettingsTable["_playerOptions"];
+                        _contents.Clear();
+                        _modifiedParameters = startParameters;
 
-                        PlayerSpecificSettings modifiedPlayerSettings = playerSettings.CopyWith();
-
-                        foreach (Dictionary<string, object> settablePlayerSetting in settablePlayerSettings)
+                        Dictionary<string, object?>? jsonPlayerOptions = settings.Get<Dictionary<string, object?>>("_playerOptions");
+                        if (jsonPlayerOptions != null)
                         {
-                            string name = (string)settablePlayerSetting["_name"];
-                            string fieldName = (string)settablePlayerSetting["_fieldName"];
+                            PlayerSpecificSettings playerSettings = startParameters.PlayerSpecificSettings;
+                            List<Dictionary<string, object>> settablePlayerSettings = SettingSetterSettableSettingsManager.SettingsTable["_playerOptions"];
 
-                            object? json = jsonPlayerOptions.Get<object>(fieldName);
-                            if (json != null)
+                            PlayerSpecificSettings modifiedPlayerSettings = playerSettings.CopyWith();
+
+                            foreach (Dictionary<string, object> settablePlayerSetting in settablePlayerSettings)
                             {
-                                FieldInfo field = typeof(PlayerSpecificSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-                                object activeValue = field.GetValue(playerSettings);
-                                if (json is string jsonString)
+                                string name = (string)settablePlayerSetting["_name"];
+                                string fieldName = (string)settablePlayerSetting["_fieldName"];
+
+                                object? json = jsonPlayerOptions.Get<object>(fieldName);
+                                if (json != null)
                                 {
-                                    json = Enum.Parse(typeof(EnvironmentEffectsFilterPreset), jsonString);
-                                }
-                                else if (json is IConvertible)
-                                {
-                                    json = Convert.ChangeType(json, activeValue.GetType());
-                                }
-
-                                if (!json.Equals(activeValue))
-                                {
-                                    _contents.Add(new ListObject($"[Player Options] {name}", $"{activeValue} > {json}"));
-                                    field.SetValue(modifiedPlayerSettings, json);
-                                }
-                            }
-                        }
-
-                        _modifiedParameters.PlayerSpecificSettings = modifiedPlayerSettings;
-                    }
-
-                    Dictionary<string, object?>? jsonModifiers = settings.Get<Dictionary<string, object?>>("_modifiers");
-                    if (jsonModifiers != null)
-                    {
-                        GameplayModifiers gameplayModifiers = startParameters.GameplayModifiers;
-                        List<Dictionary<string, object>> settableGameplayModifiers = SettingSetterSettableSettingsManager.SettingsTable["_modifiers"];
-
-                        GameplayModifiers modifiedGameplayModifiers = gameplayModifiers.CopyWith();
-
-                        foreach (Dictionary<string, object> settableGameplayModifier in settableGameplayModifiers)
-                        {
-                            string name = (string)settableGameplayModifier["_name"];
-                            string fieldName = (string)settableGameplayModifier["_fieldName"];
-
-                            object? json = jsonModifiers.Get<object>(fieldName);
-                            if (json != null)
-                            {
-                                FieldInfo field = typeof(GameplayModifiers).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-                                object activeValue = field.GetValue(gameplayModifiers);
-                                if (json is string jsonString)
-                                {
-                                    switch (fieldName)
+                                    FieldInfo field = typeof(PlayerSpecificSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                                    object activeValue = field.GetValue(playerSettings);
+                                    if (json is string jsonString)
                                     {
-                                        case "_energyType":
-                                            json = Enum.Parse(typeof(GameplayModifiers.EnergyType), jsonString);
-                                            break;
+                                        json = Enum.Parse(typeof(EnvironmentEffectsFilterPreset), jsonString);
+                                    }
+                                    else if (json is IConvertible)
+                                    {
+                                        json = Convert.ChangeType(json, activeValue.GetType());
+                                    }
 
-                                        case "_enabledObstacleType":
-                                            json = Enum.Parse(typeof(GameplayModifiers.EnabledObstacleType), jsonString);
-                                            break;
-
-                                        case "_songSpeed":
-                                            json = Enum.Parse(typeof(GameplayModifiers.SongSpeed), jsonString);
-                                            break;
+                                    if (!json.Equals(activeValue))
+                                    {
+                                        _contents.Add(new ListObject($"[Player Options] {name}", $"{activeValue} > {json}"));
+                                        field.SetValue(modifiedPlayerSettings, json);
                                     }
                                 }
-                                else if (json is IConvertible)
-                                {
-                                    json = Convert.ChangeType(json, activeValue.GetType());
-                                }
-
-                                if (!json.Equals(activeValue))
-                                {
-                                    _contents.Add(new ListObject($"[Modifiers] {name}", $"{activeValue} > {json}"));
-                                    field.SetValue(modifiedGameplayModifiers, json);
-                                }
                             }
+
+                            _modifiedParameters.PlayerSpecificSettings = modifiedPlayerSettings;
                         }
 
-                        _modifiedParameters.GameplayModifiers = modifiedGameplayModifiers;
-                    }
-
-                    Dictionary<string, object?>? jsonEnvironments = settings.Get<Dictionary<string, object?>>("_environments");
-                    if (jsonEnvironments != null)
-                    {
-                        OverrideEnvironmentSettings? environmentOverrideSettings = startParameters.OverrideEnvironmentSettings;
-
-                        if (environmentOverrideSettings != null)
+                        Dictionary<string, object?>? jsonModifiers = settings.Get<Dictionary<string, object?>>("_modifiers");
+                        if (jsonModifiers != null)
                         {
-                            Dictionary<string, object> settableEnvironmentSetting = SettingSetterSettableSettingsManager.SettingsTable["_environments"].First();
-                            string name = (string)settableEnvironmentSetting["_name"];
-                            string fieldName = (string)settableEnvironmentSetting["_fieldName"];
-                            bool activeValue = environmentOverrideSettings.overrideEnvironments;
-                            bool? json = jsonEnvironments.Get<bool>(fieldName);
+                            GameplayModifiers gameplayModifiers = startParameters.GameplayModifiers;
+                            List<Dictionary<string, object>> settableGameplayModifiers = SettingSetterSettableSettingsManager.SettingsTable["_modifiers"];
 
-                            if (json != null && json != activeValue)
+                            GameplayModifiers modifiedGameplayModifiers = gameplayModifiers.CopyWith();
+
+                            foreach (Dictionary<string, object> settableGameplayModifier in settableGameplayModifiers)
                             {
-                                _contents.Add(new ListObject($"[Environments] {name}", $"{activeValue} > {json}"));
+                                string name = (string)settableGameplayModifier["_name"];
+                                string fieldName = (string)settableGameplayModifier["_fieldName"];
 
-                                // copy fields from original overrideenvironmentsettings to our new copy
-                                OverrideEnvironmentSettings modifiedOverrideEnvironmentSettings = new OverrideEnvironmentSettings();
-                                modifiedOverrideEnvironmentSettings.SetField("_data", environmentOverrideSettings.GetField<Dictionary<EnvironmentTypeSO, EnvironmentInfoSO>, OverrideEnvironmentSettings>("_data"));
-
-                                modifiedOverrideEnvironmentSettings.overrideEnvironments = json.Value;
-
-                                _modifiedParameters.OverrideEnvironmentSettings = modifiedOverrideEnvironmentSettings;
-                            }
-                        }
-                    }
-
-                    Dictionary<string, object?>? jsonColors = settings.Get<Dictionary<string, object?>>("_colors");
-                    if (jsonColors != null)
-                    {
-                        ColorSchemesSettings? colorSchemesSettings = OverrideColorScheme;
-
-                        if (colorSchemesSettings != null)
-                        {
-                            Dictionary<string, object> settableColorSetting = SettingSetterSettableSettingsManager.SettingsTable["_colors"].First();
-                            string name = (string)settableColorSetting["_name"];
-                            string fieldName = (string)settableColorSetting["_fieldName"];
-                            bool activeValue = colorSchemesSettings.overrideDefaultColors;
-                            bool? json = jsonColors.Get<bool>(fieldName);
-
-                            if (json != null && json != activeValue)
-                            {
-                                _contents.Add(new ListObject($"[Colors] {name}", $"{activeValue} > {json}"));
-
-                                _modifiedParameters.OverrideColorScheme = json.Value ? colorSchemesSettings.GetOverrideColorScheme() : null;
-                            }
-                        }
-                    }
-
-                    _modifiedMainSettings = null;
-                    _cachedMainSettings = null;
-                    Dictionary<string, object?>? jsonGraphics = settings.Get<Dictionary<string, object?>>("_graphics");
-                    if (jsonGraphics != null)
-                    {
-                        MainSettingsModelSO mainSettingsModel = MainSettings;
-                        List<Dictionary<string, object>> settableGraphicsSettings = SettingSetterSettableSettingsManager.SettingsTable["_graphics"];
-
-                        _cachedMainSettings = new SettableMainSettings(
-                            mainSettingsModel.mirrorGraphicsSettings,
-                            mainSettingsModel.mainEffectGraphicsSettings,
-                            mainSettingsModel.smokeGraphicsSettings,
-                            mainSettingsModel.burnMarkTrailsEnabled,
-                            mainSettingsModel.screenDisplacementEffectsEnabled,
-                            mainSettingsModel.maxShockwaveParticles);
-                        _modifiedMainSettings = _cachedMainSettings with { };
-
-                        foreach (Dictionary<string, object> settableGraphicSetting in settableGraphicsSettings)
-                        {
-                            string name = (string)settableGraphicSetting["_name"];
-                            string fieldName = (string)settableGraphicSetting["_fieldName"];
-
-                            object? json = jsonGraphics.Get<object>(fieldName);
-                            if (json != null)
-                            {
-                                // substring is to remove underscore
-                                object valueSO = typeof(MainSettingsModelSO).GetField(fieldName.Substring(1), BindingFlags.Instance | BindingFlags.Public).GetValue(mainSettingsModel);
-                                object activeValue = valueSO switch
+                                object? json = jsonModifiers.Get<object>(fieldName);
+                                if (json != null)
                                 {
-                                    BoolSO boolSO => boolSO.value,
-                                    IntSO intSO => intSO.value,
-                                    _ => throw new InvalidOperationException($"How the hell did you reach this? [{valueSO.GetType()}]"),
-                                };
-                                if (json is IConvertible)
-                                {
-                                    json = Convert.ChangeType(json, activeValue.GetType());
+                                    FieldInfo field = typeof(GameplayModifiers).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                                    object activeValue = field.GetValue(gameplayModifiers);
+                                    if (json is string jsonString)
+                                    {
+                                        switch (fieldName)
+                                        {
+                                            case "_energyType":
+                                                json = Enum.Parse(typeof(GameplayModifiers.EnergyType), jsonString);
+                                                break;
+
+                                            case "_enabledObstacleType":
+                                                json = Enum.Parse(typeof(GameplayModifiers.EnabledObstacleType), jsonString);
+                                                break;
+
+                                            case "_songSpeed":
+                                                json = Enum.Parse(typeof(GameplayModifiers.SongSpeed), jsonString);
+                                                break;
+                                        }
+                                    }
+                                    else if (json is IConvertible)
+                                    {
+                                        json = Convert.ChangeType(json, activeValue.GetType());
+                                    }
+
+                                    if (!json.Equals(activeValue))
+                                    {
+                                        _contents.Add(new ListObject($"[Modifiers] {name}", $"{activeValue} > {json}"));
+                                        field.SetValue(modifiedGameplayModifiers, json);
+                                    }
                                 }
+                            }
 
-                                if (!json.Equals(activeValue))
+                            _modifiedParameters.GameplayModifiers = modifiedGameplayModifiers;
+                        }
+
+                        Dictionary<string, object?>? jsonEnvironments = settings.Get<Dictionary<string, object?>>("_environments");
+                        if (jsonEnvironments != null)
+                        {
+                            OverrideEnvironmentSettings? environmentOverrideSettings = startParameters.OverrideEnvironmentSettings;
+
+                            if (environmentOverrideSettings != null)
+                            {
+                                Dictionary<string, object> settableEnvironmentSetting = SettingSetterSettableSettingsManager.SettingsTable["_environments"].First();
+                                string name = (string)settableEnvironmentSetting["_name"];
+                                string fieldName = (string)settableEnvironmentSetting["_fieldName"];
+                                bool activeValue = environmentOverrideSettings.overrideEnvironments;
+                                bool? json = jsonEnvironments.Get<bool>(fieldName);
+
+                                if (json != null && json != activeValue)
                                 {
-                                    _contents.Add(new ListObject($"[Graphics] {name}", $"{activeValue} > {json}"));
-                                    typeof(SettableMainSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(_modifiedMainSettings, json);
+                                    _contents.Add(new ListObject($"[Environments] {name}", $"{activeValue} > {json}"));
+
+                                    // copy fields from original overrideenvironmentsettings to our new copy
+                                    OverrideEnvironmentSettings modifiedOverrideEnvironmentSettings = new OverrideEnvironmentSettings();
+                                    modifiedOverrideEnvironmentSettings.SetField("_data", environmentOverrideSettings.GetField<Dictionary<EnvironmentTypeSO, EnvironmentInfoSO>, OverrideEnvironmentSettings>("_data"));
+
+                                    modifiedOverrideEnvironmentSettings.overrideEnvironments = json.Value;
+
+                                    _modifiedParameters.OverrideEnvironmentSettings = modifiedOverrideEnvironmentSettings;
                                 }
                             }
                         }
-                    }
 
-                    _settableSettingsToSet = null;
-                    foreach (KeyValuePair<string, Dictionary<string, ISettableSetting>> groupSettingPair in SettingSetterSettableSettingsManager.SettableSettings)
-                    {
-                        Dictionary<string, object?>? jsonGroup = settings.Get<Dictionary<string, object?>>(groupSettingPair.Key);
-                        if (jsonGroup != null)
+                        Dictionary<string, object?>? jsonColors = settings.Get<Dictionary<string, object?>>("_colors");
+                        if (jsonColors != null)
                         {
-                            _settableSettingsToSet = new List<Tuple<ISettableSetting, object>>();
+                            ColorSchemesSettings? colorSchemesSettings = OverrideColorScheme;
 
-                            foreach (KeyValuePair<string, ISettableSetting> settableSettingPair in groupSettingPair.Value)
+                            if (colorSchemesSettings != null)
                             {
-                                object? json = jsonGroup.Get<object>(settableSettingPair.Key);
-                                ISettableSetting settableSetting = settableSettingPair.Value;
-                                object activeValue = settableSetting.TrueValue;
-                                if (json != null && !json.Equals(activeValue))
+                                Dictionary<string, object> settableColorSetting = SettingSetterSettableSettingsManager.SettingsTable["_colors"].First();
+                                string name = (string)settableColorSetting["_name"];
+                                string fieldName = (string)settableColorSetting["_fieldName"];
+                                bool activeValue = colorSchemesSettings.overrideDefaultColors;
+                                bool? json = jsonColors.Get<bool>(fieldName);
+
+                                if (json != null && json != activeValue)
                                 {
-                                    _contents.Add(new ListObject($"[{settableSetting.GroupName}] {settableSetting.FieldName}", $"{activeValue} > {json}"));
-                                    _settableSettingsToSet.Add(new Tuple<ISettableSetting, object>(settableSetting, json));
+                                    _contents.Add(new ListObject($"[Colors] {name}", $"{activeValue} > {json}"));
+
+                                    _modifiedParameters.OverrideColorScheme = json.Value ? colorSchemesSettings.GetOverrideColorScheme() : null;
                                 }
                             }
                         }
-                    }
 
-                    if (_contents.Any())
-                    {
-                        if (_contentObject != null)
+                        _modifiedMainSettings = null;
+                        _cachedMainSettings = null;
+                        Dictionary<string, object?>? jsonGraphics = settings.Get<Dictionary<string, object?>>("_graphics");
+                        if (jsonGraphics != null)
                         {
-                            Destroy(_contentObject);
+                            MainSettingsModelSO mainSettingsModel = MainSettings;
+                            List<Dictionary<string, object>> settableGraphicsSettings = SettingSetterSettableSettingsManager.SettingsTable["_graphics"];
+
+                            _cachedMainSettings = new SettableMainSettings(
+                                mainSettingsModel.mirrorGraphicsSettings,
+                                mainSettingsModel.mainEffectGraphicsSettings,
+                                mainSettingsModel.smokeGraphicsSettings,
+                                mainSettingsModel.burnMarkTrailsEnabled,
+                                mainSettingsModel.screenDisplacementEffectsEnabled,
+                                mainSettingsModel.maxShockwaveParticles);
+                            _modifiedMainSettings = _cachedMainSettings with { };
+
+                            foreach (Dictionary<string, object> settableGraphicSetting in settableGraphicsSettings)
+                            {
+                                string name = (string)settableGraphicSetting["_name"];
+                                string fieldName = (string)settableGraphicSetting["_fieldName"];
+
+                                object? json = jsonGraphics.Get<object>(fieldName);
+                                if (json != null)
+                                {
+                                    // substring is to remove underscore
+                                    object valueSO = typeof(MainSettingsModelSO).GetField(fieldName.Substring(1), BindingFlags.Instance | BindingFlags.Public).GetValue(mainSettingsModel);
+                                    object activeValue = valueSO switch
+                                    {
+                                        BoolSO boolSO => boolSO.value,
+                                        IntSO intSO => intSO.value,
+                                        _ => throw new InvalidOperationException($"How the hell did you reach this? [{valueSO.GetType()}]"),
+                                    };
+                                    if (json is IConvertible)
+                                    {
+                                        json = Convert.ChangeType(json, activeValue.GetType());
+                                    }
+
+                                    if (!json.Equals(activeValue))
+                                    {
+                                        _contents.Add(new ListObject($"[Graphics] {name}", $"{activeValue} > {json}"));
+                                        typeof(SettableMainSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(_modifiedMainSettings, json);
+                                    }
+                                }
+                            }
                         }
 
-                        DoPresent = true;
-                        _defaultParameters = startParameters;
-                        _menuTransitionsHelper = menuTransitionsHelper;
-                        _presentViewController(ActiveFlowCoordinator, this, null, AnimationDirection.Horizontal, false);
-                        BeatSaberMarkupLanguage.BSMLParser.instance.Parse(ContentBSML, gameObject, this);
-                        return;
+                        _settableSettingsToSet = null;
+                        foreach (KeyValuePair<string, Dictionary<string, ISettableSetting>> groupSettingPair in SettingSetterSettableSettingsManager.SettableSettings)
+                        {
+                            Dictionary<string, object?>? jsonGroup = settings.Get<Dictionary<string, object?>>(groupSettingPair.Key);
+                            if (jsonGroup != null)
+                            {
+                                _settableSettingsToSet = new List<Tuple<ISettableSetting, object>>();
+
+                                foreach (KeyValuePair<string, ISettableSetting> settableSettingPair in groupSettingPair.Value)
+                                {
+                                    object? json = jsonGroup.Get<object>(settableSettingPair.Key);
+                                    ISettableSetting settableSetting = settableSettingPair.Value;
+                                    object activeValue = settableSetting.TrueValue;
+                                    if (json != null && !json.Equals(activeValue))
+                                    {
+                                        _contents.Add(new ListObject($"[{settableSetting.GroupName}] {settableSetting.FieldName}", $"{activeValue} > {json}"));
+                                        _settableSettingsToSet.Add(new Tuple<ISettableSetting, object>(settableSetting, json));
+                                    }
+                                }
+                            }
+                        }
+
+                        if (_contents.Any())
+                        {
+                            if (_contentObject != null)
+                            {
+                                Destroy(_contentObject);
+                            }
+
+                            DoPresent = true;
+                            _defaultParameters = startParameters;
+                            _menuTransitionsHelper = menuTransitionsHelper;
+                            _presentViewController(ActiveFlowCoordinator, this, null, AnimationDirection.Horizontal, false);
+                            BeatSaberMarkupLanguage.BSMLParser.instance.Parse(ContentBSML, gameObject, this);
+                            return;
+                        }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                Plugin.Logger.Log($"Could not setup settable settings!", IPA.Logging.Logger.Level.Error);
+                Plugin.Logger.Log(e, IPA.Logging.Logger.Level.Error);
             }
 
             DoPresent = false;
