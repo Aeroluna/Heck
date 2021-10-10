@@ -26,5 +26,7 @@
         public static void ColorizeSaber(this SaberType saber, Color? color) => saber.GetSaberColorizers().ForEach(n => n.Colorize(color));
 
         public static void ColorizeLight(this BeatmapEventType eventType, bool refresh, params Color?[] colors) => eventType.GetLightColorizer().Colorize(refresh, colors);
+
+        public static void ColorizeLight(this BeatmapEventType eventType, IEnumerable<ILightWithId> selectLights, params Color?[] colors) => eventType.GetLightColorizer().Colorize(selectLights, colors);
     }
 }

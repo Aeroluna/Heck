@@ -16,7 +16,7 @@
         private static readonly FieldInfo _moveSpeedField = AccessTools.Field(typeof(TrackLaneRingsPositionStepEffectSpawner), "_moveSpeed");
         private static readonly MethodInfo _getPrecisionSpeed = AccessTools.Method(typeof(TrackLaneRingsPositionStepEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger), nameof(GetPrecisionSpeed));
 
-        internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
                 .MatchForward(false, new CodeMatch(OpCodes.Stloc_0))

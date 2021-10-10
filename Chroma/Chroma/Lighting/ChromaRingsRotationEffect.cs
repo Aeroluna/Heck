@@ -4,7 +4,7 @@
     using IPA.Utilities;
 
     // Whole class rewritten to make propagation a float again
-    internal class ChromaRingsRotationEffect : TrackLaneRingsRotationEffect
+    public class ChromaRingsRotationEffect : TrackLaneRingsRotationEffect
     {
         private static readonly FieldAccessor<TrackLaneRingsRotationEffect, TrackLaneRingsManager>.Accessor _trackLaneRingsManagerAccessor = FieldAccessor<TrackLaneRingsRotationEffect, TrackLaneRingsManager>.GetAccessor("_trackLaneRingsManager");
         private static readonly FieldAccessor<TrackLaneRingsRotationEffect, float>.Accessor _startupRotationAngleAccessor = FieldAccessor<TrackLaneRingsRotationEffect, float>.GetAccessor("_startupRotationAngle");
@@ -12,8 +12,8 @@
         private static readonly FieldAccessor<TrackLaneRingsRotationEffect, int>.Accessor _startupRotationPropagationSpeedAccessor = FieldAccessor<TrackLaneRingsRotationEffect, int>.GetAccessor("_startupRotationPropagationSpeed");
         private static readonly FieldAccessor<TrackLaneRingsRotationEffect, float>.Accessor _startupRotationFlexySpeedAccessor = FieldAccessor<TrackLaneRingsRotationEffect, float>.GetAccessor("_startupRotationFlexySpeed");
 
-        private new List<ChromaRotationEffect>? _activeRingRotationEffects;
-        private new List<ChromaRotationEffect>? _ringRotationEffectsPool;
+        private readonly List<ChromaRotationEffect> _activeChromaRotationEffects = new List<ChromaRotationEffect>(20);
+        private readonly List<ChromaRotationEffect> _chromaRotationEffectsPool = new List<ChromaRotationEffect>(20);
 
         public override void AddRingRotationEffect(float angle, float step, int propagationSpeed, float flexySpeed)
         {
@@ -22,13 +22,48 @@
 
         public void AddRingRotationEffect(float angle, float step, float propagationSpeed, float flexySpeed)
         {
-            ChromaRotationEffect ringRotationEffect = SpawnRingRotationEffect();
+            ChromaRotationEffect ringRotationEffect = SpawnChromaRotationEffect();
             ringRotationEffect.ProgressPos = 0;
             ringRotationEffect.RotationAngle = angle;
             ringRotationEffect.RotationStep = step;
             ringRotationEffect.RotationPropagationSpeed = propagationSpeed;
             ringRotationEffect.RotationFlexySpeed = flexySpeed;
-            _activeRingRotationEffects!.Add(ringRotationEffect);
+            _activeChromaRotationEffects.Add(ringRotationEffect);
+        }
+
+        public override void Awake()
+        {
+            for (int i = 0; i < _chromaRotationEffectsPool.Capacity; i++)
+            {
+                _chromaRotationEffectsPool.Add(new ChromaRotationEffect());
+            }
+        }
+
+        public override void Start()
+        {
+            AddRingRotationEffect(_startupRotationAngle, _startupRotationStep, _startupRotationPropagationSpeed, _startupRotationFlexySpeed);
+        }
+
+        public override void FixedUpdate()
+        {
+            TrackLaneRing[] rings = _trackLaneRingsManager.Rings;
+            for (int i = _activeChromaRotationEffects.Count - 1; i >= 0; i--)
+            {
+                ChromaRotationEffect ringRotationEffect = _activeChromaRotationEffects[i];
+                long num = (long)ringRotationEffect.ProgressPos;
+                ringRotationEffect.ProgressPos += ringRotationEffect.RotationPropagationSpeed;
+                while (num < ringRotationEffect.ProgressPos && num < rings.Length)
+                {
+                    rings[num].SetDestRotation(ringRotationEffect.RotationAngle + (num * ringRotationEffect.RotationStep), ringRotationEffect.RotationFlexySpeed);
+                    num++;
+                }
+
+                if (ringRotationEffect.ProgressPos >= rings.Length)
+                {
+                    RecycleChromaRotationEffect(_activeChromaRotationEffects[i]);
+                    _activeChromaRotationEffects.RemoveAt(i);
+                }
+            }
         }
 
         internal void SetNewRingManager(TrackLaneRingsManager trackLaneRingsManager)
@@ -45,50 +80,13 @@
             _startupRotationFlexySpeed = _startupRotationFlexySpeedAccessor(ref trackLaneRingsRotationEffect);
         }
 
-        private new void Awake()
-        {
-            _activeRingRotationEffects = new List<ChromaRotationEffect>(20);
-            _ringRotationEffectsPool = new List<ChromaRotationEffect>(20);
-            for (int i = 0; i < _ringRotationEffectsPool.Capacity; i++)
-            {
-                _ringRotationEffectsPool.Add(new ChromaRotationEffect());
-            }
-        }
-
-        private new void Start()
-        {
-            AddRingRotationEffect(_startupRotationAngle, _startupRotationStep, _startupRotationPropagationSpeed, _startupRotationFlexySpeed);
-        }
-
-        private new void FixedUpdate()
-        {
-            TrackLaneRing[] rings = _trackLaneRingsManager.Rings;
-            for (int i = _activeRingRotationEffects!.Count - 1; i >= 0; i--)
-            {
-                ChromaRotationEffect ringRotationEffect = _activeRingRotationEffects[i];
-                long num = (long)ringRotationEffect.ProgressPos;
-                ringRotationEffect.ProgressPos += ringRotationEffect.RotationPropagationSpeed;
-                while (num < ringRotationEffect.ProgressPos && num < rings.Length)
-                {
-                    rings[num].SetDestRotation(ringRotationEffect.RotationAngle + (num * ringRotationEffect.RotationStep), ringRotationEffect.RotationFlexySpeed);
-                    num++;
-                }
-
-                if (ringRotationEffect.ProgressPos >= rings.Length)
-                {
-                    RecycleRingRotationEffect(_activeRingRotationEffects[i]);
-                    _activeRingRotationEffects.RemoveAt(i);
-                }
-            }
-        }
-
-        private new ChromaRotationEffect SpawnRingRotationEffect()
+        private ChromaRotationEffect SpawnChromaRotationEffect()
         {
             ChromaRotationEffect result;
-            if (_ringRotationEffectsPool!.Count > 0)
+            if (_chromaRotationEffectsPool.Count > 0)
             {
-                result = _ringRotationEffectsPool[0];
-                _ringRotationEffectsPool.RemoveAt(0);
+                result = _chromaRotationEffectsPool[0];
+                _chromaRotationEffectsPool.RemoveAt(0);
             }
             else
             {
@@ -98,9 +96,9 @@
             return result;
         }
 
-        private void RecycleRingRotationEffect(ChromaRotationEffect ringRotationEffect)
+        private void RecycleChromaRotationEffect(ChromaRotationEffect ringRotationEffect)
         {
-            _ringRotationEffectsPool!.Add(ringRotationEffect);
+            _chromaRotationEffectsPool.Add(ringRotationEffect);
         }
 
         private class ChromaRotationEffect

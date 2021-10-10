@@ -18,7 +18,7 @@
         private static readonly MethodInfo _getTransformScale = AccessTools.Method(typeof(ParametricBoxControllerRefresh), nameof(GetTransformScale));
         private static readonly MethodInfo _getTransformPosition = AccessTools.Method(typeof(ParametricBoxControllerRefresh), nameof(GetTransformPosition));
 
-        internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _localScaleGetter))

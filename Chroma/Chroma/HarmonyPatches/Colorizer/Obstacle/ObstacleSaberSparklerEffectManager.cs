@@ -16,7 +16,7 @@
         private static readonly MethodInfo _setObstacleSaberSparklerColor = AccessTools.Method(typeof(ObstacleSaberSparkleEffectManagerUpdate), nameof(SetObstacleSaberSparkleColor));
         private static readonly FieldInfo _effectsField = AccessTools.Field(typeof(ObstacleSaberSparkleEffectManager), "_effects");
 
-        internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _setPositionAndRotation))
