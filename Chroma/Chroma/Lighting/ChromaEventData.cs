@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Chroma.Utils;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
@@ -34,7 +35,6 @@
                     {
                         Dictionary<string, object?> customData = customBeatmapEventData.customData;
                         ChromaEventData chromaEventData = new ChromaEventData(
-                            customData.Get<object>(LIGHTID),
                             customData.Get<object>(PROPAGATIONID),
                             ChromaUtils.GetColorFromData(customData),
                             customData.Get<bool?>(LOCKPOSITION).GetValueOrDefault(false),
@@ -71,6 +71,21 @@
                                 easing);
                         }
 
+                        object? lightID = customData.Get<object>(LIGHTID);
+                        if (lightID != null)
+                        {
+                            switch (lightID)
+                            {
+                                case List<object> lightIDobjects:
+                                    chromaEventData.LightID = lightIDobjects.Select(n => Convert.ToInt32(n));
+                                    break;
+
+                                case long lightIDint:
+                                    chromaEventData.LightID = new int[] { (int)lightIDint };
+                                    break;
+                            }
+                        }
+
                         _chromaEventDatas.Add(beatmapEventData, chromaEventData);
                     }
                 }
@@ -80,13 +95,70 @@
                     Plugin.Logger.Log(e, IPA.Logging.Logger.Level.Error);
                 }
             }
+
+            List<BeatmapEventData> beatmapEventDatas = (List<BeatmapEventData>)beatmapData.beatmapEventsData;
+            for (int i = 0; i < beatmapEventDatas.Count; i++)
+            {
+                ChromaEventData? currentEventData = TryGetEventData(beatmapEventDatas[i]);
+                if (currentEventData?.LightID != null)
+                {
+                    BeatmapEventType type = beatmapEventDatas[i].type;
+
+                    if (currentEventData.NextSameTypeEvent == null)
+                    {
+                        currentEventData.NextSameTypeEvent = new Dictionary<int, BeatmapEventData>();
+                    }
+
+                    foreach (int id in currentEventData.LightID)
+                    {
+                        if (i < beatmapEventDatas.Count - 1)
+                        {
+                            int nextIndex = beatmapEventDatas.FindIndex(i + 1, n =>
+                            {
+                                if (n.type == type)
+                                {
+                                    ChromaEventData? nextEventData = TryGetEventData(n);
+                                    if (nextEventData?.LightID != null)
+                                    {
+                                        return nextEventData.LightID.Contains(id);
+                                    }
+                                }
+
+                                return false;
+                            });
+
+                            if (nextIndex != -1)
+                            {
+                                currentEventData.NextSameTypeEvent[id] = beatmapEventDatas[nextIndex];
+                            }
+                            else
+                            {
+                                nextIndex = beatmapEventDatas.FindIndex(i + 1, n =>
+                                {
+                                    if (n.type == type)
+                                    {
+                                        ChromaEventData? nextEventData = TryGetEventData(n);
+                                        return nextEventData?.LightID == null;
+                                    }
+
+                                    return false;
+                                });
+
+                                if (nextIndex != -1)
+                                {
+                                    currentEventData.NextSameTypeEvent[id] = beatmapEventDatas[nextIndex];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
     internal record ChromaEventData
     {
         internal ChromaEventData(
-            object? lightID,
             object? propID,
             Color? colorData,
             bool lockPosition,
@@ -102,7 +174,6 @@
             float propMult,
             float speedMult)
         {
-            LightID = lightID;
             PropID = propID;
             ColorData = colorData;
             LockPosition = lockPosition;
@@ -119,7 +190,7 @@
             SpeedMult = speedMult;
         }
 
-        internal object? LightID { get; }
+        internal IEnumerable<int>? LightID { get; set; }
 
         internal object? PropID { get; }
 
@@ -150,6 +221,8 @@
         internal float PropMult { get; }
 
         internal float SpeedMult { get; }
+
+        internal Dictionary<int, BeatmapEventData>? NextSameTypeEvent { get; set; }
 
         internal record GradientObjectData
         {

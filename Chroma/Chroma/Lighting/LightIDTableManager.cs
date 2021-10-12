@@ -20,11 +20,36 @@
                 {
                     return newId;
                 }
-                else
-                {
-                    Plugin.Logger.Log($"Unable to find value for type [{type}] and id [{id}].", IPA.Logging.Logger.Level.Error);
-                }
+
+                Plugin.Logger.Log($"Unable to find value for type [{type}] and id [{id}].", IPA.Logging.Logger.Level.Error);
+                return null;
             }
+
+            Plugin.Logger.Log($"No active table loaded.", IPA.Logging.Logger.Level.Error);
+
+            return null;
+        }
+
+        internal static int? GetActiveTableValueReverse(int type, int id)
+        {
+            if (_activeTable != null)
+            {
+                if (_activeTable.TryGetValue(type, out Dictionary<int, int> dictioanry))
+                {
+                    foreach (KeyValuePair<int, int> pair in dictioanry)
+                    {
+                        if (pair.Value == id)
+                        {
+                            return pair.Key;
+                        }
+                    }
+                }
+
+                ////Plugin.Logger.Log($"Unable to find value for type [{type}] and id [{id}].", IPA.Logging.Logger.Level.Error);
+                return null;
+            }
+
+            Plugin.Logger.Log($"No active table loaded.", IPA.Logging.Logger.Level.Error);
 
             return null;
         }

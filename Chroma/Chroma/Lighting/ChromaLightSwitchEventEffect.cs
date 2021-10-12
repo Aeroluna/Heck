@@ -10,6 +10,8 @@
     using UnityEngine;
     using static ChromaEventDataManager;
 
+    // I originally meant to write this class so everything would be simpler.......
+    // fuck boost colors fuck highlight colors
     public class ChromaLightSwitchEventEffect : LightSwitchEventEffect
     {
         private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor0Accessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor0");
@@ -31,6 +33,11 @@
 
         private readonly Dictionary<ILightWithId, ChromaIDColorTween> _colorTweens = new Dictionary<ILightWithId, ChromaIDColorTween>();
         private LightColorizer? _lightColorizer;
+
+        private ColorSO? _originalLightColor0;
+        private ColorSO? _originalLightColor1;
+        private ColorSO? _originalLightColor0Boost;
+        private ColorSO? _originalLightColor1Boost;
 
         public Dictionary<ILightWithId, ChromaIDColorTween> ColorTweens => _colorTweens;
 
@@ -76,19 +83,9 @@
                         // legacy was a mistake
                         color = LegacyLightHelper.GetLegacyColor(beatmapEventData) ?? color;
 
-                        object? lightID = chromaData.LightID;
-                        if (lightID != null)
+                        if (chromaData.LightID != null)
                         {
-                            switch (lightID)
-                            {
-                                case List<object> lightIDobjects:
-                                    selectLights = LightColorizer.GetLightWithIds(lightIDobjects.Select(n => Convert.ToInt32(n)));
-                                    break;
-
-                                case long lightIDint:
-                                    selectLights = LightColorizer.GetLightWithIds((int)lightIDint);
-                                    break;
-                            }
+                            selectLights = LightColorizer.GetLightWithIds(chromaData.LightID);
                         }
 
                         // propID is now DEPRECATED!!!!!!!!
@@ -185,12 +182,32 @@
 
                 void CheckNextEventForFade()
                 {
-                    BeatmapEventData nextSameTypeEvent = previousEvent.nextSameTypeEvent;
+                    ChromaEventData? eventData = TryGetEventData(previousEvent);
+                    Dictionary<int, BeatmapEventData>? nextSameTypesDict = eventData?.NextSameTypeEvent;
+                    BeatmapEventData? nextSameTypeEvent;
+                    if (ChromaController.ChromaIsActive && (nextSameTypesDict?.ContainsKey(tween.Id) ?? false))
+                    {
+                        nextSameTypeEvent = nextSameTypesDict[tween.Id];
+                    }
+                    else
+                    {
+                        nextSameTypeEvent = previousEvent.nextSameTypeEvent;
+                    }
+
                     if (nextSameTypeEvent != null && (nextSameTypeEvent.value == 4 || nextSameTypeEvent.value == 8))
                     {
                         float nextFloatValue = nextSameTypeEvent.floatValue;
                         int nextValue = nextSameTypeEvent.value;
-                        Color nextColor = GetNormalColor(nextValue, boost).MultAlpha(nextFloatValue);
+                        Color nextColor = GetOriginalColor(nextValue, boost);
+
+                        ChromaEventData? nextEventData = TryGetEventData(nextSameTypeEvent);
+                        Color? nextColorData = nextEventData?.ColorData;
+                        if (ChromaController.ChromaIsActive && nextColorData.HasValue)
+                        {
+                            nextColor = nextColorData.Value.MultAlpha(nextColor.a);
+                        }
+
+                        nextColor = nextColor.MultAlpha(nextFloatValue);
                         Color prevColor = tween.toValue;
                         if (previousValue == 0)
                         {
@@ -318,26 +335,53 @@
 
             LightColorizer lightColorizer = new LightColorizer(this, _event, _lightManager);
             _lightColorizer = lightColorizer;
+            _originalLightColor0 = _lightColor0;
+            _originalLightColor0Boost = _lightColor0Boost;
+            _originalLightColor1 = _lightColor1;
+            _originalLightColor1Boost = _lightColor1Boost;
             lightColorizer.InitializeSOs(ref _lightColor0, ref _highlightColor0, ref _lightColor1, ref _highlightColor1, ref _lightColor0Boost, ref _highlightColor0Boost, ref _lightColor1Boost, ref _highlightColor1Boost);
 
-            foreach (ILightWithId light in lightColorizer.Lights)
+            List<ILightWithId> lights = lightColorizer.Lights;
+            for (int i = 0; i < lights.Count; i++)
             {
-                RegisterLight(light);
+                RegisterLight(lights[i], (int)_event, i);
             }
 
             Color color = _lightOnStart ? _lightColor0 : _lightColor0.color.ColorWithAlpha(_offColorIntensity);
             SetColor(color);
         }
 
-        internal void RegisterLight(ILightWithId lightWithId)
+        internal void RegisterLight(ILightWithId lightWithId, int type, int id)
         {
             if (!_colorTweens.ContainsKey(lightWithId))
             {
-                _colorTweens[lightWithId] = new ChromaIDColorTween(Color.black, Color.black, lightWithId, _lightManager);
+                _colorTweens[lightWithId] = new ChromaIDColorTween(Color.black, Color.black, lightWithId, _lightManager, LightIDTableManager.GetActiveTableValueReverse(type, id) ?? 0);
             }
             else
             {
-                Plugin.Logger.Log($"Attempted to register duplicate ILightWithId.");
+                Plugin.Logger.Log($"Attempted to register duplicate ILightWithId.", IPA.Logging.Logger.Level.Error);
+            }
+        }
+
+        private Color GetOriginalColor(int beatmapEventValue, bool colorBoost)
+        {
+            if (colorBoost)
+            {
+                if (!IsColor0(beatmapEventValue))
+                {
+                    return _originalLightColor1Boost!.color;
+                }
+
+                return _originalLightColor0Boost!.color;
+            }
+            else
+            {
+                if (!IsColor0(beatmapEventValue))
+                {
+                    return _originalLightColor1!.color;
+                }
+
+                return _originalLightColor0!.color;
             }
         }
     }

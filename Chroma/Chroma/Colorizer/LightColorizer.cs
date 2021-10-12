@@ -147,9 +147,11 @@
         {
             void RegisterLightWithID(ILightWithId lightWithId)
             {
-                LightColorizer lightColorizer = ((BeatmapEventType)(lightWithId.lightId - 1)).GetLightColorizer();
-                LightIDTableManager.RegisterIndex(lightWithId.lightId - 1, lightColorizer.Lights.Count, lightId);
-                lightColorizer._chromaLightSwitchEventEffect.RegisterLight(lightWithId);
+                int type = lightWithId.lightId - 1;
+                LightColorizer lightColorizer = ((BeatmapEventType)type).GetLightColorizer();
+                int index = lightColorizer.Lights.Count;
+                LightIDTableManager.RegisterIndex(lightWithId.lightId - 1, index, lightId);
+                lightColorizer._chromaLightSwitchEventEffect.RegisterLight(lightWithId, type, index);
                 lightColorizer.Lights.Add(lightWithId);
             }
 
@@ -222,22 +224,6 @@
             }
 
             return result;
-        }
-
-        public IEnumerable<ILightWithId> GetLightWithIds(int id)
-        {
-            int newId = LightIDTableManager.GetActiveTableValue((int)_eventType, id) ?? id;
-            ILightWithId lightWithId = Lights.ElementAtOrDefault(newId);
-            if (lightWithId != null)
-            {
-                return new ILightWithId[] { lightWithId };
-            }
-            else
-            {
-                Plugin.Logger.Log($"Type [{(int)_eventType}] does not contain id [{id}].", IPA.Logging.Logger.Level.Error);
-            }
-
-            return new ILightWithId[0];
         }
 
         internal static void Reset()

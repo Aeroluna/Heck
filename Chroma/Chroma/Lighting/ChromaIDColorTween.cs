@@ -11,12 +11,15 @@
         private readonly ILightWithId _lightWithId;
         private LightWithIdManager _lightWithIdManager;
 
-        internal ChromaIDColorTween(Color fromValue, Color toValue, ILightWithId lightWithId, LightWithIdManager lightWithIdManager)
+        internal ChromaIDColorTween(Color fromValue, Color toValue, ILightWithId lightWithId, LightWithIdManager lightWithIdManager, int id)
         {
             Reinit(fromValue, toValue, SetColor, 0, EaseType.Linear, 0);
             _lightWithId = lightWithId;
             _lightWithIdManager = lightWithIdManager;
+            Id = id;
         }
+
+        public int Id { get; }
 
         public BeatmapEventData? PreviousEvent { get; set; }
 
