@@ -29,6 +29,7 @@
         internal const string EASING = "_easing";
         internal const string ENDCOLOR = "_endColor";
         internal const string ENVIRONMENTREMOVAL = "_environmentRemoval";
+        internal const string LERPTYPE = "_lerpType";
         internal const string LIGHTGRADIENT = "_lightGradient";
         internal const string LIGHTID = "_lightID";
         internal const string LOCKPOSITION = "_lockPosition";

@@ -5,10 +5,17 @@
     using System.Linq;
     using Chroma.Colorizer;
     using Chroma.Utils;
+    using Heck.Animation;
     using IPA.Utilities;
     using Tweening;
     using UnityEngine;
     using static ChromaEventDataManager;
+
+    public enum LerpType
+    {
+        RGB,
+        HSV,
+    }
 
     // I originally meant to write this class so everything would be simpler.......
     // fuck boost colors fuck highlight colors
@@ -71,6 +78,8 @@
             if (beatmapEventData.type == _event)
             {
                 IEnumerable<ILightWithId>? selectLights = null;
+                Functions? easing = null;
+                LerpType? lerpType = null;
 
                 // fun fun chroma stuff
                 if (ChromaController.ChromaIsActive)
@@ -129,10 +138,13 @@
                         {
                             LightColorizer.Colorize(false, null, null, null, null);
                         }
+
+                        easing = chromaData.Easing;
+                        lerpType = chromaData.LerpType;
                     }
                 }
 
-                Refresh(true, selectLights, beatmapEventData);
+                Refresh(true, selectLights, beatmapEventData, easing, lerpType);
             }
             else if (beatmapEventData.type == _colorBoostEvent)
             {
@@ -145,7 +157,7 @@
             }
         }
 
-        public void Refresh(bool hard, IEnumerable<ILightWithId>? selectLights, BeatmapEventData? beatmapEventData = null)
+        public void Refresh(bool hard, IEnumerable<ILightWithId>? selectLights, BeatmapEventData? beatmapEventData = null, Functions? easing = null, LerpType? lerpType = null)
         {
             IEnumerable<ChromaIDColorTween> selectTweens;
             if (selectLights == null)
@@ -225,7 +237,8 @@
                         if (hard)
                         {
                             tween.SetStartTimeAndEndTime(previousEvent.time, nextSameTypeEvent.time);
-                            tween.easeType = EaseType.Linear;
+                            tween.HeckEasing = easing ?? Functions.easeLinear;
+                            tween.LerpType = lerpType ?? LerpType.RGB;
                             _tweeningManager.ResumeTween(tween, this);
                         }
                     }
@@ -282,7 +295,8 @@
                             if (hard)
                             {
                                 tween.duration = 0.6f;
-                                tween.easeType = EaseType.OutCubic;
+                                tween.HeckEasing = easing ?? Functions.easeOutCubic;
+                                tween.LerpType = lerpType ?? LerpType.RGB;
                                 _tweeningManager.RestartTween(tween, this);
                             }
                         }
@@ -302,7 +316,8 @@
                             if (hard)
                             {
                                 tween.duration = 1.5f;
-                                tween.easeType = EaseType.OutExpo;
+                                tween.HeckEasing = easing ?? Functions.easeOutExpo;
+                                tween.LerpType = lerpType ?? LerpType.RGB;
                                 _tweeningManager.RestartTween(tween, this);
                             }
                         }

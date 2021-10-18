@@ -37,6 +37,8 @@
                         ChromaEventData chromaEventData = new ChromaEventData(
                             customData.Get<object>(PROPAGATIONID),
                             ChromaUtils.GetColorFromData(customData),
+                            customData.GetStringToEnum<Functions?>(EASING),
+                            customData.GetStringToEnum<LerpType?>(LERPTYPE),
                             customData.Get<bool?>(LOCKPOSITION).GetValueOrDefault(false),
                             customData.Get<string>(NAMEFILTER),
                             customData.Get<int?>(DIRECTION),
@@ -53,22 +55,11 @@
                         Dictionary<string, object?>? gradientObject = customData.Get<Dictionary<string, object?>>(LIGHTGRADIENT);
                         if (gradientObject != null)
                         {
-                            string? easingstring = gradientObject.Get<string>(EASING);
-                            Functions easing;
-                            if (string.IsNullOrEmpty(easingstring))
-                            {
-                                easing = Functions.easeLinear;
-                            }
-                            else
-                            {
-                                easing = (Functions)Enum.Parse(typeof(Functions), easingstring);
-                            }
-
                             chromaEventData.GradientObject = new ChromaEventData.GradientObjectData(
                                 gradientObject.Get<float>(DURATION),
                                 ChromaUtils.GetColorFromData(gradientObject, STARTCOLOR) ?? Color.white,
                                 ChromaUtils.GetColorFromData(gradientObject, ENDCOLOR) ?? Color.white,
-                                easing);
+                                gradientObject.GetStringToEnum<Functions?>(EASING) ?? Functions.easeLinear);
                         }
 
                         object? lightID = customData.Get<object>(LIGHTID);
@@ -96,6 +87,7 @@
                 }
             }
 
+            // Horrible stupid logic to get next same type event per light id
             List<BeatmapEventData> beatmapEventDatas = (List<BeatmapEventData>)beatmapData.beatmapEventsData;
             for (int i = 0; i < beatmapEventDatas.Count; i++)
             {
@@ -161,6 +153,8 @@
         internal ChromaEventData(
             object? propID,
             Color? colorData,
+            Functions? easing,
+            LerpType? lerpType,
             bool lockPosition,
             string? nameFilter,
             int? direction,
@@ -176,6 +170,8 @@
         {
             PropID = propID;
             ColorData = colorData;
+            Easing = easing;
+            LerpType = lerpType;
             LockPosition = lockPosition;
             NameFilter = nameFilter;
             Direction = direction;
@@ -197,6 +193,10 @@
         internal Color? ColorData { get; }
 
         internal GradientObjectData? GradientObject { get; set; }
+
+        internal Functions? Easing { get; }
+
+        internal LerpType? LerpType { get; }
 
         internal bool LockPosition { get; }
 
