@@ -94,7 +94,7 @@
 
         private static void ResetTransformParent(Transform transform)
         {
-            transform.SetParent(null, false);
+            transform.SetParent(null, true);
         }
 
         private void OnTrackGameObjectAdded(GameObject gameObject)
@@ -109,7 +109,7 @@
 
         private void ParentToObject(Transform transform)
         {
-            transform.SetParent(_origin!.transform, false);
+            transform.SetParent(_origin!.transform, true);
         }
 
         private void OnDestroy()
