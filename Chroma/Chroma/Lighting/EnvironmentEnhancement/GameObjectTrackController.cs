@@ -63,6 +63,8 @@
             Vector3? localPosition = GetVectorNullable("_localPosition");
             Vector3? scale = GetVectorNullable("_scale");
 
+            bool updateParametricBox = false;
+
             if (rotation.HasValue && transform.rotation != rotation.Value)
             {
                 // Delegate positioning the object to TrackLaneRing
@@ -130,6 +132,7 @@
                 else
                 {
                     transform.position = positionValue;
+                    updateParametricBox = true;
                 }
             }
 
@@ -147,26 +150,21 @@
                 else
                 {
                     transform.localPosition = localPositionValue;
+                    updateParametricBox = true;
                 }
             }
 
             if (scale.HasValue && transform.localScale != scale.Value)
             {
                 transform.localScale = scale.Value;
+                updateParametricBox = true;
             }
 
             // Handle ParametricBoxController
-            if (_parametricBoxController != null)
+            if (updateParametricBox && _parametricBoxController != null)
             {
-                if (position.HasValue || localPosition.HasValue)
-                {
-                    ParametricBoxControllerParameters.SetTransformPosition(_parametricBoxController, transform.localPosition);
-                }
-
-                if (scale.HasValue)
-                {
-                    ParametricBoxControllerParameters.SetTransformScale(_parametricBoxController, transform.localScale);
-                }
+                ParametricBoxControllerParameters.SetTransformPosition(_parametricBoxController, transform.localPosition);
+                ParametricBoxControllerParameters.SetTransformScale(_parametricBoxController, transform.localScale);
             }
         }
 
