@@ -14,7 +14,7 @@
     {
         internal static void StartEventCoroutine(CustomEventData customEventData, EventType eventType)
         {
-            HeckEventData? heckData = TryGetEventData(customEventData);
+            HeckCoroutineEventData? heckData = TryGetEventData<HeckCoroutineEventData>(customEventData);
             if (heckData == null)
             {
                 return;
@@ -25,7 +25,7 @@
 
             Functions easing = heckData.Easing;
 
-            foreach (HeckEventData.CoroutineInfo coroutineInfo in heckData.CoroutineInfos)
+            foreach (HeckCoroutineEventData.CoroutineInfo coroutineInfo in heckData.CoroutineInfos)
             {
                 Property property = coroutineInfo.Property;
                 PointDefinition? pointData = coroutineInfo.PointDefinition;
