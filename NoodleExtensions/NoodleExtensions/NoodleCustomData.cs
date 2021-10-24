@@ -111,10 +111,11 @@
 
     internal record NoodleParentTrackEventData : ICustomEventCustomData
     {
-        internal NoodleParentTrackEventData(Track parentTrack, IEnumerable<Track> childrenTracks, Vector3? position, Quaternion? rotation, Quaternion? localRotation, Vector3? scale)
+        internal NoodleParentTrackEventData(Track parentTrack, IEnumerable<Track> childrenTracks, bool worldPositionStays, Vector3? position, Quaternion? rotation, Quaternion? localRotation, Vector3? scale)
         {
             ParentTrack = parentTrack;
             ChildrenTracks = childrenTracks;
+            WorldPositionStays = worldPositionStays;
             Position = position;
             Rotation = rotation;
             LocalRotation = localRotation;
@@ -124,6 +125,8 @@
         internal Track ParentTrack { get; }
 
         internal IEnumerable<Track> ChildrenTracks { get; }
+
+        internal bool WorldPositionStays { get; }
 
         internal Vector3? Position { get; }
 

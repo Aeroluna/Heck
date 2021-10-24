@@ -13,6 +13,7 @@
     {
         private Track? _track;
         private Transform? _origin;
+        private bool _worldPositionStays;
         private Vector3 _startPos = Vector3.zero;
         private Quaternion _startRot = Quaternion.identity;
         private Quaternion _startLocalRot = Quaternion.identity;
@@ -22,7 +23,7 @@
 
         internal HashSet<Track> ChildrenTracks { get; } = new HashSet<Track>();
 
-        internal static void AssignTrack(IEnumerable<Track> tracks, Track parentTrack, Vector3? startPos, Quaternion? startRot, Quaternion? startLocalRot, Vector3? startScale)
+        internal static void AssignTrack(IEnumerable<Track> tracks, Track parentTrack, bool worldPositionStays, Vector3? startPos, Quaternion? startRot, Quaternion? startLocalRot, Vector3? startScale)
         {
             if (tracks.Contains(parentTrack))
             {
@@ -39,6 +40,7 @@
             ParentObject instance = parentGameObject.AddComponent<ParentObject>();
             instance._origin = parentGameObject.transform;
             instance._track = parentTrack;
+            instance._worldPositionStays = worldPositionStays;
 
             Transform transform = instance.transform;
             if (startPos.HasValue)
@@ -94,7 +96,7 @@
 
         private static void ResetTransformParent(Transform transform)
         {
-            transform.SetParent(null, true);
+            transform.SetParent(null, false);
         }
 
         private void OnTrackGameObjectAdded(GameObject gameObject)
@@ -109,7 +111,7 @@
 
         private void ParentToObject(Transform transform)
         {
-            transform.SetParent(_origin!.transform, true);
+            transform.SetParent(_origin!.transform, _worldPositionStays);
         }
 
         private void OnDestroy()

@@ -36,7 +36,7 @@
                     Track parentTrack = noodleData.ParentTrack;
                     if (tracks != null && parentTrack != null)
                     {
-                        ParentObject.AssignTrack(tracks, parentTrack, noodleData.Position, noodleData.Rotation, noodleData.LocalRotation, noodleData.Scale);
+                        ParentObject.AssignTrack(tracks, parentTrack, noodleData.WorldPositionStays, noodleData.Position, noodleData.Rotation, noodleData.LocalRotation, noodleData.Scale);
                     }
                     else
                     {
