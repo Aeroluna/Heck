@@ -63,26 +63,75 @@
 
                 customBeatmapData.customData["tracks"] = trackManager.Tracks;
 
-                PointDefinitionBuilder pointDataManager = new PointDefinitionBuilder();
-                IEnumerable<Dictionary<string, object?>>? pointDefinitions = customBeatmapData.customData.Get<List<object>>(POINTDEFINITIONS)?.Cast<Dictionary<string, object?>>();
-                if (pointDefinitions != null)
+                // Point definitions
+                IDictionary<string, PointDefinition> pointDefinitions = new Dictionary<string, PointDefinition>();
+                void AddPoint(string pointDataName, PointDefinition pointData)
                 {
-                    foreach (Dictionary<string, object?> pointDefintion in pointDefinitions)
+                    if (!pointDefinitions.ContainsKey(pointDataName))
                     {
-                        string pointName = pointDefintion.Get<string>(NAME) ?? throw new InvalidOperationException("Failed to retrieve point name.");
-                        PointDefinition pointData = PointDefinition.ListToPointDefinition(pointDefintion.Get<List<object>>(POINTS) ?? throw new InvalidOperationException("Failed to retrieve point array."));
-                        pointDataManager.AddPoint(pointName, pointData);
+                        pointDefinitions.Add(pointDataName, pointData);
+                    }
+                    else
+                    {
+                        Logger.Log($"Duplicate point defintion name, {pointDataName} could not be registered!", IPA.Logging.Logger.Level.Error);
                     }
                 }
 
-                customBeatmapData.customData["pointDefinitions"] = pointDataManager.PointData;
-
-                // EVENT DATA STUFF HERE
-                // Skip if calling class is MultiplayerConnectPlayerInstaller
-                StackTrace stackTrace = new StackTrace();
-                if (!stackTrace.GetFrame(2).GetMethod().Name.Contains("MultiplayerConnectedPlayerInstaller"))
+                IEnumerable<Dictionary<string, object?>>? pointDefinitionsRaw = customBeatmapData.customData.Get<List<object>>(POINTDEFINITIONS)?.Cast<Dictionary<string, object?>>();
+                if (pointDefinitionsRaw != null)
                 {
-                    HeckEventDataManager.DeserializeBeatmapData(customBeatmapData);
+                    foreach (Dictionary<string, object?> pointDefintionRaw in pointDefinitionsRaw)
+                    {
+                        string pointName = pointDefintionRaw.Get<string>(NAME) ?? throw new InvalidOperationException("Failed to retrieve point name.");
+                        PointDefinition pointData = PointDefinition.ListToPointDefinition(pointDefintionRaw.Get<List<object>>(POINTS) ?? throw new InvalidOperationException("Failed to retrieve point array."));
+                        AddPoint(pointName, pointData);
+                    }
+                }
+
+                customBeatmapData.customData["pointDefinitions"] = pointDefinitions;
+
+                // Event definitions
+                IDictionary<string, CustomEventData> eventDefinitions = new Dictionary<string, CustomEventData>();
+                void AddEvent(string eventDefinitionName, CustomEventData eventDefinition)
+                {
+                    if (!eventDefinitions.ContainsKey(eventDefinitionName))
+                    {
+                        eventDefinitions.Add(eventDefinitionName, eventDefinition);
+                    }
+                    else
+                    {
+                        Logger.Log($"Duplicate event defintion name, {eventDefinitionName} could not be registered!", IPA.Logging.Logger.Level.Error);
+                    }
+                }
+
+                IEnumerable<Dictionary<string, object?>>? eventDefinitionsRaw = customBeatmapData.customData.Get<List<object>>(EVENTDEFINITIONS)?.Cast<Dictionary<string, object?>>();
+                if (eventDefinitionsRaw != null)
+                {
+                    foreach (Dictionary<string, object?> eventDefinitionRaw in eventDefinitionsRaw)
+                    {
+                        string eventName = eventDefinitionRaw.Get<string>(NAME) ?? throw new InvalidOperationException("Failed to retrieve event name.");
+                        string type = eventDefinitionRaw.Get<string>("_type") ?? throw new InvalidOperationException("Failed to retrieve event type.");
+                        Dictionary<string, object?> data = eventDefinitionRaw.Get<Dictionary<string, object?>>("_data") ?? throw new InvalidOperationException("Failed to retrieve event data.");
+
+                        AddEvent(eventName, new CustomEventData(-1, type, data));
+                    }
+                }
+
+                customBeatmapData.customData["eventDefinitions"] = eventDefinitions;
+
+                StackTrace stackTrace = new StackTrace();
+                bool isMultiplayer = stackTrace.GetFrame(2).GetMethod().Name.Contains("MultiplayerConnectedPlayerInstaller");
+
+                customBeatmapData.customData["isMultiplayer"] = isMultiplayer;
+                CustomDataDeserializer.DeserializeBeatmapData(isMultiplayer, customBeatmapData);
+
+                if (isMultiplayer)
+                {
+                    Logger.Log("Deserializing multiplayer BeatmapData.", IPA.Logging.Logger.Level.Trace);
+                }
+                else
+                {
+                    Logger.Log("Deserializing local player BeatmapData.", IPA.Logging.Logger.Level.Trace);
                 }
             }
         }

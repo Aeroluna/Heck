@@ -380,21 +380,4 @@
             internal bool Smooth { get; }
         }
     }
-
-    internal class PointDefinitionBuilder
-    {
-        internal IDictionary<string, PointDefinition> PointData { get; private set; } = new Dictionary<string, PointDefinition>();
-
-        internal void AddPoint(string pointDataName, PointDefinition pointData)
-        {
-            if (!PointData.TryGetValue(pointDataName, out _))
-            {
-                PointData.Add(pointDataName, pointData);
-            }
-            else
-            {
-                Plugin.Logger.Log($"Duplicate point defintion name, {pointDataName} could not be registered!", IPA.Logging.Logger.Level.Error);
-            }
-        }
-    }
 }

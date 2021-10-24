@@ -2,7 +2,7 @@
 {
     using CustomJSONData.CustomBeatmap;
     using static Heck.Animation.AnimationController;
-    using static Heck.Animation.HeckEventDataManager;
+    using static Heck.HeckCustomDataManager;
 
     internal enum EventType
     {

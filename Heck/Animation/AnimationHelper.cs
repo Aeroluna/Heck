@@ -67,35 +67,42 @@
             return (T?)property?.Value;
         }
 
-        public static void TryGetPointData(Dictionary<string, object?> customData, string pointName, out PointDefinition? pointData, Dictionary<string, PointDefinition> pointDefinitions)
+        public static PointDefinition? TryGetPointData(Dictionary<string, object?> customData, string pointName, CustomBeatmapData customBeatmapData)
+        {
+            return TryGetPointData(customData, pointName, customBeatmapData.GetBeatmapPointDefinitions());
+        }
+
+        public static PointDefinition? TryGetPointData(Dictionary<string, object?> customData, string pointName, Dictionary<string, PointDefinition> pointDefinitions)
         {
             object? pointString = customData.Get<object>(pointName);
             switch (pointString)
             {
                 case null:
-                    pointData = null;
-                    break;
+                    return null;
 
                 case string castedString:
-                    if (!pointDefinitions.TryGetValue(castedString, out pointData))
+                    if (pointDefinitions.TryGetValue(castedString, out PointDefinition pointData))
                     {
-                        Plugin.Logger.Log($"Could not find point definition {castedString}!", IPA.Logging.Logger.Level.Error);
-                        pointData = null;
+                        return pointData;
                     }
 
-                    break;
+                    Plugin.Logger.Log($"Could not find point definition {castedString}!", IPA.Logging.Logger.Level.Error);
+                    return null;
 
                 case List<object> list:
-                    pointData = PointDefinition.ListToPointDefinition(list);
-
-                    break;
+                    return PointDefinition.ListToPointDefinition(list);
 
                 default:
                     throw new InvalidOperationException($"Point was not a valid type. Got {pointString.GetType().FullName}");
             }
         }
 
-        public static Track? GetTrack(Dictionary<string, object?> customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
+        public static Track? GetTrack(Dictionary<string, object?> customData, CustomBeatmapData customBeatmapData, string name = TRACK)
+        {
+            return GetTrack(customData, customBeatmapData.GetBeatmapTracks(), name);
+        }
+
+        public static Track? GetTrack(Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name = TRACK)
         {
             string? trackName = customData.Get<string>(name);
             if (trackName == null)
@@ -103,7 +110,7 @@
                 return null;
             }
 
-            if (((Dictionary<string, Track>)(((CustomBeatmapData)beatmapData).customData["tracks"] ?? throw new InvalidOperationException("Could not find tracks in BeatmapData."))).TryGetValue(trackName, out Track track))
+            if (beatmapTracks.TryGetValue(trackName, out Track track))
             {
                 return track;
             }
@@ -113,7 +120,12 @@
             }
         }
 
-        public static IEnumerable<Track>? GetTrackArray(Dictionary<string, object?> customData, IReadonlyBeatmapData beatmapData, string name = TRACK)
+        public static IEnumerable<Track>? GetTrackArray(Dictionary<string, object?> customData, CustomBeatmapData customBeatmapData, string name = TRACK)
+        {
+            return GetTrackArray(customData, customBeatmapData.GetBeatmapTracks(), name);
+        }
+
+        public static IEnumerable<Track>? GetTrackArray(Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name = TRACK)
         {
             object? trackNameRaw = customData.Get<object>(name);
             if (trackNameRaw == null)
@@ -131,13 +143,12 @@
                 trackNames = new string[] { (string)trackNameRaw };
             }
 
-            HashSet<Track> tracks = new HashSet<Track>();
-            Dictionary<string, Track> beatmapTracks = (Dictionary<string, Track>)(((CustomBeatmapData)beatmapData).customData["tracks"] ?? throw new InvalidOperationException("Could not find tracks in BeatmapData."));
+            HashSet<Track> result = new HashSet<Track>();
             foreach (string trackName in trackNames)
             {
                 if (beatmapTracks.TryGetValue(trackName, out Track track))
                 {
-                    tracks.Add(track);
+                    result.Add(track);
                 }
                 else
                 {
@@ -145,7 +156,17 @@
                 }
             }
 
-            return tracks;
+            return result;
+        }
+
+        public static Dictionary<string, PointDefinition> GetBeatmapPointDefinitions(this CustomBeatmapData customBeatmapData)
+        {
+            return (Dictionary<string, PointDefinition>)(customBeatmapData.customData["pointDefinitions"] ?? throw new InvalidOperationException("Could not find point definitions in BeatmapData."));
+        }
+
+        public static Dictionary<string, Track> GetBeatmapTracks(this CustomBeatmapData customBeatmapData)
+        {
+            return (Dictionary<string, Track>)(customBeatmapData.customData["tracks"] ?? throw new InvalidOperationException("Could not find tracks in BeatmapData."));
         }
 
         private static PointDefinitionInterpolation? GetPathInterpolation(Track? track, string propertyName)

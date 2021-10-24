@@ -1,31 +1,34 @@
-﻿namespace Heck.Animation
+﻿namespace Heck
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using Heck.Animation;
     using static Heck.Animation.AnimationHelper;
     using static Heck.Plugin;
 
-    internal static class HeckEventDataManager
+    internal static class HeckCustomDataManager
     {
-        private static Dictionary<CustomEventData, HeckEventData> _heckEventDatas = new Dictionary<CustomEventData, HeckEventData>();
+        private static Dictionary<CustomEventData, ICustomEventCustomData> _heckEventDatas = new Dictionary<CustomEventData, ICustomEventCustomData>();
 
         internal static HeckEventData? TryGetEventData(CustomEventData customEventData)
         {
-            if (_heckEventDatas.TryGetValue(customEventData, out HeckEventData noodleEventData))
-            {
-                return noodleEventData;
-            }
-
-            return null;
+            return _heckEventDatas.TryGetCustomData<HeckEventData>(customEventData);
         }
 
-        internal static void DeserializeBeatmapData(CustomBeatmapData beatmapData)
+        internal static void DeserializeCustomEvents(bool isMultiplayer, IEnumerable<CustomEventData> customEventsData, CustomBeatmapData beatmapData)
         {
-            _heckEventDatas = new Dictionary<CustomEventData, HeckEventData>();
-            foreach (CustomEventData customEventData in beatmapData.customEventsData)
+            if (isMultiplayer)
+            {
+                return;
+            }
+
+            _heckEventDatas = new Dictionary<CustomEventData, ICustomEventCustomData>();
+            Dictionary<string, PointDefinition> pointDefinitions = beatmapData.GetBeatmapPointDefinitions();
+            Dictionary<string, Track> beatmapTracks = beatmapData.GetBeatmapTracks();
+            foreach (CustomEventData customEventData in customEventsData)
             {
                 try
                 {
@@ -35,7 +38,7 @@
                     {
                         case ANIMATETRACK:
                         case ASSIGNPATHANIMATION:
-                            heckEventData = ProcessCoroutineEvent(customEventData, beatmapData);
+                            heckEventData = ProcessCoroutineEvent(customEventData, pointDefinitions, beatmapTracks);
                             break;
 
                         default:
@@ -46,28 +49,27 @@
                 }
                 catch (Exception e)
                 {
-                    Logger.Log($"Could not create HeckEventData for event {customEventData.type} at {customEventData.time}", IPA.Logging.Logger.Level.Error);
-                    Logger.Log(e, IPA.Logging.Logger.Level.Error);
+                    CustomDataDeserializer.LogFailure(Logger, e, customEventData);
                 }
             }
         }
 
-        private static HeckEventData ProcessCoroutineEvent(CustomEventData customEventData, IReadonlyBeatmapData beatmapData)
+        private static HeckEventData ProcessCoroutineEvent(CustomEventData customEventData, Dictionary<string, PointDefinition> pointDefinitions, Dictionary<string, Track> beatmapTracks)
         {
             HeckEventData heckEventData = new HeckEventData();
 
-            string? easingString = customEventData.data.Get<string>(EASING);
+            Dictionary<string, object?> data = customEventData.data;
+            string? easingString = data.Get<string>(EASING);
             heckEventData.Easing = Functions.easeLinear;
             if (easingString != null)
             {
                 heckEventData.Easing = (Functions)Enum.Parse(typeof(Functions), easingString);
             }
 
-            heckEventData.Duration = customEventData.data.Get<float?>(DURATION) ?? 0f;
+            heckEventData.Duration = data.Get<float?>(DURATION) ?? 0f;
 
-            Track track = GetTrack(customEventData.data, beatmapData) ?? throw new InvalidOperationException("Track was not defined.");
+            Track track = GetTrack(data, beatmapTracks) ?? throw new InvalidOperationException("Track was not defined.");
 
-            List<string> excludedStrings = new List<string> { TRACK, DURATION, EASING };
             IDictionary<string, Property> properties;
             switch (customEventData.type)
             {
@@ -83,7 +85,8 @@
                     throw new InvalidOperationException("Custom event was not of correct type.");
             }
 
-            foreach (KeyValuePair<string, object?> valuePair in customEventData.data)
+            string[] excludedStrings = new string[] { TRACK, DURATION, EASING };
+            foreach (KeyValuePair<string, object?> valuePair in data)
             {
                 if (!excludedStrings.Any(n => n == valuePair.Key))
                 {
@@ -93,10 +96,7 @@
                         continue;
                     }
 
-                    Dictionary<string, PointDefinition> pointDefinitions = (Dictionary<string, PointDefinition>)(((CustomBeatmapData)beatmapData).customData["pointDefinitions"] ?? throw new InvalidOperationException("Failed to retrieve point definitions."));
-                    TryGetPointData(customEventData.data, valuePair.Key, out PointDefinition? pointData, pointDefinitions);
-
-                    HeckEventData.CoroutineInfo coroutineInfo = new HeckEventData.CoroutineInfo(pointData, property);
+                    HeckEventData.CoroutineInfo coroutineInfo = new HeckEventData.CoroutineInfo(TryGetPointData(data, valuePair.Key, pointDefinitions), property);
 
                     heckEventData.CoroutineInfos.Add(coroutineInfo);
                 }
@@ -106,7 +106,7 @@
         }
     }
 
-    internal record HeckEventData
+    internal record HeckEventData : ICustomEventCustomData
     {
         internal float Duration { get; set; }
 

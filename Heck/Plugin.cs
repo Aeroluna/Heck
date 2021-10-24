@@ -16,6 +16,7 @@
 
         internal const string DURATION = "_duration";
         internal const string EASING = "_easing";
+        internal const string EVENTDEFINITIONS = "_eventDefinitions";
         internal const string NAME = "_name";
         internal const string POINTDEFINITIONS = "_pointDefinitions";
         internal const string POINTS = "_points";
@@ -52,6 +53,7 @@
             Logger = new HeckLogger(pluginLogger);
             SettingsSetter.SettingSetterSettableSettingsManager.SetupSettingsTable();
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
+            CustomDataDeserializer.OnDeserializeCustomEventDatas += HeckCustomDataManager.DeserializeCustomEvents;
         }
 
         [OnEnable]
