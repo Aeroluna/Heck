@@ -8,7 +8,7 @@
     using Heck.Animation;
     using IPA.Utilities;
     using UnityEngine;
-    using static NoodleExtensions.NoodleObjectDataManager;
+    using static NoodleExtensions.NoodleCustomDataManager;
 
     [HeckPatch(typeof(NoteController))]
     [HeckPatch("Init")]

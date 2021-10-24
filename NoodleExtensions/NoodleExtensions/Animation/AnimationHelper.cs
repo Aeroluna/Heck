@@ -200,27 +200,5 @@
                 MirrorQuaternionNullable(ref localRotationOffset);
             }
         }
-
-        internal static void GetAllPointData(
-            Dictionary<string, object?> customData,
-            Dictionary<string, PointDefinition> pointDefinitions,
-            out PointDefinition? position,
-            out PointDefinition? rotation,
-            out PointDefinition? scale,
-            out PointDefinition? localRotation,
-            out PointDefinition? dissolve,
-            out PointDefinition? dissolveArrow,
-            out PointDefinition? cuttable,
-            out PointDefinition? definitePosition)
-        {
-            TryGetPointData(customData, POSITION, out position, pointDefinitions);
-            TryGetPointData(customData, ROTATION, out rotation, pointDefinitions);
-            TryGetPointData(customData, SCALE, out scale, pointDefinitions);
-            TryGetPointData(customData, LOCALROTATION, out localRotation, pointDefinitions);
-            TryGetPointData(customData, DISSOLVE, out dissolve, pointDefinitions);
-            TryGetPointData(customData, DISSOLVEARROW, out dissolveArrow, pointDefinitions);
-            TryGetPointData(customData, CUTTABLE, out cuttable, pointDefinitions);
-            TryGetPointData(customData, DEFINITEPOSITION, out definitePosition, pointDefinitions);
-        }
     }
 }

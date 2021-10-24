@@ -6,7 +6,7 @@
     using System.Reflection.Emit;
     using HarmonyLib;
     using UnityEngine;
-    using static NoodleExtensions.NoodleObjectDataManager;
+    using static NoodleExtensions.NoodleCustomDataManager;
 
     internal static class FakeNoteHelper
     {

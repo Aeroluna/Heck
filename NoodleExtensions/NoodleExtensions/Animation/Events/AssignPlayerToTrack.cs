@@ -4,7 +4,7 @@
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
     using Heck.Animation;
-    using static NoodleExtensions.Animation.NoodleEventDataManager;
+    using static NoodleExtensions.NoodleCustomDataManager;
     using static NoodleExtensions.Plugin;
 
     internal static class AssignPlayerToTrack

@@ -4,7 +4,7 @@
     using UnityEngine;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
-    using static NoodleExtensions.NoodleObjectDataManager;
+    using static NoodleExtensions.NoodleCustomDataManager;
 
     [HeckPatch(typeof(BeatmapObjectSpawnMovementData))]
     [HeckPatch("GetObstacleSpawnData")]

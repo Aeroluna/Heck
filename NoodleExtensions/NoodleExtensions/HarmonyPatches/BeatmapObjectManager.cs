@@ -2,7 +2,7 @@
 {
     using Heck;
     using Heck.Animation;
-    using static NoodleExtensions.NoodleObjectDataManager;
+    using static NoodleExtensions.NoodleCustomDataManager;
 
     [HeckPatch(typeof(BeatmapObjectManager))]
     [HeckPatch("HandleNoteControllerNoteDidFinishJump")]

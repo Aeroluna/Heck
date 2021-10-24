@@ -62,17 +62,6 @@
                 }).ToList();
             }
 
-            if (result is CustomBeatmapData customBeatmapData)
-            {
-                string[] excludedTypes = new string[]
-                {
-                    ASSIGNPLAYERTOTRACK,
-                    ASSIGNTRACKPARENT,
-                };
-
-                customBeatmapData.customEventsData.RemoveAll(n => excludedTypes.Contains(n.type));
-            }
-
             return result;
         }
     }

@@ -4,7 +4,7 @@
     using Heck;
     using Heck.Animation;
     using UnityEngine;
-    using static NoodleExtensions.NoodleObjectDataManager;
+    using static NoodleExtensions.NoodleCustomDataManager;
 
     internal static class MirroredNoteControllerHelper
     {

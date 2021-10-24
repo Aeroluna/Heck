@@ -6,7 +6,7 @@
     using CustomJSONData.CustomBeatmap;
     using HarmonyLib;
     using Heck;
-    using static NoodleExtensions.NoodleObjectDataManager;
+    using static NoodleExtensions.NoodleCustomDataManager;
 
     [HeckPatch(typeof(BeatmapObjectCallbackController))]
     [HeckPatch("LateUpdate")]

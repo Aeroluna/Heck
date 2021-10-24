@@ -8,26 +8,20 @@
     {
         internal static Dictionary<string, object?> GetDataForObject(this BeatmapObjectData beatmapObjectData)
         {
-            Dictionary<string, object?> dynData;
             switch (beatmapObjectData)
             {
                 case CustomObstacleData data:
-                    dynData = data.customData;
-                    break;
+                    return data.customData;
 
                 case CustomNoteData data:
-                    dynData = data.customData;
-                    break;
+                    return data.customData;
 
                 case CustomWaypointData data:
-                    dynData = data.customData;
-                    break;
+                    return data.customData;
 
                 default:
-                    throw new InvalidOperationException($"beatmapObjectdata was not of type CustomObstacleData, CustomNoteData, or CustomWaypointData. Was: {beatmapObjectData.GetType().FullName}");
+                    throw new InvalidOperationException($"beatmapObjectdata was not of type CustomObstacleData, CustomNoteData, or CustomWaypointData. Was: {beatmapObjectData.GetType().FullName}.");
             }
-
-            return dynData;
         }
     }
 }

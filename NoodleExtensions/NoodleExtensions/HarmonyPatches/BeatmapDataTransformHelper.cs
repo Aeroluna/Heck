@@ -1,7 +1,6 @@
 ﻿namespace NoodleExtensions.HarmonyPatches
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
@@ -85,17 +84,6 @@
 
             Logger.Log("beatmapData was not CustomBeatmapData", IPA.Logging.Logger.Level.Error);
             return beatmapData;
-        }
-
-        private static void Postfix(IReadonlyBeatmapData __result)
-        {
-            // Skip if calling class is MultiplayerConnectPlayerInstaller
-            StackTrace stackTrace = new StackTrace();
-            if (!stackTrace.GetFrame(2).GetMethod().Name.Contains("MultiplayerConnectedPlayerInstaller"))
-            {
-                NoodleObjectDataManager.DeserializeBeatmapData(__result);
-                Animation.NoodleEventDataManager.DeserializeBeatmapData(__result);
-            }
         }
     }
 }

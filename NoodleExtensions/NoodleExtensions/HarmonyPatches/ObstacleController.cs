@@ -9,7 +9,7 @@
     using Heck.Animation;
     using UnityEngine;
     using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
-    using static NoodleExtensions.NoodleObjectDataManager;
+    using static NoodleExtensions.NoodleCustomDataManager;
     using static NoodleExtensions.Plugin;
 
     [HeckPatch(typeof(ObstacleController))]

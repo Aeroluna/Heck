@@ -5,7 +5,7 @@
     using System.Reflection.Emit;
     using HarmonyLib;
     using Heck;
-    using static NoodleExtensions.NoodleObjectDataManager;
+    using static NoodleExtensions.NoodleCustomDataManager;
 
     // TODO: find out what actually causes obstacle flickering
     [HeckPatch(typeof(BeatmapObjectManager))]

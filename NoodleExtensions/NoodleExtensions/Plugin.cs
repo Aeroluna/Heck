@@ -46,10 +46,6 @@
         {
             Logger = new HeckLogger(pluginLogger);
             HeckData.InitPatches(_harmonyInstance, Assembly.GetExecutingAssembly());
-
-            Heck.Animation.TrackBuilder.TrackManagerCreated += Animation.AssignPlayerToTrack.OnTrackManagerCreated;
-            Heck.Animation.TrackBuilder.TrackManagerCreated += Animation.AssignTrackParent.OnTrackManagerCreated;
-            Heck.Animation.TrackBuilder.TrackCreated += Animation.AnimationHelper.OnTrackCreated;
         }
 
         [OnEnable]
@@ -57,6 +53,12 @@
         {
             SongCore.Collections.RegisterCapability(CAPABILITY);
             _harmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
+
+            Heck.Animation.TrackBuilder.TrackManagerCreated += Animation.AssignPlayerToTrack.OnTrackManagerCreated;
+            Heck.Animation.TrackBuilder.TrackManagerCreated += Animation.AssignTrackParent.OnTrackManagerCreated;
+            Heck.Animation.TrackBuilder.TrackCreated += Animation.AnimationHelper.OnTrackCreated;
+            CustomDataDeserializer.OnDeserializeBeatmapObjectDatas += NoodleCustomDataManager.DeserializeBeatmapObjects;
+            CustomDataDeserializer.OnDeserializeCustomEventDatas += NoodleCustomDataManager.DeserializeCustomEvents;
         }
 
         [OnDisable]
@@ -65,6 +67,12 @@
             SongCore.Collections.DeregisterizeCapability(CAPABILITY);
             _harmonyInstanceCore.UnpatchAll(HARMONYIDCORE);
             _harmonyInstanceCore.UnpatchAll(HARMONYID);
+
+            Heck.Animation.TrackBuilder.TrackManagerCreated -= Animation.AssignPlayerToTrack.OnTrackManagerCreated;
+            Heck.Animation.TrackBuilder.TrackManagerCreated -= Animation.AssignTrackParent.OnTrackManagerCreated;
+            Heck.Animation.TrackBuilder.TrackCreated -= Animation.AnimationHelper.OnTrackCreated;
+            CustomDataDeserializer.OnDeserializeBeatmapObjectDatas -= NoodleCustomDataManager.DeserializeBeatmapObjects;
+            CustomDataDeserializer.OnDeserializeCustomEventDatas -= NoodleCustomDataManager.DeserializeCustomEvents;
         }
     }
 }
