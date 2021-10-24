@@ -2,7 +2,7 @@
 {
     using HarmonyLib;
     using Heck;
-    using static Chroma.ChromaObjectDataManager;
+    using static Chroma.ChromaCustomDataManager;
 
     [HeckPatch(typeof(BeatEffectSpawner))]
     [HeckPatch("HandleNoteDidStartJump")]

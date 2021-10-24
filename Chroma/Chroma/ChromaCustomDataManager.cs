@@ -6,28 +6,97 @@
     using Chroma.Utils;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using Heck;
     using Heck.Animation;
     using UnityEngine;
     using static Chroma.Plugin;
 
-    internal static class ChromaEventDataManager
+    internal static class ChromaCustomDataManager
     {
-        private static Dictionary<BeatmapEventData, ChromaEventData> _chromaEventDatas = new Dictionary<BeatmapEventData, ChromaEventData>();
+        private static Dictionary<BeatmapObjectData, IBeatmapObjectDataCustomData> _chromaObjectDatas = new Dictionary<BeatmapObjectData, IBeatmapObjectDataCustomData>();
+        private static Dictionary<BeatmapEventData, IBeatmapEventDataCustomData> _chromaEventDatas = new Dictionary<BeatmapEventData, IBeatmapEventDataCustomData>();
+
+        internal static T? TryGetObjectData<T>(BeatmapObjectData beatmapObjectData)
+            where T : ChromaObjectData
+        {
+            return _chromaObjectDatas.TryGetCustomData<T>(beatmapObjectData);
+        }
 
         internal static ChromaEventData? TryGetEventData(BeatmapEventData beatmapEventData)
         {
-            if (_chromaEventDatas.TryGetValue(beatmapEventData, out ChromaEventData chromaEventData))
-            {
-                return chromaEventData;
-            }
-
-            return null;
+            return _chromaEventDatas.TryGetCustomData<ChromaEventData>(beatmapEventData);
         }
 
-        internal static void DeserializeBeatmapData(IReadonlyBeatmapData beatmapData)
+        internal static void DeserializeBeatmapObjects(bool isMultiplayer, IEnumerable<BeatmapObjectData> beatmapObjectsData, CustomBeatmapData beatmapData)
         {
-            _chromaEventDatas = new Dictionary<BeatmapEventData, ChromaEventData>();
-            foreach (BeatmapEventData beatmapEventData in beatmapData.beatmapEventsData)
+            if (isMultiplayer)
+            {
+                return;
+            }
+
+            _chromaObjectDatas = new Dictionary<BeatmapObjectData, IBeatmapObjectDataCustomData>();
+
+            Dictionary<string, PointDefinition> pointDefinitions = beatmapData.GetBeatmapPointDefinitions();
+            Dictionary<string, Track> beatmapTracks = beatmapData.GetBeatmapTracks();
+            foreach (BeatmapObjectData beatmapObjectData in beatmapObjectsData)
+            {
+                try
+                {
+                    ChromaObjectData chromaObjectData;
+                    Dictionary<string, object?> customData;
+
+                    switch (beatmapObjectData)
+                    {
+                        case CustomNoteData customNoteData:
+                            customData = customNoteData.customData;
+                            chromaObjectData = new ChromaNoteData()
+                            {
+                                Color = ChromaUtils.GetColorFromData(customData),
+                                DisableSpawnEffect = customData.Get<bool?>(DISABLESPAWNEFFECT),
+                            };
+                            break;
+
+                        case CustomObstacleData customObstacleData:
+                            customData = customObstacleData.customData;
+                            chromaObjectData = new ChromaObjectData()
+                            {
+                                Color = ChromaUtils.GetColorFromData(customData),
+                            };
+                            break;
+
+                        case CustomWaypointData customWaypointData:
+                            customData = customWaypointData.customData;
+                            chromaObjectData = new ChromaObjectData();
+                            break;
+
+                        default:
+                            continue;
+                    }
+
+                    if (chromaObjectData != null)
+                    {
+                        Dictionary<string, object?>? animationObjectDyn = customData.Get<Dictionary<string, object?>>(ANIMATION);
+                        if (animationObjectDyn != null)
+                        {
+                            chromaObjectData.LocalPathColor = Heck.Animation.AnimationHelper.TryGetPointData(animationObjectDyn, COLOR, pointDefinitions);
+                        }
+
+                        chromaObjectData.Track = Heck.Animation.AnimationHelper.GetTrackArray(customData, beatmapTracks);
+
+                        _chromaObjectDatas.Add(beatmapObjectData, chromaObjectData);
+                    }
+                }
+                catch (Exception e)
+                {
+                    CustomDataDeserializer.LogFailure(Plugin.Logger, e, beatmapObjectData);
+                }
+            }
+        }
+
+        internal static void DeserializeBeatmapEvents(bool _, IEnumerable<BeatmapEventData> beatmapEventsData, CustomBeatmapData beatmapData)
+        {
+            _chromaEventDatas = new Dictionary<BeatmapEventData, IBeatmapEventDataCustomData>();
+            foreach (BeatmapEventData beatmapEventData in beatmapEventsData)
             {
                 try
                 {
@@ -82,8 +151,7 @@
                 }
                 catch (Exception e)
                 {
-                    Plugin.Logger.Log($"Could not create ChromaEventData for event {beatmapEventData.type} at {beatmapEventData.time}", IPA.Logging.Logger.Level.Error);
-                    Plugin.Logger.Log(e, IPA.Logging.Logger.Level.Error);
+                    CustomDataDeserializer.LogFailure(Plugin.Logger, e, beatmapEventData);
                 }
             }
 
@@ -145,102 +213,6 @@
                     }
                 }
             }
-        }
-    }
-
-    internal record ChromaEventData
-    {
-        internal ChromaEventData(
-            object? propID,
-            Color? colorData,
-            Functions? easing,
-            LerpType? lerpType,
-            bool lockPosition,
-            string? nameFilter,
-            int? direction,
-            bool? counterSpin,
-            bool? reset,
-            float? step,
-            float? prop,
-            float? speed,
-            float? rotation,
-            float stepMult,
-            float propMult,
-            float speedMult)
-        {
-            PropID = propID;
-            ColorData = colorData;
-            Easing = easing;
-            LerpType = lerpType;
-            LockPosition = lockPosition;
-            NameFilter = nameFilter;
-            Direction = direction;
-            CounterSpin = counterSpin;
-            Reset = reset;
-            Step = step;
-            Prop = prop;
-            Speed = speed;
-            Rotation = rotation;
-            StepMult = stepMult;
-            PropMult = propMult;
-            SpeedMult = speedMult;
-        }
-
-        internal IEnumerable<int>? LightID { get; set; }
-
-        internal object? PropID { get; }
-
-        internal Color? ColorData { get; }
-
-        internal GradientObjectData? GradientObject { get; set; }
-
-        internal Functions? Easing { get; }
-
-        internal LerpType? LerpType { get; }
-
-        internal bool LockPosition { get; }
-
-        internal string? NameFilter { get; }
-
-        internal int? Direction { get; }
-
-        internal bool? CounterSpin { get; }
-
-        internal bool? Reset { get; }
-
-        internal float? Step { get; }
-
-        internal float? Prop { get; }
-
-        internal float? Speed { get; }
-
-        internal float? Rotation { get; }
-
-        internal float StepMult { get; }
-
-        internal float PropMult { get; }
-
-        internal float SpeedMult { get; }
-
-        internal Dictionary<int, BeatmapEventData>? NextSameTypeEvent { get; set; }
-
-        internal record GradientObjectData
-        {
-            internal GradientObjectData(float duration, Color startColor, Color endColor, Functions easing)
-            {
-                Duration = duration;
-                StartColor = startColor;
-                EndColor = endColor;
-                Easing = easing;
-            }
-
-            internal float Duration { get; }
-
-            internal Color StartColor { get; }
-
-            internal Color EndColor { get; }
-
-            internal Functions Easing { get; }
         }
     }
 }

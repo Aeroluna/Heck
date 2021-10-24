@@ -5,7 +5,7 @@
     using Heck;
     using Heck.Animation;
     using UnityEngine;
-    using static Chroma.ChromaObjectDataManager;
+    using static Chroma.ChromaCustomDataManager;
 
     [HeckPatch(typeof(ObstacleController))]
     [HeckPatch("Init")]

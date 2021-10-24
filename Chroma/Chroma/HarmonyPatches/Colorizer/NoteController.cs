@@ -6,7 +6,7 @@
     using Heck.Animation;
     using IPA.Utilities;
     using UnityEngine;
-    using static Chroma.ChromaObjectDataManager;
+    using static Chroma.ChromaCustomDataManager;
 
     [HeckPatch(typeof(NoteController))]
     [HeckPatch("Update")]

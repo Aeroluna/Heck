@@ -87,11 +87,13 @@
 
             SceneManager.activeSceneChanged += ChromaController.OnActiveSceneChanged;
 
+            Heck.Animation.TrackBuilder.TrackCreated += AnimationHelper.OnTrackCreated;
+            Heck.Animation.TrackBuilder.TrackManagerCreated += EnvironmentEnhancementManager.CreateEnvironmentTracks;
+            CustomDataDeserializer.OnDeserializeBeatmapObjectDatas += ChromaCustomDataManager.DeserializeBeatmapObjects;
+            CustomDataDeserializer.OnDeserializeBeatmapEventDatas += ChromaCustomDataManager.DeserializeBeatmapEvents;
+
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");
-
-            AnimationHelper.SubscribeColorEvents();
-            EnvironmentEnhancementManager.SubscribeTrackManagerCreated();
         }
 
         [OnDisable]
@@ -104,6 +106,11 @@
             ChromaUtils.SetSongCoreCapability(REQUIREMENTNAME, false);
 
             SceneManager.activeSceneChanged -= ChromaController.OnActiveSceneChanged;
+
+            Heck.Animation.TrackBuilder.TrackCreated -= AnimationHelper.OnTrackCreated;
+            Heck.Animation.TrackBuilder.TrackManagerCreated -= EnvironmentEnhancementManager.CreateEnvironmentTracks;
+            CustomDataDeserializer.OnDeserializeBeatmapObjectDatas -= ChromaCustomDataManager.DeserializeBeatmapObjects;
+            CustomDataDeserializer.OnDeserializeBeatmapEventDatas -= ChromaCustomDataManager.DeserializeBeatmapEvents;
 
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", false);

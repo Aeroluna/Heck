@@ -6,7 +6,7 @@
     using Chroma;
     using HarmonyLib;
     using Heck;
-    using static Chroma.ChromaEventDataManager;
+    using static Chroma.ChromaCustomDataManager;
 
     [HeckPatch(typeof(TrackLaneRingsPositionStepEffectSpawner))]
     [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]

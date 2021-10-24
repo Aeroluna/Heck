@@ -2,7 +2,7 @@
 {
     using Chroma.Colorizer;
     using Heck;
-    using static Chroma.ChromaObjectDataManager;
+    using static Chroma.ChromaCustomDataManager;
 
     [HeckPatch(typeof(BombNoteController))]
     [HeckPatch("Init")]

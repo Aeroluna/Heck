@@ -10,11 +10,6 @@
 
     internal static class AnimationHelper
     {
-        internal static void SubscribeColorEvents()
-        {
-            TrackBuilder.TrackCreated += OnTrackCreated;
-        }
-
         internal static void GetColorOffset(PointDefinition? localColor, IEnumerable<Track>? tracks, float time, out Color? color)
         {
             Vector4? pathColor = localColor?.InterpolateVector4(time);
@@ -49,7 +44,7 @@
             }
         }
 
-        private static void OnTrackCreated(Track track)
+        internal static void OnTrackCreated(Track track)
         {
             track.AddProperty(COLOR, PropertyType.Vector4);
             track.AddPathProperty(COLOR, PropertyType.Vector4);

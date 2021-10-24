@@ -2,7 +2,7 @@
 {
     using Heck;
     using UnityEngine;
-    using static Chroma.ChromaEventDataManager;
+    using static Chroma.ChromaCustomDataManager;
 
     [HeckPatch(typeof(LightRotationEventEffect))]
     [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]

@@ -2,7 +2,7 @@
 {
     using Chroma;
     using Heck;
-    using static Chroma.ChromaEventDataManager;
+    using static Chroma.ChromaCustomDataManager;
 
     [HeckPatch(typeof(TrackLaneRingsRotationEffectSpawner))]
     [HeckPatch("Start")]

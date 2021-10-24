@@ -1,6 +1,7 @@
 ﻿namespace Chroma
 {
     using System.Collections.Generic;
+    using CustomJSONData.CustomBeatmap;
     using Heck.Animation;
     using IPA.Utilities;
     using UnityEngine;
@@ -24,7 +25,7 @@
         internal static void HandleTrackData(
             GameObject gameObject,
             Dictionary<string, object?> gameObjectData,
-            IReadonlyBeatmapData beatmapData,
+            CustomBeatmapData beatmapData,
             float noteLinesDistance,
             TrackLaneRing? trackLaneRing,
             ParametricBoxController? parametricBoxController,

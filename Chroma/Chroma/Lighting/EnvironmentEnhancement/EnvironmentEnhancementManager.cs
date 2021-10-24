@@ -33,11 +33,6 @@
 
         internal static Dictionary<BeatmapObjectsAvoidance, Quaternion> AvoidanceRotation { get; private set; } = new Dictionary<BeatmapObjectsAvoidance, Quaternion>();
 
-        internal static void SubscribeTrackManagerCreated()
-        {
-            TrackBuilder.TrackManagerCreated += CreateEnvironmentTracks;
-        }
-
         internal static void CreateEnvironmentTracks(TrackBuilder trackManager, CustomBeatmapData customBeatmapData)
         {
             IEnumerable<Dictionary<string, object?>>? environmentData = customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object?>>();

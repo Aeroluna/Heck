@@ -9,7 +9,7 @@
     using IPA.Utilities;
     using Tweening;
     using UnityEngine;
-    using static ChromaEventDataManager;
+    using static Chroma.ChromaCustomDataManager;
 
     public enum LerpType
     {
