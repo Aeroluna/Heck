@@ -57,6 +57,12 @@
         internal const string OBJECTROTATION = "_rotation";
         internal const string LOCALROTATION = "_localRotation";
 
+        internal const string ASSIGNFOGTRACK = "AssignFogTrack";
+        internal const string ATTENUATION = "_attenuation";
+        internal const string OFFSET = "_offset";
+        internal const string HEIGHTFOGSTARTY = "_startY";
+        internal const string HEIGHTFOGHEIGHT = "_height";
+
         internal static readonly Harmony _harmonyInstanceCore = new Harmony(HARMONYIDCORE);
         internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
 
@@ -87,10 +93,10 @@
 
             SceneManager.activeSceneChanged += ChromaController.OnActiveSceneChanged;
 
+            CustomJSONData.CustomEventCallbackController.didInitEvent += ChromaFogController.CustomEventCallbackInit;
             Heck.Animation.TrackBuilder.TrackCreated += AnimationHelper.OnTrackCreated;
-            Heck.Animation.TrackBuilder.TrackManagerCreated += EnvironmentEnhancementManager.CreateEnvironmentTracks;
-            CustomDataDeserializer.OnDeserializeBeatmapObjectDatas += ChromaCustomDataManager.DeserializeBeatmapObjects;
-            CustomDataDeserializer.OnDeserializeBeatmapEventDatas += ChromaCustomDataManager.DeserializeBeatmapEvents;
+            CustomDataDeserializer.BuildTracks += ChromaCustomDataManager.OnBuildTracks;
+            CustomDataDeserializer.DeserializeBeatmapData += ChromaCustomDataManager.OnDeserializeBeatmapData;
 
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");
@@ -107,10 +113,10 @@
 
             SceneManager.activeSceneChanged -= ChromaController.OnActiveSceneChanged;
 
+            CustomJSONData.CustomEventCallbackController.didInitEvent -= ChromaFogController.CustomEventCallbackInit;
             Heck.Animation.TrackBuilder.TrackCreated -= AnimationHelper.OnTrackCreated;
-            Heck.Animation.TrackBuilder.TrackManagerCreated -= EnvironmentEnhancementManager.CreateEnvironmentTracks;
-            CustomDataDeserializer.OnDeserializeBeatmapObjectDatas -= ChromaCustomDataManager.DeserializeBeatmapObjects;
-            CustomDataDeserializer.OnDeserializeBeatmapEventDatas -= ChromaCustomDataManager.DeserializeBeatmapEvents;
+            CustomDataDeserializer.BuildTracks -= ChromaCustomDataManager.OnBuildTracks;
+            CustomDataDeserializer.DeserializeBeatmapData -= ChromaCustomDataManager.OnDeserializeBeatmapData;
 
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", false);

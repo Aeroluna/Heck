@@ -6,7 +6,6 @@
     using System.Text.RegularExpressions;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
-    using Heck.Animation;
     using IPA.Utilities;
     using UnityEngine;
     using UnityEngine.SceneManagement;
@@ -32,22 +31,6 @@
         internal static Dictionary<BeatmapObjectsAvoidance, Vector3> AvoidancePosition { get; private set; } = new Dictionary<BeatmapObjectsAvoidance, Vector3>();
 
         internal static Dictionary<BeatmapObjectsAvoidance, Quaternion> AvoidanceRotation { get; private set; } = new Dictionary<BeatmapObjectsAvoidance, Quaternion>();
-
-        internal static void CreateEnvironmentTracks(TrackBuilder trackManager, CustomBeatmapData customBeatmapData)
-        {
-            IEnumerable<Dictionary<string, object?>>? environmentData = customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object?>>();
-            if (environmentData != null)
-            {
-                foreach (Dictionary<string, object?> gameObjectData in environmentData)
-                {
-                    string? trackName = gameObjectData.Get<string>("_track");
-                    if (trackName != null)
-                    {
-                        trackManager.AddTrack(trackName);
-                    }
-                }
-            }
-        }
 
         internal static void Init(CustomBeatmapData customBeatmapData, float noteLinesDistance)
         {

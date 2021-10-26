@@ -55,6 +55,12 @@
             track.AddProperty(OBJECTROTATION, PropertyType.Quaternion);
             track.AddProperty(LOCALROTATION, PropertyType.Quaternion);
             track.AddProperty(SCALE, PropertyType.Vector3);
+
+            // For Fog Control
+            track.AddProperty(ATTENUATION, PropertyType.Linear);
+            track.AddProperty(OFFSET, PropertyType.Linear);
+            track.AddProperty(HEIGHTFOGSTARTY, PropertyType.Linear);
+            track.AddProperty(HEIGHTFOGHEIGHT, PropertyType.Linear);
         }
     }
 }

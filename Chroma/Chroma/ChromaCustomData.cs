@@ -5,6 +5,16 @@
     using Heck.Animation;
     using UnityEngine;
 
+    internal record ChromaCustomEventData : ICustomEventCustomData
+    {
+        public ChromaCustomEventData(Track track)
+        {
+            Track = track;
+        }
+
+        internal Track Track { get; }
+    }
+
     internal record ChromaNoteData : ChromaObjectData
     {
         internal bool? DisableSpawnEffect { get; set; }

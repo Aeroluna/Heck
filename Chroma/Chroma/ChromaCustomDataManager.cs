@@ -15,6 +15,7 @@
     {
         private static Dictionary<BeatmapObjectData, IBeatmapObjectDataCustomData> _chromaObjectDatas = new Dictionary<BeatmapObjectData, IBeatmapObjectDataCustomData>();
         private static Dictionary<BeatmapEventData, IBeatmapEventDataCustomData> _chromaEventDatas = new Dictionary<BeatmapEventData, IBeatmapEventDataCustomData>();
+        private static Dictionary<CustomEventData, ICustomEventCustomData> _chromaCustomEventDatas = new Dictionary<CustomEventData, ICustomEventCustomData>();
 
         internal static T? TryGetObjectData<T>(BeatmapObjectData beatmapObjectData)
             where T : ChromaObjectData
@@ -27,9 +28,96 @@
             return _chromaEventDatas.TryGetCustomData<ChromaEventData>(beatmapEventData);
         }
 
-        internal static void DeserializeBeatmapObjects(bool isMultiplayer, IEnumerable<BeatmapObjectData> beatmapObjectsData, CustomBeatmapData beatmapData)
+        internal static ChromaCustomEventData? TryGetCustomEventData(CustomEventData customEventData)
         {
-            if (isMultiplayer)
+            return _chromaCustomEventDatas.TryGetCustomData<ChromaCustomEventData>(customEventData);
+        }
+
+        internal static void OnBuildTracks(CustomDataDeserializer.DeserializeBeatmapEventArgs eventArgs)
+        {
+            TrackBuilder trackBuilder = eventArgs.TrackBuilder;
+
+            IEnumerable<Dictionary<string, object?>>? environmentData = eventArgs.BeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object?>>();
+            if (environmentData != null)
+            {
+                foreach (Dictionary<string, object?> gameObjectData in environmentData)
+                {
+                    string? trackName = gameObjectData.Get<string>("_track");
+                    if (trackName != null)
+                    {
+                        trackBuilder.AddTrack(trackName);
+                    }
+                }
+            }
+
+            foreach (CustomEventData customEventData in eventArgs.CustomEventDatas)
+            {
+                try
+                {
+                    switch (customEventData.type)
+                    {
+                        case ASSIGNFOGTRACK:
+                            trackBuilder.AddTrack(customEventData.data.Get<string>("_track") ?? throw new InvalidOperationException("Track was not defined."));
+                            break;
+
+                        default:
+                            continue;
+                    }
+                }
+                catch (Exception e)
+                {
+                    CustomDataDeserializer.LogFailure(Plugin.Logger, e, customEventData);
+                }
+            }
+        }
+
+        internal static void OnDeserializeBeatmapData(CustomDataDeserializer.DeserializeBeatmapEventArgs eventArgs)
+        {
+            CustomBeatmapData beatmapData = eventArgs.BeatmapData;
+
+            TrackBuilder trackBuilder = eventArgs.TrackBuilder;
+            IEnumerable<Dictionary<string, object?>>? environmentData = beatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object?>>();
+            if (environmentData != null)
+            {
+                foreach (Dictionary<string, object?> gameObjectData in environmentData)
+                {
+                    string? trackName = gameObjectData.Get<string>("_track");
+                    if (trackName != null)
+                    {
+                        trackBuilder.AddTrack(trackName);
+                    }
+                }
+            }
+
+            _chromaCustomEventDatas = new Dictionary<CustomEventData, ICustomEventCustomData>();
+
+            Dictionary<string, Track> beatmapTracks = beatmapData.GetBeatmapTracks();
+            foreach (CustomEventData customEventData in eventArgs.CustomEventDatas)
+            {
+                try
+                {
+                    ICustomEventCustomData chromaCustomEventData;
+
+                    switch (customEventData.type)
+                    {
+                        case ASSIGNFOGTRACK:
+                            chromaCustomEventData = new ChromaCustomEventData(Heck.Animation.AnimationHelper.GetTrack(customEventData.data, beatmapTracks) ?? throw new InvalidOperationException("Track was not defined."));
+                            break;
+
+                        default:
+                            continue;
+                    }
+
+                    _chromaCustomEventDatas.Add(customEventData, chromaCustomEventData);
+                }
+                catch (Exception e)
+                {
+                    CustomDataDeserializer.LogFailure(Plugin.Logger, e, customEventData);
+                }
+            }
+
+            // I can probably remove this, but whatevers
+            if (eventArgs.IsMultiplayer)
             {
                 return;
             }
@@ -37,8 +125,7 @@
             _chromaObjectDatas = new Dictionary<BeatmapObjectData, IBeatmapObjectDataCustomData>();
 
             Dictionary<string, PointDefinition> pointDefinitions = beatmapData.GetBeatmapPointDefinitions();
-            Dictionary<string, Track> beatmapTracks = beatmapData.GetBeatmapTracks();
-            foreach (BeatmapObjectData beatmapObjectData in beatmapObjectsData)
+            foreach (BeatmapObjectData beatmapObjectData in eventArgs.BeatmapObjectDatas)
             {
                 try
                 {
@@ -73,30 +160,24 @@
                             continue;
                     }
 
-                    if (chromaObjectData != null)
+                    Dictionary<string, object?>? animationObjectDyn = customData.Get<Dictionary<string, object?>>(ANIMATION);
+                    if (animationObjectDyn != null)
                     {
-                        Dictionary<string, object?>? animationObjectDyn = customData.Get<Dictionary<string, object?>>(ANIMATION);
-                        if (animationObjectDyn != null)
-                        {
-                            chromaObjectData.LocalPathColor = Heck.Animation.AnimationHelper.TryGetPointData(animationObjectDyn, COLOR, pointDefinitions);
-                        }
-
-                        chromaObjectData.Track = Heck.Animation.AnimationHelper.GetTrackArray(customData, beatmapTracks);
-
-                        _chromaObjectDatas.Add(beatmapObjectData, chromaObjectData);
+                        chromaObjectData.LocalPathColor = Heck.Animation.AnimationHelper.TryGetPointData(animationObjectDyn, COLOR, pointDefinitions);
                     }
+
+                    chromaObjectData.Track = Heck.Animation.AnimationHelper.GetTrackArray(customData, beatmapTracks);
+
+                    _chromaObjectDatas.Add(beatmapObjectData, chromaObjectData);
                 }
                 catch (Exception e)
                 {
                     CustomDataDeserializer.LogFailure(Plugin.Logger, e, beatmapObjectData);
                 }
             }
-        }
 
-        internal static void DeserializeBeatmapEvents(bool _, IEnumerable<BeatmapEventData> beatmapEventsData, CustomBeatmapData beatmapData)
-        {
             _chromaEventDatas = new Dictionary<BeatmapEventData, IBeatmapEventDataCustomData>();
-            foreach (BeatmapEventData beatmapEventData in beatmapEventsData)
+            foreach (BeatmapEventData beatmapEventData in eventArgs.BeatmapEventDatas)
             {
                 try
                 {
