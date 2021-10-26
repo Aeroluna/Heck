@@ -28,17 +28,46 @@
             return _noodleEventDatas.TryGetCustomData<T>(customEventData);
         }
 
-        internal static void DeserializeBeatmapObjects(bool isMultiplayer, IEnumerable<BeatmapObjectData> beatmapObjectsData, CustomBeatmapData beatmapData)
+        internal static void OnBuildTracks(CustomDataDeserializer.DeserializeBeatmapEventArgs eventArgs)
         {
-            if (isMultiplayer)
+            TrackBuilder trackBuilder = eventArgs.TrackBuilder;
+            foreach (CustomEventData customEventData in eventArgs.CustomEventDatas)
+            {
+                try
+                {
+                    switch (customEventData.type)
+                    {
+                        case ASSIGNPLAYERTOTRACK:
+                            trackBuilder.AddTrack(customEventData.data.Get<string>(TRACK) ?? throw new InvalidOperationException("Track was not defined."));
+                            break;
+
+                        case ASSIGNTRACKPARENT:
+                            trackBuilder.AddTrack(customEventData.data.Get<string>(PARENTTRACK) ?? throw new InvalidOperationException("Parent track was not defined."));
+                            break;
+
+                        default:
+                            continue;
+                    }
+                }
+                catch (Exception e)
+                {
+                    CustomDataDeserializer.LogFailure(Plugin.Logger, e, customEventData);
+                }
+            }
+        }
+
+        internal static void OnDeserializeBeatmapData(CustomDataDeserializer.DeserializeBeatmapEventArgs eventArgs)
+        {
+            if (eventArgs.IsMultiplayer)
             {
                 return;
             }
 
+            CustomBeatmapData beatmapData = eventArgs.BeatmapData;
             _noodleObjectDatas = new Dictionary<BeatmapObjectData, IBeatmapObjectDataCustomData>();
             Dictionary<string, PointDefinition> pointDefinitions = beatmapData.GetBeatmapPointDefinitions();
             Dictionary<string, Track> beatmapTracks = beatmapData.GetBeatmapTracks();
-            foreach (BeatmapObjectData beatmapObjectData in beatmapObjectsData)
+            foreach (BeatmapObjectData beatmapObjectData in eventArgs.BeatmapObjectDatas)
             {
                 try
                 {
@@ -67,34 +96,23 @@
                             continue;
                     }
 
-                    if (noodleObjectData != null)
-                    {
-                        FinalizeCustomObject(customData, noodleObjectData, pointDefinitions, beatmapTracks);
-                        _noodleObjectDatas.Add(beatmapObjectData, noodleObjectData);
-                    }
+                    FinalizeCustomObject(customData, noodleObjectData, pointDefinitions, beatmapTracks);
+                    _noodleObjectDatas.Add(beatmapObjectData, noodleObjectData);
                 }
                 catch (Exception e)
                 {
                     CustomDataDeserializer.LogFailure(Plugin.Logger, e, beatmapObjectData);
                 }
             }
-        }
-
-        internal static void DeserializeCustomEvents(bool isMultiplayer, IEnumerable<CustomEventData> customEventsData, CustomBeatmapData beatmapData)
-        {
-            if (isMultiplayer)
-            {
-                return;
-            }
 
             _noodleEventDatas = new Dictionary<CustomEventData, ICustomEventCustomData>();
-            Dictionary<string, Track> beatmapTracks = beatmapData.GetBeatmapTracks();
-            foreach (CustomEventData customEventData in customEventsData)
+            foreach (CustomEventData customEventData in eventArgs.CustomEventDatas)
             {
                 try
                 {
                     ICustomEventCustomData noodleEventData;
 
+                    Dictionary<string, object?> data = customEventData.data;
                     switch (customEventData.type)
                     {
                         case ASSIGNPLAYERTOTRACK:
@@ -102,17 +120,14 @@
                             break;
 
                         case ASSIGNTRACKPARENT:
-                            noodleEventData = ProcessParentTrackEvent(customEventData.data, beatmapTracks);
+                            noodleEventData = ProcessParentTrackEvent(data, beatmapTracks);
                             break;
 
                         default:
                             continue;
                     }
 
-                    if (noodleEventData != null)
-                    {
-                        _noodleEventDatas.Add(customEventData, noodleEventData);
-                    }
+                    _noodleEventDatas.Add(customEventData, noodleEventData);
                 }
                 catch (Exception e)
                 {
@@ -145,7 +160,7 @@
 
             noodleObjectData.Track = GetTrackArray(dynData, beatmapTracks);
 
-            Dictionary<string, object?>? animationObjectDyn = dynData.Get<Dictionary<string, object?>>("_animation");
+            Dictionary<string, object?>? animationObjectDyn = dynData.Get<Dictionary<string, object?>>(ANIMATION);
             if (animationObjectDyn != null)
             {
                 NoodleObjectData.AnimationObjectData animationObjectData = new NoodleObjectData.AnimationObjectData

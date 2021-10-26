@@ -13,6 +13,7 @@
         internal const string HARMONYIDCORE = "com.aeroluna.BeatSaber.NoodleExtensionsCore";
         internal const string HARMONYID = "com.aeroluna.BeatSaber.NoodleExtensions";
 
+        internal const string ANIMATION = "_animation";
         internal const string CUTDIRECTION = "_cutDirection";
         internal const string CUTTABLE = "_interactable";
         internal const string DEFINITEPOSITION = "_definitePosition";
@@ -30,6 +31,10 @@
         internal const string SCALE = "_scale";
         internal const string TIME = "_time";
         internal const string TRACK = "_track";
+        internal const string WORLDPOSITIONSTAYS = "_worldPositionStays";
+
+        internal const string PARENTTRACK = "_parentTrack";
+        internal const string CHILDRENTRACKS = "_childrenTracks";
 
         internal const string ASSIGNPLAYERTOTRACK = "AssignPlayerToTrack";
         internal const string ASSIGNTRACKPARENT = "AssignTrackParent";
@@ -54,11 +59,9 @@
             SongCore.Collections.RegisterCapability(CAPABILITY);
             _harmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
 
-            Heck.Animation.TrackBuilder.TrackManagerCreated += Animation.AssignPlayerToTrack.OnTrackManagerCreated;
-            Heck.Animation.TrackBuilder.TrackManagerCreated += Animation.AssignTrackParent.OnTrackManagerCreated;
             Heck.Animation.TrackBuilder.TrackCreated += Animation.AnimationHelper.OnTrackCreated;
-            CustomDataDeserializer.OnDeserializeBeatmapObjectDatas += NoodleCustomDataManager.DeserializeBeatmapObjects;
-            CustomDataDeserializer.OnDeserializeCustomEventDatas += NoodleCustomDataManager.DeserializeCustomEvents;
+            CustomDataDeserializer.BuildTracks += NoodleCustomDataManager.OnBuildTracks;
+            CustomDataDeserializer.DeserializeBeatmapData += NoodleCustomDataManager.OnDeserializeBeatmapData;
         }
 
         [OnDisable]
@@ -68,11 +71,9 @@
             _harmonyInstanceCore.UnpatchAll(HARMONYIDCORE);
             _harmonyInstanceCore.UnpatchAll(HARMONYID);
 
-            Heck.Animation.TrackBuilder.TrackManagerCreated -= Animation.AssignPlayerToTrack.OnTrackManagerCreated;
-            Heck.Animation.TrackBuilder.TrackManagerCreated -= Animation.AssignTrackParent.OnTrackManagerCreated;
             Heck.Animation.TrackBuilder.TrackCreated -= Animation.AnimationHelper.OnTrackCreated;
-            CustomDataDeserializer.OnDeserializeBeatmapObjectDatas -= NoodleCustomDataManager.DeserializeBeatmapObjects;
-            CustomDataDeserializer.OnDeserializeCustomEventDatas -= NoodleCustomDataManager.DeserializeCustomEvents;
+            CustomDataDeserializer.BuildTracks -= NoodleCustomDataManager.OnBuildTracks;
+            CustomDataDeserializer.DeserializeBeatmapData -= NoodleCustomDataManager.OnDeserializeBeatmapData;
         }
     }
 }

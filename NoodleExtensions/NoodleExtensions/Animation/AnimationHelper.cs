@@ -11,8 +11,6 @@
 
     public static class AnimationHelper
     {
-        private static BasicBeatmapObjectManager? BeatmapObjectManager => HarmonyPatches.BeatmapObjectSpawnControllerStart.BeatmapObjectManager;
-
         internal static void OnTrackCreated(Track track)
         {
             track.AddProperty(POSITION, PropertyType.Vector3);
