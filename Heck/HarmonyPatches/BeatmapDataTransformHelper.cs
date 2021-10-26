@@ -19,7 +19,7 @@
         {
             if (__result is CustomBeatmapData customBeatmapData)
             {
-                TrackBuilder trackManager = new TrackBuilder(customBeatmapData);
+                TrackBuilder trackManager = new TrackBuilder();
                 foreach (BeatmapLineData beatmapLineData in customBeatmapData.beatmapLinesData)
                 {
                     foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
@@ -123,7 +123,7 @@
                 bool isMultiplayer = stackTrace.GetFrame(2).GetMethod().Name.Contains("MultiplayerConnectedPlayerInstaller");
 
                 customBeatmapData.customData["isMultiplayer"] = isMultiplayer;
-                CustomDataDeserializer.DeserializeBeatmapData(isMultiplayer, customBeatmapData);
+                CustomDataDeserializer.InvokeDeserializeBeatmapData(isMultiplayer, customBeatmapData, trackManager);
 
                 if (isMultiplayer)
                 {

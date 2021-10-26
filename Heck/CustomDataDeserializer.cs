@@ -5,6 +5,7 @@
     using System.Linq;
     using CustomJSONData;
     using CustomJSONData.CustomBeatmap;
+    using Heck.Animation;
 
     public interface ICustomEventCustomData
     {
@@ -20,11 +21,9 @@
 
     public static class CustomDataDeserializer
     {
-        public static event Action<bool, IEnumerable<CustomEventData>, CustomBeatmapData>? OnDeserializeCustomEventDatas;
+        public static event Action<DeserializeBeatmapEventArgs>? DeserializeBeatmapData;
 
-        public static event Action<bool, IEnumerable<BeatmapEventData>, CustomBeatmapData>? OnDeserializeBeatmapEventDatas;
-
-        public static event Action<bool, IEnumerable<BeatmapObjectData>, CustomBeatmapData>? OnDeserializeBeatmapObjectDatas;
+        public static event Action<DeserializeBeatmapEventArgs>? BuildTracks;
 
         public static T? TryGetCustomData<T>(this IDictionary<CustomEventData, ICustomEventCustomData> dictionary, CustomEventData customEventData)
             where T : ICustomEventCustomData?
@@ -46,27 +45,24 @@
 
         public static void LogFailure(HeckLogger logger, Exception e, CustomEventData customEventData)
         {
-            logger.Log($"Could not parse custom data for custom event {customEventData.type} at {customEventData.time}.", IPA.Logging.Logger.Level.Error);
+            logger.Log($"Could not parse custom data for custom event [{customEventData.type}] at [{customEventData.time}].", IPA.Logging.Logger.Level.Error);
             logger.Log(e, IPA.Logging.Logger.Level.Error);
         }
 
         public static void LogFailure(HeckLogger logger, Exception e, BeatmapEventData beatmapEventData)
         {
-            logger.Log($"Could not parse custom data for event {beatmapEventData.type} at {beatmapEventData.time}.", IPA.Logging.Logger.Level.Error);
+            logger.Log($"Could not parse custom data for event [{beatmapEventData.type}] at [{beatmapEventData.time}].", IPA.Logging.Logger.Level.Error);
             logger.Log(e, IPA.Logging.Logger.Level.Error);
         }
 
         public static void LogFailure(HeckLogger logger, Exception e, BeatmapObjectData beatmapObjectData)
         {
-            logger.Log($"Could not parse custom data for object {beatmapObjectData.GetType().Name} at {beatmapObjectData.time}.", IPA.Logging.Logger.Level.Error);
+            logger.Log($"Could not parse custom data for object [{beatmapObjectData.GetType().Name}] at [{beatmapObjectData.time}].", IPA.Logging.Logger.Level.Error);
             logger.Log(e, IPA.Logging.Logger.Level.Error);
         }
 
-        internal static void DeserializeBeatmapData(bool isMultiplayer, CustomBeatmapData customBeatmapData)
+        internal static void InvokeDeserializeBeatmapData(bool isMultiplayer, CustomBeatmapData customBeatmapData, TrackBuilder trackBuilder)
         {
-            OnDeserializeBeatmapEventDatas?.Invoke(isMultiplayer, customBeatmapData.beatmapEventsData, customBeatmapData);
-            OnDeserializeBeatmapObjectDatas?.Invoke(isMultiplayer, customBeatmapData.beatmapObjectsData, customBeatmapData);
-
             IEnumerable<CustomEventData> customEventsData = customBeatmapData.customEventsData;
             IDictionary<string, CustomEventData>? eventDefinitions = customBeatmapData.customData.Get<IDictionary<string, CustomEventData>>("eventDefinitions");
             if (eventDefinitions != null)
@@ -78,7 +74,11 @@
                 Plugin.Logger.Log("Failed to load eventDefinitions.", IPA.Logging.Logger.Level.Error);
             }
 
-            OnDeserializeCustomEventDatas?.Invoke(isMultiplayer, customEventsData, customBeatmapData);
+            DeserializeBeatmapEventArgs eventArgs = new DeserializeBeatmapEventArgs(isMultiplayer, customBeatmapData, trackBuilder, customEventsData, customBeatmapData.beatmapEventsData, customBeatmapData.beatmapObjectsData);
+
+            BuildTracks?.Invoke(eventArgs);
+
+            DeserializeBeatmapData?.Invoke(eventArgs);
         }
 
         private static TFinalType? TryGetCustomData<TObjectType, TDataType, TFinalType>(this IDictionary<TObjectType, TDataType> dictionary, TObjectType key)
@@ -96,6 +96,37 @@
             }
 
             return default;
+        }
+
+        public class DeserializeBeatmapEventArgs : EventArgs
+        {
+            public DeserializeBeatmapEventArgs(
+                bool isMultiplayer,
+                CustomBeatmapData beatmapData,
+                TrackBuilder trackBuilder,
+                IEnumerable<CustomEventData> customEventDatas,
+                IEnumerable<BeatmapEventData> beatmapEventDatas,
+                IEnumerable<BeatmapObjectData> beatmapObjectDatas)
+            {
+                IsMultiplayer = isMultiplayer;
+                BeatmapData = beatmapData;
+                TrackBuilder = trackBuilder;
+                CustomEventDatas = customEventDatas;
+                BeatmapEventDatas = beatmapEventDatas;
+                BeatmapObjectDatas = beatmapObjectDatas;
+            }
+
+            public bool IsMultiplayer { get; }
+
+            public CustomBeatmapData BeatmapData { get; }
+
+            public TrackBuilder TrackBuilder { get; }
+
+            public IEnumerable<CustomEventData> CustomEventDatas { get; }
+
+            public IEnumerable<BeatmapEventData> BeatmapEventDatas { get; }
+
+            public IEnumerable<BeatmapObjectData> BeatmapObjectDatas { get; }
         }
     }
 }

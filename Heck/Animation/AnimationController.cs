@@ -3,13 +3,13 @@
     using CustomJSONData;
     using UnityEngine;
 
-    public class AnimationController : MonoBehaviour
+    internal class AnimationController : MonoBehaviour
     {
-        public static AnimationController? Instance { get; private set; }
+        internal static AnimationController? Instance { get; private set; }
 
-        public CustomEventCallbackController? CustomEventCallbackController { get; private set; }
+        internal CustomEventCallbackController? CustomEventCallbackController { get; private set; }
 
-        public BeatmapObjectSpawnController? BeatmapObjectSpawnController => HarmonyPatches.BeatmapObjectSpawnControllerStart.BeatmapObjectSpawnController;
+        internal BeatmapObjectSpawnController? BeatmapObjectSpawnController => HarmonyPatches.BeatmapObjectSpawnControllerStart.BeatmapObjectSpawnController;
 
         internal static void CustomEventCallbackInit(CustomEventCallbackController customEventCallbackController)
         {

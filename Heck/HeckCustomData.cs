@@ -19,17 +19,18 @@
             return _heckEventDatas.TryGetCustomData<T>(customEventData);
         }
 
-        internal static void DeserializeCustomEvents(bool isMultiplayer, IEnumerable<CustomEventData> customEventsData, CustomBeatmapData beatmapData)
+        internal static void DeserializeCustomEvents(CustomDataDeserializer.DeserializeBeatmapEventArgs eventArgs)
         {
-            if (isMultiplayer)
+            if (eventArgs.IsMultiplayer)
             {
                 return;
             }
 
+            CustomBeatmapData beatmapData = eventArgs.BeatmapData;
             _heckEventDatas = new Dictionary<CustomEventData, ICustomEventCustomData>();
             Dictionary<string, PointDefinition> pointDefinitions = beatmapData.GetBeatmapPointDefinitions();
             Dictionary<string, Track> beatmapTracks = beatmapData.GetBeatmapTracks();
-            foreach (CustomEventData customEventData in customEventsData)
+            foreach (CustomEventData customEventData in eventArgs.CustomEventDatas)
             {
                 try
                 {

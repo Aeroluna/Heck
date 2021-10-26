@@ -2,18 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using CustomJSONData.CustomBeatmap;
     using UnityEngine;
 
     public class TrackBuilder
     {
-        internal TrackBuilder(CustomBeatmapData beatmapData)
-        {
-            TrackManagerCreated?.Invoke(this, beatmapData);
-        }
-
-        public static event Action<TrackBuilder, CustomBeatmapData>? TrackManagerCreated;
-
         public static event Action<Track>? TrackCreated;
 
         public IDictionary<string, Track> Tracks { get; } = new Dictionary<string, Track>();

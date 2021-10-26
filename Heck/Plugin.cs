@@ -55,7 +55,7 @@
             Logger = new HeckLogger(pluginLogger);
             SettingsSetter.SettingSetterSettableSettingsManager.SetupSettingsTable();
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
-            CustomDataDeserializer.OnDeserializeCustomEventDatas += HeckCustomDataManager.DeserializeCustomEvents;
+            CustomDataDeserializer.DeserializeBeatmapData += HeckCustomDataManager.DeserializeCustomEvents;
         }
 
         [OnEnable]
