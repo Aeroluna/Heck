@@ -16,6 +16,7 @@
     {
         internal static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
         internal static readonly FieldAccessor<NoteMovement, NoteFloorMovement>.Accessor _noteFloorMovementAccessor = FieldAccessor<NoteMovement, NoteFloorMovement>.GetAccessor("_floorMovement");
+        internal static readonly FieldAccessor<NoteMovement, float>.Accessor _zOffsetAccessor = FieldAccessor<NoteMovement, float>.GetAccessor("_zOffset");
 
         internal static readonly FieldAccessor<NoteFloorMovement, Quaternion>.Accessor _worldRotationFloorAccessor = FieldAccessor<NoteFloorMovement, Quaternion>.GetAccessor("_worldRotation");
         internal static readonly FieldAccessor<NoteFloorMovement, Quaternion>.Accessor _inverseWorldRotationFloorAccessor = FieldAccessor<NoteFloorMovement, Quaternion>.GetAccessor("_inverseWorldRotation");
@@ -101,6 +102,12 @@
                     track.AddGameObject(__instance.gameObject);
                 }
             }
+
+            // how fucking long has _zOffset existed???!??
+            float zOffset = _zOffsetAccessor(ref ____noteMovement);
+            moveStartPos.z += zOffset;
+            moveEndPos.z += zOffset;
+            jumpEndPos.z += zOffset;
 
             noodleData.EndRotation = endRotation;
             noodleData.MoveStartPos = moveStartPos;
