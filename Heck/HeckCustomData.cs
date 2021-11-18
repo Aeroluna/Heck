@@ -76,35 +76,36 @@
 
             heckEventData.Duration = data.Get<float?>(DURATION) ?? 0f;
 
-            Track track = GetTrack(data, beatmapTracks) ?? throw new InvalidOperationException("Track was not defined.");
-
-            IDictionary<string, Property> properties;
-            switch (customEventData.type)
-            {
-                case ANIMATETRACK:
-                    properties = track.Properties;
-                    break;
-
-                case ASSIGNPATHANIMATION:
-                    properties = track.PathProperties;
-                    break;
-
-                default:
-                    throw new InvalidOperationException("Custom event was not of correct type.");
-            }
+            IEnumerable<Track> tracks = GetTrackArray(data, beatmapTracks) ?? throw new InvalidOperationException("Track was not defined.");
 
             string[] excludedStrings = new string[] { TRACK, DURATION, EASING };
-            foreach (KeyValuePair<string, object?> valuePair in data)
+            IEnumerable<string> propertyKeys = data.Keys.Where(n => !excludedStrings.Any(m => m == n));
+            foreach (Track track in tracks)
             {
-                if (!excludedStrings.Any(n => n == valuePair.Key))
+                IDictionary<string, Property> properties;
+                switch (customEventData.type)
                 {
-                    if (!properties.TryGetValue(valuePair.Key, out Property property))
+                    case ANIMATETRACK:
+                        properties = track.Properties;
+                        break;
+
+                    case ASSIGNPATHANIMATION:
+                        properties = track.PathProperties;
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("Custom event was not of correct type.");
+                }
+
+                foreach (string propertyKey in propertyKeys)
+                {
+                    if (!properties.TryGetValue(propertyKey, out Property property))
                     {
-                        Logger.Log($"Could not find property {valuePair.Key}!", IPA.Logging.Logger.Level.Error);
+                        Logger.Log($"Could not find property {propertyKey}!", IPA.Logging.Logger.Level.Error);
                         continue;
                     }
 
-                    HeckCoroutineEventData.CoroutineInfo coroutineInfo = new HeckCoroutineEventData.CoroutineInfo(TryGetPointData(data, valuePair.Key, pointDefinitions), property);
+                    HeckCoroutineEventData.CoroutineInfo coroutineInfo = new HeckCoroutineEventData.CoroutineInfo(TryGetPointData(data, propertyKey, pointDefinitions), property);
 
                     heckEventData.CoroutineInfos.Add(coroutineInfo);
                 }

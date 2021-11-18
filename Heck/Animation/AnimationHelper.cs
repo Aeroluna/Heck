@@ -86,14 +86,14 @@
                         return pointData;
                     }
 
-                    Plugin.Logger.Log($"Could not find point definition {castedString}!", IPA.Logging.Logger.Level.Error);
+                    Plugin.Logger.Log($"Could not find point definition [{castedString}].", IPA.Logging.Logger.Level.Error);
                     return null;
 
                 case List<object> list:
                     return PointDefinition.ListToPointDefinition(list);
 
                 default:
-                    throw new InvalidOperationException($"Point was not a valid type. Got {pointString.GetType().FullName}");
+                    throw new InvalidOperationException($"Point was not a valid type. Got [{pointString.GetType().FullName}].");
             }
         }
 
@@ -116,7 +116,7 @@
             }
             else
             {
-                throw new InvalidOperationException($"Could not find track {trackName}.");
+                throw new InvalidOperationException($"Could not find track [{trackName}].");
             }
         }
 
@@ -152,7 +152,7 @@
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Could not find track {trackName}.");
+                    throw new InvalidOperationException($"Could not find track [{trackName}].");
                 }
             }
 
