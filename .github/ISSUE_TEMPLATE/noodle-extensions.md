@@ -1,6 +1,6 @@
 ---
 name: Noodle Extensions
-about: Create a Chroma-specific issue
+about: Create a Noodle Extensions-specific issue
 title: ''
 labels: 'mod: noodle extensions'
 assignees: ''

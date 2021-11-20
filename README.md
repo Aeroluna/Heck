@@ -3,7 +3,7 @@ heck.
 
 [//why the heck are you looking at the raw you little creep]: #
 
- These mods are all about giving the mapper more power to make amazing maps! These features range from moving walls around mid-flight, creating fake notes, and even coloring bombs, all on a pre-programmed path. Together these mods can be installed by a user and will activate on a map that requires these mods. Combining these mods in one map culminates into something called a [modchart](https://youtu.be/5xA3iR5v-Rk) (C17H27NO3 - Mapped by Mawntee).
+ These mods are all about giving the mapper more power to make amazing maps! These features range from moving walls around mid-flight, creating fake notes, and even coloring bombs, all on a pre-programmed path. Together these mods can be installed by a user and will activate on a map that requires these mods. Combining these mods in one map culminates into something called a [modhcart](https://youtu.be/5xA3iR5v-Rk) (C18H27NO3 - Mapped by Mawntee).
 
 
 ## Documentation

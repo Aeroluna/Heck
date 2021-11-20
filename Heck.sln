@@ -14,6 +14,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoodleExtensions", "NoodleE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chroma", "Chroma\Chroma.csproj", "{B2DC580C-A4D3-4A86-967E-5010786FF140}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{3F326F36-A51D-482B-BBE3-C1D1CCA99AFD}"
+	ProjectSection(SolutionItems) = preProject
+		.github\FUNDING.yml = .github\FUNDING.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ISSUE_TEMPLATE", "ISSUE_TEMPLATE", "{FC9DF625-D953-465F-A2CD-20DC7D6CF239}"
+	ProjectSection(SolutionItems) = preProject
+		.github\ISSUE_TEMPLATE\chroma.md = .github\ISSUE_TEMPLATE\chroma.md
+		.github\ISSUE_TEMPLATE\heck.md = .github\ISSUE_TEMPLATE\heck.md
+		.github\ISSUE_TEMPLATE\noodle-extensions.md = .github\ISSUE_TEMPLATE\noodle-extensions.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +47,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3F326F36-A51D-482B-BBE3-C1D1CCA99AFD} = {A06F606D-BE9B-4DE4-BD76-C7D00CE1ECFE}
+		{FC9DF625-D953-465F-A2CD-20DC7D6CF239} = {3F326F36-A51D-482B-BBE3-C1D1CCA99AFD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {46C6F72C-6F26-4DCA-9819-D4AB393ADF37}
