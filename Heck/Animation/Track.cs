@@ -8,7 +8,7 @@
     {
         public static event Action<Track>? TrackCreated;
 
-        public IDictionary<string, Track> Tracks { get; } = new Dictionary<string, Track>();
+        public Dictionary<string, Track> Tracks { get; } = new Dictionary<string, Track>();
 
         public Track AddTrack(string trackName)
         {

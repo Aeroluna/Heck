@@ -14,10 +14,11 @@
     [HarmonyPatch("CreateTransformedBeatmapData")]
     internal static class BeatmapDataTransformHelperCreateTransformedBeatmapData
     {
+        // Tracks are created before anything else as it is possible for a wall/note to be removed, thus never making the track for it.
         [HarmonyPriority(Priority.High)]
-        private static void Postfix(IReadonlyBeatmapData __result)
+        private static void Prefix(IReadonlyBeatmapData beatmapData, ref TrackBuilder __state)
         {
-            if (__result is CustomBeatmapData customBeatmapData)
+            if (beatmapData is CustomBeatmapData customBeatmapData)
             {
                 TrackBuilder trackManager = new TrackBuilder();
                 foreach (BeatmapLineData beatmapLineData in customBeatmapData.beatmapLinesData)
@@ -61,8 +62,15 @@
                     }
                 }
 
-                customBeatmapData.customData["tracks"] = trackManager.Tracks;
+                __state = trackManager;
+            }
+        }
 
+        [HarmonyPriority(Priority.High)]
+        private static void Postfix(IReadonlyBeatmapData __result, TrackBuilder __state)
+        {
+            if (__result is CustomBeatmapData customBeatmapData)
+            {
                 // Point definitions
                 IDictionary<string, PointDefinition> pointDefinitions = new Dictionary<string, PointDefinition>();
                 void AddPoint(string pointDataName, PointDefinition pointData)
@@ -123,7 +131,8 @@
                 bool isMultiplayer = stackTrace.GetFrame(2).GetMethod().Name.Contains("MultiplayerConnectedPlayerInstaller");
 
                 customBeatmapData.customData["isMultiplayer"] = isMultiplayer;
-                CustomDataDeserializer.InvokeDeserializeBeatmapData(isMultiplayer, customBeatmapData, trackManager);
+                customBeatmapData.customData["tracks"] = __state.Tracks;
+                CustomDataDeserializer.InvokeDeserializeBeatmapData(isMultiplayer, customBeatmapData, __state);
 
                 if (isMultiplayer)
                 {

@@ -253,9 +253,9 @@
             }
 
             return new NoodleParentTrackEventData(
-                GetTrack(customData, beatmapTracks, "_parentTrack") ?? throw new InvalidOperationException("Parent track was not defined."),
-                GetTrackArray(customData, beatmapTracks, "_childrenTracks") ?? throw new InvalidOperationException("Children track was not defined."),
-                customData.Get<bool?>("_worldPositionStays") ?? false,
+                GetTrack(customData, beatmapTracks, PARENTTRACK) ?? throw new InvalidOperationException("Parent track was not defined."),
+                GetTrackArray(customData, beatmapTracks, CHILDRENTRACKS) ?? throw new InvalidOperationException("Children track was not defined."),
+                customData.Get<bool?>(WORLDPOSITIONSTAYS) ?? false,
                 posVector,
                 rotQuaternion,
                 localRotQuaternion,
