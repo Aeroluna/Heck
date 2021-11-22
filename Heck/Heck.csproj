@@ -20,11 +20,7 @@
     <DisableCopyToPlugins>True</DisableCopyToPlugins>
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="SettingsSetter\SettableSettingsContent.bsml" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>

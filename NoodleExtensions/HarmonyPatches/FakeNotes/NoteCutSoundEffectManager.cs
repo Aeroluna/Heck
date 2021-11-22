@@ -39,7 +39,7 @@
     {
         private readonly List<NoteController> _hitsoundQueue = new List<NoteController>();
 
-        private NoteCutSoundEffectManager? _noteCutSoundEffectManager;
+        private NoteCutSoundEffectManager _noteCutSoundEffectManager = null!;
         private int _lastFrame = -1;
         private int _cutCount = -1;
 
@@ -78,7 +78,7 @@
             {
                 List<NoteController> noteControllers = new List<NoteController>(_hitsoundQueue);
                 _hitsoundQueue.Clear();
-                noteControllers.ForEach(_noteCutSoundEffectManager!.HandleNoteWasSpawned);
+                noteControllers.ForEach(_noteCutSoundEffectManager.HandleNoteWasSpawned);
                 Plugin.Logger.Log($"{noteControllers.Count} cut sounds moved to next frame!");
             }
         }

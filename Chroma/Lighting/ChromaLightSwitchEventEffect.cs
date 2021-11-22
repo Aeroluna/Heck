@@ -39,18 +39,18 @@
         private static readonly FieldAccessor<LightSwitchEventEffect, SongTimeTweeningManager>.Accessor _tweeningManagerAccessor = FieldAccessor<LightSwitchEventEffect, SongTimeTweeningManager>.GetAccessor("_tweeningManager");
 
         private readonly Dictionary<ILightWithId, ChromaIDColorTween> _colorTweens = new Dictionary<ILightWithId, ChromaIDColorTween>();
-        private LightColorizer? _lightColorizer;
+        private LightColorizer _lightColorizer = null!;
 
-        private ColorSO? _originalLightColor0;
-        private ColorSO? _originalLightColor1;
-        private ColorSO? _originalLightColor0Boost;
-        private ColorSO? _originalLightColor1Boost;
+        private ColorSO _originalLightColor0 = null!;
+        private ColorSO _originalLightColor1 = null!;
+        private ColorSO _originalLightColor0Boost = null!;
+        private ColorSO _originalLightColor1Boost = null!;
 
         public Dictionary<ILightWithId, ChromaIDColorTween> ColorTweens => _colorTweens;
 
         public BeatmapEventType EventType => _event;
 
-        public LightColorizer LightColorizer => _lightColorizer ?? throw new InvalidOperationException($"[{nameof(_lightColorizer)}] was null.");
+        public LightColorizer LightColorizer => _lightColorizer;
 
         public override void Awake()
         {
@@ -94,7 +94,7 @@
 
                         if (chromaData.LightID != null)
                         {
-                            selectLights = LightColorizer.GetLightWithIds(chromaData.LightID);
+                            selectLights = _lightColorizer.GetLightWithIds(chromaData.LightID);
                         }
 
                         // propID is now DEPRECATED!!!!!!!!
@@ -104,12 +104,12 @@
                             switch (propID)
                             {
                                 case List<object> propIDobjects:
-                                    selectLights = LightColorizer.GetPropagationLightWithIds(propIDobjects.Select(n => Convert.ToInt32(n)));
+                                    selectLights = _lightColorizer.GetPropagationLightWithIds(propIDobjects.Select(n => Convert.ToInt32(n)));
 
                                     break;
 
                                 case long propIDlong:
-                                    selectLights = LightColorizer.GetPropagationLightWithIds(new int[] { (int)propIDlong });
+                                    selectLights = _lightColorizer.GetPropagationLightWithIds(new int[] { (int)propIDlong });
 
                                     break;
                             }
@@ -132,11 +132,11 @@
                         if (color.HasValue)
                         {
                             Color finalColor = color.Value;
-                            LightColorizer.Colorize(false, finalColor, finalColor, finalColor, finalColor);
+                            _lightColorizer.Colorize(false, finalColor, finalColor, finalColor, finalColor);
                         }
                         else if (!ChromaGradientController.IsGradientActive(beatmapEventData.type))
                         {
-                            LightColorizer.Colorize(false, null, null, null, null);
+                            _lightColorizer.Colorize(false, null, null, null, null);
                         }
 
                         easing = chromaData.Easing;
@@ -384,19 +384,19 @@
             {
                 if (!IsColor0(beatmapEventValue))
                 {
-                    return _originalLightColor1Boost!.color;
+                    return _originalLightColor1Boost.color;
                 }
 
-                return _originalLightColor0Boost!.color;
+                return _originalLightColor0Boost.color;
             }
             else
             {
                 if (!IsColor0(beatmapEventValue))
                 {
-                    return _originalLightColor1!.color;
+                    return _originalLightColor1.color;
                 }
 
-                return _originalLightColor0!.color;
+                return _originalLightColor0.color;
             }
         }
     }

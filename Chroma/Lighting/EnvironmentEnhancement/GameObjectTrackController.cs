@@ -12,14 +12,12 @@
     {
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
 
-        private Track? _track;
+        private Track _track = null!;
 
         private float _noteLinesDistance;
 
         private TrackLaneRing? _trackLaneRing;
-
         private ParametricBoxController? _parametricBoxController;
-
         private BeatmapObjectsAvoidance? _beatmapObjectsAvoidance;
 
         internal static void HandleTrackData(

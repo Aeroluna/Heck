@@ -7,7 +7,7 @@
     {
         internal static AnimationController? Instance { get; private set; }
 
-        internal CustomEventCallbackController? CustomEventCallbackController { get; private set; }
+        internal CustomEventCallbackController CustomEventCallbackController { get; private set; } = null!;
 
         internal static void CustomEventCallbackInit(CustomEventCallbackController customEventCallbackController)
         {
@@ -24,8 +24,8 @@
             Instance = customEventCallbackController.gameObject.AddComponent<AnimationController>();
 
             Instance.CustomEventCallbackController = customEventCallbackController;
-            Instance.CustomEventCallbackController.AddCustomEventCallback(AssignPlayerToTrack.Callback);
-            Instance.CustomEventCallbackController.AddCustomEventCallback(AssignTrackParent.Callback);
+            customEventCallbackController.AddCustomEventCallback(AssignPlayerToTrack.Callback);
+            customEventCallbackController.AddCustomEventCallback(AssignTrackParent.Callback);
         }
     }
 }

@@ -5,7 +5,7 @@
     internal class ChromaSaberController : MonoBehaviour
     {
         private SaberType _saberType;
-        private SaberColorizer? _colorizer;
+        private SaberColorizer _colorizer = null!;
 
         internal void Init(Saber saber)
         {
@@ -15,10 +15,7 @@
 
         private void OnDestroy()
         {
-            if (_colorizer != null)
-            {
-                _saberType.GetSaberColorizers().Remove(_colorizer);
-            }
+            _saberType.GetSaberColorizers().Remove(_colorizer);
         }
     }
 }

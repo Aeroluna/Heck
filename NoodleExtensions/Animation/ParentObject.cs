@@ -11,8 +11,8 @@
 
     internal class ParentObject : MonoBehaviour
     {
-        private Track? _track;
-        private Transform? _origin;
+        private Track _track = null!;
+        private Transform _origin = null!;
         private bool _worldPositionStays;
         private Vector3 _startPos = Vector3.zero;
         private Quaternion _startRot = Quaternion.identity;
@@ -111,7 +111,7 @@
 
         private void ParentToObject(Transform transform)
         {
-            transform.SetParent(_origin!.transform, _worldPositionStays);
+            transform.SetParent(_origin.transform, _worldPositionStays);
         }
 
         private void OnDestroy()
@@ -172,7 +172,7 @@
                 scaleVector = Vector3.Scale(_startScale, scale.Value);
             }
 
-            if (_origin!.localRotation != worldRotationQuatnerion)
+            if (_origin.localRotation != worldRotationQuatnerion)
             {
                 _origin.localRotation = worldRotationQuatnerion;
             }

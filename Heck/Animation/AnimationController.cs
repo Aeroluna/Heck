@@ -7,9 +7,9 @@
     {
         internal static AnimationController? Instance { get; private set; }
 
-        internal CustomEventCallbackController? CustomEventCallbackController { get; private set; }
+        internal CustomEventCallbackController CustomEventCallbackController { get; private set; } = null!;
 
-        internal BeatmapObjectSpawnController? BeatmapObjectSpawnController => HarmonyPatches.BeatmapObjectSpawnControllerStart.BeatmapObjectSpawnController;
+        internal BeatmapObjectSpawnController BeatmapObjectSpawnController => HarmonyPatches.BeatmapObjectSpawnControllerStart.BeatmapObjectSpawnController;
 
         internal static void CustomEventCallbackInit(CustomEventCallbackController customEventCallbackController)
         {
@@ -26,9 +26,9 @@
             Instance = customEventCallbackController.gameObject.AddComponent<AnimationController>();
 
             Instance.CustomEventCallbackController = customEventCallbackController;
-            Instance.CustomEventCallbackController.AddCustomEventCallback(AnimateTrack.Callback);
-            Instance.CustomEventCallbackController.AddCustomEventCallback(AssignPathAnimation.Callback);
-            Instance.CustomEventCallbackController.AddCustomEventCallback(InvokeEvent.Callback);
+            customEventCallbackController.AddCustomEventCallback(AnimateTrack.Callback);
+            customEventCallbackController.AddCustomEventCallback(AssignPathAnimation.Callback);
+            customEventCallbackController.AddCustomEventCallback(InvokeEvent.Callback);
         }
     }
 }

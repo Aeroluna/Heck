@@ -4,7 +4,7 @@
 
     internal class ChromaParticleEventController : MonoBehaviour
     {
-        private ParticleColorizer? _colorizer;
+        private ParticleColorizer _colorizer = null!;
         private BeatmapEventType _eventType;
 
         internal void Init(ParticleSystemEventEffect particleSystemEventEffect, BeatmapEventType eventType)
@@ -15,11 +15,8 @@
 
         private void OnDestroy()
         {
-            if (_colorizer != null)
-            {
-                _colorizer.UnsubscribeEvent();
-                _eventType.GetParticleColorizers().Remove(_colorizer);
-            }
+            _colorizer.UnsubscribeEvent();
+            _eventType.GetParticleColorizers().Remove(_colorizer);
         }
     }
 }

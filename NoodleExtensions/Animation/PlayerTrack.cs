@@ -13,12 +13,14 @@
         private static readonly FieldAccessor<PauseController, bool>.Accessor _pausedAccessor = FieldAccessor<PauseController, bool>.GetAccessor("_paused");
 
         private static PlayerTrack? _instance;
-        private static Track? _track;
-        private static Vector3 _startPos = Vector3.zero;
-        private static Quaternion _startRot = Quaternion.identity;
-        private static Quaternion _startLocalRot = Quaternion.identity;
-        private static Transform? _origin;
-        private static PauseController? _pauseController;
+
+        private Track _track = null!;
+        private Transform _origin = null!;
+        private PauseController? _pauseController;
+
+        private Vector3 _startPos = Vector3.zero;
+        private Quaternion _startRot = Quaternion.identity;
+        private Quaternion _startLocalRot = Quaternion.identity;
 
         internal static void AssignTrack(Track track)
         {
@@ -26,28 +28,30 @@
             {
                 GameObject gameObject = GameObject.Find("LocalPlayerGameCore");
                 GameObject noodleObject = new GameObject("NoodlePlayerTrack");
-                _origin = noodleObject.transform;
-                _origin.SetParent(gameObject.transform.parent, true);
-                gameObject.transform.SetParent(_origin, true);
-
                 _instance = noodleObject.AddComponent<PlayerTrack>();
-                _pauseController = FindObjectOfType<PauseController>();
-                if (_pauseController != null)
+                Transform origin = noodleObject.transform;
+                _instance._origin = origin;
+                origin.SetParent(gameObject.transform.parent, true);
+                gameObject.transform.SetParent(origin, true);
+
+                PauseController pauseController = FindObjectOfType<PauseController>();
+                if (pauseController != null)
                 {
-                    _pauseController.didPauseEvent += _instance.OnDidPauseEvent;
+                    pauseController.didPauseEvent += _instance.OnDidPauseEvent;
+                    _instance._pauseController = pauseController;
                 }
 
-                _startLocalRot = _origin.localRotation;
-                _startPos = _origin.localPosition;
+                _instance._startLocalRot = origin.localRotation;
+                _instance._startPos = origin.localPosition;
             }
 
-            _track = track;
+            _instance._track = track;
         }
 
         private void OnDidPauseEvent()
         {
-            _origin!.localRotation = _startLocalRot;
-            _origin!.localPosition = _startPos;
+            _origin.localRotation = _startLocalRot;
+            _origin.localPosition = _startPos;
         }
 
         private void OnDestroy()
@@ -108,7 +112,7 @@
                     worldRotationQuatnerion *= localRotation!.Value;
                 }
 
-                if (_origin!.localRotation != worldRotationQuatnerion)
+                if (_origin.localRotation != worldRotationQuatnerion)
                 {
                     _origin.localRotation = worldRotationQuatnerion;
                 }

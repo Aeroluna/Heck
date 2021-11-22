@@ -18,10 +18,8 @@
 
         private static ChromaFogController? _instance;
 
-        private BloomFogEnvironmentParams? _transitionFogParams;
-        private Track? _track;
-
-        private BloomFogEnvironmentParams TransitionFogParams => _transitionFogParams ?? throw new System.InvalidOperationException($"{nameof(_transitionFogParams)} was null.");
+        private BloomFogEnvironmentParams _transitionFogParams = null!;
+        private Track _track = null!;
 
         internal static void OnTrackManagerCreated(TrackBuilder trackManager, CustomBeatmapData customBeatmapData)
         {
@@ -56,14 +54,9 @@
                         _instance = new GameObject(nameof(ChromaFogController)).AddComponent<ChromaFogController>();
                     }
 
-                    _instance.AssignNewTrack(chromaData.Track);
+                    _instance._track = chromaData.Track;
                 }
             }
-        }
-
-        private void AssignNewTrack(Track track)
-        {
-            _track = track;
         }
 
         private void Awake()
@@ -86,27 +79,27 @@
         private void Update()
         {
             float? attenuation = TryGetProperty<float?>(_track, ATTENUATION);
-            if (attenuation.HasValue && attenuation.Value != TransitionFogParams.attenuation)
+            if (attenuation.HasValue && attenuation.Value != _transitionFogParams.attenuation)
             {
-                TransitionFogParams.attenuation = attenuation.Value;
+                _transitionFogParams.attenuation = attenuation.Value;
             }
 
             float? offset = TryGetProperty<float?>(_track, OFFSET);
-            if (offset.HasValue && offset.Value != TransitionFogParams.offset)
+            if (offset.HasValue && offset.Value != _transitionFogParams.offset)
             {
-                TransitionFogParams.offset = offset.Value;
+                _transitionFogParams.offset = offset.Value;
             }
 
             float? startY = TryGetProperty<float?>(_track, HEIGHTFOGSTARTY);
-            if (startY.HasValue && startY.Value != TransitionFogParams.heightFogStartY)
+            if (startY.HasValue && startY.Value != _transitionFogParams.heightFogStartY)
             {
-                TransitionFogParams.heightFogStartY = startY.Value;
+                _transitionFogParams.heightFogStartY = startY.Value;
             }
 
             float? height = TryGetProperty<float?>(_track, HEIGHTFOGHEIGHT);
-            if (height.HasValue && height.Value != TransitionFogParams.heightFogHeight)
+            if (height.HasValue && height.Value != _transitionFogParams.heightFogHeight)
             {
-                TransitionFogParams.heightFogHeight = height.Value;
+                _transitionFogParams.heightFogHeight = height.Value;
             }
 
             BloomFogSO bloomFog = _bloomFog;
