@@ -5,6 +5,7 @@
     using Heck.Animation;
     using IPA.Utilities;
     using UnityEngine;
+    using static Chroma.Plugin;
     using static Heck.Animation.AnimationHelper;
     using static Heck.NullableExtensions;
 
@@ -56,11 +57,11 @@
 
         private void Update()
         {
-            Quaternion? rotation = GetQuaternionNullable("_rotation");
-            Quaternion? localRotation = GetQuaternionNullable("_localRotation");
-            Vector3? position = GetVectorNullable("_position");
-            Vector3? localPosition = GetVectorNullable("_localPosition");
-            Vector3? scale = GetVectorNullable("_scale");
+            Quaternion? rotation = GetQuaternionNullable(ROTATION);
+            Quaternion? localRotation = GetQuaternionNullable(LOCALROTATION);
+            Vector3? position = GetVectorNullable(POSITION);
+            Vector3? localPosition = GetVectorNullable(LOCALPOSITION);
+            Vector3? scale = GetVectorNullable(SCALE);
 
             bool updateParametricBox = false;
 
