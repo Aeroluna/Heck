@@ -67,12 +67,9 @@
             HeckCoroutineEventData heckEventData = new HeckCoroutineEventData();
 
             Dictionary<string, object?> data = customEventData.data;
-            string? easingString = data.Get<string>(EASING);
-            heckEventData.Easing = Functions.easeLinear;
-            if (easingString != null)
-            {
-                heckEventData.Easing = (Functions)Enum.Parse(typeof(Functions), easingString);
-            }
+
+            Functions? easing = data.GetStringToEnum<Functions?>(EASING);
+            heckEventData.Easing = easing ?? Functions.easeLinear;
 
             heckEventData.Duration = data.Get<float?>(DURATION) ?? 0f;
 

@@ -65,7 +65,7 @@
 
             bool updateParametricBox = false;
 
-            if (rotation.HasValue && transform.rotation != rotation.Value)
+            if (rotation.HasValue)
             {
                 // Delegate positioning the object to TrackLaneRing
                 Quaternion finalOffset;
@@ -92,7 +92,7 @@
                 }
             }
 
-            if (localRotation.HasValue && transform.localRotation != localRotation.Value)
+            if (localRotation.HasValue)
             {
                 if (_trackLaneRing != null)
                 {
@@ -108,7 +108,7 @@
                 }
             }
 
-            if (position.HasValue && transform.position != (position.Value * _noteLinesDistance))
+            if (position.HasValue)
             {
                 Vector3 positionValue = position.Value * _noteLinesDistance;
                 Vector3 finalOffset;
@@ -136,7 +136,7 @@
                 }
             }
 
-            if (localPosition.HasValue && transform.localPosition != localPosition.Value)
+            if (localPosition.HasValue)
             {
                 Vector3 localPositionValue = localPosition.Value * _noteLinesDistance;
                 if (_trackLaneRing != null)
@@ -154,7 +154,7 @@
                 }
             }
 
-            if (scale.HasValue && transform.localScale != scale.Value)
+            if (scale.HasValue)
             {
                 transform.localScale = scale.Value;
                 updateParametricBox = true;

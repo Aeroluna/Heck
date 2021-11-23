@@ -88,10 +88,7 @@
                 }
             }
 
-            if (transform.localScale != Vector3.one)
-            {
-                transform.localScale = Vector3.one; // This is a fix for animation due to notes being recycled
-            }
+            transform.localScale = Vector3.one; // This is a fix for animation due to notes being recycled
 
             IEnumerable<Track>? tracks = noodleData.Track;
             if (tracks != null)
@@ -262,29 +259,20 @@
                             BoxCuttableBySaber[] bigCuttableBySaberList = _gameNoteBigCuttableAccessor(ref gameNoteController);
                             foreach (BoxCuttableBySaber bigCuttableBySaber in bigCuttableBySaberList)
                             {
-                                if (bigCuttableBySaber.canBeCut != enabled)
-                                {
-                                    bigCuttableBySaber.canBeCut = enabled;
-                                }
+                                bigCuttableBySaber.canBeCut = enabled;
                             }
 
                             BoxCuttableBySaber[] smallCuttableBySaberList = _gameNoteSmallCuttableAccessor(ref gameNoteController);
                             foreach (BoxCuttableBySaber smallCuttableBySaber in smallCuttableBySaberList)
                             {
-                                if (smallCuttableBySaber.canBeCut != enabled)
-                                {
-                                    smallCuttableBySaber.canBeCut = enabled;
-                                }
+                                smallCuttableBySaber.canBeCut = enabled;
                             }
 
                             break;
 
                         case BombNoteController bombNoteController:
                             CuttableBySaber boxCuttableBySaber = _bombNoteCuttableAccessor(ref bombNoteController);
-                            if (boxCuttableBySaber.canBeCut != enabled)
-                            {
-                                boxCuttableBySaber.canBeCut = enabled;
-                            }
+                            boxCuttableBySaber.canBeCut = enabled;
 
                             break;
                     }

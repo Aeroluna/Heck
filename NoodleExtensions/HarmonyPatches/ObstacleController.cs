@@ -83,10 +83,7 @@
                 transform.localRotation = ____worldRotation * localRotation;
             }
 
-            if (transform.localScale != Vector3.one)
-            {
-                transform.localScale = Vector3.one; // This is a fix for animation due to obstacles being recycled
-            }
+            transform.localScale = Vector3.one; // This is a fix for animation due to obstacles being recycled
 
             IEnumerable<Track>? tracks = noodleData.Track;
             if (tracks != null)
@@ -298,18 +295,12 @@
                 {
                     if (cuttable.Value >= 1)
                     {
-                        if (____bounds.size != Vector3.zero)
-                        {
-                            ____bounds.size = Vector3.zero;
-                        }
+                        ____bounds.size = Vector3.zero;
                     }
                     else
                     {
                         Vector3 boundsSize = noodleData.BoundsSize;
-                        if (____bounds.size != boundsSize)
-                        {
-                            ____bounds.size = boundsSize;
-                        }
+                        ____bounds.size = boundsSize;
                     }
                 }
 

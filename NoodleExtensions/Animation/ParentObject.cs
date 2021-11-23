@@ -172,20 +172,9 @@
                 scaleVector = Vector3.Scale(_startScale, scale.Value);
             }
 
-            if (_origin.localRotation != worldRotationQuatnerion)
-            {
-                _origin.localRotation = worldRotationQuatnerion;
-            }
-
-            if (_origin.localPosition != positionVector)
-            {
-                _origin.localPosition = positionVector;
-            }
-
-            if (_origin.localScale != scaleVector)
-            {
-                _origin.localScale = scaleVector;
-            }
+            _origin.localRotation = worldRotationQuatnerion;
+            _origin.localPosition = positionVector;
+            _origin.localScale = scaleVector;
         }
     }
 
