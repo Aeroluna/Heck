@@ -1,14 +1,17 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using System.Collections;
-    using Chroma.Colorizer;
-    using HarmonyLib;
-    using UnityEngine;
+﻿using System.Collections;
+using Chroma.Colorizer;
+using Chroma.Colorizer.Monobehaviours;
+using HarmonyLib;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace Chroma.HarmonyPatches.Colorizer.Initialize
+{
     [HarmonyPatch(typeof(ParticleSystemEventEffect))]
     [HarmonyPatch("Start")]
     internal static class ParticleSystemEventEffectStart
     {
+        [UsedImplicitly]
         private static void Postfix(ParticleSystemEventEffect __instance, BeatmapEventType ____colorEvent)
         {
             // If duplicated, clean up before duping
@@ -32,6 +35,7 @@
     [HarmonyPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class ParticleSystemEventEffectSetLastEvent
     {
+        [UsedImplicitly]
         private static void Prefix(BeatmapEventData beatmapEventData, BeatmapEventType ____colorEvent)
         {
             if (beatmapEventData.type == ____colorEvent)

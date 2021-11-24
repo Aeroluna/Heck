@@ -1,10 +1,10 @@
-﻿namespace NoodleExtensions
-{
-    using System.Collections.Generic;
-    using Heck;
-    using Heck.Animation;
-    using UnityEngine;
+﻿using System.Collections.Generic;
+using Heck;
+using Heck.Animation;
+using UnityEngine;
 
+namespace NoodleExtensions
+{
     internal record NoodleNoteData : NoodleObjectData
     {
         internal Quaternion? CutQuaternion { get; set; }
@@ -55,7 +55,7 @@
 
         internal Quaternion? LocalRotationQuaternion { get; set; }
 
-        internal IEnumerable<Track>? Track { get; set; }
+        internal List<Track>? Track { get; set; }
 
         internal Quaternion WorldRotation { get; set; }
 
@@ -106,12 +106,12 @@
             Track = track;
         }
 
-        internal Track Track { get; set; }
+        internal Track Track { get; }
     }
 
     internal record NoodleParentTrackEventData : ICustomEventCustomData
     {
-        internal NoodleParentTrackEventData(Track parentTrack, IEnumerable<Track> childrenTracks, bool worldPositionStays, Vector3? position, Quaternion? rotation, Quaternion? localRotation, Vector3? scale)
+        internal NoodleParentTrackEventData(Track parentTrack, List<Track> childrenTracks, bool worldPositionStays, Vector3? position, Quaternion? rotation, Quaternion? localRotation, Vector3? scale)
         {
             ParentTrack = parentTrack;
             ChildrenTracks = childrenTracks;
@@ -124,7 +124,7 @@
 
         internal Track ParentTrack { get; }
 
-        internal IEnumerable<Track> ChildrenTracks { get; }
+        internal List<Track> ChildrenTracks { get; }
 
         internal bool WorldPositionStays { get; }
 

@@ -1,20 +1,21 @@
-﻿namespace Chroma
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Chroma.Colorizer;
-    using Chroma.Utils;
-    using Heck.Animation;
-    using IPA.Utilities;
-    using Tweening;
-    using UnityEngine;
-    using static Chroma.ChromaCustomDataManager;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Chroma.Colorizer;
+using Chroma.Utils;
+using Heck.Animation;
+using IPA.Utilities;
+using JetBrains.Annotations;
+using Tweening;
+using UnityEngine;
+using static Chroma.ChromaCustomDataManager;
 
+namespace Chroma.Lighting
+{
     public enum LerpType
     {
         RGB,
-        HSV,
+        HSV
     }
 
     // I originally meant to write this class so everything would be simpler.......
@@ -38,19 +39,19 @@
         private static readonly FieldAccessor<LightSwitchEventEffect, IBeatmapObjectCallbackController>.Accessor _beatmapObjectCallbackControllerAccessor = FieldAccessor<LightSwitchEventEffect, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
         private static readonly FieldAccessor<LightSwitchEventEffect, SongTimeTweeningManager>.Accessor _tweeningManagerAccessor = FieldAccessor<LightSwitchEventEffect, SongTimeTweeningManager>.GetAccessor("_tweeningManager");
 
-        private readonly Dictionary<ILightWithId, ChromaIDColorTween> _colorTweens = new Dictionary<ILightWithId, ChromaIDColorTween>();
-        private LightColorizer _lightColorizer = null!;
-
         private ColorSO _originalLightColor0 = null!;
         private ColorSO _originalLightColor1 = null!;
         private ColorSO _originalLightColor0Boost = null!;
         private ColorSO _originalLightColor1Boost = null!;
 
-        public Dictionary<ILightWithId, ChromaIDColorTween> ColorTweens => _colorTweens;
+        [PublicAPI]
+        public Dictionary<ILightWithId, ChromaIDColorTween> ColorTweens { get; } = new();
 
+        [PublicAPI]
         public BeatmapEventType EventType => _event;
 
-        public LightColorizer LightColorizer => _lightColorizer;
+        [PublicAPI]
+        public LightColorizer LightColorizer { get; private set; } = null!;
 
         public override void Awake()
         {
@@ -68,7 +69,10 @@
                 _beatmapObjectCallbackController.beatmapEventDidTriggerEvent -= HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger;
             }
 
-            _tweeningManager?.KillAllTweens(this);
+            if (_tweeningManager != null)
+            {
+                _tweeningManager.KillAllTweens(this);
+            }
 
             LightColorizer.Colorizers.Remove(_event);
         }
@@ -94,25 +98,20 @@
 
                         if (chromaData.LightID != null)
                         {
-                            selectLights = _lightColorizer.GetLightWithIds(chromaData.LightID);
+                            selectLights = LightColorizer.GetLightWithIds(chromaData.LightID);
                         }
 
                         // propID is now DEPRECATED!!!!!!!!
                         object? propID = chromaData.PropID;
                         if (propID != null)
                         {
-                            switch (propID)
+                            selectLights = propID switch
                             {
-                                case List<object> propIDobjects:
-                                    selectLights = _lightColorizer.GetPropagationLightWithIds(propIDobjects.Select(n => Convert.ToInt32(n)));
-
-                                    break;
-
-                                case long propIDlong:
-                                    selectLights = _lightColorizer.GetPropagationLightWithIds(new int[] { (int)propIDlong });
-
-                                    break;
-                            }
+                                List<object> propIDobjects => LightColorizer.GetPropagationLightWithIds(
+                                    propIDobjects.Select(Convert.ToInt32)),
+                                long propIDlong => LightColorizer.GetPropagationLightWithIds(new[] { (int)propIDlong }),
+                                _ => selectLights
+                            };
                         }
 
                         // fck gradients
@@ -132,11 +131,11 @@
                         if (color.HasValue)
                         {
                             Color finalColor = color.Value;
-                            _lightColorizer.Colorize(false, finalColor, finalColor, finalColor, finalColor);
+                            LightColorizer.Colorize(false, finalColor, finalColor, finalColor, finalColor);
                         }
                         else if (!ChromaGradientController.IsGradientActive(beatmapEventData.type))
                         {
-                            _lightColorizer.Colorize(false, null, null, null, null);
+                            LightColorizer.Colorize(false, null, null, null, null);
                         }
 
                         easing = chromaData.Easing;
@@ -149,25 +148,19 @@
             else if (beatmapEventData.type == _colorBoostEvent)
             {
                 bool flag = beatmapEventData.value == 1;
-                if (flag != _usingBoostColors)
+                if (flag == _usingBoostColors)
                 {
-                    _usingBoostColors = flag;
-                    Refresh(false, null);
+                    return;
                 }
+
+                _usingBoostColors = flag;
+                Refresh(false, null);
             }
         }
 
         public void Refresh(bool hard, IEnumerable<ILightWithId>? selectLights, BeatmapEventData? beatmapEventData = null, Functions? easing = null, LerpType? lerpType = null)
         {
-            IEnumerable<ChromaIDColorTween> selectTweens;
-            if (selectLights == null)
-            {
-                selectTweens = _colorTweens.Values;
-            }
-            else
-            {
-                selectTweens = selectLights.Select(n => _colorTweens[n]);
-            }
+            IEnumerable<ChromaIDColorTween> selectTweens = selectLights == null ? ColorTweens.Values : selectLights.Select(n => ColorTweens[n]);
 
             bool boost = _usingBoostColors;
             foreach (ChromaIDColorTween tween in selectTweens)
@@ -192,7 +185,7 @@
                 int previousValue = previousEvent.value;
                 float previousFloatValue = previousEvent.floatValue;
 
-                void CheckNextEventForFade()
+                void CheckNextEventForFadeBetter()
                 {
                     ChromaEventData? eventData = TryGetEventData(previousEvent);
                     Dictionary<int, BeatmapEventData>? nextSameTypesDict = eventData?.NextSameTypeEvent;
@@ -206,42 +199,46 @@
                         nextSameTypeEvent = previousEvent.nextSameTypeEvent;
                     }
 
-                    if (nextSameTypeEvent != null && (nextSameTypeEvent.value == 4 || nextSameTypeEvent.value == 8))
+                    if (nextSameTypeEvent is not { value: 4 or 8 })
                     {
-                        float nextFloatValue = nextSameTypeEvent.floatValue;
-                        int nextValue = nextSameTypeEvent.value;
-                        Color nextColor = GetOriginalColor(nextValue, boost);
-
-                        ChromaEventData? nextEventData = TryGetEventData(nextSameTypeEvent);
-                        Color? nextColorData = nextEventData?.ColorData;
-                        if (ChromaController.ChromaIsActive && nextColorData.HasValue)
-                        {
-                            nextColor = nextColorData.Value.MultAlpha(nextColor.a);
-                        }
-
-                        nextColor = nextColor.MultAlpha(nextFloatValue);
-                        Color prevColor = tween.toValue;
-                        if (previousValue == 0)
-                        {
-                            prevColor = nextColor.ColorWithAlpha(0f);
-                        }
-                        else if (!IsFixedDurationLightSwitch(previousValue))
-                        {
-                            prevColor = GetNormalColor(previousValue, boost).MultAlpha(previousFloatValue);
-                        }
-
-                        tween.fromValue = prevColor;
-                        tween.toValue = nextColor;
-                        tween.ForceOnUpdate();
-
-                        if (hard)
-                        {
-                            tween.SetStartTimeAndEndTime(previousEvent.time, nextSameTypeEvent.time);
-                            tween.HeckEasing = easing ?? Functions.easeLinear;
-                            tween.LerpType = lerpType ?? LerpType.RGB;
-                            _tweeningManager.ResumeTween(tween, this);
-                        }
+                        return;
                     }
+
+                    float nextFloatValue = nextSameTypeEvent.floatValue;
+                    int nextValue = nextSameTypeEvent.value;
+                    Color nextColor = GetOriginalColor(nextValue, boost);
+
+                    ChromaEventData? nextEventData = TryGetEventData(nextSameTypeEvent);
+                    Color? nextColorData = nextEventData?.ColorData;
+                    if (ChromaController.ChromaIsActive && nextColorData.HasValue)
+                    {
+                        nextColor = nextColorData.Value.MultAlpha(nextColor.a);
+                    }
+
+                    nextColor = nextColor.MultAlpha(nextFloatValue);
+                    Color prevColor = tween.toValue;
+                    if (previousValue == 0)
+                    {
+                        prevColor = nextColor.ColorWithAlpha(0f);
+                    }
+                    else if (!IsFixedDurationLightSwitch(previousValue))
+                    {
+                        prevColor = GetNormalColor(previousValue, boost).MultAlpha(previousFloatValue);
+                    }
+
+                    tween.fromValue = prevColor;
+                    tween.toValue = nextColor;
+                    tween.ForceOnUpdate();
+
+                    if (!hard)
+                    {
+                        return;
+                    }
+
+                    tween.SetStartTimeAndEndTime(previousEvent.time, nextSameTypeEvent.time);
+                    tween.HeckEasing = easing ?? Functions.easeLinear;
+                    tween.LerpType = lerpType ?? LerpType.RGB;
+                    _tweeningManager.ResumeTween(tween, this);
                 }
 
                 switch (previousValue)
@@ -259,7 +256,7 @@
                             tween.fromValue = color;
                             tween.toValue = color;
                             tween.SetColor(color);
-                            CheckNextEventForFade();
+                            CheckNextEventForFadeBetter();
                         }
 
                         break;
@@ -278,7 +275,7 @@
                             tween.fromValue = color;
                             tween.toValue = color;
                             tween.SetColor(color);
-                            CheckNextEventForFade();
+                            CheckNextEventForFadeBetter();
                         }
 
                         break;
@@ -348,8 +345,8 @@
             _beatmapObjectCallbackControllerAccessor(ref thisSwitch) = _beatmapObjectCallbackControllerAccessor(ref lightSwitchEventEffect);
             _tweeningManagerAccessor(ref thisSwitch) = _tweeningManagerAccessor(ref lightSwitchEventEffect);
 
-            LightColorizer lightColorizer = new LightColorizer(this, _event, _lightManager);
-            _lightColorizer = lightColorizer;
+            LightColorizer lightColorizer = LightColorizer.Create(this, _event, _lightManager);
+            LightColorizer = lightColorizer;
             _originalLightColor0 = _lightColor0;
             _originalLightColor0Boost = _lightColor0Boost;
             _originalLightColor1 = _lightColor1;
@@ -368,13 +365,13 @@
 
         internal void RegisterLight(ILightWithId lightWithId, int type, int id)
         {
-            if (!_colorTweens.ContainsKey(lightWithId))
+            if (!ColorTweens.ContainsKey(lightWithId))
             {
-                _colorTweens[lightWithId] = new ChromaIDColorTween(Color.black, Color.black, lightWithId, _lightManager, LightIDTableManager.GetActiveTableValueReverse(type, id) ?? 0);
+                ColorTweens[lightWithId] = new ChromaIDColorTween(Color.black, Color.black, lightWithId, _lightManager, LightIDTableManager.GetActiveTableValueReverse(type, id) ?? 0);
             }
             else
             {
-                Plugin.Logger.Log($"Attempted to register duplicate ILightWithId.", IPA.Logging.Logger.Level.Error);
+                Log.Logger.Log("Attempted to register duplicate ILightWithId.", IPA.Logging.Logger.Level.Error);
             }
         }
 
@@ -382,22 +379,10 @@
         {
             if (colorBoost)
             {
-                if (!IsColor0(beatmapEventValue))
-                {
-                    return _originalLightColor1Boost.color;
-                }
-
-                return _originalLightColor0Boost.color;
+                return !IsColor0(beatmapEventValue) ? _originalLightColor1Boost.color : _originalLightColor0Boost.color;
             }
-            else
-            {
-                if (!IsColor0(beatmapEventValue))
-                {
-                    return _originalLightColor1.color;
-                }
 
-                return _originalLightColor0.color;
-            }
+            return !IsColor0(beatmapEventValue) ? _originalLightColor1.color : _originalLightColor0.color;
         }
     }
 }

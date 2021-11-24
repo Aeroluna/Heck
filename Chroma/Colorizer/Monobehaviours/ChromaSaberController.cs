@@ -1,7 +1,7 @@
-﻿namespace Chroma.Colorizer
-{
-    using UnityEngine;
+﻿using UnityEngine;
 
+namespace Chroma.Colorizer.Monobehaviours
+{
     internal class ChromaSaberController : MonoBehaviour
     {
         private SaberType _saberType;
@@ -10,7 +10,7 @@
         internal void Init(Saber saber)
         {
             _saberType = saber.saberType;
-            _colorizer = new SaberColorizer(saber);
+            _colorizer = SaberColorizer.Create(saber);
         }
 
         private void OnDestroy()

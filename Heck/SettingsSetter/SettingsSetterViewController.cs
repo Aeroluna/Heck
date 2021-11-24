@@ -1,18 +1,22 @@
-﻿namespace Heck.SettingsSetter
-{
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using BeatSaberMarkupLanguage.Attributes;
-    using BeatSaberMarkupLanguage.ViewControllers;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
-    using HMUI;
-    using IPA.Utilities;
-    using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using BeatSaberMarkupLanguage;
+using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.ViewControllers;
+using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
+using HMUI;
+using IPA.Utilities;
+using JetBrains.Annotations;
+using UnityEngine;
+using Logger = IPA.Logging.Logger;
 
+namespace Heck.SettingsSetter
+{
     internal class SettingsSetterViewController : BSMLResourceViewController
     {
         private static readonly Action<FlowCoordinator, ViewController, AnimationDirection, Action?, bool> _dismissViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, AnimationDirection, Action?, bool>>.GetDelegate("DismissViewController");
@@ -31,13 +35,11 @@
         private static string? _contentBSML;
 
         [UIValue("contents")]
-        private readonly List<object> _contents = new List<object>();
+        private readonly List<object> _contents = new();
 
+        [UsedImplicitly]
         [UIObject("contentObject")]
-#pragma warning disable CS0649
         private readonly GameObject? _contentObject;
-
-#pragma warning restore CS0649
 
         private MenuTransitionsHelper? _menuTransitionsHelper;
 
@@ -55,16 +57,17 @@
 
         public override string ResourceName => "Heck.SettingsSetter.SettingsSetter.bsml";
 
-        internal static SettingsSetterViewController Instance => _instance ?? throw new InvalidOperationException($"[{nameof(_instance)}] was not created.");
+        internal static SettingsSetterViewController Instance => _instance != null ? _instance
+            : throw new InvalidOperationException($"[{nameof(_instance)}] was not created.");
 
         internal static SinglePlayerLevelSelectionFlowCoordinator ActiveFlowCoordinator
         {
-            get => _activeFlowCoordinator ?? throw new InvalidOperationException($"[{nameof(_activeFlowCoordinator)}] was null.");
+            get => _activeFlowCoordinator != null ? _activeFlowCoordinator : throw new InvalidOperationException($"[{nameof(_activeFlowCoordinator)}] was null.");
             set => _activeFlowCoordinator = value;
         }
 
         // Color scheme settings isnt passed through like the rest of the kids
-        internal static ColorSchemesSettings OverrideColorScheme
+        internal static ColorSchemesSettings CurrentOverrideColorScheme
         {
             get => _overrideColorScheme ?? throw new InvalidOperationException($"[{nameof(_overrideColorScheme)}] was null.");
             set => _overrideColorScheme = value;
@@ -76,23 +79,28 @@
         {
             get
             {
-                if (_contentBSML == null)
+                if (_contentBSML != null)
                 {
-                    using StreamReader reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("Heck.SettingsSetter.SettableSettingsContent.bsml"));
-                    _contentBSML = reader.ReadToEnd();
+                    return _contentBSML;
                 }
+
+                using StreamReader reader = new(Assembly.GetExecutingAssembly().GetManifestResourceStream("Heck.SettingsSetter.SettableSettingsContent.bsml")
+                                                ?? throw new InvalidOperationException("Failed to retrieve SettableSettingsContent.bsml."));
+                _contentBSML = reader.ReadToEnd();
 
                 return _contentBSML;
             }
         }
 
-        private static MainSettingsModelSO MainSettings => _mainSettings ?? throw new InvalidOperationException($"[{nameof(_mainSettings)}] was null.");
+        private static MainSettingsModelSO MainSettings => _mainSettings != null ? _mainSettings
+            : throw new InvalidOperationException($"[{nameof(_mainSettings)}] was null.");
 
-        private MenuTransitionsHelper MenuTransitionHelper => _menuTransitionsHelper ?? throw new InvalidOperationException($"[{nameof(_menuTransitionsHelper)}] was not created.");
+        private MenuTransitionsHelper MenuTransitionHelper => _menuTransitionsHelper != null ? _menuTransitionsHelper
+            : throw new InvalidOperationException($"[{nameof(_menuTransitionsHelper)}] was not created.");
 
         internal static void Instantiate()
         {
-            _instance = BeatSaberMarkupLanguage.BeatSaberUI.CreateViewController<SettingsSetterViewController>();
+            _instance = BeatSaberUI.CreateViewController<SettingsSetterViewController>();
             _mainSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().First();
             _mainSystemInit = Resources.FindObjectsOfTypeAll<MainSystemInit>().First();
         }
@@ -109,25 +117,27 @@
                 foreach (Tuple<ISettableSetting, object> tuple in _settableSettingsToSet)
                 {
                     ISettableSetting settableSetting = tuple.Item1;
-                    Plugin.Logger.Log($"Restored settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}].", IPA.Logging.Logger.Level.Trace);
+                    Heck.Log.Logger.Log($"Restored settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}].", Logger.Level.Trace);
                     settableSetting.SetTemporary(null);
                 }
 
                 _settableSettingsToSet = null;
             }
 
-            if (_cachedMainSettings != null)
+            if (_cachedMainSettings == null)
             {
-                Plugin.Logger.Log($"Main settings restored.", IPA.Logging.Logger.Level.Trace);
-                MainSettings.mirrorGraphicsSettings.value = _cachedMainSettings.MirrorGraphicsSettings;
-                MainSettings.mainEffectGraphicsSettings.value = _cachedMainSettings.MainEffectGraphicsSettings;
-                MainSettings.smokeGraphicsSettings.value = _cachedMainSettings.SmokeGraphicsSettings;
-                MainSettings.burnMarkTrailsEnabled.value = _cachedMainSettings.BurnMarkTrailsEnabled;
-                MainSettings.screenDisplacementEffectsEnabled.value = _cachedMainSettings.ScreenDisplacementEffectsEnabled;
-                MainSettings.maxShockwaveParticles.value = _cachedMainSettings.MaxShockwaveParticles;
-                _cachedMainSettings = null;
-                _mainSystemInit!.Init();
+                return;
             }
+
+            Heck.Log.Logger.Log("Main settings restored.", Logger.Level.Trace);
+            MainSettings.mirrorGraphicsSettings.value = _cachedMainSettings.MirrorGraphicsSettings;
+            MainSettings.mainEffectGraphicsSettings.value = _cachedMainSettings.MainEffectGraphicsSettings;
+            MainSettings.smokeGraphicsSettings.value = _cachedMainSettings.SmokeGraphicsSettings;
+            MainSettings.burnMarkTrailsEnabled.value = _cachedMainSettings.BurnMarkTrailsEnabled;
+            MainSettings.screenDisplacementEffectsEnabled.value = _cachedMainSettings.ScreenDisplacementEffectsEnabled;
+            MainSettings.maxShockwaveParticles.value = _cachedMainSettings.MaxShockwaveParticles;
+            _cachedMainSettings = null;
+            _mainSystemInit!.Init();
         }
 
         internal void Init(StartStandardLevelParameters startParameters, MenuTransitionsHelper menuTransitionsHelper)
@@ -153,29 +163,32 @@
 
                             foreach (Dictionary<string, object> settablePlayerSetting in settablePlayerSettings)
                             {
-                                string name = (string)settablePlayerSetting["_name"];
+                                string settingName = (string)settablePlayerSetting["_name"];
                                 string fieldName = (string)settablePlayerSetting["_fieldName"];
 
                                 object? json = jsonPlayerOptions.Get<object>(fieldName);
-                                if (json != null)
+                                if (json == null)
                                 {
-                                    FieldInfo field = typeof(PlayerSpecificSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-                                    object activeValue = field.GetValue(playerSettings);
-                                    if (json is string jsonString)
-                                    {
-                                        json = Enum.Parse(typeof(EnvironmentEffectsFilterPreset), jsonString);
-                                    }
-                                    else if (json is IConvertible)
-                                    {
-                                        json = Convert.ChangeType(json, activeValue.GetType());
-                                    }
-
-                                    if (!json.Equals(activeValue))
-                                    {
-                                        _contents.Add(new ListObject($"[Player Options] {name}", $"{activeValue} > {json}"));
-                                        field.SetValue(modifiedPlayerSettings, json);
-                                    }
+                                    continue;
                                 }
+
+                                FieldInfo field = typeof(PlayerSpecificSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)
+                                                  ?? throw new InvalidOperationException($"Unable to find field with name {fieldName}.");
+                                object activeValue = field.GetValue(playerSettings);
+                                json = json switch
+                                {
+                                    string jsonString => Enum.Parse(typeof(EnvironmentEffectsFilterPreset), jsonString),
+                                    IConvertible => Convert.ChangeType(json, activeValue.GetType()),
+                                    _ => json
+                                };
+
+                                if (json.Equals(activeValue))
+                                {
+                                    continue;
+                                }
+
+                                _contents.Add(new ListObject($"[Player Options] {settingName}", $"{activeValue} > {json}"));
+                                field.SetValue(modifiedPlayerSettings, json);
                             }
 
                             _modifiedParameters.PlayerSpecificSettings = modifiedPlayerSettings;
@@ -191,42 +204,39 @@
 
                             foreach (Dictionary<string, object> settableGameplayModifier in settableGameplayModifiers)
                             {
-                                string name = (string)settableGameplayModifier["_name"];
+                                string settingName = (string)settableGameplayModifier["_name"];
                                 string fieldName = (string)settableGameplayModifier["_fieldName"];
 
                                 object? json = jsonModifiers.Get<object>(fieldName);
-                                if (json != null)
+                                if (json == null)
                                 {
-                                    FieldInfo field = typeof(GameplayModifiers).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-                                    object activeValue = field.GetValue(gameplayModifiers);
-                                    if (json is string jsonString)
-                                    {
-                                        switch (fieldName)
-                                        {
-                                            case "_energyType":
-                                                json = Enum.Parse(typeof(GameplayModifiers.EnergyType), jsonString);
-                                                break;
-
-                                            case "_enabledObstacleType":
-                                                json = Enum.Parse(typeof(GameplayModifiers.EnabledObstacleType), jsonString);
-                                                break;
-
-                                            case "_songSpeed":
-                                                json = Enum.Parse(typeof(GameplayModifiers.SongSpeed), jsonString);
-                                                break;
-                                        }
-                                    }
-                                    else if (json is IConvertible)
-                                    {
-                                        json = Convert.ChangeType(json, activeValue.GetType());
-                                    }
-
-                                    if (!json.Equals(activeValue))
-                                    {
-                                        _contents.Add(new ListObject($"[Modifiers] {name}", $"{activeValue} > {json}"));
-                                        field.SetValue(modifiedGameplayModifiers, json);
-                                    }
+                                    continue;
                                 }
+
+                                FieldInfo field = typeof(GameplayModifiers).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)
+                                                  ?? throw new InvalidOperationException($"Unable to find field with name {fieldName}.");
+                                object activeValue = field.GetValue(gameplayModifiers);
+                                json = json switch
+                                {
+                                    string jsonString => fieldName switch
+                                    {
+                                        "_energyType" => Enum.Parse(typeof(GameplayModifiers.EnergyType), jsonString),
+                                        "_enabledObstacleType" => Enum.Parse(
+                                            typeof(GameplayModifiers.EnabledObstacleType), jsonString),
+                                        "_songSpeed" => Enum.Parse(typeof(GameplayModifiers.SongSpeed), jsonString),
+                                        _ => json
+                                    },
+                                    IConvertible => Convert.ChangeType(json, activeValue.GetType()),
+                                    _ => json
+                                };
+
+                                if (json.Equals(activeValue))
+                                {
+                                    continue;
+                                }
+
+                                _contents.Add(new ListObject($"[Modifiers] {settingName}", $"{activeValue} > {json}"));
+                                field.SetValue(modifiedGameplayModifiers, json);
                             }
 
                             _modifiedParameters.GameplayModifiers = modifiedGameplayModifiers;
@@ -235,50 +245,43 @@
                         Dictionary<string, object?>? jsonEnvironments = settings.Get<Dictionary<string, object?>>("_environments");
                         if (jsonEnvironments != null)
                         {
-                            OverrideEnvironmentSettings? environmentOverrideSettings = startParameters.OverrideEnvironmentSettings;
+                            OverrideEnvironmentSettings environmentOverrideSettings = startParameters.OverrideEnvironmentSettings;
 
-                            if (environmentOverrideSettings != null)
+                            Dictionary<string, object> settableEnvironmentSetting = SettingSetterSettableSettingsManager.SettingsTable["_environments"].First();
+                            string settingName = (string)settableEnvironmentSetting["_name"];
+                            string fieldName = (string)settableEnvironmentSetting["_fieldName"];
+                            bool activeValue = environmentOverrideSettings.overrideEnvironments;
+                            bool? json = jsonEnvironments.Get<bool>(fieldName);
+
+                            if (json != activeValue)
                             {
-                                Dictionary<string, object> settableEnvironmentSetting = SettingSetterSettableSettingsManager.SettingsTable["_environments"].First();
-                                string name = (string)settableEnvironmentSetting["_name"];
-                                string fieldName = (string)settableEnvironmentSetting["_fieldName"];
-                                bool activeValue = environmentOverrideSettings.overrideEnvironments;
-                                bool? json = jsonEnvironments.Get<bool>(fieldName);
+                                _contents.Add(new ListObject($"[Environments] {settingName}", $"{activeValue} => {json}"));
 
-                                if (json != null && json != activeValue)
-                                {
-                                    _contents.Add(new ListObject($"[Environments] {name}", $"{activeValue} > {json}"));
+                                // copy fields from original overrideenvironmentsettings to our new copy
+                                OverrideEnvironmentSettings modifiedOverrideEnvironmentSettings = new();
+                                modifiedOverrideEnvironmentSettings.SetField("_data", environmentOverrideSettings.GetField<Dictionary<EnvironmentTypeSO, EnvironmentInfoSO>, OverrideEnvironmentSettings>("_data"));
 
-                                    // copy fields from original overrideenvironmentsettings to our new copy
-                                    OverrideEnvironmentSettings modifiedOverrideEnvironmentSettings = new OverrideEnvironmentSettings();
-                                    modifiedOverrideEnvironmentSettings.SetField("_data", environmentOverrideSettings.GetField<Dictionary<EnvironmentTypeSO, EnvironmentInfoSO>, OverrideEnvironmentSettings>("_data"));
+                                modifiedOverrideEnvironmentSettings.overrideEnvironments = json.Value;
 
-                                    modifiedOverrideEnvironmentSettings.overrideEnvironments = json.Value;
-
-                                    _modifiedParameters.OverrideEnvironmentSettings = modifiedOverrideEnvironmentSettings;
-                                }
+                                _modifiedParameters.OverrideEnvironmentSettings = modifiedOverrideEnvironmentSettings;
                             }
                         }
 
                         Dictionary<string, object?>? jsonColors = settings.Get<Dictionary<string, object?>>("_colors");
                         if (jsonColors != null)
                         {
-                            ColorSchemesSettings? colorSchemesSettings = OverrideColorScheme;
+                            ColorSchemesSettings colorSchemesSettings = CurrentOverrideColorScheme;
+                            Dictionary<string, object> settableColorSetting = SettingSetterSettableSettingsManager.SettingsTable["_colors"].First();
+                            string settingName = (string)settableColorSetting["_name"];
+                            string fieldName = (string)settableColorSetting["_fieldName"];
+                            bool activeValue = colorSchemesSettings.overrideDefaultColors;
+                            bool? json = jsonColors.Get<bool>(fieldName);
 
-                            if (colorSchemesSettings != null)
+                            if (json != activeValue)
                             {
-                                Dictionary<string, object> settableColorSetting = SettingSetterSettableSettingsManager.SettingsTable["_colors"].First();
-                                string name = (string)settableColorSetting["_name"];
-                                string fieldName = (string)settableColorSetting["_fieldName"];
-                                bool activeValue = colorSchemesSettings.overrideDefaultColors;
-                                bool? json = jsonColors.Get<bool>(fieldName);
+                                _contents.Add(new ListObject($"[Colors] {settingName}", $"{activeValue} > {json}"));
 
-                                if (json != null && json != activeValue)
-                                {
-                                    _contents.Add(new ListObject($"[Colors] {name}", $"{activeValue} > {json}"));
-
-                                    _modifiedParameters.OverrideColorScheme = json.Value ? colorSchemesSettings.GetOverrideColorScheme() : null;
-                                }
+                                _modifiedParameters.OverrideColorScheme = json.Value ? colorSchemesSettings.GetOverrideColorScheme() : null;
                             }
                         }
 
@@ -301,53 +304,63 @@
 
                             foreach (Dictionary<string, object> settableGraphicSetting in settableGraphicsSettings)
                             {
-                                string name = (string)settableGraphicSetting["_name"];
+                                string settingName = (string)settableGraphicSetting["_name"];
                                 string fieldName = (string)settableGraphicSetting["_fieldName"];
 
                                 object? json = jsonGraphics.Get<object>(fieldName);
-                                if (json != null)
+                                if (json == null)
                                 {
-                                    // substring is to remove underscore
-                                    object valueSO = typeof(MainSettingsModelSO).GetField(fieldName.Substring(1), BindingFlags.Instance | BindingFlags.Public).GetValue(mainSettingsModel);
-                                    object activeValue = valueSO switch
-                                    {
-                                        BoolSO boolSO => boolSO.value,
-                                        IntSO intSO => intSO.value,
-                                        _ => throw new InvalidOperationException($"How the hell did you reach this? [{valueSO.GetType()}]"),
-                                    };
-                                    if (json is IConvertible)
-                                    {
-                                        json = Convert.ChangeType(json, activeValue.GetType());
-                                    }
-
-                                    if (!json.Equals(activeValue))
-                                    {
-                                        _contents.Add(new ListObject($"[Graphics] {name}", $"{activeValue} > {json}"));
-                                        typeof(SettableMainSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(_modifiedMainSettings, json);
-                                    }
+                                    continue;
                                 }
+
+                                // substring is to remove underscore
+                                object valueSO = typeof(MainSettingsModelSO).GetField(fieldName.Substring(1), BindingFlags.Instance | BindingFlags.Public)?.GetValue(mainSettingsModel)
+                                                 ?? throw new InvalidOperationException($"Unable to find valueSO with name [{fieldName.Substring(1)}].");
+                                object activeValue = valueSO switch
+                                {
+                                    BoolSO boolSO => boolSO.value,
+                                    IntSO intSO => intSO.value,
+                                    _ => throw new InvalidOperationException($"How the hell did you reach this? [{valueSO.GetType()}]")
+                                };
+                                if (json is IConvertible)
+                                {
+                                    json = Convert.ChangeType(json, activeValue.GetType());
+                                }
+
+                                if (json.Equals(activeValue))
+                                {
+                                    continue;
+                                }
+
+                                _contents.Add(new ListObject($"[Graphics] {settingName}", $"{activeValue} > {json}"));
+                                FieldInfo field = typeof(SettableMainSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)
+                                                  ?? throw new InvalidOperationException($"Unable to find field with name {fieldName}.");
+                                field.SetValue(_modifiedMainSettings, json);
                             }
                         }
 
                         _settableSettingsToSet = null;
-                        foreach (KeyValuePair<string, Dictionary<string, ISettableSetting>> groupSettingPair in SettingSetterSettableSettingsManager.SettableSettings)
+                        foreach ((string s, Dictionary<string, ISettableSetting> value) in SettingSetterSettableSettingsManager.SettableSettings)
                         {
-                            Dictionary<string, object?>? jsonGroup = settings.Get<Dictionary<string, object?>>(groupSettingPair.Key);
-                            if (jsonGroup != null)
+                            Dictionary<string, object?>? jsonGroup = settings.Get<Dictionary<string, object?>>(s);
+                            if (jsonGroup == null)
                             {
-                                _settableSettingsToSet = new List<Tuple<ISettableSetting, object>>();
+                                continue;
+                            }
 
-                                foreach (KeyValuePair<string, ISettableSetting> settableSettingPair in groupSettingPair.Value)
+                            _settableSettingsToSet = new List<Tuple<ISettableSetting, object>>();
+
+                            foreach ((string key, ISettableSetting settableSetting) in value)
+                            {
+                                object? json = jsonGroup.Get<object>(key);
+                                object activeValue = settableSetting.TrueValue;
+                                if (json == null || json.Equals(activeValue))
                                 {
-                                    object? json = jsonGroup.Get<object>(settableSettingPair.Key);
-                                    ISettableSetting settableSetting = settableSettingPair.Value;
-                                    object activeValue = settableSetting.TrueValue;
-                                    if (json != null && !json.Equals(activeValue))
-                                    {
-                                        _contents.Add(new ListObject($"[{settableSetting.GroupName}] {settableSetting.FieldName}", $"{activeValue} > {json}"));
-                                        _settableSettingsToSet.Add(new Tuple<ISettableSetting, object>(settableSetting, json));
-                                    }
+                                    continue;
                                 }
+
+                                _contents.Add(new ListObject($"[{settableSetting.GroupName}] {settableSetting.FieldName}", $"{activeValue} > {json}"));
+                                _settableSettingsToSet.Add(new Tuple<ISettableSetting, object>(settableSetting, json));
                             }
                         }
 
@@ -362,7 +375,7 @@
                             _defaultParameters = startParameters;
                             _menuTransitionsHelper = menuTransitionsHelper;
                             _presentViewController(ActiveFlowCoordinator, this, null, AnimationDirection.Horizontal, false);
-                            BeatSaberMarkupLanguage.BSMLParser.instance.Parse(ContentBSML, gameObject, this);
+                            BSMLParser.instance.Parse(ContentBSML, gameObject, this);
                             return;
                         }
                     }
@@ -370,13 +383,14 @@
             }
             catch (Exception e)
             {
-                Plugin.Logger.Log($"Could not setup settable settings!", IPA.Logging.Logger.Level.Error);
-                Plugin.Logger.Log(e, IPA.Logging.Logger.Level.Error);
+                Heck.Log.Logger.Log("Could not setup settable settings!", Logger.Level.Error);
+                Heck.Log.Logger.Log(e, Logger.Level.Error);
             }
 
             DoPresent = false;
         }
 
+        [UsedImplicitly]
         [UIAction("decline-click")]
         private void OnDeclineClick()
         {
@@ -387,6 +401,7 @@
             Dismiss();
         }
 
+        [UsedImplicitly]
         [UIAction("accept-click")]
         private void OnAcceptClick()
         {
@@ -396,7 +411,7 @@
 
         private void Dismiss()
         {
-            _dismissViewController(ActiveFlowCoordinator, this, AnimationDirection.Horizontal, null, false);
+            _dismissViewController(ActiveFlowCoordinator, this, AnimationDirection.Horizontal, null, true);
         }
 
         private void StartWithParameters(StartStandardLevelParameters startParameters, bool force = false)
@@ -407,7 +422,7 @@
 
                 if (_modifiedMainSettings != null)
                 {
-                    Plugin.Logger.Log($"Main settings modified.", IPA.Logging.Logger.Level.Trace);
+                    Heck.Log.Logger.Log("Main settings modified.", Logger.Level.Trace);
                     MainSettings.mirrorGraphicsSettings.value = _modifiedMainSettings.MirrorGraphicsSettings;
                     MainSettings.mainEffectGraphicsSettings.value = _modifiedMainSettings.MainEffectGraphicsSettings;
                     MainSettings.smokeGraphicsSettings.value = _modifiedMainSettings.SmokeGraphicsSettings;
@@ -420,11 +435,10 @@
 
                 if (_settableSettingsToSet != null)
                 {
-                    foreach (Tuple<ISettableSetting, object> tuple in _settableSettingsToSet)
+                    foreach ((ISettableSetting settableSetting, object item2) in _settableSettingsToSet)
                     {
-                        ISettableSetting settableSetting = tuple.Item1;
-                        Plugin.Logger.Log($"Set settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}] to [{tuple.Item2}].", IPA.Logging.Logger.Level.Trace);
-                        settableSetting.SetTemporary(tuple.Item2);
+                        Heck.Log.Logger.Log($"Set settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}] to [{item2}].", Logger.Level.Trace);
+                        settableSetting.SetTemporary(item2);
                     }
                 }
             }
@@ -489,7 +503,7 @@
 
             internal PlayerSpecificSettings PlayerSpecificSettings { get; set; }
 
-            internal PracticeSettings PracticeSettings { get; set; }
+            internal PracticeSettings PracticeSettings { get; }
 
             internal string BackButtonText { get; }
 
@@ -500,7 +514,7 @@
             internal Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>? LevelFinishedCallback { get; }
         }
 
-        private struct ListObject
+        private readonly struct ListObject
         {
             internal ListObject(string leftText, string rightText)
             {
@@ -508,23 +522,30 @@
                 RightText = rightText;
             }
 
+            [UsedImplicitly]
             [UIValue("lefttext")]
             private string LeftText { get; }
 
+            [UsedImplicitly]
             [UIValue("righttext")]
             private string RightText { get; }
         }
 
+        [SuppressMessage("ReSharper", "ConvertToAutoProperty", Justification = "Fields are set through reflection")]
         private record SettableMainSettings
         {
-#pragma warning disable IDE0044 // reflection!!
+            [UsedImplicitly]
             private int _mirrorGraphicsSettings;
+            [UsedImplicitly]
             private int _mainEffectGraphicsSettings;
+            [UsedImplicitly]
             private bool _smokeGraphicsSettings;
+            [UsedImplicitly]
             private bool _burnMarkTrailsEnabled;
+            [UsedImplicitly]
             private bool _screenDisplacementEffectsEnabled;
+            [UsedImplicitly]
             private int _maxShockwaveParticles;
-#pragma warning restore IDE0044
 
             internal SettableMainSettings(
                 int mirrorGraphicsSettings,

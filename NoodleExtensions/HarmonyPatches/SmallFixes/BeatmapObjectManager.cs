@@ -1,12 +1,13 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using HarmonyLib;
-    using Heck;
-    using static NoodleExtensions.NoodleCustomDataManager;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using HarmonyLib;
+using Heck;
+using JetBrains.Annotations;
+using static NoodleExtensions.NoodleCustomDataManager;
 
+namespace NoodleExtensions.HarmonyPatches.SmallFixes
+{
     // TODO: find out what actually causes obstacle flickering
     [HeckPatch(typeof(BeatmapObjectManager))]
     [HeckPatch("SpawnObstacle")]
@@ -16,6 +17,7 @@
 
         private static readonly MethodInfo _getHiddenForType = AccessTools.Method(typeof(BeatmapObjectManagerSpawnObstacle), nameof(GetHiddenForType));
 
+        [UsedImplicitly]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
@@ -24,6 +26,7 @@
                 .InstructionEnumeration();
         }
 
+        [UsedImplicitly]
         private static void Postfix(ObstacleController __result)
         {
             NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(__result.obstacleData);
@@ -35,12 +38,7 @@
 
         private static bool GetHiddenForType(BeatmapObjectManager beatmapObjectManager)
         {
-            if (beatmapObjectManager is BasicBeatmapObjectManager)
-            {
-                return true;
-            }
-
-            return beatmapObjectManager.spawnHidden;
+            return beatmapObjectManager is BasicBeatmapObjectManager || beatmapObjectManager.spawnHidden;
         }
     }
 }

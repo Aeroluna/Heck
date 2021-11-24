@@ -1,7 +1,7 @@
-﻿namespace Heck.Animation
-{
-    using UnityEngine;
+﻿using UnityEngine;
 
+namespace Heck.Animation
+{
     internal class PointDefinitionInterpolation
     {
         private PointDefinition? _basePointData;
@@ -21,12 +21,8 @@
                 return null;
             }
 
-            if (_previousPointData == null)
-            {
-                return _basePointData.Interpolate(time);
-            }
-
-            return Vector3.LerpUnclamped(_previousPointData.Interpolate(time), _basePointData.Interpolate(time), Time);
+            return _previousPointData == null ? _basePointData.Interpolate(time)
+                : Vector3.LerpUnclamped(_previousPointData.Interpolate(time), _basePointData.Interpolate(time), Time);
         }
 
         internal Quaternion? InterpolateQuaternion(float time)
@@ -36,12 +32,8 @@
                 return null;
             }
 
-            if (_previousPointData == null)
-            {
-                return _basePointData.InterpolateQuaternion(time);
-            }
-
-            return Quaternion.SlerpUnclamped(_previousPointData.InterpolateQuaternion(time), _basePointData.InterpolateQuaternion(time), Time);
+            return _previousPointData == null ? _basePointData.InterpolateQuaternion(time)
+                : Quaternion.SlerpUnclamped(_previousPointData.InterpolateQuaternion(time), _basePointData.InterpolateQuaternion(time), Time);
         }
 
         internal float? InterpolateLinear(float time)
@@ -51,12 +43,8 @@
                 return null;
             }
 
-            if (_previousPointData == null)
-            {
-                return _basePointData.InterpolateLinear(time);
-            }
-
-            return Mathf.LerpUnclamped(_previousPointData.InterpolateLinear(time), _basePointData.InterpolateLinear(time), Time);
+            return _previousPointData == null ? _basePointData.InterpolateLinear(time)
+                : Mathf.LerpUnclamped(_previousPointData.InterpolateLinear(time), _basePointData.InterpolateLinear(time), Time);
         }
 
         internal Vector4? InterpolateVector4(float time)
@@ -66,12 +54,8 @@
                 return null;
             }
 
-            if (_previousPointData == null)
-            {
-                return _basePointData.InterpolateVector4(time);
-            }
-
-            return Vector4.LerpUnclamped(_previousPointData.InterpolateVector4(time), _basePointData.InterpolateVector4(time), Time);
+            return _previousPointData == null ? _basePointData.InterpolateVector4(time)
+                : Vector4.LerpUnclamped(_previousPointData.InterpolateVector4(time), _basePointData.InterpolateVector4(time), Time);
         }
 
         internal void Init(PointDefinition? newPointData)

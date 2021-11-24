@@ -1,15 +1,16 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using HarmonyLib;
-    using Heck;
-    using IPA.Utilities;
-    using NoodleExtensions.Animation;
-    using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using HarmonyLib;
+using Heck;
+using Heck.Animation;
+using IPA.Utilities;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace NoodleExtensions.HarmonyPatches
+{
     [HeckPatch(typeof(NoteJump))]
     [HeckPatch("ManualUpdate")]
     internal static class NoteJumpManualUpdate
@@ -33,29 +34,25 @@
         private static readonly FieldAccessor<PlayerTransforms, Transform>.Accessor _headTransformAccessor = FieldAccessor<PlayerTransforms, Transform>.GetAccessor("_headTransform");
 
         // This field is used by reflection
-#pragma warning disable CS0414
-        private static bool _definitePosition = false;
-#pragma warning restore CS0414
+        [UsedImplicitly]
+        private static bool _definitePosition;
 
         internal static float NoteJumpTimeAdjust(float original, float jumpDuration)
         {
             NoodleObjectData? noodleData = NoteControllerUpdate.NoodleData;
-            if (noodleData != null)
+            float? time = noodleData?.Track?.Select(n => AnimationHelper.TryGetProperty<float?>(n, NoodleController.TIME)).FirstOrDefault(n => n.HasValue);
+            if (time.HasValue)
             {
-                float? time = noodleData.Track?.Select(n => Heck.Animation.AnimationHelper.TryGetProperty<float?>(n, Plugin.TIME)).FirstOrDefault(n => n.HasValue);
-                if (time.HasValue)
-                {
-                    return time.Value * jumpDuration;
-                }
+                return time.Value * jumpDuration;
             }
 
             return original;
         }
 
+        [UsedImplicitly]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            CodeMatcher codeMatcher = new CodeMatcher(instructions);
-            object label;
+            CodeMatcher codeMatcher = new(instructions);
 
             // CodeMatcher needs some better label manipulating methods
             // replace rotation stuff
@@ -65,7 +62,7 @@
                     new CodeMatch(OpCodes.Callvirt, _localRotationSetter))
                 .Advance(1);
             int endPos = codeMatcher.Pos;
-            label = codeMatcher.Labels.First();
+            object label = codeMatcher.Labels.First();
             codeMatcher
                 .MatchBack(
                     false,
@@ -131,7 +128,7 @@
             NoodleObjectData? noodleData = NoteControllerUpdate.NoodleData;
             if (noodleData != null)
             {
-                AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, time, out Vector3? position);
+                Animation.AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, time, out Vector3? position);
                 if (position.HasValue)
                 {
                     Vector3 noteOffset = noodleData.NoteOffset;
@@ -157,21 +154,16 @@
             Quaternion inverseWorldRotation)
         {
             NoodleNoteData? noodleData = (NoodleNoteData?)NoteControllerUpdate.NoodleData;
-            if (noodleData != null && noodleData.DisableLook)
+            if (noodleData is { DisableLook: true })
             {
                 rotatedObject.localRotation = endRotation;
                 return;
             }
 
-            Quaternion a;
-            if (num2 < 0.125f)
-            {
-                a = Quaternion.Slerp(baseTransform.rotation * startRotation, baseTransform.rotation * middleRotation, Mathf.Sin(num2 * Mathf.PI * 4f));
-            }
-            else
-            {
-                a = Quaternion.Slerp(baseTransform.rotation * middleRotation, baseTransform.rotation * endRotation, Mathf.Sin((num2 - 0.125f) * Mathf.PI * 2f));
-            }
+            Quaternion rotation = baseTransform.rotation;
+            Quaternion a = num2 < 0.125f
+                ? Quaternion.Slerp(rotation * startRotation, rotation * middleRotation, Mathf.Sin(num2 * Mathf.PI * 4f))
+                : Quaternion.Slerp(rotation * middleRotation, rotation * endRotation, Mathf.Sin((num2 - 0.125f) * Mathf.PI * 2f));
 
             Vector3 vector = playerTransforms.headWorldPos;
 
@@ -188,13 +180,14 @@
             Transform headTransform = _headTransformAccessor(ref playerTransforms);
             Quaternion inverse = Quaternion.Inverse(worldRot);
             Vector3 upVector = inverse * Vector3.up;
-            float baseUpMagnitude = Vector3.Dot(worldRot * baseTransform.position, Vector3.up);
+            Vector3 position = baseTransform.position;
+            float baseUpMagnitude = Vector3.Dot(worldRot * position, Vector3.up);
             float headUpMagnitude = Vector3.Dot(worldRot * headTransform.position, Vector3.up);
             float mult = Mathf.Lerp(headUpMagnitude, baseUpMagnitude, 0.8f) - headUpMagnitude;
             vector += upVector * mult;
 
             // more wtf
-            Vector3 normalized = baseTransform.rotation * (worldRot * (baseTransform.position - vector).normalized);
+            Vector3 normalized = baseTransform.rotation * (worldRot * (position - vector).normalized);
 
             Quaternion b = Quaternion.LookRotation(normalized, rotatedObject.up);
             rotatedObject.rotation = Quaternion.Lerp(a, b, num2 * 2f);

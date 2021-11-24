@@ -1,14 +1,18 @@
-﻿namespace Chroma.Colorizer
-{
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using HarmonyLib;
-    using IPA.Utilities;
-    using UnityEngine;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Chroma.Lighting;
+using HarmonyLib;
+using IPA.Utilities;
+using JetBrains.Annotations;
+using UnityEngine;
+using Logger = IPA.Logging.Logger;
+using Object = UnityEngine.Object;
 
+namespace Chroma.Colorizer
+{
     public class LightColorizer
     {
         private const int COLOR_FIELDS = 4;
@@ -27,7 +31,7 @@
         private readonly Color[] _originalColors = new Color[COLOR_FIELDS];
         private readonly SimpleColorSO[] _simpleColorSOs = new SimpleColorSO[COLOR_FIELDS];
 
-        internal LightColorizer(ChromaLightSwitchEventEffect chromaLightSwitchEventEffect, BeatmapEventType beatmapEventType, LightWithIdManager lightManager)
+        private LightColorizer(ChromaLightSwitchEventEffect chromaLightSwitchEventEffect, BeatmapEventType beatmapEventType, LightWithIdManager lightManager)
         {
             _chromaLightSwitchEventEffect = chromaLightSwitchEventEffect;
             _eventType = beatmapEventType;
@@ -36,32 +40,34 @@
             Lights = _lightsAccessor(ref lightManager)[chromaLightSwitchEventEffect.lightsId].ToList();
 
             IDictionary<int, List<ILightWithId>> lightsPreGroup = new Dictionary<int, List<ILightWithId>>();
-            TrackLaneRingsManager[] managers = UnityEngine.Object.FindObjectsOfType<TrackLaneRingsManager>();
+            TrackLaneRingsManager[] managers = Object.FindObjectsOfType<TrackLaneRingsManager>();
             foreach (ILightWithId light in Lights)
             {
-                if (light is MonoBehaviour monoBehaviour)
+                if (light is not MonoBehaviour monoBehaviour)
                 {
-                    int z = Mathf.RoundToInt(monoBehaviour.transform.position.z);
+                    continue;
+                }
 
-                    TrackLaneRing ring = monoBehaviour.GetComponentInParent<TrackLaneRing>();
-                    if (ring != null)
-                    {
-                        TrackLaneRingsManager mngr = managers.FirstOrDefault(it => it.Rings.IndexOf(ring) >= 0);
-                        if (mngr != null)
-                        {
-                            z = 1000 + mngr.Rings.IndexOf(ring);
-                        }
-                    }
+                int z = Mathf.RoundToInt(monoBehaviour.transform.position.z);
 
-                    if (lightsPreGroup.TryGetValue(z, out List<ILightWithId> list))
+                TrackLaneRing? ring = monoBehaviour.GetComponentInParent<TrackLaneRing>();
+                if (ring != null)
+                {
+                    TrackLaneRingsManager? mngr = managers.FirstOrDefault(it => it.Rings.IndexOf(ring) >= 0);
+                    if (mngr != null)
                     {
-                        list.Add(light);
+                        z = 1000 + mngr.Rings.IndexOf(ring);
                     }
-                    else
-                    {
-                        list = new List<ILightWithId>() { light };
-                        lightsPreGroup.Add(z, list);
-                    }
+                }
+
+                if (lightsPreGroup.TryGetValue(z, out List<ILightWithId> list))
+                {
+                    list.Add(light);
+                }
+                else
+                {
+                    list = new List<ILightWithId> { light };
+                    lightsPreGroup.Add(z, list);
                 }
             }
 
@@ -77,16 +83,13 @@
                 LightsPropagationGrouped[i] = lightList.ToArray();
                 i++;
             }
-
-            // ok we done
-            Colorizers.Add(beatmapEventType, this);
         }
 
         internal static event Action<BeatmapEventType, Color[]>? LightColorChanged;
 
-        public static Dictionary<BeatmapEventType, LightColorizer> Colorizers { get; } = new Dictionary<BeatmapEventType, LightColorizer>();
+        public static Dictionary<BeatmapEventType, LightColorizer> Colorizers { get; } = new();
 
-        public static Color?[] GlobalColor { get; private set; } = new Color?[COLOR_FIELDS];
+        public static Color?[] GlobalColor { get; } = new Color?[COLOR_FIELDS];
 
         public List<ILightWithId> Lights { get; }
 
@@ -106,11 +109,13 @@
             }
         }
 
+        [PublicAPI]
         public static void GlobalColorize(IEnumerable<ILightWithId>? selectLights, params Color?[] colors)
         {
             GlobalColorize(true, selectLights, colors);
         }
 
+        [PublicAPI]
         public static void GlobalColorize(bool refresh, params Color?[] colors)
         {
             GlobalColorize(refresh, null, colors);
@@ -123,36 +128,31 @@
                 GlobalColor[i] = colors[i];
             }
 
-            foreach (KeyValuePair<BeatmapEventType, LightColorizer> valuePair in Colorizers)
+            IEnumerable<ILightWithId>? lightWithIds = selectLights as ILightWithId[] ?? selectLights?.ToArray();
+            foreach ((_, LightColorizer lightColorizer) in Colorizers)
             {
-                LightColorizer lightColorizer = valuePair.Value;
-                lightColorizer.SetSOs(valuePair.Value.Color);
+                lightColorizer.SetSOs(lightColorizer.Color);
 
                 // Allow light colorizer to not force color
-                if (refresh)
+                if (!refresh)
                 {
-                    if (selectLights != null)
-                    {
-                        lightColorizer.Refresh(selectLights);
-                    }
-                    else
-                    {
-                        lightColorizer.Refresh(null);
-                    }
+                    continue;
                 }
+
+                lightColorizer.Refresh(lightWithIds);
             }
         }
 
         public static void RegisterLight(MonoBehaviour lightWithId, int? lightId)
         {
-            void RegisterLightWithID(ILightWithId lightWithId)
+            void RegisterLightWithID(ILightWithId lightToRegister)
             {
-                int type = lightWithId.lightId - 1;
+                int type = lightToRegister.lightId - 1;
                 LightColorizer lightColorizer = ((BeatmapEventType)type).GetLightColorizer();
                 int index = lightColorizer.Lights.Count;
-                LightIDTableManager.RegisterIndex(lightWithId.lightId - 1, index, lightId);
-                lightColorizer._chromaLightSwitchEventEffect.RegisterLight(lightWithId, type, index);
-                lightColorizer.Lights.Add(lightWithId);
+                LightIDTableManager.RegisterIndex(lightToRegister.lightId - 1, index, lightId);
+                lightColorizer._chromaLightSwitchEventEffect.RegisterLight(lightToRegister, type, index);
+                lightColorizer.Lights.Add(lightToRegister);
             }
 
             switch (lightWithId)
@@ -161,7 +161,7 @@
                     RegisterLightWithID(monoBehaviour);
                     break;
 
-                case LightWithIds lightWithIds:
+                case LightWithIds:
                     IEnumerable<ILightWithId> lightsWithId = ((IEnumerable)_lightWithIdsData.GetValue(lightWithId)).Cast<ILightWithId>();
                     foreach (ILightWithId light in lightsWithId)
                     {
@@ -192,38 +192,40 @@
             SetSOs(Color);
 
             // Allow light colorizer to not force color
-            if (refresh)
+            if (!refresh)
             {
-                if (selectLights != null)
-                {
-                    Refresh(selectLights);
-                }
-                else
-                {
-                    Refresh(null);
-                }
+                return;
             }
+
+            Refresh(selectLights);
         }
 
         public IEnumerable<ILightWithId> GetLightWithIds(IEnumerable<int> ids)
         {
-            List<ILightWithId> result = new List<ILightWithId>();
+            List<ILightWithId> result = new();
             int type = (int)_eventType;
             IEnumerable<int> newIds = ids.Select(n => LightIDTableManager.GetActiveTableValue(type, n) ?? n);
             foreach (int id in newIds)
             {
-                ILightWithId lightWithId = Lights.ElementAtOrDefault(id);
+                ILightWithId? lightWithId = Lights.ElementAtOrDefault(id);
                 if (lightWithId != null)
                 {
                     result.Add(lightWithId);
                 }
                 else
                 {
-                    Plugin.Logger.Log($"Type [{type}] does not contain id [{id}].", IPA.Logging.Logger.Level.Error);
+                    Log.Logger.Log($"Type [{type}] does not contain id [{id}].", Logger.Level.Error);
                 }
             }
 
             return result;
+        }
+
+        internal static LightColorizer Create(ChromaLightSwitchEventEffect chromaLightSwitchEventEffect, BeatmapEventType beatmapEventType, LightWithIdManager lightManager)
+        {
+            LightColorizer lightColorizer = new(chromaLightSwitchEventEffect, beatmapEventType, lightManager);
+            Colorizers.Add(beatmapEventType, lightColorizer);
+            return lightColorizer;
         }
 
         internal static void Reset()
@@ -238,7 +240,7 @@
         // cant be fucked to make an overload for this
         internal IEnumerable<ILightWithId> GetPropagationLightWithIds(IEnumerable<int> ids)
         {
-            List<ILightWithId> result = new List<ILightWithId>();
+            List<ILightWithId> result = new();
             int lightCount = LightsPropagationGrouped.Length;
             foreach (int id in ids)
             {

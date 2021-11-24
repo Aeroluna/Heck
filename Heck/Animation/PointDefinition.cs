@@ -1,11 +1,11 @@
-﻿namespace Heck.Animation
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using UnityEngine;
 
+namespace Heck.Animation
+{
     public class PointDefinition
     {
         private readonly List<PointData> _points;
@@ -22,17 +22,9 @@
 
         public static PointDefinition ListToPointDefinition(List<object> list)
         {
-            IEnumerable<List<object>> points;
-            if (list.FirstOrDefault() is List<object>)
-            {
-                points = list.Cast<List<object>>();
-            }
-            else
-            {
-                points = new List<object>[] { list.Append(0).ToList() };
-            }
+            IEnumerable<List<object>> points = list.FirstOrDefault() is List<object> ? list.Cast<List<object>>() : new[] { list.Append(0).ToList() };
 
-            List<PointData> pointData = new List<PointData>();
+            List<PointData> pointData = new();
             foreach (List<object> rawPoint in points)
             {
                 int flagIndex = -1;
@@ -57,34 +49,42 @@
                     List<string> flags = rawPoint.GetRange(flagIndex, cachedCount - flagIndex).Cast<string>().ToList();
                     copiedList.RemoveRange(flagIndex, cachedCount - flagIndex);
 
-                    string easingString = flags.Where(n => n.StartsWith("ease")).FirstOrDefault();
+                    string? easingString = flags.FirstOrDefault(n => n.StartsWith("ease"));
                     if (easingString != null)
                     {
                         easing = (Functions)Enum.Parse(typeof(Functions), easingString);
                     }
 
                     // TODO: add more spicy splines
-                    string splineString = flags.Where(n => n.StartsWith("spline")).FirstOrDefault();
+                    string? splineString = flags.FirstOrDefault(n => n.StartsWith("spline"));
                     if (splineString == "splineCatmullRom")
                     {
                         spline = true;
                     }
                 }
 
-                if (copiedList.Count() == 2)
+                switch (copiedList.Count)
                 {
-                    Vector2 vector = new Vector2(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]));
-                    pointData.Add(new PointData(vector, easing));
-                }
-                else if (copiedList.Count() == 4)
-                {
-                    Vector4 vector = new Vector4(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]), Convert.ToSingle(copiedList[2]), Convert.ToSingle(copiedList[3]));
-                    pointData.Add(new PointData(vector, easing, spline));
-                }
-                else
-                {
-                    Vector5 vector = new Vector5(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]), Convert.ToSingle(copiedList[2]), Convert.ToSingle(copiedList[3]), Convert.ToSingle(copiedList[4]));
-                    pointData.Add(new PointData(vector, easing));
+                    case 2:
+                    {
+                        Vector2 vector = new(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]));
+                        pointData.Add(new PointData(vector, easing));
+                        break;
+                    }
+
+                    case 4:
+                    {
+                        Vector4 vector = new(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]), Convert.ToSingle(copiedList[2]), Convert.ToSingle(copiedList[3]));
+                        pointData.Add(new PointData(vector, easing, spline));
+                        break;
+                    }
+
+                    default:
+                    {
+                        Vector5 vector = new(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]), Convert.ToSingle(copiedList[2]), Convert.ToSingle(copiedList[3]), Convert.ToSingle(copiedList[4]));
+                        pointData.Add(new PointData(vector, easing));
+                        break;
+                    }
                 }
             }
 
@@ -93,19 +93,16 @@
 
         public override string ToString()
         {
-            StringBuilder stringBuilder = new StringBuilder("{ ");
-            if (_points != null)
-            {
-                _points.ForEach(n => stringBuilder.Append($"{n.Point} "));
-            }
+            StringBuilder stringBuilder = new("{ ");
+            _points.ForEach(n => stringBuilder.Append($"{n.Point} "));
 
-            stringBuilder.Append("}");
+            stringBuilder.Append('}');
             return stringBuilder.ToString();
         }
 
         public Vector3 Interpolate(float time)
         {
-            if (_points == null || _points.Count == 0)
+            if (_points.Count == 0)
             {
                 return Vector3.zero;
             }
@@ -136,19 +133,13 @@
             }
 
             normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
-            if (_points[r].Smooth)
-            {
-                return SmoothVectorLerp(_points, l, r, normalTime);
-            }
-            else
-            {
-                return Vector3.LerpUnclamped(pointL, pointR, normalTime);
-            }
+            return _points[r].Smooth ? SmoothVectorLerp(_points, l, r, normalTime)
+                : Vector3.LerpUnclamped(pointL, pointR, normalTime);
         }
 
         public Quaternion InterpolateQuaternion(float time)
         {
-            if (_points == null || _points.Count == 0)
+            if (_points.Count == 0)
             {
                 return Quaternion.identity;
             }
@@ -187,7 +178,7 @@
         // Kind of a sloppy way of implementing this, but hell if it works
         public float InterpolateLinear(float time)
         {
-            if (_points == null || _points.Count == 0)
+            if (_points.Count == 0)
             {
                 return 0;
             }
@@ -223,7 +214,7 @@
 
         public Vector4 InterpolateVector4(float time)
         {
-            if (_points == null || _points.Count == 0)
+            if (_points.Count == 0)
             {
                 return Vector4.zero;
             }
@@ -265,14 +256,12 @@
             Vector3 p2 = points[b].Point;
             Vector3 p3 = b + 1 > points.Count - 1 ? points[b].Point : points[b + 1].Point;
 
-            float t = time;
+            float tt = time * time;
+            float ttt = tt * time;
 
-            float tt = t * t;
-            float ttt = tt * t;
-
-            float q0 = -ttt + (2.0f * tt) - t;
+            float q0 = -ttt + (2.0f * tt) - time;
             float q1 = (3.0f * ttt) - (5.0f * tt) + 2.0f;
-            float q2 = (-3.0f * ttt) + (4.0f * tt) + t;
+            float q2 = (-3.0f * ttt) + (4.0f * tt) + time;
             float q3 = ttt - tt;
 
             Vector3 c = 0.5f * ((p0 * q0) + (p1 * q1) + (p2 * q2) + (p3 * q3));
@@ -317,7 +306,7 @@
             }
         }
 
-        private struct Vector5
+        private readonly struct Vector5
         {
             internal Vector5(float x, float y, float z, float w, float v)
             {
@@ -328,18 +317,16 @@
                 this.v = v;
             }
 
-#pragma warning disable IDE1006 // Naming Styles
 #pragma warning disable SA1300 // Element should begin with upper-case letter
-            internal float x { get; }
-
-            internal float y { get; }
-
-            internal float z { get; }
-
-            internal float w { get; }
-
             internal float v { get; }
-#pragma warning restore IDE1006 // Naming Styles
+
+            private float x { get; }
+
+            private float y { get; }
+
+            private float z { get; }
+
+            private float w { get; }
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 
             public static implicit operator Vector4(Vector5 vector)

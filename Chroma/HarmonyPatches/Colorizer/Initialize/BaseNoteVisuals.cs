@@ -1,20 +1,20 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using System;
-    using System.Linq;
-    using Chroma.Colorizer;
-    using HarmonyLib;
+﻿using System;
+using System.Linq;
+using Chroma.Colorizer;
+using HarmonyLib;
 
+namespace Chroma.HarmonyPatches.Colorizer.Initialize
+{
     [HarmonyPatch(typeof(BaseNoteVisuals))]
     [HarmonyPatch("Awake")]
     internal static class BaseNoteVisualsAwake
     {
         // I cant think of a better way to check if a NoteControllerBase is a bomb
-        private static readonly Type[] _bombTypes = new Type[]
+        private static readonly Type[] _bombTypes =
         {
             typeof(BombNoteController),
             typeof(MultiplayerConnectedPlayerBombNoteController),
-            typeof(MirroredBombNoteController),
+            typeof(MirroredBombNoteController)
         };
 
         internal static bool IsBombType(NoteControllerBase noteController)
@@ -27,11 +27,11 @@
         {
             if (IsBombType(____noteController))
             {
-                new BombColorizer(____noteController);
+                BombColorizer.Create(____noteController);
             }
             else
             {
-                new NoteColorizer(____noteController);
+                NoteColorizer.Create(____noteController);
             }
         }
     }

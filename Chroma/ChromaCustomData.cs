@@ -1,10 +1,11 @@
-﻿namespace Chroma
-{
-    using System.Collections.Generic;
-    using Heck;
-    using Heck.Animation;
-    using UnityEngine;
+﻿using System.Collections.Generic;
+using Chroma.Lighting;
+using Heck;
+using Heck.Animation;
+using UnityEngine;
 
+namespace Chroma
+{
     internal record ChromaCustomEventData : ICustomEventCustomData
     {
         public ChromaCustomEventData(Track track)
@@ -24,7 +25,7 @@
     {
         internal Color? Color { get; set; }
 
-        internal IEnumerable<Track>? Track { get; set; }
+        internal List<Track>? Track { get; set; }
 
         internal PointDefinition? LocalPathColor { get; set; }
     }

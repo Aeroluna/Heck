@@ -1,15 +1,17 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using HarmonyLib;
-    using Heck;
-    using Heck.Animation;
-    using IPA.Utilities;
-    using UnityEngine;
-    using static NoodleExtensions.NoodleCustomDataManager;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using HarmonyLib;
+using Heck;
+using Heck.Animation;
+using IPA.Utilities;
+using JetBrains.Annotations;
+using UnityEngine;
+using static NoodleExtensions.NoodleCustomDataManager;
+using AnimationHelper = NoodleExtensions.Animation.AnimationHelper;
 
+namespace NoodleExtensions.HarmonyPatches
+{
     [HeckPatch(typeof(NoteController))]
     [HeckPatch("Init")]
     internal static class NoteControllerInit
@@ -33,6 +35,7 @@
 
         private static readonly MethodInfo _getFlipYSide = AccessTools.Method(typeof(NoteControllerInit), nameof(GetFlipYSide));
 
+        [UsedImplicitly]
         private static void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float endRotation)
         {
             NoodleNoteData? noodleData = TryGetObjectData<NoodleNoteData>(noteData);
@@ -114,6 +117,7 @@
             noodleData.LocalRotation = localRotation;
         }
 
+        [UsedImplicitly]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
@@ -131,13 +135,10 @@
             float output = @default;
 
             NoodleNoteData? noodleData = TryGetObjectData<NoodleNoteData>(noteData);
-            if (noodleData != null)
+            float? flipYSide = noodleData?.FlipYSideInternal;
+            if (flipYSide.HasValue)
             {
-                float? flipYSide = noodleData.FlipYSideInternal;
-                if (flipYSide.HasValue)
-                {
-                    output = flipYSide.Value;
-                }
+                output = flipYSide.Value;
             }
 
             return output;
@@ -162,6 +163,7 @@
 
         internal static NoodleObjectData? NoodleData { get; private set; }
 
+        [UsedImplicitly]
         private static void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
             NoodleData = TryGetObjectData<NoodleObjectData>(____noteData);
@@ -172,111 +174,115 @@
 
             NoodleNoteData noodleData = (NoodleNoteData)NoodleData;
 
-            IEnumerable<Track>? tracks = noodleData.Track;
+            List<Track>? tracks = noodleData.Track;
             NoodleObjectData.AnimationObjectData? animationObject = noodleData.AnimationObject;
-            if (tracks != null || animationObject != null)
+            if (tracks == null && animationObject == null)
             {
-                NoteJump noteJump = NoteControllerInit._noteJumpAccessor(ref ____noteMovement);
-                NoteFloorMovement floorMovement = NoteControllerInit._noteFloorMovementAccessor(ref ____noteMovement);
+                return;
+            }
 
-                // idk i just copied base game time
-                float jumpDuration = _jumpDurationAccessor(ref noteJump);
-                float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - (jumpDuration * 0.5f));
-                elapsedTime = NoteJumpManualUpdate.NoteJumpTimeAdjust(elapsedTime, jumpDuration);
-                float normalTime = elapsedTime / jumpDuration;
+            NoteJump noteJump = NoteControllerInit._noteJumpAccessor(ref ____noteMovement);
+            NoteFloorMovement floorMovement = NoteControllerInit._noteFloorMovementAccessor(ref ____noteMovement);
 
-                Animation.AnimationHelper.GetObjectOffset(animationObject, tracks, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow, out float? cuttable);
+            // idk i just copied base game time
+            float jumpDuration = _jumpDurationAccessor(ref noteJump);
+            float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - (jumpDuration * 0.5f));
+            elapsedTime = NoteJumpManualUpdate.NoteJumpTimeAdjust(elapsedTime, jumpDuration);
+            float normalTime = elapsedTime / jumpDuration;
 
-                if (positionOffset.HasValue)
+            AnimationHelper.GetObjectOffset(animationObject, tracks, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? dissolveArrow, out float? cuttable);
+
+            if (positionOffset.HasValue)
+            {
+                Vector3 moveStartPos = noodleData.MoveStartPos;
+                Vector3 moveEndPos = noodleData.MoveEndPos;
+                Vector3 jumpEndPos = noodleData.JumpEndPos;
+
+                Vector3 offset = positionOffset.Value;
+                _floorStartPosAccessor(ref floorMovement) = moveStartPos + offset;
+                _floorEndPosAccessor(ref floorMovement) = moveEndPos + offset;
+                _jumpStartPosAccessor(ref noteJump) = moveEndPos + offset;
+                _jumpEndPosAccessor(ref noteJump) = jumpEndPos + offset;
+            }
+
+            Transform transform = __instance.transform;
+
+            if (rotationOffset.HasValue || localRotationOffset.HasValue)
+            {
+                Quaternion worldRotation = noodleData.WorldRotation;
+                Quaternion localRotation = noodleData.LocalRotation;
+
+                Quaternion worldRotationQuatnerion = worldRotation;
+                if (rotationOffset.HasValue)
                 {
-                    Vector3 moveStartPos = noodleData.MoveStartPos;
-                    Vector3 moveEndPos = noodleData.MoveEndPos;
-                    Vector3 jumpEndPos = noodleData.JumpEndPos;
-
-                    Vector3 offset = positionOffset.Value;
-                    _floorStartPosAccessor(ref floorMovement) = moveStartPos + offset;
-                    _floorEndPosAccessor(ref floorMovement) = moveEndPos + offset;
-                    _jumpStartPosAccessor(ref noteJump) = moveEndPos + offset;
-                    _jumpEndPosAccessor(ref noteJump) = jumpEndPos + offset;
+                    worldRotationQuatnerion *= rotationOffset.Value;
+                    Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
+                    NoteControllerInit._worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
+                    NoteControllerInit._inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
+                    NoteControllerInit._worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
+                    NoteControllerInit._inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
                 }
 
-                Transform transform = __instance.transform;
+                worldRotationQuatnerion *= localRotation;
 
-                if (rotationOffset.HasValue || localRotationOffset.HasValue)
+                if (localRotationOffset.HasValue)
                 {
-                    Quaternion worldRotation = noodleData.WorldRotation;
-                    Quaternion localRotation = noodleData.LocalRotation;
+                    worldRotationQuatnerion *= localRotationOffset.Value;
+                }
 
-                    Quaternion worldRotationQuatnerion = worldRotation;
-                    if (rotationOffset.HasValue)
+                transform.localRotation = worldRotationQuatnerion;
+            }
+
+            if (scaleOffset.HasValue)
+            {
+                transform.localScale = scaleOffset.Value;
+            }
+
+            if (dissolve.HasValue)
+            {
+                if (CutoutManager.NoteCutoutEffects.TryGetValue(__instance, out CutoutEffectWrapper cutoutEffect))
+                {
+                    cutoutEffect.SetCutout(dissolve.Value);
+                }
+            }
+
+            if (dissolveArrow.HasValue && __instance.noteData.colorType != ColorType.None)
+            {
+                if (CutoutManager.NoteDisappearingArrowWrappers.TryGetValue(__instance, out DisappearingArrowWrapper disappearingArrowWrapper))
+                {
+                    disappearingArrowWrapper.SetCutout(dissolveArrow.Value);
+                }
+            }
+
+            if (!cuttable.HasValue)
+            {
+                return;
+            }
+
+            bool enabled = cuttable.Value >= 1;
+
+            switch (__instance)
+            {
+                case GameNoteController gameNoteController:
+                    BoxCuttableBySaber[] bigCuttableBySaberList = _gameNoteBigCuttableAccessor(ref gameNoteController);
+                    foreach (BoxCuttableBySaber bigCuttableBySaber in bigCuttableBySaberList)
                     {
-                        worldRotationQuatnerion *= rotationOffset.Value;
-                        Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
-                        NoteControllerInit._worldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
-                        NoteControllerInit._inverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
-                        NoteControllerInit._worldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
-                        NoteControllerInit._inverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
+                        bigCuttableBySaber.canBeCut = enabled;
                     }
 
-                    worldRotationQuatnerion *= localRotation;
-
-                    if (localRotationOffset.HasValue)
+                    BoxCuttableBySaber[] smallCuttableBySaberList = _gameNoteSmallCuttableAccessor(ref gameNoteController);
+                    foreach (BoxCuttableBySaber smallCuttableBySaber in smallCuttableBySaberList)
                     {
-                        worldRotationQuatnerion *= localRotationOffset.Value;
+                        smallCuttableBySaber.canBeCut = enabled;
                     }
 
-                    transform.localRotation = worldRotationQuatnerion;
-                }
+                    break;
 
-                if (scaleOffset.HasValue)
-                {
-                    transform.localScale = scaleOffset.Value;
-                }
+                case BombNoteController bombNoteController:
+                    CuttableBySaber boxCuttableBySaber = _bombNoteCuttableAccessor(ref bombNoteController);
+                    boxCuttableBySaber.canBeCut = enabled;
 
-                if (dissolve.HasValue)
-                {
-                    if (CutoutManager.NoteCutoutEffects.TryGetValue(__instance, out CutoutEffectWrapper cutoutEffect))
-                    {
-                        cutoutEffect.SetCutout(dissolve.Value);
-                    }
-                }
-
-                if (dissolveArrow.HasValue && __instance.noteData.colorType != ColorType.None)
-                {
-                    if (CutoutManager.NoteDisappearingArrowWrappers.TryGetValue(__instance, out DisappearingArrowWrapper disappearingArrowWrapper))
-                    {
-                        disappearingArrowWrapper.SetCutout(dissolveArrow.Value);
-                    }
-                }
-
-                if (cuttable.HasValue)
-                {
-                    bool enabled = cuttable.Value >= 1;
-
-                    switch (__instance)
-                    {
-                        case GameNoteController gameNoteController:
-                            BoxCuttableBySaber[] bigCuttableBySaberList = _gameNoteBigCuttableAccessor(ref gameNoteController);
-                            foreach (BoxCuttableBySaber bigCuttableBySaber in bigCuttableBySaberList)
-                            {
-                                bigCuttableBySaber.canBeCut = enabled;
-                            }
-
-                            BoxCuttableBySaber[] smallCuttableBySaberList = _gameNoteSmallCuttableAccessor(ref gameNoteController);
-                            foreach (BoxCuttableBySaber smallCuttableBySaber in smallCuttableBySaberList)
-                            {
-                                smallCuttableBySaber.canBeCut = enabled;
-                            }
-
-                            break;
-
-                        case BombNoteController bombNoteController:
-                            CuttableBySaber boxCuttableBySaber = _bombNoteCuttableAccessor(ref bombNoteController);
-                            boxCuttableBySaber.canBeCut = enabled;
-
-                            break;
-                    }
-                }
+                    break;
             }
         }
     }

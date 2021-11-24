@@ -1,13 +1,15 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using Heck;
-    using UnityEngine;
+﻿using System.Collections.Generic;
+using Heck;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace NoodleExtensions.HarmonyPatches.FakeNotes
+{
     [HeckPatch(typeof(NoteCutSoundEffectManager))]
     [HeckPatch("Start")]
     internal static class NoteCutSoundEffectManagerStart
     {
+        [UsedImplicitly]
         private static void Postfix(NoteCutSoundEffectManager __instance)
         {
             NoodleCutSoundEffectManager noodleManager = __instance.gameObject.AddComponent<NoodleCutSoundEffectManager>();
@@ -23,21 +25,17 @@
         internal static NoodleCutSoundEffectManager? NoodleManager { get; set; }
 
         // Do not create a NoteCutSoundEffect for fake notes
+        [UsedImplicitly]
         private static bool Prefix(NoteController noteController)
         {
-            if (FakeNoteHelper.GetFakeNote(noteController))
-            {
-                return NoodleManager!.ProcessHitSound(noteController);
-            }
-
-            return false;
+            return FakeNoteHelper.GetFakeNote(noteController) && NoodleManager!.ProcessHitSound(noteController);
         }
     }
 
     // Weird cut sound shenanigans to prevent unity from crashing.
     internal class NoodleCutSoundEffectManager : MonoBehaviour
     {
-        private readonly List<NoteController> _hitsoundQueue = new List<NoteController>();
+        private readonly List<NoteController> _hitsoundQueue = new();
 
         private NoteCutSoundEffectManager _noteCutSoundEffectManager = null!;
         private int _lastFrame = -1;
@@ -65,22 +63,22 @@
             {
                 return true;
             }
-            else
-            {
-                _hitsoundQueue.Add(noteController);
-                return false;
-            }
+
+            _hitsoundQueue.Add(noteController);
+            return false;
         }
 
         private void Update()
         {
-            if (_hitsoundQueue.Count > 0 && Time.frameCount != _lastFrame)
+            if (_hitsoundQueue.Count <= 0 || Time.frameCount == _lastFrame)
             {
-                List<NoteController> noteControllers = new List<NoteController>(_hitsoundQueue);
-                _hitsoundQueue.Clear();
-                noteControllers.ForEach(_noteCutSoundEffectManager.HandleNoteWasSpawned);
-                Plugin.Logger.Log($"{noteControllers.Count} cut sounds moved to next frame!");
+                return;
             }
+
+            List<NoteController> noteControllers = new(_hitsoundQueue);
+            _hitsoundQueue.Clear();
+            noteControllers.ForEach(_noteCutSoundEffectManager.HandleNoteWasSpawned);
+            Log.Logger.Log($"{noteControllers.Count} cut sounds moved to next frame!");
         }
     }
 }

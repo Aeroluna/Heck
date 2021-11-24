@@ -1,16 +1,18 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
-    using Heck;
-    using IPA.Utilities;
-    using static NoodleExtensions.Plugin;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
+using HarmonyLib;
+using Heck;
+using IPA.Utilities;
+using JetBrains.Annotations;
+using static NoodleExtensions.NoodleController;
 
+namespace NoodleExtensions.HarmonyPatches
+{
     [HeckPatch(typeof(BeatmapDataTransformHelper))]
     [HeckPatch("CreateTransformedBeatmapData")]
     internal static class BeatmapDataTransformHelperCreateTransformedBeatmapData
@@ -19,6 +21,7 @@
 
         private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
 
+        [UsedImplicitly]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
@@ -42,19 +45,19 @@
                 CustomBeatmapData customBeatmapData = (CustomBeatmapData)beatmapData.GetCopy();
 
                 // there is some ambiguity with these variables but who frikkin cares
-                float startHalfJumpDurationInBeats = 4;
-                float maxHalfJumpDistance = 18;
-                float moveDuration = 0.5f;
+                const float startHalfJumpDurationInBeats = 4;
+                const float maxHalfJumpDistance = 18;
+                const float moveDuration = 0.5f;
 
-                for (int i = 0; i < customBeatmapData.beatmapLinesData.Count; i++)
+                foreach (IReadonlyBeatmapLineData t in customBeatmapData.beatmapLinesData)
                 {
-                    BeatmapLineData beatmapLineData = (BeatmapLineData)customBeatmapData.beatmapLinesData[i];
+                    BeatmapLineData beatmapLineData = (BeatmapLineData)t;
                     foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
                     {
                         Dictionary<string, object?> dynData = beatmapObjectData.GetDataForObject();
 
-                        float noteJumpMovementSpeed = dynData.Get<float?>(NOTEJUMPSPEED) ?? GameplayCoreInstallerInstallBindings.CachedNoteJumpMovementSpeed;
-                        float noteJumpStartBeatOffset = dynData.Get<float?>(NOTESPAWNOFFSET) ?? GameplayCoreInstallerInstallBindings.CachedNoteJumpStartBeatOffset;
+                        float noteJumpMovementSpeed = dynData.Get<float?>(NOTE_JUMP_SPEED) ?? GameplayCoreInstallerInstallBindings.CachedNoteJumpMovementSpeed;
+                        float noteJumpStartBeatOffset = dynData.Get<float?>(NOTE_SPAWN_OFFSET) ?? GameplayCoreInstallerInstallBindings.CachedNoteJumpStartBeatOffset;
 
                         // how do i not repeat this in a reasonable way
                         float num = 60f / dynData.Get<float>("bpm");
@@ -75,14 +78,14 @@
                     }
 
                     _beatmapObjectsDataAccessor(ref beatmapLineData) = beatmapLineData.beatmapObjectsData
-                        .OrderBy(n => n.time - (float)(n.GetDataForObject()["aheadTime"] ?? throw new System.InvalidOperationException($"Could not get aheadTime for [{n.GetType().FullName}] at time [{n.time}].")))
+                        .OrderBy(n => n.time - (float)(n.GetDataForObject()["aheadTime"] ?? throw new InvalidOperationException($"Could not get aheadTime for [{n.GetType().FullName}] at time [{n.time}].")))
                         .ToList();
                 }
 
                 return customBeatmapData;
             }
 
-            Logger.Log("beatmapData was not CustomBeatmapData", IPA.Logging.Logger.Level.Error);
+            Log.Logger.Log("beatmapData was not CustomBeatmapData", IPA.Logging.Logger.Level.Error);
             return beatmapData;
         }
     }

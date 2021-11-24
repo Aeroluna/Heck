@@ -1,7 +1,7 @@
-﻿namespace Chroma.Colorizer
-{
-    using UnityEngine;
+﻿using UnityEngine;
 
+namespace Chroma.Colorizer.Monobehaviours
+{
     internal class ChromaClashEffectController : MonoBehaviour
     {
         private readonly Color[] _colors = new Color[2];

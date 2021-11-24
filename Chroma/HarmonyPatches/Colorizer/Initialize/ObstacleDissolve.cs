@@ -1,8 +1,8 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using Chroma.Colorizer;
-    using HarmonyLib;
+﻿using Chroma.Colorizer;
+using HarmonyLib;
 
+namespace Chroma.HarmonyPatches.Colorizer.Initialize
+{
     [HarmonyPatch(typeof(ObstacleDissolve))]
     [HarmonyPatch("Awake")]
     internal static class ObstacleDissolveAwake
@@ -10,7 +10,7 @@
         [HarmonyPriority(Priority.High)]
         private static void Prefix(ObstacleControllerBase ____obstacleController)
         {
-            new ObstacleColorizer(____obstacleController);
+            ObstacleColorizer.Create(____obstacleController);
         }
     }
 

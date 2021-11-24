@@ -1,11 +1,12 @@
-﻿namespace Chroma
-{
-    using Heck.Animation;
-    using IPA.Utilities;
-    using Tweening;
-    using UnityEngine;
+﻿using System;
+using Heck.Animation;
+using IPA.Utilities;
+using Tweening;
+using UnityEngine;
 
-    public class ChromaIDColorTween : ColorTween
+namespace Chroma.Lighting
+{
+    public sealed class ChromaIDColorTween : ColorTween
     {
         private static readonly FieldAccessor<LightWithIdManager, bool>.Accessor _didChangeAccessor = FieldAccessor<LightWithIdManager, bool>.GetAccessor("_didChangeSomeColorsThisFrame");
 
@@ -14,7 +15,7 @@
 
         internal ChromaIDColorTween(Color fromValue, Color toValue, ILightWithId lightWithId, LightWithIdManager lightWithIdManager, int id)
         {
-            Reinit(fromValue, toValue, SetColor, 0, EaseType.Linear, 0);
+            Reinit(fromValue, toValue, SetColor, 0, EaseType.Linear);
             _lightWithId = lightWithId;
             _lightWithIdManager = lightWithIdManager;
             Id = id;
@@ -42,7 +43,7 @@
                     return Color.HSVToRGB(Mathf.LerpUnclamped(fromH, toH, time), Mathf.LerpUnclamped(fromS, toS, time), Mathf.LerpUnclamped(fromV, toV, time)).ColorWithAlpha(Mathf.LerpUnclamped(fromValue.a, toValue.a, time));
 
                 default:
-                    throw new System.InvalidOperationException($"[{nameof(LerpType)}] not valid: [{LerpType}].");
+                    throw new InvalidOperationException($"[{nameof(LerpType)}] not valid: [{LerpType}].");
             }
         }
 

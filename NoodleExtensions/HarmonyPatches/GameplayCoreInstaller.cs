@@ -1,11 +1,12 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using HarmonyLib;
-    using Heck;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using HarmonyLib;
+using Heck;
+using JetBrains.Annotations;
 
+namespace NoodleExtensions.HarmonyPatches
+{
     [HeckPatch(typeof(GameplayCoreInstaller))]
     [HeckPatch("InstallBindings")]
     internal static class GameplayCoreInstallerInstallBindings
@@ -18,6 +19,7 @@
 
         internal static float CachedNoteJumpStartBeatOffset { get; private set; }
 
+        [UsedImplicitly]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)

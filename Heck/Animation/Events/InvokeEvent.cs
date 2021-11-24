@@ -1,24 +1,26 @@
-﻿namespace Heck.Animation
-{
-    using CustomJSONData.CustomBeatmap;
-    using static Heck.Animation.AnimationController;
-    using static Heck.HeckCustomDataManager;
-    using static Heck.Plugin;
+﻿using CustomJSONData.CustomBeatmap;
+using static Heck.Animation.AnimationController;
+using static Heck.HeckController;
+using static Heck.HeckCustomDataManager;
 
+namespace Heck.Animation.Events
+{
     internal static class InvokeEvent
     {
         internal static void Callback(CustomEventData customEventData)
         {
-            if (customEventData.type == INVOKEEVENT)
+            if (customEventData.type != INVOKE_EVENT)
             {
-                HeckInvokeEventData? heckData = TryGetEventData<HeckInvokeEventData>(customEventData);
-                if (heckData == null)
-                {
-                    return;
-                }
-
-                Instance!.CustomEventCallbackController!.InvokeCustomEvent(heckData.CustomEventData);
+                return;
             }
+
+            HeckInvokeEventData? heckData = TryGetEventData<HeckInvokeEventData>(customEventData);
+            if (heckData == null)
+            {
+                return;
+            }
+
+            Instance.CustomEventCallbackController.InvokeCustomEvent(heckData.CustomEventData);
         }
     }
 }

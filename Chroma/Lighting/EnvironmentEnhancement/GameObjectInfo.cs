@@ -1,38 +1,42 @@
-﻿namespace Chroma
-{
-    using System;
-    using System.Collections.Generic;
-    using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
+namespace Chroma.Lighting.EnvironmentEnhancement
+{
     internal class GameObjectInfo
     {
         internal GameObjectInfo(GameObject gameObject)
         {
-            List<string> nameList = new List<string>();
+            List<string> nameList = new();
 
             Transform transform = gameObject.transform;
             while (true)
             {
+                Transform parent = transform.parent;
+                bool parentExist = parent != null;
+
                 int index;
-                if (transform.parent != null)
+                if (parentExist)
                 {
                     index = transform.GetSiblingIndex();
                 }
                 else
                 {
                     // Why doesnt GetSiblingIndex work on root objects?
-                    GameObject[] rootGameObjects = transform.gameObject.scene.GetRootGameObjects();
-                    index = Array.IndexOf(rootGameObjects, transform.gameObject);
+                    GameObject currentObject = transform.gameObject;
+                    GameObject[] rootGameObjects = currentObject.scene.GetRootGameObjects();
+                    index = Array.IndexOf(rootGameObjects, currentObject);
                 }
 
                 nameList.Add($"[{index}]{transform.name}");
 
-                if (transform.parent == null)
+                if (!parentExist)
                 {
                     break;
                 }
 
-                transform = transform.parent;
+                transform = parent!;
             }
 
             nameList.Add($"{gameObject.scene.name}");

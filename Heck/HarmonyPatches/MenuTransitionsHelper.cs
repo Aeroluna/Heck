@@ -1,12 +1,14 @@
-﻿namespace Heck.HarmonyPatches
-{
-    using System;
-    using System.Diagnostics;
-    using HarmonyLib;
-    using Heck.SettingsSetter;
+﻿using System;
+using System.Diagnostics;
+using HarmonyLib;
+using Heck.SettingsSetter;
+using IPA.Logging;
+using JetBrains.Annotations;
 
+namespace Heck.HarmonyPatches
+{
     [HarmonyPatch(typeof(MenuTransitionsHelper))]
-    [HarmonyPatch(new Type[]
+    [HarmonyPatch(new[]
     {
         typeof(string),
         typeof(IDifficultyBeatmap),
@@ -19,11 +21,12 @@
         typeof(string),
         typeof(bool),
         typeof(Action),
-        typeof(Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>),
+        typeof(Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>)
     })]
     [HarmonyPatch("StartStandardLevel")]
     internal static class MenuTransitionsHelperStartStandardLevel
     {
+        [UsedImplicitly]
         private static bool Prefix(
             MenuTransitionsHelper __instance,
             string gameMode,
@@ -41,10 +44,10 @@
         {
             // In a perfect world I would patch SingePlayerLevelSelectionFlowCoordinator instead, but im a lazy mf
             // SO WEIRD STACK TRACE JANKINESS WE GO!!!
-            StackTrace stackTrace = new StackTrace();
+            StackTrace stackTrace = new();
             if (stackTrace.GetFrame(2).GetMethod().Name.Contains("SinglePlayerLevelSelectionFlowCoordinator"))
             {
-                SettingsSetterViewController.StartStandardLevelParameters startStandardLevelParameters = new SettingsSetterViewController.StartStandardLevelParameters(
+                SettingsSetterViewController.StartStandardLevelParameters startStandardLevelParameters = new(
                     gameMode,
                     difficultyBeatmap,
                     previewBeatmapLevel,
@@ -61,10 +64,8 @@
                 SettingsSetterViewController.Instance.Init(startStandardLevelParameters, __instance);
                 return !SettingsSetterViewController.Instance.DoPresent;
             }
-            else
-            {
-                Plugin.Logger.Log("Level started outside of SinglePlayerLevelSelectionFlowCoordinator, skipping settable settings.", IPA.Logging.Logger.Level.Trace);
-            }
+
+            Log.Logger.Log("Level started outside of SinglePlayerLevelSelectionFlowCoordinator, skipping settable settings.", Logger.Level.Trace);
 
             return true;
         }
@@ -74,6 +75,7 @@
     [HarmonyPatch("HandleMainGameSceneDidFinish")]
     internal static class MenuTransitionsHelperHandleMainGameSceneDidFinish
     {
+        [UsedImplicitly]
         private static void Prefix(LevelCompletionResults levelCompletionResults)
         {
             if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.Restart)

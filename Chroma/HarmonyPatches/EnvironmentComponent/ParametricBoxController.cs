@@ -1,13 +1,14 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using Chroma;
-    using HarmonyLib;
-    using Heck;
-    using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using Chroma.Lighting.EnvironmentEnhancement;
+using HarmonyLib;
+using Heck;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace Chroma.HarmonyPatches.EnvironmentComponent
+{
     [HeckPatch(typeof(ParametricBoxController))]
     [HeckPatch("Refresh")]
     internal static class ParametricBoxControllerRefresh
@@ -18,6 +19,7 @@
         private static readonly MethodInfo _getTransformScale = AccessTools.Method(typeof(ParametricBoxControllerRefresh), nameof(GetTransformScale));
         private static readonly MethodInfo _getTransformPosition = AccessTools.Method(typeof(ParametricBoxControllerRefresh), nameof(GetTransformPosition));
 
+        [UsedImplicitly]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)

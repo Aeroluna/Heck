@@ -1,8 +1,8 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using HarmonyLib;
-    using Heck;
+﻿using HarmonyLib;
+using Heck;
 
+namespace NoodleExtensions.HarmonyPatches.FakeNotes
+{
     [HeckPatch(typeof(BombNoteController))]
     [HeckPatch("Init")]
     internal static class BombNoteControllerInit

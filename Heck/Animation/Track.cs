@@ -1,23 +1,27 @@
-﻿namespace Heck.Animation
-{
-    using System;
-    using System.Collections.Generic;
-    using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace Heck.Animation
+{
     public class TrackBuilder
     {
         public static event Action<Track>? TrackCreated;
 
-        public Dictionary<string, Track> Tracks { get; } = new Dictionary<string, Track>();
+        public Dictionary<string, Track> Tracks { get; } = new();
 
+        [PublicAPI]
         public Track AddTrack(string trackName)
         {
-            if (!Tracks.TryGetValue(trackName, out Track track))
+            if (Tracks.TryGetValue(trackName, out Track track))
             {
-                track = new Track();
-                TrackCreated?.Invoke(track);
-                Tracks.Add(trackName, track);
+                return track;
             }
+
+            track = new Track();
+            TrackCreated?.Invoke(track);
+            Tracks.Add(trackName, track);
 
             return track;
         }
@@ -29,7 +33,7 @@
 
         public event Action<GameObject>? OnGameObjectRemoved;
 
-        public HashSet<GameObject> GameObjects { get; } = new HashSet<GameObject>();
+        public HashSet<GameObject> GameObjects { get; } = new();
 
         internal IDictionary<string, Property> Properties { get; } = new Dictionary<string, Property>();
 
@@ -61,7 +65,7 @@
         {
             if (Properties.ContainsKey(name))
             {
-                Plugin.Logger.Log($"Duplicate property {name}, skipping...", IPA.Logging.Logger.Level.Trace);
+                Log.Logger.Log($"Duplicate property {name}, skipping...", IPA.Logging.Logger.Level.Trace);
             }
             else
             {
@@ -73,7 +77,7 @@
         {
             if (PathProperties.ContainsKey(name))
             {
-                Plugin.Logger.Log($"Duplicate path property {name}, skipping...", IPA.Logging.Logger.Level.Trace);
+                Log.Logger.Log($"Duplicate path property {name}, skipping...", IPA.Logging.Logger.Level.Trace);
             }
             else
             {

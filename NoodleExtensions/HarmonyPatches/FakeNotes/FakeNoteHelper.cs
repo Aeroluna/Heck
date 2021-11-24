@@ -1,13 +1,13 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using HarmonyLib;
-    using UnityEngine;
-    using static NoodleExtensions.NoodleCustomDataManager;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using HarmonyLib;
+using UnityEngine;
+using static NoodleExtensions.NoodleCustomDataManager;
 
+namespace NoodleExtensions.HarmonyPatches.FakeNotes
+{
     internal static class FakeNoteHelper
     {
         internal static readonly MethodInfo _boundsNullCheck = AccessTools.Method(typeof(FakeNoteHelper), nameof(BoundsNullCheck));
@@ -18,31 +18,15 @@
         internal static bool GetFakeNote(NoteController noteController)
         {
             NoodleNoteData? noodleData = TryGetObjectData<NoodleNoteData>(noteController.noteData);
-            if (noodleData != null)
-            {
-                bool? fake = noodleData.Fake;
-                if (fake.HasValue && fake.Value)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            bool? fake = noodleData?.Fake;
+            return fake is not true;
         }
 
         internal static bool GetCuttable(NoteData noteData)
         {
             NoodleNoteData? noodleData = TryGetObjectData<NoodleNoteData>(noteData);
-            if (noodleData != null)
-            {
-                bool? cuttable = noodleData.Cuttable;
-                if (cuttable.HasValue && !cuttable.Value)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            bool? cuttable = noodleData?.Cuttable;
+            return !cuttable.HasValue || cuttable.Value;
         }
 
         internal static IEnumerable<CodeInstruction> ObstaclesTranspiler(IEnumerable<CodeInstruction> instructions)
@@ -59,21 +43,13 @@
             return obstacleController.bounds.size == Vector3.zero;
         }
 
-        private static List<ObstacleController> ObstacleFakeCheck(List<ObstacleController> intersectingObstacles)
+        private static List<ObstacleController> ObstacleFakeCheck(IEnumerable<ObstacleController> intersectingObstacles)
         {
             return intersectingObstacles.Where(n =>
             {
                 NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(n.obstacleData);
-                if (noodleData != null)
-                {
-                    bool? fake = noodleData.Fake;
-                    if (fake.HasValue && fake.Value)
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
+                bool? fake = noodleData?.Fake;
+                return fake is true;
             }).ToList();
         }
     }

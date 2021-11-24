@@ -1,13 +1,14 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using HarmonyLib;
-    using Heck;
-    using NoodleExtensions.Animation;
-    using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using HarmonyLib;
+using Heck;
+using JetBrains.Annotations;
+using NoodleExtensions.Animation;
+using UnityEngine;
 
+namespace NoodleExtensions.HarmonyPatches
+{
     [HeckPatch(typeof(NoteFloorMovement))]
     [HeckPatch("ManualUpdate")]
     internal static class NoteFloorMovementManualUpdate
@@ -16,6 +17,7 @@
 
         private static readonly MethodInfo _definiteNoteFloorMovement = AccessTools.Method(typeof(NoteFloorMovementManualUpdate), nameof(DefiniteNoteFloorMovement));
 
+        [UsedImplicitly]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
@@ -29,18 +31,20 @@
         private static Vector3 DefiniteNoteFloorMovement(Vector3 original, NoteFloorMovement noteFloorMovement)
         {
             NoodleObjectData? noodleData = NoteControllerUpdate.NoodleData;
-            if (noodleData != null)
+            if (noodleData == null)
             {
-                AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, 0, out Vector3? position);
-                if (position.HasValue)
-                {
-                    Vector3 noteOffset = noodleData.NoteOffset;
-                    Vector3 endPos = NoteControllerUpdate._floorEndPosAccessor(ref noteFloorMovement);
-                    return original + (position.Value + noteOffset - endPos);
-                }
+                return original;
             }
 
-            return original;
+            AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, 0, out Vector3? position);
+            if (!position.HasValue)
+            {
+                return original;
+            }
+
+            Vector3 noteOffset = noodleData.NoteOffset;
+            Vector3 endPos = NoteControllerUpdate._floorEndPosAccessor(ref noteFloorMovement);
+            return original + (position.Value + noteOffset - endPos);
         }
     }
 
@@ -48,10 +52,11 @@
     [HeckPatch("SetToStart")]
     internal static class NoteFloorMovementSetToStart
     {
+        [UsedImplicitly]
         private static void Postfix(Transform ____rotatedObject)
         {
             NoodleNoteData? noodleData = (NoodleNoteData?)NoteControllerUpdate.NoodleData;
-            if (noodleData != null && noodleData.DisableLook)
+            if (noodleData is { DisableLook: true })
             {
                 ____rotatedObject.localRotation = Quaternion.Euler(0, 0, noodleData.EndRotation);
             }

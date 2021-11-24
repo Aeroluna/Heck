@@ -1,10 +1,10 @@
-﻿namespace Chroma
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
+namespace Chroma.Lighting
+{
     // Please let me delete this whole class
     internal static class LegacyLightHelper
     {
@@ -12,33 +12,37 @@
 
         internal static IDictionary<BeatmapEventType, List<Tuple<float, Color>>> LegacyColorEvents { get; } = new Dictionary<BeatmapEventType, List<Tuple<float, Color>>>();
 
-        internal static void Activate(IReadOnlyList<BeatmapEventData> eventData)
+        internal static void Activate(IEnumerable<BeatmapEventData> eventData)
         {
             LegacyColorEvents.Clear();
             foreach (BeatmapEventData d in eventData)
             {
-                if (d.value >= RGB_INT_OFFSET)
+                if (d.value < RGB_INT_OFFSET)
                 {
-                    if (!LegacyColorEvents.TryGetValue(d.type, out List<Tuple<float, Color>> dictionaryID))
-                    {
-                        dictionaryID = new List<Tuple<float, Color>>();
-                        LegacyColorEvents.Add(d.type, dictionaryID);
-                    }
-
-                    dictionaryID.Add(new Tuple<float, Color>(d.time, ColorFromInt(d.value)));
+                    continue;
                 }
+
+                if (!LegacyColorEvents.TryGetValue(d.type, out List<Tuple<float, Color>> dictionaryID))
+                {
+                    dictionaryID = new List<Tuple<float, Color>>();
+                    LegacyColorEvents.Add(d.type, dictionaryID);
+                }
+
+                dictionaryID.Add(new Tuple<float, Color>(d.time, ColorFromInt(d.value)));
             }
         }
 
         internal static Color? GetLegacyColor(BeatmapEventData beatmapEventData)
         {
-            if (LegacyColorEvents.TryGetValue(beatmapEventData.type, out List<Tuple<float, Color>> dictionaryID))
+            if (!LegacyColorEvents.TryGetValue(beatmapEventData.type, out List<Tuple<float, Color>> dictionaryID))
             {
-                List<Tuple<float, Color>> colors = dictionaryID.Where(n => n.Item1 <= beatmapEventData.time).ToList();
-                if (colors.Count > 0)
-                {
-                    return colors.Last().Item2;
-                }
+                return null;
+            }
+
+            List<Tuple<float, Color>> colors = dictionaryID.Where(n => n.Item1 <= beatmapEventData.time).ToList();
+            if (colors.Count > 0)
+            {
+                return colors.Last().Item2;
             }
 
             return null;

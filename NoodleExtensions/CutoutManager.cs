@@ -1,16 +1,16 @@
-﻿namespace NoodleExtensions
-{
-    using System.Collections.Generic;
-    using System.Reflection;
-    using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
 
+namespace NoodleExtensions
+{
     internal static class CutoutManager
     {
-        internal static Dictionary<ObstacleControllerBase, CutoutAnimateEffectWrapper> ObstacleCutoutEffects { get; } = new Dictionary<ObstacleControllerBase, CutoutAnimateEffectWrapper>();
+        internal static Dictionary<ObstacleControllerBase, CutoutAnimateEffectWrapper> ObstacleCutoutEffects { get; } = new();
 
-        internal static Dictionary<NoteControllerBase, CutoutEffectWrapper> NoteCutoutEffects { get; } = new Dictionary<NoteControllerBase, CutoutEffectWrapper>();
+        internal static Dictionary<NoteControllerBase, CutoutEffectWrapper> NoteCutoutEffects { get; } = new();
 
-        internal static Dictionary<NoteControllerBase, DisappearingArrowWrapper> NoteDisappearingArrowWrappers { get; } = new Dictionary<NoteControllerBase, DisappearingArrowWrapper>();
+        internal static Dictionary<NoteControllerBase, DisappearingArrowWrapper> NoteDisappearingArrowWrappers { get; } = new();
     }
 
     internal abstract class CutoutWrapper

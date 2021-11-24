@@ -1,12 +1,15 @@
-﻿namespace Chroma
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Chroma.Colorizer;
-    using IPA.Utilities;
-    using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Chroma.Colorizer;
+using Chroma.HarmonyPatches.EnvironmentComponent;
+using Chroma.Settings;
+using IPA.Utilities;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
+namespace Chroma.Lighting.EnvironmentEnhancement
+{
     internal static class ComponentInitializer
     {
         private static readonly FieldAccessor<LightWithIdMonoBehaviour, LightWithIdManager>.Accessor _lightWithIdMonoBehaviourManagerAccessor = FieldAccessor<LightWithIdMonoBehaviour, LightWithIdManager>.GetAccessor("_lightManager");
@@ -38,9 +41,9 @@
             TrackLaneRingsManager trackLaneRingsManager = root.GetComponent<TrackLaneRingsManager>();
             if (trackLaneRingsManager != null)
             {
-                componentDatas.Add(new TrackLaneRingsManagerComponentData()
+                componentDatas.Add(new TrackLaneRingsManagerComponentData
                 {
-                    OldTrackLaneRingsManager = trackLaneRingsManager,
+                    OldTrackLaneRingsManager = trackLaneRingsManager
                 });
             }
 
@@ -67,7 +70,7 @@
             TrackLaneRingsRotationEffect rotationEffect = root.GetComponent<TrackLaneRingsRotationEffect>();
             if (rotationEffect != null)
             {
-                UnityEngine.Object.Destroy(rotationEffect);
+                Object.Destroy(rotationEffect);
             }
 
             foreach (Transform transform in root)
@@ -88,9 +91,9 @@
                 {
                     initializeDelegate(rootComponents[i], originalComponents[i]);
 
-                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                    if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                     {
-                        Plugin.Logger.Log($"Initialized {typeof(T).Name}");
+                        Log.Logger.Log($"Initialized {typeof(T).Name}");
                     }
                 }
             }
@@ -119,9 +122,11 @@
                 _posZAccessor(ref rootComponent) = _posZAccessor(ref originalComponent);
 
                 TrackLaneRingsManager? managerToAdd = null;
-                foreach (TrackLaneRingsManager manager in HarmonyPatches.TrackLaneRingsManagerAwake.RingManagers)
+                foreach (TrackLaneRingsManager manager in TrackLaneRingsManagerAwake.RingManagers)
                 {
-                    TrackLaneRingsManagerComponentData componentData = componentDatas.OfType<TrackLaneRingsManagerComponentData>().Where(n => n.OldTrackLaneRingsManager == manager).FirstOrDefault();
+                    TrackLaneRingsManagerComponentData? componentData = componentDatas
+                        .OfType<TrackLaneRingsManagerComponentData>()
+                        .FirstOrDefault(n => n.OldTrackLaneRingsManager == manager);
                     if (componentData != null)
                     {
                         managerToAdd = componentData.NewTrackLaneRingsManager;
@@ -136,6 +141,7 @@
                         }
                     }
 
+                    // ReSharper disable once InvertIf
                     if (managerToAdd != null)
                     {
                         // ToList() to add and then back ToArray()
@@ -149,31 +155,39 @@
                 }
             });
 
-            GetComponentAndOriginal<TrackLaneRingsPositionStepEffectSpawner>((rootComponent, originalComponent) =>
+            GetComponentAndOriginal<TrackLaneRingsPositionStepEffectSpawner>((rootComponent, _) =>
             {
-                foreach (TrackLaneRingsManager manager in HarmonyPatches.TrackLaneRingsManagerAwake.RingManagers)
+                foreach (TrackLaneRingsManager manager in TrackLaneRingsManagerAwake.RingManagers)
                 {
-                    TrackLaneRingsManagerComponentData? componentData = componentDatas.OfType<TrackLaneRingsManagerComponentData>().Where(n => n.OldTrackLaneRingsManager == manager).FirstOrDefault();
-                    if (componentData != null)
+                    TrackLaneRingsManagerComponentData? componentData = componentDatas
+                        .OfType<TrackLaneRingsManagerComponentData>()
+                        .FirstOrDefault(n => n.OldTrackLaneRingsManager == manager);
+                    if (componentData == null)
                     {
-                        _stepSpawnerRingsManagerAccessor(ref rootComponent) = componentData.NewTrackLaneRingsManager!;
-
-                        break;
+                        continue;
                     }
+
+                    _stepSpawnerRingsManagerAccessor(ref rootComponent) = componentData.NewTrackLaneRingsManager!;
+
+                    break;
                 }
             });
 
-            GetComponentAndOriginal<ChromaRingsRotationEffect>((rootComponent, originalComponent) =>
+            GetComponentAndOriginal<ChromaRingsRotationEffect>((rootComponent, _) =>
             {
-                foreach (TrackLaneRingsManager manager in HarmonyPatches.TrackLaneRingsManagerAwake.RingManagers)
+                foreach (TrackLaneRingsManager manager in TrackLaneRingsManagerAwake.RingManagers)
                 {
-                    TrackLaneRingsManagerComponentData? componentData = componentDatas.OfType<TrackLaneRingsManagerComponentData>().Where(n => n.OldTrackLaneRingsManager == manager).FirstOrDefault();
-                    if (componentData != null)
+                    TrackLaneRingsManagerComponentData? componentData = componentDatas
+                        .OfType<TrackLaneRingsManagerComponentData>()
+                        .FirstOrDefault(n => n.OldTrackLaneRingsManager == manager);
+                    if (componentData == null)
                     {
-                        rootComponent.SetNewRingManager(componentData.NewTrackLaneRingsManager!);
-
-                        break;
+                        continue;
                     }
+
+                    rootComponent.SetNewRingManager(componentData.NewTrackLaneRingsManager!);
+
+                    break;
                 }
             });
 
@@ -211,11 +225,11 @@
 
             GetComponentAndOriginal<Mirror>((rootComponent, originalComponent) =>
             {
-                _mirrorRendererAccessor(ref rootComponent) = UnityEngine.Object.Instantiate(_mirrorRendererAccessor(ref originalComponent));
-                _mirrorMaterialAccessor(ref rootComponent) = UnityEngine.Object.Instantiate(_mirrorMaterialAccessor(ref originalComponent));
+                _mirrorRendererAccessor(ref rootComponent) = Object.Instantiate(_mirrorRendererAccessor(ref originalComponent));
+                _mirrorMaterialAccessor(ref rootComponent) = Object.Instantiate(_mirrorMaterialAccessor(ref originalComponent));
             });
 
-            GameObjectInfo newGameObjectInfo = new GameObjectInfo(root.gameObject);
+            GameObjectInfo newGameObjectInfo = new(root.gameObject);
             gameObjectInfos.Add(newGameObjectInfo);
 
             foreach (Transform transform in root)

@@ -1,14 +1,15 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System;
-    using HarmonyLib;
+﻿using HarmonyLib;
+using JetBrains.Annotations;
 
+namespace NoodleExtensions.HarmonyPatches.SceneTransition
+{
     [HarmonyPatch(
         typeof(MultiplayerLevelScenesTransitionSetupDataSO),
-        new Type[] { typeof(string), typeof(IPreviewBeatmapLevel), typeof(BeatmapDifficulty), typeof(BeatmapCharacteristicSO), typeof(IDifficultyBeatmap), typeof(ColorScheme), typeof(GameplayModifiers), typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(bool) })]
+        new[] { typeof(string), typeof(IPreviewBeatmapLevel), typeof(BeatmapDifficulty), typeof(BeatmapCharacteristicSO), typeof(IDifficultyBeatmap), typeof(ColorScheme), typeof(GameplayModifiers), typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(bool) })]
     [HarmonyPatch("Init")]
     internal static class MultiplayerLevelScenesTransitionSetupDataSOInit
     {
+        [UsedImplicitly]
         private static void Postfix(IDifficultyBeatmap difficultyBeatmap)
         {
             SceneTransitionHelper.Patch(difficultyBeatmap);

@@ -1,12 +1,14 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using Heck;
+﻿using System.Collections.Generic;
+using Heck;
+using JetBrains.Annotations;
 
+namespace Chroma.HarmonyPatches.EnvironmentComponent
+{
     [HeckPatch(typeof(LightWithIdManager))]
     [HeckPatch("LateUpdate")]
     internal static class LightWithIdManagerLateUpdate
     {
+        [UsedImplicitly]
         private static void Postfix(List<ILightWithId> ____lightsToUnregister)
         {
             // For some reason this doesnt get emptied and is continuously looped over.

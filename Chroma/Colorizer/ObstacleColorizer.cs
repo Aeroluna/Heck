@@ -1,9 +1,10 @@
-﻿namespace Chroma.Colorizer
-{
-    using System.Collections.Generic;
-    using IPA.Utilities;
-    using UnityEngine;
+﻿using System.Collections.Generic;
+using IPA.Utilities;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace Chroma.Colorizer
+{
     public class ObstacleColorizer : ObjectColorizer
     {
         private static readonly FieldAccessor<ObstacleController, ColorManager>.Accessor _colorManagerAccessor = FieldAccessor<ObstacleController, ColorManager>.GetAccessor("_colorManager");
@@ -23,7 +24,7 @@
         private readonly float _obstacleCoreLerpToWhiteFactor;
         private readonly MaterialPropertyBlockController[] _materialPropertyBlockControllers;
 
-        internal ObstacleColorizer(ObstacleControllerBase obstacleController)
+        private ObstacleColorizer(ObstacleControllerBase obstacleController)
         {
             StretchableObstacle stretchableObstacle = obstacleController.GetComponent<StretchableObstacle>();
             _obstacleFrame = _obstacleFrameAccessor(ref stretchableObstacle);
@@ -41,16 +42,15 @@
                 // Fallback
                 OriginalColor = Color.white;
             }
-
-            Colorizers.Add(obstacleController, this);
         }
 
-        public static Dictionary<ObstacleControllerBase, ObstacleColorizer> Colorizers { get; } = new Dictionary<ObstacleControllerBase, ObstacleColorizer>();
+        public static Dictionary<ObstacleControllerBase, ObstacleColorizer> Colorizers { get; } = new();
 
         public static Color? GlobalColor { get; private set; }
 
         protected override Color? GlobalColorGetter => GlobalColor;
 
+        [PublicAPI]
         public static void GlobalColorize(Color? color)
         {
             GlobalColor = color;
@@ -58,6 +58,11 @@
             {
                 valuePair.Value.Refresh();
             }
+        }
+
+        internal static void Create(ObstacleControllerBase obstacleController)
+        {
+            Colorizers.Add(obstacleController, new ObstacleColorizer(obstacleController));
         }
 
         internal static void Reset()

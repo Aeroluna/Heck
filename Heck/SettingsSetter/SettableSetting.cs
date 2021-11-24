@@ -1,7 +1,8 @@
-﻿namespace Heck.SettingsSetter
-{
-    using System;
+﻿using System;
+using JetBrains.Annotations;
 
+namespace Heck.SettingsSetter
+{
     public interface ISettableSetting
     {
         string GroupName { get; }
@@ -26,6 +27,7 @@
             FieldName = fieldName;
         }
 
+        [PublicAPI]
         public event Action? ValueChanged;
 
         public string GroupName { get; }

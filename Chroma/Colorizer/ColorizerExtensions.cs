@@ -1,8 +1,9 @@
-﻿namespace Chroma.Colorizer
-{
-    using System.Collections.Generic;
-    using UnityEngine;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace Chroma.Colorizer
+{
     public static class ColorizerExtensions
     {
         public static NoteColorizer GetNoteColorizer(this NoteControllerBase noteController) => NoteColorizer.Colorizers[noteController];
@@ -27,6 +28,7 @@
 
         public static void ColorizeLight(this BeatmapEventType eventType, bool refresh, params Color?[] colors) => eventType.GetLightColorizer().Colorize(refresh, colors);
 
+        [PublicAPI]
         public static void ColorizeLight(this BeatmapEventType eventType, IEnumerable<ILightWithId> selectLights, params Color?[] colors) => eventType.GetLightColorizer().Colorize(selectLights, colors);
     }
 }

@@ -1,11 +1,14 @@
-﻿namespace Heck
-{
-    using System.Linq;
-    using System.Reflection;
-    using System.Runtime.CompilerServices;
-    using HarmonyLib;
-    using IPA.Logging;
+﻿using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using CustomJSONData;
+using HarmonyLib;
+using IPA.Logging;
+using JetBrains.Annotations;
 
+// ReSharper disable ExplicitCallerInfoArgument
+namespace Heck
+{
     public class HeckLogger
     {
         public HeckLogger(Logger logger)
@@ -15,23 +18,23 @@
 
         public Logger IPALogger { get; }
 
-        public void Log(object obj, Logger.Level level = Logger.Level.Debug, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
+        public void Log(object? obj, Logger.Level level = Logger.Level.Debug, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
         {
-            Log(obj.ToString(), level, member, line);
+            Log(obj?.ToString() ?? "NULL", level, member, line);
         }
 
         public void Log(string message, Logger.Level level = Logger.Level.Debug, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
         {
-            if (Plugin.CumDump)
-            {
-                IPALogger.Log(level, $"{member}({line}): {message}");
-            }
-            else
-            {
-                IPALogger.Log(level, message);
-            }
+            IPALogger.Log(level, HeckController.CumDump ? $"{member}({line}): {message}" : message);
         }
 
+        [PublicAPI]
+        public void LogCollection(object? dictionary, Logger.Level level = Logger.Level.Debug, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
+        {
+            Log(DictionaryExtensions.FormatObject(dictionary), level, member, line);
+        }
+
+        [PublicAPI]
         public void PrintHarmonyInfo(MethodBase method)
         {
             Patches patches = Harmony.GetPatchInfo(method);

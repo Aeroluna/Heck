@@ -1,12 +1,12 @@
-﻿namespace Chroma.Colorizer
-{
-    using UnityEngine;
+﻿using UnityEngine;
 
+namespace Chroma.Colorizer
+{
     public abstract class ObjectColorizer
     {
         private Color? _color;
 
-        public virtual Color Color => _color ?? GlobalColorGetter ?? OriginalColorGetter;
+        public Color Color => _color ?? GlobalColorGetter ?? OriginalColorGetter;
 
         protected Color OriginalColor { get; set; }
 

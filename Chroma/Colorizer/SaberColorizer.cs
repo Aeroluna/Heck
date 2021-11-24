@@ -1,11 +1,13 @@
-﻿namespace Chroma.Colorizer
-{
-    using System;
-    using System.Collections.Generic;
-    using IPA.Utilities;
-    using SiraUtil.Interfaces;
-    using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using IPA.Utilities;
+using JetBrains.Annotations;
+using SiraUtil.Interfaces;
+using UnityEngine;
 
+// ReSharper disable SuspiciousTypeConversion.Global
+namespace Chroma.Colorizer
+{
     public class SaberColorizer : ObjectColorizer
     {
         private static readonly FieldAccessor<SaberModelController, ColorManager>.Accessor _colorManagerAccessor = FieldAccessor<SaberModelController, ColorManager>.GetAccessor("_colorManager");
@@ -34,12 +36,12 @@
         private readonly bool _doColor;
         private Color _lastColor;
 
-        internal SaberColorizer(Saber saber)
+        private SaberColorizer(Saber saber)
         {
             _saberType = saber.saberType;
 
             SaberModelController saberModelController = saber.gameObject.GetComponentInChildren<SaberModelController>(true);
-            if (Plugin.SiraUtilInstalled && IsColorable(saberModelController))
+            if (ChromaController.SiraUtilInstalled && IsColorable(saberModelController))
             {
                 _doColor = false;
 
@@ -58,22 +60,28 @@
 
             _lastColor = _colorManagerAccessor(ref saberModelController).ColorForSaberType(_saberType);
             OriginalColor = _lastColor;
-
-            GetOrCreateColorizerList(_saberType).Add(this);
         }
 
         internal static event Action<SaberType, Color>? SaberColorChanged;
 
-        public static Dictionary<SaberType, List<SaberColorizer>> Colorizers { get; } = new Dictionary<SaberType, List<SaberColorizer>>();
+        public static Dictionary<SaberType, List<SaberColorizer>> Colorizers { get; } = new();
 
-        public static Color?[] GlobalColor { get; private set; } = new Color?[2];
+        public static Color?[] GlobalColor { get; } = new Color?[2];
 
         protected override Color? GlobalColorGetter => GlobalColor[(int)_saberType];
 
+        [PublicAPI]
         public static void GlobalColorize(Color? color, SaberType saberType)
         {
             GlobalColor[(int)saberType] = color;
             saberType.GetSaberColorizers().ForEach(n => n.Refresh());
+        }
+
+        internal static SaberColorizer Create(Saber saber)
+        {
+            SaberColorizer saberColorizer = new(saber);
+            GetOrCreateColorizerList(saber.saberType).Add(saberColorizer);
+            return saberColorizer;
         }
 
         internal static void Reset()
@@ -140,17 +148,19 @@
 
         private static List<SaberColorizer> GetOrCreateColorizerList(SaberType saberType)
         {
-            if (!Colorizers.TryGetValue(saberType, out List<SaberColorizer> colorizers))
+            if (Colorizers.TryGetValue(saberType, out List<SaberColorizer> colorizers))
             {
-                colorizers = new List<SaberColorizer>();
-                Colorizers.Add(saberType, colorizers);
+                return colorizers;
             }
+
+            colorizers = new List<SaberColorizer>();
+            Colorizers.Add(saberType, colorizers);
 
             return colorizers;
         }
 
         // SiraUtil stuff
-        private bool IsColorable(SaberModelController saberModelController)
+        private static bool IsColorable(SaberModelController saberModelController)
         {
             return saberModelController is IColorable;
         }

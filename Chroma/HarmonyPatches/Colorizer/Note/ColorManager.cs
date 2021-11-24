@@ -1,9 +1,10 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using Chroma.Colorizer;
-    using HarmonyLib;
-    using UnityEngine;
+﻿using Chroma.Colorizer;
+using HarmonyLib;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace Chroma.HarmonyPatches.Colorizer.Note
+{
     [HarmonyPatch(typeof(ColorManager))]
     [HarmonyPatch("ColorForType")]
     internal static class ColorManagerColorForType
@@ -20,16 +21,17 @@
             _noteColorOverride = null;
         }
 
+        [UsedImplicitly]
         private static bool Prefix(ref Color __result)
         {
             Color? color = _noteColorOverride;
-            if (color.HasValue)
+            if (!color.HasValue)
             {
-                __result = color.Value;
-                return false;
+                return true;
             }
 
-            return true;
+            __result = color.Value;
+            return false;
         }
     }
 }

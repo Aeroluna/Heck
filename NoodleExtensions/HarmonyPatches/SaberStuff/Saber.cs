@@ -1,12 +1,13 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using HarmonyLib;
-    using Heck;
-    using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using HarmonyLib;
+using Heck;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace NoodleExtensions.HarmonyPatches.SaberStuff
+{
     [HeckPatch(typeof(Saber))]
     [HeckPatch("ManualUpdate")]
     internal static class SaberManualUpdate
@@ -14,6 +15,7 @@
         private static readonly MethodInfo _addNewData = AccessTools.Method(typeof(SaberMovementData), nameof(SaberMovementData.AddNewData));
         private static readonly MethodInfo _addNewDataBetter = AccessTools.Method(typeof(SaberManualUpdate), nameof(AddNewDataBetter));
 
+        [UsedImplicitly]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)

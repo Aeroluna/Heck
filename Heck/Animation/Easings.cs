@@ -1,7 +1,7 @@
-﻿namespace Heck.Animation
-{
-    using Math = UnityEngine.Mathf;
+﻿using Math = UnityEngine.Mathf;
 
+namespace Heck.Animation
+{
     /// <summary>
     /// Easing Functions enumeration
     /// </summary>
@@ -40,7 +40,7 @@
         easeInOutBack,
         easeInBounce,
         easeOutBounce,
-        easeInOutBounce,
+        easeInOutBounce
     }
 
 #pragma warning restore SA1300 // Element should begin with upper-case letter
@@ -62,42 +62,41 @@
         /// </summary>
         public static float Interpolate(float p, Functions function)
         {
-            switch (function)
+            return function switch
             {
-                default:
-                case Functions.easeLinear: return EaseLinear(p);
-                case Functions.easeStep: return EaseStep(p);
-                case Functions.easeOutQuad: return EaseOutQuad(p);
-                case Functions.easeInQuad: return EaseInQuad(p);
-                case Functions.easeInOutQuad: return EaseInOutQuad(p);
-                case Functions.easeInCubic: return EaseInCubic(p);
-                case Functions.easeOutCubic: return EaseOutCubic(p);
-                case Functions.easeInOutCubic: return EaseInOutCubic(p);
-                case Functions.easeInQuart: return EaseInQuart(p);
-                case Functions.easeOutQuart: return EaseOutQuart(p);
-                case Functions.easeInOutQuart: return EaseInOutQuart(p);
-                case Functions.easeInQuint: return EaseInQuint(p);
-                case Functions.easeOutQuint: return EaseOutQuint(p);
-                case Functions.easeInOutQuint: return EaseInOutQuint(p);
-                case Functions.easeInSine: return EaseInSine(p);
-                case Functions.easeOutSine: return EaseOutSine(p);
-                case Functions.easeInOutSine: return EaseInOutSine(p);
-                case Functions.easeInCirc: return EaseInCirc(p);
-                case Functions.easeOutCirc: return EaseOutCirc(p);
-                case Functions.easeInOutCirc: return EaseInOutCirc(p);
-                case Functions.easeInExpo: return EaseInExpo(p);
-                case Functions.easeOutExpo: return EaseOutExpo(p);
-                case Functions.easeInOutExpo: return EaseInOutExpo(p);
-                case Functions.easeInElastic: return EaseInElastic(p);
-                case Functions.easeOutElastic: return EaseOutElastic(p);
-                case Functions.easeInOutElastic: return EaseInOutElastic(p);
-                case Functions.easeInBack: return EaseInBack(p);
-                case Functions.easeOutBack: return EaseOutBack(p);
-                case Functions.easeInOutBack: return EaseInOutBack(p);
-                case Functions.easeInBounce: return EaseInBounce(p);
-                case Functions.easeOutBounce: return EaseOutBounce(p);
-                case Functions.easeInOutBounce: return EaseInOutBounce(p);
-            }
+                Functions.easeStep => EaseStep(p),
+                Functions.easeOutQuad => EaseOutQuad(p),
+                Functions.easeInQuad => EaseInQuad(p),
+                Functions.easeInOutQuad => EaseInOutQuad(p),
+                Functions.easeInCubic => EaseInCubic(p),
+                Functions.easeOutCubic => EaseOutCubic(p),
+                Functions.easeInOutCubic => EaseInOutCubic(p),
+                Functions.easeInQuart => EaseInQuart(p),
+                Functions.easeOutQuart => EaseOutQuart(p),
+                Functions.easeInOutQuart => EaseInOutQuart(p),
+                Functions.easeInQuint => EaseInQuint(p),
+                Functions.easeOutQuint => EaseOutQuint(p),
+                Functions.easeInOutQuint => EaseInOutQuint(p),
+                Functions.easeInSine => EaseInSine(p),
+                Functions.easeOutSine => EaseOutSine(p),
+                Functions.easeInOutSine => EaseInOutSine(p),
+                Functions.easeInCirc => EaseInCirc(p),
+                Functions.easeOutCirc => EaseOutCirc(p),
+                Functions.easeInOutCirc => EaseInOutCirc(p),
+                Functions.easeInExpo => EaseInExpo(p),
+                Functions.easeOutExpo => EaseOutExpo(p),
+                Functions.easeInOutExpo => EaseInOutExpo(p),
+                Functions.easeInElastic => EaseInElastic(p),
+                Functions.easeOutElastic => EaseOutElastic(p),
+                Functions.easeInOutElastic => EaseInOutElastic(p),
+                Functions.easeInBack => EaseInBack(p),
+                Functions.easeOutBack => EaseOutBack(p),
+                Functions.easeInOutBack => EaseInOutBack(p),
+                Functions.easeInBounce => EaseInBounce(p),
+                Functions.easeOutBounce => EaseOutBounce(p),
+                Functions.easeInOutBounce => EaseInOutBounce(p),
+                _ => EaseLinear(p)
+            };
         }
 
         /// <summary>
@@ -143,10 +142,8 @@
             {
                 return 2 * p * p;
             }
-            else
-            {
-                return (-2 * p * p) + (4 * p) - 1;
-            }
+
+            return (-2 * p * p) + (4 * p) - 1;
         }
 
         /// <summary>
@@ -177,11 +174,9 @@
             {
                 return 4 * p * p * p;
             }
-            else
-            {
-                float f = (2 * p) - 2;
-                return (0.5f * f * f * f) + 1;
-            }
+
+            float f = (2 * p) - 2;
+            return (0.5f * f * f * f) + 1;
         }
 
         /// <summary>
@@ -212,11 +207,9 @@
             {
                 return 8 * p * p * p * p;
             }
-            else
-            {
-                float f = p - 1;
-                return (-8 * f * f * f * f) + 1;
-            }
+
+            float f = p - 1;
+            return (-8 * f * f * f * f) + 1;
         }
 
         /// <summary>
@@ -247,11 +240,9 @@
             {
                 return 16 * p * p * p * p * p;
             }
-            else
-            {
-                float f = (2 * p) - 2;
-                return (0.5f * f * f * f * f * f) + 1;
-            }
+
+            float f = (2 * p) - 2;
+            return (0.5f * f * f * f * f * f) + 1;
         }
 
         /// <summary>
@@ -305,10 +296,8 @@
             {
                 return 0.5f * (1 - Math.Sqrt(1 - (4 * (p * p))));
             }
-            else
-            {
-                return 0.5f * (Math.Sqrt(-((2 * p) - 3) * ((2 * p) - 1)) + 1);
-            }
+
+            return 0.5f * (Math.Sqrt(-((2 * p) - 3) * ((2 * p) - 1)) + 1);
         }
 
         /// <summary>
@@ -316,7 +305,7 @@
         /// </summary>
         public static float EaseInExpo(float p)
         {
-            return (p == 0.0f) ? p : Math.Pow(2, 10 * (p - 1));
+            return (p <= 0.0f) ? p : Math.Pow(2, 10 * (p - 1));
         }
 
         /// <summary>
@@ -324,7 +313,7 @@
         /// </summary>
         public static float EaseOutExpo(float p)
         {
-            return (p == 1.0f) ? p : 1 - Math.Pow(2, -10 * p);
+            return (p >= 1.0f) ? p : 1 - Math.Pow(2, -10 * p);
         }
 
         /// <summary>
@@ -334,7 +323,7 @@
         /// </summary>
         public static float EaseInOutExpo(float p)
         {
-            if (p == 0.0 || p == 1.0)
+            if (p == 0.0 || p >= 1.0)
             {
                 return p;
             }
@@ -343,10 +332,8 @@
             {
                 return 0.5f * Math.Pow(2, (20 * p) - 10);
             }
-            else
-            {
-                return (-0.5f * Math.Pow(2, (-20 * p) + 10)) + 1;
-            }
+
+            return (-0.5f * Math.Pow(2, (-20 * p) + 10)) + 1;
         }
 
         /// <summary>
@@ -376,10 +363,8 @@
             {
                 return 0.5f * Math.Sin(13 * HALFPI * (2 * p)) * Math.Pow(2, 10 * ((2 * p) - 1));
             }
-            else
-            {
-                return 0.5f * ((Math.Sin(-13 * HALFPI * (2 * p)) * Math.Pow(2, -10 * ((2 * p) - 1))) + 2);
-            }
+
+            return 0.5f * ((Math.Sin(-13 * HALFPI * (2 * p)) * Math.Pow(2, -10 * ((2 * p) - 1))) + 2);
         }
 
         /// <summary>
@@ -425,22 +410,13 @@
 
         public static float EaseOutBounce(float p)
         {
-            if (p < 4 / 11.0f)
+            return p switch
             {
-                return 121 * p * p / 16.0f;
-            }
-            else if (p < 8 / 11.0f)
-            {
-                return (363 / 40.0f * p * p) - (99 / 10.0f * p) + (17 / 5.0f);
-            }
-            else if (p < 9 / 10.0f)
-            {
-                return (4356 / 361.0f * p * p) - (35442 / 1805.0f * p) + (16061 / 1805.0f);
-            }
-            else
-            {
-                return (54 / 5.0f * p * p) - (513 / 25.0f * p) + (268 / 25.0f);
-            }
+                < 4 / 11.0f => 121 * p * p / 16.0f,
+                < 8 / 11.0f => (363 / 40.0f * p * p) - (99 / 10.0f * p) + (17 / 5.0f),
+                < 9 / 10.0f => (4356 / 361.0f * p * p) - (35442 / 1805.0f * p) + (16061 / 1805.0f),
+                _ => (54 / 5.0f * p * p) - (513 / 25.0f * p) + (268 / 25.0f)
+            };
         }
 
         public static float EaseInOutBounce(float p)
@@ -449,10 +425,8 @@
             {
                 return 0.5f * EaseInBounce(p * 2);
             }
-            else
-            {
-                return (0.5f * EaseOutBounce((p * 2) - 1)) + 0.5f;
-            }
+
+            return (0.5f * EaseOutBounce((p * 2) - 1)) + 0.5f;
         }
     }
 }

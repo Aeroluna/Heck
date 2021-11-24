@@ -1,25 +1,28 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using Chroma.Colorizer;
-    using Heck;
-    using static Chroma.ChromaCustomDataManager;
+﻿using Chroma.Colorizer;
+using Chroma.Settings;
+using Heck;
+using JetBrains.Annotations;
+using static Chroma.ChromaCustomDataManager;
 
+namespace Chroma.HarmonyPatches.Colorizer
+{
     [HeckPatch(typeof(ColorNoteVisuals))]
     [HeckPatch("HandleNoteControllerDidInit")]
     internal static class ColorNoteVisualsHandleNoteControllerDidInit
     {
+        [UsedImplicitly]
         private static void Postfix(NoteControllerBase noteController)
         {
-            if (!Settings.ChromaConfig.Instance.NoteColoringDisabled && noteController is NoteController)
+            if (ChromaConfig.Instance.NoteColoringDisabled || noteController is not NoteController)
             {
-                ChromaNoteData? chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
-                if (chromaData != null)
-                {
-                    noteController.ColorizeNote(chromaData.Color);
-                }
+                return;
             }
 
-            return;
+            ChromaNoteData? chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
+            if (chromaData != null)
+            {
+                noteController.ColorizeNote(chromaData.Color);
+            }
         }
     }
 }

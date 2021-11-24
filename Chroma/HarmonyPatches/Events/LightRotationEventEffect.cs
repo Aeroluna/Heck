@@ -1,13 +1,15 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using Heck;
-    using UnityEngine;
-    using static Chroma.ChromaCustomDataManager;
+﻿using Heck;
+using JetBrains.Annotations;
+using UnityEngine;
+using static Chroma.ChromaCustomDataManager;
 
+namespace Chroma.HarmonyPatches.Events
+{
     [HeckPatch(typeof(LightRotationEventEffect))]
     [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class LightRotationEventEffectHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
     {
+        [UsedImplicitly]
         private static bool Prefix(
             BeatmapEventData beatmapEventData,
             LightRotationEventEffect __instance,
@@ -16,42 +18,45 @@
             ref float ____rotationSpeed,
             Vector3 ____rotationVector)
         {
-            if (beatmapEventData.type == ____event)
+            if (beatmapEventData.type != ____event)
             {
-                ChromaEventData? chromaData = TryGetEventData(beatmapEventData);
-                if (chromaData == null)
-                {
-                    return true;
-                }
+                return true;
+            }
 
-                bool isLeftEvent = ____event == BeatmapEventType.Event12;
+            ChromaEventData? chromaData = TryGetEventData(beatmapEventData);
+            if (chromaData == null)
+            {
+                return true;
+            }
 
-                bool lockPosition = chromaData.LockPosition;
-                float precisionSpeed = chromaData.Speed.GetValueOrDefault(beatmapEventData.value);
-                int? dir = chromaData.Direction;
+            bool isLeftEvent = ____event == BeatmapEventType.Event12;
 
-                float direction = (Random.value > 0.5f) ? 1f : -1f;
-                switch (dir)
-                {
-                    case 0:
-                        direction = isLeftEvent ? -1 : 1;
-                        break;
+            bool lockPosition = chromaData.LockPosition;
+            float precisionSpeed = chromaData.Speed.GetValueOrDefault(beatmapEventData.value);
+            int? dir = chromaData.Direction;
 
-                    case 1:
-                        direction = isLeftEvent ? 1 : -1;
-                        break;
-                }
+            float direction = dir switch
+            {
+                0 => isLeftEvent ? -1 : 1,
+                1 => isLeftEvent ? 1 : -1,
+                _ => (Random.value > 0.5f) ? 1f : -1f
+            };
 
+            switch (beatmapEventData.value)
+            {
                 // Actual lasering
-                if (beatmapEventData.value == 0)
+                case 0:
                 {
                     __instance.enabled = false;
                     if (!lockPosition)
                     {
                         __instance.transform.localRotation = ____startRotation;
                     }
+
+                    break;
                 }
-                else if (beatmapEventData.value > 0)
+
+                case > 0:
                 {
                     __instance.enabled = true;
                     ____rotationSpeed = precisionSpeed * 20f * direction;
@@ -60,12 +65,12 @@
                         __instance.transform.localRotation = ____startRotation;
                         __instance.transform.Rotate(____rotationVector, Random.Range(0f, 180f), Space.Self);
                     }
-                }
 
-                return false;
+                    break;
+                }
             }
 
-            return true;
+            return false;
         }
     }
 }

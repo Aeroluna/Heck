@@ -1,15 +1,16 @@
-﻿namespace Chroma
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
-    using Heck.Animation;
-    using IPA.Utilities;
-    using UnityEngine;
-    using static Chroma.Plugin;
-    using static Heck.Animation.AnimationHelper;
+﻿using System.Collections.Generic;
+using System.Linq;
+using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
+using Heck.Animation;
+using IPA.Utilities;
+using JetBrains.Annotations;
+using UnityEngine;
+using static Chroma.ChromaController;
+using static Heck.Animation.AnimationHelper;
 
+namespace Chroma
+{
     internal class ChromaFogController : MonoBehaviour
     {
         private static readonly FieldAccessor<BloomFogSO, float>.Accessor _transitionAccessor = FieldAccessor<BloomFogSO, float>.GetAccessor("_transition");
@@ -21,18 +22,21 @@
         private BloomFogEnvironmentParams _transitionFogParams = null!;
         private Track _track = null!;
 
+        [UsedImplicitly]
         internal static void OnTrackManagerCreated(TrackBuilder trackManager, CustomBeatmapData customBeatmapData)
         {
             List<CustomEventData> customEventsData = customBeatmapData.customEventsData;
             foreach (CustomEventData customEventData in customEventsData)
             {
-                if (customEventData.type == ASSIGNFOGTRACK)
+                if (customEventData.type != ASSIGN_FOG_TRACK)
                 {
-                    string? trackName = customEventData.data.Get<string>("_track");
-                    if (trackName != null)
-                    {
-                        trackManager.AddTrack(trackName);
-                    }
+                    continue;
+                }
+
+                string? trackName = customEventData.data.Get<string>("_track");
+                if (trackName != null)
+                {
+                    trackManager.AddTrack(trackName);
                 }
             }
         }
@@ -44,19 +48,23 @@
 
         private static void Callback(CustomEventData customEventData)
         {
-            if (customEventData.type == ASSIGNFOGTRACK)
+            if (customEventData.type != ASSIGN_FOG_TRACK)
             {
-                ChromaCustomEventData? chromaData = ChromaCustomDataManager.TryGetCustomEventData(customEventData);
-                if (chromaData != null)
-                {
-                    if (_instance == null)
-                    {
-                        _instance = new GameObject(nameof(ChromaFogController)).AddComponent<ChromaFogController>();
-                    }
-
-                    _instance._track = chromaData.Track;
-                }
+                return;
             }
+
+            ChromaCustomEventData? chromaData = ChromaCustomDataManager.TryGetCustomEventData(customEventData);
+            if (chromaData == null)
+            {
+                return;
+            }
+
+            if (_instance == null)
+            {
+                _instance = new GameObject(nameof(ChromaFogController)).AddComponent<ChromaFogController>();
+            }
+
+            _instance._track = chromaData.Track;
         }
 
         private void Awake()
@@ -79,25 +87,25 @@
         private void Update()
         {
             float? attenuation = TryGetProperty<float?>(_track, ATTENUATION);
-            if (attenuation.HasValue && attenuation.Value != _transitionFogParams.attenuation)
+            if (attenuation.HasValue)
             {
                 _transitionFogParams.attenuation = attenuation.Value;
             }
 
             float? offset = TryGetProperty<float?>(_track, OFFSET);
-            if (offset.HasValue && offset.Value != _transitionFogParams.offset)
+            if (offset.HasValue)
             {
                 _transitionFogParams.offset = offset.Value;
             }
 
-            float? startY = TryGetProperty<float?>(_track, HEIGHTFOGSTARTY);
-            if (startY.HasValue && startY.Value != _transitionFogParams.heightFogStartY)
+            float? startY = TryGetProperty<float?>(_track, HEIGHT_FOG_STARTY);
+            if (startY.HasValue)
             {
                 _transitionFogParams.heightFogStartY = startY.Value;
             }
 
-            float? height = TryGetProperty<float?>(_track, HEIGHTFOGHEIGHT);
-            if (height.HasValue && height.Value != _transitionFogParams.heightFogHeight)
+            float? height = TryGetProperty<float?>(_track, HEIGHT_FOG_HEIGHT);
+            if (height.HasValue)
             {
                 _transitionFogParams.heightFogHeight = height.Value;
             }

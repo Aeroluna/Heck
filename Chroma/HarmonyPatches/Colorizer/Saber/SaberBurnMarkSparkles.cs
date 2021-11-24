@@ -1,9 +1,10 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using Chroma.Colorizer;
-    using HarmonyLib;
-    using UnityEngine;
+﻿using Chroma.Colorizer;
+using HarmonyLib;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace Chroma.HarmonyPatches.Colorizer.Saber
+{
     [HarmonyPatch(typeof(SaberBurnMarkSparkles))]
     [HarmonyPatch("Start")]
     internal static class SaberBurnMarkSparklesStart
@@ -12,13 +13,16 @@
 
         internal static void OnSaberColorChanged(SaberType saberType, Color color)
         {
-            if (_burnMarksPS != null)
+            if (_burnMarksPS == null)
             {
-                ParticleSystem.MainModule main = _burnMarksPS[(int)saberType].main;
-                main.startColor = color;
+                return;
             }
+
+            ParticleSystem.MainModule main = _burnMarksPS[(int)saberType].main;
+            main.startColor = color;
         }
 
+        [UsedImplicitly]
         private static void Postfix(ParticleSystem[] ____burnMarksPS)
         {
             _burnMarksPS = ____burnMarksPS;
@@ -30,6 +34,7 @@
     [HarmonyPatch("OnDestroy")]
     internal static class SaberBurnMarkSparklesOnDestroy
     {
+        [UsedImplicitly]
         private static void Postfix()
         {
             SaberColorizer.SaberColorChanged -= SaberBurnMarkAreaStart.OnSaberColorChanged;

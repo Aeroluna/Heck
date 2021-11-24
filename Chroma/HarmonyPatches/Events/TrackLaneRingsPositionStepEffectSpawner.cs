@@ -1,13 +1,13 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using Chroma;
-    using HarmonyLib;
-    using Heck;
-    using static Chroma.ChromaCustomDataManager;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using HarmonyLib;
+using Heck;
+using JetBrains.Annotations;
+using static Chroma.ChromaCustomDataManager;
 
+namespace Chroma.HarmonyPatches.Events
+{
     [HeckPatch(typeof(TrackLaneRingsPositionStepEffectSpawner))]
     [HeckPatch("HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger")]
     internal static class TrackLaneRingsPositionStepEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger
@@ -16,6 +16,7 @@
         private static readonly FieldInfo _moveSpeedField = AccessTools.Field(typeof(TrackLaneRingsPositionStepEffectSpawner), "_moveSpeed");
         private static readonly MethodInfo _getPrecisionSpeed = AccessTools.Method(typeof(TrackLaneRingsPositionStepEffectSpawnerHandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger), nameof(GetPrecisionSpeed));
 
+        [UsedImplicitly]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
@@ -35,23 +36,13 @@
         private static float GetPrecisionStep(float @default, BeatmapEventData beatmapEventData)
         {
             ChromaEventData? chromaData = TryGetEventData(beatmapEventData);
-            if (chromaData != null && chromaData.Step.HasValue)
-            {
-                return chromaData.Step.Value;
-            }
-
-            return @default;
+            return chromaData is { Step: { } } ? chromaData.Step.Value : @default;
         }
 
         private static float GetPrecisionSpeed(float @default, BeatmapEventData beatmapEventData)
         {
             ChromaEventData? chromaData = TryGetEventData(beatmapEventData);
-            if (chromaData != null && chromaData.Speed.HasValue)
-            {
-                return chromaData.Speed.Value;
-            }
-
-            return @default;
+            return chromaData is { Speed: { } } ? chromaData.Speed.Value : @default;
         }
     }
 }

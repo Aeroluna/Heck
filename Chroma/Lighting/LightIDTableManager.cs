@@ -1,14 +1,18 @@
-﻿namespace Chroma
-{
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using Newtonsoft.Json;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using Chroma.Settings;
+using IPA.Logging;
+using IPA.Utilities;
+using Newtonsoft.Json;
 
+namespace Chroma.Lighting
+{
     internal static class LightIDTableManager
     {
-        private static readonly Dictionary<string, Dictionary<int, Dictionary<int, int>>> _lightIDTable = new Dictionary<string, Dictionary<int, Dictionary<int, int>>>();
+        private static readonly Dictionary<string, Dictionary<int, Dictionary<int, int>>> _lightIDTable = new();
 
         private static Dictionary<int, Dictionary<int, int>>? _activeTable;
 
@@ -21,11 +25,11 @@
                     return newId;
                 }
 
-                Plugin.Logger.Log($"Unable to find value for type [{type}] and id [{id}].", IPA.Logging.Logger.Level.Error);
+                Log.Logger.Log($"Unable to find value for type [{type}] and id [{id}].", Logger.Level.Error);
                 return null;
             }
 
-            Plugin.Logger.Log($"No active table loaded.", IPA.Logging.Logger.Level.Error);
+            Log.Logger.Log("No active table loaded.", Logger.Level.Error);
 
             return null;
         }
@@ -34,14 +38,16 @@
         {
             if (_activeTable != null)
             {
-                if (_activeTable.TryGetValue(type, out Dictionary<int, int> dictioanry))
+                if (!_activeTable.TryGetValue(type, out Dictionary<int, int> dictioanry))
                 {
-                    foreach (KeyValuePair<int, int> pair in dictioanry)
+                    return null;
+                }
+
+                foreach ((int key, int value) in dictioanry)
+                {
+                    if (value == id)
                     {
-                        if (pair.Value == id)
-                        {
-                            return pair.Key;
-                        }
+                        return key;
                     }
                 }
 
@@ -49,7 +55,7 @@
                 return null;
             }
 
-            Plugin.Logger.Log($"No active table loaded.", IPA.Logging.Logger.Level.Error);
+            Log.Logger.Log("No active table loaded.", Logger.Level.Error);
 
             return null;
         }
@@ -63,7 +69,7 @@
             else
             {
                 _activeTable = null;
-                Plugin.Logger.Log($"Table not found for: {environmentName}", IPA.Logging.Logger.Level.Warning);
+                Log.Logger.Log($"Table not found for: {environmentName}", Logger.Level.Warning);
             }
         }
 
@@ -89,41 +95,48 @@
                     }
 
                     dictioanry.Add(key, index);
-                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                    if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                     {
-                        Plugin.Logger.Log($"Registered key [{key}] to type [{type}].");
+                        Log.Logger.Log($"Registered key [{key}] to type [{type}].");
                     }
                 }
                 else
                 {
-                    Plugin.Logger.Log($"Table does not contain type [{type}].", IPA.Logging.Logger.Level.Warning);
+                    Log.Logger.Log($"Table does not contain type [{type}].", Logger.Level.Warning);
                 }
             }
             else
             {
-                Plugin.Logger.Log($"No active table, could not register index.", IPA.Logging.Logger.Level.Warning);
+                Log.Logger.Log("No active table, could not register index.", Logger.Level.Warning);
             }
         }
 
         internal static void InitTable()
         {
-            string tableNamespace = "Chroma.LightIDTables.";
+            const string tableNamespace = "Chroma.LightIDTables.";
             Assembly assembly = Assembly.GetExecutingAssembly();
             IEnumerable<string> tableNames = assembly.GetManifestResourceNames().Where(n => n.StartsWith(tableNamespace));
             foreach (string tableName in tableNames)
             {
-                using JsonReader reader = new JsonTextReader(new StreamReader(assembly.GetManifestResourceStream(tableName)));
-                Dictionary<int, Dictionary<int, int>> typeTable = new Dictionary<int, Dictionary<int, int>>();
+                using JsonReader reader = new JsonTextReader(new StreamReader(
+                    assembly.GetManifestResourceStream(tableName)
+                    ?? throw new InvalidOperationException($"Failed to retrieve {tableName}.")));
+                Dictionary<int, Dictionary<int, int>> typeTable = new();
 
-                JsonSerializer serializer = new JsonSerializer();
-                Dictionary<string, Dictionary<string, int>> rawDict = serializer.Deserialize<Dictionary<string, Dictionary<string, int>>>(reader) ?? throw new System.InvalidOperationException($"Failed to deserialize ID table [{tableName}].");
+                JsonSerializer serializer = new();
+                Dictionary<string, Dictionary<string, int>> rawDict =
+                    serializer.Deserialize<Dictionary<string, Dictionary<string, int>>>(reader)
+                    ?? throw new InvalidOperationException($"Failed to deserialize ID table [{tableName}].");
 
-                foreach (KeyValuePair<string, Dictionary<string, int>> typePair in rawDict)
+                foreach ((string key, Dictionary<string, int> value) in rawDict)
                 {
-                    typeTable[int.Parse(typePair.Key)] = typePair.Value.ToDictionary(n => int.Parse(n.Key), n => n.Value);
+                    typeTable[int.Parse(key)] = value.ToDictionary(n => int.Parse(n.Key), n => n.Value);
                 }
 
-                string tableNameWithoutExtension = Path.GetFileNameWithoutExtension(tableName.Remove(tableName.IndexOf(tableNamespace), tableNamespace.Length));
+                string tableNameWithoutExtension = Path.GetFileNameWithoutExtension(
+                    tableName.Remove(
+                        tableName.IndexOf(tableNamespace, StringComparison.Ordinal),
+                        tableNamespace.Length));
                 _lightIDTable.Add(tableNameWithoutExtension, typeTable);
             }
         }

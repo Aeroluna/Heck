@@ -1,7 +1,7 @@
-﻿namespace Chroma.Colorizer
-{
-    using UnityEngine;
+﻿using UnityEngine;
 
+namespace Chroma.Colorizer.Monobehaviours
+{
     internal class ChromaParticleEventController : MonoBehaviour
     {
         private ParticleColorizer _colorizer = null!;
@@ -10,7 +10,7 @@
         internal void Init(ParticleSystemEventEffect particleSystemEventEffect, BeatmapEventType eventType)
         {
             _eventType = eventType;
-            _colorizer = new ParticleColorizer(particleSystemEventEffect, eventType);
+            _colorizer = ParticleColorizer.Create(particleSystemEventEffect, eventType);
         }
 
         private void OnDestroy()

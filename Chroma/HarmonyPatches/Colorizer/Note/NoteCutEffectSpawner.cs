@@ -1,7 +1,8 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using HarmonyLib;
+﻿using HarmonyLib;
+using JetBrains.Annotations;
 
+namespace Chroma.HarmonyPatches.Colorizer.Note
+{
     [HarmonyPatch(typeof(NoteCutCoreEffectsSpawner))]
     [HarmonyPatch("SpawnNoteCutEffect")]
     internal static class NoteCutEffectSpawnerSpawnNoteCutEffect
@@ -12,6 +13,7 @@
             ColorManagerColorForType.EnableColorOverride(noteController);
         }
 
+        [UsedImplicitly]
         private static void Postfix()
         {
             ColorManagerColorForType.DisableColorOverride();

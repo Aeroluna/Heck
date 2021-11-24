@@ -1,25 +1,29 @@
-﻿namespace NoodleExtensions.Animation
-{
-    using System.Collections.Generic;
-    using CustomJSONData.CustomBeatmap;
-    using Heck.Animation;
-    using static NoodleExtensions.NoodleCustomDataManager;
-    using static NoodleExtensions.Plugin;
+﻿using System.Collections.Generic;
+using CustomJSONData.CustomBeatmap;
+using Heck.Animation;
+using static NoodleExtensions.NoodleController;
+using static NoodleExtensions.NoodleCustomDataManager;
 
-    internal class AssignTrackParent
+namespace NoodleExtensions.Animation.Events
+{
+    internal static class AssignTrackParent
     {
         internal static void Callback(CustomEventData customEventData)
         {
-            if (customEventData.type == ASSIGNTRACKPARENT)
+            if (customEventData.type != ASSIGN_TRACK_PARENT)
             {
-                NoodleParentTrackEventData? noodleData = TryGetEventData<NoodleParentTrackEventData>(customEventData);
-                if (noodleData != null)
-                {
-                    IEnumerable<Track> tracks = noodleData.ChildrenTracks;
-                    Track parentTrack = noodleData.ParentTrack;
-                    ParentObject.AssignTrack(tracks, parentTrack, noodleData.WorldPositionStays, noodleData.Position, noodleData.Rotation, noodleData.LocalRotation, noodleData.Scale);
-                }
+                return;
             }
+
+            NoodleParentTrackEventData? noodleData = TryGetEventData<NoodleParentTrackEventData>(customEventData);
+            if (noodleData == null)
+            {
+                return;
+            }
+
+            List<Track> tracks = noodleData.ChildrenTracks;
+            Track parentTrack = noodleData.ParentTrack;
+            ParentObject.AssignTrack(tracks, parentTrack, noodleData.WorldPositionStays, noodleData.Position, noodleData.Rotation, noodleData.LocalRotation, noodleData.Scale);
         }
     }
 }

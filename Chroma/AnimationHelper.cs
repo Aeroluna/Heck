@@ -1,22 +1,22 @@
-﻿namespace Chroma
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using Heck.Animation;
-    using UnityEngine;
-    using static Heck.Animation.AnimationHelper;
-    using static Heck.NullableExtensions;
-    using static Plugin;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Heck.Animation;
+using UnityEngine;
+using static Chroma.ChromaController;
+using static Heck.Animation.AnimationHelper;
+using static Heck.NullableExtensions;
 
+namespace Chroma
+{
     internal static class AnimationHelper
     {
-        internal static void GetColorOffset(PointDefinition? localColor, IEnumerable<Track>? tracks, float time, out Color? color)
+        internal static void GetColorOffset(PointDefinition? localColor, List<Track>? tracks, float time, out Color? color)
         {
             Vector4? pathColor = localColor?.InterpolateVector4(time);
-            Vector4? colorVector = null;
+            Vector4? colorVector;
             if (tracks != null)
             {
-                if (tracks.Count() > 1)
+                if (tracks.Count > 1)
                 {
                     pathColor ??= MultVector4Nullables(tracks.Select(n => TryGetVector4PathProperty(n, COLOR, time)));
                     colorVector = MultVector4Nullables(MultVector4Nullables(tracks.Select(n => TryGetProperty<Vector4?>(n, COLOR))), pathColor);
@@ -51,16 +51,16 @@
 
             // For Environment Enhancements
             track.AddProperty(POSITION, PropertyType.Vector3);
-            track.AddProperty(LOCALPOSITION, PropertyType.Vector3);
-            track.AddProperty(OBJECTROTATION, PropertyType.Quaternion);
-            track.AddProperty(LOCALROTATION, PropertyType.Quaternion);
+            track.AddProperty(LOCAL_POSITION, PropertyType.Vector3);
+            track.AddProperty(OBJECT_ROTATION, PropertyType.Quaternion);
+            track.AddProperty(LOCAL_ROTATION, PropertyType.Quaternion);
             track.AddProperty(SCALE, PropertyType.Vector3);
 
             // For Fog Control
             track.AddProperty(ATTENUATION, PropertyType.Linear);
             track.AddProperty(OFFSET, PropertyType.Linear);
-            track.AddProperty(HEIGHTFOGSTARTY, PropertyType.Linear);
-            track.AddProperty(HEIGHTFOGHEIGHT, PropertyType.Linear);
+            track.AddProperty(HEIGHT_FOG_STARTY, PropertyType.Linear);
+            track.AddProperty(HEIGHT_FOG_HEIGHT, PropertyType.Linear);
         }
     }
 }

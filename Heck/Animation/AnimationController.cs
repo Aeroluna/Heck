@@ -1,15 +1,17 @@
-﻿namespace Heck.Animation
-{
-    using CustomJSONData;
-    using UnityEngine;
+﻿using CustomJSONData;
+using Heck.Animation.Events;
+using Heck.HarmonyPatches;
+using UnityEngine;
 
+namespace Heck.Animation
+{
     internal class AnimationController : MonoBehaviour
     {
-        internal static AnimationController? Instance { get; private set; }
+        internal static AnimationController Instance { get; private set; } = null!;
+
+        internal static BeatmapObjectSpawnController BeatmapObjectSpawnController => BeatmapObjectSpawnControllerStart.BeatmapObjectSpawnController;
 
         internal CustomEventCallbackController CustomEventCallbackController { get; private set; } = null!;
-
-        internal BeatmapObjectSpawnController BeatmapObjectSpawnController => HarmonyPatches.BeatmapObjectSpawnControllerStart.BeatmapObjectSpawnController;
 
         internal static void CustomEventCallbackInit(CustomEventCallbackController customEventCallbackController)
         {

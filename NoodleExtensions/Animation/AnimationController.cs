@@ -1,13 +1,12 @@
-﻿namespace NoodleExtensions.Animation
-{
-    using CustomJSONData;
-    using UnityEngine;
+﻿using CustomJSONData;
+using NoodleExtensions.Animation.Events;
+using UnityEngine;
 
+namespace NoodleExtensions.Animation
+{
     internal class AnimationController : MonoBehaviour
     {
-        internal static AnimationController? Instance { get; private set; }
-
-        internal CustomEventCallbackController CustomEventCallbackController { get; private set; } = null!;
+        internal static AnimationController Instance { get; private set; } = null!;
 
         internal static void CustomEventCallbackInit(CustomEventCallbackController customEventCallbackController)
         {
@@ -23,7 +22,6 @@
 
             Instance = customEventCallbackController.gameObject.AddComponent<AnimationController>();
 
-            Instance.CustomEventCallbackController = customEventCallbackController;
             customEventCallbackController.AddCustomEventCallback(AssignPlayerToTrack.Callback);
             customEventCallbackController.AddCustomEventCallback(AssignTrackParent.Callback);
         }

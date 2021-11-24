@@ -1,21 +1,23 @@
-﻿namespace Chroma
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text.RegularExpressions;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
-    using IPA.Utilities;
-    using UnityEngine;
-    using UnityEngine.SceneManagement;
-    using static Chroma.Plugin;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using Chroma.Settings;
+using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
+using IPA.Utilities;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using static Chroma.ChromaController;
+using Object = UnityEngine.Object;
 
+namespace Chroma.Lighting.EnvironmentEnhancement
+{
     internal enum LookupMethod
     {
         Regex,
         Exact,
-        Contains,
+        Contains
     }
 
     internal static class EnvironmentEnhancementManager
@@ -24,13 +26,13 @@
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
 
-        private static List<GameObjectInfo> _gameObjectInfos = new List<GameObjectInfo>();
+        private static List<GameObjectInfo> _gameObjectInfos = new();
 
-        internal static Dictionary<TrackLaneRing, Quaternion> RingRotationOffsets { get; private set; } = new Dictionary<TrackLaneRing, Quaternion>();
+        internal static Dictionary<TrackLaneRing, Quaternion> RingRotationOffsets { get; private set; } = new();
 
-        internal static Dictionary<BeatmapObjectsAvoidance, Vector3> AvoidancePosition { get; private set; } = new Dictionary<BeatmapObjectsAvoidance, Vector3>();
+        internal static Dictionary<BeatmapObjectsAvoidance, Vector3> AvoidancePosition { get; private set; } = new();
 
-        internal static Dictionary<BeatmapObjectsAvoidance, Quaternion> AvoidanceRotation { get; private set; } = new Dictionary<BeatmapObjectsAvoidance, Quaternion>();
+        internal static Dictionary<BeatmapObjectsAvoidance, Quaternion> AvoidanceRotation { get; private set; } = new();
 
         internal static void Init(CustomBeatmapData customBeatmapData, float noteLinesDistance)
         {
@@ -47,42 +49,42 @@
                 RingRotationOffsets.Clear();
                 ParametricBoxControllerParameters.TransformParameters.Clear();
 
-                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                 {
-                    Plugin.Logger.Log($"=====================================");
+                    Log.Logger.Log("=====================================");
                 }
 
                 foreach (Dictionary<string, object?> gameObjectData in environmentData)
                 {
                     string id = gameObjectData.Get<string>(ID) ?? throw new InvalidOperationException("Id was not defined.");
 
-                    string lookupString = gameObjectData.Get<string>(LOOKUPMETHOD) ?? throw new InvalidOperationException("Lookup method was not defined.");
+                    string lookupString = gameObjectData.Get<string>(LOOKUP_METHOD) ?? throw new InvalidOperationException("Lookup method was not defined.");
                     LookupMethod lookupMethod = (LookupMethod)Enum.Parse(typeof(LookupMethod), lookupString);
 
-                    int? dupeAmount = gameObjectData.Get<int?>(DUPLICATIONAMOUNT);
+                    int? dupeAmount = gameObjectData.Get<int?>(DUPLICATION_AMOUNT);
 
                     bool? active = gameObjectData.Get<bool?>(ACTIVE);
 
-                    Vector3? scale = GetVectorData(gameObjectData, SCALE);
-                    Vector3? position = GetVectorData(gameObjectData, POSITION);
-                    Vector3? rotation = GetVectorData(gameObjectData, OBJECTROTATION);
-                    Vector3? localPosition = GetVectorData(gameObjectData, LOCALPOSITION);
-                    Vector3? localRotation = GetVectorData(gameObjectData, LOCALROTATION);
+                    Vector3? scale = gameObjectData.GetVector3(SCALE);
+                    Vector3? position = gameObjectData.GetVector3(POSITION);
+                    Vector3? rotation = gameObjectData.GetVector3(OBJECT_ROTATION);
+                    Vector3? localPosition = gameObjectData.GetVector3(LOCAL_POSITION);
+                    Vector3? localRotation = gameObjectData.GetVector3(LOCAL_ROTATION);
 
-                    int? lightID = gameObjectData.Get<int?>(LIGHTID);
+                    int? lightID = gameObjectData.Get<int?>(LIGHT_ID);
 
                     List<GameObjectInfo> foundObjects = LookupID(id, lookupMethod);
                     if (foundObjects.Count > 0)
                     {
-                        if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                        if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                         {
-                            Plugin.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
-                            foundObjects.ForEach(n => Plugin.Logger.Log(n.FullID));
+                            Log.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
+                            foundObjects.ForEach(n => Log.Logger.Log(n.FullID));
                         }
                     }
                     else
                     {
-                        Plugin.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.", IPA.Logging.Logger.Level.Error);
+                        Log.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.", IPA.Logging.Logger.Level.Error);
                     }
 
                     List<GameObjectInfo> gameObjectInfos;
@@ -92,9 +94,9 @@
                         gameObjectInfos = new List<GameObjectInfo>();
                         foreach (GameObjectInfo gameObjectInfo in foundObjects)
                         {
-                            if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                            if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                             {
-                                Plugin.Logger.Log($"Duplicating [{gameObjectInfo.FullID}]:");
+                                Log.Logger.Log($"Duplicating [{gameObjectInfo.FullID}]:");
                             }
 
                             GameObject gameObject = gameObjectInfo.GameObject;
@@ -103,20 +105,23 @@
 
                             for (int i = 0; i < dupeAmount.Value; i++)
                             {
-                                List<IComponentData> componentDatas = new List<IComponentData>();
+                                List<IComponentData> componentDatas = new();
                                 ComponentInitializer.PrefillComponentsData(gameObject.transform, componentDatas);
-                                GameObject newGameObject = UnityEngine.Object.Instantiate(gameObject);
+                                GameObject newGameObject = Object.Instantiate(gameObject);
                                 ComponentInitializer.PostfillComponentsData(newGameObject.transform, gameObject.transform, componentDatas);
                                 SceneManager.MoveGameObjectToScene(newGameObject, scene);
+
+                                // ReSharper disable once Unity.InstantiateWithoutParent
+                                // need to move shit to right scene first
                                 newGameObject.transform.SetParent(parent, true);
                                 ComponentInitializer.InitializeComponents(newGameObject.transform, gameObject.transform, _gameObjectInfos, componentDatas, lightID);
 
                                 List<GameObjectInfo> gameObjects = _gameObjectInfos.Where(n => n.GameObject == newGameObject).ToList();
                                 gameObjectInfos.AddRange(gameObjects);
 
-                                if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                                if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                                 {
-                                    gameObjects.ForEach(n => Plugin.Logger.Log(n.FullID));
+                                    gameObjects.ForEach(n => Log.Logger.Log(n.FullID));
                                 }
                             }
                         }
@@ -125,7 +130,7 @@
                     {
                         if (lightID.HasValue)
                         {
-                            Plugin.Logger.Log($"LightID requested but no duplicated object to apply to.", IPA.Logging.Logger.Level.Error);
+                            Log.Logger.Log("LightID requested but no duplicated object to apply to.", IPA.Logging.Logger.Level.Error);
                         }
 
                         gameObjectInfos = foundObjects;
@@ -217,9 +222,9 @@
                         GameObjectTrackController.HandleTrackData(gameObject, gameObjectData, customBeatmapData, noteLinesDistance, trackLaneRing, parametricBoxController, beatmapObjectsAvoidance);
                     }
 
-                    if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                    if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                     {
-                        Plugin.Logger.Log($"=====================================");
+                        Log.Logger.Log("=====================================");
                     }
                 }
             }
@@ -230,8 +235,8 @@
             }
             catch (Exception e)
             {
-                Plugin.Logger.Log("Could not run Legacy Enviroment Removal");
-                Plugin.Logger.Log(e);
+                Log.Logger.Log("Could not run Legacy Enviroment Removal");
+                Log.Logger.Log(e);
             }
         }
 
@@ -241,7 +246,7 @@
             switch (lookupMethod)
             {
                 case LookupMethod.Regex:
-                    Regex regex = new Regex(id, RegexOptions.CultureInvariant);
+                    Regex regex = new(id, RegexOptions.CultureInvariant);
                     predicate = n => regex.IsMatch(n.FullID);
                     break;
 
@@ -254,22 +259,10 @@
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException("Invalid lookup method.", nameof(lookupMethod));
+                    throw new ArgumentOutOfRangeException(nameof(lookupMethod), "Invalid lookup method.");
             }
 
             return _gameObjectInfos.Where(predicate).ToList();
-        }
-
-        private static Vector3? GetVectorData(Dictionary<string, object?> dynData, string name)
-        {
-            IEnumerable<float>? data = dynData.Get<List<object>>(name)?.Select(n => Convert.ToSingle(n));
-            Vector3? final = null;
-            if (data != null)
-            {
-                final = new Vector3(data.ElementAt(0), data.ElementAt(1), data.ElementAt(2));
-            }
-
-            return final;
         }
 
         private static void GetAllGameObjects()
@@ -279,26 +272,25 @@
             // I'll probably revist this formula for getting objects by only grabbing the root objects and adding all the children
             List<GameObject> gameObjects = Resources.FindObjectsOfTypeAll<GameObject>().Where(n =>
             {
-                if (n != null)
+                if (n == null)
                 {
-                    string sceneName = n.scene.name;
-                    if (sceneName != null)
-                    {
-                        if ((sceneName.Contains("Environment") && !sceneName.Contains("Menu")) || n.GetComponent<TrackLaneRing>() != null)
-                        {
-                            return true;
-                        }
-                    }
+                    return false;
                 }
 
-                return false;
+                string sceneName = n.scene.name;
+                if (sceneName == null)
+                {
+                    return false;
+                }
+
+                return (sceneName.Contains("Environment") && !sceneName.Contains("Menu")) || n.GetComponent<TrackLaneRing>() != null;
             }).ToList();
 
             // Adds the children of whitelist GameObjects
             // Mainly for grabbing cone objects in KaleidoscopeEnvironment
             gameObjects.ToList().ForEach(n =>
             {
-                List<Transform> allChildren = new List<Transform>();
+                List<Transform> allChildren = new();
                 GetChildRecursive(n.transform, ref allChildren);
 
                 foreach (Transform transform in allChildren)
@@ -310,11 +302,11 @@
                 }
             });
 
-            List<string> objectsToPrint = new List<string>();
+            List<string> objectsToPrint = new();
 
             foreach (GameObject gameObject in gameObjects)
             {
-                GameObjectInfo gameObjectInfo = new GameObjectInfo(gameObject);
+                GameObjectInfo gameObjectInfo = new(gameObject);
                 _gameObjectInfos.Add(new GameObjectInfo(gameObject));
                 objectsToPrint.Add(gameObjectInfo.FullID);
 
@@ -326,11 +318,13 @@
                 }
             }
 
-            if (Settings.ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+            if (!ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
             {
-                objectsToPrint.Sort();
-                objectsToPrint.ForEach(n => Plugin.Logger.Log(n));
+                return;
             }
+
+            objectsToPrint.Sort();
+            objectsToPrint.ForEach(n => Log.Logger.Log(n));
         }
 
         private static void GetChildRecursive(Transform gameObject, ref List<Transform> children)

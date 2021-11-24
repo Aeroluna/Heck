@@ -1,8 +1,9 @@
-﻿namespace NoodleExtensions.HarmonyPatches
+﻿using IPA.Utilities;
+using UnityEngine;
+
+namespace NoodleExtensions.HarmonyPatches
 {
-    using IPA.Utilities;
-    using UnityEngine;
-    using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
+    using static SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 
     internal static class SpawnDataHelper
     {

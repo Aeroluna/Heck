@@ -1,14 +1,14 @@
-﻿namespace NoodleExtensions.Animation
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using Heck.Animation;
-    using UnityEngine;
-    using static Heck.Animation.AnimationHelper;
-    using static Heck.NullableExtensions;
-    using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
-    using static NoodleExtensions.Plugin;
+﻿using System;
+using System.Collections.Generic;
+using Heck.Animation;
+using UnityEngine;
+using static Heck.Animation.AnimationHelper;
+using static Heck.NullableExtensions;
+using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
+using static NoodleExtensions.NoodleController;
 
+namespace NoodleExtensions.Animation
+{
     internal class ParentObject : MonoBehaviour
     {
         private Track _track = null!;
@@ -21,22 +21,22 @@
 
         internal static ParentController? Controller { get; private set; }
 
-        internal HashSet<Track> ChildrenTracks { get; } = new HashSet<Track>();
+        internal HashSet<Track> ChildrenTracks { get; } = new();
 
-        internal static void AssignTrack(IEnumerable<Track> tracks, Track parentTrack, bool worldPositionStays, Vector3? startPos, Quaternion? startRot, Quaternion? startLocalRot, Vector3? startScale)
+        internal static void AssignTrack(List<Track> tracks, Track parentTrack, bool worldPositionStays, Vector3? startPos, Quaternion? startRot, Quaternion? startLocalRot, Vector3? startScale)
         {
             if (tracks.Contains(parentTrack))
             {
-                throw new System.InvalidOperationException("How could a track contain itself?");
+                throw new InvalidOperationException("How could a track contain itself?");
             }
 
             if (Controller == null)
             {
-                GameObject gameObject = new GameObject("ParentController");
+                GameObject gameObject = new("ParentController");
                 Controller = gameObject.AddComponent<ParentController>();
             }
 
-            GameObject parentGameObject = new GameObject("ParentObject");
+            GameObject parentGameObject = new("ParentObject");
             ParentObject instance = parentGameObject.AddComponent<ParentObject>();
             instance._origin = parentGameObject.transform;
             instance._track = parentTrack;
@@ -76,7 +76,7 @@
                 foreach (ParentObject parentObject in Controller.ParentObjects)
                 {
                     track.OnGameObjectAdded -= parentObject.OnTrackGameObjectAdded;
-                    track.OnGameObjectRemoved -= parentObject.OnTrackGameObjectRemoved;
+                    track.OnGameObjectRemoved -= OnTrackGameObjectRemoved;
                     parentObject.ChildrenTracks.Remove(track);
                 }
 
@@ -88,7 +88,7 @@
                 instance.ChildrenTracks.Add(track);
 
                 track.OnGameObjectAdded += instance.OnTrackGameObjectAdded;
-                track.OnGameObjectRemoved += instance.OnTrackGameObjectRemoved;
+                track.OnGameObjectRemoved += OnTrackGameObjectRemoved;
             }
 
             Controller.ParentObjects.Add(instance);
@@ -99,19 +99,19 @@
             transform.SetParent(null, false);
         }
 
-        private void OnTrackGameObjectAdded(GameObject gameObject)
+        private static void OnTrackGameObjectRemoved(GameObject trackGameObject)
         {
-            ParentToObject(gameObject.transform);
+            ResetTransformParent(trackGameObject.transform);
         }
 
-        private void OnTrackGameObjectRemoved(GameObject gameObject)
+        private void OnTrackGameObjectAdded(GameObject trackGameObject)
         {
-            ResetTransformParent(gameObject.transform);
+            ParentToObject(trackGameObject.transform);
         }
 
-        private void ParentToObject(Transform transform)
+        private void ParentToObject(Transform childTransform)
         {
-            transform.SetParent(_origin.transform, _worldPositionStays);
+            childTransform.SetParent(_origin.transform, _worldPositionStays);
         }
 
         private void OnDestroy()
@@ -154,7 +154,7 @@
             }
 
             worldRotationQuatnerion *= _startLocalRot;
-            Quaternion? localRotation = TryGetProperty<Quaternion?>(_track, LOCALROTATION);
+            Quaternion? localRotation = TryGetProperty<Quaternion?>(_track, LOCAL_ROTATION);
             if (localRotation.HasValue)
             {
                 if (LeftHandedMode)
@@ -180,33 +180,7 @@
 
     internal class ParentController : MonoBehaviour
     {
-        internal HashSet<ParentObject> ParentObjects { get; } = new HashSet<ParentObject>();
-
-        internal ParentObject? GetParentObjectTrack(Track track)
-        {
-            ParentObject filteredParent = ParentObjects.FirstOrDefault(n => n.ChildrenTracks.Contains(track));
-            if (filteredParent != null)
-            {
-                return filteredParent;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        internal ParentObject? GetParentObjectTrackArray(IEnumerable<Track> tracks)
-        {
-            ParentObject filteredParent = ParentObjects.FirstOrDefault(n => n.ChildrenTracks.Intersect(tracks).Any());
-            if (filteredParent != null)
-            {
-                return filteredParent;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        internal HashSet<ParentObject> ParentObjects { get; } = new();
 
         private void OnDestroy()
         {

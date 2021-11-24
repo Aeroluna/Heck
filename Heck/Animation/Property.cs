@@ -1,13 +1,13 @@
-﻿namespace Heck.Animation
-{
-    using UnityEngine;
+﻿using UnityEngine;
 
+namespace Heck.Animation
+{
     public enum PropertyType
     {
         Vector3,
         Vector4,
         Quaternion,
-        Linear,
+        Linear
     }
 
     internal class PathProperty : Property
@@ -17,9 +17,9 @@
         {
         }
 
-        internal PointDefinitionInterpolation Interpolation { get; } = new PointDefinitionInterpolation();
+        internal PointDefinitionInterpolation Interpolation { get; } = new();
 
-        internal override object? Value => Interpolation;
+        internal override object Value => Interpolation;
     }
 
     internal class Property

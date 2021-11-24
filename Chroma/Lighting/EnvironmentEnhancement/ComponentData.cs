@@ -1,4 +1,4 @@
-﻿namespace Chroma
+﻿namespace Chroma.Lighting.EnvironmentEnhancement
 {
     internal interface IComponentData
     {

@@ -1,13 +1,14 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using CustomJSONData.CustomBeatmap;
-    using HarmonyLib;
-    using Heck;
-    using static NoodleExtensions.NoodleCustomDataManager;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using CustomJSONData.CustomBeatmap;
+using HarmonyLib;
+using Heck;
+using JetBrains.Annotations;
+using static NoodleExtensions.NoodleCustomDataManager;
 
+namespace NoodleExtensions.HarmonyPatches
+{
     [HeckPatch(typeof(BeatmapObjectCallbackController))]
     [HeckPatch("LateUpdate")]
     internal static class BeatmapObjectCallBackControllerLateUpdate
@@ -17,6 +18,7 @@
         private static readonly MethodInfo _getAheadTime = AccessTools.Method(typeof(BeatmapObjectCallBackControllerLateUpdate), nameof(GetAheadTime));
         private static readonly MethodInfo _beatmapObjectSpawnControllerCallback = AccessTools.Method(typeof(BeatmapObjectSpawnController), nameof(BeatmapObjectSpawnController.HandleBeatmapObjectCallback));
 
+        [UsedImplicitly]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
@@ -32,21 +34,15 @@
 
         private static float GetAheadTime(BeatmapObjectCallbackData beatmapObjectCallbackData, BeatmapObjectData beatmapObjectData, float @default)
         {
-            if (beatmapObjectCallbackData.callback.Method == _beatmapObjectSpawnControllerCallback &&
-                (beatmapObjectData is CustomObstacleData || beatmapObjectData is CustomNoteData))
+            if (beatmapObjectCallbackData.callback.Method != _beatmapObjectSpawnControllerCallback ||
+                (beatmapObjectData is not CustomObstacleData && beatmapObjectData is not CustomNoteData))
             {
-                NoodleObjectData? noodleData = TryGetObjectData<NoodleObjectData>(beatmapObjectData);
-                if (noodleData != null)
-                {
-                    float? aheadTime = noodleData.AheadTimeInternal;
-                    if (aheadTime.HasValue)
-                    {
-                        return aheadTime.Value;
-                    }
-                }
+                return @default;
             }
 
-            return @default;
+            NoodleObjectData? noodleData = TryGetObjectData<NoodleObjectData>(beatmapObjectData);
+            float? aheadTime = noodleData?.AheadTimeInternal;
+            return aheadTime ?? @default;
         }
     }
 }

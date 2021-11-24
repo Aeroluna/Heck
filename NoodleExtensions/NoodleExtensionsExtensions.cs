@@ -1,27 +1,21 @@
-﻿namespace NoodleExtensions
-{
-    using System;
-    using System.Collections.Generic;
-    using CustomJSONData.CustomBeatmap;
+﻿using System;
+using System.Collections.Generic;
+using CustomJSONData.CustomBeatmap;
 
+namespace NoodleExtensions
+{
     internal static class NoodleExtensionsExtensions
     {
         internal static Dictionary<string, object?> GetDataForObject(this BeatmapObjectData beatmapObjectData)
         {
-            switch (beatmapObjectData)
+            return beatmapObjectData switch
             {
-                case CustomObstacleData data:
-                    return data.customData;
-
-                case CustomNoteData data:
-                    return data.customData;
-
-                case CustomWaypointData data:
-                    return data.customData;
-
-                default:
-                    throw new InvalidOperationException($"beatmapObjectdata was not of type CustomObstacleData, CustomNoteData, or CustomWaypointData. Was: {beatmapObjectData.GetType().FullName}.");
-            }
+                CustomObstacleData data => data.customData,
+                CustomNoteData data => data.customData,
+                CustomWaypointData data => data.customData,
+                _ => throw new InvalidOperationException(
+                    $"beatmapObjectdata was not of type CustomObstacleData, CustomNoteData, or CustomWaypointData. Was: {beatmapObjectData.GetType().FullName}.")
+            };
         }
     }
 }

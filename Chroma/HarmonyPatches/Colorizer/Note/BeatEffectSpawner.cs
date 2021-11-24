@@ -1,9 +1,10 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using Chroma.Colorizer;
-    using HarmonyLib;
-    using UnityEngine;
+﻿using Chroma.Colorizer;
+using HarmonyLib;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace Chroma.HarmonyPatches.Colorizer.Note
+{
     [HarmonyPatch(typeof(BeatEffectSpawner))]
     [HarmonyPatch("HandleNoteDidStartJump")]
     internal static class BeatEffectSpawnerHandleNoteDidStartJumpColorizer
@@ -21,6 +22,7 @@
             }
         }
 
+        [UsedImplicitly]
         private static void Postfix()
         {
             ColorManagerColorForType.DisableColorOverride();

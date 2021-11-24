@@ -1,17 +1,19 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using HarmonyLib;
-    using Heck;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using HarmonyLib;
+using Heck;
+using JetBrains.Annotations;
 
+namespace NoodleExtensions.HarmonyPatches.FakeNotes
+{
     [HeckPatch(typeof(PlayerHeadAndObstacleInteraction))]
     [HeckPatch("GetObstaclesContainingPoint")]
     internal static class PlayerHeadAndObstacleInteractionGetObstaclesContainingPoint
     {
         private static readonly MethodInfo _currentGetter = AccessTools.PropertyGetter(typeof(List<ObstacleController>.Enumerator), nameof(List<ObstacleController>.Enumerator.Current));
 
+        [UsedImplicitly]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             CodeMatcher codeMatcher = new CodeMatcher(instructions)

@@ -1,12 +1,13 @@
-﻿namespace Heck
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
-    using Heck.Animation;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
+using Heck.Animation;
+using IPA.Logging;
 
+namespace Heck
+{
     public interface ICustomEventCustomData
     {
     }
@@ -45,20 +46,20 @@
 
         public static void LogFailure(HeckLogger logger, Exception e, CustomEventData customEventData)
         {
-            logger.Log($"Could not parse custom data for custom event [{customEventData.type}] at [{customEventData.time}].", IPA.Logging.Logger.Level.Error);
-            logger.Log(e, IPA.Logging.Logger.Level.Error);
+            logger.Log($"Could not parse custom data for custom event [{customEventData.type}] at [{customEventData.time}].", Logger.Level.Error);
+            logger.Log(e, Logger.Level.Error);
         }
 
         public static void LogFailure(HeckLogger logger, Exception e, BeatmapEventData beatmapEventData)
         {
-            logger.Log($"Could not parse custom data for event [{beatmapEventData.type}] at [{beatmapEventData.time}].", IPA.Logging.Logger.Level.Error);
-            logger.Log(e, IPA.Logging.Logger.Level.Error);
+            logger.Log($"Could not parse custom data for event [{beatmapEventData.type}] at [{beatmapEventData.time}].", Logger.Level.Error);
+            logger.Log(e, Logger.Level.Error);
         }
 
         public static void LogFailure(HeckLogger logger, Exception e, BeatmapObjectData beatmapObjectData)
         {
-            logger.Log($"Could not parse custom data for object [{beatmapObjectData.GetType().Name}] at [{beatmapObjectData.time}].", IPA.Logging.Logger.Level.Error);
-            logger.Log(e, IPA.Logging.Logger.Level.Error);
+            logger.Log($"Could not parse custom data for object [{beatmapObjectData.GetType().Name}] at [{beatmapObjectData.time}].", Logger.Level.Error);
+            logger.Log(e, Logger.Level.Error);
         }
 
         internal static void InvokeDeserializeBeatmapData(bool isMultiplayer, CustomBeatmapData customBeatmapData, TrackBuilder trackBuilder)
@@ -71,10 +72,10 @@
             }
             else
             {
-                Plugin.Logger.Log("Failed to load eventDefinitions.", IPA.Logging.Logger.Level.Error);
+                Log.Logger.Log("Failed to load eventDefinitions.", Logger.Level.Error);
             }
 
-            DeserializeBeatmapEventArgs eventArgs = new DeserializeBeatmapEventArgs(isMultiplayer, customBeatmapData, trackBuilder, customEventsData, customBeatmapData.beatmapEventsData, customBeatmapData.beatmapObjectsData);
+            DeserializeBeatmapEventArgs eventArgs = new(isMultiplayer, customBeatmapData, trackBuilder, customEventsData, customBeatmapData.beatmapEventsData, customBeatmapData.beatmapObjectsData);
 
             BuildTracks?.Invoke(eventArgs);
 
@@ -83,19 +84,17 @@
 
         private static TFinalType? TryGetCustomData<TObjectType, TDataType, TFinalType>(this IDictionary<TObjectType, TDataType> dictionary, TObjectType key)
         {
-            if (dictionary.TryGetValue(key, out TDataType customData))
+            if (!dictionary.TryGetValue(key, out TDataType customData))
             {
-                if (customData is TFinalType t)
-                {
-                    return t;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Custom data was not of correct type. Expected: [{typeof(TFinalType).Name}], was: [{key?.GetType().Name}].");
-                }
+                return default;
             }
 
-            return default;
+            if (customData is TFinalType t)
+            {
+                return t;
+            }
+
+            throw new InvalidOperationException($"Custom data was not of correct type. Expected: [{typeof(TFinalType).Name}], was: [{key?.GetType().Name}].");
         }
 
         public class DeserializeBeatmapEventArgs : EventArgs

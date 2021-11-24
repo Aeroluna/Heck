@@ -1,22 +1,23 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using HarmonyLib;
-    using Heck;
-    using Heck.Animation;
-    using UnityEngine;
-    using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
-    using static NoodleExtensions.NoodleCustomDataManager;
-    using static NoodleExtensions.Plugin;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using HarmonyLib;
+using Heck;
+using Heck.Animation;
+using JetBrains.Annotations;
+using UnityEngine;
+using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
+using static NoodleExtensions.NoodleController;
+using static NoodleExtensions.NoodleCustomDataManager;
 
+namespace NoodleExtensions.HarmonyPatches
+{
     [HeckPatch(typeof(ObstacleController))]
     [HeckPatch("Init")]
     internal static class ObstacleControllerInit
     {
-        internal static readonly List<ObstacleController> _activeObstacles = new List<ObstacleController>();
+        internal static readonly List<ObstacleController> _activeObstacles = new();
 
         private static readonly FieldInfo _worldRotationField = AccessTools.Field(typeof(ObstacleController), "_worldRotation");
         private static readonly FieldInfo _inverseWorldRotationField = AccessTools.Field(typeof(ObstacleController), "_inverseWorldRotation");
@@ -28,6 +29,7 @@
         private static readonly MethodInfo _getCustomLength = AccessTools.Method(typeof(ObstacleControllerInit), nameof(GetCustomLength));
         private static readonly MethodInfo _invertQuaternion = AccessTools.Method(typeof(ObstacleControllerInit), nameof(InvertQuaternion));
 
+        [UsedImplicitly]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
@@ -64,6 +66,7 @@
                 .InstructionEnumeration();
         }
 
+        [UsedImplicitly]
         private static void Postfix(ObstacleController __instance, Quaternion ____worldRotation, ObstacleData obstacleData, Vector3 ____startPos, Vector3 ____midPos, Vector3 ____endPos, ref Bounds ____bounds)
         {
             NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
@@ -95,8 +98,7 @@
                 }
             }
 
-            bool? cuttable = noodleData.Cuttable;
-            if (cuttable.HasValue && !cuttable.Value)
+            if (noodleData is { Cuttable: false })
             {
                 ____bounds.size = Vector3.zero;
             }
@@ -122,16 +124,18 @@
             Quaternion worldRotation = Quaternion.Euler(0, @default, 0);
 
             NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
-            if (noodleData != null)
+            if (noodleData == null)
             {
-                Quaternion? worldRotationQuaternion = noodleData.WorldRotationQuaternion;
-                if (worldRotationQuaternion.HasValue)
-                {
-                    worldRotation = worldRotationQuaternion.Value;
-                }
-
-                noodleData.WorldRotation = worldRotation;
+                return worldRotation;
             }
+
+            Quaternion? worldRotationQuaternion = noodleData.WorldRotationQuaternion;
+            if (worldRotationQuaternion.HasValue)
+            {
+                worldRotation = worldRotationQuaternion.Value;
+            }
+
+            noodleData.WorldRotation = worldRotation;
 
             return worldRotation;
         }
@@ -139,28 +143,17 @@
         private static float GetCustomWidth(float @default, ObstacleData obstacleData)
         {
             NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
-            if (noodleData != null)
-            {
-                float? width = noodleData.Width;
-                if (width.HasValue)
-                {
-                    return width.Value;
-                }
-            }
-
-            return @default;
+            float? width = noodleData?.Width;
+            return width ?? @default;
         }
 
         private static float GetCustomLength(float @default, ObstacleData obstacleData)
         {
             NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
-            if (noodleData != null)
+            float? length = noodleData?.Length;
+            if (length.HasValue)
             {
-                float? length = noodleData.Length;
-                if (length.HasValue)
-                {
-                    return length.Value * NoteLinesDistance;
-                }
+                return length.Value * NoteLinesDistance;
             }
 
             return @default;
@@ -176,29 +169,31 @@
         private static readonly FieldInfo _finishMovementTime = AccessTools.Field(typeof(ObstacleController), "_finishMovementTime");
         private static readonly MethodInfo _obstacleTimeAdjust = AccessTools.Method(typeof(ObstacleControllerManualUpdate), nameof(ObstacleTimeAdjust));
 
+        [UsedImplicitly]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             bool foundTime = false;
             for (int i = 0; i < instructionList.Count; i++)
             {
-                if (!foundTime &&
-                    instructionList[i].opcode == OpCodes.Stloc_0)
+                if (foundTime || instructionList[i].opcode != OpCodes.Stloc_0)
                 {
-                    foundTime = true;
-                    instructionList.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
-                    instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldfld, _obstacleDataField));
-                    instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Ldarg_0));
-                    instructionList.Insert(i + 3, new CodeInstruction(OpCodes.Ldfld, _move1DurationField));
-                    instructionList.Insert(i + 4, new CodeInstruction(OpCodes.Ldarg_0));
-                    instructionList.Insert(i + 5, new CodeInstruction(OpCodes.Ldfld, _finishMovementTime));
-                    instructionList.Insert(i + 6, new CodeInstruction(OpCodes.Call, _obstacleTimeAdjust));
+                    continue;
                 }
+
+                foundTime = true;
+                instructionList.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
+                instructionList.Insert(i + 1, new CodeInstruction(OpCodes.Ldfld, _obstacleDataField));
+                instructionList.Insert(i + 2, new CodeInstruction(OpCodes.Ldarg_0));
+                instructionList.Insert(i + 3, new CodeInstruction(OpCodes.Ldfld, _move1DurationField));
+                instructionList.Insert(i + 4, new CodeInstruction(OpCodes.Ldarg_0));
+                instructionList.Insert(i + 5, new CodeInstruction(OpCodes.Ldfld, _finishMovementTime));
+                instructionList.Insert(i + 6, new CodeInstruction(OpCodes.Call, _obstacleTimeAdjust));
             }
 
             if (!foundTime)
             {
-                Plugin.Logger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
+                Log.Logger.Log("Failed to find stloc.0!", IPA.Logging.Logger.Level.Error);
             }
 
             return instructionList.AsEnumerable();
@@ -206,22 +201,22 @@
 
         private static float ObstacleTimeAdjust(float original, ObstacleData obstacleData, float move1Duration, float finishMovementTime)
         {
-            if (original > move1Duration)
+            if (!(original > move1Duration))
             {
-                NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
-                if (noodleData != null)
-                {
-                    float? time = noodleData.Track?.Select(n => AnimationHelper.TryGetProperty<float?>(n, TIME)).FirstOrDefault(n => n.HasValue);
-                    if (time.HasValue)
-                    {
-                        return (time.Value * (finishMovementTime - move1Duration)) + move1Duration;
-                    }
-                }
+                return original;
+            }
+
+            NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
+            float? time = noodleData?.Track?.Select(n => AnimationHelper.TryGetProperty<float?>(n, TIME)).FirstOrDefault(n => n.HasValue);
+            if (time.HasValue)
+            {
+                return (time.Value * (finishMovementTime - move1Duration)) + move1Duration;
             }
 
             return original;
         }
 
+        [UsedImplicitly]
         private static void Prefix(
             ObstacleController __instance,
             ObstacleData ____obstacleData,
@@ -243,84 +238,83 @@
                 return;
             }
 
-            IEnumerable<Track>? tracks = noodleData.Track;
-            NoodleObjectData.AnimationObjectData? animationObject = noodleData.AnimationObject;
-            if (tracks != null || animationObject != null)
-            {
-                // idk i just copied base game time
-                float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
-                float normalTime = (elapsedTime - ____move1Duration) / (____move2Duration + ____obstacleDuration);
-
-                Animation.AnimationHelper.GetObjectOffset(animationObject, tracks, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _, out float? cuttable);
-
-                if (positionOffset.HasValue)
-                {
-                    Vector3 startPos = noodleData.StartPos;
-                    Vector3 midPos = noodleData.MidPos;
-                    Vector3 endPos = noodleData.EndPos;
-
-                    Vector3 offset = positionOffset.Value;
-                    ____startPos = startPos + offset;
-                    ____midPos = midPos + offset;
-                    ____endPos = endPos + offset;
-                }
-
-                Transform transform = __instance.transform;
-
-                if (rotationOffset.HasValue || localRotationOffset.HasValue)
-                {
-                    Quaternion worldRotation = noodleData.WorldRotation;
-                    Quaternion localRotation = noodleData.LocalRotation;
-
-                    Quaternion worldRotationQuatnerion = worldRotation;
-                    if (rotationOffset.HasValue)
-                    {
-                        worldRotationQuatnerion *= rotationOffset.Value;
-                        Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
-                        ____worldRotation = worldRotationQuatnerion;
-                        ____inverseWorldRotation = inverseWorldRotation;
-                    }
-
-                    worldRotationQuatnerion *= localRotation;
-
-                    if (localRotationOffset.HasValue)
-                    {
-                        worldRotationQuatnerion *= localRotationOffset.Value;
-                    }
-
-                    transform.localRotation = worldRotationQuatnerion;
-                }
-
-                if (cuttable.HasValue)
-                {
-                    if (cuttable.Value >= 1)
-                    {
-                        ____bounds.size = Vector3.zero;
-                    }
-                    else
-                    {
-                        Vector3 boundsSize = noodleData.BoundsSize;
-                        ____bounds.size = boundsSize;
-                    }
-                }
-
-                if (scaleOffset.HasValue)
-                {
-                    transform.localScale = scaleOffset.Value;
-                }
-
-                if (dissolve.HasValue)
-                {
-                    if (CutoutManager.ObstacleCutoutEffects.TryGetValue(__instance, out CutoutAnimateEffectWrapper cutoutAnimateEffect))
-                    {
-                        cutoutAnimateEffect.SetCutout(dissolve.Value);
-                    }
-                }
-            }
-
             if (noodleData.DoUnhide)
             {
                 __instance.hide = false;
+            }
+
+            List<Track>? tracks = noodleData.Track;
+            NoodleObjectData.AnimationObjectData? animationObject = noodleData.AnimationObject;
+            if (tracks == null && animationObject == null)
+            {
+                return;
+            }
+
+            // idk i just copied base game time
+            float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
+            float normalTime = (elapsedTime - ____move1Duration) / (____move2Duration + ____obstacleDuration);
+
+            Animation.AnimationHelper.GetObjectOffset(animationObject, tracks, normalTime, out Vector3? positionOffset, out Quaternion? rotationOffset, out Vector3? scaleOffset, out Quaternion? localRotationOffset, out float? dissolve, out float? _, out float? cuttable);
+
+            if (positionOffset.HasValue)
+            {
+                Vector3 startPos = noodleData.StartPos;
+                Vector3 midPos = noodleData.MidPos;
+                Vector3 endPos = noodleData.EndPos;
+
+                Vector3 offset = positionOffset.Value;
+                ____startPos = startPos + offset;
+                ____midPos = midPos + offset;
+                ____endPos = endPos + offset;
+            }
+
+            Transform transform = __instance.transform;
+
+            if (rotationOffset.HasValue || localRotationOffset.HasValue)
+            {
+                Quaternion worldRotation = noodleData.WorldRotation;
+                Quaternion localRotation = noodleData.LocalRotation;
+
+                Quaternion worldRotationQuatnerion = worldRotation;
+                if (rotationOffset.HasValue)
+                {
+                    worldRotationQuatnerion *= rotationOffset.Value;
+                    Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
+                    ____worldRotation = worldRotationQuatnerion;
+                    ____inverseWorldRotation = inverseWorldRotation;
+                }
+
+                worldRotationQuatnerion *= localRotation;
+
+                if (localRotationOffset.HasValue)
+                {
+                    worldRotationQuatnerion *= localRotationOffset.Value;
+                }
+
+                transform.localRotation = worldRotationQuatnerion;
+            }
+
+            if (cuttable.HasValue)
+            {
+                if (cuttable.Value >= 1)
+                {
+                    ____bounds.size = Vector3.zero;
+                }
+                else
+                {
+                    Vector3 boundsSize = noodleData.BoundsSize;
+                    ____bounds.size = boundsSize;
+                }
+            }
+
+            if (scaleOffset.HasValue)
+            {
+                transform.localScale = scaleOffset.Value;
+            }
+
+            if (dissolve.HasValue && CutoutManager.ObstacleCutoutEffects.TryGetValue(__instance, out CutoutAnimateEffectWrapper cutoutAnimateEffect))
+            {
+                cutoutAnimateEffect.SetCutout(dissolve.Value);
             }
         }
     }
@@ -329,6 +323,7 @@
     [HeckPatch("GetPosForTime")]
     internal static class ObstacleControllerGetPosForTime
     {
+        [UsedImplicitly]
         private static bool Prefix(
             ref Vector3 __result,
             ObstacleData ____obstacleData,
@@ -348,25 +343,25 @@
             float jumpTime = Mathf.Clamp((time - ____move1Duration) / (____move2Duration + ____obstacleDuration), 0, 1);
             Animation.AnimationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, jumpTime, out Vector3? position);
 
-            if (position.HasValue)
+            if (!position.HasValue)
             {
-                Vector3 noteOffset = noodleData.NoteOffset;
-                Vector3 definitePosition = position.Value + noteOffset;
-                definitePosition.x += noodleData.XOffset;
-                if (time < ____move1Duration)
-                {
-                    __result = Vector3.LerpUnclamped(____startPos, ____midPos, time / ____move1Duration);
-                    __result += definitePosition - ____midPos;
-                }
-                else
-                {
-                    __result = definitePosition;
-                }
-
-                return false;
+                return true;
             }
 
-            return true;
+            Vector3 noteOffset = noodleData.NoteOffset;
+            Vector3 definitePosition = position.Value + noteOffset;
+            definitePosition.x += noodleData.XOffset;
+            if (time < ____move1Duration)
+            {
+                __result = Vector3.LerpUnclamped(____startPos, ____midPos, time / ____move1Duration);
+                __result += definitePosition - ____midPos;
+            }
+            else
+            {
+                __result = definitePosition;
+            }
+
+            return false;
         }
     }
 }

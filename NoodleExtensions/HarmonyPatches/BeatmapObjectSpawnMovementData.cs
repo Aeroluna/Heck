@@ -1,15 +1,17 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using Heck;
-    using UnityEngine;
-    using static NoodleExtensions.HarmonyPatches.SpawnDataHelper;
-    using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
-    using static NoodleExtensions.NoodleCustomDataManager;
+﻿using Heck;
+using JetBrains.Annotations;
+using UnityEngine;
+using static NoodleExtensions.HarmonyPatches.SpawnDataHelper;
+using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
+using static NoodleExtensions.NoodleCustomDataManager;
 
+namespace NoodleExtensions.HarmonyPatches
+{
     [HeckPatch(typeof(BeatmapObjectSpawnMovementData))]
     [HeckPatch("GetObstacleSpawnData")]
     internal static class BeatmapObjectSpawnMovementDataGetObstacleSpawnData
     {
+        [UsedImplicitly]
         private static void Postfix(Vector3 ____centerPos, ObstacleData obstacleData, ref BeatmapObjectSpawnMovementData.ObstacleSpawnData __result)
         {
             NoodleObstacleData? noodleData = TryGetObjectData<NoodleObstacleData>(obstacleData);
@@ -73,6 +75,7 @@
     [HeckPatch("GetJumpingNoteSpawnData")]
     internal static class BeatmapObjectSpawnMovementDataGetJumpingNoteSpawnData
     {
+        [UsedImplicitly]
         private static void Postfix(BeatmapObjectSpawnMovementData __instance, Vector3 ____centerPos, float ____jumpDuration, NoteData noteData, ref BeatmapObjectSpawnMovementData.NoteSpawnData __result)
         {
             NoodleNoteData? noodleData = TryGetObjectData<NoodleNoteData>(noteData);
@@ -113,7 +116,7 @@
                 float highestJump = startHeight.HasValue ? (0.875f * lineYPos) + 0.639583f + JumpOffsetY :
                     __instance.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
 
-                float GetJumpGravity(float lineYPos) => 2f * (highestJump - (gravityOverride ? lineYPos : startLayerLineYPos)) /
+                float GetJumpGravity(float gravityLineYPos) => 2f * (highestJump - (gravityOverride ? gravityLineYPos : startLayerLineYPos)) /
                     Mathf.Pow(localJumpDistance / localNoteJumpMovementSpeed * 0.5f, 2f);
 
                 jumpGravity = GetJumpGravity(startLayerLineYPos);

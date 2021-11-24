@@ -1,13 +1,13 @@
-﻿namespace Heck.Animation
-{
-    using CustomJSONData.CustomBeatmap;
-    using static Heck.Animation.AnimationController;
-    using static Heck.HeckCustomDataManager;
+﻿using CustomJSONData.CustomBeatmap;
+using static Heck.Animation.AnimationController;
+using static Heck.HeckCustomDataManager;
 
+namespace Heck.Animation.Events
+{
     internal enum EventType
     {
         AnimateTrack,
-        AssignPathAnimation,
+        AssignPathAnimation
     }
 
     internal static class EventHelper
@@ -21,7 +21,7 @@
             }
 
             float duration = heckData.Duration;
-            duration = 60f * duration / Instance!.BeatmapObjectSpawnController!.currentBpm; // Convert to real time;
+            duration = 60f * duration / AnimationController.BeatmapObjectSpawnController.currentBpm; // Convert to real time;
 
             Functions easing = heckData.Easing;
 

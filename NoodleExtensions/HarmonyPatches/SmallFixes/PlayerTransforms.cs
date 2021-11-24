@@ -1,20 +1,21 @@
-﻿namespace NoodleExtensions.HarmonyPatches
+﻿using Heck;
+using JetBrains.Annotations;
+using UnityEngine;
+
+namespace NoodleExtensions.HarmonyPatches.SmallFixes
 {
     /*using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
     using HarmonyLib;*/
-
-    using Heck;
-    using UnityEngine;
-
     // Possibly breaks in multiplayer? We don't support that anyways.
     // edit: we do support it, but it hasnt broken yet so fuck it
     [HeckPatch(typeof(PlayerTransforms))]
     [HeckPatch("Update")]
     internal static class PlayerTransformsUpdate
     {
+        [UsedImplicitly]
         private static void Postfix(ref Vector3 ____headPseudoLocalPos, Transform ____headTransform)
         {
             ____headPseudoLocalPos = ____headTransform.localPosition;

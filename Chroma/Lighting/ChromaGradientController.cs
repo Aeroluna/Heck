@@ -1,10 +1,11 @@
-﻿namespace Chroma
-{
-    using System.Collections.Generic;
-    using Chroma.Colorizer;
-    using Heck.Animation;
-    using UnityEngine;
+﻿using System.Collections.Generic;
+using Chroma.Colorizer;
+using Heck.Animation;
+using IPA.Utilities;
+using UnityEngine;
 
+namespace Chroma.Lighting
+{
     internal class ChromaGradientController : MonoBehaviour
     {
         private static ChromaGradientController? _instance;
@@ -43,29 +44,28 @@
             Color endcolor = gradientObject.EndColor;
             Functions easing = gradientObject.Easing;
 
-            ChromaGradientEvent gradientEvent = new ChromaGradientEvent(initcolor, endcolor, time, duration, id, easing);
+            ChromaGradientEvent gradientEvent = new(initcolor, endcolor, time, duration, id, easing);
             Instance.Gradients[id] = gradientEvent;
             return gradientEvent.Interpolate();
         }
 
         private void Update()
         {
-            foreach (KeyValuePair<BeatmapEventType, ChromaGradientEvent> valuePair in new Dictionary<BeatmapEventType, ChromaGradientEvent>(Gradients))
+            foreach ((BeatmapEventType eventType, ChromaGradientEvent value) in new Dictionary<BeatmapEventType, ChromaGradientEvent>(Gradients))
             {
-                Color color = valuePair.Value.Interpolate();
-                BeatmapEventType eventType = valuePair.Key;
+                Color color = value.Interpolate();
                 eventType.ColorizeLight(true, color, color, color, color);
             }
         }
 
-        private struct ChromaGradientEvent
+        private readonly struct ChromaGradientEvent
         {
-            internal readonly Color _initcolor;
-            internal readonly Color _endcolor;
-            internal readonly float _start;
-            internal readonly float _duration;
-            internal readonly BeatmapEventType _event;
-            internal readonly Functions _easing;
+            private readonly Color _initcolor;
+            private readonly Color _endcolor;
+            private readonly float _start;
+            private readonly float _duration;
+            private readonly BeatmapEventType _event;
+            private readonly Functions _easing;
 
             internal ChromaGradientEvent(Color initcolor, Color endcolor, float start, float duration, BeatmapEventType eventType, Functions easing = Functions.easeLinear)
             {
@@ -84,15 +84,14 @@
                 {
                     return _initcolor;
                 }
-                else if (normalTime <= _duration)
+
+                if (normalTime <= _duration)
                 {
                     return Color.LerpUnclamped(_initcolor, _endcolor, Easings.Interpolate(normalTime / _duration, _easing));
                 }
-                else
-                {
-                    Instance.Gradients.Remove(_event);
-                    return _endcolor;
-                }
+
+                Instance.Gradients.Remove(_event);
+                return _endcolor;
             }
         }
     }

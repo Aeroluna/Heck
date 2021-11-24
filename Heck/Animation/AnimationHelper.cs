@@ -1,13 +1,14 @@
-﻿namespace Heck.Animation
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using CustomJSONData;
-    using CustomJSONData.CustomBeatmap;
-    using UnityEngine;
-    using static Heck.Plugin;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
+using JetBrains.Annotations;
+using UnityEngine;
+using static Heck.HeckController;
 
+namespace Heck.Animation
+{
     public static class AnimationHelper
     {
         public static bool LeftHandedMode { get; internal set; }
@@ -16,48 +17,28 @@
         {
             PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
 
-            if (pointDataInterpolation != null)
-            {
-                return pointDataInterpolation.InterpolateLinear(time);
-            }
-
-            return null;
+            return pointDataInterpolation?.InterpolateLinear(time);
         }
 
         public static Quaternion? TryGetQuaternionPathProperty(Track? track, string propertyName, float time)
         {
             PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
 
-            if (pointDataInterpolation != null)
-            {
-                return pointDataInterpolation.InterpolateQuaternion(time);
-            }
-
-            return null;
+            return pointDataInterpolation?.InterpolateQuaternion(time);
         }
 
         public static Vector3? TryGetVector3PathProperty(Track? track, string propertyName, float time)
         {
             PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
 
-            if (pointDataInterpolation != null)
-            {
-                return pointDataInterpolation.Interpolate(time);
-            }
-
-            return null;
+            return pointDataInterpolation?.Interpolate(time);
         }
 
         public static Vector4? TryGetVector4PathProperty(Track? track, string propertyName, float time)
         {
             PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
 
-            if (pointDataInterpolation != null)
-            {
-                return pointDataInterpolation.InterpolateVector4(time);
-            }
-
-            return null;
+            return pointDataInterpolation?.InterpolateVector4(time);
         }
 
         public static T? TryGetProperty<T>(Track? track, string propertyName)
@@ -67,6 +48,7 @@
             return (T?)property?.Value;
         }
 
+        [PublicAPI]
         public static PointDefinition? TryGetPointData(Dictionary<string, object?> customData, string pointName, CustomBeatmapData customBeatmapData)
         {
             return TryGetPointData(customData, pointName, customBeatmapData.GetBeatmapPointDefinitions());
@@ -86,7 +68,7 @@
                         return pointData;
                     }
 
-                    Plugin.Logger.Log($"Could not find point definition [{castedString}].", IPA.Logging.Logger.Level.Error);
+                    Log.Logger.Log($"Could not find point definition [{castedString}].", IPA.Logging.Logger.Level.Error);
                     return null;
 
                 case List<object> list:
@@ -114,12 +96,11 @@
             {
                 return track;
             }
-            else
-            {
-                throw new InvalidOperationException($"Could not find track [{trackName}].");
-            }
+
+            throw new InvalidOperationException($"Could not find track [{trackName}].");
         }
 
+        [PublicAPI]
         public static IEnumerable<Track>? GetTrackArray(Dictionary<string, object?> customData, CustomBeatmapData customBeatmapData, string name = TRACK)
         {
             return GetTrackArray(customData, customBeatmapData.GetBeatmapTracks(), name);
@@ -140,10 +121,10 @@
             }
             else
             {
-                trackNames = new string[] { (string)trackNameRaw };
+                trackNames = new[] { (string)trackNameRaw };
             }
 
-            HashSet<Track> result = new HashSet<Track>();
+            HashSet<Track> result = new();
             foreach (string trackName in trackNames)
             {
                 if (beatmapTracks.TryGetValue(trackName, out Track track))
@@ -173,12 +154,7 @@
         {
             Property? pathProperty = null;
             track?.PathProperties.TryGetValue(propertyName, out pathProperty);
-            if (pathProperty != null)
-            {
-                return ((PathProperty)pathProperty).Interpolation;
-            }
-
-            return null;
+            return ((PathProperty?)pathProperty)?.Interpolation;
         }
     }
 }

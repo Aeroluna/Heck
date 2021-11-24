@@ -1,13 +1,16 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using System.Collections;
-    using HarmonyLib;
-    using UnityEngine;
+﻿using System.Collections;
+using Chroma.Lighting;
+using HarmonyLib;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace Chroma.HarmonyPatches
+{
     [HarmonyPatch(typeof(LightSwitchEventEffect))]
     [HarmonyPatch("Start")]
     internal static class LightSwitchEventEffectStart
     {
+        [UsedImplicitly]
         private static bool Prefix(LightSwitchEventEffect __instance)
         {
             __instance.StartCoroutine(WaitThenStart(__instance));
@@ -18,10 +21,9 @@
         private static IEnumerator WaitThenStart(LightSwitchEventEffect instance)
         {
             yield return new WaitForEndOfFrame();
-            LightSwitchEventEffect oldEffect = instance;
-            ChromaLightSwitchEventEffect newEffect = oldEffect.gameObject.AddComponent<ChromaLightSwitchEventEffect>();
-            newEffect.CopyValues(oldEffect);
-            Object.Destroy(oldEffect);
+            ChromaLightSwitchEventEffect newEffect = instance.gameObject.AddComponent<ChromaLightSwitchEventEffect>();
+            newEffect.CopyValues(instance);
+            Object.Destroy(instance);
         }
     }
 

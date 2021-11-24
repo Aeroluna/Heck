@@ -1,27 +1,27 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System.Collections.Generic;
-    using Heck;
-    using Heck.Animation;
-    using UnityEngine;
-    using static NoodleExtensions.NoodleCustomDataManager;
+﻿using System.Collections.Generic;
+using Heck;
+using Heck.Animation;
+using JetBrains.Annotations;
+using UnityEngine;
+using static NoodleExtensions.NoodleCustomDataManager;
 
+namespace NoodleExtensions.HarmonyPatches.Mirror
+{
     internal static class MirroredNoteControllerHelper
     {
         internal static void AddToTrack(NoteData noteData, GameObject gameObject)
         {
             NoodleNoteData? noodleData = TryGetObjectData<NoodleNoteData>(noteData);
-            if (noodleData != null)
+            IEnumerable<Track>? tracks = noodleData?.Track;
+            if (tracks == null)
             {
-                IEnumerable<Track>? tracks = noodleData.Track;
-                if (tracks != null)
-                {
-                    foreach (Track track in tracks)
-                    {
-                        // add to gameobjects
-                        track.AddGameObject(gameObject);
-                    }
-                }
+                return;
+            }
+
+            foreach (Track track in tracks)
+            {
+                // add to gameobjects
+                track.AddGameObject(gameObject);
             }
         }
 
@@ -65,12 +65,14 @@
                 }
             }
 
-            if (CutoutManager.NoteDisappearingArrowWrappers.TryGetValue(noteController, out DisappearingArrowWrapper disappearingArrow))
+            if (!CutoutManager.NoteDisappearingArrowWrappers.TryGetValue(noteController, out DisappearingArrowWrapper disappearingArrow))
             {
-                if (CutoutManager.NoteDisappearingArrowWrappers.TryGetValue(followedNote, out DisappearingArrowWrapper followedDisappearingArrow))
-                {
-                    disappearingArrow.SetCutout(followedDisappearingArrow.Cutout);
-                }
+                return;
+            }
+
+            if (CutoutManager.NoteDisappearingArrowWrappers.TryGetValue(followedNote, out DisappearingArrowWrapper followedDisappearingArrow))
+            {
+                disappearingArrow.SetCutout(followedDisappearingArrow.Cutout);
             }
         }
     }
@@ -80,6 +82,7 @@
     [HeckPatch("Mirror")]
     internal static class MirroredNoteControllerINoteMirrorableMirror
     {
+        [UsedImplicitly]
         private static void Postfix(MirroredNoteController<INoteMirrorable> __instance)
         {
             MirroredNoteControllerHelper.AddToTrack(__instance.noteData, __instance.gameObject);
@@ -90,6 +93,7 @@
     [HeckPatch("Mirror")]
     internal static class MirroredNoteControllerICubeNoteMirrorableMirror
     {
+        [UsedImplicitly]
         private static void Postfix(MirroredNoteController<ICubeNoteMirrorable> __instance)
         {
             MirroredNoteControllerHelper.AddToTrack(__instance.noteData, __instance.gameObject);
@@ -100,14 +104,28 @@
     [HeckPatch("UpdatePositionAndRotation")]
     internal static class MirroredNoteControllerINoteMirrorableUpdatePositionAndRotation
     {
+        [UsedImplicitly]
         private static bool Prefix(Transform ____noteTransform, Transform ____followedNoteTransform)
         {
             return MirroredNoteControllerHelper.CheckSkip(____noteTransform, ____followedNoteTransform);
         }
 
-        private static void Postfix(MirroredNoteController<INoteMirrorable> __instance, INoteMirrorable ___followedNote, Transform ____objectTransform, Transform ____noteTransform, Transform ____followedObjectTransform, Transform ____followedNoteTransform)
+        [UsedImplicitly]
+        private static void Postfix(
+            MirroredNoteController<INoteMirrorable> __instance,
+            INoteMirrorable ___followedNote,
+            Transform ____objectTransform,
+            Transform ____noteTransform,
+            Transform ____followedObjectTransform,
+            Transform ____followedNoteTransform)
         {
-            MirroredNoteControllerHelper.UpdateMirror(____objectTransform, ____noteTransform, ____followedObjectTransform, ____followedNoteTransform, __instance, (NoteControllerBase)___followedNote);
+            MirroredNoteControllerHelper.UpdateMirror(
+                ____objectTransform,
+                ____noteTransform,
+                ____followedObjectTransform,
+                ____followedNoteTransform,
+                __instance,
+                (NoteControllerBase)___followedNote);
         }
     }
 
@@ -115,14 +133,28 @@
     [HeckPatch("UpdatePositionAndRotation")]
     internal static class MirroredNoteControllerICubeNoteMirrorableUpdatePositionAndRotation
     {
+        [UsedImplicitly]
         private static bool Prefix(Transform ____noteTransform, Transform ____followedNoteTransform)
         {
             return MirroredNoteControllerHelper.CheckSkip(____noteTransform, ____followedNoteTransform);
         }
 
-        private static void Postfix(MirroredNoteController<ICubeNoteMirrorable> __instance, ICubeNoteMirrorable ___followedNote, Transform ____objectTransform, Transform ____noteTransform, Transform ____followedObjectTransform, Transform ____followedNoteTransform)
+        [UsedImplicitly]
+        private static void Postfix(
+            MirroredNoteController<ICubeNoteMirrorable> __instance,
+            ICubeNoteMirrorable ___followedNote,
+            Transform ____objectTransform,
+            Transform ____noteTransform,
+            Transform ____followedObjectTransform,
+            Transform ____followedNoteTransform)
         {
-            MirroredNoteControllerHelper.UpdateMirror(____objectTransform, ____noteTransform, ____followedObjectTransform, ____followedNoteTransform, __instance, (NoteControllerBase)___followedNote);
+            MirroredNoteControllerHelper.UpdateMirror(
+                ____objectTransform,
+                ____noteTransform,
+                ____followedObjectTransform,
+                ____followedNoteTransform,
+                __instance,
+                (NoteControllerBase)___followedNote);
         }
     }
 }

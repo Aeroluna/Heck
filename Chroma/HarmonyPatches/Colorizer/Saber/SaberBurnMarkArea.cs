@@ -1,9 +1,10 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using Chroma.Colorizer;
-    using HarmonyLib;
-    using UnityEngine;
+﻿using Chroma.Colorizer;
+using HarmonyLib;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace Chroma.HarmonyPatches.Colorizer.Saber
+{
     [HarmonyPatch(typeof(SaberBurnMarkArea))]
     [HarmonyPatch("Start")]
     internal static class SaberBurnMarkAreaStart
@@ -12,14 +13,17 @@
 
         internal static void OnSaberColorChanged(SaberType saberType, Color color)
         {
-            if (_lineRenderers != null)
+            if (_lineRenderers == null)
             {
-                int intType = (int)saberType;
-                _lineRenderers[intType].startColor = color;
-                _lineRenderers[intType].endColor = color;
+                return;
             }
+
+            int intType = (int)saberType;
+            _lineRenderers[intType].startColor = color;
+            _lineRenderers[intType].endColor = color;
         }
 
+        [UsedImplicitly]
         private static void Postfix(LineRenderer[] ____lineRenderers)
         {
             _lineRenderers = ____lineRenderers;
@@ -31,6 +35,7 @@
     [HarmonyPatch("OnDestroy")]
     internal static class SaberBurnMarkAreaOnDestroy
     {
+        [UsedImplicitly]
         private static void Postfix()
         {
             SaberColorizer.SaberColorChanged -= SaberBurnMarkAreaStart.OnSaberColorChanged;

@@ -1,13 +1,16 @@
-﻿namespace Chroma.HarmonyPatches
-{
-    using Heck;
-    using UnityEngine;
+﻿using Chroma.Lighting.EnvironmentEnhancement;
+using Heck;
+using JetBrains.Annotations;
+using UnityEngine;
 
+namespace Chroma.HarmonyPatches.EnvironmentComponent
+{
     // This whole file effectively changes _rotZ and _posZ from directly affecting the coordinate to being an offset
     [HeckPatch(typeof(TrackLaneRing))]
     [HeckPatch("Init")]
     internal static class TrackLaneRingInit
     {
+        [UsedImplicitly]
         private static void Postfix(ref float ____posZ, Vector3 position)
         {
             ____posZ = position.z;
@@ -18,6 +21,7 @@
     [HeckPatch("FixedUpdateRing")]
     internal static class TrackLaneRingFixedUpdateRing
     {
+        [UsedImplicitly]
         private static bool Prefix(
             float fixedDeltaTime,
             ref float ____prevRotZ,
@@ -42,6 +46,7 @@
     [HeckPatch("LateUpdateRing")]
     internal static class TrackLaneRingLateUpdateRing
     {
+        [UsedImplicitly]
         private static bool Prefix(
             TrackLaneRing __instance,
             float interpolationFactor,

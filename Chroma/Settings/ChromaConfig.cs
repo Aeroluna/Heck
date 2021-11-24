@@ -1,26 +1,36 @@
-﻿namespace Chroma.Settings
-{
-    using Heck.SettingsSetter;
-    using static ChromaSettableSettings;
+﻿using System;
+using Chroma.Utils;
+using Heck.SettingsSetter;
+using JetBrains.Annotations;
+using SongCore;
+using static Chroma.ChromaController;
+using static Chroma.Settings.ChromaSettableSettings;
 
+// ReSharper disable MemberCanBeMadeStatic.Global
+namespace Chroma.Settings
+{
     public class ChromaConfig
     {
         private static ChromaConfig? _instance;
 
         public static ChromaConfig Instance
         {
-            get => _instance ?? throw new System.InvalidOperationException("ChromaConfig instance not yet created.");
+            get => _instance ?? throw new InvalidOperationException("ChromaConfig instance not yet created.");
             set => _instance = value;
         }
 
+#pragma warning disable CA1822
         public bool ChromaEventsDisabled
         {
             get => ChromaEventsDisabledSetting.Value;
             set
             {
                 ChromaEventsDisabledSetting.Value = value;
-                Utils.ChromaUtils.SetSongCoreCapability(Plugin.REQUIREMENTNAME, !ChromaEventsDisabledSetting.Value);
-                SongCore.Loader.Instance?.RefreshSongs();
+                ChromaUtils.SetSongCoreCapability(CAPABILITY, !ChromaEventsDisabledSetting.Value);
+                if (Loader.Instance != null)
+                {
+                    Loader.Instance.RefreshSongs();
+                }
             }
         }
 
@@ -41,19 +51,21 @@
             get => ForceZenWallsEnabledSetting.Value;
             set => ForceZenWallsEnabledSetting.Value = value;
         }
+#pragma warning restore CA1822
 
-        public bool PrintEnvironmentEnhancementDebug { get; set; } = false;
+        [UsedImplicitly]
+        public bool PrintEnvironmentEnhancementDebug { get; set; }
     }
 
     internal static class ChromaSettableSettings
     {
-        internal static SettableSetting<bool> ChromaEventsDisabledSetting { get; } = new SettableSetting<bool>("Chroma", "Disable Chroma Events");
+        internal static SettableSetting<bool> ChromaEventsDisabledSetting { get; } = new("Chroma", "Disable Chroma Events");
 
-        internal static SettableSetting<bool> EnvironmentEnhancementsDisabledSetting { get; } = new SettableSetting<bool>("Chroma", "Disable Environment Enhancements");
+        internal static SettableSetting<bool> EnvironmentEnhancementsDisabledSetting { get; } = new("Chroma", "Disable Environment Enhancements");
 
-        internal static SettableSetting<bool> NoteColoringDisabledSetting { get; } = new SettableSetting<bool>("Chroma", "Disable Note Coloring");
+        internal static SettableSetting<bool> NoteColoringDisabledSetting { get; } = new("Chroma", "Disable Note Coloring");
 
-        internal static SettableSetting<bool> ForceZenWallsEnabledSetting { get; } = new SettableSetting<bool>("Chroma", "Force Zen Mode Walls");
+        internal static SettableSetting<bool> ForceZenWallsEnabledSetting { get; } = new("Chroma", "Force Zen Mode Walls");
 
         internal static void SetupSettableSettings()
         {

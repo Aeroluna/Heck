@@ -1,8 +1,8 @@
-﻿namespace Chroma
-{
-    using System.Collections.Generic;
-    using IPA.Utilities;
+﻿using System.Collections.Generic;
+using IPA.Utilities;
 
+namespace Chroma.Lighting
+{
     // Whole class rewritten to make propagation a float again
     public class ChromaRingsRotationEffect : TrackLaneRingsRotationEffect
     {
@@ -12,8 +12,8 @@
         private static readonly FieldAccessor<TrackLaneRingsRotationEffect, int>.Accessor _startupRotationPropagationSpeedAccessor = FieldAccessor<TrackLaneRingsRotationEffect, int>.GetAccessor("_startupRotationPropagationSpeed");
         private static readonly FieldAccessor<TrackLaneRingsRotationEffect, float>.Accessor _startupRotationFlexySpeedAccessor = FieldAccessor<TrackLaneRingsRotationEffect, float>.GetAccessor("_startupRotationFlexySpeed");
 
-        private readonly List<ChromaRotationEffect> _activeChromaRotationEffects = new List<ChromaRotationEffect>(20);
-        private readonly List<ChromaRotationEffect> _chromaRotationEffectsPool = new List<ChromaRotationEffect>(20);
+        private readonly List<ChromaRotationEffect> _activeChromaRotationEffects = new(20);
+        private readonly List<ChromaRotationEffect> _chromaRotationEffectsPool = new(20);
 
         public override void AddRingRotationEffect(float angle, float step, int propagationSpeed, float flexySpeed)
         {
@@ -58,11 +58,13 @@
                     num++;
                 }
 
-                if (ringRotationEffect.ProgressPos >= rings.Length)
+                if (!(ringRotationEffect.ProgressPos >= rings.Length))
                 {
-                    RecycleChromaRotationEffect(_activeChromaRotationEffects[i]);
-                    _activeChromaRotationEffects.RemoveAt(i);
+                    continue;
                 }
+
+                RecycleChromaRotationEffect(_activeChromaRotationEffects[i]);
+                _activeChromaRotationEffects.RemoveAt(i);
             }
         }
 

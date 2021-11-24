@@ -1,28 +1,27 @@
-﻿namespace NoodleExtensions.HarmonyPatches
-{
-    using System;
-    using System.Reflection;
-    using HarmonyLib;
-    using Heck;
+﻿using System.Reflection;
+using HarmonyLib;
+using Heck;
 
+namespace NoodleExtensions.HarmonyPatches.FakeNotes
+{
     [HeckPatch(typeof(BeatmapObjectManager))]
     [HeckPatch("HandleNoteControllerNoteWasCut")]
     internal static class BeatmapObjectManagerHandleNoteWasCut
     {
-        private static readonly MethodInfo _despawnMethod = AccessTools.Method(typeof(BeatmapObjectManager), "Despawn", new Type[] { typeof(NoteController) });
+        private static readonly MethodInfo _despawnMethod = AccessTools.Method(typeof(BeatmapObjectManager), "Despawn", new[] { typeof(NoteController) });
 
         [HarmonyPriority(Priority.High)]
         private static bool Prefix(BeatmapObjectManager __instance, NoteController noteController, in NoteCutInfo noteCutInfo)
         {
-            if (!FakeNoteHelper.GetFakeNote(noteController))
+            if (FakeNoteHelper.GetFakeNote(noteController))
             {
-                NoteCutCoreEffectsSpawnerStart.NoteCutCoreEffectsSpawner!.HandleNoteWasCut(noteController, noteCutInfo);
-                _despawnMethod.Invoke(__instance, new object[] { noteController });
-
-                return false;
+                return true;
             }
 
-            return true;
+            NoteCutCoreEffectsSpawnerStart.NoteCutCoreEffectsSpawner!.HandleNoteWasCut(noteController, noteCutInfo);
+            _despawnMethod.Invoke(__instance, new object[] { noteController });
+
+            return false;
         }
     }
 

@@ -1,11 +1,11 @@
-﻿namespace Chroma
-{
-    using System.Collections.Generic;
-    using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
+namespace Chroma.Lighting.EnvironmentEnhancement
+{
     internal class ParametricBoxControllerParameters
     {
-        internal static Dictionary<ParametricBoxController, ParametricBoxControllerParameters> TransformParameters { get; set; } = new Dictionary<ParametricBoxController, ParametricBoxControllerParameters>();
+        internal static Dictionary<ParametricBoxController, ParametricBoxControllerParameters> TransformParameters { get; set; } = new();
 
         internal Vector3? Scale { get; private set; }
 
@@ -23,11 +23,13 @@
 
         private static ParametricBoxControllerParameters GetParameters(ParametricBoxController parametricBoxController)
         {
-            if (!TransformParameters.TryGetValue(parametricBoxController, out ParametricBoxControllerParameters parameters))
+            if (TransformParameters.TryGetValue(parametricBoxController, out ParametricBoxControllerParameters parameters))
             {
-                parameters = new ParametricBoxControllerParameters();
-                TransformParameters.Add(parametricBoxController, parameters);
+                return parameters;
             }
+
+            parameters = new ParametricBoxControllerParameters();
+            TransformParameters.Add(parametricBoxController, parameters);
 
             return parameters;
         }

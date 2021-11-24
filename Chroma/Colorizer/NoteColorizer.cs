@@ -1,9 +1,11 @@
-﻿namespace Chroma.Colorizer
-{
-    using System.Collections.Generic;
-    using IPA.Utilities;
-    using UnityEngine;
+﻿using System.Collections.Generic;
+using IPA.Utilities;
+using JetBrains.Annotations;
+using UnityEngine;
+using Logger = IPA.Logging.Logger;
 
+namespace Chroma.Colorizer
+{
     public class NoteColorizer : ObjectColorizer
     {
         private static readonly FieldAccessor<ColorNoteVisuals, ColorManager>.Accessor _colorManagerAccessor = FieldAccessor<ColorNoteVisuals, ColorManager>.GetAccessor("_colorManager");
@@ -20,14 +22,12 @@
         private MaterialPropertyBlockController[]? _materialPropertyBlockControllers;
         private Color[]? _originalColors;
 
-        internal NoteColorizer(NoteControllerBase noteController)
+        private NoteColorizer(NoteControllerBase noteController)
         {
             _noteController = noteController;
-
-            Colorizers.Add(noteController, this);
         }
 
-        public static Dictionary<NoteControllerBase, NoteColorizer> Colorizers { get; } = new Dictionary<NoteControllerBase, NoteColorizer>();
+        public static Dictionary<NoteControllerBase, NoteColorizer> Colorizers { get; } = new();
 
         public static Color?[] GlobalColor { get; } = new Color?[2];
 
@@ -35,27 +35,29 @@
         {
             get
             {
-                if (_originalColors == null)
+                if (_originalColors != null)
                 {
-                    ColorNoteVisuals colorNoteVisuals = ColorNoteVisuals;
-                    ColorManager colorManager = _colorManagerAccessor(ref colorNoteVisuals);
-                    if (colorManager != null)
+                    return _originalColors;
+                }
+
+                ColorNoteVisuals colorNoteVisuals = ColorNoteVisuals;
+                ColorManager colorManager = _colorManagerAccessor(ref colorNoteVisuals);
+                if (colorManager != null)
+                {
+                    _originalColors = new[]
                     {
-                        _originalColors = new Color[2]
-                        {
-                            colorManager.ColorForType(ColorType.ColorA),
-                            colorManager.ColorForType(ColorType.ColorB),
-                        };
-                    }
-                    else
+                        colorManager.ColorForType(ColorType.ColorA),
+                        colorManager.ColorForType(ColorType.ColorB)
+                    };
+                }
+                else
+                {
+                    Log.Logger.Log("_colorManager was null, defaulting to red/blue", Logger.Level.Warning);
+                    _originalColors = new Color[]
                     {
-                        Plugin.Logger.Log("_colorManager was null, defaulting to red/blue", IPA.Logging.Logger.Level.Warning);
-                        _originalColors = new Color[2]
-                        {
-                            new Color(0.784f, 0.078f, 0.078f),
-                            new Color(0, 0.463f, 0.823f),
-                        };
-                    }
+                        new(0.784f, 0.078f, 0.078f),
+                        new(0, 0.463f, 0.823f)
+                    };
                 }
 
                 return _originalColors;
@@ -66,16 +68,13 @@
         {
             get
             {
-                if (_noteController is GameNoteController gameNoteController)
+                if (_noteController is not GameNoteController gameNoteController)
                 {
-                    NoteData noteData = gameNoteController.noteData;
-                    if (noteData != null)
-                    {
-                        return noteData.colorType;
-                    }
+                    return ColorType.ColorA;
                 }
 
-                return ColorType.ColorA;
+                NoteData noteData = gameNoteController.noteData;
+                return noteData?.colorType ?? ColorType.ColorA;
             }
         }
 
@@ -88,18 +87,21 @@
             get
             {
                 // Retrieve colornotevisuals on the fly
-                if (_colorNoteVisuals == null)
+                if (_colorNoteVisuals != null)
                 {
-                    ColorNoteVisuals colorNoteVisuals = _noteController.GetComponent<ColorNoteVisuals>();
-                    _colorNoteVisuals = colorNoteVisuals;
-
-                    _materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref colorNoteVisuals);
+                    return _colorNoteVisuals;
                 }
+
+                ColorNoteVisuals colorNoteVisuals = _noteController.GetComponent<ColorNoteVisuals>();
+                _colorNoteVisuals = colorNoteVisuals;
+
+                _materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref colorNoteVisuals);
 
                 return _colorNoteVisuals;
             }
         }
 
+        [PublicAPI]
         public static void GlobalColorize(Color? color, ColorType colorType)
         {
             GlobalColor[(int)colorType] = color;
@@ -115,16 +117,23 @@
             GlobalColor[1] = null;
         }
 
+        internal static void Create(NoteControllerBase noteController)
+        {
+            Colorizers.Add(noteController, new NoteColorizer(noteController));
+        }
+
         internal static void ColorizeSaber(NoteController noteController, in NoteCutInfo noteCutInfo)
         {
-            if (ChromaController.DoColorizerSabers)
+            if (!ChromaController.DoColorizerSabers)
             {
-                NoteData noteData = noteController.noteData;
-                SaberType saberType = noteCutInfo.saberType;
-                if ((int)noteData.colorType == (int)saberType)
-                {
-                    saberType.ColorizeSaber(noteController.GetNoteColorizer().Color);
-                }
+                return;
+            }
+
+            NoteData noteData = noteController.noteData;
+            SaberType saberType = noteCutInfo.saberType;
+            if ((int)noteData.colorType == (int)saberType)
+            {
+                saberType.ColorizeSaber(noteController.GetNoteColorizer().Color);
             }
         }
 

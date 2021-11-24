@@ -1,100 +1,93 @@
-﻿namespace Heck
-{
-    using System.Linq;
-    using System.Reflection;
-    using HarmonyLib;
-    using IPA;
-    using UnityEngine;
-    using UnityEngine.SceneManagement;
-    using Zenject;
-    using IPALogger = IPA.Logging.Logger;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using CustomJSONData;
+using HarmonyLib;
+using Heck.Animation;
+using Heck.SettingsSetter;
+using IPA;
+using JetBrains.Annotations;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using Zenject;
+using static Heck.HeckController;
 
+namespace Heck
+{
     [Plugin(RuntimeOptions.DynamicInit)]
     internal class Plugin
     {
-        internal const string HARMONYID = "com.aeroluna.BeatSaber.Heck";
+        private static readonly Harmony _harmonyInstance = new(HARMONY_ID);
 
-        internal const string DURATION = "_duration";
-        internal const string EASING = "_easing";
-        internal const string EVENT = "_event";
-        internal const string EVENTDEFINITIONS = "_eventDefinitions";
-        internal const string NAME = "_name";
-        internal const string POINTDEFINITIONS = "_pointDefinitions";
-        internal const string POINTS = "_points";
-        internal const string TIME = "_time";
-        internal const string TRACK = "_track";
-
-        internal const string ANIMATETRACK = "AnimateTrack";
-        internal const string ASSIGNPATHANIMATION = "AssignPathAnimation";
-        internal const string INVOKEEVENT = "InvokeEvent";
-
-        internal static readonly Harmony _harmonyInstance = new Harmony(HARMONYID);
-
-        private static bool _hasInited;
+        private static bool _hasInit;
         private static GameScenesManager? _gameScenesManager;
 
-        internal static bool CumDump { get; private set; }
-
-#pragma warning disable CS8618
-        internal static HeckLogger Logger { get; private set; }
-#pragma warning restore CS8618
-
+#pragma warning disable CA1822
+        [UsedImplicitly]
         [Init]
-        public void Init(IPALogger pluginLogger)
+        public void Init(IPA.Logging.Logger pluginLogger)
         {
-            string[] arguments = System.Environment.GetCommandLineArgs();
+            string[] arguments = Environment.GetCommandLineArgs();
             foreach (string arg in arguments)
             {
-                if (arg.ToLower() == "-cumdump")
+                if (arg.ToLower() != "-cumdump")
                 {
-                    CumDump = true;
-                    Logger.Log("[-cumdump] launch argument detected, running in Cum Dump mode.");
+                    continue;
                 }
+
+                CumDump = true;
+                Log.Logger.Log("[-cumdump] launch argument detected, running in Cum Dump mode.");
             }
 
-            Logger = new HeckLogger(pluginLogger);
-            SettingsSetter.SettingSetterSettableSettingsManager.SetupSettingsTable();
+            Log.Logger = new HeckLogger(pluginLogger);
+            SettingSetterSettableSettingsManager.SetupSettingsTable();
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
             CustomDataDeserializer.DeserializeBeatmapData += HeckCustomDataManager.DeserializeCustomEvents;
         }
 
+        [UsedImplicitly]
         [OnEnable]
         public void OnEnable()
         {
             _harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
-            CustomJSONData.CustomEventCallbackController.didInitEvent += Animation.AnimationController.CustomEventCallbackInit;
+            CustomEventCallbackController.didInitEvent += AnimationController.CustomEventCallbackInit;
         }
 
+        [UsedImplicitly]
         [OnDisable]
         public void OnDisable()
         {
-            _harmonyInstance.UnpatchAll(HARMONYID);
-            CustomJSONData.CustomEventCallbackController.didInitEvent -= Animation.AnimationController.CustomEventCallbackInit;
+            _harmonyInstance.UnpatchAll(HARMONY_ID);
+            CustomEventCallbackController.didInitEvent -= AnimationController.CustomEventCallbackInit;
         }
+#pragma warning restore CA1822
 
-        public void MenuLoadFresh(ScenesTransitionSetupDataSO _1, DiContainer _2)
+        private static void MenuLoadFresh(ScenesTransitionSetupDataSO _1, DiContainer _2)
         {
-            SettingsSetter.SettingsSetterViewController.Instantiate();
+            SettingsSetterViewController.Instantiate();
             _gameScenesManager!.transitionDidFinishEvent -= MenuLoadFresh;
         }
 
-        public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
+        private static void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
         {
             if (prevScene.name == "PCInit")
             {
-                _hasInited = true;
+                _hasInit = true;
             }
 
-            if (_hasInited && nextScene.name.Contains("Menu") && prevScene.name == "EmptyTransition")
+            if (!_hasInit || !nextScene.name.Contains("Menu") || prevScene.name != "EmptyTransition")
             {
-                _hasInited = false;
-                if (_gameScenesManager == null)
-                {
-                    _gameScenesManager = Resources.FindObjectsOfTypeAll<GameScenesManager>().FirstOrDefault();
-                }
-
-                _gameScenesManager.transitionDidFinishEvent += MenuLoadFresh;
+                return;
             }
+
+            _hasInit = false;
+            if (_gameScenesManager == null)
+            {
+                _gameScenesManager = Resources.FindObjectsOfTypeAll<GameScenesManager>().FirstOrDefault()
+                                     ?? throw new InvalidOperationException("Could not find GameScenesManager.");
+            }
+
+            _gameScenesManager.transitionDidFinishEvent += MenuLoadFresh;
         }
     }
 }
