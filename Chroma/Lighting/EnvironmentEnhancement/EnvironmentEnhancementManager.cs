@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Chroma.Settings;
 using CustomJSONData;
@@ -9,6 +11,7 @@ using IPA.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static Chroma.ChromaController;
+using Logger = IPA.Logging.Logger;
 using Object = UnityEngine.Object;
 
 namespace Chroma.Lighting.EnvironmentEnhancement
@@ -22,6 +25,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
     internal static class EnvironmentEnhancementManager
     {
+        private const string LOOKUPDLLPATH = @"UserData\Chroma\LookupID.dll";
+
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
@@ -54,6 +59,15 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     Log.Logger.Log("=====================================");
                 }
 
+                string[] gameObjectInfoIds = _gameObjectInfos.Select(n => n.FullID).ToArray();
+
+                bool useLegacy = false;
+                if (!File.Exists(LOOKUPDLLPATH))
+                {
+                    Log.Logger.Log($"Failed to find [{LOOKUPDLLPATH}], using legacy lookup method. PREPARE FOR LONG LOAD TIMES.", Logger.Level.Error);
+                    useLegacy = true;
+                }
+
                 foreach (Dictionary<string, object?> gameObjectData in environmentData)
                 {
                     string id = gameObjectData.Get<string>(ID) ?? throw new InvalidOperationException("Id was not defined.");
@@ -73,7 +87,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                     int? lightID = gameObjectData.Get<int?>(LIGHT_ID);
 
-                    List<GameObjectInfo> foundObjects = LookupID(id, lookupMethod);
+                    List<GameObjectInfo> foundObjects = useLegacy ? LookupID_Legacy(id, lookupMethod)
+                        : LookupID(gameObjectInfoIds, id, lookupMethod);
                     if (foundObjects.Count > 0)
                     {
                         if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
@@ -84,7 +99,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     }
                     else
                     {
-                        Log.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.", IPA.Logging.Logger.Level.Error);
+                        Log.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.", Logger.Level.Error);
                     }
 
                     List<GameObjectInfo> gameObjectInfos;
@@ -130,7 +145,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     {
                         if (lightID.HasValue)
                         {
-                            Log.Logger.Log("LightID requested but no duplicated object to apply to.", IPA.Logging.Logger.Level.Error);
+                            Log.Logger.Log("LightID requested but no duplicated object to apply to.", Logger.Level.Error);
                         }
 
                         gameObjectInfos = foundObjects;
@@ -240,7 +255,31 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             }
         }
 
-        private static List<GameObjectInfo> LookupID(string id, LookupMethod lookupMethod)
+        // Why does c++ have to be so much faster??
+        // whatever the fuck rider is recommending causes shit to crash so we disable it
+#pragma warning disable CA2101
+        [DllImport(LOOKUPDLLPATH, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void LookupID_internal([In, Out] string[] array, int size, ref IntPtr returnArray, ref int returnSize, [MarshalAs(UnmanagedType.LPStr)] string id, int method);
+#pragma warning restore CA2101
+
+        // this is where i pretend to know what any of this is doing.
+        private static List<GameObjectInfo> LookupID(string[] gameObjectIds, string id, LookupMethod lookupMethod)
+        {
+            int length = gameObjectIds.Length;
+            IntPtr buffer = Marshal.AllocCoTaskMem(Marshal.SizeOf(length) * length);
+            LookupID_internal(gameObjectIds, length, ref buffer, ref length, id, (int)lookupMethod);
+
+            int[] arrayRes = new int[length];
+            Marshal.Copy(buffer, arrayRes, 0, length);
+            Marshal.FreeCoTaskMem(buffer);
+
+            List<GameObjectInfo> returnList = new(length);
+            returnList.AddRange(arrayRes.Select(index => _gameObjectInfos[index]));
+
+            return returnList;
+        }
+
+        private static List<GameObjectInfo> LookupID_Legacy(string id, LookupMethod lookupMethod)
         {
             Func<GameObjectInfo, bool> predicate;
             switch (lookupMethod)
