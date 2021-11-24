@@ -187,7 +187,7 @@ namespace Heck.SettingsSetter
                                     continue;
                                 }
 
-                                _contents.Add(new ListObject($"[Player Options] {settingName}", $"{activeValue} > {json}"));
+                                _contents.Add(new ListObject($"[Player Options] {settingName}", $"{activeValue} -> {json}"));
                                 field.SetValue(modifiedPlayerSettings, json);
                             }
 
@@ -235,7 +235,7 @@ namespace Heck.SettingsSetter
                                     continue;
                                 }
 
-                                _contents.Add(new ListObject($"[Modifiers] {settingName}", $"{activeValue} > {json}"));
+                                _contents.Add(new ListObject($"[Modifiers] {settingName}", $"{activeValue} -> {json}"));
                                 field.SetValue(modifiedGameplayModifiers, json);
                             }
 
@@ -255,7 +255,7 @@ namespace Heck.SettingsSetter
 
                             if (json != activeValue)
                             {
-                                _contents.Add(new ListObject($"[Environments] {settingName}", $"{activeValue} => {json}"));
+                                _contents.Add(new ListObject($"[Environments] {settingName}", $"{activeValue} -> {json}"));
 
                                 // copy fields from original overrideenvironmentsettings to our new copy
                                 OverrideEnvironmentSettings modifiedOverrideEnvironmentSettings = new();
@@ -279,7 +279,7 @@ namespace Heck.SettingsSetter
 
                             if (json != activeValue)
                             {
-                                _contents.Add(new ListObject($"[Colors] {settingName}", $"{activeValue} > {json}"));
+                                _contents.Add(new ListObject($"[Colors] {settingName}", $"{activeValue} -> {json}"));
 
                                 _modifiedParameters.OverrideColorScheme = json.Value ? colorSchemesSettings.GetOverrideColorScheme() : null;
                             }
@@ -332,7 +332,7 @@ namespace Heck.SettingsSetter
                                     continue;
                                 }
 
-                                _contents.Add(new ListObject($"[Graphics] {settingName}", $"{activeValue} > {json}"));
+                                _contents.Add(new ListObject($"[Graphics] {settingName}", $"{activeValue} -> {json}"));
                                 FieldInfo field = typeof(SettableMainSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)
                                                   ?? throw new InvalidOperationException($"Unable to find field with name {fieldName}.");
                                 field.SetValue(_modifiedMainSettings, json);
@@ -359,7 +359,7 @@ namespace Heck.SettingsSetter
                                     continue;
                                 }
 
-                                _contents.Add(new ListObject($"[{settableSetting.GroupName}] {settableSetting.FieldName}", $"{activeValue} > {json}"));
+                                _contents.Add(new ListObject($"[{settableSetting.GroupName}] {settableSetting.FieldName}", $"{activeValue} -> {json}"));
                                 _settableSettingsToSet.Add(new Tuple<ISettableSetting, object>(settableSetting, json));
                             }
                         }
