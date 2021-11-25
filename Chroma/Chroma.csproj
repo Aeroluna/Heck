@@ -124,6 +124,7 @@
     <EmbeddedResource Include="LightIDTables\SkrillexEnvironment.json" />
     <EmbeddedResource Include="LightIDTables\BillieEnvironment.json" />
     <EmbeddedResource Include="Settings\modifiers.bsml" />
+    <EmbeddedResource Include="Lighting\EnvironmentEnhancement\LookupID.dll" />
   </ItemGroup>
 
   <ItemGroup>

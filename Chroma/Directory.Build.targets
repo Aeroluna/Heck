@@ -68,7 +68,6 @@
       <OldZips Include="$(DestinationDirectory)$(AssemblyName)*.zip"/>
     </ItemGroup>
     <Copy SourceFiles="$(OutputAssemblyName).dll" DestinationFiles="$(ArtifactDestination)\Plugins\$(AssemblyName).dll" />
-    <Copy SourceFiles="$(SolutionDir)x64\Release\Regex.dll" DestinationFiles="$(ArtifactDestination)\UserData\Chroma\LookupID.dll"  />
     <Message Text="PluginVersion: $(PluginVersion), AssemblyVersion: $(AssemblyVersion), GameVersion: $(GameVersion)" Importance="high" />
     <Delete Files="@(OldZips)" TreatErrorsAsWarnings="true" ContinueOnError="true" />
     <ZipDir SourceDirectory="$(ArtifactDestination)" DestinationFile="$(DestinationDirectory)$(ArtifactName).zip" />
@@ -98,7 +97,5 @@
     <Copy SourceFiles="$(OutputAssemblyName).dll" DestinationFiles="$(PluginDir)\$(AssemblyName).dll" Condition="$(CanCopyToPlugins)"  />
     <Copy SourceFiles="$(OutputAssemblyName).pdb" DestinationFiles="$(PluginDir)\$(AssemblyName).pdb" Condition="'$(CanCopyToPlugins)' == 'True' AND Exists('$(OutputAssemblyName).pdb')"  />
     <Warning Text="Beat Saber is running, restart the game to use the latest build." Condition="'$(IsRunning)' == 'True'" />
-    <Message Text="Copying '$(SolutionDir)x64\Release\Regex.dll' to '$(BeatSaberDir)\Userdata\Chroma\LookupID.dll'" Importance="high" />
-    <Copy SourceFiles="$(SolutionDir)x64\Release\Regex.dll" DestinationFiles="$(BeatSaberDir)\Userdata\Chroma\LookupID.dll"  />
   </Target>
 </Project>

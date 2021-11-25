@@ -2,6 +2,7 @@
 using System.Reflection;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using Chroma.Lighting;
+using Chroma.Lighting.EnvironmentEnhancement;
 using Chroma.Settings;
 using Chroma.Utils;
 using CustomJSONData;
@@ -20,6 +21,7 @@ namespace Chroma
     [Plugin(RuntimeOptions.DynamicInit)]
     internal class Plugin
     {
+#pragma warning disable CA1822
         [UsedImplicitly]
         [Init]
         public void Init(IPA.Logging.Logger pluginLogger, Config conf)
@@ -29,9 +31,9 @@ namespace Chroma
             ChromaConfig.Instance = conf.Generated<ChromaConfig>();
             HeckPatchDataManager.InitPatches(HarmonyInstance, Assembly.GetExecutingAssembly());
             LightIDTableManager.InitTable();
+            EnvironmentEnhancementManager.SaveLookupIDDLL();
         }
 
-#pragma warning disable CA1822
         [UsedImplicitly]
         [OnEnable]
         public void OnEnable()

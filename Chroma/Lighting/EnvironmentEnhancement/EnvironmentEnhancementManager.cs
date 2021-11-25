@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Chroma.Settings;
@@ -256,6 +257,29 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         }
 
         // Why does c++ have to be so much faster??
+        internal static void SaveLookupIDDLL()
+        {
+            try
+            {
+                if (File.Exists(LOOKUPDLLPATH))
+                {
+                    Log.Logger.Log($"Already exists: [{LOOKUPDLLPATH}].", Logger.Level.Trace);
+                    return;
+                }
+
+                Log.Logger.Log($"Saving: [{LOOKUPDLLPATH}].", Logger.Level.Trace);
+                using Stream? resource = Assembly.GetExecutingAssembly()
+                    .GetManifestResourceStream("Chroma.Lighting.EnvironmentEnhancement.LookupID.dll");
+                using FileStream file = new(LOOKUPDLLPATH, FileMode.Create, FileAccess.Write);
+                resource?.CopyTo(file);
+            }
+            catch (Exception e)
+            {
+                Log.Logger.Log($"Failed to save [{LOOKUPDLLPATH}], you may experience long load times.", Logger.Level.Error);
+                Log.Logger.Log(e, Logger.Level.Error);
+            }
+        }
+
         // whatever the fuck rider is recommending causes shit to crash so we disable it
 #pragma warning disable CA2101
         [DllImport(LOOKUPDLLPATH, CallingConvention = CallingConvention.Cdecl)]
