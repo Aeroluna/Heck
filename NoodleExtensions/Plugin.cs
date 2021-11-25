@@ -12,6 +12,7 @@ namespace NoodleExtensions
     [Plugin(RuntimeOptions.DynamicInit)]
     internal class Plugin
     {
+#pragma warning disable CA1822
         [UsedImplicitly]
         [Init]
         public void Init(IPA.Logging.Logger pluginLogger)
@@ -20,7 +21,6 @@ namespace NoodleExtensions
             HeckPatchDataManager.InitPatches(HarmonyInstance, Assembly.GetExecutingAssembly());
         }
 
-#pragma warning disable CA1822
         [UsedImplicitly]
         [OnEnable]
         public void OnEnable()

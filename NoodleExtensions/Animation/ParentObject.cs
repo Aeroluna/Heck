@@ -12,7 +12,7 @@ namespace NoodleExtensions.Animation
     internal class ParentObject : MonoBehaviour
     {
         private Track _track = null!;
-        private Transform _origin = null!;
+        private Transform _transform = null!;
         private bool _worldPositionStays;
         private Vector3 _startPos = Vector3.zero;
         private Quaternion _startRot = Quaternion.identity;
@@ -38,7 +38,7 @@ namespace NoodleExtensions.Animation
 
             GameObject parentGameObject = new("ParentObject");
             ParentObject instance = parentGameObject.AddComponent<ParentObject>();
-            instance._origin = parentGameObject.transform;
+            instance._transform = parentGameObject.transform;
             instance._track = parentTrack;
             instance._worldPositionStays = worldPositionStays;
 
@@ -111,7 +111,7 @@ namespace NoodleExtensions.Animation
 
         private void ParentToObject(Transform childTransform)
         {
-            childTransform.SetParent(_origin.transform, _worldPositionStays);
+            childTransform.SetParent(_transform.transform, _worldPositionStays);
         }
 
         private void OnDestroy()
@@ -172,9 +172,9 @@ namespace NoodleExtensions.Animation
                 scaleVector = Vector3.Scale(_startScale, scale.Value);
             }
 
-            _origin.localRotation = worldRotationQuatnerion;
-            _origin.localPosition = positionVector;
-            _origin.localScale = scaleVector;
+            _transform.localRotation = worldRotationQuatnerion;
+            _transform.localPosition = positionVector;
+            _transform.localScale = scaleVector;
         }
     }
 

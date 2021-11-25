@@ -20,7 +20,7 @@ namespace NoodleExtensions.Animation
         private Quaternion _startLocalRot = Quaternion.identity;
 
         private Track _track = null!;
-        private Transform _origin = null!;
+        private Transform _transform = null!;
         private PauseController _pauseController = null!;
 
         internal static void AssignTrack(Track track)
@@ -31,7 +31,7 @@ namespace NoodleExtensions.Animation
                 GameObject noodleObject = new("NoodlePlayerTrack");
                 _instance = noodleObject.AddComponent<PlayerTrack>();
                 Transform origin = noodleObject.transform;
-                _instance._origin = origin;
+                _instance._transform = origin;
                 origin.SetParent(gameObject.transform.parent, true);
                 gameObject.transform.SetParent(origin, true);
 
@@ -49,8 +49,8 @@ namespace NoodleExtensions.Animation
 
         private void OnDidPauseEvent()
         {
-            _origin.localRotation = _startLocalRot;
-            _origin.localPosition = _startPos;
+            _transform.localRotation = _startLocalRot;
+            _transform.localPosition = _startPos;
         }
 
         private void OnDestroy()
@@ -108,8 +108,8 @@ namespace NoodleExtensions.Animation
                 worldRotationQuatnerion *= localRotation!.Value;
             }
 
-            _origin.localRotation = worldRotationQuatnerion;
-            _origin.localPosition = positionVector;
+            _transform.localRotation = worldRotationQuatnerion;
+            _transform.localPosition = positionVector;
         }
     }
 }
