@@ -5,7 +5,7 @@
   <PropertyGroup>
     <BuildTargetsVersion>2.0</BuildTargetsVersion>
     <!--Set this to true if you edit this file to prevent automatic updates-->
-    <BuildTargetsModified>true</BuildTargetsModified>
+    <BuildTargetsModified>false</BuildTargetsModified>
     <!--Output assembly path without extension-->
     <OutputAssemblyName>$(OutputPath)$(AssemblyName)</OutputAssemblyName>
     <!--Path to folder to be zipped. Needs to be relative to the project directory to work without changes to the 'BuildForCI' target.-->

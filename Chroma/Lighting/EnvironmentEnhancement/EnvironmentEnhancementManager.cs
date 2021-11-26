@@ -26,7 +26,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
     internal static class EnvironmentEnhancementManager
     {
-        private const string LOOKUPDLLPATH = @"UserData\Chroma\LookupID.dll";
+        private const string LOOKUPDLLDIRECTORY = @"UserData\Chroma";
+        private const string LOOKUPDLLPATH = LOOKUPDLLDIRECTORY + @"\LookupID.dll";
 
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
@@ -268,6 +269,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 }
 
                 Log.Logger.Log($"Saving: [{LOOKUPDLLPATH}].", Logger.Level.Trace);
+                Directory.CreateDirectory(LOOKUPDLLDIRECTORY);
                 using Stream? resource = Assembly.GetExecutingAssembly()
                     .GetManifestResourceStream("Chroma.Lighting.EnvironmentEnhancement.LookupID.dll");
                 using FileStream file = new(LOOKUPDLLPATH, FileMode.Create, FileAccess.Write);
