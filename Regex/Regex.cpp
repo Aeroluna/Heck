@@ -2,6 +2,8 @@
 #include <strsafe.h>
 #include <objbase.h>
 
+#include <iostream>
+
 enum class LookupMethod
 {
     Regex,
@@ -51,8 +53,14 @@ extern "C" {
         for (int i = 0; i < count; i++)
         {
             char* str = ppStrArray[i];
-            if (predicate(str))
-                ret.emplace_back(i);
+            try {
+                if (predicate(str))
+                    ret.emplace_back(i);
+            } catch(std::exception const& e) {
+                const char* exception = e.what();
+                std::cout << "Regex exception! \"" << exception << std::endl;
+                // return? or what? continue?
+            }
         }
 
         size_t newSize = ret.size();
