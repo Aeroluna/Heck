@@ -1,5 +1,4 @@
 ﻿#include <boost/regex.hpp>
-#include <strsafe.h>
 #include <objbase.h>
 
 #include <iostream>
@@ -59,7 +58,7 @@ extern "C" {
             } catch(std::exception const& e) {
                 const char* exception = e.what();
                 std::cout << "Regex exception! \"" << exception << "\"" << std::endl;
-                // return? or what? continue?
+                continue;
             }
         }
 
@@ -71,7 +70,6 @@ extern "C" {
             newArray[i] = ret[i];
         }
 
-        CoTaskMemFree(*ppArray);
         *ppArray = newArray;
 
 

@@ -264,8 +264,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             {
                 if (File.Exists(LOOKUPDLLPATH))
                 {
-                    Log.Logger.Log($"Already exists: [{LOOKUPDLLPATH}].", Logger.Level.Trace);
-                    return;
+                    Log.Logger.Log($"Already exists: [{LOOKUPDLLPATH}], replacing.", Logger.Level.Trace);
+                    File.Delete(LOOKUPDLLPATH);
                 }
 
                 Log.Logger.Log($"Saving: [{LOOKUPDLLPATH}].", Logger.Level.Trace);
@@ -285,15 +285,14 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         // whatever the fuck rider is recommending causes shit to crash so we disable it
 #pragma warning disable CA2101
         [DllImport(LOOKUPDLLPATH, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void LookupID_internal([In, Out] string[] array, int size, ref IntPtr returnArray, ref int returnSize, [MarshalAs(UnmanagedType.LPStr)] string id, LookupMethod method);
+        private static extern void LookupID_internal([In, Out] string[] array, int size, out IntPtr returnArray, ref int returnSize, [MarshalAs(UnmanagedType.LPStr)] string id, LookupMethod method);
 #pragma warning restore CA2101
 
         // this is where i pretend to know what any of this is doing.
         private static List<GameObjectInfo> LookupID(string[] gameObjectIds, string id, LookupMethod lookupMethod)
         {
             int length = gameObjectIds.Length;
-            IntPtr buffer = Marshal.AllocCoTaskMem(Marshal.SizeOf(length) * length);
-            LookupID_internal(gameObjectIds, length, ref buffer, ref length, id, lookupMethod);
+            LookupID_internal(gameObjectIds, length, out IntPtr buffer, ref length, id, lookupMethod);
 
             int[] arrayRes = new int[length];
             Marshal.Copy(buffer, arrayRes, 0, length);
