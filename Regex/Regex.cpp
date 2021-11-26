@@ -2,30 +2,40 @@
 #include <strsafe.h>
 #include <objbase.h>
 
+#include <iostream>
+
+enum class LookupMethod
+{
+    Regex,
+    Exact,
+    Contains,
+};
+
+
 // Who would have thought that I would reference the quest port?
 // this is my revenge Fern! (also pls dont bully me, ive never written c++ before)
 extern "C" {
-    _declspec(dllexport) void LookupID_internal(char* ppStrArray[], int count, int** ppArray, int* pSize, char* id, int method)
+    _declspec(dllexport) void LookupID_internal(char* ppStrArray[], int count, int** ppArray, int* pSize, char* id, LookupMethod method)
     {
-        std::function < bool(std::string const&) > predicate;
+        std::function < bool(std::string_view) > predicate;
         boost::regex regex;
 
         switch (method) {
-            case 0: {
+            case LookupMethod::Regex: {
                 regex = boost::regex(id, boost::regex_constants::ECMAScript | boost::regex_constants::optimize);
-                predicate = [&regex](const std::string& n) {
-                    return boost::regex_search(n, regex);
+                predicate = [&regex](const std::string_view n) {
+                    return boost::regex_search(n.data(), regex);
                 };
                 break;
             }
 
-            case 1: {
-                predicate = [&id](const std::string& n) { return n == id; };
+            case LookupMethod::Exact: {
+                predicate = [id](const std::string_view n) { return n == id; };
                 break;
             }
 
-            case 2: {
-                predicate = [&id](const std::string& n) {
+            case LookupMethod::Contains: {
+                predicate = [id](const std::string_view n) {
                     return n.find(id) != std::string::npos;
                 };
                 break;
@@ -36,19 +46,24 @@ extern "C" {
             }
         }
 
+        // reduce allocations
         std::vector<int> ret;
         ret.reserve(count);
 
         for (int i = 0; i < count; i++)
         {
-            std::string infoId(ppStrArray[i]);
-            if (predicate(infoId))
-                ret.emplace_back(i);
+            char* str = ppStrArray[i];
+            try {
+                if (predicate(str))
+                    ret.emplace_back(i);
+            } catch(std::exception const& e) {
+                const char* exception = e.what();
+                std::cout << "Regex exception! \"" << exception << "\"" << std::endl;
+                // return? or what? continue?
+            }
         }
 
-        ret.shrink_to_fit();
-
-        int newSize = ret.size();
+        size_t newSize = ret.size();
         *pSize = newSize;
 
         int* newArray = (int*)CoTaskMemAlloc(sizeof(int) * newSize);
@@ -63,7 +78,5 @@ extern "C" {
         /*for (size_t i = 0; i != newSize; i++) {
             *ppArray[i] = ret[i];
         }*/
-
-        return;
     }
 }
