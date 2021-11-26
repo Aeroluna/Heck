@@ -58,7 +58,7 @@ extern "C" {
                     ret.emplace_back(i);
             } catch(std::exception const& e) {
                 const char* exception = e.what();
-                std::cout << "Regex exception! \"" << exception << std::endl;
+                std::cout << "Regex exception! \"" << exception << "\"" << std::endl;
                 // return? or what? continue?
             }
         }
