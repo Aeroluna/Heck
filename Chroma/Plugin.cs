@@ -31,7 +31,6 @@ namespace Chroma
             ChromaConfig.Instance = conf.Generated<ChromaConfig>();
             HeckPatchDataManager.InitPatches(HarmonyInstance, Assembly.GetExecutingAssembly());
             LightIDTableManager.InitTable();
-            EnvironmentEnhancementManager.SaveLookupIDDLL();
         }
 
         [UsedImplicitly]

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using Chroma.Settings;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
@@ -17,6 +14,7 @@ using Object = UnityEngine.Object;
 
 namespace Chroma.Lighting.EnvironmentEnhancement
 {
+    // ReSharper disable UnusedMember.Global
     internal enum LookupMethod
     {
         Regex,
@@ -26,8 +24,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
     internal static class EnvironmentEnhancementManager
     {
-        private const string LOOKUPDLLDIRECTORY = @"UserData\Chroma";
-        private const string LOOKUPDLLPATH = LOOKUPDLLDIRECTORY + @"\LookupID.dll";
+        private const string LOOKUPDLL = @"LookupID.dll";
 
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
@@ -63,19 +60,11 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                 string[] gameObjectInfoIds = _gameObjectInfos.Select(n => n.FullID).ToArray();
 
-                bool useLegacy = false;
-                if (!File.Exists(LOOKUPDLLPATH))
-                {
-                    Log.Logger.Log($"Failed to find [{LOOKUPDLLPATH}], using legacy lookup method. PREPARE FOR LONG LOAD TIMES.", Logger.Level.Error);
-                    useLegacy = true;
-                }
-
                 foreach (Dictionary<string, object?> gameObjectData in environmentData)
                 {
                     string id = gameObjectData.Get<string>(ID) ?? throw new InvalidOperationException("Id was not defined.");
 
-                    string lookupString = gameObjectData.Get<string>(LOOKUP_METHOD) ?? throw new InvalidOperationException("Lookup method was not defined.");
-                    LookupMethod lookupMethod = (LookupMethod)Enum.Parse(typeof(LookupMethod), lookupString);
+                    LookupMethod lookupMethod = gameObjectData.GetStringToEnum<LookupMethod?>(LOOKUP_METHOD) ?? throw new InvalidOperationException("Lookup method was not defined.");
 
                     int? dupeAmount = gameObjectData.Get<int?>(DUPLICATION_AMOUNT);
 
@@ -89,8 +78,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                     int? lightID = gameObjectData.Get<int?>(LIGHT_ID);
 
-                    List<GameObjectInfo> foundObjects = useLegacy ? LookupID_Legacy(id, lookupMethod)
-                        : LookupID(gameObjectInfoIds, id, lookupMethod);
+                    List<GameObjectInfo> foundObjects = LookupID(gameObjectInfoIds, id, lookupMethod);
                     if (foundObjects.Count > 0)
                     {
                         if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
@@ -257,34 +245,9 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             }
         }
 
-        // Why does c++ have to be so much faster??
-        internal static void SaveLookupIDDLL()
-        {
-            try
-            {
-                if (File.Exists(LOOKUPDLLPATH))
-                {
-                    Log.Logger.Log($"Already exists: [{LOOKUPDLLPATH}], replacing.", Logger.Level.Trace);
-                    File.Delete(LOOKUPDLLPATH);
-                }
-
-                Log.Logger.Log($"Saving: [{LOOKUPDLLPATH}].", Logger.Level.Trace);
-                Directory.CreateDirectory(LOOKUPDLLDIRECTORY);
-                using Stream? resource = Assembly.GetExecutingAssembly()
-                    .GetManifestResourceStream("Chroma.Lighting.EnvironmentEnhancement.LookupID.dll");
-                using FileStream file = new(LOOKUPDLLPATH, FileMode.Create, FileAccess.Write);
-                resource?.CopyTo(file);
-            }
-            catch (Exception e)
-            {
-                Log.Logger.Log($"Failed to save [{LOOKUPDLLPATH}], you may experience long load times.", Logger.Level.Error);
-                Log.Logger.Log(e, Logger.Level.Error);
-            }
-        }
-
         // whatever the fuck rider is recommending causes shit to crash so we disable it
 #pragma warning disable CA2101
-        [DllImport(LOOKUPDLLPATH, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LOOKUPDLL, CallingConvention = CallingConvention.Cdecl)]
         private static extern void LookupID_internal([In, Out] string[] array, int size, out IntPtr returnArray, ref int returnSize, [MarshalAs(UnmanagedType.LPStr)] string id, LookupMethod method);
 #pragma warning restore CA2101
 
@@ -302,31 +265,6 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             returnList.AddRange(arrayRes.Select(index => _gameObjectInfos[index]));
 
             return returnList;
-        }
-
-        private static List<GameObjectInfo> LookupID_Legacy(string id, LookupMethod lookupMethod)
-        {
-            Func<GameObjectInfo, bool> predicate;
-            switch (lookupMethod)
-            {
-                case LookupMethod.Regex:
-                    Regex regex = new(id, RegexOptions.CultureInvariant);
-                    predicate = n => regex.IsMatch(n.FullID);
-                    break;
-
-                case LookupMethod.Exact:
-                    predicate = n => n.FullID == id;
-                    break;
-
-                case LookupMethod.Contains:
-                    predicate = n => n.FullID.Contains(id);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(lookupMethod), "Invalid lookup method.");
-            }
-
-            return _gameObjectInfos.Where(predicate).ToList();
         }
 
         private static void GetAllGameObjects()
