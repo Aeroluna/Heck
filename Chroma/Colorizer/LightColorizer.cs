@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Chroma.Lighting;
-using HarmonyLib;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -17,7 +14,8 @@ namespace Chroma.Colorizer
     {
         private const int COLOR_FIELDS = 4;
 
-        private static readonly FieldInfo _lightWithIdsData = AccessTools.Field(typeof(LightWithIds), "_lightIntensityData");
+        private static readonly PropertyAccessor<LightWithIds, IEnumerable<LightWithIds.LightData>>.Getter _lightIntensityDataAcessor =
+            PropertyAccessor<LightWithIds, IEnumerable<LightWithIds.LightData>>.GetGetter("lightIntensityData");
 
         private static readonly FieldAccessor<MultipliedColorSO, Color>.Accessor _multiplierColorAccessor = FieldAccessor<MultipliedColorSO, Color>.GetAccessor("_multiplierColor");
         private static readonly FieldAccessor<MultipliedColorSO, SimpleColorSO>.Accessor _baseColorAccessor = FieldAccessor<MultipliedColorSO, SimpleColorSO>.GetAccessor("_baseColor");
@@ -161,8 +159,8 @@ namespace Chroma.Colorizer
                     RegisterLightWithID(monoBehaviour);
                     break;
 
-                case LightWithIds:
-                    IEnumerable<ILightWithId> lightsWithId = ((IEnumerable)_lightWithIdsData.GetValue(lightWithId)).Cast<ILightWithId>();
+                case LightWithIds lightWithIds:
+                    IEnumerable<ILightWithId> lightsWithId = _lightIntensityDataAcessor(ref lightWithIds);
                     foreach (ILightWithId light in lightsWithId)
                     {
                         RegisterLightWithID(light);
