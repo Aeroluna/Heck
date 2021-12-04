@@ -19,7 +19,9 @@ namespace Chroma.Lighting.EnvironmentEnhancement
     {
         Regex,
         Exact,
-        Contains
+        Contains,
+        StartsWith,
+        EndsWith
     }
 
     internal static class EnvironmentEnhancementManager
