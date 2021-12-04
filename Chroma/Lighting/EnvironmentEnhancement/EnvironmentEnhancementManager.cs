@@ -24,7 +24,9 @@ namespace Chroma.Lighting.EnvironmentEnhancement
     {
         Regex,
         Exact,
-        Contains
+        Contains,
+        StartsWith,
+        EndsWith
     }
 
     [UsedImplicitly]

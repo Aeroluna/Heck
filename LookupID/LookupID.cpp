@@ -8,6 +8,8 @@ enum class LookupMethod
     Regex,
     Exact,
     Contains,
+    StartsWith,
+    EndsWith
 };
 
 
@@ -39,6 +41,20 @@ extern "C" {
                 };
                 break;
             }
+            case LookupMethod::StartsWith: {
+                predicate = [id](const std::string_view n) {
+                    return n.starts_with(id);
+                };
+                break;
+            }
+
+            case LookupMethod::EndsWith: {
+                predicate = [id](const std::string_view n) {
+                    return n.ends_with(id);
+                };
+                break;
+            }
+
 
             default: {
                 return;
