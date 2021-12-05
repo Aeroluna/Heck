@@ -130,6 +130,9 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                                 }
                             }
                         }
+
+                        // Update array with new duplicated objects
+                        gameObjectInfoIds = _gameObjectInfos.Select(n => n.FullID).ToArray();
                     }
                     else
                     {
