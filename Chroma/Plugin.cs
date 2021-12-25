@@ -58,7 +58,7 @@ namespace Chroma
         [OnDisable]
         public void OnDisable()
         {
-            HarmonyInstanceCore.UnpatchAll(HARMONY_ID);
+            HarmonyInstanceCore.UnpatchSelf();
 
             GameplaySetup.instance.RemoveTab("Chroma");
 

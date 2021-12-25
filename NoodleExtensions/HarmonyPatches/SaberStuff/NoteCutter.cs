@@ -31,6 +31,14 @@ namespace NoodleExtensions.HarmonyPatches.SaberStuff
         private static void ConvertToWorld(Saber saber, ref Vector3 topPos, ref Vector3 bottomPos)
         {
             Transform playerTransform = saber.transform.parent.parent;
+
+            // For some reason, SiraUtil's FPFCToggle unparents the left and right hand from VRGameCore
+            // This only affects fpfc so w/e, just null check and go home
+            if (playerTransform == null)
+            {
+                return;
+            }
+
             topPos = playerTransform.TransformPoint(topPos);
             bottomPos = playerTransform.TransformPoint(bottomPos);
         }

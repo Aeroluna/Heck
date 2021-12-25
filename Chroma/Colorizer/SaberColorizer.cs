@@ -169,7 +169,7 @@ namespace Chroma.Colorizer
         {
             if (_saberModelController is IColorable colorable)
             {
-                colorable.SetColor(color);
+                colorable.Color = color;
             }
         }
     }

@@ -38,8 +38,8 @@ namespace NoodleExtensions
         public void OnDisable()
         {
             Collections.DeregisterizeCapability(CAPABILITY);
-            HarmonyInstanceCore.UnpatchAll(HARMONY_ID_CORE);
-            HarmonyInstanceCore.UnpatchAll(HARMONY_ID);
+            HarmonyInstanceCore.UnpatchSelf();
+            HarmonyInstance.UnpatchSelf();
 
             TrackBuilder.TrackCreated -= AnimationHelper.OnTrackCreated;
             CustomDataDeserializer.BuildTracks -= NoodleCustomDataManager.OnBuildTracks;

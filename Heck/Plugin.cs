@@ -57,7 +57,7 @@ namespace Heck
         [OnDisable]
         public void OnDisable()
         {
-            _harmonyInstance.UnpatchAll(HARMONY_ID);
+            _harmonyInstance.UnpatchSelf();
             CustomEventCallbackController.didInitEvent -= AnimationController.CustomEventCallbackInit;
         }
 #pragma warning restore CA1822

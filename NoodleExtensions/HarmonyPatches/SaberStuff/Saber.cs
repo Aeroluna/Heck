@@ -30,9 +30,16 @@ namespace NoodleExtensions.HarmonyPatches.SaberStuff
         private static void AddNewDataBetter(SaberMovementData movementData, Vector3 saberBladeTopPos, Vector3 saberBladeBottomPos, float time, Saber saber)
         {
             // Convert world pos to local
-            Transform parent = saber.transform.parent.parent;
-            saberBladeTopPos = parent.InverseTransformPoint(saberBladeTopPos);
-            saberBladeBottomPos = parent.InverseTransformPoint(saberBladeBottomPos);
+            Transform? playerTransform = saber.transform.parent.parent;
+
+            // For some reason, SiraUtil's FPFCToggle unparents the left and right hand from VRGameCore
+            // This only affects fpfc so w/e, just null check and go home
+            if (playerTransform != null)
+            {
+                saberBladeTopPos = playerTransform.InverseTransformPoint(saberBladeTopPos);
+                saberBladeBottomPos = playerTransform.InverseTransformPoint(saberBladeBottomPos);
+            }
+
             movementData.AddNewData(saberBladeTopPos, saberBladeBottomPos, time);
         }
     }

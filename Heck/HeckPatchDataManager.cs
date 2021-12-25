@@ -51,7 +51,7 @@ namespace Heck
                 }
                 else
                 {
-                    id.UnpatchAll(id.Id);
+                    id.UnpatchSelf();
                 }
             }
             else
@@ -128,12 +128,13 @@ namespace Heck
                             throw new ArgumentException("Type not described");
                         }
 
-                        MethodInfo? prefix = AccessTools.Method(type, "Prefix");
-                        MethodInfo? postfix = AccessTools.Method(type, "Postfix");
-                        MethodInfo? transpiler = AccessTools.Method(type, "Transpiler");
+                        // dont use accesstools because harmony spams logs if search fails (which is totally expected here)
+                        MethodInfo? prefix = type.GetMethod("Prefix", AccessTools.all);
+                        MethodInfo? postfix = type.GetMethod("Postfix", AccessTools.all);
+                        MethodInfo? transpiler = type.GetMethod("Transpiler", AccessTools.all);
 
                         // Logging
-                        string methodsContained = string.Join(", ", new[] { prefix, postfix, transpiler }.Where(n => n != null).Select(n => n.Name));
+                        string methodsContained = string.Join(", ", new[] { prefix, postfix, transpiler }.Where(n => n != null).Select(n => n?.Name));
 
                         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
                         switch (methodType)
