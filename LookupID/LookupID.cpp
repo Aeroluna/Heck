@@ -21,44 +21,50 @@ extern "C" {
         std::function < bool(std::string_view) > predicate;
         boost::regex regex;
 
-        switch (method) {
-            case LookupMethod::Regex: {
-                regex = boost::regex(id, boost::regex_constants::ECMAScript | boost::regex_constants::optimize);
-                predicate = [&regex](const std::string_view n) {
-                    return boost::regex_search(n.data(), regex);
-                };
-                break;
-            }
+        try {
+            switch (method) {
+                case LookupMethod::Regex: {
+                    regex = boost::regex(id, boost::regex_constants::ECMAScript | boost::regex_constants::optimize);
+                    predicate = [&regex](const std::string_view n) {
+                        return boost::regex_search(n.data(), regex);
+                    };
+                    break;
+                }
 
-            case LookupMethod::Exact: {
-                predicate = [id](const std::string_view n) { return n == id; };
-                break;
-            }
+                case LookupMethod::Exact: {
+                    predicate = [id](const std::string_view n) { return n == id; };
+                    break;
+                }
 
-            case LookupMethod::Contains: {
-                predicate = [id](const std::string_view n) {
-                    return n.find(id) != std::string::npos;
-                };
-                break;
-            }
-            case LookupMethod::StartsWith: {
-                predicate = [id](const std::string_view n) {
-                    return n.starts_with(id);
-                };
-                break;
-            }
+                case LookupMethod::Contains: {
+                    predicate = [id](const std::string_view n) {
+                        return n.find(id) != std::string::npos;
+                    };
+                    break;
+                }
+                case LookupMethod::StartsWith: {
+                    predicate = [id](const std::string_view n) {
+                        return n.starts_with(id);
+                    };
+                    break;
+                }
 
-            case LookupMethod::EndsWith: {
-                predicate = [id](const std::string_view n) {
-                    return n.ends_with(id);
-                };
-                break;
-            }
+                case LookupMethod::EndsWith: {
+                    predicate = [id](const std::string_view n) {
+                        return n.ends_with(id);
+                    };
+                    break;
+                }
 
 
-            default: {
-                return;
+                default: {
+                    return;
+                }
             }
+        } catch(std::exception const& e) {
+          const char* exception = e.what();
+          std::cout << "Regex exception! \"" << exception << "\"" << std::endl;
+          return;
         }
 
         // reduce allocations
