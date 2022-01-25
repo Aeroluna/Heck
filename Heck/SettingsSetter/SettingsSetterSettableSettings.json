@@ -40,6 +40,14 @@
 			"_name": "Trail Intensity",
 			"_fieldName": "_saberTrailIntensity"
 		},
+    {
+      "_name": "Jump Duration Type",
+      "_fieldName": "_noteJumpDurationTypeSettings"
+    },
+    {
+      "_name": "Jump Duration",
+      "_fieldName": "_noteJumpFixedDuration"
+    },
 		{
 			"_name": "Note Jump Offset",
 			"_fieldName": "_noteJumpStartBeatOffset"

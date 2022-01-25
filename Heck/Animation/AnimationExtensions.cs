@@ -3,58 +3,54 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using JetBrains.Annotations;
 using UnityEngine;
 using static Heck.HeckController;
 
 namespace Heck.Animation
 {
-    public static class AnimationHelper
+    public static class AnimationExtensions
     {
-        public static bool LeftHandedMode { get; internal set; }
-
-        public static float? TryGetLinearPathProperty(Track? track, string propertyName, float time)
+        public static float? GetLinearPathProperty(this Track? track, string propertyName, float time)
         {
             PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
 
             return pointDataInterpolation?.InterpolateLinear(time);
         }
 
-        public static Quaternion? TryGetQuaternionPathProperty(Track? track, string propertyName, float time)
+        public static Quaternion? GetQuaternionPathProperty(this Track? track, string propertyName, float time)
         {
             PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
 
             return pointDataInterpolation?.InterpolateQuaternion(time);
         }
 
-        public static Vector3? TryGetVector3PathProperty(Track? track, string propertyName, float time)
+        public static Vector3? GetVector3PathProperty(this Track? track, string propertyName, float time)
         {
             PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
 
             return pointDataInterpolation?.Interpolate(time);
         }
 
-        public static Vector4? TryGetVector4PathProperty(Track? track, string propertyName, float time)
+        public static Vector4? GetVector4PathProperty(this Track? track, string propertyName, float time)
         {
             PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
 
             return pointDataInterpolation?.InterpolateVector4(time);
         }
 
-        public static T? TryGetProperty<T>(Track? track, string propertyName)
+        public static T? GetProperty<T>(this Track? track, string propertyName)
         {
             Property? property = null;
             track?.Properties.TryGetValue(propertyName, out property);
             return (T?)property?.Value;
         }
 
-        [PublicAPI]
-        public static PointDefinition? TryGetPointData(Dictionary<string, object?> customData, string pointName, CustomBeatmapData customBeatmapData)
+        public static PointDefinition? GetPointData(this Dictionary<string, object?> customData, string pointName, CustomBeatmapData customBeatmapData)
         {
-            return TryGetPointData(customData, pointName, customBeatmapData.GetBeatmapPointDefinitions());
+            return GetPointData(customData, pointName, customBeatmapData.GetBeatmapPointDefinitions());
         }
 
-        public static PointDefinition? TryGetPointData(Dictionary<string, object?> customData, string pointName, Dictionary<string, PointDefinition> pointDefinitions)
+        public static PointDefinition? GetPointData(this Dictionary<string, object?> customData, string pointName, Dictionary<string, PointDefinition> pointDefinitions)
         {
             object? pointString = customData.Get<object>(pointName);
             switch (pointString)
@@ -79,12 +75,12 @@ namespace Heck.Animation
             }
         }
 
-        public static Track? GetTrack(Dictionary<string, object?> customData, CustomBeatmapData customBeatmapData, string name = TRACK)
+        public static Track? GetTrack(this Dictionary<string, object?> customData, CustomBeatmapData customBeatmapData, string name = TRACK)
         {
             return GetTrack(customData, customBeatmapData.GetBeatmapTracks(), name);
         }
 
-        public static Track? GetTrack(Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name = TRACK)
+        public static Track? GetTrack(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name = TRACK)
         {
             string? trackName = customData.Get<string>(name);
             if (trackName == null)
@@ -100,13 +96,12 @@ namespace Heck.Animation
             throw new InvalidOperationException($"Could not find track [{trackName}].");
         }
 
-        [PublicAPI]
-        public static IEnumerable<Track>? GetTrackArray(Dictionary<string, object?> customData, CustomBeatmapData customBeatmapData, string name = TRACK)
+        public static IEnumerable<Track>? GetTrackArray(this Dictionary<string, object?> customData, CustomBeatmapData customBeatmapData, string name = TRACK)
         {
             return GetTrackArray(customData, customBeatmapData.GetBeatmapTracks(), name);
         }
 
-        public static IEnumerable<Track>? GetTrackArray(Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name = TRACK)
+        public static IEnumerable<Track>? GetTrackArray(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name = TRACK)
         {
             object? trackNameRaw = customData.Get<object>(name);
             if (trackNameRaw == null)

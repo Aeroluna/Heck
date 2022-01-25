@@ -1,93 +1,53 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
-using CustomJSONData;
-using HarmonyLib;
-using Heck.Animation;
+using Heck.Animation.Events;
 using Heck.SettingsSetter;
 using IPA;
+using IPA.Loader;
 using JetBrains.Annotations;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using Zenject;
+using SiraUtil.Zenject;
 using static Heck.HeckController;
 
 namespace Heck
 {
+    // unsure why this stuff cant be static or private
     [Plugin(RuntimeOptions.DynamicInit)]
     internal class Plugin
     {
-        private static readonly Harmony _harmonyInstance = new(HARMONY_ID);
-
-        private static bool _hasInit;
-        private static GameScenesManager? _gameScenesManager;
-
-#pragma warning disable CA1822
         [UsedImplicitly]
         [Init]
-        public void Init(IPA.Logging.Logger pluginLogger)
+        public Plugin(IPA.Logging.Logger pluginLogger, Zenjector zenjector)
         {
-            string[] arguments = Environment.GetCommandLineArgs();
-            foreach (string arg in arguments)
-            {
-                if (arg.ToLower() != "-cumdump")
-                {
-                    continue;
-                }
+            Log.Logger = new HeckLogger(pluginLogger);
 
-                CumDump = true;
-                Log.Logger.Log("[-cumdump] launch argument detected, running in Cum Dump mode.");
+            string[] arguments = Environment.GetCommandLineArgs();
+            if (arguments.Any(arg => arg.ToLower() == "-aerolunaisthebestmodder"))
+            {
+                DebugMode = true;
+                Log.Logger.Log("[-aerolunaisthebestmodder] launch argument detected, running in Debug mode.");
             }
 
-            Log.Logger = new HeckLogger(pluginLogger);
             SettingSetterSettableSettingsManager.SetupSettingsTable();
-            SceneManager.activeSceneChanged += OnActiveSceneChanged;
-            CustomDataDeserializer.DeserializeBeatmapData += HeckCustomDataManager.DeserializeCustomEvents;
+
+            zenjector.Install<EventInstaller>(Location.Player);
+            zenjector.Install<SettingsSetterInstaller>(Location.Menu);
         }
 
+#pragma warning disable CA1822
         [UsedImplicitly]
         [OnEnable]
         public void OnEnable()
         {
-            _harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
-            CustomEventCallbackController.didInitEvent += AnimationController.CustomEventCallbackInit;
+            CorePatcher.Enabled = true;
         }
 
         [UsedImplicitly]
         [OnDisable]
         public void OnDisable()
         {
-            _harmonyInstance.UnpatchSelf();
-            CustomEventCallbackController.didInitEvent -= AnimationController.CustomEventCallbackInit;
+            CorePatcher.Enabled = false;
+            FeaturesPatcher.Enabled = false;
         }
 #pragma warning restore CA1822
-
-        private static void MenuLoadFresh(ScenesTransitionSetupDataSO _1, DiContainer _2)
-        {
-            SettingsSetterViewController.Instantiate();
-            _gameScenesManager!.transitionDidFinishEvent -= MenuLoadFresh;
-        }
-
-        private static void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
-        {
-            if (prevScene.name == "PCInit")
-            {
-                _hasInit = true;
-            }
-
-            if (!_hasInit || !nextScene.name.Contains("Menu") || prevScene.name != "EmptyTransition")
-            {
-                return;
-            }
-
-            _hasInit = false;
-            if (_gameScenesManager == null)
-            {
-                _gameScenesManager = Resources.FindObjectsOfTypeAll<GameScenesManager>().FirstOrDefault()
-                                     ?? throw new InvalidOperationException("Could not find GameScenesManager.");
-            }
-
-            _gameScenesManager.transitionDidFinishEvent += MenuLoadFresh;
-        }
     }
 }

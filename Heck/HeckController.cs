@@ -1,9 +1,16 @@
-﻿using JetBrains.Annotations;
-
-namespace Heck
+﻿namespace Heck
 {
+    internal enum PatchType
+    {
+        Features
+    }
+
     public static class HeckController
     {
+        public const string HARMONY_ID = "com.aeroluna.Heck";
+
+        public const string ID = "Heck";
+
         public const string DURATION = "_duration";
         public const string EASING = "_easing";
         public const string EVENT = "_event";
@@ -17,9 +24,14 @@ namespace Heck
         public const string ASSIGN_PATH_ANIMATION = "AssignPathAnimation";
         public const string INVOKE_EVENT = "InvokeEvent";
 
-        public const string HARMONY_ID = "com.aeroluna.BeatSaber.Heck";
+        public static bool DebugMode { get; internal set; }
 
-        [PublicAPI]
-        public static bool CumDump { get; internal set; }
+        internal static HeckPatcher CorePatcher { get; } = new(HARMONY_ID + "Core");
+
+        internal static HeckPatcher FeaturesPatcher { get; } = new(HARMONY_ID + "Features", PatchType.Features);
+
+        internal static CustomDataDeserializer Deserializer { get; } = DeserializerManager.RegisterDeserialize<CustomDataManager>(ID);
+
+        internal static Module FeaturesModule { get; } = ModuleManager.RegisterModule<ModuleCallbacks>("Heck", 0, RequirementType.None);
     }
 }

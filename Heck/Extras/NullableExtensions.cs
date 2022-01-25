@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Heck
@@ -14,7 +13,6 @@ namespace Heck
             return dynData.Get<List<object>>(key)?.Select(n => n.ToNullableFloat());
         }
 
-        [PublicAPI]
         public static float? ToNullableFloat(this object? @this)
         {
             if (@this == null || @this == DBNull.Value)

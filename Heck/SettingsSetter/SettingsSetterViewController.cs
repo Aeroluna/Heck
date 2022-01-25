@@ -13,6 +13,7 @@ using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
+using Zenject;
 using Logger = IPA.Logging.Logger;
 
 namespace Heck.SettingsSetter
@@ -22,16 +23,6 @@ namespace Heck.SettingsSetter
         private static readonly Action<FlowCoordinator, ViewController, AnimationDirection, Action?, bool> _dismissViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, AnimationDirection, Action?, bool>>.GetDelegate("DismissViewController");
         private static readonly Action<FlowCoordinator, ViewController, Action?, AnimationDirection, bool> _presentViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, Action?, AnimationDirection, bool>>.GetDelegate("PresentViewController");
 
-        private static SettingsSetterViewController? _instance;
-
-        private static MainSystemInit? _mainSystemInit;
-
-        private static MainSettingsModelSO? _mainSettings;
-
-        private static SinglePlayerLevelSelectionFlowCoordinator? _activeFlowCoordinator;
-
-        private static ColorSchemesSettings? _overrideColorScheme;
-
         private static string? _contentBSML;
 
         [UIValue("contents")]
@@ -40,6 +31,12 @@ namespace Heck.SettingsSetter
         [UsedImplicitly]
         [UIObject("contentObject")]
         private readonly GameObject? _contentObject;
+
+        private MainSystemInit _mainSystemInit = null!;
+        private MainSettingsModelSO _mainSettings = null!;
+        private ColorSchemesSettings _colorSchemesSettings = null!;
+
+        private SinglePlayerLevelSelectionFlowCoordinator? _activeFlowCoordinator;
 
         private MenuTransitionsHelper? _menuTransitionsHelper;
 
@@ -56,22 +53,6 @@ namespace Heck.SettingsSetter
         private List<Tuple<ISettableSetting, object>>? _settableSettingsToSet;
 
         public override string ResourceName => "Heck.SettingsSetter.SettingsSetter.bsml";
-
-        internal static SettingsSetterViewController Instance => _instance != null ? _instance
-            : throw new InvalidOperationException($"[{nameof(_instance)}] was not created.");
-
-        internal static SinglePlayerLevelSelectionFlowCoordinator ActiveFlowCoordinator
-        {
-            get => _activeFlowCoordinator != null ? _activeFlowCoordinator : throw new InvalidOperationException($"[{nameof(_activeFlowCoordinator)}] was null.");
-            set => _activeFlowCoordinator = value;
-        }
-
-        // Color scheme settings isnt passed through like the rest of the kids
-        internal static ColorSchemesSettings CurrentOverrideColorScheme
-        {
-            get => _overrideColorScheme ?? throw new InvalidOperationException($"[{nameof(_overrideColorScheme)}] was null.");
-            set => _overrideColorScheme = value;
-        }
 
         internal bool DoPresent { get; private set; }
 
@@ -92,20 +73,10 @@ namespace Heck.SettingsSetter
             }
         }
 
-        private static MainSettingsModelSO MainSettings => _mainSettings != null ? _mainSettings
-            : throw new InvalidOperationException($"[{nameof(_mainSettings)}] was null.");
-
         private MenuTransitionsHelper MenuTransitionHelper => _menuTransitionsHelper != null ? _menuTransitionsHelper
             : throw new InvalidOperationException($"[{nameof(_menuTransitionsHelper)}] was not created.");
 
-        internal static void Instantiate()
-        {
-            _instance = BeatSaberUI.CreateViewController<SettingsSetterViewController>();
-            _mainSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().First();
-            _mainSystemInit = Resources.FindObjectsOfTypeAll<MainSystemInit>().First();
-        }
-
-        internal void ForceStart()
+        internal void ForceStartLevel()
         {
             StartWithParameters(_cachedParameters, true);
         }
@@ -130,17 +101,17 @@ namespace Heck.SettingsSetter
             }
 
             Heck.Log.Logger.Log("Main settings restored.", Logger.Level.Trace);
-            MainSettings.mirrorGraphicsSettings.value = _cachedMainSettings.MirrorGraphicsSettings;
-            MainSettings.mainEffectGraphicsSettings.value = _cachedMainSettings.MainEffectGraphicsSettings;
-            MainSettings.smokeGraphicsSettings.value = _cachedMainSettings.SmokeGraphicsSettings;
-            MainSettings.burnMarkTrailsEnabled.value = _cachedMainSettings.BurnMarkTrailsEnabled;
-            MainSettings.screenDisplacementEffectsEnabled.value = _cachedMainSettings.ScreenDisplacementEffectsEnabled;
-            MainSettings.maxShockwaveParticles.value = _cachedMainSettings.MaxShockwaveParticles;
+            _mainSettings.mirrorGraphicsSettings.value = _cachedMainSettings.MirrorGraphicsSettings;
+            _mainSettings.mainEffectGraphicsSettings.value = _cachedMainSettings.MainEffectGraphicsSettings;
+            _mainSettings.smokeGraphicsSettings.value = _cachedMainSettings.SmokeGraphicsSettings;
+            _mainSettings.burnMarkTrailsEnabled.value = _cachedMainSettings.BurnMarkTrailsEnabled;
+            _mainSettings.screenDisplacementEffectsEnabled.value = _cachedMainSettings.ScreenDisplacementEffectsEnabled;
+            _mainSettings.maxShockwaveParticles.value = _cachedMainSettings.MaxShockwaveParticles;
             _cachedMainSettings = null;
-            _mainSystemInit!.Init();
+            _mainSystemInit.Init();
         }
 
-        internal void Init(StartStandardLevelParameters startParameters, MenuTransitionsHelper menuTransitionsHelper)
+        internal void Init(SinglePlayerLevelSelectionFlowCoordinator flowCoordinator, StartStandardLevelParameters startParameters)
         {
             // When in doubt, wrap everything in one big try catch statement!
             try
@@ -270,18 +241,17 @@ namespace Heck.SettingsSetter
                         Dictionary<string, object?>? jsonColors = settings.Get<Dictionary<string, object?>>("_colors");
                         if (jsonColors != null)
                         {
-                            ColorSchemesSettings colorSchemesSettings = CurrentOverrideColorScheme;
                             Dictionary<string, object> settableColorSetting = SettingSetterSettableSettingsManager.SettingsTable["_colors"].First();
                             string settingName = (string)settableColorSetting["_name"];
                             string fieldName = (string)settableColorSetting["_fieldName"];
-                            bool activeValue = colorSchemesSettings.overrideDefaultColors;
+                            bool activeValue = _colorSchemesSettings.overrideDefaultColors;
                             bool? json = jsonColors.Get<bool>(fieldName);
 
                             if (json != activeValue)
                             {
                                 _contents.Add(new ListObject($"[Colors] {settingName}", $"{activeValue} -> {json}"));
 
-                                _modifiedParameters.OverrideColorScheme = json.Value ? colorSchemesSettings.GetOverrideColorScheme() : null;
+                                _modifiedParameters.OverrideColorScheme = json.Value ? _colorSchemesSettings.GetOverrideColorScheme() : null;
                             }
                         }
 
@@ -290,16 +260,15 @@ namespace Heck.SettingsSetter
                         Dictionary<string, object?>? jsonGraphics = settings.Get<Dictionary<string, object?>>("_graphics");
                         if (jsonGraphics != null)
                         {
-                            MainSettingsModelSO mainSettingsModel = MainSettings;
                             List<Dictionary<string, object>> settableGraphicsSettings = SettingSetterSettableSettingsManager.SettingsTable["_graphics"];
 
                             _cachedMainSettings = new SettableMainSettings(
-                                mainSettingsModel.mirrorGraphicsSettings,
-                                mainSettingsModel.mainEffectGraphicsSettings,
-                                mainSettingsModel.smokeGraphicsSettings,
-                                mainSettingsModel.burnMarkTrailsEnabled,
-                                mainSettingsModel.screenDisplacementEffectsEnabled,
-                                mainSettingsModel.maxShockwaveParticles);
+                                _mainSettings.mirrorGraphicsSettings,
+                                _mainSettings.mainEffectGraphicsSettings,
+                                _mainSettings.smokeGraphicsSettings,
+                                _mainSettings.burnMarkTrailsEnabled,
+                                _mainSettings.screenDisplacementEffectsEnabled,
+                                _mainSettings.maxShockwaveParticles);
                             _modifiedMainSettings = _cachedMainSettings with { };
 
                             foreach (Dictionary<string, object> settableGraphicSetting in settableGraphicsSettings)
@@ -314,7 +283,7 @@ namespace Heck.SettingsSetter
                                 }
 
                                 // substring is to remove underscore
-                                object valueSO = typeof(MainSettingsModelSO).GetField(fieldName.Substring(1), BindingFlags.Instance | BindingFlags.Public)?.GetValue(mainSettingsModel)
+                                object valueSO = typeof(MainSettingsModelSO).GetField(fieldName.Substring(1), BindingFlags.Instance | BindingFlags.Public)?.GetValue(_mainSettings)
                                                  ?? throw new InvalidOperationException($"Unable to find valueSO with name [{fieldName.Substring(1)}].");
                                 object activeValue = valueSO switch
                                 {
@@ -372,9 +341,9 @@ namespace Heck.SettingsSetter
                             }
 
                             DoPresent = true;
+                            _activeFlowCoordinator = flowCoordinator;
                             _defaultParameters = startParameters;
-                            _menuTransitionsHelper = menuTransitionsHelper;
-                            _presentViewController(ActiveFlowCoordinator, this, null, AnimationDirection.Horizontal, false);
+                            _presentViewController(flowCoordinator, this, null, AnimationDirection.Horizontal, false);
                             BSMLParser.instance.Parse(ContentBSML, gameObject, this);
                             return;
                         }
@@ -390,31 +359,7 @@ namespace Heck.SettingsSetter
             DoPresent = false;
         }
 
-        [UsedImplicitly]
-        [UIAction("decline-click")]
-        private void OnDeclineClick()
-        {
-            _cachedMainSettings = null;
-            _modifiedMainSettings = null;
-            _settableSettingsToSet = null;
-            StartWithParameters(_defaultParameters);
-            Dismiss();
-        }
-
-        [UsedImplicitly]
-        [UIAction("accept-click")]
-        private void OnAcceptClick()
-        {
-            StartWithParameters(_modifiedParameters);
-            Dismiss();
-        }
-
-        private void Dismiss()
-        {
-            _dismissViewController(ActiveFlowCoordinator, this, AnimationDirection.Horizontal, null, true);
-        }
-
-        private void StartWithParameters(StartStandardLevelParameters startParameters, bool force = false)
+        internal void StartWithParameters(StartStandardLevelParameters startParameters, bool force = false)
         {
             if (!force)
             {
@@ -423,14 +368,14 @@ namespace Heck.SettingsSetter
                 if (_modifiedMainSettings != null)
                 {
                     Heck.Log.Logger.Log("Main settings modified.", Logger.Level.Trace);
-                    MainSettings.mirrorGraphicsSettings.value = _modifiedMainSettings.MirrorGraphicsSettings;
-                    MainSettings.mainEffectGraphicsSettings.value = _modifiedMainSettings.MainEffectGraphicsSettings;
-                    MainSettings.smokeGraphicsSettings.value = _modifiedMainSettings.SmokeGraphicsSettings;
-                    MainSettings.burnMarkTrailsEnabled.value = _modifiedMainSettings.BurnMarkTrailsEnabled;
-                    MainSettings.screenDisplacementEffectsEnabled.value = _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
-                    MainSettings.maxShockwaveParticles.value = _modifiedMainSettings.MaxShockwaveParticles;
+                    _mainSettings.mirrorGraphicsSettings.value = _modifiedMainSettings.MirrorGraphicsSettings;
+                    _mainSettings.mainEffectGraphicsSettings.value = _modifiedMainSettings.MainEffectGraphicsSettings;
+                    _mainSettings.smokeGraphicsSettings.value = _modifiedMainSettings.SmokeGraphicsSettings;
+                    _mainSettings.burnMarkTrailsEnabled.value = _modifiedMainSettings.BurnMarkTrailsEnabled;
+                    _mainSettings.screenDisplacementEffectsEnabled.value = _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
+                    _mainSettings.maxShockwaveParticles.value = _modifiedMainSettings.MaxShockwaveParticles;
                     _modifiedMainSettings = null;
-                    _mainSystemInit!.Init();
+                    _mainSystemInit.Init();
                 }
 
                 if (_settableSettingsToSet != null)
@@ -459,59 +404,43 @@ namespace Heck.SettingsSetter
                 startParameters.LevelFinishedCallback);
         }
 
-        internal struct StartStandardLevelParameters
+        [UsedImplicitly]
+        [Inject]
+        private void Construct(GameplaySetupViewController gameplaySetupViewController, MenuTransitionsHelper menuTransitionsHelper)
         {
-            internal StartStandardLevelParameters(
-                string gameMode,
-                IDifficultyBeatmap difficultyBeatmap,
-                IPreviewBeatmapLevel previewBeatmapLevel,
-                OverrideEnvironmentSettings overrideEnvironmentSettings,
-                ColorScheme overrideColorScheme,
-                GameplayModifiers gameplayModifiers,
-                PlayerSpecificSettings playerSpecificSettings,
-                PracticeSettings practiceSettings,
-                string backButtonText,
-                bool useTestNoteCutSoundEffects,
-                Action beforeSceneSwitchCallback,
-                Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults> levelFinishedCallback)
+            _colorSchemesSettings = gameplaySetupViewController.colorSchemesSettings;
+            _menuTransitionsHelper = menuTransitionsHelper;
+            _mainSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().First();
+            _mainSystemInit = Resources.FindObjectsOfTypeAll<MainSystemInit>().First();
+        }
+
+        [UsedImplicitly]
+        [UIAction("decline-click")]
+        private void OnDeclineClick()
+        {
+            _cachedMainSettings = null;
+            _modifiedMainSettings = null;
+            _settableSettingsToSet = null;
+            Dismiss();
+            StartWithParameters(_defaultParameters);
+        }
+
+        [UsedImplicitly]
+        [UIAction("accept-click")]
+        private void OnAcceptClick()
+        {
+            Dismiss();
+            StartWithParameters(_defaultParameters);
+        }
+
+        private void Dismiss()
+        {
+            if (_activeFlowCoordinator == null)
             {
-                GameMode = gameMode;
-                DifficultyBeatmap = difficultyBeatmap;
-                PreviewBeatmapLevel = previewBeatmapLevel;
-                OverrideEnvironmentSettings = overrideEnvironmentSettings;
-                OverrideColorScheme = overrideColorScheme;
-                GameplayModifiers = gameplayModifiers;
-                PlayerSpecificSettings = playerSpecificSettings;
-                PracticeSettings = practiceSettings;
-                BackButtonText = backButtonText;
-                UseTestNoteCutSoundEffects = useTestNoteCutSoundEffects;
-                BeforeSceneSwitchCallback = beforeSceneSwitchCallback;
-                LevelFinishedCallback = levelFinishedCallback;
+                throw new InvalidOperationException($"[{nameof(_activeFlowCoordinator)}] was null.");
             }
 
-            internal string GameMode { get; }
-
-            internal IDifficultyBeatmap DifficultyBeatmap { get; }
-
-            internal IPreviewBeatmapLevel PreviewBeatmapLevel { get; }
-
-            internal OverrideEnvironmentSettings OverrideEnvironmentSettings { get; set; }
-
-            internal ColorScheme? OverrideColorScheme { get; set; }
-
-            internal GameplayModifiers GameplayModifiers { get; set; }
-
-            internal PlayerSpecificSettings PlayerSpecificSettings { get; set; }
-
-            internal PracticeSettings PracticeSettings { get; }
-
-            internal string BackButtonText { get; }
-
-            internal bool UseTestNoteCutSoundEffects { get; }
-
-            internal Action? BeforeSceneSwitchCallback { get; }
-
-            internal Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>? LevelFinishedCallback { get; }
+            _dismissViewController(_activeFlowCoordinator, this, AnimationDirection.Horizontal, null, true);
         }
 
         private readonly struct ListObject

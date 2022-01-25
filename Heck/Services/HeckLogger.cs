@@ -20,16 +20,22 @@ namespace Heck
 
         public void Log(object? obj, Logger.Level level = Logger.Level.Debug, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
         {
-            Log(obj?.ToString() ?? "NULL", level, member, line);
+            Log(obj?.ToString(), level, member, line);
         }
 
-        public void Log(string message, Logger.Level level = Logger.Level.Debug, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
+        public void Log(string? message, Logger.Level level = Logger.Level.Debug, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
         {
-            IPALogger.Log(level, HeckController.CumDump ? $"{member}({line}): {message}" : message);
+            message ??= "NULL";
+            if (level == Logger.Level.Trace && HeckController.DebugMode)
+            {
+                level = Logger.Level.Info;
+            }
+
+            IPALogger.Log(level, HeckController.DebugMode ? $"{member}({line}): {message}" : message);
         }
 
         [PublicAPI]
-        public void LogCollection(object? dictionary, Logger.Level level = Logger.Level.Debug, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
+        public void LogDictionary(object? dictionary, Logger.Level level = Logger.Level.Debug, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
         {
             Log(DictionaryExtensions.FormatObject(dictionary), level, member, line);
         }

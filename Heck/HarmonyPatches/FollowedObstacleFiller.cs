@@ -2,20 +2,21 @@
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
-using JetBrains.Annotations;
 
 namespace Heck.HarmonyPatches
 {
+    [HeckPatch(PatchType.Features)]
     [HarmonyPatch(typeof(MirroredObstacleController))]
-    [HarmonyPatch("Mirror")]
-    internal static class MirroredObstacleControllerAwake
+    internal static class FollowedObstacleFiller
     {
         private static readonly MethodInfo _removeListeners = AccessTools.Method(typeof(MirroredObstacleController), nameof(MirroredObstacleController.RemoveListeners));
 
         private static readonly FieldInfo _followedObstacleField = AccessTools.Field(typeof(MirroredObstacleController), "_followedObstacle");
 
         // Looks like you forgot to fill _followedObstacle beat games, i got you covered!
-        [UsedImplicitly]
+        // This is a transpiler so that the field gets filled before UpdatePositionAndRotation and InvokeDidInitEvent
+        [HarmonyTranspiler]
+        [HarmonyPatch("Mirror")]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)

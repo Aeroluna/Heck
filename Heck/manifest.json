@@ -8,6 +8,7 @@
   "gameVersion": "1.19.0",
   "dependsOn": {
     "CustomJSONData": "^2.0.8",
-    "BSIPA": "^4.2.0"
+    "BSIPA": "^4.2.0",
+    "SiraUtil": "^3.0.0"
   }
 }

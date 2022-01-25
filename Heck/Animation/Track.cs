@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
+using System.Linq;
 using UnityEngine;
 
 namespace Heck.Animation
@@ -11,19 +11,16 @@ namespace Heck.Animation
 
         public Dictionary<string, Track> Tracks { get; } = new();
 
-        [PublicAPI]
-        public Track AddTrack(string trackName)
+        public void AddTrack(string trackName)
         {
-            if (Tracks.TryGetValue(trackName, out Track track))
+            if (Tracks.ContainsKey(trackName))
             {
-                return track;
+                return;
             }
 
-            track = new Track();
+            Track track = new();
             TrackCreated?.Invoke(track);
             Tracks.Add(trackName, track);
-
-            return track;
         }
     }
 
