@@ -1,36 +1,38 @@
-﻿using System.Reflection;
-using Heck;
+﻿using Heck;
 using Heck.Animation;
 using IPA;
+using IPA.Logging;
 using JetBrains.Annotations;
+using NoodleExtensions.Animation;
+using NoodleExtensions.Installers;
+using SiraUtil.Zenject;
 using SongCore;
 using static NoodleExtensions.NoodleController;
-using AnimationHelper = NoodleExtensions.Animation.AnimationHelper;
 
 namespace NoodleExtensions
 {
     [Plugin(RuntimeOptions.DynamicInit)]
     internal class Plugin
     {
-#pragma warning disable CA1822
         [UsedImplicitly]
         [Init]
-        public void Init(IPA.Logging.Logger pluginLogger)
+        public Plugin(Logger pluginLogger, Zenjector zenjector)
         {
             Log.Logger = new HeckLogger(pluginLogger);
-            HeckPatchDataManager.InitPatches(HarmonyInstance, Assembly.GetExecutingAssembly());
+
+            zenjector.Install<PlayerInstaller>(Location.Player);
+            zenjector.Expose<NoteCutCoreEffectsSpawner>("Gameplay");
         }
 
+#pragma warning disable CA1822
         [UsedImplicitly]
         [OnEnable]
         public void OnEnable()
         {
             Collections.RegisterCapability(CAPABILITY);
-            HarmonyInstanceCore.PatchAll(Assembly.GetExecutingAssembly());
-
             TrackBuilder.TrackCreated += AnimationHelper.OnTrackCreated;
-            CustomDataDeserializer.BuildTracks += NoodleCustomDataManager.OnBuildTracks;
-            CustomDataDeserializer.DeserializeBeatmapData += NoodleCustomDataManager.OnDeserializeBeatmapData;
+            CorePatcher.Enabled = true;
+            FeaturesModule.Enabled = true;
         }
 
         [UsedImplicitly]
@@ -38,12 +40,11 @@ namespace NoodleExtensions
         public void OnDisable()
         {
             Collections.DeregisterizeCapability(CAPABILITY);
-            HarmonyInstanceCore.UnpatchSelf();
-            HarmonyInstance.UnpatchSelf();
-
             TrackBuilder.TrackCreated -= AnimationHelper.OnTrackCreated;
-            CustomDataDeserializer.BuildTracks -= NoodleCustomDataManager.OnBuildTracks;
-            CustomDataDeserializer.DeserializeBeatmapData -= NoodleCustomDataManager.OnDeserializeBeatmapData;
+            CorePatcher.Enabled = false;
+            FeaturesPatcher.Enabled = false;
+            FeaturesModule.Enabled = false;
+            Deserializer.Enabled = false;
         }
 #pragma warning restore CA1822
     }

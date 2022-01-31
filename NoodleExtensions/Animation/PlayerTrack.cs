@@ -1,10 +1,9 @@
-﻿using System;
-using Heck.Animation;
+﻿using Heck.Animation;
 using IPA.Utilities;
+using JetBrains.Annotations;
 using UnityEngine;
-using static Heck.Animation.AnimationHelper;
+using Zenject;
 using static Heck.NullableExtensions;
-using static NoodleExtensions.HarmonyPatches.SpawnDataHelper.BeatmapObjectSpawnMovementDataVariables;
 using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions.Animation
@@ -13,44 +12,38 @@ namespace NoodleExtensions.Animation
     {
         private static readonly FieldAccessor<PauseController, bool>.Accessor _pausedAccessor = FieldAccessor<PauseController, bool>.GetAccessor("_paused");
 
-        private static PlayerTrack? _instance;
+        private bool _leftHanded;
 
-        private readonly Quaternion _startRot = Quaternion.identity;
         private Vector3 _startPos = Vector3.zero;
         private Quaternion _startLocalRot = Quaternion.identity;
 
         private Track _track = null!;
-        private Transform _transform = null!;
         private PauseController _pauseController = null!;
+        private BeatmapObjectSpawnMovementData _movementData = null!;
 
-        internal static void AssignTrack(Track track)
+        internal void AssignTrack(Track track)
         {
-            if (_instance == null)
-            {
-                GameObject gameObject = GameObject.Find("LocalPlayerGameCore");
-                GameObject noodleObject = new("NoodlePlayerTrack");
-                _instance = noodleObject.AddComponent<PlayerTrack>();
-                Transform origin = noodleObject.transform;
-                _instance._transform = origin;
-                origin.SetParent(gameObject.transform.parent, true);
-                gameObject.transform.SetParent(origin, true);
+            _track = track;
+        }
 
-                PauseController pauseController = FindObjectOfType<PauseController>()
-                                                  ?? throw new InvalidOperationException("Could not find PauseController.");
-                pauseController.didPauseEvent += _instance.OnDidPauseEvent;
-                _instance._pauseController = pauseController;
-
-                _instance._startLocalRot = origin.localRotation;
-                _instance._startPos = origin.localPosition;
-            }
-
-            _instance._track = track;
+        [UsedImplicitly]
+        [Inject]
+        private void Construct(PauseController pauseController, bool leftHanded, IBeatmapObjectSpawnController spawnController)
+        {
+            _pauseController = pauseController;
+            pauseController.didPauseEvent += OnDidPauseEvent;
+            Transform origin = transform;
+            _startLocalRot = origin.localRotation;
+            _startPos = origin.localPosition;
+            _leftHanded = leftHanded;
+            _movementData = spawnController.beatmapObjectSpawnMovementData;
         }
 
         private void OnDidPauseEvent()
         {
-            _transform.localRotation = _startLocalRot;
-            _transform.localPosition = _startPos;
+            Transform transform1 = transform;
+            transform1.localRotation = _startLocalRot;
+            transform1.localPosition = _startPos;
         }
 
         private void OnDestroy()
@@ -68,39 +61,39 @@ namespace NoodleExtensions.Animation
                 return;
             }
 
-            Quaternion? rotation = TryGetProperty<Quaternion?>(_track, ROTATION);
+            Quaternion? rotation = _track.GetProperty<Quaternion?>(ROTATION);
             if (rotation.HasValue)
             {
-                if (LeftHandedMode)
+                if (_leftHanded)
                 {
                     MirrorQuaternionNullable(ref rotation);
                 }
             }
 
-            Vector3? position = TryGetProperty<Vector3?>(_track, POSITION);
+            Vector3? position = _track.GetProperty<Vector3?>(POSITION);
             if (position.HasValue)
             {
-                if (LeftHandedMode)
+                if (_leftHanded)
                 {
                     MirrorVectorNullable(ref position);
                 }
             }
 
-            Quaternion worldRotationQuatnerion = _startRot;
+            Quaternion worldRotationQuatnerion = Quaternion.identity;
             Vector3 positionVector = _startPos;
             if (rotation.HasValue || position.HasValue)
             {
                 Quaternion finalRot = rotation ?? Quaternion.identity;
                 worldRotationQuatnerion *= finalRot;
                 Vector3 finalPos = position ?? Vector3.zero;
-                positionVector = worldRotationQuatnerion * ((finalPos * NoteLinesDistance) + _startPos);
+                positionVector = worldRotationQuatnerion * ((finalPos * _movementData.noteLinesDistance) + _startPos);
             }
 
             worldRotationQuatnerion *= _startLocalRot;
-            Quaternion? localRotation = TryGetProperty<Quaternion?>(_track, LOCAL_ROTATION);
+            Quaternion? localRotation = _track.GetProperty<Quaternion?>(LOCAL_ROTATION);
             if (localRotation.HasValue)
             {
-                if (LeftHandedMode)
+                if (_leftHanded)
                 {
                     MirrorQuaternionNullable(ref localRotation);
                 }
@@ -108,8 +101,30 @@ namespace NoodleExtensions.Animation
                 worldRotationQuatnerion *= localRotation!.Value;
             }
 
-            _transform.localRotation = worldRotationQuatnerion;
-            _transform.localPosition = positionVector;
+            Transform transform1 = transform;
+            transform1.localRotation = worldRotationQuatnerion;
+            transform1.localPosition = positionVector;
+        }
+
+        [UsedImplicitly]
+        internal class PlayerTrackFactory : IFactory<PlayerTrack>
+        {
+            private readonly DiContainer _container;
+
+            private PlayerTrackFactory(DiContainer container)
+            {
+                _container = container;
+            }
+
+            public PlayerTrack Create()
+            {
+                Transform player = GameObject.Find("LocalPlayerGameCore").transform;
+                GameObject noodleObject = new("NoodlePlayerTrack");
+                Transform origin = noodleObject.transform;
+                origin.SetParent(player.parent, true);
+                player.SetParent(origin, true);
+                return _container.InstantiateComponent<PlayerTrack>(noodleObject);
+            }
         }
     }
 }

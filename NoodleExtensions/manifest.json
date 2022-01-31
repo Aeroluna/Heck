@@ -10,6 +10,7 @@
     "_Heck": "^1.3.1",
     "SongCore": "^3.8.0",
     "CustomJSONData": "^2.0.8",
-    "BSIPA": "^4.2.0"
+    "BSIPA": "^4.2.0",
+    "SiraUtil": "^3.0.0"
   }
 }
