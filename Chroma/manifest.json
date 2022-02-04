@@ -12,6 +12,7 @@
     "CustomJSONData": "^2.0.8",
     "SongCore": "^3.8.0",
     "BSIPA": "^4.2.0",
-    "LookupID": "^1.0.0"
+    "LookupID": "^1.0.0",
+    "SiraUtil": "^3.0.0"
   }
 }

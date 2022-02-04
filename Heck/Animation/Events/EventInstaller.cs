@@ -1,5 +1,4 @@
 ﻿using JetBrains.Annotations;
-using UnityEngine;
 using Zenject;
 
 namespace Heck.Animation.Events

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
 using UnityEngine;
 using static Heck.HeckController;
 
@@ -45,11 +44,6 @@ namespace Heck.Animation
             return (T?)property?.Value;
         }
 
-        public static PointDefinition? GetPointData(this Dictionary<string, object?> customData, string pointName, CustomBeatmapData customBeatmapData)
-        {
-            return GetPointData(customData, pointName, customBeatmapData.GetBeatmapPointDefinitions());
-        }
-
         public static PointDefinition? GetPointData(this Dictionary<string, object?> customData, string pointName, Dictionary<string, PointDefinition> pointDefinitions)
         {
             object? pointString = customData.Get<object>(pointName);
@@ -75,11 +69,6 @@ namespace Heck.Animation
             }
         }
 
-        public static Track? GetTrack(this Dictionary<string, object?> customData, CustomBeatmapData customBeatmapData, string name = TRACK)
-        {
-            return GetTrack(customData, customBeatmapData.GetBeatmapTracks(), name);
-        }
-
         public static Track? GetTrack(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name = TRACK)
         {
             string? trackName = customData.Get<string>(name);
@@ -94,11 +83,6 @@ namespace Heck.Animation
             }
 
             throw new InvalidOperationException($"Could not find track [{trackName}].");
-        }
-
-        public static IEnumerable<Track>? GetTrackArray(this Dictionary<string, object?> customData, CustomBeatmapData customBeatmapData, string name = TRACK)
-        {
-            return GetTrackArray(customData, customBeatmapData.GetBeatmapTracks(), name);
         }
 
         public static IEnumerable<Track>? GetTrackArray(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name = TRACK)
@@ -133,16 +117,6 @@ namespace Heck.Animation
             }
 
             return result;
-        }
-
-        public static Dictionary<string, PointDefinition> GetBeatmapPointDefinitions(this CustomBeatmapData customBeatmapData)
-        {
-            return (Dictionary<string, PointDefinition>)(customBeatmapData.customData["pointDefinitions"] ?? throw new InvalidOperationException("Could not find point definitions in BeatmapData."));
-        }
-
-        public static Dictionary<string, Track> GetBeatmapTracks(this CustomBeatmapData customBeatmapData)
-        {
-            return (Dictionary<string, Track>)(customBeatmapData.customData["tracks"] ?? throw new InvalidOperationException("Could not find tracks in BeatmapData."));
         }
 
         private static PointDefinitionInterpolation? GetPathInterpolation(Track? track, string propertyName)

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -65,6 +64,8 @@ namespace Heck.HarmonyPatches
             DiContainer container)
         {
             DeserializerManager.DeserializeBeatmapDataAndBind(container, false, transformedBeatmapData, untransformedBeatmapData);
+
+            // TODO: swap strings out for const variables
             container.Bind<bool>().WithId("isMultiplayer").FromInstance(isMultiplayer);
             container.Bind<bool>().WithId("leftHanded").FromInstance(playerSpecificSettings.leftHanded);
         }

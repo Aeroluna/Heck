@@ -1,13 +1,18 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Chroma.Settings;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
+using HarmonyLib;
+using Heck.Animation;
 using IPA.Utilities;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Zenject;
 using static Chroma.ChromaController;
 using Logger = IPA.Logging.Logger;
 using Object = UnityEngine.Object;
@@ -22,7 +27,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         Contains
     }
 
-    internal static class EnvironmentEnhancementManager
+    [UsedImplicitly]
+    internal class EnvironmentEnhancementManager : IDisposable
     {
         private const string LOOKUPDLL = @"LookupID.dll";
 
@@ -30,29 +36,59 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
 
-        private static List<GameObjectInfo> _gameObjectInfos = new();
+        private readonly List<GameObjectInfo> _gameObjectInfos = new();
 
-        internal static Dictionary<TrackLaneRing, Quaternion> RingRotationOffsets { get; private set; } = new();
+        private readonly CustomBeatmapData _beatmapData;
+        private readonly float _noteLinesDistance;
+        private readonly Dictionary<string, Track> _tracks;
+        private readonly ParametricBoxControllerParameters _parametricBoxControllerParameters;
+        private readonly LazyInject<ComponentInitializer> _componentInitializer;
+        private readonly GameObjectTrackController.Factory _trackControllerFactory;
 
-        internal static Dictionary<BeatmapObjectsAvoidance, Vector3> AvoidancePosition { get; private set; } = new();
+        private readonly HashSet<GameObjectTrackController> _gameObjectTrackControllers = new();
 
-        internal static Dictionary<BeatmapObjectsAvoidance, Quaternion> AvoidanceRotation { get; private set; } = new();
-
-        internal static void Init(CustomBeatmapData customBeatmapData, float noteLinesDistance)
+        private EnvironmentEnhancementManager(
+            BeatmapObjectSpawnController spawnController,
+            IReadonlyBeatmapData beatmapData,
+            Dictionary<string, Track> tracks,
+            ParametricBoxControllerParameters parametricBoxControllerParameters,
+            LazyInject<ComponentInitializer> componentInitializer,
+            GameObjectTrackController.Factory trackControllerFactory)
         {
-            IEnumerable<Dictionary<string, object?>>? environmentData = customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object?>>();
-            GetAllGameObjects();
+            if (beatmapData is not CustomBeatmapData customBeatmapData)
+            {
+                throw new ArgumentNullException(nameof(beatmapData));
+            }
 
-            RingRotationOffsets = new Dictionary<TrackLaneRing, Quaternion>();
-            AvoidancePosition = new Dictionary<BeatmapObjectsAvoidance, Vector3>();
-            AvoidanceRotation = new Dictionary<BeatmapObjectsAvoidance, Quaternion>();
-            ParametricBoxControllerParameters.TransformParameters = new Dictionary<ParametricBoxController, ParametricBoxControllerParameters>();
+            _beatmapData = customBeatmapData;
+            _noteLinesDistance = spawnController.noteLinesDistance;
+            _tracks = tracks;
+            _parametricBoxControllerParameters = parametricBoxControllerParameters;
+            _componentInitializer = componentInitializer;
+            _trackControllerFactory = trackControllerFactory;
+            spawnController.StartCoroutine(DelayedStart());
+        }
+
+        internal Dictionary<TrackLaneRing, Quaternion> RingRotationOffsets { get; } = new();
+
+        internal Dictionary<BeatmapObjectsAvoidance, Vector3> AvoidancePosition { get; } = new();
+
+        internal Dictionary<BeatmapObjectsAvoidance, Quaternion> AvoidanceRotation { get; } = new();
+
+        public void Dispose()
+        {
+            _gameObjectTrackControllers.Do(Object.Destroy);
+        }
+
+        internal IEnumerator DelayedStart()
+        {
+            yield return new WaitForEndOfFrame();
+
+            IEnumerable<Dictionary<string, object?>>? environmentData = _beatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object?>>();
+            GetAllGameObjects();
 
             if (environmentData != null)
             {
-                RingRotationOffsets.Clear();
-                ParametricBoxControllerParameters.TransformParameters.Clear();
-
                 if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                 {
                     Log.Logger.Log("=====================================");
@@ -62,7 +98,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                 foreach (Dictionary<string, object?> gameObjectData in environmentData)
                 {
-                    string id = gameObjectData.Get<string>(ID) ?? throw new InvalidOperationException("Id was not defined.");
+                    string id = gameObjectData.Get<string>(GAMEOBJECT_ID) ?? throw new InvalidOperationException("Id was not defined.");
 
                     LookupMethod lookupMethod = gameObjectData.GetStringToEnum<LookupMethod?>(LOOKUP_METHOD) ?? throw new InvalidOperationException("Lookup method was not defined.");
 
@@ -111,15 +147,15 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                             for (int i = 0; i < dupeAmount.Value; i++)
                             {
                                 List<IComponentData> componentDatas = new();
-                                ComponentInitializer.PrefillComponentsData(gameObject.transform, componentDatas);
+                                _componentInitializer.Value.PrefillComponentsData(gameObject.transform, componentDatas);
                                 GameObject newGameObject = Object.Instantiate(gameObject);
-                                ComponentInitializer.PostfillComponentsData(newGameObject.transform, gameObject.transform, componentDatas);
+                                _componentInitializer.Value.PostfillComponentsData(newGameObject.transform, gameObject.transform, componentDatas);
                                 SceneManager.MoveGameObjectToScene(newGameObject, scene);
 
                                 // ReSharper disable once Unity.InstantiateWithoutParent
                                 // need to move shit to right scene first
                                 newGameObject.transform.SetParent(parent, true);
-                                ComponentInitializer.InitializeComponents(newGameObject.transform, gameObject.transform, _gameObjectInfos, componentDatas, lightID);
+                                _componentInitializer.Value.InitializeComponents(newGameObject.transform, gameObject.transform, _gameObjectInfos, componentDatas, lightID);
 
                                 List<GameObjectInfo> gameObjects = _gameObjectInfos.Where(n => n.GameObject == newGameObject).ToList();
                                 gameObjectInfos.AddRange(gameObjects);
@@ -162,7 +198,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                         if (position.HasValue)
                         {
-                            transform.position = position.Value * noteLinesDistance;
+                            transform.position = position.Value * _noteLinesDistance;
                         }
 
                         if (rotation.HasValue)
@@ -172,7 +208,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                         if (localPosition.HasValue)
                         {
-                            transform.localPosition = localPosition.Value * noteLinesDistance;
+                            transform.localPosition = localPosition.Value * _noteLinesDistance;
                         }
 
                         if (localRotation.HasValue)
@@ -203,12 +239,12 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                         {
                             if (position.HasValue || localPosition.HasValue)
                             {
-                                ParametricBoxControllerParameters.SetTransformPosition(parametricBoxController, transform.localPosition);
+                                _parametricBoxControllerParameters.SetTransformPosition(parametricBoxController, transform.localPosition);
                             }
 
                             if (scale.HasValue)
                             {
-                                ParametricBoxControllerParameters.SetTransformScale(parametricBoxController, transform.localScale);
+                                _parametricBoxControllerParameters.SetTransformScale(parametricBoxController, transform.localScale);
                             }
                         }
 
@@ -227,7 +263,19 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                             }
                         }
 
-                        GameObjectTrackController.HandleTrackData(gameObject, gameObjectData, customBeatmapData, noteLinesDistance, trackLaneRing, parametricBoxController, beatmapObjectsAvoidance);
+                        GameObjectTrackController? trackController = GameObjectTrackController.HandleTrackData(
+                            _trackControllerFactory,
+                            gameObject,
+                            gameObjectData,
+                            _noteLinesDistance,
+                            trackLaneRing,
+                            parametricBoxController,
+                            beatmapObjectsAvoidance,
+                            _tracks);
+                        if (trackController != null)
+                        {
+                            _gameObjectTrackControllers.Add(trackController);
+                        }
                     }
 
                     if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
@@ -239,12 +287,21 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             try
             {
-                LegacyEnvironmentRemoval.Init(customBeatmapData);
+                LegacyEnvironmentRemoval.Init(_beatmapData);
             }
             catch (Exception e)
             {
                 Log.Logger.Log("Could not run Legacy Enviroment Removal");
                 Log.Logger.Log(e);
+            }
+        }
+
+        private static void GetChildRecursive(Transform gameObject, ref List<Transform> children)
+        {
+            foreach (Transform child in gameObject)
+            {
+                children.Add(child);
+                GetChildRecursive(child, ref children);
             }
         }
 
@@ -255,7 +312,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 #pragma warning restore CA2101
 
         // this is where i pretend to know what any of this is doing.
-        private static List<GameObjectInfo> LookupID(string[] gameObjectIds, string id, LookupMethod lookupMethod)
+        private List<GameObjectInfo> LookupID(string[] gameObjectIds, string id, LookupMethod lookupMethod)
         {
             int length = gameObjectIds.Length;
             LookupID_internal(gameObjectIds, length, out IntPtr buffer, ref length, id, lookupMethod);
@@ -270,10 +327,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             return returnList;
         }
 
-        private static void GetAllGameObjects()
+        private void GetAllGameObjects()
         {
-            _gameObjectInfos = new List<GameObjectInfo>();
-
             // I'll probably revist this formula for getting objects by only grabbing the root objects and adding all the children
             List<GameObject> gameObjects = Resources.FindObjectsOfTypeAll<GameObject>().Where(n =>
             {
@@ -330,15 +385,6 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             objectsToPrint.Sort();
             objectsToPrint.ForEach(n => Log.Logger.Log(n));
-        }
-
-        private static void GetChildRecursive(Transform gameObject, ref List<Transform> children)
-        {
-            foreach (Transform child in gameObject)
-            {
-                children.Add(child);
-                GetChildRecursive(child, ref children);
-            }
         }
     }
 }

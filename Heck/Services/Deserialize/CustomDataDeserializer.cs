@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
-using IPA.Loader;
 
 namespace Heck
 {

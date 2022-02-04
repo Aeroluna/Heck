@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Heck.Animation
@@ -62,7 +61,7 @@ namespace Heck.Animation
         {
             if (Properties.ContainsKey(name))
             {
-                Log.Logger.Log($"Duplicate property {name}, skipping...", IPA.Logging.Logger.Level.Trace);
+                ////Log.Logger.Log($"Duplicate property {name}, skipping...", IPA.Logging.Logger.Level.Trace);
             }
             else
             {
@@ -74,7 +73,7 @@ namespace Heck.Animation
         {
             if (PathProperties.ContainsKey(name))
             {
-                Log.Logger.Log($"Duplicate path property {name}, skipping...", IPA.Logging.Logger.Level.Trace);
+                ////Log.Logger.Log($"Duplicate path property {name}, skipping...", IPA.Logging.Logger.Level.Trace);
             }
             else
             {

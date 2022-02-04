@@ -6,15 +6,12 @@ using UnityEngine;
 namespace Chroma.Lighting
 {
     // Please let me delete this whole class
-    internal static class LegacyLightHelper
+    internal class LegacyLightHelper
     {
         internal const int RGB_INT_OFFSET = 2000000000;
 
-        internal static IDictionary<BeatmapEventType, List<Tuple<float, Color>>> LegacyColorEvents { get; } = new Dictionary<BeatmapEventType, List<Tuple<float, Color>>>();
-
-        internal static void Activate(IEnumerable<BeatmapEventData> eventData)
+        internal LegacyLightHelper(IEnumerable<BeatmapEventData> eventData)
         {
-            LegacyColorEvents.Clear();
             foreach (BeatmapEventData d in eventData)
             {
                 if (d.value < RGB_INT_OFFSET)
@@ -32,7 +29,9 @@ namespace Chroma.Lighting
             }
         }
 
-        internal static Color? GetLegacyColor(BeatmapEventData beatmapEventData)
+        internal IDictionary<BeatmapEventType, List<Tuple<float, Color>>> LegacyColorEvents { get; } = new Dictionary<BeatmapEventType, List<Tuple<float, Color>>>();
+
+        internal Color? GetLegacyColor(BeatmapEventData beatmapEventData)
         {
             if (!LegacyColorEvents.TryGetValue(beatmapEventData.type, out List<Tuple<float, Color>> dictionaryID))
             {

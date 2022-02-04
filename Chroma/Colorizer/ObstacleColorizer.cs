@@ -2,13 +2,47 @@
 using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
+using Zenject;
 
 namespace Chroma.Colorizer
 {
+    [UsedImplicitly]
+    public class ObstacleColorizerManager
+    {
+        private readonly ObstacleColorizer.Factory _factory;
+
+        internal ObstacleColorizerManager(ObstacleColorizer.Factory factory)
+        {
+            _factory = factory;
+        }
+
+        public Dictionary<ObstacleControllerBase, ObstacleColorizer> Colorizers { get; } = new();
+
+        public Color? GlobalColor { get; private set; }
+
+        public ObstacleColorizer GetColorizer(ObstacleControllerBase obstactleController) => Colorizers[obstactleController];
+
+        public void Colorize(ObstacleControllerBase obstactleController, Color? color) => GetColorizer(obstactleController).Colorize(color);
+
+        [PublicAPI]
+        public void GlobalColorize(Color? color)
+        {
+            GlobalColor = color;
+            foreach (KeyValuePair<ObstacleControllerBase, ObstacleColorizer> valuePair in Colorizers)
+            {
+                valuePair.Value.Refresh();
+            }
+        }
+
+        internal void Create(ObstacleControllerBase obstacleController)
+        {
+            Colorizers.Add(obstacleController, _factory.Create(obstacleController));
+        }
+    }
+
+    [UsedImplicitly]
     public class ObstacleColorizer : ObjectColorizer
     {
-        private static readonly FieldAccessor<ObstacleController, ColorManager>.Accessor _colorManagerAccessor = FieldAccessor<ObstacleController, ColorManager>.GetAccessor("_colorManager");
-
         private static readonly FieldAccessor<StretchableObstacle, ParametricBoxFrameController>.Accessor _obstacleFrameAccessor = FieldAccessor<StretchableObstacle, ParametricBoxFrameController>.GetAccessor("_obstacleFrame");
         private static readonly FieldAccessor<StretchableObstacle, ParametricBoxFakeGlowController>.Accessor _obstacleFakeGlowAccessor = FieldAccessor<StretchableObstacle, ParametricBoxFakeGlowController>.GetAccessor("_obstacleFakeGlow");
         private static readonly FieldAccessor<StretchableObstacle, float>.Accessor _addColorMultiplierAccessor = FieldAccessor<StretchableObstacle, float>.GetAccessor("_addColorMultiplier");
@@ -18,13 +52,18 @@ namespace Chroma.Colorizer
         private static readonly int _tintColorID = Shader.PropertyToID("_TintColor");
         private static readonly int _addColorID = Shader.PropertyToID("_AddColor");
 
+        private readonly ObstacleColorizerManager _manager;
+
         private readonly ParametricBoxFrameController _obstacleFrame;
         private readonly ParametricBoxFakeGlowController _obstacleFakeGlow;
         private readonly float _addColorMultiplier;
         private readonly float _obstacleCoreLerpToWhiteFactor;
         private readonly MaterialPropertyBlockController[] _materialPropertyBlockControllers;
 
-        private ObstacleColorizer(ObstacleControllerBase obstacleController)
+        private ObstacleColorizer(
+            ObstacleControllerBase obstacleController,
+            ObstacleColorizerManager manager,
+            ColorManager colorManager)
         {
             StretchableObstacle stretchableObstacle = obstacleController.GetComponent<StretchableObstacle>();
             _obstacleFrame = _obstacleFrameAccessor(ref stretchableObstacle);
@@ -33,44 +72,13 @@ namespace Chroma.Colorizer
             _obstacleCoreLerpToWhiteFactor = _obstacleCoreLerpToWhiteFactorAccessor(ref stretchableObstacle);
             _materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref stretchableObstacle);
 
-            if (obstacleController is ObstacleController trueObstacleController)
-            {
-                OriginalColor = _colorManagerAccessor(ref trueObstacleController).obstaclesColor;
-            }
-            else
-            {
-                // Fallback
-                OriginalColor = Color.white;
-            }
+            _manager = manager;
+            OriginalColor = colorManager.obstaclesColor;
         }
 
-        public static Dictionary<ObstacleControllerBase, ObstacleColorizer> Colorizers { get; } = new();
+        protected override Color? GlobalColorGetter => _manager.GlobalColor;
 
-        public static Color? GlobalColor { get; private set; }
-
-        protected override Color? GlobalColorGetter => GlobalColor;
-
-        [PublicAPI]
-        public static void GlobalColorize(Color? color)
-        {
-            GlobalColor = color;
-            foreach (KeyValuePair<ObstacleControllerBase, ObstacleColorizer> valuePair in Colorizers)
-            {
-                valuePair.Value.Refresh();
-            }
-        }
-
-        internal static void Create(ObstacleControllerBase obstacleController)
-        {
-            Colorizers.Add(obstacleController, new ObstacleColorizer(obstacleController));
-        }
-
-        internal static void Reset()
-        {
-            GlobalColor = null;
-        }
-
-        protected override void Refresh()
+        internal override void Refresh()
         {
             Color color = Color;
             if (color == _obstacleFrame.color)
@@ -94,6 +102,11 @@ namespace Chroma.Colorizer
                 materialPropertyBlockController.materialPropertyBlock.SetColor(_tintColorID, Color.Lerp(color, Color.white, _obstacleCoreLerpToWhiteFactor));
                 materialPropertyBlockController.ApplyChanges();
             }
+        }
+
+        [UsedImplicitly]
+        internal class Factory : PlaceholderFactory<ObstacleControllerBase, ObstacleColorizer>
+        {
         }
     }
 }

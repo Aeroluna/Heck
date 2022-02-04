@@ -20,6 +20,6 @@ namespace Chroma.Colorizer
             Refresh();
         }
 
-        protected abstract void Refresh();
+        internal abstract void Refresh();
     }
 }

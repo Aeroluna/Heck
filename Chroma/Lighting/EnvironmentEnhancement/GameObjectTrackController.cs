@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Utilities;
+using JetBrains.Annotations;
 using UnityEngine;
+using Zenject;
 using static Chroma.ChromaController;
-using static Heck.Animation.AnimationHelper;
 using static Heck.NullableExtensions;
 
 namespace Chroma.Lighting.EnvironmentEnhancement
@@ -27,14 +27,19 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         private bool _handleParametricBoxController;
         private bool _handleBeatmapObjectsAvoidance;
 
-        internal static void HandleTrackData(
+        private bool _leftHanded;
+        private EnvironmentEnhancementManager _environmentManager = null!;
+        private ParametricBoxControllerParameters _parametricBoxControllerParameters = null!;
+
+        internal static GameObjectTrackController? HandleTrackData(
+            Factory factory,
             GameObject gameObject,
             Dictionary<string, object?> gameObjectData,
-            CustomBeatmapData beatmapData,
             float noteLinesDistance,
             TrackLaneRing? trackLaneRing,
             ParametricBoxController? parametricBoxController,
-            BeatmapObjectsAvoidance? beatmapObjectsAvoidance)
+            BeatmapObjectsAvoidance? beatmapObjectsAvoidance,
+            Dictionary<string, Track> tracks)
         {
             GameObjectTrackController existingTrackController = gameObject.GetComponent<GameObjectTrackController>();
             if (existingTrackController != null)
@@ -42,14 +47,17 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 Destroy(existingTrackController);
             }
 
-            Track? track = GetTrack(gameObjectData, beatmapData);
+            // TODO: stop being lazy and deserialize the tracks properly
+            Track? track = gameObjectData.GetTrack(tracks);
             if (track == null)
             {
-                return;
+                return null;
             }
 
-            GameObjectTrackController trackController = gameObject.AddComponent<GameObjectTrackController>();
+            // this is NOT the correct way to do this, but fuck you im lazy.
+            GameObjectTrackController trackController = factory.Create(gameObject);
             trackController.Init(track, noteLinesDistance, trackLaneRing, parametricBoxController, beatmapObjectsAvoidance);
+            return trackController;
         }
 
         internal void Init(Track track, float noteLinesDistance, TrackLaneRing? trackLaneRing, ParametricBoxController? parametricBoxController, BeatmapObjectsAvoidance? beatmapObjectsAvoidance)
@@ -64,6 +72,18 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             _handleBeatmapObjectsAvoidance = beatmapObjectsAvoidance != null;
 
             track.AddGameObject(gameObject);
+        }
+
+        [UsedImplicitly]
+        [Inject]
+        private void Construct(
+            [Inject(Id = "leftHanded")] bool leftHanded,
+            EnvironmentEnhancementManager environmentManager,
+            ParametricBoxControllerParameters parametricBoxControllerParameters)
+        {
+            _leftHanded = leftHanded;
+            _environmentManager = environmentManager;
+            _parametricBoxControllerParameters = parametricBoxControllerParameters;
         }
 
         private void Update()
@@ -91,11 +111,11 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                 if (_handleTrackLaneRing)
                 {
-                    EnvironmentEnhancementManager.RingRotationOffsets[_trackLaneRing!] = finalOffset;
+                    _environmentManager.RingRotationOffsets[_trackLaneRing!] = finalOffset;
                 }
                 else if (_handleBeatmapObjectsAvoidance)
                 {
-                    EnvironmentEnhancementManager.AvoidanceRotation[_beatmapObjectsAvoidance!] = finalOffset;
+                    _environmentManager.AvoidanceRotation[_beatmapObjectsAvoidance!] = finalOffset;
                 }
                 else
                 {
@@ -107,11 +127,11 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             {
                 if (_handleTrackLaneRing)
                 {
-                    EnvironmentEnhancementManager.RingRotationOffsets[_trackLaneRing!] = localRotation.Value;
+                    _environmentManager.RingRotationOffsets[_trackLaneRing!] = localRotation.Value;
                 }
                 else if (_handleBeatmapObjectsAvoidance)
                 {
-                    EnvironmentEnhancementManager.AvoidanceRotation[_beatmapObjectsAvoidance!] = localRotation.Value;
+                    _environmentManager.AvoidanceRotation[_beatmapObjectsAvoidance!] = localRotation.Value;
                 }
                 else
                 {
@@ -130,7 +150,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 }
                 else if (_handleBeatmapObjectsAvoidance)
                 {
-                    EnvironmentEnhancementManager.AvoidancePosition[_beatmapObjectsAvoidance!] = finalOffset;
+                    _environmentManager.AvoidancePosition[_beatmapObjectsAvoidance!] = finalOffset;
                 }
                 else
                 {
@@ -148,7 +168,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 }
                 else if (_handleBeatmapObjectsAvoidance)
                 {
-                    EnvironmentEnhancementManager.AvoidancePosition[_beatmapObjectsAvoidance!] = localPositionValue;
+                    _environmentManager.AvoidancePosition[_beatmapObjectsAvoidance!] = localPositionValue;
                 }
                 else
                 {
@@ -169,8 +189,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 return;
             }
 
-            ParametricBoxControllerParameters.SetTransformPosition(_parametricBoxController!, transform.localPosition);
-            ParametricBoxControllerParameters.SetTransformScale(_parametricBoxController!, transform.localScale);
+            _parametricBoxControllerParameters.SetTransformPosition(_parametricBoxController!, transform.localPosition);
+            _parametricBoxControllerParameters.SetTransformScale(_parametricBoxController!, transform.localScale);
         }
 
         private void OnTransformParentChanged()
@@ -181,8 +201,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
         private Vector3? GetVectorNullable(string property)
         {
-            Vector3? nullable = TryGetProperty<Vector3?>(_track, property);
-            if (LeftHandedMode)
+            Vector3? nullable = _track.GetProperty<Vector3?>(property);
+            if (_leftHanded)
             {
                 MirrorVectorNullable(ref nullable);
             }
@@ -192,13 +212,34 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
         private Quaternion? GetQuaternionNullable(string property)
         {
-            Quaternion? nullable = TryGetProperty<Quaternion?>(_track, property);
-            if (LeftHandedMode)
+            Quaternion? nullable = _track.GetProperty<Quaternion?>(property);
+            if (_leftHanded)
             {
                 MirrorQuaternionNullable(ref nullable);
             }
 
             return nullable;
+        }
+
+        [UsedImplicitly]
+        internal class Factory : PlaceholderFactory<GameObject, GameObjectTrackController>
+        {
+        }
+
+        [UsedImplicitly]
+        internal class GameObjectTrackControllerFactory : IFactory<GameObject, GameObjectTrackController>
+        {
+            private readonly IInstantiator _container;
+
+            private GameObjectTrackControllerFactory(IInstantiator container)
+            {
+                _container = container;
+            }
+
+            public GameObjectTrackController Create(GameObject gameObject)
+            {
+                return _container.InstantiateComponent<GameObjectTrackController>(gameObject);
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Heck.Animation;
 using IPA.Utilities;
 using JetBrains.Annotations;
+using NoodleExtensions.HarmonyPatches.SmallFixes;
 using UnityEngine;
 using Zenject;
 using static Heck.NullableExtensions;
@@ -28,15 +29,19 @@ namespace NoodleExtensions.Animation
 
         [UsedImplicitly]
         [Inject]
-        private void Construct(PauseController pauseController, bool leftHanded, IBeatmapObjectSpawnController spawnController)
+        private void Construct(
+            PauseController pauseController,
+            [Inject(Id = "leftHanded")] bool leftHanded,
+            InitializedSpawnMovementData movementData)
         {
             _pauseController = pauseController;
+
             pauseController.didPauseEvent += OnDidPauseEvent;
             Transform origin = transform;
             _startLocalRot = origin.localRotation;
             _startPos = origin.localPosition;
             _leftHanded = leftHanded;
-            _movementData = spawnController.beatmapObjectSpawnMovementData;
+            _movementData = movementData.MovementData;
         }
 
         private void OnDidPauseEvent()

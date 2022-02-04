@@ -60,7 +60,14 @@ namespace Heck
 
                 Log.Logger.Log($"Toggled [{_harmony.Id}] to [{value}].", Logger.Level.Trace);
                 _enabled = value;
-                _types.Do(_harmony.PatchAll);
+                if (value)
+                {
+                    _types.Do(_harmony.PatchAll);
+                }
+                else
+                {
+                    _harmony.UnpatchSelf();
+                }
             }
         }
     }

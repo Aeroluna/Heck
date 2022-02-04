@@ -3,7 +3,6 @@ using System.Linq;
 using Heck.Animation.Events;
 using Heck.SettingsSetter;
 using IPA;
-using IPA.Loader;
 using JetBrains.Annotations;
 using SiraUtil.Zenject;
 using static Heck.HeckController;
@@ -31,6 +30,8 @@ namespace Heck
 
             zenjector.Install<EventInstaller>(Location.Player);
             zenjector.Install<SettingsSetterInstaller>(Location.Menu);
+
+            ModuleManager.RegisterModule<ModuleCallbacks>("Heck", 0, RequirementType.None);
         }
 
 #pragma warning disable CA1822

@@ -187,8 +187,7 @@ namespace NoodleExtensions.Managers
 
         internal float GetSpawnAheadTime(float? inputNjs, float? inputOffset, float bpm)
         {
-            float result = _movementData.moveDuration + (GetJumpDuration(inputNjs, inputOffset, bpm) * 0.5f);
-            return result;
+            return _movementData.moveDuration + (GetJumpDuration(inputNjs, inputOffset, bpm) * 0.5f);
         }
 
         private Vector3 GetNoteOffset(float? startX, float? startY, int noteLineIndex, NoteLineLayer noteLineLayer)

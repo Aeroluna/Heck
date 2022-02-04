@@ -7,39 +7,37 @@ namespace NoodleExtensions
         Features
     }
 
-    public static class NoodleController
+    internal static class NoodleController
     {
-        public const string CAPABILITY = "Noodle Extensions";
+        internal const string ANIMATION = "_animation";
+        internal const string CUT_DIRECTION = "_cutDirection";
+        internal const string CUTTABLE = "_interactable";
+        internal const string DEFINITE_POSITION = "_definitePosition";
+        internal const string DISSOLVE = "_dissolve";
+        internal const string DISSOLVE_ARROW = "_dissolveArrow";
+        internal const string FAKE_NOTE = "_fake";
+        internal const string FLIP = "_flip";
+        internal const string LOCAL_ROTATION = "_localRotation";
+        internal const string NOTE_GRAVITY_DISABLE = "_disableNoteGravity";
+        internal const string NOTE_JUMP_SPEED = "_noteJumpMovementSpeed";
+        internal const string NOTE_LOOK_DISABLE = "_disableNoteLook";
+        internal const string NOTE_SPAWN_OFFSET = "_noteJumpStartBeatOffset";
+        internal const string POSITION = "_position";
+        internal const string ROTATION = "_rotation";
+        internal const string SCALE = "_scale";
+        internal const string TIME = "_time";
+        internal const string TRACK = "_track";
+        internal const string WORLD_POSITION_STAYS = "_worldPositionStays";
 
-        public const string ID = "NoodleExtensions";
+        internal const string PARENT_TRACK = "_parentTrack";
+        internal const string CHILDREN_TRACKS = "_childrenTracks";
 
-        public const string HARMONY_ID = "com.aeroluna.NoodleExtensions";
+        internal const string ASSIGN_PLAYER_TO_TRACK = "AssignPlayerToTrack";
+        internal const string ASSIGN_TRACK_PARENT = "AssignTrackParent";
 
-        public const string ANIMATION = "_animation";
-        public const string CUT_DIRECTION = "_cutDirection";
-        public const string CUTTABLE = "_interactable";
-        public const string DEFINITE_POSITION = "_definitePosition";
-        public const string DISSOLVE = "_dissolve";
-        public const string DISSOLVE_ARROW = "_dissolveArrow";
-        public const string FAKE_NOTE = "_fake";
-        public const string FLIP = "_flip";
-        public const string LOCAL_ROTATION = "_localRotation";
-        public const string NOTE_GRAVITY_DISABLE = "_disableNoteGravity";
-        public const string NOTE_JUMP_SPEED = "_noteJumpMovementSpeed";
-        public const string NOTE_LOOK_DISABLE = "_disableNoteLook";
-        public const string NOTE_SPAWN_OFFSET = "_noteJumpStartBeatOffset";
-        public const string POSITION = "_position";
-        public const string ROTATION = "_rotation";
-        public const string SCALE = "_scale";
-        public const string TIME = "_time";
-        public const string TRACK = "_track";
-        public const string WORLD_POSITION_STAYS = "_worldPositionStays";
-
-        public const string PARENT_TRACK = "_parentTrack";
-        public const string CHILDREN_TRACKS = "_childrenTracks";
-
-        public const string ASSIGN_PLAYER_TO_TRACK = "AssignPlayerToTrack";
-        public const string ASSIGN_TRACK_PARENT = "AssignTrackParent";
+        internal const string CAPABILITY = "Noodle Extensions";
+        internal const string ID = "NoodleExtensions";
+        internal const string HARMONY_ID = "com.aeroluna.NoodleExtensions";
 
         internal static HeckPatcher CorePatcher { get; } = new(HARMONY_ID + "Core");
 
@@ -49,7 +47,7 @@ namespace NoodleExtensions
 
         internal static Module FeaturesModule { get; } = ModuleManager.RegisterModule<ModuleCallbacks>(
             "Noodle",
-            1,
+            2,
             RequirementType.Condition,
             null,
             new[] { "Heck" });

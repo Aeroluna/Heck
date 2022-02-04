@@ -1,5 +1,5 @@
 ﻿using System;
-using Chroma.Utils;
+using Chroma.Extras;
 using Heck.SettingsSetter;
 using JetBrains.Annotations;
 using SongCore;

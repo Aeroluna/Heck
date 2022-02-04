@@ -1,19 +1,24 @@
-﻿using HarmonyLib;
-using Heck;
-using static Chroma.ChromaCustomDataManager;
+﻿using Heck;
+using SiraUtil.Affinity;
+using Zenject;
 
 namespace Chroma.HarmonyPatches
 {
-    [HeckPatch(typeof(BeatEffectSpawner))]
-    [HeckPatch("HandleNoteDidStartJump")]
-    internal static class BeatEffectSpawnerHandleNoteDidStartJump
+    internal class BeatEffectSpawnerSkip : IAffinity
     {
-        [HarmonyPriority(Priority.High)]
-        private static bool Prefix(NoteController noteController)
+        private readonly CustomData _customData;
+
+        private BeatEffectSpawnerSkip([Inject(Id = ChromaController.ID)] CustomData customData)
         {
-            ChromaNoteData? chromaData = TryGetObjectData<ChromaNoteData>(noteController.noteData);
-            bool? disable = chromaData?.DisableSpawnEffect;
-            return disable is not true;
+            _customData = customData;
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(BeatEffectSpawner), nameof(BeatEffectSpawner.HandleNoteDidStartJump))]
+        private bool Prefix(NoteController noteController)
+        {
+            _customData.Resolve(noteController.noteData, out ChromaNoteData? chromaData);
+            return chromaData?.DisableSpawnEffect is not true;
         }
     }
 }

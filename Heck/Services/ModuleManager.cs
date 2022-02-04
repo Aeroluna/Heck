@@ -5,7 +5,7 @@ using System.Reflection;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
-using IPA.Logging;
+using Logger = IPA.Logging.Logger;
 
 namespace Heck
 {
@@ -23,27 +23,37 @@ namespace Heck
             string[]? depends = null,
             string[]? conflict = null)
         {
-            MethodInfo? method = typeof(T).GetMethods(AccessTools.allDeclared).FirstOrDefault(n =>
+            bool SearchForAttribute<TAttribute>(MethodInfo method)
+                where TAttribute : AttributeWithId
             {
-                AttributeWithId? attribute = n.GetCustomAttribute<ModuleCallback>();
-                return attribute != null && attribute.Id == attributeId;
-            });
+                AttributeWithId? attribute = method.GetCustomAttribute<TAttribute>();
+
+                if (attribute == null)
+                {
+                    return false;
+                }
+
+                if (attribute.Id != null)
+                {
+                    return attribute.Id.Equals(attributeId);
+                }
+
+                return attributeId == null;
+            }
+
+            MethodInfo? method = typeof(T).GetMethods(AccessTools.allDeclared).FirstOrDefault(SearchForAttribute<ModuleCallback>);
             if (method == null)
             {
-                throw new ArgumentException($"[{typeof(T).FullName}] does not contain a method marked with [{nameof(ModuleCallback)}].", nameof(T));
+                throw new ArgumentException($"[{typeof(T).FullName}] does not contain a method marked with [{nameof(ModuleCallback)}] and id [{attributeId}].", nameof(T));
             }
 
             MethodInfo? condition = null;
             if (requirementType == RequirementType.Condition)
             {
-                condition = typeof(T).GetMethods(AccessTools.allDeclared).FirstOrDefault(n =>
-                {
-                    AttributeWithId? attribute = n.GetCustomAttribute<ModuleCondition>();
-                    return attribute != null && attribute.Id == attributeId;
-                });
+                condition = typeof(T).GetMethods(AccessTools.allDeclared).FirstOrDefault(SearchForAttribute<ModuleCondition>);
                 if (condition == null || condition.ReturnType != typeof(bool))
                 {
-                    throw new ArgumentException($"[{typeof(T).FullName}] does not contain a method marked with [{nameof(ModuleCondition)}] that returns [{nameof(Boolean)}].", nameof(T));
+                    throw new ArgumentException($"[{typeof(T).FullName}] does not contain a method marked with [{nameof(ModuleCondition)}] and id [{attributeId}] that returns [{nameof(Boolean)}].", nameof(T));
                 }
             }
 
@@ -64,9 +74,8 @@ namespace Heck
 
         internal static void Activate(
             IDifficultyBeatmap? difficultyBeatmap,
-            SceneSetupData[] sceneSetupData,
-            SceneInfo[] sceneInfo,
-            LevelType levelType)
+            LevelType levelType,
+            ref OverrideEnvironmentSettings? overrideEnvironmentSettings)
         {
             bool disableAll = false;
             string[]? requirements = null;
@@ -84,12 +93,14 @@ namespace Heck
 
             requirements ??= Array.Empty<string>();
             suggestions ??= Array.Empty<string>();
+
+            ModuleArgs moduleArgs = new(overrideEnvironmentSettings);
+
             object[] inputs =
             {
                 new Capabilities(requirements, suggestions),
                 difficultyBeatmap ?? new EmptyDifficultyBeatmap(),
-                sceneSetupData,
-                sceneInfo,
+                moduleArgs,
                 levelType
             };
 
@@ -176,8 +187,7 @@ namespace Heck
                         continue;
                     }
 
-                    Log.Logger.Log($"[{module.Id}] requires [{dependId}] but it is not available.", Logger.Level.Trace);
-                    goto fail;
+                    throw new InvalidOperationException($"[{module.Id}] requires [{dependId}] but it is not available.");
                 }
 
                 // passed the checks, initilaize
@@ -195,6 +205,18 @@ namespace Heck
             {
                 InitializeModule(queue.First());
             }
+
+            overrideEnvironmentSettings = moduleArgs.OverrideEnvironmentSettings;
+        }
+
+        public class ModuleArgs
+        {
+            public ModuleArgs(OverrideEnvironmentSettings? overrideEnvironmentSettings)
+            {
+                OverrideEnvironmentSettings = overrideEnvironmentSettings;
+            }
+
+            public OverrideEnvironmentSettings? OverrideEnvironmentSettings { get; set; }
         }
     }
 }

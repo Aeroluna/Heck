@@ -22,8 +22,14 @@ namespace NoodleExtensions.HarmonyPatches.Mirror
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MirroredNoteController<INoteMirrorable>), "UpdatePositionAndRotation")]
+        private static bool INoteMirrorableUpdateUpdatePositionAndRotationPrefix(Transform ____noteTransform, Transform ____followedNoteTransform)
+        {
+            return CheckSkip(____noteTransform, ____followedNoteTransform);
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(MirroredNoteController<ICubeNoteMirrorable>), "UpdatePositionAndRotation")]
-        private static bool UpdatePositionAndRotationPrefix(Transform ____noteTransform, Transform ____followedNoteTransform)
+        private static bool ICubeNoteMirrorableUpdateUpdatePositionAndRotationPrefix(Transform ____noteTransform, Transform ____followedNoteTransform)
         {
             return CheckSkip(____noteTransform, ____followedNoteTransform);
         }

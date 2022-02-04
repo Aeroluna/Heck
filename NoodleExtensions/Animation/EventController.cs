@@ -20,7 +20,6 @@ namespace NoodleExtensions.Animation
         [Inject]
         internal void Construct(
             CustomEventCallbackController customEventCallbackController,
-            IReadonlyBeatmapData beatmapData,
             [Inject(Id = ID)] CustomData customData,
             LazyInject<ParentController> parentController,
             LazyInject<PlayerTrack> playerTrack,

@@ -1,16 +1,46 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using IPA.Utilities;
+using JetBrains.Annotations;
 using UnityEngine;
+using Zenject;
 
 namespace Chroma.Colorizer
 {
-    public class ParticleColorizer
+    [UsedImplicitly]
+    public class ParticleColorizerManager
     {
-        // ParticleSystemEventEffect still doesn't support boost colors!
-        private const int COLOR_FIELDS = 2;
+        private static readonly FieldAccessor<ParticleSystemEventEffect, BeatmapEventType>.Accessor _eventAccessor = FieldAccessor<ParticleSystemEventEffect, BeatmapEventType>.GetAccessor("_colorEvent");
 
-        private static readonly FieldAccessor<MultipliedColorSO, Color>.Accessor _multiplierColorAccessor = FieldAccessor<MultipliedColorSO, Color>.GetAccessor("_multiplierColor");
-        private static readonly FieldAccessor<MultipliedColorSO, SimpleColorSO>.Accessor _baseColorAccessor = FieldAccessor<MultipliedColorSO, SimpleColorSO>.GetAccessor("_baseColor");
+        private readonly ParticleColorizer.Factory _factory;
+
+        private ParticleColorizerManager(ParticleColorizer.Factory factory)
+        {
+            _factory = factory;
+        }
+
+        public Dictionary<BeatmapEventType, List<ParticleColorizer>> Colorizers { get; } = new();
+
+        internal void Create(ParticleSystemEventEffect particleSystemEventEffect)
+        {
+            BeatmapEventType type = _eventAccessor(ref particleSystemEventEffect);
+            if (!Colorizers.TryGetValue(type, out List<ParticleColorizer> colorizers))
+            {
+                colorizers = new List<ParticleColorizer>();
+                Colorizers.Add(type, colorizers);
+            }
+
+            colorizers.Add(_factory.Create(particleSystemEventEffect));
+        }
+    }
+
+    [UsedImplicitly]
+    public sealed class ParticleColorizer : IDisposable
+    {
+        private static readonly FieldAccessor<ParticleSystemEventEffect, ColorSO>.Accessor _lightColor0Accessor = FieldAccessor<ParticleSystemEventEffect, ColorSO>.GetAccessor("_lightColor0");
+        private static readonly FieldAccessor<ParticleSystemEventEffect, ColorSO>.Accessor _lightColor1Accessor = FieldAccessor<ParticleSystemEventEffect, ColorSO>.GetAccessor("_lightColor1");
+        private static readonly FieldAccessor<ParticleSystemEventEffect, ColorSO>.Accessor _highlightColor0Accessor = FieldAccessor<ParticleSystemEventEffect, ColorSO>.GetAccessor("_highlightColor0");
+        private static readonly FieldAccessor<ParticleSystemEventEffect, ColorSO>.Accessor _highlightColor1Accessor = FieldAccessor<ParticleSystemEventEffect, ColorSO>.GetAccessor("_highlightColor1");
 
         private static readonly FieldAccessor<ParticleSystemEventEffect, Color>.Accessor _particleColorAccessor = FieldAccessor<ParticleSystemEventEffect, Color>.GetAccessor("_particleColor");
         private static readonly FieldAccessor<ParticleSystemEventEffect, Color>.Accessor _offColorAccessor = FieldAccessor<ParticleSystemEventEffect, Color>.GetAccessor("_offColor");
@@ -18,149 +48,136 @@ namespace Chroma.Colorizer
         private static readonly FieldAccessor<ParticleSystemEventEffect, float>.Accessor _highlightValueAccessor = FieldAccessor<ParticleSystemEventEffect, float>.GetAccessor("_highlightValue");
         private static readonly FieldAccessor<ParticleSystemEventEffect, Color>.Accessor _afterHighlightColorAccessor = FieldAccessor<ParticleSystemEventEffect, Color>.GetAccessor("_afterHighlightColor");
 
-        private readonly ParticleSystemEventEffect _particleSystemEventEffect;
-        private readonly BeatmapEventType _eventType;
+        private static readonly FieldAccessor<ParticleSystemEventEffect, BeatmapEventType>.Accessor _eventAccessor = FieldAccessor<ParticleSystemEventEffect, BeatmapEventType>.GetAccessor("_colorEvent");
 
-        private readonly SimpleColorSO[] _simpleColorSOs = new SimpleColorSO[COLOR_FIELDS];
-        private readonly MultipliedColorSO[] _multipliedColorSOs = new MultipliedColorSO[COLOR_FIELDS];
-        private readonly MultipliedColorSO[] _multipliedHighlightColorSOs = new MultipliedColorSO[COLOR_FIELDS];
+        private static readonly FieldAccessor<MultipliedColorSO, Color>.Accessor _multiplierColorAccessor = FieldAccessor<MultipliedColorSO, Color>.GetAccessor("_multiplierColor");
 
-        private ParticleColorizer(ParticleSystemEventEffect particleSystemEventEffect, BeatmapEventType beatmapEventType)
+        private ParticleSystemEventEffect _particleSystemEventEffect;
+
+        private MultipliedColorSO _lightColor0;
+        private MultipliedColorSO _lightColor1;
+        private MultipliedColorSO _highlightColor0;
+        private MultipliedColorSO _highlightColor1;
+
+        private LightColorizer? _lightColorizer;
+
+        private int _previousValue;
+
+        private ParticleColorizer(
+            ParticleSystemEventEffect particleSystemEventEffect,
+            LightColorizerManager lightColorizerManager)
         {
             _particleSystemEventEffect = particleSystemEventEffect;
-            _eventType = beatmapEventType;
-            InitializeSO("_lightColor0", 0);
-            InitializeSO("_highlightColor0", 0, true);
-            InitializeSO("_lightColor1", 1);
-            InitializeSO("_highlightColor1", 1, true);
-            LightColorizer.LightColorChanged += OnLightColorChanged;
+            _lightColor0 = (MultipliedColorSO)_lightColor0Accessor(ref particleSystemEventEffect);
+            _lightColor1 = (MultipliedColorSO)_lightColor1Accessor(ref particleSystemEventEffect);
+            _highlightColor0 = (MultipliedColorSO)_highlightColor0Accessor(ref particleSystemEventEffect);
+            _highlightColor1 = (MultipliedColorSO)_highlightColor1Accessor(ref particleSystemEventEffect);
+
+            // not sure when the light colorizer will be made...
+            lightColorizerManager.CreateLightColorizerContract(_eventAccessor(ref particleSystemEventEffect), AssignLightColorizer);
         }
 
-        public static Dictionary<BeatmapEventType, List<ParticleColorizer>> Colorizers { get; } = new();
+        private LightColorizer FollowedColorizer => _lightColorizer ?? throw new InvalidOperationException($"{nameof(_lightColorizer)} was null.");
 
-        internal int PreviousValue { get; set; }
-
-        internal static ParticleColorizer Create(ParticleSystemEventEffect particleSystemEventEffect, BeatmapEventType beatmapEventType)
+        public void Dispose()
         {
-            ParticleColorizer particleColorizer = new(particleSystemEventEffect, beatmapEventType);
-            GetOrCreateColorizerList(beatmapEventType).Add(particleColorizer);
-            return particleColorizer;
-        }
-
-        internal void UnsubscribeEvent()
-        {
-            LightColorizer.LightColorChanged -= OnLightColorChanged;
-        }
-
-        private static List<ParticleColorizer> GetOrCreateColorizerList(BeatmapEventType eventType)
-        {
-            if (Colorizers.TryGetValue(eventType, out List<ParticleColorizer> colorizers))
-            {
-                return colorizers;
-            }
-
-            colorizers = new List<ParticleColorizer>();
-            Colorizers.Add(eventType, colorizers);
-
-            return colorizers;
-        }
-
-        // Day 124789 of particles not having color boost code
-        private void OnLightColorChanged(BeatmapEventType eventType, Color[] colors)
-        {
-            if (eventType != _eventType)
+            if (_lightColorizer == null)
             {
                 return;
             }
 
-            for (int i = 0; i < COLOR_FIELDS; i++)
-            {
-                _simpleColorSOs[i].SetColor(colors[i]);
-            }
+            _lightColorizer.ChromaLightSwitchEventEffect.BeatmapEventDidTrigger -= Callback;
+            _lightColorizer.ChromaLightSwitchEventEffect.DidRefresh -= Refresh;
+        }
 
-            ParticleSystemEventEffect particleSystemEventEffect = _particleSystemEventEffect;
+        // Day 124789 of particles not having color boost code
+        public void Refresh()
+        {
             Color color;
             Color afterHighlightColor;
-            switch (PreviousValue)
+            switch (_previousValue)
             {
                 case 0:
-                    _particleColorAccessor(ref particleSystemEventEffect) = _offColorAccessor(ref particleSystemEventEffect);
-                    particleSystemEventEffect.RefreshParticles();
+                    _particleColorAccessor(ref _particleSystemEventEffect) = _offColorAccessor(ref _particleSystemEventEffect);
+                    _particleSystemEventEffect.RefreshParticles();
                     break;
 
                 case 1:
                 case 5:
-                    color = (PreviousValue == 1) ? _multipliedColorSOs[0] : _multipliedColorSOs[1];
-                    _particleColorAccessor(ref particleSystemEventEffect) = color;
-                    _offColorAccessor(ref particleSystemEventEffect) = color.ColorWithAlpha(0);
-                    particleSystemEventEffect.RefreshParticles();
+                    color = GetNormalColor(_previousValue);
+                    _particleColorAccessor(ref _particleSystemEventEffect) = color;
+                    _offColorAccessor(ref _particleSystemEventEffect) = color.ColorWithAlpha(0);
+                    _particleSystemEventEffect.RefreshParticles();
                     break;
 
                 case 2:
                 case 6:
-                    color = (PreviousValue == 2) ? _multipliedHighlightColorSOs[0] : _multipliedHighlightColorSOs[1];
-                    _highlightColorAccessor(ref particleSystemEventEffect) = color;
-                    _offColorAccessor(ref particleSystemEventEffect) = color.ColorWithAlpha(0);
-                    afterHighlightColor = (PreviousValue == 2) ? _multipliedColorSOs[0] : _multipliedColorSOs[1];
-                    _afterHighlightColorAccessor(ref particleSystemEventEffect) = afterHighlightColor;
+                    color = GetHighlightColor(_previousValue);
+                    _highlightColorAccessor(ref _particleSystemEventEffect) = color;
+                    _offColorAccessor(ref _particleSystemEventEffect) = color.ColorWithAlpha(0);
+                    afterHighlightColor = GetNormalColor(_previousValue);
+                    _afterHighlightColorAccessor(ref _particleSystemEventEffect) = afterHighlightColor;
 
-                    _particleColorAccessor(ref particleSystemEventEffect) = Color.Lerp(afterHighlightColor, color, _highlightValueAccessor(ref particleSystemEventEffect));
-                    particleSystemEventEffect.RefreshParticles();
+                    _particleColorAccessor(ref _particleSystemEventEffect) = Color.Lerp(afterHighlightColor, color, _highlightValueAccessor(ref _particleSystemEventEffect));
+                    _particleSystemEventEffect.RefreshParticles();
                     break;
 
                 case 3:
                 case 7:
                 case -1:
-                    color = (PreviousValue == 3) ? _multipliedHighlightColorSOs[0] : _multipliedHighlightColorSOs[1];
-                    _highlightColorAccessor(ref particleSystemEventEffect) = color;
-                    _offColorAccessor(ref particleSystemEventEffect) = color.ColorWithAlpha(0);
-                    _particleColorAccessor(ref particleSystemEventEffect) = color;
-                    afterHighlightColor = _offColorAccessor(ref particleSystemEventEffect);
-                    _afterHighlightColorAccessor(ref particleSystemEventEffect) = afterHighlightColor;
+                    color = GetHighlightColor(_previousValue);
+                    _highlightColorAccessor(ref _particleSystemEventEffect) = color;
+                    _offColorAccessor(ref _particleSystemEventEffect) = color.ColorWithAlpha(0);
+                    _particleColorAccessor(ref _particleSystemEventEffect) = color;
+                    afterHighlightColor = _offColorAccessor(ref _particleSystemEventEffect);
+                    _afterHighlightColorAccessor(ref _particleSystemEventEffect) = afterHighlightColor;
 
-                    _particleColorAccessor(ref particleSystemEventEffect) = Color.Lerp(afterHighlightColor, color, _highlightValueAccessor(ref particleSystemEventEffect));
-                    particleSystemEventEffect.RefreshParticles();
+                    _particleColorAccessor(ref _particleSystemEventEffect) = Color.Lerp(afterHighlightColor, color, _highlightValueAccessor(ref _particleSystemEventEffect));
+                    _particleSystemEventEffect.RefreshParticles();
                     break;
             }
         }
 
-        private void InitializeSO(string id, int index, bool highlight = false)
+        public Color GetNormalColor(int beatmapEventValue)
         {
-            ParticleSystemEventEffect particleSystemEventEffect = _particleSystemEventEffect;
-            FieldAccessor<ParticleSystemEventEffect, ColorSO>.Accessor colorSOAcessor = FieldAccessor<ParticleSystemEventEffect, ColorSO>.GetAccessor(id);
-
-            MultipliedColorSO lightMultSO = (MultipliedColorSO)colorSOAcessor(ref particleSystemEventEffect);
-
-            Color multiplierColor = _multiplierColorAccessor(ref lightMultSO);
-            SimpleColorSO lightSO = _baseColorAccessor(ref lightMultSO);
-
-            MultipliedColorSO mColorSO = ScriptableObject.CreateInstance<MultipliedColorSO>();
-            _multiplierColorAccessor(ref mColorSO) = multiplierColor;
-
-            SimpleColorSO sColorSO;
-            if (_simpleColorSOs[index] == null)
+            if (!IsColor0(beatmapEventValue))
             {
-                sColorSO = ScriptableObject.CreateInstance<SimpleColorSO>();
-                sColorSO.SetColor(lightSO.color);
-                _simpleColorSOs[index] = sColorSO;
-            }
-            else
-            {
-                sColorSO = _simpleColorSOs[index];
+                return FollowedColorizer.Color[1] * _multiplierColorAccessor(ref _lightColor1);
             }
 
-            _baseColorAccessor(ref mColorSO) = sColorSO;
+            return FollowedColorizer.Color[0] * _multiplierColorAccessor(ref _lightColor0);
+        }
 
-            if (highlight)
+        public Color GetHighlightColor(int beatmapEventValue)
+        {
+            if (!IsColor0(beatmapEventValue))
             {
-                _multipliedHighlightColorSOs[index] = mColorSO;
-            }
-            else
-            {
-                _multipliedColorSOs[index] = mColorSO;
+                return FollowedColorizer.Color[1] * _multiplierColorAccessor(ref _highlightColor1);
             }
 
-            colorSOAcessor(ref particleSystemEventEffect) = mColorSO;
+            return FollowedColorizer.Color[0] * _multiplierColorAccessor(ref _highlightColor0);
+        }
+
+        private static bool IsColor0(int value)
+        {
+            return value is 1 or 2 or 3 or 4 or 0 or -1;
+        }
+
+        private void AssignLightColorizer(LightColorizer lightColorizer)
+        {
+            _lightColorizer = lightColorizer;
+            lightColorizer.ChromaLightSwitchEventEffect.BeatmapEventDidTrigger += Callback;
+            lightColorizer.ChromaLightSwitchEventEffect.DidRefresh += Refresh;
+        }
+
+        private void Callback(BeatmapEventData beatmapEventData)
+        {
+            _previousValue = beatmapEventData.value;
+        }
+
+        [UsedImplicitly]
+        internal class Factory : PlaceholderFactory<ParticleSystemEventEffect, ParticleColorizer>
+        {
         }
     }
 }

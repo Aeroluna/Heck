@@ -60,7 +60,7 @@ namespace NoodleExtensions.Installers
             // SmallFixes
             Container.BindInterfacesTo<NoteCutSoundLimiter>().AsSingle();
             Container.BindInterfacesTo<PreventObstacleFlickerOnSpawn>().AsSingle();
-            Container.Bind<SpawnMovementDataInitializer>().AsSingle().NonLazy();
+            Container.Bind<InitializedSpawnMovementData>().AsSingle().NonLazy();
         }
     }
 }

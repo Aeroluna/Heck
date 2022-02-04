@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Chroma.Colorizer;
-using Chroma.HarmonyPatches.EnvironmentComponent;
+using Chroma.HarmonyPatches.Colorizer.Initialize;
 using Chroma.Settings;
+using HarmonyLib;
 using IPA.Utilities;
+using JetBrains.Annotations;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Chroma.Lighting.EnvironmentEnhancement
 {
-    internal static class ComponentInitializer
+    [UsedImplicitly]
+    internal class ComponentInitializer
     {
         private static readonly FieldAccessor<LightWithIdMonoBehaviour, LightWithIdManager>.Accessor _lightWithIdMonoBehaviourManagerAccessor = FieldAccessor<LightWithIdMonoBehaviour, LightWithIdManager>.GetAccessor("_lightManager");
         private static readonly FieldAccessor<LightWithIds, LightWithIdManager>.Accessor _lightWithIdsManagerAccessor = FieldAccessor<LightWithIds, LightWithIdManager>.GetAccessor("_lightManager");
@@ -27,14 +29,29 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         private static readonly FieldAccessor<TrackLaneRingsPositionStepEffectSpawner, TrackLaneRingsManager>.Accessor _stepSpawnerRingsManagerAccessor = FieldAccessor<TrackLaneRingsPositionStepEffectSpawner, TrackLaneRingsManager>.GetAccessor("_trackLaneRingsManager");
         private static readonly FieldAccessor<TrackLaneRingsRotationEffectSpawner, TrackLaneRingsRotationEffect>.Accessor _trackLaneRingsRotationEffectAccessor = FieldAccessor<TrackLaneRingsRotationEffectSpawner, TrackLaneRingsRotationEffect>.GetAccessor("_trackLaneRingsRotationEffect");
         private static readonly FieldAccessor<TrackLaneRingsRotationEffectSpawner, IBeatmapObjectCallbackController>.Accessor _rotationEffectSpawnerCallbackControllerAccessor = FieldAccessor<TrackLaneRingsRotationEffectSpawner, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
+        private static readonly PropertyAccessor<LightWithIds, IEnumerable<LightWithIds.LightData>>.Getter _lightIntensityDataAcessor = PropertyAccessor<LightWithIds, IEnumerable<LightWithIds.LightData>>.GetGetter("lightIntensityData");
 
         private static readonly FieldAccessor<TrackLaneRing, Transform>.Accessor _ringTransformAccessor = FieldAccessor<TrackLaneRing, Transform>.GetAccessor("_transform");
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
 
-        internal static bool SkipAwake { get; private set; }
+        private readonly EnvironmentEnhancementManager _environmentManager;
+        private readonly LightWithIdRegisterer _lightWithIdRegisterer;
 
-        internal static void PrefillComponentsData(Transform root, List<IComponentData> componentDatas)
+        private readonly HashSet<TrackLaneRingsManager> _trackLaneRingsManagers;
+
+        private ComponentInitializer(
+            EnvironmentEnhancementManager environmentManager,
+            LightWithIdRegisterer lightWithIdRegisterer)
+        {
+            _environmentManager = environmentManager;
+            _lightWithIdRegisterer = lightWithIdRegisterer;
+            _trackLaneRingsManagers = Resources.FindObjectsOfTypeAll<TrackLaneRingsManager>().ToHashSet();
+        }
+
+        internal bool SkipAwake { get; private set; }
+
+        internal void PrefillComponentsData(Transform root, List<IComponentData> componentDatas)
         {
             SkipAwake = true;
 
@@ -53,13 +70,14 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             }
         }
 
-        internal static void PostfillComponentsData(Transform root, Transform original, List<IComponentData> componentDatas)
+        internal void PostfillComponentsData(Transform root, Transform original, List<IComponentData> componentDatas)
         {
             SkipAwake = false;
 
             TrackLaneRingsManager trackLaneRingsManager = root.GetComponent<TrackLaneRingsManager>();
             if (trackLaneRingsManager != null)
             {
+                _trackLaneRingsManagers.Add(trackLaneRingsManager);
                 TrackLaneRingsManager originalManager = original.GetComponent<TrackLaneRingsManager>();
                 foreach (TrackLaneRingsManagerComponentData componentData in componentDatas.OfType<TrackLaneRingsManagerComponentData>().Where(n => n.OldTrackLaneRingsManager == originalManager))
                 {
@@ -80,9 +98,10 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             }
         }
 
-        internal static void InitializeComponents(Transform root, Transform original, List<GameObjectInfo> gameObjectInfos, List<IComponentData> componentDatas, int? lightID)
+        internal void InitializeComponents(Transform root, Transform original, List<GameObjectInfo> gameObjectInfos, List<IComponentData> componentDatas, int? lightID)
         {
             void GetComponentAndOriginal<T>(Action<T, T> initializeDelegate)
+                where T : Component
             {
                 T[] rootComponents = root.GetComponents<T>();
                 T[] originalComponents = original.GetComponents<T>();
@@ -101,20 +120,33 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             GetComponentAndOriginal<LightWithIdMonoBehaviour>((rootComponent, originalComponent) =>
             {
                 _lightWithIdMonoBehaviourManagerAccessor(ref rootComponent) = _lightWithIdMonoBehaviourManagerAccessor(ref originalComponent);
-                LightColorizer.RegisterLight(rootComponent, lightID);
+                _lightWithIdRegisterer.MarkForTableRegister(rootComponent);
+                if (lightID.HasValue)
+                {
+                    _lightWithIdRegisterer.SetRequestedId(rootComponent, lightID.Value);
+                }
             });
 
             GetComponentAndOriginal<LightWithIds>((rootComponent, originalComponent) =>
             {
                 _lightWithIdsManagerAccessor(ref rootComponent) = _lightWithIdsManagerAccessor(ref originalComponent);
-                LightColorizer.RegisterLight(rootComponent, lightID);
+                IEnumerable<ILightWithId> lightsWithId = _lightIntensityDataAcessor(ref rootComponent);
+                foreach (ILightWithId light in lightsWithId)
+                {
+                    if (lightID.HasValue)
+                    {
+                        _lightWithIdRegisterer.SetRequestedId(light, lightID.Value);
+                    }
+
+                    _lightWithIdRegisterer.MarkForTableRegister(light);
+                }
             });
 
             GetComponentAndOriginal<TrackLaneRing>((rootComponent, originalComponent) =>
             {
-                if (EnvironmentEnhancementManager.RingRotationOffsets.TryGetValue(originalComponent, out Quaternion offset))
+                if (_environmentManager.RingRotationOffsets.TryGetValue(originalComponent, out Quaternion offset))
                 {
-                    EnvironmentEnhancementManager.RingRotationOffsets.Add(rootComponent, offset);
+                    _environmentManager.RingRotationOffsets.Add(rootComponent, offset);
                 }
 
                 _ringTransformAccessor(ref rootComponent) = root;
@@ -122,7 +154,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 _posZAccessor(ref rootComponent) = _posZAccessor(ref originalComponent);
 
                 TrackLaneRingsManager? managerToAdd = null;
-                foreach (TrackLaneRingsManager manager in TrackLaneRingsManagerAwake.RingManagers)
+                foreach (TrackLaneRingsManager manager in _trackLaneRingsManagers)
                 {
                     TrackLaneRingsManagerComponentData? componentData = componentDatas
                         .OfType<TrackLaneRingsManagerComponentData>()
@@ -144,11 +176,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     // ReSharper disable once InvertIf
                     if (managerToAdd != null)
                     {
-                        // ToList() to add and then back ToArray()
-                        TrackLaneRing[] rings = _ringsAccessor(ref managerToAdd);
-                        List<TrackLaneRing> ringsList = rings?.ToList() ?? new List<TrackLaneRing>();
-                        ringsList.Add(rootComponent);
-                        _ringsAccessor(ref managerToAdd) = ringsList.ToArray();
+                        _ringsAccessor(ref managerToAdd) = _ringsAccessor(ref managerToAdd).AddToArray(rootComponent);
 
                         break;
                     }
@@ -157,7 +185,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             GetComponentAndOriginal<TrackLaneRingsPositionStepEffectSpawner>((rootComponent, _) =>
             {
-                foreach (TrackLaneRingsManager manager in TrackLaneRingsManagerAwake.RingManagers)
+                foreach (TrackLaneRingsManager manager in _trackLaneRingsManagers)
                 {
                     TrackLaneRingsManagerComponentData? componentData = componentDatas
                         .OfType<TrackLaneRingsManagerComponentData>()
@@ -173,28 +201,10 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 }
             });
 
-            GetComponentAndOriginal<ChromaRingsRotationEffect>((rootComponent, _) =>
-            {
-                foreach (TrackLaneRingsManager manager in TrackLaneRingsManagerAwake.RingManagers)
-                {
-                    TrackLaneRingsManagerComponentData? componentData = componentDatas
-                        .OfType<TrackLaneRingsManagerComponentData>()
-                        .FirstOrDefault(n => n.OldTrackLaneRingsManager == manager);
-                    if (componentData == null)
-                    {
-                        continue;
-                    }
-
-                    rootComponent.SetNewRingManager(componentData.NewTrackLaneRingsManager!);
-
-                    break;
-                }
-            });
-
             GetComponentAndOriginal<TrackLaneRingsRotationEffectSpawner>((rootComponent, originalComponent) =>
             {
                 _rotationEffectSpawnerCallbackControllerAccessor(ref rootComponent) = _rotationEffectSpawnerCallbackControllerAccessor(ref originalComponent);
-                _trackLaneRingsRotationEffectAccessor(ref rootComponent) = rootComponent.GetComponent<ChromaRingsRotationEffect>();
+                _trackLaneRingsRotationEffectAccessor(ref rootComponent) = rootComponent.GetComponent<TrackLaneRingsRotationEffect>();
             });
 
             GetComponentAndOriginal<Spectrogram>((rootComponent, originalComponent) => _spectrogramDataAccessor(ref rootComponent) = _spectrogramDataAccessor(ref originalComponent));
@@ -228,6 +238,28 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 _mirrorRendererAccessor(ref rootComponent) = Object.Instantiate(_mirrorRendererAccessor(ref originalComponent));
                 _mirrorMaterialAccessor(ref rootComponent) = Object.Instantiate(_mirrorMaterialAccessor(ref originalComponent));
             });
+
+            SaberBurnMarkArea? saberBurnMarkArea = root.GetComponent<SaberBurnMarkArea>();
+            if (saberBurnMarkArea != null)
+            {
+                if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                {
+                    Log.Logger.Log("SaberBurnMarkArea yeeted. Complain to me if you would rather it not.");
+                }
+
+                Object.Destroy(saberBurnMarkArea);
+            }
+
+            SaberBurnMarkSparkles? saberBurnMarkSparkles = root.GetComponent<SaberBurnMarkSparkles>();
+            if (saberBurnMarkSparkles != null)
+            {
+                if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                {
+                    Log.Logger.Log("SaberBurnMarkSparkles yeeted. Complain to me if you would rather it not.");
+                }
+
+                Object.Destroy(saberBurnMarkSparkles);
+            }
 
             GameObjectInfo newGameObjectInfo = new(root.gameObject);
             gameObjectInfos.Add(newGameObjectInfo);

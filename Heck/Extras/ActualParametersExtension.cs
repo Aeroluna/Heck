@@ -11,7 +11,7 @@ namespace Heck
         // AccessTools.ActualParameters except this one throws exceptions.
         internal static object[] ActualParameters(this MethodBase method, object[] inputs)
         {
-            List<Type?> inputTypes = inputs.Select(obj => obj?.GetType()).ToList();
+            List<Type> inputTypes = inputs.Select(obj => obj.GetType()).ToList();
             return method.GetParameters().Select(p =>
             {
                 int index = inputTypes.FindIndex(p.ParameterType.IsAssignableFrom);

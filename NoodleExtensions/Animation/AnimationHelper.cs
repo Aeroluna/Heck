@@ -2,6 +2,7 @@
 using System.Linq;
 using Heck.Animation;
 using JetBrains.Annotations;
+using NoodleExtensions.HarmonyPatches.SmallFixes;
 using UnityEngine;
 using Zenject;
 using static Heck.NullableExtensions;
@@ -15,10 +16,10 @@ namespace NoodleExtensions.Animation
         private readonly BeatmapObjectSpawnMovementData _movementData;
         private readonly bool _leftHanded;
 
-        private AnimationHelper([Inject(Id = "leftHanded")] bool leftHanded, IBeatmapObjectSpawnController spawnController)
+        private AnimationHelper([Inject(Id = "leftHanded")] bool leftHanded, InitializedSpawnMovementData movementData)
         {
             _leftHanded = leftHanded;
-            _movementData = spawnController.beatmapObjectSpawnMovementData;
+            _movementData = movementData.MovementData;
         }
 
         internal static void OnTrackCreated(Track track)

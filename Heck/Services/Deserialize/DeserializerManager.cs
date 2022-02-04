@@ -145,6 +145,9 @@ namespace Heck
             ////customBeatmapData.customData["pointDefinitions"] = pointDefinitions;
             ////customBeatmapData.customData["eventDefinitions"] = eventDefinitions;
 
+            // Currently used by Chroma.GameObjectTrackController
+            container.Bind<Dictionary<string, Track>>().FromInstance(trackManager.Tracks).AsSingle();
+
             IEnumerable<CustomEventData> customEventsData = customBeatmapData.customEventsData;
             customEventsData = customEventsData.Concat(eventDefinitions.Values).ToList();
 
@@ -157,7 +160,8 @@ namespace Heck
                 trackManager.Tracks,
                 customEventsData.ToList(),
                 customBeatmapData.beatmapEventsData.ToList(),
-                customBeatmapData.beatmapObjectsData.ToList()
+                customBeatmapData.beatmapObjectsData.ToList(),
+                container
             };
 
             CustomDataDeserializer[] deserializers = _customDataDeserializers.Where(n => n.Enabled).ToArray();

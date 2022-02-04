@@ -1,28 +1,30 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
+using Zenject;
 
 namespace Chroma.Colorizer
 {
-    public class BombColorizer : ObjectColorizer
+    [UsedImplicitly]
+    public class BombColorizerManager
     {
-        private static readonly int _simpleColor = Shader.PropertyToID("_SimpleColor");
-        private readonly Renderer _bombRenderer;
+        private readonly BombColorizer.Factory _factory;
 
-        private BombColorizer(NoteControllerBase noteController)
+        internal BombColorizerManager(BombColorizer.Factory factory)
         {
-            _bombRenderer = noteController.gameObject.GetComponentInChildren<Renderer>();
-            OriginalColor = _bombRenderer.material.GetColor(_simpleColor);
+            _factory = factory;
         }
 
-        public static Dictionary<NoteControllerBase, BombColorizer> Colorizers { get; } = new();
+        public Dictionary<NoteControllerBase, BombColorizer> Colorizers { get; } = new();
 
-        public static Color? GlobalColor { get; private set; }
+        public Color? GlobalColor { get; private set; }
 
-        protected override Color? GlobalColorGetter => GlobalColor;
+        public BombColorizer GetColorizer(NoteControllerBase noteController) => Colorizers[noteController];
 
-        [UsedImplicitly]
-        public static void GlobalColorize(Color? color)
+        public void Colorize(NoteControllerBase noteController, Color? color) => GetColorizer(noteController).Colorize(color);
+
+        [PublicAPI]
+        public void GlobalColorize(Color? color)
         {
             GlobalColor = color;
             foreach (KeyValuePair<NoteControllerBase, BombColorizer> valuePair in Colorizers)
@@ -31,17 +33,30 @@ namespace Chroma.Colorizer
             }
         }
 
-        internal static void Create(NoteControllerBase noteController)
+        internal void Create(NoteControllerBase noteController)
         {
-            Colorizers.Add(noteController, new BombColorizer(noteController));
+            Colorizers.Add(noteController, _factory.Create(noteController));
+        }
+    }
+
+    [UsedImplicitly]
+    public class BombColorizer : ObjectColorizer
+    {
+        private static readonly int _simpleColor = Shader.PropertyToID("_SimpleColor");
+        private readonly Renderer _bombRenderer;
+        private readonly BombColorizerManager _manager;
+
+        internal BombColorizer(NoteControllerBase noteController, BombColorizerManager manager)
+        {
+            _bombRenderer = noteController.gameObject.GetComponentInChildren<Renderer>();
+            OriginalColor = _bombRenderer.material.GetColor(_simpleColor);
+
+            _manager = manager;
         }
 
-        internal static void Reset()
-        {
-            GlobalColor = null;
-        }
+        protected override Color? GlobalColorGetter => _manager.GlobalColor;
 
-        protected override void Refresh()
+        internal override void Refresh()
         {
             Material bombMaterial = _bombRenderer.material;
             Color color = Color;
@@ -51,6 +66,11 @@ namespace Chroma.Colorizer
             }
 
             bombMaterial.SetColor(_simpleColor, color);
+        }
+
+        [UsedImplicitly]
+        internal class Factory : PlaceholderFactory<NoteControllerBase, BombColorizer>
+        {
         }
     }
 }

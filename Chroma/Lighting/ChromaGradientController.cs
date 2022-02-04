@@ -2,40 +2,51 @@
 using Chroma.Colorizer;
 using Heck.Animation;
 using IPA.Utilities;
+using JetBrains.Annotations;
 using UnityEngine;
+using Zenject;
 
 namespace Chroma.Lighting
 {
-    internal class ChromaGradientController : MonoBehaviour
+    [UsedImplicitly]
+    internal class ChromaGradientController : ITickable
     {
-        private static ChromaGradientController? _instance;
+        private readonly LightColorizerManager _manager;
+        private readonly IBeatmapObjectSpawnController _spawnController;
+        private readonly ChromaGradientEvent.Factory _factory;
 
-        private static ChromaGradientController Instance
+        private ChromaGradientController(
+            LightColorizerManager manager,
+            IBeatmapObjectSpawnController spawnController,
+            ChromaGradientEvent.Factory factory)
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new GameObject("Chroma_GradientController").AddComponent<ChromaGradientController>();
-                }
-
-                return _instance;
-            }
+            _manager = manager;
+            _spawnController = spawnController;
+            _factory = factory;
         }
 
         private IDictionary<BeatmapEventType, ChromaGradientEvent> Gradients { get; } = new Dictionary<BeatmapEventType, ChromaGradientEvent>();
 
-        internal static bool IsGradientActive(BeatmapEventType eventType)
+        public void Tick()
         {
-            return Instance.Gradients.ContainsKey(eventType);
+            foreach ((BeatmapEventType eventType, ChromaGradientEvent value) in new Dictionary<BeatmapEventType, ChromaGradientEvent>(Gradients))
+            {
+                Color color = value.Interpolate();
+                _manager.Colorize(eventType, true, color, color, color, color);
+            }
         }
 
-        internal static void CancelGradient(BeatmapEventType eventType)
+        internal bool IsGradientActive(BeatmapEventType eventType)
         {
-            Instance.Gradients.Remove(eventType);
+            return Gradients.ContainsKey(eventType);
         }
 
-        internal static Color AddGradient(ChromaEventData.GradientObjectData gradientObject, BeatmapEventType id, float time)
+        internal void CancelGradient(BeatmapEventType eventType)
+        {
+            Gradients.Remove(eventType);
+        }
+
+        internal Color AddGradient(ChromaEventData.GradientObjectData gradientObject, BeatmapEventType id, float time)
         {
             CancelGradient(id);
 
@@ -44,22 +55,16 @@ namespace Chroma.Lighting
             Color endcolor = gradientObject.EndColor;
             Functions easing = gradientObject.Easing;
 
-            ChromaGradientEvent gradientEvent = new(initcolor, endcolor, time, duration, id, easing);
-            Instance.Gradients[id] = gradientEvent;
+            ChromaGradientEvent gradientEvent = _factory.Create(initcolor, endcolor, time, 60 * duration / _spawnController.currentBpm, id, easing);
+            Gradients[id] = gradientEvent;
             return gradientEvent.Interpolate();
         }
 
-        private void Update()
+        [UsedImplicitly]
+        internal class ChromaGradientEvent
         {
-            foreach ((BeatmapEventType eventType, ChromaGradientEvent value) in new Dictionary<BeatmapEventType, ChromaGradientEvent>(Gradients))
-            {
-                Color color = value.Interpolate();
-                eventType.ColorizeLight(true, color, color, color, color);
-            }
-        }
-
-        private readonly struct ChromaGradientEvent
-        {
+            private readonly IAudioTimeSource _timeSource;
+            private readonly ChromaGradientController _gradientController;
             private readonly Color _initcolor;
             private readonly Color _endcolor;
             private readonly float _start;
@@ -67,19 +72,29 @@ namespace Chroma.Lighting
             private readonly BeatmapEventType _event;
             private readonly Functions _easing;
 
-            internal ChromaGradientEvent(Color initcolor, Color endcolor, float start, float duration, BeatmapEventType eventType, Functions easing = Functions.easeLinear)
+            internal ChromaGradientEvent(
+                IAudioTimeSource timeSource,
+                ChromaGradientController gradientController,
+                Color initcolor,
+                Color endcolor,
+                float start,
+                float duration,
+                BeatmapEventType eventType,
+                Functions easing = Functions.easeLinear)
             {
+                _timeSource = timeSource;
+                _gradientController = gradientController;
                 _initcolor = initcolor;
                 _endcolor = endcolor;
                 _start = start;
-                _duration = 60f * duration / ChromaController.BeatmapObjectSpawnController!.currentBpm;
+                _duration = duration;
                 _event = eventType;
                 _easing = easing;
             }
 
             internal Color Interpolate()
             {
-                float normalTime = ChromaController.IAudioTimeSource!.songTime - _start;
+                float normalTime = _timeSource.songTime - _start;
                 if (normalTime < 0)
                 {
                     return _initcolor;
@@ -90,8 +105,13 @@ namespace Chroma.Lighting
                     return Color.LerpUnclamped(_initcolor, _endcolor, Easings.Interpolate(normalTime / _duration, _easing));
                 }
 
-                Instance.Gradients.Remove(_event);
+                _gradientController.Gradients.Remove(_event);
                 return _endcolor;
+            }
+
+            [UsedImplicitly]
+            internal class Factory : PlaceholderFactory<Color, Color, float, float, BeatmapEventType, Functions, ChromaGradientEvent>
+            {
             }
         }
     }

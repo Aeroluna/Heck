@@ -1,25 +1,15 @@
-﻿using System;
-using System.Collections;
-using Chroma.Colorizer;
-using Chroma.HarmonyPatches.EnvironmentComponent;
-using Chroma.Lighting;
-using Chroma.Lighting.EnvironmentEnhancement;
-using Chroma.Settings;
-using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
-using Heck;
-using IPA.Utilities;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using Heck;
 
 namespace Chroma
 {
-    public static class ChromaController
+    internal enum PatchType
     {
-        internal const string CAPABILITY = "Chroma";
-        internal const string HARMONY_ID_CORE = "com.noodle.BeatSaber.ChromaCore";
-        internal const string HARMONY_ID = "com.noodle.BeatSaber.Chroma";
+        Colorizer,
+        Features
+    }
 
+    internal static class ChromaController
+    {
         internal const string ANIMATION = "_animation";
         internal const string COLOR = "_color";
         internal const string COUNTER_SPIN = "_counterSpin";
@@ -47,7 +37,7 @@ namespace Chroma
         internal const string ROTATION = "_rotation";
 
         internal const string ENVIRONMENT = "_environment";
-        internal const string ID = "_id";
+        internal const string GAMEOBJECT_ID = "_id";
         internal const string LOOKUP_METHOD = "_lookupMethod";
         internal const string DUPLICATION_AMOUNT = "_duplicate";
         internal const string ACTIVE = "_active";
@@ -63,89 +53,29 @@ namespace Chroma
         internal const string HEIGHT_FOG_STARTY = "_startY";
         internal const string HEIGHT_FOG_HEIGHT = "_height";
 
-        private static readonly FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectCallbackController>.Accessor _callbackControllerAccessor
-            = FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
+        internal const string CAPABILITY = "Chroma";
+        internal const string ID = "Chroma";
+        internal const string HARMONY_ID = "com.aeroluna.Chroma";
 
-        private static readonly FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.Accessor _beatmapObjectSpawnAccessor
-            = FieldAccessor<BeatmapObjectSpawnController, IBeatmapObjectSpawner>.GetAccessor("_beatmapObjectSpawner");
+        internal static HeckPatcher CorePatcher { get; } = new(HARMONY_ID + "Core");
 
-        private static readonly FieldAccessor<BeatmapObjectCallbackController, IAudioTimeSource>.Accessor _audioTimeSourceAccessor
-            = FieldAccessor<BeatmapObjectCallbackController, IAudioTimeSource>.GetAccessor("_audioTimeSource");
+        internal static HeckPatcher ColorizerPatcher { get; } = new(HARMONY_ID + "Colorizer", PatchType.Colorizer);
 
-        private static readonly FieldAccessor<BeatmapObjectCallbackController, IReadonlyBeatmapData>.Accessor _beatmapDataAccessor
-            = FieldAccessor<BeatmapObjectCallbackController, IReadonlyBeatmapData>.GetAccessor("_beatmapData");
+        internal static HeckPatcher FeaturesPatcher { get; } = new(HARMONY_ID + "Features", PatchType.Features);
 
-        public static bool ChromaIsActive { get; private set; }
+        internal static CustomDataDeserializer Deserializer { get; } = DeserializerManager.RegisterDeserialize<CustomDataManager>(ID);
 
-        public static bool DoColorizerSabers { get; set; }
+        internal static Module ColorizerModule { get; } = ModuleManager.RegisterModule<ModuleCallbacks>(
+            "ChromaColorizer",
+            0,
+            RequirementType.None,
+            PatchType.Colorizer);
 
-        internal static Harmony HarmonyInstanceCore { get; } = new(HARMONY_ID_CORE);
-
-        internal static Harmony HarmonyInstance { get; } = new(HARMONY_ID);
-
-        internal static bool SiraUtilInstalled { get; set; }
-
-        internal static BeatmapObjectSpawnController? BeatmapObjectSpawnController { get; private set; }
-
-        internal static IAudioTimeSource? IAudioTimeSource { get; private set; }
-
-        public static void ToggleChromaPatches(bool value)
-        {
-            HeckPatchDataManager.TogglePatches(HarmonyInstance, value);
-            ChromaIsActive = value;
-        }
-
-        internal static IEnumerator DelayedStart(BeatmapObjectSpawnController beatmapObjectSpawnController)
-        {
-            yield return new WaitForEndOfFrame();
-            BeatmapObjectSpawnController = beatmapObjectSpawnController;
-
-            // prone to breaking if anything else implements these interfaces
-            BeatmapObjectManager beatmapObjectManager = (BeatmapObjectManager)_beatmapObjectSpawnAccessor(ref beatmapObjectSpawnController);
-            BeatmapObjectCallbackController coreSetup = (BeatmapObjectCallbackController)_callbackControllerAccessor(ref beatmapObjectSpawnController);
-
-            IAudioTimeSource = _audioTimeSourceAccessor(ref coreSetup);
-            IReadonlyBeatmapData beatmapData = _beatmapDataAccessor(ref coreSetup);
-
-            beatmapObjectManager.noteWasCutEvent -= NoteColorizer.ColorizeSaber;
-            beatmapObjectManager.noteWasCutEvent += NoteColorizer.ColorizeSaber;
-
-            if (!ChromaIsActive)
-            {
-                yield break;
-            }
-
-            if (!ChromaConfig.Instance.EnvironmentEnhancementsDisabled && beatmapData is CustomBeatmapData customBeatmap)
-            {
-                EnvironmentEnhancementManager.Init(customBeatmap, beatmapObjectSpawnController.noteLinesDistance);
-            }
-
-            try
-            {
-                // please let me kill legacy
-                LegacyLightHelper.Activate(beatmapData.beatmapEventsData);
-            }
-            catch (Exception e)
-            {
-                Log.Logger.Log("Could not run Legacy Chroma Lights");
-                Log.Logger.Log(e);
-            }
-        }
-
-        internal static void OnActiveSceneChanged(Scene current, Scene _)
-        {
-            if (current.name != "GameCore")
-            {
-                return;
-            }
-
-            BombColorizer.Reset();
-            LightColorizer.Reset();
-            NoteColorizer.Reset();
-            ObstacleColorizer.Reset();
-            SaberColorizer.Reset();
-
-            TrackLaneRingsManagerAwake.RingManagers.Clear();
-        }
+        internal static Module FeaturesModule { get; } = ModuleManager.RegisterModule<ModuleCallbacks>(
+            "Chroma",
+            2,
+            RequirementType.Condition,
+            PatchType.Features,
+            new[] { "ChromaColorizer", "Heck" });
     }
 }
