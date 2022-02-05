@@ -251,23 +251,10 @@ namespace Chroma.Colorizer
 
         public IEnumerable<ILightWithId> GetLightWithIds(IEnumerable<int> ids)
         {
-            List<ILightWithId> result = new();
             int type = (int)_eventType;
             IEnumerable<int> newIds = ids.Select(n => LightIDTableManager.GetActiveTableValue(type, n) ?? n);
-            foreach (int id in newIds)
-            {
-                ILightWithId? lightWithId = Lights.ElementAtOrDefault(id);
-                if (lightWithId != null)
-                {
-                    result.Add(lightWithId);
-                }
-                else
-                {
-                    Log.Logger.Log($"Type [{type}] does not contain id [{id}].", Logger.Level.Error);
-                }
-            }
 
-            return result;
+            return newIds.Select(id => Lights.ElementAtOrDefault(id)).Where(lightWithId => lightWithId != null).ToList();
         }
 
         // dont use this please

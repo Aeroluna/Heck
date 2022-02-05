@@ -16,6 +16,8 @@ namespace Chroma.Lighting
 
         private static Dictionary<int, Dictionary<int, int>>? _activeTable;
 
+        private static HashSet<Tuple<int, int>> _failureLog = new();
+
         internal static int? GetActiveTableValue(int type, int id)
         {
             if (_activeTable != null)
@@ -25,7 +27,15 @@ namespace Chroma.Lighting
                     return newId;
                 }
 
-                Log.Logger.Log($"Unable to find value for type [{type}] and id [{id}].", Logger.Level.Error);
+                Tuple<int, int> failure = new(type, id);
+                if (_failureLog.Contains(failure))
+                {
+                    return null;
+                }
+
+                Log.Logger.Log($"Unable to find value for type [{type}] and id [{id}]. Omitting future messages...", Logger.Level.Error);
+                _failureLog.Add(failure);
+
                 return null;
             }
 
@@ -71,6 +81,8 @@ namespace Chroma.Lighting
                 _activeTable = null;
                 Log.Logger.Log($"Table not found for: {environmentName}", Logger.Level.Warning);
             }
+
+            _failureLog = new HashSet<Tuple<int, int>>();
         }
 
         internal static void RegisterIndex(int type, int index, int? requestedKey)
