@@ -16,6 +16,7 @@ namespace Chroma
         [ModuleCallback(PatchType.Colorizer)]
         private static void ToggleColorizer(bool value)
         {
+            Deserializer.Enabled = value;
             ColorizerPatcher.Enabled = value;
         }
 
@@ -47,7 +48,6 @@ namespace Chroma
             ModuleManager.ModuleArgs moduleArgs)
         {
             FeaturesPatcher.Enabled = value;
-            Deserializer.Enabled = value;
 
             try
             {

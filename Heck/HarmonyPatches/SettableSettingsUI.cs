@@ -75,7 +75,7 @@ namespace Heck.HarmonyPatches
 
         [AffinityPrefix]
         [AffinityPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), "HandleBasicLevelCompletionResults")]
-        private bool HandleBasicLevelCompletionResultsPrefix(LevelCompletionResults levelCompletionResults)
+        private bool HandleBasicLevelCompletionResultsPrefix(LevelCompletionResults levelCompletionResults, ref bool __result)
         {
             if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.Restart ||
                 !_setterViewController.DoPresent)
@@ -83,6 +83,7 @@ namespace Heck.HarmonyPatches
                 return true;
             }
 
+            __result = true;
             _setterViewController.ForceStartLevel();
             return false;
         }

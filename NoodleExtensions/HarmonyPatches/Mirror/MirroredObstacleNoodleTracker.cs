@@ -41,15 +41,7 @@ namespace NoodleExtensions.HarmonyPatches.Mirror
                 ____transform.localScale = ____followedTransform.localScale;
             }
 
-            if (!_cutoutManager.ObstacleCutoutEffects.TryGetValue(__instance, out CutoutAnimateEffectWrapper cutoutAnimateEffect))
-            {
-                return false;
-            }
-
-            if (_cutoutManager.ObstacleCutoutEffects.TryGetValue(____followedObstacle, out CutoutAnimateEffectWrapper followedCutoutAnimateEffect))
-            {
-                cutoutAnimateEffect.SetCutout(followedCutoutAnimateEffect.Cutout);
-            }
+            _cutoutManager.ObstacleCutoutEffects[__instance].SetCutout(_cutoutManager.ObstacleCutoutEffects[____followedObstacle].Cutout);
 
             return false;
         }

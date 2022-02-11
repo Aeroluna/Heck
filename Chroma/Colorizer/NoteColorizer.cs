@@ -120,6 +120,11 @@ namespace Chroma.Colorizer
 
         internal override void Refresh()
         {
+            if (!_colorNoteVisuals.isActiveAndEnabled)
+            {
+                return;
+            }
+
             Color color = Color;
             if (color == _noteColorAccessor(ref _colorNoteVisuals))
             {
@@ -127,6 +132,7 @@ namespace Chroma.Colorizer
             }
 
             _noteColorAccessor(ref _colorNoteVisuals) = color;
+
             foreach (MaterialPropertyBlockController materialPropertyBlockController in _materialPropertyBlockControllers)
             {
                 MaterialPropertyBlock propertyBlock = materialPropertyBlockController.materialPropertyBlock;

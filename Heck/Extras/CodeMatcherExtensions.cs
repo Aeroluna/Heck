@@ -8,9 +8,11 @@ namespace Heck
     public static class CodeMatcherExtensions
     {
         [PublicAPI]
-        public static CodeMatcher PrintInstructions(this CodeMatcher codeMatcher, HeckLogger logger, string seperator = "\n\t")
+        public static CodeMatcher PrintInstructions(this CodeMatcher codeMatcher, HeckLogger logger, string seperator = "\t")
         {
-            logger.Log(string.Join(seperator, codeMatcher.Instructions()));
+            logger.Log("Printing instructions:");
+            IPA.Logging.Logger ipaLogger = logger.IPALogger;
+            codeMatcher.Instructions().ForEach(n => ipaLogger.Log(IPA.Logging.Logger.Level.Info, seperator + n));
             return codeMatcher;
         }
 

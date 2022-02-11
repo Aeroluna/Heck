@@ -1,64 +1,62 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
-using Chroma.Colorizer;
-using HarmonyLib;
-using Heck;
+﻿using Chroma.Colorizer;
 using SiraUtil.Affinity;
 using UnityEngine;
 
 namespace Chroma.HarmonyPatches.Colorizer
 {
-    internal class NoteEffectsColorize : IAffinity, IDisposable
+    internal class NoteEffectsColorize : IAffinity
     {
-        private static readonly MethodInfo _colorForType = AccessTools.Method(typeof(ColorManager), nameof(ColorManager.ColorForType));
-
-        private readonly CodeInstruction _getNoteColor;
         private readonly BombColorizerManager _bombManager;
+        private readonly NoteColorizerManager _noteManager;
+
+        private Color? _noteColorOverride;
 
         private NoteEffectsColorize(BombColorizerManager bombManager, NoteColorizerManager noteManager)
         {
             _bombManager = bombManager;
-            _getNoteColor = InstanceTranspilers.EmitInstanceDelegate<Func<NoteController, Color>>(n => noteManager.GetColorizer(n).Color);
+            _noteManager = noteManager;
         }
 
-        public void Dispose()
+        internal void EnableColorOverride(NoteControllerBase noteController)
         {
-            InstanceTranspilers.DisposeDelegate(_getNoteColor);
+            _noteColorOverride = _noteManager.GetColorizer(noteController).Color;
         }
 
-        [AffinityTranspiler]
+        [AffinityPrefix]
+        [AffinityPatch(typeof(ColorManager), nameof(ColorManager.ColorForType))]
+        private bool UseChromaColor(ref Color __result)
+        {
+            Color? color = _noteColorOverride;
+            if (!color.HasValue)
+            {
+                return true;
+            }
+
+            __result = color.Value;
+            return false;
+        }
+
+        [AffinityPrefix]
         [AffinityPatch(typeof(NoteCutCoreEffectsSpawner), nameof(NoteCutCoreEffectsSpawner.SpawnNoteCutEffect))]
-        private IEnumerable<CodeInstruction> NoteCutCoreEffectsSetNoteColor(IEnumerable<CodeInstruction> instructions)
+        private void NoteCutCoreEffectsSetColor(NoteController noteController)
         {
-            return new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _colorForType))
-                .Advance(-4)
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_2), _getNoteColor)
-                .RemoveInstructions(5)
-                .InstructionEnumeration();
+            EnableColorOverride(noteController);
         }
 
-        [AffinityTranspiler]
-        [AffinityPatch(typeof(BeatEffectSpawner), nameof(BeatEffectSpawner.HandleNoteDidStartJump))]
-        private IEnumerable<CodeInstruction> BeatEffectSetNoteColor(IEnumerable<CodeInstruction> instructions)
+        [AffinityPostfix]
+        [AffinityPatch(typeof(NoteCutCoreEffectsSpawner), nameof(NoteCutCoreEffectsSpawner.SpawnNoteCutEffect))]
+        private void NoteCutCoreEffectsResetColor(NoteController noteController)
         {
-            return new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _colorForType))
-                .Advance(-3)
-                .SetOpcodeAndAdvance(OpCodes.Ldarg_1)
-                .InsertAndAdvance(_getNoteColor)
-                .RemoveInstructions(3)
-                .InstructionEnumeration();
+            _noteColorOverride = null;
         }
 
         [AffinityPrefix]
         [AffinityPatch(typeof(BeatEffectSpawner), nameof(BeatEffectSpawner.HandleNoteDidStartJump))]
-        private void BeatEffectSetBombColor(NoteController noteController, Color? __state, ref Color ____bombColorEffect)
+        private void BeatEffectSetColor(NoteController noteController, Color? __state, ref Color ____bombColorEffect)
         {
             if (noteController.noteData.colorType != ColorType.None)
             {
+                EnableColorOverride(noteController);
                 return;
             }
 
@@ -68,8 +66,9 @@ namespace Chroma.HarmonyPatches.Colorizer
 
         [AffinityPostfix]
         [AffinityPatch(typeof(BeatEffectSpawner), nameof(BeatEffectSpawner.HandleNoteDidStartJump))]
-        private void BeatEffectResetBombColor(Color? __state, ref Color ____bombColorEffect)
+        private void BeatEffectResetColor(Color? __state, ref Color ____bombColorEffect)
         {
+            _noteColorOverride = null;
             if (__state.HasValue)
             {
                 ____bombColorEffect = __state.Value;

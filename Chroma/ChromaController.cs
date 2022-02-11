@@ -69,13 +69,14 @@ namespace Chroma
             "ChromaColorizer",
             0,
             RequirementType.None,
-            PatchType.Colorizer);
+            PatchType.Colorizer,
+            new[] { "Heck" });
 
         internal static Module FeaturesModule { get; } = ModuleManager.RegisterModule<ModuleCallbacks>(
             "Chroma",
             2,
             RequirementType.Condition,
             PatchType.Features,
-            new[] { "ChromaColorizer", "Heck" });
+            new[] { "ChromaColorizer" });
     }
 }

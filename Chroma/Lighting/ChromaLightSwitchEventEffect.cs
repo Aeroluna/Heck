@@ -41,7 +41,7 @@ namespace Chroma.Lighting
         private readonly SongTimeTweeningManager _tweeningManager;
         private readonly IBeatmapObjectCallbackController _beatmapObjectCallbackController;
         private readonly CustomData _customData;
-        private readonly ChromaGradientController _gradientController;
+        private readonly ChromaGradientController? _gradientController;
         private readonly LegacyLightHelper _legacyLightHelper;
 
         private readonly BeatmapEventType _colorBoostEvent;
@@ -66,7 +66,7 @@ namespace Chroma.Lighting
             LightColorizerManager lightColorizerManager,
             IBeatmapObjectCallbackController beatmapObjectCallbackController,
             [Inject(Id = ChromaController.ID)] CustomData customData,
-            ChromaGradientController gradientController,
+            [InjectOptional] ChromaGradientController? gradientController,
             LegacyLightHelper legacyLightHelper)
         {
             LightSwitchEventEffect = lightSwitchEventEffect;
@@ -108,6 +108,11 @@ namespace Chroma.Lighting
         public Dictionary<ILightWithId, ChromaIDColorTween> ColorTweens { get; } = new();
 
         public LightColorizer Colorizer { get; }
+
+        public static bool IsColor0(int value)
+        {
+            return value is 1 or 2 or 3 or 4 or 0 or -1;
+        }
 
         public void Dispose()
         {
@@ -154,35 +159,10 @@ namespace Chroma.Lighting
             return Colorizer.Color[0] * _multiplierColorAccessor(ref _highlightColor0);
         }
 
-        internal void RegisterLight(ILightWithId lightWithId, int id)
+        public void Refresh(bool hard, IEnumerable<ILightWithId>? selectLights, BeatmapEventData? beatmapEventData = null, Functions? easing = null, LerpType? lerpType = null)
         {
-            if (!ColorTweens.ContainsKey(lightWithId))
-            {
-                Color color = GetNormalColor(0);
-                if (!_lightOnStart)
-                {
-                    color = color.ColorWithAlpha(_offColorIntensity);
-                }
-
-                ChromaIDColorTween tween = new(
-                    color,
-                    color,
-                    lightWithId,
-                    _lightManager,
-                    LightIDTableManager.GetActiveTableValueReverse((int)EventType, id) ?? 0);
-
-                ColorTweens[lightWithId] = tween;
-                tween.ForceOnUpdate();
-            }
-            else
-            {
-                Log.Logger.Log("Attempted to register duplicate ILightWithId.", IPA.Logging.Logger.Level.Error);
-            }
-        }
-
-        internal void Refresh(bool hard, IEnumerable<ILightWithId>? selectLights, BeatmapEventData? beatmapEventData = null, Functions? easing = null, LerpType? lerpType = null)
-        {
-            IEnumerable<ChromaIDColorTween> selectTweens = selectLights == null ? ColorTweens.Values : selectLights.Select(n => ColorTweens[n]);
+            IEnumerable<ChromaIDColorTween> selectTweens = selectLights == null ? ColorTweens.Values
+                : selectLights.Where(n => ColorTweens.ContainsKey(n)).Select(n => ColorTweens[n]);
 
             foreach (ChromaIDColorTween tween in selectTweens)
             {
@@ -372,9 +352,30 @@ namespace Chroma.Lighting
             DidRefresh?.Invoke();
         }
 
-        private static bool IsColor0(int value)
+        internal void RegisterLight(ILightWithId lightWithId, int id)
         {
-            return value is 1 or 2 or 3 or 4 or 0 or -1;
+            if (!ColorTweens.ContainsKey(lightWithId))
+            {
+                Color color = GetNormalColor(0);
+                if (!_lightOnStart)
+                {
+                    color = color.ColorWithAlpha(_offColorIntensity);
+                }
+
+                ChromaIDColorTween tween = new(
+                    color,
+                    color,
+                    lightWithId,
+                    _lightManager,
+                    LightIDTableManager.GetActiveTableValueReverse((int)EventType, id) ?? 0);
+
+                ColorTweens[lightWithId] = tween;
+                tween.ForceOnUpdate();
+            }
+            else
+            {
+                Log.Logger.Log("Attempted to register duplicate ILightWithId.", IPA.Logging.Logger.Level.Error);
+            }
         }
 
         private void Callback(BeatmapEventData beatmapEventData)
@@ -388,6 +389,11 @@ namespace Chroma.Lighting
                 // fun fun chroma stuff
                 if (ChromaController.FeaturesPatcher.Enabled)
                 {
+                    if (_gradientController == null)
+                    {
+                        throw new InvalidOperationException("Chroma Features requires the gradient controller.");
+                    }
+
                     if (_customData.Resolve(beatmapEventData, out ChromaEventData? chromaData))
                     {
                         Color? color = null;

@@ -58,6 +58,11 @@ namespace Chroma.Colorizer
 
         internal override void Refresh()
         {
+            if (!_bombRenderer.enabled)
+            {
+                return;
+            }
+
             Material bombMaterial = _bombRenderer.material;
             Color color = Color;
             if (color == bombMaterial.GetColor(_simpleColor))

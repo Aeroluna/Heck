@@ -21,6 +21,7 @@ namespace NoodleExtensions.Managers
         private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _jumpOffsetYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_jumpOffsetY");
         private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _verticalObstaclePosYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_verticalObstaclePosY");
         private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _topObstaclePosYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_topObstaclePosY");
+        private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _obstacleTopPosYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_obstacleTopPosY");
 
         private readonly IBeatmapObjectSpawnController _spawnController;
         private readonly CustomData _customData;
@@ -49,7 +50,6 @@ namespace NoodleExtensions.Managers
             float? startY = noodleData.StartY;
 
             float? height = noodleData.Height;
-            float obstacleTopPosY = _topObstaclePosYAccessor(ref _movementData);
 
             Vector3 noteOffset = GetNoteOffset(startX, startY, obstacleData.lineIndex, NoteLineLayer.Base);
 
@@ -60,7 +60,7 @@ namespace NoodleExtensions.Managers
             else
             {
                 noteOffset.y = obstacleData.obstacleType == ObstacleType.Top
-                    ? (obstacleTopPosY + _jumpOffsetYAccessor(ref _movementData))
+                    ? (_topObstaclePosYAccessor(ref _movementData) + _jumpOffsetYAccessor(ref _movementData))
                     : _verticalObstaclePosYAccessor(ref _movementData);
             }
 
@@ -71,7 +71,8 @@ namespace NoodleExtensions.Managers
             }
             else
             {
-                obstacleHeight = obstacleTopPosY - noteOffset.y;
+                // _topObstaclePosY =/= _obstacleTopPosY
+                obstacleHeight = _obstacleTopPosYAccessor(ref _movementData) - noteOffset.y;
             }
 
             GetNoteJumpValues(

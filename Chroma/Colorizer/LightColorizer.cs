@@ -6,7 +6,6 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
-using Logger = IPA.Logging.Logger;
 using Object = UnityEngine.Object;
 
 namespace Chroma.Colorizer

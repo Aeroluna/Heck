@@ -53,9 +53,9 @@ namespace Chroma
             TrackBuilder.TrackCreated -= AnimationHelper.OnTrackCreated;
             CorePatcher.Enabled = false;
             FeaturesPatcher.Enabled = false;
+            FeaturesModule.Enabled = false;
+            ColorizerModule.Enabled = false;
             Deserializer.Enabled = false;
-            FeaturesModule.Enabled = true;
-            ColorizerModule.Enabled = true;
 
             GameplaySetup.instance.RemoveTab("Chroma");
             ChromaUtils.SetSongCoreCapability(CAPABILITY, false);

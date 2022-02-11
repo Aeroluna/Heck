@@ -104,23 +104,8 @@ namespace NoodleExtensions.HarmonyPatches.Mirror
                 noteTransform.localScale = followedNoteTransform.localScale;
             }
 
-            if (_cutoutManager.NoteCutoutEffects.TryGetValue(noteController, out CutoutEffectWrapper cutoutEffect))
-            {
-                if (_cutoutManager.NoteCutoutEffects.TryGetValue(followedNote, out CutoutEffectWrapper followedCutoutEffect))
-                {
-                    cutoutEffect.SetCutout(followedCutoutEffect.Cutout);
-                }
-            }
-
-            if (!_cutoutManager.NoteDisappearingArrowWrappers.TryGetValue(noteController, out DisappearingArrowWrapper disappearingArrow))
-            {
-                return;
-            }
-
-            if (_cutoutManager.NoteDisappearingArrowWrappers.TryGetValue(followedNote, out DisappearingArrowWrapper followedDisappearingArrow))
-            {
-                disappearingArrow.SetCutout(followedDisappearingArrow.Cutout);
-            }
+            _cutoutManager.NoteCutoutEffects[noteController].SetCutout(_cutoutManager.NoteCutoutEffects[followedNote].Cutout);
+            _cutoutManager.NoteDisappearingArrowWrappers[noteController].SetCutout(_cutoutManager.NoteDisappearingArrowWrappers[followedNote].Cutout);
         }
 
         [AffinityPostfix]

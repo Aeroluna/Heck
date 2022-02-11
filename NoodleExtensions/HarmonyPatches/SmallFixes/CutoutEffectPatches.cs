@@ -5,32 +5,24 @@ using UnityEngine;
 
 namespace NoodleExtensions.HarmonyPatches.SmallFixes
 {
-    // Do not run SetCutout if the new value is the same as old.
     [HeckPatch(PatchType.Features)]
-    [HarmonyPatch(typeof(CutoutEffect))]
     internal static class CutoutEffectPatches
     {
-        private static readonly BoolSO _permanentTrue = CreatePermanentTrueBoolSO();
-
-        private static BoolSO CreatePermanentTrueBoolSO()
+        // A new notecontroller can have its dissolve updated before this runs, causing this to override the cutouteffect
+        // Thus setting the cutout effect while the _prevArrowTransparency has a different value.
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CutoutAnimateEffect), nameof(CutoutAnimateEffect.Start))]
+        private static bool SkipStart()
         {
-            BoolSO so = ScriptableObject.CreateInstance<BoolSO>();
-            so.value = true;
-            return so;
+            return false;
         }
 
+        // Do not run SetCutout if the new value is the same as old.
         [HarmonyPrefix]
-        [HarmonyPatch(nameof(CutoutEffect.SetCutout), typeof(float), typeof(Vector3))]
-        private static bool CheckDifference(float cutout, float ____cutout)
+        [HarmonyPatch(typeof(CutoutEffect), nameof(CutoutEffect.SetCutout), typeof(float), typeof(Vector3))]
+        private static bool CheckDifference(CutoutEffect __instance, float cutout, float ____cutout)
         {
             return Math.Abs(cutout - ____cutout) > 0.01;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(CutoutEffect.Start))]
-        private static void ForceRandom(ref BoolSO ____useRandomCutoutOffset)
-        {
-            ____useRandomCutoutOffset = _permanentTrue;
         }
     }
 }

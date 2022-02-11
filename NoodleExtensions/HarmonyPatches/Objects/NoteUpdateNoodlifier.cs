@@ -131,18 +131,12 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
             if (dissolve.HasValue)
             {
-                if (_cutoutManager.NoteCutoutEffects.TryGetValue(__instance, out CutoutEffectWrapper cutoutEffect))
-                {
-                    cutoutEffect.SetCutout(dissolve.Value);
-                }
+                _cutoutManager.NoteCutoutEffects[__instance].SetCutout(dissolve.Value);
             }
 
             if (dissolveArrow.HasValue && __instance.noteData.colorType != ColorType.None)
             {
-                if (_cutoutManager.NoteDisappearingArrowWrappers.TryGetValue(__instance, out DisappearingArrowWrapper disappearingArrowWrapper))
-                {
-                    disappearingArrowWrapper.SetCutout(dissolveArrow.Value);
-                }
+                _cutoutManager.NoteDisappearingArrowWrappers[__instance].SetCutout(dissolveArrow.Value);
             }
 
             if (!cuttable.HasValue)

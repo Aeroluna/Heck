@@ -65,6 +65,8 @@ namespace Heck.HarmonyPatches
         {
             DeserializerManager.DeserializeBeatmapDataAndBind(container, false, transformedBeatmapData, untransformedBeatmapData);
 
+            container.Bind<ObjectInitializerManager>().AsSingle();
+
             // TODO: swap strings out for const variables
             container.Bind<bool>().WithId("isMultiplayer").FromInstance(isMultiplayer);
             container.Bind<bool>().WithId("leftHanded").FromInstance(playerSpecificSettings.leftHanded);

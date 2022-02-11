@@ -1,6 +1,5 @@
 ﻿using JetBrains.Annotations;
 using NoodleExtensions.Animation;
-using NoodleExtensions.HarmonyPatches.Cutout;
 using NoodleExtensions.HarmonyPatches.FakeNotes;
 using NoodleExtensions.HarmonyPatches.Mirror;
 using NoodleExtensions.HarmonyPatches.ObjectProcessing;
@@ -31,8 +30,7 @@ namespace NoodleExtensions.Installers
             Container.Bind<PlayerTrack>().FromFactory<PlayerTrack.PlayerTrackFactory>().AsSingle();
 
             // Cutout
-            Container.BindInterfacesTo<NoteCutoutEffects>().AsSingle();
-            Container.BindInterfacesTo<ObstacleCutoutEffects>().AsSingle();
+            Container.BindInterfacesTo<ObjectInitializer>().AsSingle();
 
             // FakeNotes
             Container.BindInterfacesTo<FakeNotePatches>().AsSingle();

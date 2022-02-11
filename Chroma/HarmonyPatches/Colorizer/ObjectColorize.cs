@@ -64,7 +64,7 @@ namespace Chroma.HarmonyPatches.Colorizer
 
         [AffinityPostfix]
         [AffinityPatch(typeof(ObstacleController), nameof(ObstacleController.Init))]
-        private void NoteColorize(ObstacleController __instance, ObstacleData obstacleData)
+        private void ObstacleColorize(ObstacleController __instance, ObstacleData obstacleData)
         {
             if (_customData.Resolve(obstacleData, out ChromaObjectData? chromaData))
             {
@@ -115,7 +115,7 @@ namespace Chroma.HarmonyPatches.Colorizer
 
         [AffinityPostfix]
         [AffinityPatch(typeof(ObstacleController), nameof(ObstacleController.Update))]
-        private void Postfix(
+        private void ObstacleUpdateColorize(
             ObstacleController __instance,
             ObstacleData ____obstacleData,
             AudioTimeSyncController ____audioTimeSyncController,

@@ -181,9 +181,9 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 transform.localScale = scaleOffset.Value;
             }
 
-            if (dissolve.HasValue && _cutoutManager.ObstacleCutoutEffects.TryGetValue(__instance, out CutoutAnimateEffectWrapper cutoutAnimateEffect))
+            if (dissolve.HasValue)
             {
-                cutoutAnimateEffect.SetCutout(dissolve.Value);
+                _cutoutManager.ObstacleCutoutEffects[__instance].SetCutout(dissolve.Value);
             }
         }
 

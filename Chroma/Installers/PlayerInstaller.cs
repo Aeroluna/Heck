@@ -37,12 +37,16 @@ namespace Chroma.Installers
                 Container.Bind<SaberColorizerManager>().AsSingle();
                 Container.BindFactory<Saber, SaberColorizer, SaberColorizer.Factory>().AsSingle();
                 Container.Bind<SaberColorizerIntialize>().AsSingle().NonLazy();
+                Container.BindInterfacesTo<ObjectInitializer>().AsSingle();
 
                 // Colorizer Initialize
                 Container.BindInterfacesAndSelfTo<LightWithIdRegisterer>().AsSingle();
                 Container.BindInterfacesTo<LightColorizerInitialize>().AsSingle();
-                Container.BindInterfacesTo<ObjectColorizerInitialize>().AsSingle();
                 Container.BindInterfacesTo<ParticleColorizerInitialize>().AsSingle();
+
+                // Colorizer Patch
+                Container.BindInterfacesTo<NoteEffectsColorize>().AsSingle();
+                Container.BindInterfacesTo<ObstacleEffectsColorize>().AsSingle();
 
                 // Mirror
                 ////Container.BindInterfacesTo<MirroredNoteChromaTracker>().AsSingle(); https://github.com/Auros/SiraUtil/issues/36
@@ -56,9 +60,7 @@ namespace Chroma.Installers
                 Container.BindInterfacesAndSelfTo<ChromaFogController>().AsSingle();
 
                 // Colorizer Patch
-                Container.BindInterfacesTo<NoteEffectsColorize>().AsSingle();
                 Container.BindInterfacesTo<ObjectColorize>().AsSingle();
-                Container.BindInterfacesTo<ObstacleEffectsColorize>().AsSingle();
 
                 // EnvironmentComponent
                 Container.BindInterfacesTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();
