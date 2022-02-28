@@ -58,7 +58,7 @@ namespace Heck
                     return;
                 }
 
-                Log.Logger.Log($"Toggled [{_harmony.Id}] to [{value}].", Logger.Level.Trace);
+                Log.Logger.Log($"Toggling [{_harmony.Id}] to [{value}].", Logger.Level.Trace);
                 _enabled = value;
                 if (value)
                 {

@@ -12,17 +12,11 @@ namespace Heck
     {
         [CustomEventsDeserializer]
         private static Dictionary<CustomEventData, ICustomEventCustomData>? DeserializeCustomEvents(
-            bool isMultiplayer,
             CustomBeatmapData beatmapData,
             Dictionary<string, PointDefinition> pointDefinitions,
             Dictionary<string, Track> tracks,
             List<CustomEventData> customEventDatas)
         {
-            if (isMultiplayer)
-            {
-                return null;
-            }
-
             Dictionary<CustomEventData, ICustomEventCustomData> dictionary = new();
 
             foreach (CustomEventData customEventData in customEventDatas)

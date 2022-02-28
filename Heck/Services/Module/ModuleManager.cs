@@ -192,8 +192,17 @@ namespace Heck
 
                 // passed the checks, initilaize
                 active.Add(module);
-                callBack.Invoke(null, callBack.ActualParameters(inputs.AddToArray(true)));
-                Log.Logger.Log($"[{module.Id}] loaded.", Logger.Level.Trace);
+                try
+                {
+                    callBack.Invoke(null, callBack.ActualParameters(inputs.AddToArray(true)));
+                    Log.Logger.Log($"[{module.Id}] loaded.", Logger.Level.Trace);
+                }
+                catch
+                {
+                    Log.Logger.Log($"Exception while loading [{module.Id}].", Logger.Level.Critical);
+                    throw;
+                }
+
                 return;
 
                 // goto just seemed to work for this

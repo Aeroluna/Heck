@@ -24,7 +24,6 @@ namespace Heck
 
         internal static void DeserializeBeatmapDataAndBind(
             DiContainer container,
-            bool isMultiplayer,
             IReadonlyBeatmapData beatmapData,
             BeatmapData untransformedBeatmapData)
         {
@@ -33,7 +32,7 @@ namespace Heck
                 throw new InvalidOperationException($"[{nameof(beatmapData)}] was not type [{nameof(CustomBeatmapData)}].");
             }
 
-            Log.Logger.Log(isMultiplayer ? "Deserializing multiplayer BeatmapData." : "Deserializing singleplayer BeatmapData.", Logger.Level.Trace);
+            Log.Logger.Log("Deserializing BeatmapData.", Logger.Level.Trace);
 
             // tracks are built based off the untransformed beatmapdata so modifiers like "no walls" do not prevent track creation
             TrackBuilder trackManager = new();
@@ -153,7 +152,6 @@ namespace Heck
 
             object[] inputs =
             {
-                isMultiplayer,
                 customBeatmapData,
                 trackManager,
                 pointDefinitions,

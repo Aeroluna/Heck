@@ -42,17 +42,11 @@ namespace NoodleExtensions
 
         [ObjectsDeserializer]
         private static Dictionary<BeatmapObjectData, IObjectCustomData>? DeserializeObjects(
-            bool isMultiplayer,
             CustomBeatmapData beatmapData,
             Dictionary<string, PointDefinition> pointDefinitions,
             Dictionary<string, Track> tracks,
             List<BeatmapObjectData> beatmapObjectsDatas)
         {
-            if (isMultiplayer)
-            {
-                return null;
-            }
-
             Dictionary<BeatmapObjectData, IObjectCustomData> dictionary = new();
             foreach (BeatmapObjectData beatmapObjectData in beatmapObjectsDatas)
             {

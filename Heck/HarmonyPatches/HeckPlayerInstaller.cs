@@ -63,7 +63,7 @@ namespace Heck.HarmonyPatches
             bool isMultiplayer,
             DiContainer container)
         {
-            DeserializerManager.DeserializeBeatmapDataAndBind(container, false, transformedBeatmapData, untransformedBeatmapData);
+            DeserializerManager.DeserializeBeatmapDataAndBind(container, transformedBeatmapData, untransformedBeatmapData);
 
             container.Bind<ObjectInitializerManager>().AsSingle();
 
