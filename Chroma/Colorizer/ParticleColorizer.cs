@@ -10,7 +10,7 @@ namespace Chroma.Colorizer
     [UsedImplicitly]
     public class ParticleColorizerManager
     {
-        private static readonly FieldAccessor<ParticleSystemEventEffect, BeatmapEventType>.Accessor _eventAccessor = FieldAccessor<ParticleSystemEventEffect, BeatmapEventType>.GetAccessor("_colorEvent");
+        private static readonly FieldAccessor<ParticleSystemEventEffect, BasicBeatmapEventType>.Accessor _eventAccessor = FieldAccessor<ParticleSystemEventEffect, BasicBeatmapEventType>.GetAccessor("_colorEvent");
 
         private readonly ParticleColorizer.Factory _factory;
 
@@ -19,11 +19,11 @@ namespace Chroma.Colorizer
             _factory = factory;
         }
 
-        public Dictionary<BeatmapEventType, List<ParticleColorizer>> Colorizers { get; } = new();
+        public Dictionary<BasicBeatmapEventType, List<ParticleColorizer>> Colorizers { get; } = new();
 
         internal void Create(ParticleSystemEventEffect particleSystemEventEffect)
         {
-            BeatmapEventType type = _eventAccessor(ref particleSystemEventEffect);
+            BasicBeatmapEventType type = _eventAccessor(ref particleSystemEventEffect);
             if (!Colorizers.TryGetValue(type, out List<ParticleColorizer> colorizers))
             {
                 colorizers = new List<ParticleColorizer>();
@@ -48,7 +48,7 @@ namespace Chroma.Colorizer
         private static readonly FieldAccessor<ParticleSystemEventEffect, float>.Accessor _highlightValueAccessor = FieldAccessor<ParticleSystemEventEffect, float>.GetAccessor("_highlightValue");
         private static readonly FieldAccessor<ParticleSystemEventEffect, Color>.Accessor _afterHighlightColorAccessor = FieldAccessor<ParticleSystemEventEffect, Color>.GetAccessor("_afterHighlightColor");
 
-        private static readonly FieldAccessor<ParticleSystemEventEffect, BeatmapEventType>.Accessor _eventAccessor = FieldAccessor<ParticleSystemEventEffect, BeatmapEventType>.GetAccessor("_colorEvent");
+        private static readonly FieldAccessor<ParticleSystemEventEffect, BasicBeatmapEventType>.Accessor _eventAccessor = FieldAccessor<ParticleSystemEventEffect, BasicBeatmapEventType>.GetAccessor("_colorEvent");
 
         private static readonly FieldAccessor<MultipliedColorSO, Color>.Accessor _multiplierColorAccessor = FieldAccessor<MultipliedColorSO, Color>.GetAccessor("_multiplierColor");
 
@@ -170,7 +170,7 @@ namespace Chroma.Colorizer
             lightColorizer.ChromaLightSwitchEventEffect.DidRefresh += Refresh;
         }
 
-        private void Callback(BeatmapEventData beatmapEventData)
+        private void Callback(BasicBeatmapEventData beatmapEventData)
         {
             _previousValue = beatmapEventData.value;
         }

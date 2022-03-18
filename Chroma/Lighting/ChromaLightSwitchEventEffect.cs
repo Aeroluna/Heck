@@ -31,20 +31,21 @@ namespace Chroma.Lighting
         private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _highlightColor0BoostAccessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_highlightColor0Boost");
         private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _highlightColor1BoostAccessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_highlightColor1Boost");
         private static readonly FieldAccessor<LightSwitchEventEffect, float>.Accessor _offColorIntensityAccessor = FieldAccessor<LightSwitchEventEffect, float>.GetAccessor("_offColorIntensity");
-        private static readonly FieldAccessor<LightSwitchEventEffect, BeatmapEventType>.Accessor _eventAccessor = FieldAccessor<LightSwitchEventEffect, BeatmapEventType>.GetAccessor("_event");
-        private static readonly FieldAccessor<LightSwitchEventEffect, BeatmapEventType>.Accessor _colorBoostEventAccessor = FieldAccessor<LightSwitchEventEffect, BeatmapEventType>.GetAccessor("_colorBoostEvent");
+        private static readonly FieldAccessor<LightSwitchEventEffect, BasicBeatmapEventType>.Accessor _eventAccessor = FieldAccessor<LightSwitchEventEffect, BasicBeatmapEventType>.GetAccessor("_event");
         private static readonly FieldAccessor<LightSwitchEventEffect, bool>.Accessor _lightOnStartAccessor = FieldAccessor<LightSwitchEventEffect, bool>.GetAccessor("_lightOnStart");
 
         private static readonly FieldAccessor<MultipliedColorSO, Color>.Accessor _multiplierColorAccessor = FieldAccessor<MultipliedColorSO, Color>.GetAccessor("_multiplierColor");
 
         private readonly LightWithIdManager _lightManager;
         private readonly SongTimeTweeningManager _tweeningManager;
-        private readonly IBeatmapObjectCallbackController _beatmapObjectCallbackController;
+        private readonly BeatmapCallbacksController _callbacksController;
         private readonly CustomData _customData;
         private readonly ChromaGradientController? _gradientController;
         private readonly LegacyLightHelper _legacyLightHelper;
 
-        private readonly BeatmapEventType _colorBoostEvent;
+        private readonly BeatmapDataCallbackWrapper _basicCallbackWrapper;
+        private readonly BeatmapDataCallbackWrapper _boostCallbackWrapper;
+
         private readonly float _offColorIntensity;
         private readonly bool _lightOnStart;
 
@@ -64,7 +65,7 @@ namespace Chroma.Lighting
             LightWithIdManager lightManager,
             SongTimeTweeningManager tweeningManager,
             LightColorizerManager lightColorizerManager,
-            IBeatmapObjectCallbackController beatmapObjectCallbackController,
+            BeatmapCallbacksController callbacksController,
             [Inject(Id = ChromaController.ID)] CustomData customData,
             [InjectOptional] ChromaGradientController? gradientController,
             LegacyLightHelper legacyLightHelper)
@@ -72,13 +73,12 @@ namespace Chroma.Lighting
             LightSwitchEventEffect = lightSwitchEventEffect;
             _lightManager = lightManager;
             _tweeningManager = tweeningManager;
-            _beatmapObjectCallbackController = beatmapObjectCallbackController;
+            _callbacksController = callbacksController;
             _customData = customData;
             _gradientController = gradientController;
             _legacyLightHelper = legacyLightHelper;
 
             EventType = _eventAccessor(ref lightSwitchEventEffect);
-            _colorBoostEvent = _colorBoostEventAccessor(ref lightSwitchEventEffect);
             _offColorIntensity = _offColorIntensityAccessor(ref lightSwitchEventEffect);
             _lightOnStart = _lightOnStartAccessor(ref lightSwitchEventEffect);
 
@@ -94,14 +94,15 @@ namespace Chroma.Lighting
             Colorizer = lightColorizerManager.Create(this);
             lightColorizerManager.CompleteContracts(this);
 
-            beatmapObjectCallbackController.beatmapEventDidTriggerEvent += Callback;
+            _basicCallbackWrapper = callbacksController.AddBeatmapCallback<BasicBeatmapEventData>(BasicCallback, BasicBeatmapEventData.SubtypeIdentifier(EventType));
+            _boostCallbackWrapper = callbacksController.AddBeatmapCallback<ColorBoostBeatmapEventData>(BoostCallback);
         }
 
-        public event Action<BeatmapEventData>? BeatmapEventDidTrigger;
+        public event Action<BasicBeatmapEventData>? BeatmapEventDidTrigger;
 
         public event Action? DidRefresh;
 
-        public BeatmapEventType EventType { get; }
+        public BasicBeatmapEventType EventType { get; }
 
         public LightSwitchEventEffect LightSwitchEventEffect { get; }
 
@@ -116,7 +117,8 @@ namespace Chroma.Lighting
 
         public void Dispose()
         {
-            _beatmapObjectCallbackController.beatmapEventDidTriggerEvent -= Callback;
+            _callbacksController.RemoveBeatmapCallback(_basicCallbackWrapper);
+            _callbacksController.RemoveBeatmapCallback(_boostCallbackWrapper);
         }
 
         public Color GetNormalColor(int beatmapEventValue)
@@ -159,14 +161,14 @@ namespace Chroma.Lighting
             return Colorizer.Color[0] * _multiplierColorAccessor(ref _highlightColor0);
         }
 
-        public void Refresh(bool hard, IEnumerable<ILightWithId>? selectLights, BeatmapEventData? beatmapEventData = null, Functions? easing = null, LerpType? lerpType = null)
+        public void Refresh(bool hard, IEnumerable<ILightWithId>? selectLights, BasicBeatmapEventData? beatmapEventData = null, Functions? easing = null, LerpType? lerpType = null)
         {
             IEnumerable<ChromaIDColorTween> selectTweens = selectLights == null ? ColorTweens.Values
                 : selectLights.Where(n => ColorTweens.ContainsKey(n)).Select(n => ColorTweens[n]);
 
             foreach (ChromaIDColorTween tween in selectTweens)
             {
-                BeatmapEventData previousEvent;
+                BasicBeatmapEventData previousEvent;
                 if (hard)
                 {
                     tween.PreviousEvent = beatmapEventData ?? throw new ArgumentNullException(nameof(beatmapEventData), "Argument must not be null for hard refresh.");
@@ -190,15 +192,15 @@ namespace Chroma.Lighting
                 void CheckNextEventForFadeBetter()
                 {
                     _customData.Resolve(previousEvent, out ChromaEventData? eventData);
-                    Dictionary<int, BeatmapEventData>? nextSameTypesDict = eventData?.NextSameTypeEvent;
-                    BeatmapEventData? nextSameTypeEvent;
+                    Dictionary<int, BasicBeatmapEventData>? nextSameTypesDict = eventData?.NextSameTypeEvent;
+                    BasicBeatmapEventData? nextSameTypeEvent;
                     if (ChromaController.FeaturesPatcher.Enabled && (nextSameTypesDict?.ContainsKey(tween.Id) ?? false))
                     {
                         nextSameTypeEvent = nextSameTypesDict[tween.Id];
                     }
                     else
                     {
-                        nextSameTypeEvent = previousEvent.nextSameTypeEvent;
+                        nextSameTypeEvent = previousEvent.nextSameTypeEventData;
                     }
 
                     if (nextSameTypeEvent is not { value: 4 or 8 })
@@ -378,92 +380,90 @@ namespace Chroma.Lighting
             }
         }
 
-        private void Callback(BeatmapEventData beatmapEventData)
+        private void BasicCallback(BasicBeatmapEventData beatmapEventData)
         {
-            if (beatmapEventData.type == EventType)
+            IEnumerable<ILightWithId>? selectLights = null;
+            Functions? easing = null;
+            LerpType? lerpType = null;
+
+            // fun fun chroma stuff
+            if (ChromaController.FeaturesPatcher.Enabled)
             {
-                IEnumerable<ILightWithId>? selectLights = null;
-                Functions? easing = null;
-                LerpType? lerpType = null;
-
-                // fun fun chroma stuff
-                if (ChromaController.FeaturesPatcher.Enabled)
+                if (_gradientController == null)
                 {
-                    if (_gradientController == null)
-                    {
-                        throw new InvalidOperationException("Chroma Features requires the gradient controller.");
-                    }
-
-                    if (_customData.Resolve(beatmapEventData, out ChromaEventData? chromaData))
-                    {
-                        Color? color = null;
-
-                        // legacy was a mistake
-                        color = _legacyLightHelper.GetLegacyColor(beatmapEventData) ?? color;
-
-                        if (chromaData.LightID != null)
-                        {
-                            selectLights = Colorizer.GetLightWithIds(chromaData.LightID);
-                        }
-
-                        // propID is now DEPRECATED!!!!!!!!
-                        object? propID = chromaData.PropID;
-                        if (propID != null)
-                        {
-                            selectLights = propID switch
-                            {
-                                List<object> propIDobjects => Colorizer.GetPropagationLightWithIds(
-                                    propIDobjects.Select(Convert.ToInt32)),
-                                long propIDlong => Colorizer.GetPropagationLightWithIds(new[] { (int)propIDlong }),
-                                _ => selectLights
-                            };
-                        }
-
-                        // fck gradients
-                        ChromaEventData.GradientObjectData? gradientObject = chromaData.GradientObject;
-                        if (gradientObject != null)
-                        {
-                            color = _gradientController.AddGradient(gradientObject, beatmapEventData.type, beatmapEventData.time);
-                        }
-
-                        Color? colorData = chromaData.ColorData;
-                        if (colorData.HasValue)
-                        {
-                            color = colorData;
-                            _gradientController.CancelGradient(beatmapEventData.type);
-                        }
-
-                        if (color.HasValue)
-                        {
-                            Color finalColor = color.Value;
-                            Colorizer.Colorize(false, finalColor, finalColor, finalColor, finalColor);
-                        }
-                        else if (!_gradientController.IsGradientActive(beatmapEventData.type))
-                        {
-                            Colorizer.Colorize(false, null, null, null, null);
-                        }
-
-                        easing = chromaData.Easing;
-                        lerpType = chromaData.LerpType;
-                    }
+                    throw new InvalidOperationException("Chroma Features requires the gradient controller.");
                 }
 
-                // Particle colorizer cant use BeatmapObjectCallbackController event because the LightSwitchEventEffect must activate first
-                BeatmapEventDidTrigger?.Invoke(beatmapEventData);
-
-                Refresh(true, selectLights, beatmapEventData, easing, lerpType);
-            }
-            else if (beatmapEventData.type == _colorBoostEvent)
-            {
-                bool flag = beatmapEventData.value == 1;
-                if (flag == _usingBoostColors)
+                if (_customData.Resolve(beatmapEventData, out ChromaEventData? chromaData))
                 {
-                    return;
-                }
+                    Color? color = null;
 
-                _usingBoostColors = flag;
-                Refresh(false, null);
+                    // legacy was a mistake
+                    color = _legacyLightHelper.GetLegacyColor(beatmapEventData) ?? color;
+
+                    if (chromaData.LightID != null)
+                    {
+                        selectLights = Colorizer.GetLightWithIds(chromaData.LightID);
+                    }
+
+                    // propID is now DEPRECATED!!!!!!!!
+                    object? propID = chromaData.PropID;
+                    if (propID != null)
+                    {
+                        selectLights = propID switch
+                        {
+                            List<object> propIDobjects => Colorizer.GetPropagationLightWithIds(
+                                propIDobjects.Select(Convert.ToInt32)),
+                            long propIDlong => Colorizer.GetPropagationLightWithIds(new[] { (int)propIDlong }),
+                            _ => selectLights
+                        };
+                    }
+
+                    // fck gradients
+                    ChromaEventData.GradientObjectData? gradientObject = chromaData.GradientObject;
+                    if (gradientObject != null)
+                    {
+                        color = _gradientController.AddGradient(gradientObject, beatmapEventData.basicBeatmapEventType, beatmapEventData.time);
+                    }
+
+                    Color? colorData = chromaData.ColorData;
+                    if (colorData.HasValue)
+                    {
+                        color = colorData;
+                        _gradientController.CancelGradient(beatmapEventData.basicBeatmapEventType);
+                    }
+
+                    if (color.HasValue)
+                    {
+                        Color finalColor = color.Value;
+                        Colorizer.Colorize(false, finalColor, finalColor, finalColor, finalColor);
+                    }
+                    else if (!_gradientController.IsGradientActive(beatmapEventData.basicBeatmapEventType))
+                    {
+                        Colorizer.Colorize(false, null, null, null, null);
+                    }
+
+                    easing = chromaData.Easing;
+                    lerpType = chromaData.LerpType;
+                }
             }
+
+            // Particle colorizer cant use BeatmapObjectCallbackController event because the LightSwitchEventEffect must activate first
+            BeatmapEventDidTrigger?.Invoke(beatmapEventData);
+
+            Refresh(true, selectLights, beatmapEventData, easing, lerpType);
+        }
+
+        private void BoostCallback(ColorBoostBeatmapEventData beatmapEventData)
+        {
+            bool flag = beatmapEventData.boostColorsAreOn;
+            if (flag == _usingBoostColors)
+            {
+                return;
+            }
+
+            _usingBoostColors = flag;
+            Refresh(false, null);
         }
 
         [UsedImplicitly]

@@ -16,18 +16,19 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
             _fakePatchesManager = fakePatchesManager;
         }
 
-        [HarmonyTranspiler]
+        // TODO: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        /*[HarmonyTranspiler]
         [HarmonyPatch(typeof(ObstacleSaberSparkleEffectManager), nameof(ObstacleSaberSparkleEffectManager.Update))]
         private static IEnumerable<CodeInstruction> ObstacleSaberSparkleBoundsTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return FakePatchesManager.BoundsNullCheckTranspiler(instructions);
-        }
+        }*/
 
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(PlayerHeadAndObstacleInteraction), nameof(PlayerHeadAndObstacleInteraction.GetObstaclesContainingPoint))]
-        private static IEnumerable<CodeInstruction> PlayerObstacleBoundsTranspiler(IEnumerable<CodeInstruction> instructions)
+        [AffinityTranspiler]
+        [AffinityPatch(typeof(PlayerHeadAndObstacleInteraction), nameof(PlayerHeadAndObstacleInteraction.RefreshIntersectingObstacles))]
+        private IEnumerable<CodeInstruction> PlayerObstacleBoundsTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            return FakePatchesManager.BoundsNullCheckTranspiler(instructions);
+            return _fakePatchesManager.BoundsNullCheckTranspiler(instructions);
         }
 
         [AffinityPrefix]
@@ -45,20 +46,6 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
         private bool NoteStartJumpCuttable(GameNoteController __instance)
         {
             return _fakePatchesManager.GetCuttable(__instance.noteData);
-        }
-
-        [AffinityTranspiler]
-        [AffinityPatch(typeof(GameEnergyCounter), nameof(GameEnergyCounter.LateUpdate))]
-        private IEnumerable<CodeInstruction> ObstacleEnergyTranspiler(IEnumerable<CodeInstruction> instructions)
-        {
-            return _fakePatchesManager.ObstaclesTranspiler(instructions);
-        }
-
-        [AffinityTranspiler]
-        [AffinityPatch(typeof(BeatmapObjectExecutionRatingsRecorder), nameof(BeatmapObjectExecutionRatingsRecorder.Update))]
-        private IEnumerable<CodeInstruction> RatingsRecorderTranspiler(IEnumerable<CodeInstruction> instructions)
-        {
-            return _fakePatchesManager.ObstaclesTranspiler(instructions);
         }
     }
 }

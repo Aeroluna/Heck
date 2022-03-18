@@ -13,6 +13,10 @@ namespace NoodleExtensions.Animation
     {
         private static readonly FieldAccessor<PauseController, bool>.Accessor _pausedAccessor = FieldAccessor<PauseController, bool>.GetAccessor("_paused");
 
+        // because camera2 is cringe
+        [UsedImplicitly]
+        private static PlayerTrack? _instance;
+
         private bool _leftHanded;
 
         private Vector3 _startPos = Vector3.zero;
@@ -41,6 +45,7 @@ namespace NoodleExtensions.Animation
             _startLocalRot = origin.localRotation;
             _startPos = origin.localPosition;
             _leftHanded = leftHanded;
+            _instance = this;
             _movementData = movementData.MovementData;
         }
 

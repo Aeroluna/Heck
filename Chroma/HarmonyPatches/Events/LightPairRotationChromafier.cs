@@ -9,7 +9,7 @@ namespace Chroma.HarmonyPatches.Events
     {
         private readonly CustomData _customData;
 
-        private BeatmapEventData? _lastData;
+        private BasicBeatmapEventData? _lastData;
 
         private LightPairRotationChromafier([Inject(Id = ChromaController.ID)] CustomData customData)
         {
@@ -18,18 +18,18 @@ namespace Chroma.HarmonyPatches.Events
 
         // Laser rotation
         [AffinityPrefix]
-        [AffinityPatch(typeof(LightPairRotationEventEffect), nameof(LightPairRotationEventEffect.HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger))]
-        private void LoadEventData(BeatmapEventData beatmapEventData, BeatmapEventType ____eventL, BeatmapEventType ____eventR)
+        [AffinityPatch(typeof(LightPairRotationEventEffect), nameof(LightPairRotationEventEffect.HandleBeatmapEvent))]
+        private void LoadEventData(BasicBeatmapEventData basicBeatmapEventData, BasicBeatmapEventType ____eventL, BasicBeatmapEventType ____eventR)
         {
-            if (beatmapEventData.type == ____eventL || beatmapEventData.type == ____eventR)
+            if (basicBeatmapEventData.basicBeatmapEventType == ____eventL || basicBeatmapEventData.basicBeatmapEventType == ____eventR)
             {
-                _lastData = beatmapEventData;
+                _lastData = basicBeatmapEventData;
             }
         }
 
         [AffinityPostfix]
-        [AffinityPatch(typeof(LightPairRotationEventEffect), nameof(LightPairRotationEventEffect.HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger))]
-        private void ResetEVentData()
+        [AffinityPatch(typeof(LightPairRotationEventEffect), nameof(LightPairRotationEventEffect.HandleBeatmapEvent))]
+        private void ResetEventData()
         {
             _lastData = null;
         }
@@ -37,7 +37,7 @@ namespace Chroma.HarmonyPatches.Events
         [AffinityPrefix]
         [AffinityPatch(typeof(LightPairRotationEventEffect), nameof(LightPairRotationEventEffect.UpdateRotationData))]
         private bool Prefix(
-            BeatmapEventType ____eventL,
+            BasicBeatmapEventType ____eventL,
             float startRotationOffset,
             float direction,
             LightPairRotationEventEffect.RotationData ____rotationDataL,
@@ -49,7 +49,7 @@ namespace Chroma.HarmonyPatches.Events
                 return true;
             }
 
-            bool isLeftEvent = _lastData.type == ____eventL;
+            bool isLeftEvent = _lastData.basicBeatmapEventType == ____eventL;
 
             LightPairRotationEventEffect.RotationData rotationData = isLeftEvent ? ____rotationDataL : ____rotationDataR;
 

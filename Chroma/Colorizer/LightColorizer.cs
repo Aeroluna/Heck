@@ -17,23 +17,23 @@ namespace Chroma.Colorizer
 
         private readonly LightColorizer.Factory _factory;
 
-        private readonly List<Tuple<BeatmapEventType, Action<LightColorizer>>> _contracts = new();
+        private readonly List<Tuple<BasicBeatmapEventType, Action<LightColorizer>>> _contracts = new();
 
         internal LightColorizerManager(LightColorizer.Factory factory)
         {
             _factory = factory;
         }
 
-        public Dictionary<BeatmapEventType, LightColorizer> Colorizers { get; } = new();
+        public Dictionary<BasicBeatmapEventType, LightColorizer> Colorizers { get; } = new();
 
         public Color?[] GlobalColor { get; } = new Color?[COLOR_FIELDS];
 
-        public LightColorizer GetColorizer(BeatmapEventType eventType) => Colorizers[eventType];
+        public LightColorizer GetColorizer(BasicBeatmapEventType eventType) => Colorizers[eventType];
 
-        public void Colorize(BeatmapEventType eventType, bool refresh, params Color?[] colors) => GetColorizer(eventType).Colorize(refresh, colors);
+        public void Colorize(BasicBeatmapEventType eventType, bool refresh, params Color?[] colors) => GetColorizer(eventType).Colorize(refresh, colors);
 
         [PublicAPI]
-        public void Colorize(BeatmapEventType eventType, IEnumerable<ILightWithId> selectLights, params Color?[] colors) => GetColorizer(eventType).Colorize(selectLights, colors);
+        public void Colorize(BasicBeatmapEventType eventType, IEnumerable<ILightWithId> selectLights, params Color?[] colors) => GetColorizer(eventType).Colorize(selectLights, colors);
 
         [PublicAPI]
         public void GlobalColorize(IEnumerable<ILightWithId>? selectLights, params Color?[] colors)
@@ -77,8 +77,8 @@ namespace Chroma.Colorizer
         internal void CompleteContracts(ChromaLightSwitchEventEffect chromaLightSwitchEventEffect)
         {
             // complete open contracts
-            Tuple<BeatmapEventType, Action<LightColorizer>>[] contracts = _contracts.ToArray();
-            foreach (Tuple<BeatmapEventType, Action<LightColorizer>> contract in contracts)
+            Tuple<BasicBeatmapEventType, Action<LightColorizer>>[] contracts = _contracts.ToArray();
+            foreach (Tuple<BasicBeatmapEventType, Action<LightColorizer>> contract in contracts)
             {
                 if (chromaLightSwitchEventEffect.EventType != contract.Item1)
                 {
@@ -90,7 +90,7 @@ namespace Chroma.Colorizer
             }
         }
 
-        internal void CreateLightColorizerContract(BeatmapEventType type, Action<LightColorizer> callback)
+        internal void CreateLightColorizerContract(BasicBeatmapEventType type, Action<LightColorizer> callback)
         {
             if (Colorizers.TryGetValue(type, out LightColorizer colorizer))
             {
@@ -113,13 +113,13 @@ namespace Chroma.Colorizer
         private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor0BoostAccessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor0Boost");
         private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor1BoostAccessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor1Boost");
 
-        private static readonly FieldAccessor<LightSwitchEventEffect, BeatmapEventType>.Accessor _eventAccessor = FieldAccessor<LightSwitchEventEffect, BeatmapEventType>.GetAccessor("_event");
+        private static readonly FieldAccessor<LightSwitchEventEffect, BasicBeatmapEventType>.Accessor _eventAccessor = FieldAccessor<LightSwitchEventEffect, BasicBeatmapEventType>.GetAccessor("_event");
         private static readonly FieldAccessor<MultipliedColorSO, SimpleColorSO>.Accessor _baseColorAccessor = FieldAccessor<MultipliedColorSO, SimpleColorSO>.GetAccessor("_baseColor");
         private static readonly FieldAccessor<LightWithIdManager, List<ILightWithId>[]>.Accessor _lightsAccessor = FieldAccessor<LightWithIdManager, List<ILightWithId>[]>.GetAccessor("_lights");
 
         private readonly LightColorizerManager _colorizerManager;
 
-        private readonly BeatmapEventType _eventType;
+        private readonly BasicBeatmapEventType _eventType;
 
         private readonly Color?[] _colors = new Color?[COLOR_FIELDS];
         private readonly SimpleColorSO[] _originalColors = new SimpleColorSO[COLOR_FIELDS];

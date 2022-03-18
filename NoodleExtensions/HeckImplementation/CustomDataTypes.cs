@@ -7,7 +7,7 @@ namespace NoodleExtensions
 {
     internal class NoodleNoteData : NoodleObjectData
     {
-        internal Quaternion? CutQuaternion { get; set; }
+        internal float? CutDirectionAngle { get; set; }
 
         internal Vector3 MoveStartPos { get; set; }
 

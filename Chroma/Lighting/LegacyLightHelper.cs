@@ -10,30 +10,30 @@ namespace Chroma.Lighting
     {
         internal const int RGB_INT_OFFSET = 2000000000;
 
-        internal LegacyLightHelper(IEnumerable<BeatmapEventData> eventData)
+        internal LegacyLightHelper(IEnumerable<BasicBeatmapEventData> eventData)
         {
-            foreach (BeatmapEventData d in eventData)
+            foreach (BasicBeatmapEventData d in eventData)
             {
                 if (d.value < RGB_INT_OFFSET)
                 {
                     continue;
                 }
 
-                if (!LegacyColorEvents.TryGetValue(d.type, out List<Tuple<float, Color>> dictionaryID))
+                if (!LegacyColorEvents.TryGetValue(d.basicBeatmapEventType, out List<Tuple<float, Color>> dictionaryID))
                 {
                     dictionaryID = new List<Tuple<float, Color>>();
-                    LegacyColorEvents.Add(d.type, dictionaryID);
+                    LegacyColorEvents.Add(d.basicBeatmapEventType, dictionaryID);
                 }
 
                 dictionaryID.Add(new Tuple<float, Color>(d.time, ColorFromInt(d.value)));
             }
         }
 
-        internal IDictionary<BeatmapEventType, List<Tuple<float, Color>>> LegacyColorEvents { get; } = new Dictionary<BeatmapEventType, List<Tuple<float, Color>>>();
+        internal Dictionary<BasicBeatmapEventType, List<Tuple<float, Color>>> LegacyColorEvents { get; } = new();
 
-        internal Color? GetLegacyColor(BeatmapEventData beatmapEventData)
+        internal Color? GetLegacyColor(BasicBeatmapEventData beatmapEventData)
         {
-            if (!LegacyColorEvents.TryGetValue(beatmapEventData.type, out List<Tuple<float, Color>> dictionaryID))
+            if (!LegacyColorEvents.TryGetValue(beatmapEventData.basicBeatmapEventType, out List<Tuple<float, Color>> dictionaryID))
             {
                 return null;
             }

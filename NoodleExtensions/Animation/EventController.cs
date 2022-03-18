@@ -1,44 +1,51 @@
-﻿using System.Collections.Generic;
-using CustomJSONData;
+﻿using System;
+using System.Collections.Generic;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
 using JetBrains.Annotations;
-using UnityEngine;
 using Zenject;
 using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions.Animation
 {
-    internal class EventController : MonoBehaviour
+    [UsedImplicitly]
+    internal class EventController : IDisposable
     {
-        private CustomData _customData = null!;
-        private LazyInject<ParentController> _parentController = null!;
-        private LazyInject<PlayerTrack> _playerTrack = null!;
+        private readonly BeatmapCallbacksController? _callbacksController;
+        private readonly CustomData _customData;
+        private readonly LazyInject<ParentController> _parentController;
+        private readonly LazyInject<PlayerTrack> _playerTrack;
+        private readonly BeatmapDataCallbackWrapper? _callbackWrapper;
 
-        [UsedImplicitly]
-        [Inject]
-        internal void Construct(
-            CustomEventCallbackController customEventCallbackController,
+        private EventController(
+            BeatmapCallbacksController callbacksController,
             [Inject(Id = ID)] CustomData customData,
             LazyInject<ParentController> parentController,
             LazyInject<PlayerTrack> playerTrack,
             [Inject(Id = "isMultiplayer")] bool isMultiplayer)
         {
+            _customData = customData;
+            _parentController = parentController;
+            _playerTrack = playerTrack;
+
             if (isMultiplayer)
             {
                 return;
             }
 
-            _customData = customData;
-            _parentController = parentController;
-            _playerTrack = playerTrack;
-            customEventCallbackController.AddCustomEventCallback(HandleCallback);
+            _callbacksController = callbacksController;
+            _callbackWrapper = callbacksController.AddBeatmapCallback<CustomEventData>(HandleCallback);
+        }
+
+        public void Dispose()
+        {
+            _callbacksController?.RemoveBeatmapCallback(_callbackWrapper);
         }
 
         private void HandleCallback(CustomEventData customEventData)
         {
-            switch (customEventData.type)
+            switch (customEventData.eventType)
             {
                 case ASSIGN_TRACK_PARENT:
                     if (!_customData.Resolve(customEventData, out NoodleParentTrackEventData? noodleParentData))

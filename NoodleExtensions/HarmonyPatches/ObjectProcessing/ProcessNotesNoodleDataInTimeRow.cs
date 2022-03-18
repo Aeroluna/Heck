@@ -12,11 +12,11 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
     internal static class ProcessNotesNoodleDataInTimeRow
     {
         [HarmonyPrefix]
-        [HarmonyPatch("ProcessAllNotesInTimeRow")]
-        private static void ProcessAllNotesInTimeRowPatch(List<NoteData> notesInTimeRow)
+        [HarmonyPatch(nameof(BeatmapObjectsInTimeRowProcessor.HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice))]
+        private static void ProcessAllNotesInTimeRowPatch(BeatmapObjectsInTimeRowProcessor.TimeSliceContainer<BeatmapDataItem> allObjectsTimeSlice)
         {
             List<CustomNoteData> notesToSetFlip = new();
-
+            IEnumerable<NoteData> notesInTimeRow = allObjectsTimeSlice.items.OfType<NoteData>();
             Dictionary<float, List<CustomNoteData>> notesInColumns = new();
             foreach (NoteData t in notesInTimeRow)
             {
@@ -93,9 +93,10 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("ProcessColorNotesInTimeRow")]
-        private static void ProcessColorNotesInTimeRowPatch(List<NoteData> colorNotesData)
+        [HarmonyPatch(nameof(BeatmapObjectsInTimeRowProcessor.HandleCurrentTimeSliceColorNotesDidFinishTimeSlice))]
+        private static void ProcessColorNotesInTimeRowPatch(BeatmapObjectsInTimeRowProcessor.TimeSliceContainer<NoteData> currentTimeSlice)
         {
+            IReadOnlyList<NoteData> colorNotesData = currentTimeSlice.items;
             int customNoteCount = colorNotesData.Count;
             if (customNoteCount != 2)
             {

@@ -1,5 +1,4 @@
-﻿using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
+﻿using CustomJSONData.CustomBeatmap;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -9,17 +8,14 @@ namespace Heck.Animation.Events
 {
     internal class EventController : MonoBehaviour
     {
-        private CustomEventCallbackController _customEventCallbackController = null!;
         private LazyInject<CoroutineEventManager> _coroutineEventManager = null!;
-        private CustomData _customData = null!;
 
         [UsedImplicitly]
         [Inject]
         internal void Construct(
-            CustomEventCallbackController customEventCallbackController,
+            BeatmapCallbacksController beatmapCallbacksController,
             LazyInject<CoroutineEventManager> coroutineEventManager,
             IReadonlyBeatmapData beatmapData,
-            [Inject(Id = ID)] CustomData customData,
             [Inject(Id = "isMultiplayer")] bool isMultiplayer)
         {
             if (isMultiplayer)
@@ -28,15 +24,13 @@ namespace Heck.Animation.Events
                 return;
             }
 
-            _customEventCallbackController = customEventCallbackController;
             _coroutineEventManager = coroutineEventManager;
-            _customData = customData;
-            customEventCallbackController.AddCustomEventCallback(HandleCallback);
+            beatmapCallbacksController.AddBeatmapCallback<CustomEventData>(HandleCallback);
         }
 
         private void HandleCallback(CustomEventData customEventData)
         {
-            switch (customEventData.type)
+            switch (customEventData.eventType)
             {
                 case ANIMATE_TRACK:
                     _coroutineEventManager.Value.StartEventCoroutine(customEventData, EventType.AnimateTrack);
@@ -44,13 +38,15 @@ namespace Heck.Animation.Events
                 case ASSIGN_PATH_ANIMATION:
                     _coroutineEventManager.Value.StartEventCoroutine(customEventData, EventType.AssignPathAnimation);
                     break;
-                case INVOKE_EVENT:
+
+                // TODO: reimplement this
+                /*case INVOKE_EVENT:
                     if (_customData.Resolve(customEventData, out HeckInvokeEventData? heckData))
                     {
                         _customEventCallbackController.InvokeCustomEvent(heckData.CustomEventData);
                     }
 
-                    break;
+                    break;*/
             }
         }
     }

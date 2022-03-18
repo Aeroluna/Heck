@@ -14,13 +14,14 @@ namespace Heck.HarmonyPatches
             AccessTools.Method(typeof(FactoryFromBinderBase), nameof(FactoryFromBinderBase.FromComponentInNewPrefab));
 
         private static readonly MethodInfo _fromInitializer = AccessTools.Method(typeof(ObjectInitializer), nameof(FromInitializer));
-        private static readonly MethodInfo _getContainer = AccessTools.PropertyGetter(typeof(MonoInstallerBase), "Container");
 
         [HarmonyPriority(Priority.Low)]
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(BeatmapObjectsInstaller), nameof(BeatmapObjectsInstaller.InstallBindings))]
-        private static IEnumerable<CodeInstruction> BeatmapObjectsTranspiler(IEnumerable<CodeInstruction> instructions) =>
-            FromInitializerTranspiler(instructions);
+        private static IEnumerable<CodeInstruction> BeatmapObjectsTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            return FromInitializerTranspiler(instructions);
+        }
 
         [HarmonyPriority(Priority.Low)]
         [HarmonyTranspiler]
@@ -39,53 +40,47 @@ namespace Heck.HarmonyPatches
             return new CodeMatcher(instructions)
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _fromComponentInNewPrefab))
                 .Repeat(matcher => matcher
-                    .InsertAndAdvance(
-                        new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Callvirt, _getContainer),
-                        new CodeInstruction(OpCodes.Call, _fromInitializer))
-                    .RemoveInstructions(2))
+                    .SetAndAdvance(OpCodes.Call, _fromInitializer)
+                    .RemoveInstruction())
                 .InstructionEnumeration();
         }
 
-        private static void FromInitializer(FactoryFromBinderBase binderBase, Object prefab, DiContainer container)
+        private static void FromInitializer(FactoryFromBinderBase binderBase, Object prefab)
         {
             switch (binderBase)
             {
                 case FactoryFromBinder<GameNoteController> binder:
-                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateGameNoteController());
+                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateGameNoteController<GameNoteController>(prefab));
                     break;
-                case FactoryFromBinder<MirroredCubeNoteController> binder:
-                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateMirroredCubeNoteController());
+                case FactoryFromBinder<MirroredGameNoteController> binder:
+                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateGameNoteController<MirroredGameNoteController>(prefab));
                     break;
                 case FactoryFromBinder<MultiplayerConnectedPlayerGameNoteController> binder:
-                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateMultiplayerConnectedPlayerGameNoteController());
+                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateGameNoteController<MultiplayerConnectedPlayerGameNoteController>(prefab));
                     break;
                 case FactoryFromBinder<BombNoteController> binder:
-                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateBombNoteController());
+                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateBombNoteController<BombNoteController>(prefab));
                     break;
                 case FactoryFromBinder<MirroredBombNoteController> binder:
-                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateMirroredBombNoteController());
+                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateBombNoteController<MirroredBombNoteController>(prefab));
                     break;
                 case FactoryFromBinder<MultiplayerConnectedPlayerBombNoteController> binder:
-                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateMultiplayerConnectedPlayerBombNoteController());
+                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateBombNoteController<MultiplayerConnectedPlayerBombNoteController>(prefab));
                     break;
                 case FactoryFromBinder<ObstacleController> binder:
-                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateObstacleController());
+                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateObstacleController<ObstacleController>(prefab));
                     break;
                 case FactoryFromBinder<MirroredObstacleController> binder:
-                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateMirroredObstacleController());
+                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateObstacleController<MirroredObstacleController>(prefab));
                     break;
                 case FactoryFromBinder<MultiplayerConnectedPlayerObstacleController> binder:
-                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateMultiplayerConnectedPlayerObstacleController());
+                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateObstacleController<MultiplayerConnectedPlayerObstacleController>(prefab));
                     break;
                 default:
                     // fallback
                     binderBase.FromComponentInNewPrefab(prefab);
-                    return;
+                    break;
             }
-
-            // Bind prefab for intializer manager
-            container.Bind(prefab.GetType()).FromInstance(prefab).AsSingle();
         }
     }
 }

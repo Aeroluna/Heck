@@ -49,7 +49,7 @@ namespace Chroma.Installers
                 Container.BindInterfacesTo<ObstacleEffectsColorize>().AsSingle();
 
                 // Mirror
-                ////Container.BindInterfacesTo<MirroredNoteChromaTracker>().AsSingle(); https://github.com/Auros/SiraUtil/issues/36
+                Container.BindInterfacesTo<MirroredNoteChromaTracker>().AsSingle();
                 Container.BindInterfacesTo<MirroredObstacleChromaTracker>().AsSingle();
             }
 
@@ -86,7 +86,7 @@ namespace Chroma.Installers
                     Color,
                     float,
                     float,
-                    BeatmapEventType,
+                    BasicBeatmapEventType,
                     Functions,
                     ChromaGradientController.ChromaGradientEvent,
                     ChromaGradientController.ChromaGradientEvent.Factory>().AsSingle();

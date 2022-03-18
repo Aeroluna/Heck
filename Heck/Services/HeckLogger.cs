@@ -25,12 +25,12 @@ namespace Heck
 
         public void Log(string? message, Logger.Level level = Logger.Level.Debug, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
         {
-            message ??= "NULL";
             if (level == Logger.Level.Trace && HeckController.DebugMode)
             {
                 level = Logger.Level.Info;
             }
 
+            message ??= "NULL";
             IPALogger.Log(level, HeckController.DebugMode ? $"{member}({line}): {message}" : message);
         }
 
@@ -57,7 +57,7 @@ namespace Heck
             {
                 Log("index: " + patch.index);
                 Log("owner: " + patch.owner);
-                Log("patch method: " + patch.PatchMethod.Name);
+                Log("patch method: " + patch.PatchMethod.FullDescription());
                 Log("priority: " + patch.priority);
                 Log("before: " + string.Join(", ", patch.before));
                 Log("after: " + string.Join(", ", patch.after));

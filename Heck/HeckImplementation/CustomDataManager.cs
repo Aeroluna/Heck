@@ -11,7 +11,7 @@ namespace Heck
     internal class CustomDataManager
     {
         [CustomEventsDeserializer]
-        private static Dictionary<CustomEventData, ICustomEventCustomData>? DeserializeCustomEvents(
+        private static Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents(
             CustomBeatmapData beatmapData,
             Dictionary<string, PointDefinition> pointDefinitions,
             Dictionary<string, Track> tracks,
@@ -23,7 +23,7 @@ namespace Heck
             {
                 try
                 {
-                    switch (customEventData.type)
+                    switch (customEventData.eventType)
                     {
                         case ANIMATE_TRACK:
                         case ASSIGN_PATH_ANIMATION:
@@ -33,7 +33,7 @@ namespace Heck
                         case INVOKE_EVENT:
                             IDictionary<string, CustomEventData> eventDefinitions = beatmapData.customData.Get<IDictionary<string, CustomEventData>>("eventDefinitions")
                                                                                     ?? throw new InvalidOperationException("Could not find event definitions in BeatmapData.");
-                            string eventName = customEventData.data.Get<string>(EVENT) ?? throw new InvalidOperationException("Event name was not defined.");
+                            string eventName = customEventData.customData.Get<string>(EVENT) ?? throw new InvalidOperationException("Event name was not defined.");
                             dictionary.Add(customEventData, new HeckInvokeEventData(eventDefinitions[eventName]));
                             break;
 
@@ -54,7 +54,7 @@ namespace Heck
         {
             HeckCoroutineEventData heckEventData = new();
 
-            Dictionary<string, object?> data = customEventData.data;
+            Dictionary<string, object?> data = customEventData.customData;
 
             Functions? easing = data.GetStringToEnum<Functions?>(EASING);
             heckEventData.Easing = easing ?? Functions.easeLinear;
@@ -67,7 +67,7 @@ namespace Heck
             IEnumerable<string> propertyKeys = data.Keys.Where(n => excludedStrings.All(m => m != n)).ToList();
             foreach (Track track in tracks)
             {
-                IDictionary<string, Property> properties = customEventData.type switch
+                IDictionary<string, Property> properties = customEventData.eventType switch
                 {
                     ANIMATE_TRACK => track.Properties,
                     ASSIGN_PATH_ANIMATION => track.PathProperties,

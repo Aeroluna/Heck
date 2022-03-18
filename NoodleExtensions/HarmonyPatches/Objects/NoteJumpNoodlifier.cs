@@ -80,6 +80,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 .MatchForward(
                     false,
                     new CodeMatch(OpCodes.Callvirt, _localRotationSetter))
+                .Advance(1)
+                .MatchForward(
+                    false,
+                    new CodeMatch(OpCodes.Callvirt, _localRotationSetter))
                 .Advance(1);
             int endPos = codeMatcher.Pos;
             object label = codeMatcher.Labels.First();

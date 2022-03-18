@@ -29,7 +29,8 @@ namespace Chroma
             bool chromaRequirement = capabilities.Requirements.Contains(CAPABILITY) || capabilities.Suggestions.Contains(CAPABILITY);
 
             // please let me remove this shit
-            bool legacyOverride = difficultyBeatmap.beatmapData.beatmapEventsData.Any(n => n.value >= LegacyLightHelper.RGB_INT_OFFSET);
+            bool legacyOverride = difficultyBeatmap is CustomDifficultyBeatmap { beatmapSaveData: CustomBeatmapSaveData customBeatmapSaveData }
+                                  && customBeatmapSaveData.basicBeatmapEvents.Any(n => n.value >= LegacyLightHelper.RGB_INT_OFFSET);
             if (legacyOverride)
             {
                 Log.Logger.Log("Legacy Chroma Detected...", Logger.Level.Warning);
@@ -51,11 +52,11 @@ namespace Chroma
 
             try
             {
-                CustomBeatmapData customBeatmapData = (CustomBeatmapData)difficultyBeatmap.beatmapData;
-
+                CustomBeatmapSaveData? customBeatmapSaveData = difficultyBeatmap.GetBeatmapSaveData();
                 if (value &&
+                    customBeatmapSaveData != null &&
                     !ChromaConfig.Instance.EnvironmentEnhancementsDisabled &&
-                    ((customBeatmapData.beatmapCustomData.Get<List<object>>(ENVIRONMENT_REMOVAL)?.Any() ?? false) || (customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false)))
+                    ((customBeatmapSaveData.beatmapCustomData.Get<List<object>>(ENVIRONMENT_REMOVAL)?.Any() ?? false) || (customBeatmapSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false)))
                 {
                     moduleArgs.OverrideEnvironmentSettings = null;
                 }

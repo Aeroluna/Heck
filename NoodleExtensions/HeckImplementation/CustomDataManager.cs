@@ -19,14 +19,14 @@ namespace NoodleExtensions
             {
                 try
                 {
-                    switch (customEventData.type)
+                    switch (customEventData.eventType)
                     {
                         case ASSIGN_PLAYER_TO_TRACK:
-                            trackBuilder.AddTrack(customEventData.data.Get<string>(TRACK) ?? throw new InvalidOperationException("Track was not defined."));
+                            trackBuilder.AddTrack(customEventData.customData.Get<string>(TRACK) ?? throw new InvalidOperationException("Track was not defined."));
                             break;
 
                         case ASSIGN_TRACK_PARENT:
-                            trackBuilder.AddTrack(customEventData.data.Get<string>(PARENT_TRACK) ?? throw new InvalidOperationException("Parent track was not defined."));
+                            trackBuilder.AddTrack(customEventData.customData.Get<string>(PARENT_TRACK) ?? throw new InvalidOperationException("Parent track was not defined."));
                             break;
 
                         default:
@@ -41,11 +41,11 @@ namespace NoodleExtensions
         }
 
         [ObjectsDeserializer]
-        private static Dictionary<BeatmapObjectData, IObjectCustomData>? DeserializeObjects(
+        private static Dictionary<BeatmapObjectData, IObjectCustomData> DeserializeObjects(
             CustomBeatmapData beatmapData,
             Dictionary<string, PointDefinition> pointDefinitions,
             Dictionary<string, Track> tracks,
-            List<BeatmapObjectData> beatmapObjectsDatas)
+            IReadOnlyList<BeatmapObjectData> beatmapObjectsDatas)
         {
             Dictionary<BeatmapObjectData, IObjectCustomData> dictionary = new();
             foreach (BeatmapObjectData beatmapObjectData in beatmapObjectsDatas)
@@ -84,28 +84,22 @@ namespace NoodleExtensions
         }
 
         [CustomEventsDeserializer]
-        private static Dictionary<CustomEventData, ICustomEventCustomData>? DeserializeCustomEvents(
-            bool isMultiplayer,
+        private static Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents(
             CustomBeatmapData beatmapData,
             Dictionary<string, PointDefinition> pointDefinitions,
             Dictionary<string, Track> tracks,
-            List<CustomEventData> customEventDatas)
+            IReadOnlyList<CustomEventData> customEventDatas)
         {
-            if (isMultiplayer)
-            {
-                return null;
-            }
-
             Dictionary<CustomEventData, ICustomEventCustomData> dictionary = new();
             foreach (CustomEventData customEventData in customEventDatas)
             {
                 try
                 {
-                    Dictionary<string, object?> data = customEventData.data;
-                    switch (customEventData.type)
+                    Dictionary<string, object?> data = customEventData.customData;
+                    switch (customEventData.eventType)
                     {
                         case ASSIGN_PLAYER_TO_TRACK:
-                            Track track = customEventData.data.GetTrack(tracks) ?? throw new InvalidOperationException("Track was not defined.");
+                            Track track = customEventData.customData.GetTrack(tracks) ?? throw new InvalidOperationException("Track was not defined.");
                             dictionary.Add(customEventData, new NoodlePlayerTrackEventData(track));
                             break;
 
@@ -185,7 +179,7 @@ namespace NoodleExtensions
             float? cutDir = dynData.Get<float?>(CUT_DIRECTION);
             if (cutDir.HasValue)
             {
-                noodleNoteData.CutQuaternion = Quaternion.Euler(0, 0, cutDir.Value);
+                noodleNoteData.CutDirectionAngle = cutDir.Value;
             }
 
             noodleNoteData.FlipYSideInternal = dynData.Get<float?>("flipYSide");

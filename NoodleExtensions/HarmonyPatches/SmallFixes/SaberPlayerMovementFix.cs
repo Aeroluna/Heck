@@ -44,7 +44,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         // Set trail parent so it follows always playerm ovement
         [HarmonyPostfix]
         [HarmonyPatch(typeof(SaberTrail), nameof(SaberTrail.Init))]
-        private static void Postfix(SaberTrail __instance, TrailRenderer ____trailRenderer)
+        private static void ParentSaberTrail(SaberTrail __instance, TrailRenderer ____trailRenderer)
         {
             // Parent to VRGameCore
             ____trailRenderer.transform.SetParent(__instance.transform.parent.parent.parent, false);

@@ -99,7 +99,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
             if (noodleData.DoUnhide)
             {
-                __instance.hide = false;
+                __instance.Hide(false);
             }
 
             List<Track>? tracks = noodleData.Track;

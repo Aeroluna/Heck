@@ -23,7 +23,7 @@ namespace Chroma.Lighting
 
         public int Id { get; }
 
-        public BeatmapEventData? PreviousEvent { get; set; }
+        public BasicBeatmapEventData? PreviousEvent { get; set; }
 
         public Functions HeckEasing { get; set; }
 

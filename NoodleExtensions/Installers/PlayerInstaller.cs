@@ -23,9 +23,10 @@ namespace NoodleExtensions.Installers
             Container.Bind<SpawnDataManager>().AsSingle();
             Container.Bind<CutoutManager>().AsSingle();
             Container.Bind<AnimationHelper>().AsSingle();
+            Container.Bind<NoodleObjectsCallbacksManager>().AsSingle();
 
             // Events
-            Container.Bind<EventController>().FromNewComponentOnRoot().AsSingle().NonLazy();
+            Container.Bind<EventController>().AsSingle().NonLazy();
             Container.Bind<ParentController>().AsSingle();
             Container.Bind<PlayerTrack>().FromFactory<PlayerTrack.PlayerTrackFactory>().AsSingle();
 
@@ -38,7 +39,7 @@ namespace NoodleExtensions.Installers
             Container.BindInterfacesAndSelfTo<FakePatchesManager>().AsSingle();
 
             // Mirror
-            ////Container.BindInterfacesTo<MirroredNoteNoodleTracker>().AsSingle(); https://github.com/Auros/SiraUtil/issues/36
+            Container.BindInterfacesTo<MirroredNoteNoodleTracker>().AsSingle();
             Container.BindInterfacesTo<MirroredObstacleNoodleTracker>().AsSingle();
 
             // ObjectProcessing

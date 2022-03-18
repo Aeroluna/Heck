@@ -20,7 +20,7 @@ namespace Chroma
         internal static void DeserializerEarly(
             TrackBuilder trackBuilder,
             CustomBeatmapData beatmapData,
-            List<CustomEventData> customEventDatas)
+            IReadOnlyList<CustomEventData> customEventDatas)
         {
             IEnumerable<Dictionary<string, object?>>? environmentData = beatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object?>>();
             if (environmentData != null)
@@ -39,10 +39,10 @@ namespace Chroma
             {
                 try
                 {
-                    switch (customEventData.type)
+                    switch (customEventData.eventType)
                     {
                         case ASSIGN_FOG_TRACK:
-                            trackBuilder.AddTrack(customEventData.data.Get<string>("_track") ?? throw new InvalidOperationException("Track was not defined."));
+                            trackBuilder.AddTrack(customEventData.customData.Get<string>("_track") ?? throw new InvalidOperationException("Track was not defined."));
                             break;
 
                         default:
@@ -59,7 +59,7 @@ namespace Chroma
         [CustomEventsDeserializer]
         internal static Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents(
             Dictionary<string, Track> beatmapTracks,
-            List<CustomEventData> customEventDatas)
+            IReadOnlyList<CustomEventData> customEventDatas)
         {
             Dictionary<CustomEventData, ICustomEventCustomData> dictionary = new();
 
@@ -69,10 +69,10 @@ namespace Chroma
                 {
                     ICustomEventCustomData chromaCustomEventData;
 
-                    switch (customEventData.type)
+                    switch (customEventData.eventType)
                     {
                         case ASSIGN_FOG_TRACK:
-                            chromaCustomEventData = new ChromaCustomEventData(customEventData.data.GetTrack(beatmapTracks) ?? throw new InvalidOperationException("Track was not defined."));
+                            chromaCustomEventData = new ChromaCustomEventData(customEventData.customData.GetTrack(beatmapTracks) ?? throw new InvalidOperationException("Track was not defined."));
                             break;
 
                         default:
@@ -94,7 +94,7 @@ namespace Chroma
         internal static Dictionary<BeatmapObjectData, IObjectCustomData> DeserializeObjects(
             Dictionary<string, Track> beatmapTracks,
             Dictionary<string, PointDefinition> pointDefinitions,
-            List<BeatmapObjectData> beatmapObjectDatas)
+            IReadOnlyList<BeatmapObjectData> beatmapObjectDatas)
         {
             Dictionary<BeatmapObjectData, IObjectCustomData> dictionary = new();
 
@@ -154,22 +154,18 @@ namespace Chroma
 
         [EventsDeserializer]
         internal static Dictionary<BeatmapEventData, IEventCustomData> DeserializeEvents(
-            List<BeatmapEventData> beatmapEventDatas,
+            IReadOnlyList<BeatmapEventData> allBeatmapEventDatas,
             DiContainer container)
         {
+            List<BasicBeatmapEventData> beatmapEventDatas = allBeatmapEventDatas.OfType<BasicBeatmapEventData>().ToList();
             container.Bind<LegacyLightHelper>().FromInstance(new LegacyLightHelper(beatmapEventDatas)).AsSingle();
 
             Dictionary<BeatmapEventData, IEventCustomData> dictionary = new();
-            foreach (BeatmapEventData beatmapEventData in beatmapEventDatas)
+            foreach (BasicBeatmapEventData beatmapEventData in beatmapEventDatas)
             {
                 try
                 {
-                    if (beatmapEventData is not CustomBeatmapEventData customBeatmapEventData)
-                    {
-                        continue;
-                    }
-
-                    Dictionary<string, object?> customData = customBeatmapEventData.customData;
+                    Dictionary<string, object?> customData = ((ICustomData)beatmapEventData).customData;
                     ChromaEventData chromaEventData = new(
                         customData.Get<object>(PROPAGATION_ID),
                         ChromaUtils.GetColorFromData(customData),
@@ -237,9 +233,9 @@ namespace Chroma
                     continue;
                 }
 
-                BeatmapEventType type = beatmapEventDatas[i].type;
+                BasicBeatmapEventType type = beatmapEventDatas[i].basicBeatmapEventType;
 
-                currentEventData.NextSameTypeEvent ??= new Dictionary<int, BeatmapEventData>();
+                currentEventData.NextSameTypeEvent ??= new Dictionary<int, BasicBeatmapEventData>();
 
                 foreach (int id in currentEventData.LightID)
                 {
@@ -250,7 +246,7 @@ namespace Chroma
 
                     int nextIndex = beatmapEventDatas.FindIndex(i + 1, n =>
                     {
-                        if (n.type != type)
+                        if (n.basicBeatmapEventType != type)
                         {
                             return false;
                         }
@@ -268,7 +264,7 @@ namespace Chroma
                     {
                         nextIndex = beatmapEventDatas.FindIndex(i + 1, n =>
                         {
-                            if (n.type != type)
+                            if (n.basicBeatmapEventType != type)
                             {
                                 return false;
                             }

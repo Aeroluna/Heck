@@ -22,8 +22,8 @@ namespace Chroma.HarmonyPatches.Mirror
         }
 
         [AffinityPostfix]
-        [AffinityPatch(typeof(MirroredNoteController<ICubeNoteMirrorable>), "UpdatePositionAndRotation")]
-        private void Postfix(MirroredNoteController<ICubeNoteMirrorable> __instance, ICubeNoteMirrorable ___followedNote)
+        [AffinityPatch(typeof(MirroredNoteController<IGameNoteMirrorable>), "UpdatePositionAndRotation")]
+        private void Postfix(MirroredNoteController<IGameNoteMirrorable> __instance, IGameNoteMirrorable ___followedNote)
         {
             _noteManager.Colorize(__instance, _noteManager.GetColorizer((NoteControllerBase)___followedNote).Color);
         }

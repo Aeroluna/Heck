@@ -32,8 +32,8 @@ namespace Heck.HarmonyPatches
             {
                 typeof(string), typeof(IDifficultyBeatmap), typeof(IPreviewBeatmapLevel),
                 typeof(OverrideEnvironmentSettings), typeof(ColorScheme), typeof(GameplayModifiers),
-                typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(string), typeof(bool), typeof(Action),
-                typeof(Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>)
+                typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(string), typeof(bool), typeof(bool),
+                typeof(Action), typeof(Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>)
             });
 
         private readonly SettingsSetterViewController _setterViewController;

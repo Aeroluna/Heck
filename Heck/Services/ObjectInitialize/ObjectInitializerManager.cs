@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
+using UnityEngine;
 using Zenject;
 
 namespace Heck
@@ -11,110 +12,41 @@ namespace Heck
         private readonly List<IBombNoteInitializer> _bombNoteInitializers;
         private readonly List<IObstacleInitializer> _obstacleInitializers;
         private readonly IInstantiator _instantiator;
-        private readonly GameNoteController _gameNotePrefab;
-        private readonly BombNoteController _bombNotePrefab;
-        private readonly ObstacleController _obstaclePrefab;
-        private readonly MirroredCubeNoteController _mirroredCubeNotePrefab;
-        private readonly MirroredBombNoteController _mirroredBombNotePrefab;
-        private readonly MirroredObstacleController _mirroredObstaclePrefab;
-        private readonly MultiplayerConnectedPlayerGameNoteController _multiplayerGameNoteControllerPrefab;
-        private readonly MultiplayerConnectedPlayerBombNoteController _multiplayerBombNoteControllerPrefab;
-        private readonly MultiplayerConnectedPlayerObstacleController _multiplayerObstacleControllerPrefab;
 
         private ObjectInitializerManager(
             [InjectOptional] List<IGameNoteInitializer> gameNoteInitializers,
             [InjectOptional] List<IBombNoteInitializer> bombNoteInitializers,
             [InjectOptional] List<IObstacleInitializer> obstacleInitializers,
-            IInstantiator instantiator,
-            GameNoteController gameNotePrefab,
-            BombNoteController bombNotePrefab,
-            ObstacleController obstaclePrefab,
-            [InjectOptional] MirroredCubeNoteController mirroredCubeNotePrefab,
-            [InjectOptional] MirroredBombNoteController mirroredBombNotePrefab,
-            [InjectOptional] MirroredObstacleController mirroredObstaclePrefab,
-            [InjectOptional] MultiplayerConnectedPlayerGameNoteController multiplayerGameNoteControllerPrefab,
-            [InjectOptional] MultiplayerConnectedPlayerBombNoteController multiplayerBombNoteControllerPrefab,
-            [InjectOptional] MultiplayerConnectedPlayerObstacleController multiplayerObstacleControllerPrefab)
+            IInstantiator instantiator)
         {
             _gameNoteInitializers = gameNoteInitializers;
             _bombNoteInitializers = bombNoteInitializers;
             _obstacleInitializers = obstacleInitializers;
             _instantiator = instantiator;
-            _gameNotePrefab = gameNotePrefab;
-            _bombNotePrefab = bombNotePrefab;
-            _obstaclePrefab = obstaclePrefab;
-            _mirroredCubeNotePrefab = mirroredCubeNotePrefab;
-            _mirroredBombNotePrefab = mirroredBombNotePrefab;
-            _mirroredObstaclePrefab = mirroredObstaclePrefab;
-            _multiplayerGameNoteControllerPrefab = multiplayerGameNoteControllerPrefab;
-            _multiplayerBombNoteControllerPrefab = multiplayerBombNoteControllerPrefab;
-            _multiplayerObstacleControllerPrefab = multiplayerObstacleControllerPrefab;
         }
 
-        internal GameNoteController CreateGameNoteController()
+        internal T CreateGameNoteController<T>(Object prefab)
+            where T : NoteControllerBase
         {
-            GameNoteController controller = _instantiator.InstantiatePrefabForComponent<GameNoteController>(_gameNotePrefab);
+            NoteControllerBase controller = _instantiator.InstantiatePrefabForComponent<NoteControllerBase>(prefab);
             _gameNoteInitializers.ForEach(n => n.InitializeGameNote(controller));
-            return controller;
+            return (T)controller;
         }
 
-        internal BombNoteController CreateBombNoteController()
+        internal T CreateBombNoteController<T>(Object prefab)
+            where T : NoteControllerBase
         {
-            BombNoteController controller = _instantiator.InstantiatePrefabForComponent<BombNoteController>(_bombNotePrefab);
+            NoteControllerBase controller = _instantiator.InstantiatePrefabForComponent<NoteControllerBase>(prefab);
             _bombNoteInitializers.ForEach(n => n.InitializeBombNote(controller));
-            return controller;
+            return (T)controller;
         }
 
-        internal ObstacleController CreateObstacleController()
+        internal T CreateObstacleController<T>(Object prefab)
+            where T : ObstacleControllerBase
         {
-            ObstacleController controller = _instantiator.InstantiatePrefabForComponent<ObstacleController>(_obstaclePrefab);
+            ObstacleControllerBase controller = _instantiator.InstantiatePrefabForComponent<ObstacleControllerBase>(prefab);
             _obstacleInitializers.ForEach(n => n.InitializeObstacle(controller));
-            return controller;
-        }
-
-        internal MirroredCubeNoteController CreateMirroredCubeNoteController()
-        {
-            MirroredCubeNoteController controller = _instantiator.InstantiatePrefabForComponent<MirroredCubeNoteController>(_mirroredCubeNotePrefab);
-            _gameNoteInitializers.ForEach(n => n.InitializeGameNote(controller));
-            return controller;
-        }
-
-        internal MirroredBombNoteController CreateMirroredBombNoteController()
-        {
-            MirroredBombNoteController controller = _instantiator.InstantiatePrefabForComponent<MirroredBombNoteController>(_mirroredBombNotePrefab);
-            _bombNoteInitializers.ForEach(n => n.InitializeBombNote(controller));
-            return controller;
-        }
-
-        internal MirroredObstacleController CreateMirroredObstacleController()
-        {
-            MirroredObstacleController controller = _instantiator.InstantiatePrefabForComponent<MirroredObstacleController>(_mirroredObstaclePrefab);
-            _obstacleInitializers.ForEach(n => n.InitializeObstacle(controller));
-            return controller;
-        }
-
-        internal MultiplayerConnectedPlayerGameNoteController CreateMultiplayerConnectedPlayerGameNoteController()
-        {
-            MultiplayerConnectedPlayerGameNoteController controller =
-                _instantiator.InstantiatePrefabForComponent<MultiplayerConnectedPlayerGameNoteController>(_multiplayerGameNoteControllerPrefab);
-            _gameNoteInitializers.ForEach(n => n.InitializeGameNote(controller));
-            return controller;
-        }
-
-        internal MultiplayerConnectedPlayerBombNoteController CreateMultiplayerConnectedPlayerBombNoteController()
-        {
-            MultiplayerConnectedPlayerBombNoteController controller =
-                _instantiator.InstantiatePrefabForComponent<MultiplayerConnectedPlayerBombNoteController>(_multiplayerBombNoteControllerPrefab);
-            _bombNoteInitializers.ForEach(n => n.InitializeBombNote(controller));
-            return controller;
-        }
-
-        internal MultiplayerConnectedPlayerObstacleController CreateMultiplayerConnectedPlayerObstacleController()
-        {
-            MultiplayerConnectedPlayerObstacleController controller =
-                _instantiator.InstantiatePrefabForComponent<MultiplayerConnectedPlayerObstacleController>(_multiplayerObstacleControllerPrefab);
-            _obstacleInitializers.ForEach(n => n.InitializeObstacle(controller));
-            return controller;
+            return (T)controller;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Chroma.Settings;
+﻿using Chroma.Settings;
 using SiraUtil.Affinity;
 using Zenject;
 
@@ -7,8 +6,6 @@ namespace Chroma.HarmonyPatches.ZenModeWalls
 {
     internal class ObstacleHeadCollisionDisable : IAffinity
     {
-        private static readonly List<ObstacleController> _emptyList = new();
-
         private readonly bool _zenMode;
 
         private ObstacleHeadCollisionDisable([Inject(Optional = true, Id = "zenMode")] bool zenMode)
@@ -17,17 +14,11 @@ namespace Chroma.HarmonyPatches.ZenModeWalls
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(PlayerHeadAndObstacleInteraction), "get_intersectingObstacles")]
-        private bool Prefix(ref List<ObstacleController> __result)
+        [AffinityPatch(typeof(PlayerHeadAndObstacleInteraction), "RefreshIntersectingObstacles")]
+        private bool Prefix()
         {
-            if (!ChromaConfig.Instance.ForceZenWallsEnabled ||
-                !_zenMode)
-            {
-                return true;
-            }
-
-            __result = _emptyList;
-            return false;
+            return !ChromaConfig.Instance.ForceZenWallsEnabled ||
+                   !_zenMode;
         }
     }
 }

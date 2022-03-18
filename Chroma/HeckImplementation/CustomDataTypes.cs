@@ -104,7 +104,7 @@ namespace Chroma
 
         internal float SpeedMult { get; }
 
-        internal Dictionary<int, BeatmapEventData>? NextSameTypeEvent { get; set; }
+        internal Dictionary<int, BasicBeatmapEventData>? NextSameTypeEvent { get; set; }
 
         internal class GradientObjectData
         {

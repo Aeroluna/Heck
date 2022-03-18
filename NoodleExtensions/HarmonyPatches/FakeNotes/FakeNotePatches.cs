@@ -19,13 +19,6 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(BadNoteCutEffectSpawner), nameof(BadNoteCutEffectSpawner.HandleNoteWasCut))]
-        private bool BadNoteSkip(NoteController noteController)
-        {
-            return _fakePatchesManager.GetFakeNote(noteController);
-        }
-
-        [AffinityPrefix]
         [AffinityPatch(typeof(BeatmapObjectManager), nameof(BeatmapObjectManager.HandleNoteControllerNoteWasCut))]
         private bool Prefix(BeatmapObjectManager __instance, NoteController noteController, in NoteCutInfo noteCutInfo)
         {
@@ -41,31 +34,12 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(BeatmapObjectManager), nameof(BeatmapObjectManager.HandleNoteControllerNoteWasMissed))]
-        private bool MissedNoteSkip(NoteController noteController)
-        {
-            return _fakePatchesManager.GetFakeNote(noteController);
-        }
-
-        [AffinityPrefix]
+        [AffinityPatch(typeof(ScoreController), nameof(ScoreController.HandleNoteWasCut))]
+        [AffinityPatch(typeof(BadNoteCutEffectSpawner), nameof(BadNoteCutEffectSpawner.HandleNoteWasCut))]
+        [AffinityPatch(typeof(NoteCutSoundEffectManager), nameof(NoteCutSoundEffectManager.HandleNoteWasSpawned))] // Do not create a NoteCutSoundEffect for fake notes
         [AffinityPatch(typeof(BombCutSoundEffectManager), nameof(BombCutSoundEffectManager.HandleNoteWasCut))]
-        private bool BombCutSoundSkip(NoteController noteController)
-        {
-            // Do not create a BombCutSoundEffect for fake notes
-            return _fakePatchesManager.GetFakeNote(noteController);
-        }
-
-        [AffinityPrefix]
-        [AffinityPatch(typeof(NoteCutScoreSpawner), nameof(NoteCutScoreSpawner.HandleNoteWasCut))]
-        private bool NoteScoreSkip(NoteController noteController)
-        {
-            return _fakePatchesManager.GetFakeNote(noteController);
-        }
-
-        // Do not create a NoteCutSoundEffect for fake notes
-        [AffinityPrefix]
-        [AffinityPatch(typeof(NoteCutSoundEffectManager), nameof(NoteCutSoundEffectManager.HandleNoteWasSpawned))]
-        private bool NoteCutSoundSkip(NoteController noteController)
+        [AffinityPatch(typeof(BeatmapObjectManager), nameof(BeatmapObjectManager.HandleNoteControllerNoteWasMissed))]
+        private bool NoteSkip(NoteController noteController)
         {
             return _fakePatchesManager.GetFakeNote(noteController);
         }

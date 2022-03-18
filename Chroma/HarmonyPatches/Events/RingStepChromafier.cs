@@ -20,8 +20,8 @@ namespace Chroma.HarmonyPatches.Events
         private RingStepChromafier([Inject(Id = ChromaController.ID)] CustomData customData)
         {
             _customData = customData;
-            _getPrecisionStep = InstanceTranspilers.EmitInstanceDelegate<Func<float, BeatmapEventData, float>>(GetPrecisionStep);
-            _getPrecisionSpeed = InstanceTranspilers.EmitInstanceDelegate<Func<float, BeatmapEventData, float>>(GetPrecisionSpeed);
+            _getPrecisionStep = InstanceTranspilers.EmitInstanceDelegate<Func<float, BasicBeatmapEventData, float>>(GetPrecisionStep);
+            _getPrecisionSpeed = InstanceTranspilers.EmitInstanceDelegate<Func<float, BasicBeatmapEventData, float>>(GetPrecisionSpeed);
         }
 
         public void Dispose()
@@ -31,7 +31,7 @@ namespace Chroma.HarmonyPatches.Events
         }
 
         [AffinityTranspiler]
-        [AffinityPatch(typeof(TrackLaneRingsPositionStepEffectSpawner), nameof(TrackLaneRingsPositionStepEffectSpawner.HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger))]
+        [AffinityPatch(typeof(TrackLaneRingsPositionStepEffectSpawner), nameof(TrackLaneRingsPositionStepEffectSpawner.HandleBeatmapEvent))]
         private IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
@@ -48,13 +48,13 @@ namespace Chroma.HarmonyPatches.Events
                 .InstructionEnumeration();
         }
 
-        private float GetPrecisionStep(float @default, BeatmapEventData beatmapEventData)
+        private float GetPrecisionStep(float @default, BasicBeatmapEventData beatmapEventData)
         {
             _customData.Resolve(beatmapEventData, out ChromaEventData? chromaData);
             return chromaData is { Step: { } } ? chromaData.Step.Value : @default;
         }
 
-        private float GetPrecisionSpeed(float @default, BeatmapEventData beatmapEventData)
+        private float GetPrecisionSpeed(float @default, BasicBeatmapEventData beatmapEventData)
         {
             _customData.Resolve(beatmapEventData, out ChromaEventData? chromaData);
             return chromaData is { Speed: { } } ? chromaData.Speed.Value : @default;

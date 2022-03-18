@@ -15,24 +15,24 @@ namespace Chroma.HarmonyPatches.Events
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(LightRotationEventEffect), nameof(LightRotationEventEffect.HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger))]
+        [AffinityPatch(typeof(LightRotationEventEffect), nameof(LightRotationEventEffect.HandleBeatmapEvent))]
         private bool Prefix(
-            BeatmapEventData beatmapEventData,
+            BasicBeatmapEventData basicBeatmapEventData,
             LightRotationEventEffect __instance,
-            BeatmapEventType ____event,
+            BasicBeatmapEventType ____event,
             Quaternion ____startRotation,
             ref float ____rotationSpeed,
             Vector3 ____rotationVector)
         {
-            if (beatmapEventData.type != ____event || !_customData.Resolve(beatmapEventData, out ChromaEventData? chromaData))
+            if (!_customData.Resolve(basicBeatmapEventData, out ChromaEventData? chromaData))
             {
                 return true;
             }
 
-            bool isLeftEvent = ____event == BeatmapEventType.Event12;
+            bool isLeftEvent = ____event == BasicBeatmapEventType.Event12;
 
             bool lockPosition = chromaData.LockPosition;
-            float precisionSpeed = chromaData.Speed.GetValueOrDefault(beatmapEventData.value);
+            float precisionSpeed = chromaData.Speed.GetValueOrDefault(basicBeatmapEventData.value);
             int? dir = chromaData.Direction;
 
             float direction = dir switch
@@ -42,7 +42,7 @@ namespace Chroma.HarmonyPatches.Events
                 _ => (Random.value > 0.5f) ? 1f : -1f
             };
 
-            switch (beatmapEventData.value)
+            switch (basicBeatmapEventData.value)
             {
                 // Actual lasering
                 case 0:

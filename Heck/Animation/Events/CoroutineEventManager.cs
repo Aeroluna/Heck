@@ -15,19 +15,19 @@ namespace Heck.Animation.Events
 
     internal class CoroutineEventManager
     {
-        private readonly IBeatmapObjectSpawnController _beatmapObjectSpawnController;
+        private readonly IBpmController _bpmController;
         private readonly EventController _eventController;
         private readonly IAudioTimeSource _audioTimeSource;
         private readonly CustomData _customData;
 
         [UsedImplicitly]
         private CoroutineEventManager(
-            IBeatmapObjectSpawnController beatmapObjectSpawnController,
+            IBpmController bpmController,
             EventController eventController,
             IAudioTimeSource audioTimeSource,
             [Inject(Id = ID)] CustomData customData)
         {
-            _beatmapObjectSpawnController = beatmapObjectSpawnController;
+            _bpmController = bpmController;
             _eventController = eventController;
             _audioTimeSource = audioTimeSource;
             _customData = customData;
@@ -41,7 +41,7 @@ namespace Heck.Animation.Events
             }
 
             float duration = heckData.Duration;
-            duration = 60f * duration / _beatmapObjectSpawnController.currentBpm; // Convert to real time;
+            duration = 60f * duration / _bpmController.currentBpm; // Convert to real time;
 
             Functions easing = heckData.Easing;
 

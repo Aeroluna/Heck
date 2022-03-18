@@ -42,7 +42,6 @@ namespace Chroma.HarmonyPatches.Colorizer.Initialize
                 return true;
             }
 
-            // TODO: swap to transpiler to avoid overriding
             if (lightWithId.isRegistered)
             {
                 return false;
@@ -61,6 +60,13 @@ namespace Chroma.HarmonyPatches.Colorizer.Initialize
                 ____lights[lightId] = lights;
             }
 
+            lightWithId.__SetIsRegistered();
+
+            if (lights.Contains(lightWithId))
+            {
+                return false;
+            }
+
             int type = lightId - 1;
 
             // TODO: find a better way to register "new" lights to table
@@ -71,17 +77,20 @@ namespace Chroma.HarmonyPatches.Colorizer.Initialize
                 LightIDTableManager.RegisterIndex(lightId - 1, index, tableId);
             }
 
-            lightWithId.__SetIsRegistered();
-
             // this also colors the light
-            _colorizerManager.CreateLightColorizerContract((BeatmapEventType)type, n => n.ChromaLightSwitchEventEffect.RegisterLight(lightWithId, index));
+            _colorizerManager.CreateLightColorizerContract((BasicBeatmapEventType)type, n => n.ChromaLightSwitchEventEffect.RegisterLight(lightWithId, index));
 
             lights.Add(lightWithId);
-            ____lightsToUnregister.Remove(lightWithId);
 
             return false;
         }
 
-        // TODO: add logic for unregistering
+        [AffinityPrefix]
+        [AffinityPatch(typeof(LightWithIdManager), nameof(LightWithIdManager.UnregisterLight))]
+        private bool DontClearList(ILightWithId lightWithId)
+        {
+            lightWithId.__SetIsUnRegistered();
+            return false;
+        }
     }
 }

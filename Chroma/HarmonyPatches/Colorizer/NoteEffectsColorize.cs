@@ -23,7 +23,7 @@ namespace Chroma.HarmonyPatches.Colorizer
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(ColorManager), nameof(ColorManager.ColorForType))]
+        [AffinityPatch(typeof(ColorManager), nameof(ColorManager.ColorForType), AffinityMethodType.Normal, null, typeof(ColorType))]
         private bool UseChromaColor(ref Color __result)
         {
             Color? color = _noteColorOverride;

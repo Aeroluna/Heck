@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Logger = IPA.Logging.Logger;
 
@@ -80,9 +79,9 @@ namespace Heck
             bool disableAll = false;
             string[]? requirements = null;
             string[]? suggestions = null;
-            if (difficultyBeatmap?.beatmapData is CustomBeatmapData customBeatmapData)
+            if (difficultyBeatmap != null)
             {
-                Dictionary<string, object?> beatmapCustomData = customBeatmapData.beatmapCustomData;
+                Dictionary<string, object?> beatmapCustomData = difficultyBeatmap.GetBeatmapCustomData();
                 requirements = beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>().ToArray() ?? Array.Empty<string>();
                 suggestions = beatmapCustomData.Get<List<object>>("_suggestions")?.Cast<string>().ToArray() ?? Array.Empty<string>();
             }

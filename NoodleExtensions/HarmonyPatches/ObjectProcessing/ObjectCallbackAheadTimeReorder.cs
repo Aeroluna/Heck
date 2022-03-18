@@ -1,113 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
-using IPA.Utilities;
-using NoodleExtensions.Extras;
 using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
-using Zenject;
 
 namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
 {
     internal class ObjectCallbackAheadTimeReorder : IAffinity, IDisposable
     {
-        private static readonly FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.Accessor _beatmapObjectsDataAccessor = FieldAccessor<BeatmapLineData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectsData");
+        private static readonly ConstructorInfo _noteDataCtor = AccessTools.FirstConstructor(typeof(BeatmapDataCallback<NoteData>), _ => true);
+        private static readonly ConstructorInfo _obstacleDataCtor = AccessTools.FirstConstructor(typeof(BeatmapDataCallback<ObstacleData>), _ => true);
 
-        private static readonly FieldInfo _aheadTimeField = AccessTools.Field(typeof(BeatmapObjectCallbackData), nameof(BeatmapObjectCallbackData.aheadTime));
+        private readonly CodeInstruction _addObstacleCallback;
+        private readonly CodeInstruction _addNoteCallback;
+        private readonly NoodleObjectsCallbacksManager _noodleObjectsCallbacksManager;
 
-        private static readonly MethodInfo _beatmapObjectSpawnControllerCallback = AccessTools.Method(typeof(BeatmapObjectSpawnController), nameof(BeatmapObjectSpawnController.HandleBeatmapObjectCallback));
-
-        private readonly CodeInstruction _getAheadTime;
-        private readonly SpawnDataManager _spawnDataManager;
-        private readonly CustomData _customData;
-
-        private ObjectCallbackAheadTimeReorder(
-            SpawnDataManager spawnDataManager,
-            [Inject(Id = NoodleController.ID)] CustomData customData)
+        private ObjectCallbackAheadTimeReorder(NoodleObjectsCallbacksManager noodleObjectsCallbacksManager)
         {
-            _spawnDataManager = spawnDataManager;
-            _customData = customData;
-            _getAheadTime = InstanceTranspilers.EmitInstanceDelegate<Func<BeatmapObjectCallbackData, BeatmapObjectData, float, float>>(GetAheadTime);
+            _noodleObjectsCallbacksManager = noodleObjectsCallbacksManager;
+            _addObstacleCallback =
+                InstanceTranspilers.EmitInstanceDelegate<Func<float, BeatmapDataCallback<ObstacleData>, BeatmapDataCallbackWrapper>>((x, y) =>
+                    _noodleObjectsCallbacksManager.AddBeatmapCallback(x, y));
+            _addNoteCallback =
+                InstanceTranspilers.EmitInstanceDelegate<Func<float, BeatmapDataCallback<NoteData>, BeatmapDataCallbackWrapper>>((x, y) =>
+                    _noodleObjectsCallbacksManager.AddBeatmapCallback(x, y));
         }
 
         public void Dispose()
         {
-            InstanceTranspilers.DisposeDelegate(_getAheadTime);
-        }
-
-        [AffinityPrefix]
-        [AffinityPatch(typeof(BeatmapObjectCallbackController), nameof(BeatmapObjectCallbackController.SetNewBeatmapData))]
-        private void ReorderLineData(IReadonlyBeatmapData beatmapData)
-        {
-            if (beatmapData is not CustomBeatmapData customBeatmapData)
-            {
-                throw new InvalidOperationException("beatmapData was not CustomBeatmapData.");
-            }
-
-            foreach (IReadonlyBeatmapLineData t in customBeatmapData.beatmapLinesData)
-            {
-                BeatmapLineData beatmapLineData = (BeatmapLineData)t;
-                foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
-                {
-                    Dictionary<string, object?> dynData = beatmapObjectData.GetDataForObject();
-
-                    if (!_customData.Resolve(beatmapObjectData, out NoodleObjectData? noodleData))
-                    {
-                        throw new InvalidOperationException("Failed to get data.");
-                    }
-
-                    float? noteJumpMovementSpeed = noodleData.NJS;
-                    float? noteJumpStartBeatOffset = noodleData.SpawnOffset;
-                    float bpm = dynData.Get<float?>("bpm") ?? throw new InvalidOperationException("Bpm for object not found.");
-                    noodleData.AheadTimeInternal = _spawnDataManager.GetSpawnAheadTime(noteJumpMovementSpeed, noteJumpStartBeatOffset, bpm);
-                }
-
-                _beatmapObjectsDataAccessor(ref beatmapLineData) = beatmapLineData.beatmapObjectsData
-                    .OrderBy(n =>
-                    {
-                        if (_customData.Resolve(n, out NoodleObjectData? noodleData))
-                        {
-                            return n.time - noodleData.AheadTimeInternal;
-                        }
-
-                        throw new InvalidOperationException("Failed to get data.");
-                    })
-                    .ToList();
-            }
+            InstanceTranspilers.DisposeDelegate(_addObstacleCallback);
+            InstanceTranspilers.DisposeDelegate(_addNoteCallback);
         }
 
         [AffinityTranspiler]
-        [AffinityPatch(typeof(BeatmapObjectCallbackController), nameof(BeatmapObjectCallbackController.LateUpdate))]
-        private IEnumerable<CodeInstruction> UseAheadTimeTranspiler(IEnumerable<CodeInstruction> instructions)
+        [AffinityPatch(typeof(BeatmapObjectSpawnController), nameof(BeatmapObjectSpawnController.Start))]
+        private IEnumerable<CodeInstruction> UseNoodleCallback(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Ldfld, _aheadTimeField))
-                .Advance(-1)
-                .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Ldloc_1),
-                    new CodeInstruction(OpCodes.Ldloc_3))
-                .Advance(2)
-                .Insert(_getAheadTime)
+                .MatchForward(false, new CodeMatch(OpCodes.Newobj, _obstacleDataCtor))
+                .Advance(1)
+                .RemoveInstruction()
+                .Insert(_addObstacleCallback)
+                .Advance(-8)
+                .RemoveInstructions(2)
+
+                .MatchForward(false, new CodeMatch(OpCodes.Newobj, _noteDataCtor))
+                .Advance(1)
+                .RemoveInstruction()
+                .Insert(_addNoteCallback)
+                .Advance(-8)
+                .RemoveInstructions(2)
+
                 .InstructionEnumeration();
         }
 
-        private float GetAheadTime(BeatmapObjectCallbackData beatmapObjectCallbackData, BeatmapObjectData beatmapObjectData, float @default)
+        [AffinityPostfix]
+        [AffinityPatch(typeof(BeatmapCallbacksController), nameof(BeatmapCallbacksController.ManualUpdate))]
+        private void UpdateNoodleCallback(float songTime)
         {
-            if (beatmapObjectCallbackData.callback.Method == _beatmapObjectSpawnControllerCallback &&
-                beatmapObjectData is CustomObstacleData or CustomNoteData &&
-                _customData.Resolve(beatmapObjectData, out NoodleObjectData? noodleObjectData) &&
-                noodleObjectData.AheadTimeInternal.HasValue)
-            {
-                return noodleObjectData.AheadTimeInternal.Value;
-            }
-
-            return @default;
+            _noodleObjectsCallbacksManager.ManualUpdate(songTime);
         }
     }
 }

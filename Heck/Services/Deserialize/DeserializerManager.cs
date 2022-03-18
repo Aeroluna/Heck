@@ -24,59 +24,54 @@ namespace Heck
 
         internal static void DeserializeBeatmapDataAndBind(
             DiContainer container,
-            IReadonlyBeatmapData beatmapData,
-            BeatmapData untransformedBeatmapData)
+            CustomBeatmapData customBeatmapData,
+            IReadonlyBeatmapData untransformedBeatmapData)
         {
-            if (beatmapData is not CustomBeatmapData customBeatmapData)
-            {
-                throw new InvalidOperationException($"[{nameof(beatmapData)}] was not type [{nameof(CustomBeatmapData)}].");
-            }
-
             Log.Logger.Log("Deserializing BeatmapData.", Logger.Level.Trace);
 
             // tracks are built based off the untransformed beatmapdata so modifiers like "no walls" do not prevent track creation
             TrackBuilder trackManager = new();
-            foreach (IReadonlyBeatmapLineData readonlyBeatmapLineData in untransformedBeatmapData.beatmapLinesData)
+            IReadOnlyList<BeatmapObjectData> objectDatas = untransformedBeatmapData.GetBeatmapDataItems<NoteData>()
+                .Cast<BeatmapObjectData>()
+                .Concat(untransformedBeatmapData.GetBeatmapDataItems<ObstacleData>())
+                .ToArray();
+            foreach (BeatmapObjectData beatmapObjectData in objectDatas)
             {
-                BeatmapLineData beatmapLineData = (BeatmapLineData)readonlyBeatmapLineData;
-                foreach (BeatmapObjectData beatmapObjectData in beatmapLineData.beatmapObjectsData)
+                Dictionary<string, object?> dynData = ((ICustomData)beatmapObjectData).customData;
+                switch (beatmapObjectData)
                 {
-                    Dictionary<string, object?> dynData;
-                    switch (beatmapObjectData)
-                    {
-                        case CustomObstacleData obstacleData:
-                            dynData = obstacleData.customData;
-                            break;
+                    case CustomObstacleData obstacleData:
+                        dynData = obstacleData.customData;
+                        break;
 
-                        case CustomNoteData noteData:
-                            dynData = noteData.customData;
-                            break;
+                    case CustomNoteData noteData:
+                        dynData = noteData.customData;
+                        break;
 
-                        default:
-                            continue;
-                    }
-
-                    // for epic tracks thing
-                    object? trackNameRaw = dynData.Get<object>(TRACK);
-                    if (trackNameRaw == null)
-                    {
+                    default:
                         continue;
-                    }
+                }
 
-                    IEnumerable<string> trackNames;
-                    if (trackNameRaw is List<object> listTrack)
-                    {
-                        trackNames = listTrack.Cast<string>();
-                    }
-                    else
-                    {
-                        trackNames = new[] { (string)trackNameRaw };
-                    }
+                // for epic tracks thing
+                object? trackNameRaw = dynData.Get<object>(TRACK);
+                if (trackNameRaw == null)
+                {
+                    continue;
+                }
 
-                    foreach (string trackName in trackNames)
-                    {
-                        trackManager.AddTrack(trackName);
-                    }
+                IEnumerable<string> trackNames;
+                if (trackNameRaw is List<object> listTrack)
+                {
+                    trackNames = listTrack.Cast<string>();
+                }
+                else
+                {
+                    trackNames = new[] { (string)trackNameRaw };
+                }
+
+                foreach (string trackName in trackNames)
+                {
+                    trackManager.AddTrack(trackName);
                 }
             }
 
@@ -147,8 +142,19 @@ namespace Heck
             // Currently used by Chroma.GameObjectTrackController
             container.Bind<Dictionary<string, Track>>().FromInstance(trackManager.Tracks).AsSingle();
 
-            IEnumerable<CustomEventData> customEventsData = customBeatmapData.customEventsData;
-            customEventsData = customEventsData.Concat(eventDefinitions.Values).ToList();
+            IReadOnlyList<CustomEventData> customEventsData = customBeatmapData
+                .GetBeatmapDataItems<CustomEventData>()
+                .Concat(eventDefinitions.Values)
+                .ToArray();
+
+            IReadOnlyList<BeatmapEventData> beatmapEventDatas = customBeatmapData.GetBeatmapDataItems<BasicBeatmapEventData>()
+                .Cast<BeatmapEventData>()
+                .Concat(customBeatmapData.GetBeatmapDataItems<SpawnRotationBeatmapEventData>())
+                .Concat(customBeatmapData.GetBeatmapDataItems<BPMChangeBeatmapEventData>())
+                .Concat(customBeatmapData.GetBeatmapDataItems<LightColorBeatmapEventData>())
+                .Concat(customBeatmapData.GetBeatmapDataItems<LightRotationBeatmapEventData>())
+                .Concat(customBeatmapData.GetBeatmapDataItems<ColorBoostBeatmapEventData>())
+                .ToArray();
 
             object[] inputs =
             {
@@ -157,8 +163,8 @@ namespace Heck
                 pointDefinitions,
                 trackManager.Tracks,
                 customEventsData.ToList(),
-                customBeatmapData.beatmapEventsData.ToList(),
-                customBeatmapData.beatmapObjectsData.ToList(),
+                beatmapEventDatas,
+                objectDatas,
                 container
             };
 

@@ -1,4 +1,5 @@
-﻿using CustomJSONData;
+﻿// i'll reimplement this the first time someone complains to me
+/*using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
@@ -32,4 +33,4 @@ namespace NoodleExtensions.HarmonyPatches
             return false;
         }
     }
-}
+}*/

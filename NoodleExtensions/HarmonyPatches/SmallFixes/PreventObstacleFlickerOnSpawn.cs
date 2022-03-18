@@ -29,7 +29,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         }
 
         [HarmonyTranspiler]
-        [HarmonyPatch(nameof(BeatmapObjectManager.SpawnObstacle))]
+        [HarmonyPatch("AddSpawnedObstacleController")]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
@@ -39,10 +39,10 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         }
 
         [AffinityPostfix]
-        [AffinityPatch(typeof(BeatmapObjectManager), nameof(BeatmapObjectManager.SpawnObstacle))]
-        private void SetUnhideFlag(ObstacleController __result)
+        [AffinityPatch(typeof(BeatmapObjectManager), "AddSpawnedObstacleController")]
+        private void SetUnhideFlag(ObstacleController obstacleController)
         {
-            if (_customData.Resolve(__result.obstacleData, out NoodleObstacleData? noodleData))
+            if (_customData.Resolve(obstacleController.obstacleData, out NoodleObstacleData? noodleData))
             {
                 noodleData.DoUnhide = true;
             }

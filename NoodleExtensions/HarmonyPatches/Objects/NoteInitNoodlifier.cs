@@ -17,8 +17,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
     {
         private static readonly FieldAccessor<NoteJump, Quaternion>.Accessor _endRotationAccessor = FieldAccessor<NoteJump, Quaternion>.GetAccessor("_endRotation");
         private static readonly FieldAccessor<NoteJump, Quaternion>.Accessor _middleRotationAccessor = FieldAccessor<NoteJump, Quaternion>.GetAccessor("_middleRotation");
+
         private static readonly FieldAccessor<NoteJump, Vector3[]>.Accessor _randomRotationsAccessor = FieldAccessor<NoteJump, Vector3[]>.GetAccessor("_randomRotations");
-        private static readonly FieldAccessor<NoteJump, int>.Accessor _randomRotationIdxAccessor = FieldAccessor<NoteJump, int>.GetAccessor("_randomRotationIdx");
 
         private static readonly FieldInfo _noteDataField = AccessTools.Field(typeof(NoteController), "_noteData");
         private static readonly MethodInfo _flipYSideGetter = AccessTools.PropertyGetter(typeof(NoteData), nameof(NoteData.flipYSide));
@@ -39,24 +39,44 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
         [AffinityPostfix]
         [AffinityPatch(typeof(NoteController), "Init")]
-        private void Postfix(NoteController __instance, NoteData noteData, NoteMovement ____noteMovement, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float endRotation)
+        private void Postfix(
+            NoteController __instance,
+            NoteData noteData,
+            NoteMovement ____noteMovement,
+            Vector3 moveStartPos,
+            Vector3 moveEndPos,
+            Vector3 jumpEndPos,
+            float endRotation,
+            bool useRandomRotation)
         {
             if (!_customData.Resolve(noteData, out NoodleNoteData? noodleData))
             {
                 return;
             }
 
-            Quaternion? cutQuaternion = noodleData.CutQuaternion;
+            // how fucking long has _zOffset existed???!??
+            float zOffset = ZOffsetAccessor(ref ____noteMovement);
+            moveStartPos.z += zOffset;
+            moveEndPos.z += zOffset;
+            jumpEndPos.z += zOffset;
+
+            float? cutDirectionAngle = noodleData.CutDirectionAngle;
 
             NoteJump noteJump = NoteJumpAccessor(ref ____noteMovement);
             NoteFloorMovement floorMovement = NoteFloorMovementAccessor(ref ____noteMovement);
 
-            if (cutQuaternion.HasValue)
+            if (cutDirectionAngle.HasValue)
             {
-                Quaternion quatVal = cutQuaternion.Value;
+                Quaternion quatVal = Quaternion.Euler(0, 0, cutDirectionAngle.Value + noteData.cutDirectionAngleOffset);
                 _endRotationAccessor(ref noteJump) = quatVal;
                 Vector3 vector = quatVal.eulerAngles;
-                vector += _randomRotationsAccessor(ref noteJump)[_randomRotationIdxAccessor(ref noteJump)] * 20;
+                if (useRandomRotation)
+                {
+                    Vector3[] randomRotations = _randomRotationsAccessor(ref noteJump);
+                    int num = Mathf.RoundToInt((noteData.time * 10f) + (moveEndPos.x * 2f) + (moveEndPos.y * 2f)) % randomRotations.Length;
+                    vector += randomRotations[num] * 20f;
+                }
+
                 Quaternion midrotation = Quaternion.Euler(vector);
                 _middleRotationAccessor(ref noteJump) = midrotation;
             }
@@ -104,12 +124,6 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                     track.AddGameObject(__instance.gameObject);
                 }
             }
-
-            // how fucking long has _zOffset existed???!??
-            float zOffset = ZOffsetAccessor(ref ____noteMovement);
-            moveStartPos.z += zOffset;
-            moveEndPos.z += zOffset;
-            jumpEndPos.z += zOffset;
 
             noodleData.EndRotation = endRotation;
             noodleData.MoveStartPos = moveStartPos;

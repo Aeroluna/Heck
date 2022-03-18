@@ -20,7 +20,7 @@ namespace Chroma.HarmonyPatches.Colorizer.Initialize
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(ParticleSystemEventEffect), nameof(ParticleSystemEventEffect.HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger))]
+        [AffinityPatch(typeof(ParticleSystemEventEffect), nameof(ParticleSystemEventEffect.HandleBeatmapEvent))]
         private bool SkipCallback()
         {
             return false;

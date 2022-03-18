@@ -17,6 +17,7 @@ namespace Heck.SettingsSetter
             PracticeSettings practiceSettings,
             string backButtonText,
             bool useTestNoteCutSoundEffects,
+            bool startPaused,
             Action beforeSceneSwitchCallback,
             Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults> levelFinishedCallback)
         {
@@ -30,6 +31,7 @@ namespace Heck.SettingsSetter
             PracticeSettings = practiceSettings;
             BackButtonText = backButtonText;
             UseTestNoteCutSoundEffects = useTestNoteCutSoundEffects;
+            StartPaused = startPaused;
             BeforeSceneSwitchCallback = beforeSceneSwitchCallback;
             LevelFinishedCallback = levelFinishedCallback;
         }
@@ -53,6 +55,8 @@ namespace Heck.SettingsSetter
         internal string BackButtonText { get; }
 
         internal bool UseTestNoteCutSoundEffects { get; }
+
+        internal bool StartPaused { get; }
 
         internal Action? BeforeSceneSwitchCallback { get; }
 

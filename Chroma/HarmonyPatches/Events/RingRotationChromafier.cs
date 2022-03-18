@@ -50,11 +50,10 @@ namespace Chroma.HarmonyPatches.Events
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(TrackLaneRingsRotationEffectSpawner), nameof(TrackLaneRingsRotationEffectSpawner.HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger))]
+        [AffinityPatch(typeof(TrackLaneRingsRotationEffectSpawner), nameof(TrackLaneRingsRotationEffectSpawner.HandleBeatmapEvent))]
         private bool ChromaRingHandleCallback(
             TrackLaneRingsRotationEffectSpawner __instance,
-            BeatmapEventData beatmapEventData,
-            BeatmapEventType ____beatmapEventType,
+            BasicBeatmapEventData basicBeatmapEventData,
             TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect,
             float ____rotation,
             float ____rotationStep,
@@ -62,8 +61,7 @@ namespace Chroma.HarmonyPatches.Events
             float ____rotationFlexySpeed,
             TrackLaneRingsRotationEffectSpawner.RotationStepType ____rotationStepType)
         {
-            if (beatmapEventData.type != ____beatmapEventType
-                || !_customData.Resolve(beatmapEventData, out ChromaEventData? chromaData))
+            if (!_customData.Resolve(basicBeatmapEventData, out ChromaEventData? chromaData))
             {
                 return false;
             }

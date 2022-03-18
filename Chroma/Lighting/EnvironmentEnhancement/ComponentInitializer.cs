@@ -18,18 +18,18 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         private static readonly FieldAccessor<LightWithIds, LightWithIdManager>.Accessor _lightWithIdsManagerAccessor = FieldAccessor<LightWithIds, LightWithIdManager>.GetAccessor("_lightManager");
         private static readonly FieldAccessor<TrackLaneRingsManager, TrackLaneRing[]>.Accessor _ringsAccessor = FieldAccessor<TrackLaneRingsManager, TrackLaneRing[]>.GetAccessor("_rings");
         private static readonly FieldAccessor<Spectrogram, BasicSpectrogramData>.Accessor _spectrogramDataAccessor = FieldAccessor<Spectrogram, BasicSpectrogramData>.GetAccessor("_spectrogramData");
-        private static readonly FieldAccessor<LightRotationEventEffect, IBeatmapObjectCallbackController>.Accessor _lightCallbackControllerAccessor = FieldAccessor<LightRotationEventEffect, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
-        private static readonly FieldAccessor<LightPairRotationEventEffect, IBeatmapObjectCallbackController>.Accessor _lightPairCallbackControllerAccessor = FieldAccessor<LightPairRotationEventEffect, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
+        private static readonly FieldAccessor<LightRotationEventEffect, BeatmapCallbacksController>.Accessor _lightCallbackControllerAccessor = FieldAccessor<LightRotationEventEffect, BeatmapCallbacksController>.GetAccessor("_beatmapCallbacksController");
+        private static readonly FieldAccessor<LightPairRotationEventEffect, BeatmapCallbacksController>.Accessor _lightPairCallbackControllerAccessor = FieldAccessor<LightPairRotationEventEffect, BeatmapCallbacksController>.GetAccessor("_beatmapCallbacksController");
         private static readonly FieldAccessor<LightPairRotationEventEffect, Transform>.Accessor _transformLAccessor = FieldAccessor<LightPairRotationEventEffect, Transform>.GetAccessor("_transformL");
         private static readonly FieldAccessor<LightPairRotationEventEffect, Transform>.Accessor _transformRAccessor = FieldAccessor<LightPairRotationEventEffect, Transform>.GetAccessor("_transformR");
-        private static readonly FieldAccessor<ParticleSystemEventEffect, IBeatmapObjectCallbackController>.Accessor _particleCallbackControllerAccessor = FieldAccessor<ParticleSystemEventEffect, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
+        private static readonly FieldAccessor<ParticleSystemEventEffect, BeatmapCallbacksController>.Accessor _particleCallbackControllerAccessor = FieldAccessor<ParticleSystemEventEffect, BeatmapCallbacksController>.GetAccessor("_beatmapCallbacksController");
         private static readonly FieldAccessor<ParticleSystemEventEffect, ParticleSystem>.Accessor _particleSystemAccessor = FieldAccessor<ParticleSystemEventEffect, ParticleSystem>.GetAccessor("_particleSystem");
         private static readonly FieldAccessor<Mirror, MirrorRendererSO>.Accessor _mirrorRendererAccessor = FieldAccessor<Mirror, MirrorRendererSO>.GetAccessor("_mirrorRenderer");
         private static readonly FieldAccessor<Mirror, Material>.Accessor _mirrorMaterialAccessor = FieldAccessor<Mirror, Material>.GetAccessor("_mirrorMaterial");
         private static readonly FieldAccessor<TrackLaneRingsPositionStepEffectSpawner, TrackLaneRingsManager>.Accessor _stepSpawnerRingsManagerAccessor = FieldAccessor<TrackLaneRingsPositionStepEffectSpawner, TrackLaneRingsManager>.GetAccessor("_trackLaneRingsManager");
         private static readonly FieldAccessor<TrackLaneRingsRotationEffectSpawner, TrackLaneRingsRotationEffect>.Accessor _trackLaneRingsRotationEffectAccessor = FieldAccessor<TrackLaneRingsRotationEffectSpawner, TrackLaneRingsRotationEffect>.GetAccessor("_trackLaneRingsRotationEffect");
-        private static readonly FieldAccessor<TrackLaneRingsRotationEffectSpawner, IBeatmapObjectCallbackController>.Accessor _rotationEffectSpawnerCallbackControllerAccessor = FieldAccessor<TrackLaneRingsRotationEffectSpawner, IBeatmapObjectCallbackController>.GetAccessor("_beatmapObjectCallbackController");
-        private static readonly PropertyAccessor<LightWithIds, IEnumerable<LightWithIds.LightData>>.Getter _lightIntensityDataAcessor = PropertyAccessor<LightWithIds, IEnumerable<LightWithIds.LightData>>.GetGetter("lightIntensityData");
+        private static readonly FieldAccessor<TrackLaneRingsRotationEffectSpawner, BeatmapCallbacksController>.Accessor _rotationEffectSpawnerCallbackControllerAccessor = FieldAccessor<TrackLaneRingsRotationEffectSpawner, BeatmapCallbacksController>.GetAccessor("_beatmapCallbacksController");
+        private static readonly FieldAccessor<LightWithIds, IEnumerable<LightWithIds.LightWithId>>.Accessor _lightWithIdsAccessor = FieldAccessor<LightWithIds, IEnumerable<LightWithIds.LightWithId>>.GetAccessor("_lightWithIds");
 
         private static readonly FieldAccessor<TrackLaneRing, Transform>.Accessor _ringTransformAccessor = FieldAccessor<TrackLaneRing, Transform>.GetAccessor("_transform");
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
@@ -130,7 +130,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             GetComponentAndOriginal<LightWithIds>((rootComponent, originalComponent) =>
             {
                 _lightWithIdsManagerAccessor(ref rootComponent) = _lightWithIdsManagerAccessor(ref originalComponent);
-                IEnumerable<ILightWithId> lightsWithId = _lightIntensityDataAcessor(ref rootComponent);
+                IEnumerable<ILightWithId> lightsWithId = _lightWithIdsAccessor(ref rootComponent);
                 foreach (ILightWithId light in lightsWithId)
                 {
                     if (lightID.HasValue)

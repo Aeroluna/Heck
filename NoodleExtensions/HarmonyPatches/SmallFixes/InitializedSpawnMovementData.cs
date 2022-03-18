@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
 using UnityEngine;
@@ -11,7 +10,10 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
     internal class InitializedSpawnMovementData
     {
         // Moves initializition of BeatmapObjectSpawnMovementData from BeatmapObjectSpawnController.Start to the Zenject intializtion phase
-        private InitializedSpawnMovementData(BeatmapObjectSpawnController.InitData initData, IBeatmapObjectSpawnController spawnController)
+        private InitializedSpawnMovementData(
+            BeatmapObjectSpawnController.InitData initData,
+            IJumpOffsetYProvider jumpOffsetYProvider,
+            IBeatmapObjectSpawnController spawnController)
         {
             spawnController.beatmapObjectSpawnMovementData.Init(
                 initData.noteLinesCount,
@@ -19,7 +21,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
                 initData.beatsPerMinute,
                 initData.noteJumpValueType,
                 initData.noteJumpValue,
-                initData.jumpOffsetY,
+                jumpOffsetYProvider,
                 Vector3.right,
                 Vector3.forward);
 
@@ -33,17 +35,8 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         private static IEnumerable<CodeInstruction> RemoveInitTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
-                .MatchForward(
-                    false,
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldfld))
-                .RemoveInstructions(23)
+                .Start()
+                .RemoveInstructions(22)
                 .InstructionEnumeration();
         }
     }

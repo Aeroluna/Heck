@@ -17,17 +17,15 @@ namespace Chroma.HarmonyPatches.ZenModeWalls
                 return true;
             }
 
-            BeatmapData copyWithoutBeatmapObjects = beatmapData.GetCopyWithoutBeatmapObjects();
-            BeatmapData.CopyBeatmapObjectsWaypointsOnly(beatmapData, copyWithoutBeatmapObjects);
-            foreach (BeatmapObjectData beatmapObjectData in beatmapData.beatmapObjectsData)
+            __result = beatmapData.GetFilteredCopy(item =>
             {
-                if (beatmapObjectData is ObstacleData)
+                return item switch
                 {
-                    copyWithoutBeatmapObjects.AddBeatmapObjectData(beatmapObjectData.GetCopy());
-                }
-            }
-
-            __result = copyWithoutBeatmapObjects;
+                    WaypointData or ObstacleData => item,
+                    BeatmapObjectData => null,
+                    _ => item
+                };
+            });
 
             return false;
         }

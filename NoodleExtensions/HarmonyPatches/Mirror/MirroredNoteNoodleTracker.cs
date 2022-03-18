@@ -28,7 +28,7 @@ namespace NoodleExtensions.HarmonyPatches.Mirror
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(MirroredNoteController<ICubeNoteMirrorable>), "UpdatePositionAndRotation")]
+        [HarmonyPatch(typeof(MirroredNoteController<IGameNoteMirrorable>), "UpdatePositionAndRotation")]
         private static bool ICubeNoteMirrorableUpdateUpdatePositionAndRotationPrefix(Transform ____noteTransform, Transform ____followedNoteTransform)
         {
             return CheckSkip(____noteTransform, ____followedNoteTransform);
@@ -59,46 +59,33 @@ namespace NoodleExtensions.HarmonyPatches.Mirror
         private void INoteMirrorableUpdateUpdatePositionAndRotationPostfix(
             MirroredNoteController<INoteMirrorable> __instance,
             INoteMirrorable ___followedNote,
-            Transform ____objectTransform,
             Transform ____noteTransform,
-            Transform ____followedObjectTransform,
             Transform ____followedNoteTransform)
         {
             UpdateMirror(
-                ____objectTransform,
                 ____noteTransform,
-                ____followedObjectTransform,
                 ____followedNoteTransform,
                 __instance,
                 (NoteControllerBase)___followedNote);
         }
 
         [AffinityPostfix]
-        [AffinityPatch(typeof(MirroredNoteController<ICubeNoteMirrorable>), "UpdatePositionAndRotation")]
+        [AffinityPatch(typeof(MirroredNoteController<IGameNoteMirrorable>), "UpdatePositionAndRotation")]
         private void ICubeNoteMirrorableUpdateUpdatePositionAndRotationPostfix(
-            MirroredNoteController<ICubeNoteMirrorable> __instance,
+            MirroredNoteController<IGameNoteMirrorable> __instance,
             INoteMirrorable ___followedNote,
-            Transform ____objectTransform,
             Transform ____noteTransform,
-            Transform ____followedObjectTransform,
             Transform ____followedNoteTransform)
         {
             UpdateMirror(
-                ____objectTransform,
                 ____noteTransform,
-                ____followedObjectTransform,
                 ____followedNoteTransform,
                 __instance,
                 (NoteControllerBase)___followedNote);
         }
 
-        private void UpdateMirror(Transform objectTransform, Transform noteTransform, Transform followedObjectTransform, Transform followedNoteTransform, NoteControllerBase noteController, NoteControllerBase followedNote)
+        private void UpdateMirror(Transform noteTransform, Transform followedNoteTransform, NoteControllerBase noteController, NoteControllerBase followedNote)
         {
-            if (objectTransform.localScale != followedObjectTransform.localScale)
-            {
-                objectTransform.localScale = followedObjectTransform.localScale;
-            }
-
             if (noteTransform.localScale != followedNoteTransform.localScale)
             {
                 noteTransform.localScale = followedNoteTransform.localScale;
@@ -116,8 +103,8 @@ namespace NoodleExtensions.HarmonyPatches.Mirror
         }
 
         [AffinityPostfix]
-        [AffinityPatch(typeof(MirroredNoteController<ICubeNoteMirrorable>), "Mirror")]
-        private void ICubeNoteMirrorableMirror(MirroredNoteController<ICubeNoteMirrorable> __instance)
+        [AffinityPatch(typeof(MirroredNoteController<IGameNoteMirrorable>), "Mirror")]
+        private void ICubeNoteMirrorableMirror(MirroredNoteController<IGameNoteMirrorable> __instance)
         {
             AddToTrack(__instance.noteData, __instance.gameObject);
         }
