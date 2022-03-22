@@ -17,8 +17,12 @@ namespace Chroma.HarmonyPatches
         [AffinityPatch(typeof(BeatEffectSpawner), nameof(BeatEffectSpawner.HandleNoteDidStartJump))]
         private bool Prefix(NoteController noteController)
         {
-            _customData.Resolve(noteController.noteData, out ChromaNoteData? chromaData);
-            return chromaData?.DisableSpawnEffect is not true;
+            if (!_customData.Resolve(noteController.noteData, out ChromaNoteData? chromaData))
+            {
+                return true;
+            }
+
+            return chromaData.DisableSpawnEffect != true;
         }
     }
 }

@@ -182,10 +182,10 @@ namespace NoodleExtensions
                 noodleNoteData.CutDirectionAngle = cutDir.Value;
             }
 
-            noodleNoteData.FlipYSideInternal = dynData.Get<float?>("flipYSide");
-            noodleNoteData.FlipLineIndexInternal = dynData.Get<float?>("flipLineIndex");
+            noodleNoteData.FlipYSideInternal = dynData.Get<float?>(INTERNAL_FLIPYSIDE);
+            noodleNoteData.FlipLineIndexInternal = dynData.Get<float?>(INTERNAL_FLIPLINEINDEX);
 
-            noodleNoteData.StartNoteLineLayerInternal = dynData.Get<float?>("startNoteLineLayer");
+            noodleNoteData.StartNoteLineLayerInternal = dynData.Get<float?>(INTERNAL_STARTNOTELINELAYER);
 
             noodleNoteData.DisableGravity = dynData.Get<bool?>(NOTE_GRAVITY_DISABLE) ?? false;
             noodleNoteData.DisableLook = dynData.Get<bool?>(NOTE_LOOK_DISABLE) ?? false;

@@ -124,11 +124,6 @@ namespace Chroma
                             };
                             break;
 
-                        case CustomWaypointData customWaypointData:
-                            customData = customWaypointData.customData;
-                            chromaObjectData = new ChromaObjectData();
-                            break;
-
                         default:
                             continue;
                     }

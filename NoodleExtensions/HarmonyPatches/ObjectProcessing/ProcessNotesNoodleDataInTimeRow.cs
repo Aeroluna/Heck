@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
+using UnityEngine;
 using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
@@ -11,6 +13,23 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
     [HarmonyPatch(typeof(BeatmapObjectsInTimeRowProcessor))]
     internal static class ProcessNotesNoodleDataInTimeRow
     {
+        [HarmonyTranspiler]
+        [HarmonyPatch(nameof(BeatmapObjectsInTimeRowProcessor.HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice))]
+        private static IEnumerable<CodeInstruction> PepegaClamp(IEnumerable<CodeInstruction> instructions)
+        {
+            return new CodeMatcher(instructions)
+                .MatchForward(
+                    true,
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Callvirt),
+                    new CodeMatch(OpCodes.Ldelem_Ref))
+                .Insert(
+                    new CodeInstruction(OpCodes.Ldc_I4_0),
+                    new CodeInstruction(OpCodes.Ldc_I4_3),
+                    new CodeInstruction(OpCodes.Call, SymbolExtensions.GetMethodInfo(() => Mathf.Clamp(0, 0, 0))))
+                .InstructionEnumeration();
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(nameof(BeatmapObjectsInTimeRowProcessor.HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice))]
         private static void ProcessAllNotesInTimeRowPatch(BeatmapObjectsInTimeRowProcessor.TimeSliceContainer<BeatmapDataItem> allObjectsTimeSlice)
@@ -65,15 +84,15 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 {
                     if (flipX.HasValue)
                     {
-                        dynData["flipLineIndex"] = flipX.Value;
+                        dynData[INTERNAL_FLIPLINEINDEX] = flipX.Value;
                     }
 
                     if (flipY.HasValue)
                     {
-                        dynData["flipYSide"] = flipY.Value;
+                        dynData[INTERNAL_FLIPYSIDE] = flipY.Value;
                     }
                 }
-                else if (!dynData.ContainsKey("flipYSide"))
+                else if (!dynData.ContainsKey(INTERNAL_FLIPYSIDE))
                 {
                     notesToSetFlip.Add(noteData);
                 }
@@ -84,12 +103,12 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 List<CustomNoteData> list2 = keyValue.Value;
                 for (int m = 0; m < list2.Count; m++)
                 {
-                    list2[m].customData["startNoteLineLayer"] = m;
+                    list2[m].customData[INTERNAL_STARTNOTELINELAYER] = m;
                 }
             }
 
             // Process flip data
-            notesToSetFlip.ForEach(c => c.customData["flipYSide"] = 0);
+            notesToSetFlip.ForEach(c => c.customData[INTERNAL_FLIPYSIDE] = 0);
         }
 
         [HarmonyPrefix]
@@ -136,7 +155,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                     // apparently I can use customData to store my own variables in noteData, neat
                     // ^ comment from a very young and naive aero
                     Dictionary<string, object?> dynData = noteData.customData;
-                    dynData["flipLineIndex"] = lineIndexes[1 - i];
+                    dynData[INTERNAL_FLIPLINEINDEX] = lineIndexes[1 - i];
 
                     float flipYSide = (lineIndexes[i] > lineIndexes[1 - i]) ? 1 : -1;
                     if ((lineIndexes[i] > lineIndexes[1 - i] &&
@@ -147,7 +166,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                         flipYSide *= -1f;
                     }
 
-                    dynData["flipYSide"] = flipYSide;
+                    dynData[INTERNAL_FLIPYSIDE] = flipYSide;
                 }
             }
         }

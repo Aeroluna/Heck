@@ -1,5 +1,6 @@
 ﻿using Chroma.Animation;
 using Chroma.Colorizer;
+using Chroma.HarmonyPatches;
 using Chroma.HarmonyPatches.Colorizer;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
 using Chroma.HarmonyPatches.EnvironmentComponent;
@@ -77,7 +78,7 @@ namespace Chroma.Installers
                 Container.BindInterfacesTo<RingStepChromafier>().AsSingle();
 
                 // Disable Spawn Effect
-                Container.BindInterfacesTo<BeatEffectSpawner>().AsSingle();
+                Container.BindInterfacesTo<BeatEffectSpawnerSkip>().AsSingle();
 
                 // Lighting
                 Container.BindInterfacesAndSelfTo<ChromaGradientController>().AsSingle();

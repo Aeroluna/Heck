@@ -49,11 +49,13 @@ namespace Chroma.Lighting
 
         public void SetColor(Color color)
         {
-            _didChangeAccessor(ref _lightWithIdManager) = true;
-            if (_lightWithId.isRegistered)
+            if (!_lightWithId.isRegistered)
             {
-                _lightWithId.ColorWasSet(color);
+                return;
             }
+
+            _didChangeAccessor(ref _lightWithIdManager) = true;
+            _lightWithId.ColorWasSet(color);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Chroma.Settings;
+using HarmonyLib;
 using IPA.Logging;
 using IPA.Utilities;
 using Newtonsoft.Json;
@@ -78,7 +79,8 @@ namespace Chroma.Lighting
             }
             else
             {
-                _activeTable = null;
+                _activeTable = new Dictionary<int, Dictionary<int, int>>();
+                Enumerable.Range(0, 5).Do(n => _activeTable[n] = new Dictionary<int, int>());
                 Log.Logger.Log($"Table not found for: {environmentName}", Logger.Level.Warning);
             }
 
@@ -103,7 +105,14 @@ namespace Chroma.Lighting
                     }
                     else
                     {
-                        key = dictioanry.Keys.Max() + 1;
+                        if (dictioanry.Any())
+                        {
+                            key = dictioanry.Keys.Max() + 1;
+                        }
+                        else
+                        {
+                            key = 0;
+                        }
                     }
 
                     dictioanry.Add(key, index);

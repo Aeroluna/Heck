@@ -42,13 +42,13 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         }
 
         // Set trail parent so it follows always playerm ovement
-        [HarmonyPostfix]
+        /*[HarmonyPostfix]
         [HarmonyPatch(typeof(SaberTrail), nameof(SaberTrail.Init))]
         private static void ParentSaberTrail(SaberTrail __instance, TrailRenderer ____trailRenderer)
         {
             // Parent to VRGameCore
             ____trailRenderer.transform.SetParent(__instance.transform.parent.parent.parent, false);
-        }
+        }*/
 
         // We store all positions as localpositions so that abrupt changes in world position do not affect this
         // it gets converted back to world position to calculate cut

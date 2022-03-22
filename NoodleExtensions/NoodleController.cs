@@ -29,6 +29,10 @@ namespace NoodleExtensions
         internal const string TRACK = "_track";
         internal const string WORLD_POSITION_STAYS = "_worldPositionStays";
 
+        internal const string INTERNAL_STARTNOTELINELAYER = "NE_startNoteLineLayer";
+        internal const string INTERNAL_FLIPYSIDE = "NE_flipYSide";
+        internal const string INTERNAL_FLIPLINEINDEX = "NE_flipLineIndex";
+
         internal const string PARENT_TRACK = "_parentTrack";
         internal const string CHILDREN_TRACKS = "_childrenTracks";
 

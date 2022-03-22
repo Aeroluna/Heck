@@ -199,10 +199,10 @@ namespace NoodleExtensions.Managers
             float? inputNjs,
             float? inputOffset)
         {
-            if (_initData.noteJumpValueType != BeatmapObjectSpawnMovementData.NoteJumpValueType.BeatOffset)
+            /*if (_initData.noteJumpValueType != BeatmapObjectSpawnMovementData.NoteJumpValueType.BeatOffset)
             {
                 return _movementData.jumpDuration;
-            }
+            }*/
 
             float oneBeatDuration = _initData.beatsPerMinute.OneBeatDuration();
             float halfJumpDurationInBeats = CoreMathUtils.CalculateHalfJumpDurationInBeats(

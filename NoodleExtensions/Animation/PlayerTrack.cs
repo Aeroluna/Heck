@@ -14,8 +14,12 @@ namespace NoodleExtensions.Animation
         private static readonly FieldAccessor<PauseController, bool>.Accessor _pausedAccessor = FieldAccessor<PauseController, bool>.GetAccessor("_paused");
 
         // because camera2 is cringe
+        // stop using reflection you jerk
         [UsedImplicitly]
         private static PlayerTrack? _instance;
+
+        [UsedImplicitly]
+        private Transform _transform = null!;
 
         private bool _leftHanded;
 
@@ -45,8 +49,11 @@ namespace NoodleExtensions.Animation
             _startLocalRot = origin.localRotation;
             _startPos = origin.localPosition;
             _leftHanded = leftHanded;
-            _instance = this;
             _movementData = movementData.MovementData;
+
+            // cam2 is cringe cam2 is cringe cam2 is cringe
+            _instance = this;
+            _transform = origin;
         }
 
         private void OnDidPauseEvent()
