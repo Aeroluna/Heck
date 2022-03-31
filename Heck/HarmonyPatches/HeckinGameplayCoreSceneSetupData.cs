@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 using System.Threading.Tasks;
 using HarmonyLib;
 
-namespace Heck
+namespace Heck.HarmonyPatches
 {
     // whatever mess they created with the beatmapdatas in the base class is real stinky
     [HeckPatch]
@@ -53,7 +53,7 @@ namespace Heck
         // override to store the untransformed beatmapdata
         public override async Task<IReadonlyBeatmapData> GetTransformedBeatmapDataAsync()
         {
-            IReadonlyBeatmapData beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(environmentInfo);
+            IReadonlyBeatmapData beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(environmentInfo, playerSpecificSettings);
             _untransformedBeatmapData = beatmapData;
             EnvironmentEffectsFilterPreset environmentEffectsFilterPreset =
                 (difficultyBeatmap.difficulty == BeatmapDifficulty.ExpertPlus)
