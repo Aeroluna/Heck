@@ -104,12 +104,12 @@ namespace Chroma.Colorizer
         {
             get
             {
-                if (_noteController is not GameNoteController gameNoteController)
+                if (_noteController is not NoteController noteController)
                 {
                     return ColorType.ColorA;
                 }
 
-                NoteData noteData = gameNoteController.noteData;
+                NoteData noteData = noteController.noteData;
                 return noteData?.colorType ?? ColorType.ColorA;
             }
         }

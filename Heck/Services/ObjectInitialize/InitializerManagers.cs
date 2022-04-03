@@ -14,4 +14,9 @@
     {
         public void InitializeObstacle(ObstacleControllerBase obstacleController);
     }
+
+    public interface ISliderInitializer
+    {
+        public void InitializeSlider(SliderControllerBase sliderController);
+    }
 }

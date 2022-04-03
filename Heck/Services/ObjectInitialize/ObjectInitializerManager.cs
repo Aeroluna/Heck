@@ -11,17 +11,20 @@ namespace Heck
         private readonly List<IGameNoteInitializer> _gameNoteInitializers;
         private readonly List<IBombNoteInitializer> _bombNoteInitializers;
         private readonly List<IObstacleInitializer> _obstacleInitializers;
+        private readonly List<ISliderInitializer> _sliderInitializers;
         private readonly IInstantiator _instantiator;
 
         private ObjectInitializerManager(
             [InjectOptional] List<IGameNoteInitializer> gameNoteInitializers,
             [InjectOptional] List<IBombNoteInitializer> bombNoteInitializers,
             [InjectOptional] List<IObstacleInitializer> obstacleInitializers,
+            [InjectOptional] List<ISliderInitializer> sliderInitializers,
             IInstantiator instantiator)
         {
             _gameNoteInitializers = gameNoteInitializers;
             _bombNoteInitializers = bombNoteInitializers;
             _obstacleInitializers = obstacleInitializers;
+            _sliderInitializers = sliderInitializers;
             _instantiator = instantiator;
         }
 
@@ -46,6 +49,14 @@ namespace Heck
         {
             ObstacleControllerBase controller = _instantiator.InstantiatePrefabForComponent<ObstacleControllerBase>(prefab);
             _obstacleInitializers.ForEach(n => n.InitializeObstacle(controller));
+            return (T)controller;
+        }
+
+        internal T CreateSliderController<T>(Object prefab)
+            where T : SliderControllerBase
+        {
+            SliderControllerBase controller = _instantiator.InstantiatePrefabForComponent<SliderControllerBase>(prefab);
+            _sliderInitializers.ForEach(n => n.InitializeSlider(controller));
             return (T)controller;
         }
     }

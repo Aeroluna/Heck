@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 
 namespace Chroma
 {
+    // TODO: implement slider colorizers
     [UsedImplicitly]
     internal class ObjectInitializer : IGameNoteInitializer, IBombNoteInitializer, IObstacleInitializer
     {

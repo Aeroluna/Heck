@@ -76,6 +76,12 @@ namespace Heck.HarmonyPatches
                 case FactoryFromBinder<MultiplayerConnectedPlayerObstacleController> binder:
                     binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateObstacleController<MultiplayerConnectedPlayerObstacleController>(prefab));
                     break;
+                case FactoryFromBinder<BurstSliderGameNoteController> binder:
+                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateGameNoteController<BurstSliderGameNoteController>(prefab));
+                    break;
+                case FactoryFromBinder<SliderController> binder:
+                    binder.FromResolveGetter<ObjectInitializerManager>(n => n.CreateSliderController<SliderController>(prefab));
+                    break;
                 default:
                     // fallback
                     binderBase.FromComponentInNewPrefab(prefab);
