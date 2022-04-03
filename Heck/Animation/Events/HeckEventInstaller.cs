@@ -4,7 +4,7 @@ using Zenject;
 namespace Heck.Animation.Events
 {
     [UsedImplicitly]
-    internal class EventInstaller : Installer
+    internal class HeckEventInstaller : Installer
     {
         public override void InstallBindings()
         {

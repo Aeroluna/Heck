@@ -28,8 +28,8 @@ namespace Heck
 
             SettingSetterSettableSettingsManager.SetupSettingsTable();
 
-            zenjector.Install<EventInstaller>(Location.Player);
-            zenjector.Install<SettingsSetterInstaller>(Location.Menu);
+            zenjector.Install<HeckEventInstaller>(Location.Player);
+            zenjector.Install<HeckSettingsSetterInstaller>(Location.Menu);
 
             ModuleManager.RegisterModule<ModuleCallbacks>("Heck", 0, RequirementType.None);
         }

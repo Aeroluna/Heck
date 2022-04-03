@@ -14,18 +14,32 @@ namespace Chroma.HarmonyPatches.Mirror
             _bombManager = bombManager;
         }
 
+        // patching generics is weird
+        private void MirrorColorize<T>(MirroredNoteController<T> instance, INoteMirrorable followedNote)
+            where T : INoteMirrorable
+        {
+            if (followedNote is IGameNoteMirrorable)
+            {
+                _noteManager.Colorize(instance, _noteManager.GetColorizer((NoteControllerBase)followedNote).Color);
+            }
+            else
+            {
+                _bombManager.Colorize(instance, _bombManager.GetColorizer((NoteControllerBase)followedNote).Color);
+            }
+        }
+
         [AffinityPostfix]
         [AffinityPatch(typeof(MirroredNoteController<INoteMirrorable>), "UpdatePositionAndRotation")]
-        private void Postfix(MirroredNoteController<INoteMirrorable> __instance, INoteMirrorable ___followedNote)
+        private void BombMirrorColorize(MirroredNoteController<INoteMirrorable> __instance, INoteMirrorable ___followedNote)
         {
-            _bombManager.Colorize(__instance, _bombManager.GetColorizer((NoteControllerBase)___followedNote).Color);
+            MirrorColorize(__instance, ___followedNote);
         }
 
         [AffinityPostfix]
         [AffinityPatch(typeof(MirroredNoteController<IGameNoteMirrorable>), "UpdatePositionAndRotation")]
-        private void Postfix(MirroredNoteController<IGameNoteMirrorable> __instance, IGameNoteMirrorable ___followedNote)
+        private void NoteMirrorColorize(MirroredNoteController<IGameNoteMirrorable> __instance, IGameNoteMirrorable ___followedNote)
         {
-            _noteManager.Colorize(__instance, _noteManager.GetColorizer((NoteControllerBase)___followedNote).Color);
+            MirrorColorize(__instance, ___followedNote);
         }
     }
 }

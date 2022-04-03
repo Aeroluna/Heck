@@ -4,19 +4,24 @@ using JetBrains.Annotations;
 
 namespace Chroma
 {
-    // TODO: implement slider colorizers
     [UsedImplicitly]
-    internal class ObjectInitializer : IGameNoteInitializer, IBombNoteInitializer, IObstacleInitializer
+    internal class ObjectInitializer : IGameNoteInitializer, IBombNoteInitializer, IObstacleInitializer, ISliderInitializer
     {
         private readonly NoteColorizerManager _noteManager;
         private readonly BombColorizerManager _bombManager;
         private readonly ObstacleColorizerManager _obstacleManager;
+        private readonly SliderColorizerManager _sliderManager;
 
-        private ObjectInitializer(NoteColorizerManager noteManager, BombColorizerManager bombManager, ObstacleColorizerManager obstacleManager)
+        private ObjectInitializer(
+            NoteColorizerManager noteManager,
+            BombColorizerManager bombManager,
+            ObstacleColorizerManager obstacleManager,
+            SliderColorizerManager sliderManager)
         {
             _noteManager = noteManager;
             _bombManager = bombManager;
             _obstacleManager = obstacleManager;
+            _sliderManager = sliderManager;
         }
 
         public void InitializeGameNote(NoteControllerBase noteController)
@@ -32,6 +37,14 @@ namespace Chroma
         public void InitializeObstacle(ObstacleControllerBase obstacleController)
         {
             _obstacleManager.Create(obstacleController);
+        }
+
+        public void InitializeSlider(SliderControllerBase sliderController)
+        {
+            if (sliderController is SliderController slider)
+            {
+                _sliderManager.Create(slider);
+            }
         }
     }
 }

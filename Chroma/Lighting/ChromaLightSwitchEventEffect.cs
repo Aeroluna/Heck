@@ -49,14 +49,14 @@ namespace Chroma.Lighting
         private readonly float _offColorIntensity;
         private readonly bool _lightOnStart;
 
-        private MultipliedColorSO _lightColor0;
-        private MultipliedColorSO _lightColor1;
-        private MultipliedColorSO _highlightColor0;
-        private MultipliedColorSO _highlightColor1;
-        private MultipliedColorSO _lightColor0Boost;
-        private MultipliedColorSO _lightColor1Boost;
-        private MultipliedColorSO _highlightColor0Boost;
-        private MultipliedColorSO _highlightColor1Boost;
+        private readonly Color _lightColor0Mult;
+        private readonly Color _lightColor1Mult;
+        private readonly Color _highlightColor0Mult;
+        private readonly Color _highlightColor1Mult;
+        private readonly Color _lightColor0BoostMult;
+        private readonly Color _lightColor1BoostMult;
+        private readonly Color _highlightColor0BoostMult;
+        private readonly Color _highlightColor1BoostMult;
 
         private bool _usingBoostColors;
 
@@ -82,14 +82,24 @@ namespace Chroma.Lighting
             _offColorIntensity = _offColorIntensityAccessor(ref lightSwitchEventEffect);
             _lightOnStart = _lightOnStartAccessor(ref lightSwitchEventEffect);
 
-            _lightColor0 = (MultipliedColorSO)_lightColor0Accessor(ref lightSwitchEventEffect);
-            _lightColor1 = (MultipliedColorSO)_lightColor1Accessor(ref lightSwitchEventEffect);
-            _highlightColor0 = (MultipliedColorSO)_highlightColor0Accessor(ref lightSwitchEventEffect);
-            _highlightColor1 = (MultipliedColorSO)_highlightColor1Accessor(ref lightSwitchEventEffect);
-            _lightColor0Boost = (MultipliedColorSO)_lightColor0BoostAccessor(ref lightSwitchEventEffect);
-            _lightColor1Boost = (MultipliedColorSO)_lightColor1BoostAccessor(ref lightSwitchEventEffect);
-            _highlightColor0Boost = (MultipliedColorSO)_highlightColor0BoostAccessor(ref lightSwitchEventEffect);
-            _highlightColor1Boost = (MultipliedColorSO)_highlightColor1BoostAccessor(ref lightSwitchEventEffect);
+            void Initialize(ColorSO colorSO, ref Color color)
+            {
+                color = colorSO switch
+                {
+                    MultipliedColorSO lightMultSO => _multiplierColorAccessor(ref lightMultSO),
+                    SimpleColorSO => Color.white,
+                    _ => throw new InvalidOperationException($"Unhandled ColorSO type: [{colorSO.GetType().Name}].")
+                };
+            }
+
+            Initialize(_lightColor0Accessor(ref lightSwitchEventEffect), ref _lightColor0Mult);
+            Initialize(_lightColor1Accessor(ref lightSwitchEventEffect), ref _lightColor1Mult);
+            Initialize(_highlightColor0Accessor(ref lightSwitchEventEffect), ref _highlightColor0Mult);
+            Initialize(_highlightColor1Accessor(ref lightSwitchEventEffect), ref _highlightColor1Mult);
+            Initialize(_lightColor0BoostAccessor(ref lightSwitchEventEffect), ref _lightColor0BoostMult);
+            Initialize(_lightColor1BoostAccessor(ref lightSwitchEventEffect), ref _lightColor1BoostMult);
+            Initialize(_highlightColor0BoostAccessor(ref lightSwitchEventEffect), ref _highlightColor0BoostMult);
+            Initialize(_highlightColor1BoostAccessor(ref lightSwitchEventEffect), ref _highlightColor1BoostMult);
 
             Colorizer = lightColorizerManager.Create(this);
             lightColorizerManager.CompleteContracts(this);
@@ -127,18 +137,18 @@ namespace Chroma.Lighting
             {
                 if (!IsColor0(beatmapEventValue))
                 {
-                    return Colorizer.Color[3] * _multiplierColorAccessor(ref _lightColor1Boost);
+                    return Colorizer.Color[3] * _lightColor1BoostMult;
                 }
 
-                return Colorizer.Color[2] * _multiplierColorAccessor(ref _lightColor0Boost);
+                return Colorizer.Color[2] * _lightColor0BoostMult;
             }
 
             if (!IsColor0(beatmapEventValue))
             {
-                return Colorizer.Color[1] * _multiplierColorAccessor(ref _lightColor1);
+                return Colorizer.Color[1] * _lightColor1Mult;
             }
 
-            return Colorizer.Color[0] * _multiplierColorAccessor(ref _lightColor0);
+            return Colorizer.Color[0] * _lightColor0Mult;
         }
 
         public Color GetHighlightColor(int beatmapEventValue)
@@ -147,18 +157,18 @@ namespace Chroma.Lighting
             {
                 if (!IsColor0(beatmapEventValue))
                 {
-                    return Colorizer.Color[3] * _multiplierColorAccessor(ref _highlightColor1Boost);
+                    return Colorizer.Color[3] * _highlightColor1BoostMult;
                 }
 
-                return Colorizer.Color[2] * _multiplierColorAccessor(ref _highlightColor0Boost);
+                return Colorizer.Color[2] * _highlightColor0BoostMult;
             }
 
             if (!IsColor0(beatmapEventValue))
             {
-                return Colorizer.Color[1] * _multiplierColorAccessor(ref _highlightColor1);
+                return Colorizer.Color[1] * _highlightColor1Mult;
             }
 
-            return Colorizer.Color[0] * _multiplierColorAccessor(ref _highlightColor0);
+            return Colorizer.Color[0] * _highlightColor0Mult;
         }
 
         public void Refresh(bool hard, IEnumerable<ILightWithId>? selectLights, BasicBeatmapEventData? beatmapEventData = null, Functions? easing = null, LerpType? lerpType = null)
@@ -221,19 +231,19 @@ namespace Chroma.Lighting
                         {
                             if (!IsColor0(nextValue))
                             {
-                                multiplierColor = _multiplierColorAccessor(ref _highlightColor1Boost);
+                                multiplierColor = _highlightColor1BoostMult;
                             }
 
-                            multiplierColor = _multiplierColorAccessor(ref _highlightColor0Boost);
+                            multiplierColor = _highlightColor0BoostMult;
                         }
                         else
                         {
                             if (!IsColor0(nextValue))
                             {
-                                multiplierColor = _multiplierColorAccessor(ref _highlightColor1);
+                                multiplierColor = _highlightColor1Mult;
                             }
 
-                            multiplierColor = _multiplierColorAccessor(ref _highlightColor0);
+                            multiplierColor = _highlightColor0Mult;
                         }
 
                         nextColor = nextColorData.Value * multiplierColor;

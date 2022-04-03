@@ -5,7 +5,7 @@ using Zenject;
 namespace Heck.SettingsSetter
 {
     [UsedImplicitly]
-    internal class SettingsSetterInstaller : Installer
+    internal class HeckSettingsSetterInstaller : Installer
     {
         public override void InstallBindings()
         {

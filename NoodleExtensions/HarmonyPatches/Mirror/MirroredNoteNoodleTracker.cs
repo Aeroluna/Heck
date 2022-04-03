@@ -92,7 +92,10 @@ namespace NoodleExtensions.HarmonyPatches.Mirror
             }
 
             _cutoutManager.NoteCutoutEffects[noteController].SetCutout(_cutoutManager.NoteCutoutEffects[followedNote].Cutout);
-            _cutoutManager.NoteDisappearingArrowWrappers[noteController].SetCutout(_cutoutManager.NoteDisappearingArrowWrappers[followedNote].Cutout);
+            if (followedNote is IGameNoteMirrorable)
+            {
+                _cutoutManager.NoteDisappearingArrowWrappers[noteController].SetCutout(_cutoutManager.NoteDisappearingArrowWrappers[followedNote].Cutout);
+            }
         }
 
         [AffinityPostfix]

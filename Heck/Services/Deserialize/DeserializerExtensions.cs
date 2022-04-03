@@ -8,13 +8,13 @@ namespace Heck
     {
         public static void LogFailure(this HeckLogger logger, Exception e, CustomEventData customEventData)
         {
-            logger.Log($"Could not parse custom data for custom event [{customEventData.type}] at [{customEventData.time}].", Logger.Level.Error);
+            logger.Log($"Could not parse custom data for custom event [{customEventData.eventType}] at [{customEventData.time}].", Logger.Level.Error);
             logger.Log(e, Logger.Level.Error);
         }
 
         public static void LogFailure(this HeckLogger logger, Exception e, BeatmapEventData beatmapEventData)
         {
-            logger.Log($"Could not parse custom data for event [{beatmapEventData.type}] at [{beatmapEventData.time}].", Logger.Level.Error);
+            logger.Log($"Could not parse custom data for event [{beatmapEventData.GetType().Name}] at [{beatmapEventData.time}].", Logger.Level.Error);
             logger.Log(e, Logger.Level.Error);
         }
 

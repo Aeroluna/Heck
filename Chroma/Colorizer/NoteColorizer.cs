@@ -13,16 +13,19 @@ namespace Chroma.Colorizer
         private readonly NoteColorizer.Factory _factory;
         private readonly BeatmapObjectManager _beatmapObjectManager;
         private readonly SaberColorizerManager _saberManager;
+        private readonly SliderColorizerManager _sliderManager;
 
         private NoteColorizerManager(
             NoteColorizer.Factory factory,
             BeatmapObjectManager beatmapObjectManager,
             SaberColorizerManager saberManager,
+            SliderColorizerManager sliderManager,
             [Inject(Optional = true, Id = "dontColorizeSabers")] bool dontColorizeSabers)
         {
             _factory = factory;
             _beatmapObjectManager = beatmapObjectManager;
             _saberManager = saberManager;
+            _sliderManager = sliderManager;
 
             if (!dontColorizeSabers)
             {
@@ -48,6 +51,11 @@ namespace Chroma.Colorizer
         {
             GlobalColor[(int)colorType] = color;
             foreach (KeyValuePair<NoteControllerBase, NoteColorizer> valuePair in Colorizers)
+            {
+                valuePair.Value.Refresh();
+            }
+
+            foreach (KeyValuePair<SliderController, SliderColorizer> valuePair in _sliderManager.Colorizers)
             {
                 valuePair.Value.Refresh();
             }
@@ -79,9 +87,9 @@ namespace Chroma.Colorizer
 
         private readonly NoteControllerBase _noteController;
         private readonly NoteColorizerManager _manager;
+        private readonly ColorManager _colorManager;
 
         private readonly MaterialPropertyBlockController[] _materialPropertyBlockControllers;
-        private readonly Color[] _originalColors;
         private ColorNoteVisuals _colorNoteVisuals;
 
         internal NoteColorizer(
@@ -93,30 +101,14 @@ namespace Chroma.Colorizer
             _colorNoteVisuals = _noteController.GetComponent<ColorNoteVisuals>();
             _materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref _colorNoteVisuals);
             _manager = manager;
-            _originalColors = new[]
-            {
-                colorManager.ColorForType(ColorType.ColorA),
-                colorManager.ColorForType(ColorType.ColorB)
-            };
+            _colorManager = colorManager;
         }
 
-        public ColorType ColorType
-        {
-            get
-            {
-                if (_noteController is not NoteController noteController)
-                {
-                    return ColorType.ColorA;
-                }
-
-                NoteData noteData = noteController.noteData;
-                return noteData?.colorType ?? ColorType.ColorA;
-            }
-        }
+        public ColorType ColorType => _noteController.noteData?.colorType ?? ColorType.ColorA;
 
         protected override Color? GlobalColorGetter => _manager.GlobalColor[(int)ColorType];
 
-        protected override Color OriginalColorGetter => _originalColors[(int)ColorType];
+        protected override Color OriginalColorGetter => _colorManager.ColorForType(ColorType);
 
         internal override void Refresh()
         {

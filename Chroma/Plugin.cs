@@ -27,7 +27,7 @@ namespace Chroma
             ChromaSettableSettings.SetupSettableSettings();
             ChromaConfig.Instance = conf.Generated<ChromaConfig>();
             LightIDTableManager.InitTable();
-            zenjector.Install<PlayerInstaller>(Location.Player);
+            zenjector.Install<ChromaPlayerInstaller>(Location.Player);
         }
 
 #pragma warning disable CA1822
@@ -41,6 +41,9 @@ namespace Chroma
             ColorizerModule.Enabled = true;
 
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
+
+            // ChromaConfig wont set if there is no config!
+            ChromaUtils.SetSongCoreCapability(CAPABILITY, !ChromaConfig.Instance.ChromaEventsDisabled);
 
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");

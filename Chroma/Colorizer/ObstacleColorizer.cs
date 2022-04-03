@@ -80,11 +80,6 @@ namespace Chroma.Colorizer
 
         internal override void Refresh()
         {
-            if (!_obstacleFrame.isActiveAndEnabled)
-            {
-                return;
-            }
-
             Color color = Color;
             if (color == _obstacleFrame.color)
             {

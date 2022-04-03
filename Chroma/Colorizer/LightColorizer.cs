@@ -115,7 +115,7 @@ namespace Chroma.Colorizer
 
         private static readonly FieldAccessor<LightSwitchEventEffect, BasicBeatmapEventType>.Accessor _eventAccessor = FieldAccessor<LightSwitchEventEffect, BasicBeatmapEventType>.GetAccessor("_event");
         private static readonly FieldAccessor<MultipliedColorSO, SimpleColorSO>.Accessor _baseColorAccessor = FieldAccessor<MultipliedColorSO, SimpleColorSO>.GetAccessor("_baseColor");
-        private static readonly FieldAccessor<LightWithIdManager, List<ILightWithId>[]>.Accessor _lightsAccessor = FieldAccessor<LightWithIdManager, List<ILightWithId>[]>.GetAccessor("_lights");
+        private static readonly FieldAccessor<LightWithIdManager, List<ILightWithId>?[]>.Accessor _lightsAccessor = FieldAccessor<LightWithIdManager, List<ILightWithId>?[]>.GetAccessor("_lights");
 
         private readonly LightColorizerManager _colorizerManager;
 
@@ -137,10 +137,20 @@ namespace Chroma.Colorizer
 
             void Initialize(ColorSO colorSO, int index)
             {
-                MultipliedColorSO lightMultSO = (MultipliedColorSO)colorSO;
+                switch (colorSO)
+                {
+                    case MultipliedColorSO lightMultSO:
+                        SimpleColorSO lightSO = _baseColorAccessor(ref lightMultSO);
+                        _originalColors[index] = lightSO;
+                        break;
 
-                SimpleColorSO lightSO = _baseColorAccessor(ref lightMultSO);
-                _originalColors[index] = lightSO;
+                    case SimpleColorSO simpleColorSO:
+                        _originalColors[index] = simpleColorSO;
+                        break;
+
+                    default:
+                        throw new InvalidOperationException($"Unhandled ColorSO type: [{colorSO.GetType().Name}].");
+                }
             }
 
             Initialize(_lightColor0Accessor(ref lightSwitchEventEffect), 0);
@@ -148,12 +158,21 @@ namespace Chroma.Colorizer
             Initialize(_lightColor0BoostAccessor(ref lightSwitchEventEffect), 2);
             Initialize(_lightColor1BoostAccessor(ref lightSwitchEventEffect), 3);
 
-            // AAAAAA PROPAGATION STUFFF
-            Lights = _lightsAccessor(ref lightManager)[lightSwitchEventEffect.lightsId];
+            List<ILightWithId>? lights = _lightsAccessor(ref lightManager)[lightSwitchEventEffect.lightsId];
 
+            // possible uninitialized
+            if (lights == null)
+            {
+                lights = new List<ILightWithId>(10);
+                _lightsAccessor(ref lightManager)[lightSwitchEventEffect.lightsId] = lights;
+            }
+
+            Lights = lights;
+
+            // AAAAAA PROPAGATION STUFFF
             IDictionary<int, List<ILightWithId>> lightsPreGroup = new Dictionary<int, List<ILightWithId>>();
             TrackLaneRingsManager[] managers = Object.FindObjectsOfType<TrackLaneRingsManager>();
-            foreach (ILightWithId light in Lights)
+            foreach (ILightWithId light in lights)
             {
                 if (light is not MonoBehaviour monoBehaviour)
                 {

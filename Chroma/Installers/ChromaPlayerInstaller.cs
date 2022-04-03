@@ -17,7 +17,7 @@ using Zenject;
 namespace Chroma.Installers
 {
     [UsedImplicitly]
-    internal class PlayerInstaller : Installer
+    internal class ChromaPlayerInstaller : Installer
     {
         public override void InstallBindings()
         {
@@ -38,6 +38,8 @@ namespace Chroma.Installers
                 Container.Bind<SaberColorizerManager>().AsSingle();
                 Container.BindFactory<Saber, SaberColorizer, SaberColorizer.Factory>().AsSingle();
                 Container.Bind<SaberColorizerIntialize>().AsSingle().NonLazy();
+                Container.Bind<SliderColorizerManager>().AsSingle();
+                Container.BindFactory<SliderController, SliderColorizer, SliderColorizer.Factory>().AsSingle();
                 Container.BindInterfacesTo<ObjectInitializer>().AsSingle();
 
                 // Colorizer Initialize
