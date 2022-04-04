@@ -31,11 +31,11 @@ namespace Heck
 
             // tracks are built based off the untransformed beatmapdata so modifiers like "no walls" do not prevent track creation
             TrackBuilder trackManager = new();
-            IReadOnlyList<BeatmapObjectData> objectDatas = untransformedBeatmapData.GetBeatmapDataItems<NoteData>()
+            IReadOnlyList<BeatmapObjectData> untransformedObjectDatas = untransformedBeatmapData.GetBeatmapDataItems<NoteData>()
                 .Cast<BeatmapObjectData>()
                 .Concat(untransformedBeatmapData.GetBeatmapDataItems<ObstacleData>())
                 .ToArray();
-            foreach (BeatmapObjectData beatmapObjectData in objectDatas)
+            foreach (BeatmapObjectData beatmapObjectData in untransformedObjectDatas)
             {
                 Dictionary<string, object?> dynData = ((ICustomData)beatmapObjectData).customData;
                 switch (beatmapObjectData)
@@ -154,6 +154,11 @@ namespace Heck
                 .Concat(customBeatmapData.GetBeatmapDataItems<LightColorBeatmapEventData>())
                 .Concat(customBeatmapData.GetBeatmapDataItems<LightRotationBeatmapEventData>())
                 .Concat(customBeatmapData.GetBeatmapDataItems<ColorBoostBeatmapEventData>())
+                .ToArray();
+
+            IReadOnlyList<BeatmapObjectData> objectDatas = customBeatmapData.GetBeatmapDataItems<NoteData>()
+                .Cast<BeatmapObjectData>()
+                .Concat(customBeatmapData.GetBeatmapDataItems<ObstacleData>())
                 .ToArray();
 
             object[] inputs =
