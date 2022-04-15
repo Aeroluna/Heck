@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -14,6 +15,11 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         private static readonly MethodInfo _addNewDataBetter = AccessTools.Method(typeof(SaberPlayerMovementFix), nameof(AddNewDataBetter));
 
         private static readonly MethodInfo _convertToWorld = AccessTools.Method(typeof(SaberPlayerMovementFix), nameof(ConvertToWorld));
+
+        private static readonly MethodInfo _movementDataGetter = AccessTools.PropertyGetter(typeof(Saber), nameof(Saber.movementData));
+        private static readonly MethodInfo _createSaberMovementData = AccessTools.Method(typeof(SaberPlayerMovementFix), nameof(CreateSaberMovementData));
+
+        private static readonly Dictionary<Saber, SaberMovementData> _worldMovementData = new();
 
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(Saber), nameof(Saber.ManualUpdate))]
@@ -41,19 +47,36 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
                 .InstructionEnumeration();
         }
 
-        // Set trail parent so it follows always playerm ovement
-        /*[HarmonyPostfix]
-        [HarmonyPatch(typeof(SaberTrail), nameof(SaberTrail.Init))]
-        private static void ParentSaberTrail(SaberTrail __instance, TrailRenderer ____trailRenderer)
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(SaberModelController), nameof(SaberModelController.Init))]
+        private static IEnumerable<CodeInstruction> SaberWorldMovementTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            // Parent to VRGameCore
-            ____trailRenderer.transform.SetParent(__instance.transform.parent.parent.parent, false);
-        }*/
+            return new CodeMatcher(instructions)
+                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _movementDataGetter))
+                .SetOperandAndAdvance(_createSaberMovementData)
+                .InstructionEnumeration();
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(SaberTrail), nameof(SaberTrail.OnDestroy))]
+        private static void CleanupWorldMovement(IBladeMovementData ____movementData)
+        {
+            Saber? saber = _worldMovementData.FirstOrDefault(n => n.Value == ____movementData).Key;
+            if (saber != null)
+            {
+                _worldMovementData.Remove(saber);
+            }
+        }
 
         // We store all positions as localpositions so that abrupt changes in world position do not affect this
         // it gets converted back to world position to calculate cut
         private static void AddNewDataBetter(SaberMovementData movementData, Vector3 saberBladeTopPos, Vector3 saberBladeBottomPos, float time, Saber saber)
         {
+            if (_worldMovementData.TryGetValue(saber, out SaberMovementData worldMovementData))
+            {
+                worldMovementData.AddNewData(saberBladeTopPos, saberBladeBottomPos, time);
+            }
+
             // Convert world pos to local
             Transform? playerTransform = saber.transform.parent.parent;
 
@@ -72,8 +95,6 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         {
             Transform playerTransform = saber.transform.parent.parent;
 
-            // For some reason, SiraUtil's FPFCToggle unparents the left and right hand from VRGameCore
-            // This only affects fpfc so w/e, just null check and go home
             if (playerTransform == null)
             {
                 return;
@@ -81,6 +102,14 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
 
             topPos = playerTransform.TransformPoint(topPos);
             bottomPos = playerTransform.TransformPoint(bottomPos);
+        }
+
+        private static IBladeMovementData CreateSaberMovementData(Saber saber)
+        {
+            // use world movement data for saber trail
+            SaberMovementData movementData = new();
+            _worldMovementData.Add(saber, movementData);
+            return movementData;
         }
     }
 }
