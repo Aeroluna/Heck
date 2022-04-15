@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Heck;
 using Heck.Animation;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -189,7 +190,7 @@ namespace NoodleExtensions.Animation
         private readonly HashSet<ParentObject> _parentObjects = new();
         private readonly BeatmapObjectSpawnMovementData _movementData;
 
-        internal ParentController([Inject(Id = "leftHanded")] bool leftHanded, IBeatmapObjectSpawnController spawnController)
+        internal ParentController([Inject(Id = HeckController.LEFT_HANDED)] bool leftHanded, IBeatmapObjectSpawnController spawnController)
         {
             _leftHanded = leftHanded;
             _movementData = spawnController.beatmapObjectSpawnMovementData;

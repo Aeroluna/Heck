@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Heck;
 using Heck.Animation;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -77,7 +78,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         [UsedImplicitly]
         [Inject]
         private void Construct(
-            [Inject(Id = "leftHanded")] bool leftHanded,
+            [Inject(Id = HeckController.LEFT_HANDED)] bool leftHanded,
             EnvironmentEnhancementManager environmentManager,
             ParametricBoxControllerParameters parametricBoxControllerParameters)
         {

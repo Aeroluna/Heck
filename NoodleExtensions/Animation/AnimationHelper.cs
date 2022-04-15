@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Heck;
 using Heck.Animation;
 using JetBrains.Annotations;
 using NoodleExtensions.HarmonyPatches.SmallFixes;
@@ -16,7 +17,7 @@ namespace NoodleExtensions.Animation
         private readonly BeatmapObjectSpawnMovementData _movementData;
         private readonly bool _leftHanded;
 
-        private AnimationHelper([Inject(Id = "leftHanded")] bool leftHanded, InitializedSpawnMovementData movementData)
+        private AnimationHelper([Inject(Id = HeckController.LEFT_HANDED)] bool leftHanded, InitializedSpawnMovementData movementData)
         {
             _leftHanded = leftHanded;
             _movementData = movementData.MovementData;

@@ -73,8 +73,7 @@ namespace Heck.HarmonyPatches
 
             container.Bind<ObjectInitializerManager>().AsSingle();
 
-            // TODO: swap strings out for const variables
-            container.Bind<bool>().WithId("leftHanded").FromInstance(playerSpecificSettings.leftHanded);
+            container.Bind<bool>().WithId(HeckController.LEFT_HANDED).FromInstance(playerSpecificSettings.leftHanded);
         }
 
         private static void BindHeckMultiPlayer(
@@ -83,8 +82,7 @@ namespace Heck.HarmonyPatches
         {
             container.Bind<ObjectInitializerManager>().AsSingle();
 
-            // TODO: swap strings out for const variables
-            container.Bind<bool>().WithId("leftHanded").FromInstance(playerSpecificSettings.leftHanded);
+            container.Bind<bool>().WithId(HeckController.LEFT_HANDED).FromInstance(playerSpecificSettings.leftHanded);
         }
     }
 }

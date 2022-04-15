@@ -16,6 +16,8 @@
         public const string POINTS = "_points";
         public const string TRACK = "_track";
 
+        public const string LEFT_HANDED = "leftHanded";
+
         internal const string ANIMATE_TRACK = "AnimateTrack";
         internal const string ASSIGN_PATH_ANIMATION = "AssignPathAnimation";
         internal const string INVOKE_EVENT = "InvokeEvent";

@@ -1,4 +1,5 @@
-﻿using Heck.Animation;
+﻿using Heck;
+using Heck.Animation;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using NoodleExtensions.HarmonyPatches.SmallFixes;
@@ -39,7 +40,7 @@ namespace NoodleExtensions.Animation
         [Inject]
         private void Construct(
             PauseController pauseController,
-            [Inject(Id = "leftHanded")] bool leftHanded,
+            [Inject(Id = HeckController.LEFT_HANDED)] bool leftHanded,
             InitializedSpawnMovementData movementData)
         {
             _pauseController = pauseController;
