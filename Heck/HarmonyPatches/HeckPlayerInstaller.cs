@@ -13,7 +13,8 @@ namespace Heck.HarmonyPatches
         private static readonly FieldInfo _sceneSetupData = AccessTools.Field(typeof(GameplayCoreInstaller), "_sceneSetupData");
         private static readonly MethodInfo _transformedBeatmapData = AccessTools.PropertyGetter(typeof(GameplayCoreSceneSetupData), nameof(GameplayCoreSceneSetupData.transformedBeatmapData));
         private static readonly MethodInfo _getContainer = AccessTools.PropertyGetter(typeof(MonoInstallerBase), "Container");
-        private static readonly MethodInfo _bindHeckPlayer = AccessTools.Method(typeof(HeckPlayerInstaller), nameof(BindHeckPlayer));
+        private static readonly MethodInfo _bindHeckSinglePlayer = AccessTools.Method(typeof(HeckPlayerInstaller), nameof(BindHeckSinglePlayer));
+        private static readonly MethodInfo _bindHeckMultiPlayer = AccessTools.Method(typeof(HeckPlayerInstaller), nameof(BindHeckMultiPlayer));
 
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
@@ -28,38 +29,30 @@ namespace Heck.HarmonyPatches
                     new CodeInstruction(OpCodes.Ldarg_0),
                     new CodeInstruction(OpCodes.Ldfld, _sceneSetupData),
                     new CodeInstruction(OpCodes.Ldloc_3),
-                    new CodeInstruction(OpCodes.Ldc_I4_0),
                     new CodeInstruction(OpCodes.Ldarg_0),
                     new CodeInstruction(OpCodes.Call, _getContainer),
-                    new CodeInstruction(OpCodes.Call, _bindHeckPlayer))
+                    new CodeInstruction(OpCodes.Call, _bindHeckSinglePlayer))
                 .InstructionEnumeration();
         }
 
-        // TODO: fix multiplayer
-        /*[HarmonyTranspiler]
+        [HarmonyTranspiler]
         [HarmonyPatch(typeof(MultiplayerConnectedPlayerInstaller), nameof(MultiplayerConnectedPlayerInstaller.InstallBindings))]
         private static IEnumerable<CodeInstruction> MultiplayerConnectedTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            // Same as the GameplayCoreInstaller except different locals & loads true for isMultiplayer
             return new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Call, _createTransformedBeatmapData))
-                .Advance(2)
+                .MatchForward(false, new CodeMatch(OpCodes.Stloc_0))
+                .Advance(1)
                 .Insert(
-                    new CodeInstruction(OpCodes.Ldloc_S, 12),
-                    new CodeInstruction(OpCodes.Ldloc_1),
-                    new CodeInstruction(OpCodes.Call, _getBeatmapData),
                     new CodeInstruction(OpCodes.Ldloc_0),
-                    new CodeInstruction(OpCodes.Ldc_I4_1),
                     new CodeInstruction(OpCodes.Ldarg_0),
                     new CodeInstruction(OpCodes.Call, _getContainer),
-                    new CodeInstruction(OpCodes.Call, _bindHeckPlayer))
+                    new CodeInstruction(OpCodes.Call, _bindHeckMultiPlayer))
                 .InstructionEnumeration();
-        }*/
+        }
 
-        private static void BindHeckPlayer(
+        private static void BindHeckSinglePlayer(
             GameplayCoreSceneSetupData sceneSetupData,
             PlayerSpecificSettings playerSpecificSettings,
-            bool isMultiplayer,
             DiContainer container)
         {
             IReadonlyBeatmapData untransformedBeatmapData;
@@ -81,7 +74,16 @@ namespace Heck.HarmonyPatches
             container.Bind<ObjectInitializerManager>().AsSingle();
 
             // TODO: swap strings out for const variables
-            container.Bind<bool>().WithId("isMultiplayer").FromInstance(isMultiplayer);
+            container.Bind<bool>().WithId("leftHanded").FromInstance(playerSpecificSettings.leftHanded);
+        }
+
+        private static void BindHeckMultiPlayer(
+            PlayerSpecificSettingsNetSerializable playerSpecificSettings,
+            DiContainer container)
+        {
+            container.Bind<ObjectInitializerManager>().AsSingle();
+
+            // TODO: swap strings out for const variables
             container.Bind<bool>().WithId("leftHanded").FromInstance(playerSpecificSettings.leftHanded);
         }
     }

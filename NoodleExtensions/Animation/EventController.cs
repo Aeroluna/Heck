@@ -22,18 +22,11 @@ namespace NoodleExtensions.Animation
             BeatmapCallbacksController callbacksController,
             [Inject(Id = ID)] CustomData customData,
             LazyInject<ParentController> parentController,
-            LazyInject<PlayerTrack> playerTrack,
-            [Inject(Id = "isMultiplayer")] bool isMultiplayer)
+            LazyInject<PlayerTrack> playerTrack)
         {
             _customData = customData;
             _parentController = parentController;
             _playerTrack = playerTrack;
-
-            if (isMultiplayer)
-            {
-                return;
-            }
-
             _callbacksController = callbacksController;
             _callbackWrapper = callbacksController.AddBeatmapCallback<CustomEventData>(HandleCallback);
         }

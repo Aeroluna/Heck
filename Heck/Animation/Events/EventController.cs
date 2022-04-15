@@ -15,15 +15,8 @@ namespace Heck.Animation.Events
         internal void Construct(
             BeatmapCallbacksController beatmapCallbacksController,
             LazyInject<CoroutineEventManager> coroutineEventManager,
-            IReadonlyBeatmapData beatmapData,
-            [Inject(Id = "isMultiplayer")] bool isMultiplayer)
+            IReadonlyBeatmapData beatmapData)
         {
-            if (isMultiplayer)
-            {
-                enabled = false;
-                return;
-            }
-
             _coroutineEventManager = coroutineEventManager;
             beatmapCallbacksController.AddBeatmapCallback<CustomEventData>(HandleCallback);
         }
