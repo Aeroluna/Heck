@@ -427,7 +427,7 @@ namespace Heck.SettingsSetter
         private void OnAcceptClick()
         {
             Dismiss();
-            StartWithParameters(_defaultParameters);
+            StartWithParameters(_modifiedParameters);
         }
 
         private void Dismiss()
