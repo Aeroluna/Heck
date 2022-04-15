@@ -32,6 +32,7 @@ namespace Chroma.Lighting
         private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _highlightColor1BoostAccessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_highlightColor1Boost");
         private static readonly FieldAccessor<LightSwitchEventEffect, float>.Accessor _offColorIntensityAccessor = FieldAccessor<LightSwitchEventEffect, float>.GetAccessor("_offColorIntensity");
         private static readonly FieldAccessor<LightSwitchEventEffect, BasicBeatmapEventType>.Accessor _eventAccessor = FieldAccessor<LightSwitchEventEffect, BasicBeatmapEventType>.GetAccessor("_event");
+        private static readonly FieldAccessor<LightSwitchEventEffect, int>.Accessor _lightsIDAccessor = FieldAccessor<LightSwitchEventEffect, int>.GetAccessor("_lightsID");
         private static readonly FieldAccessor<LightSwitchEventEffect, bool>.Accessor _lightOnStartAccessor = FieldAccessor<LightSwitchEventEffect, bool>.GetAccessor("_lightOnStart");
 
         private static readonly FieldAccessor<MultipliedColorSO, Color>.Accessor _multiplierColorAccessor = FieldAccessor<MultipliedColorSO, Color>.GetAccessor("_multiplierColor");
@@ -79,6 +80,7 @@ namespace Chroma.Lighting
             _legacyLightHelper = legacyLightHelper;
 
             EventType = _eventAccessor(ref lightSwitchEventEffect);
+            LightsID = _lightsIDAccessor(ref lightSwitchEventEffect);
             _offColorIntensity = _offColorIntensityAccessor(ref lightSwitchEventEffect);
             _lightOnStart = _lightOnStartAccessor(ref lightSwitchEventEffect);
 
@@ -113,6 +115,8 @@ namespace Chroma.Lighting
         public event Action? DidRefresh;
 
         public BasicBeatmapEventType EventType { get; }
+
+        public int LightsID { get; }
 
         public LightSwitchEventEffect LightSwitchEventEffect { get; }
 
@@ -379,7 +383,7 @@ namespace Chroma.Lighting
                     color,
                     lightWithId,
                     _lightManager,
-                    LightIDTableManager.GetActiveTableValueReverse((int)EventType, id) ?? 0);
+                    LightIDTableManager.GetActiveTableValueReverse(LightsID, id) ?? 0);
 
                 ColorTweens[lightWithId] = tween;
                 tween.ForceOnUpdate();

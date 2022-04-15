@@ -67,18 +67,16 @@ namespace Chroma.HarmonyPatches.Colorizer.Initialize
                 return false;
             }
 
-            int type = lightId - 1;
-
             // TODO: find a better way to register "new" lights to table
             int index = lights.Count;
             if (_needToRegister.Contains(lightWithId))
             {
                 int? tableId = _requestedIds.TryGetValue(lightWithId, out int value) ? value : null;
-                LightIDTableManager.RegisterIndex(lightId - 1, index, tableId);
+                LightIDTableManager.RegisterIndex(lightId, index, tableId);
             }
 
             // this also colors the light
-            _colorizerManager.CreateLightColorizerContract((BasicBeatmapEventType)type, n => n.ChromaLightSwitchEventEffect.RegisterLight(lightWithId, index));
+            _colorizerManager.CreateLightColorizerContractByLightID(lightId, n => n.ChromaLightSwitchEventEffect.RegisterLight(lightWithId, index));
 
             lights.Add(lightWithId);
 

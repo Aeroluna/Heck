@@ -18,6 +18,7 @@ namespace Chroma.Colorizer
         private readonly LightColorizer.Factory _factory;
 
         private readonly List<Tuple<BasicBeatmapEventType, Action<LightColorizer>>> _contracts = new();
+        private readonly List<Tuple<int, Action<LightColorizer>>> _contractsByLightID = new();
 
         internal LightColorizerManager(LightColorizer.Factory factory)
         {
@@ -25,6 +26,8 @@ namespace Chroma.Colorizer
         }
 
         public Dictionary<BasicBeatmapEventType, LightColorizer> Colorizers { get; } = new();
+
+        public Dictionary<int, LightColorizer> ColorizersByLightID { get; } = new();
 
         public Color?[] GlobalColor { get; } = new Color?[COLOR_FIELDS];
 
@@ -71,6 +74,7 @@ namespace Chroma.Colorizer
         {
             LightColorizer colorizer = _factory.Create(chromaLightSwitchEventEffect);
             Colorizers.Add(chromaLightSwitchEventEffect.EventType, colorizer);
+            ColorizersByLightID.Add(chromaLightSwitchEventEffect.LightsID, colorizer);
             return colorizer;
         }
 
@@ -87,6 +91,30 @@ namespace Chroma.Colorizer
 
                 contract.Item2(chromaLightSwitchEventEffect.Colorizer);
                 _contracts.Remove(contract);
+            }
+
+            Tuple<int, Action<LightColorizer>>[] contractsByLightID = _contractsByLightID.ToArray();
+            foreach (Tuple<int, Action<LightColorizer>> contract in contractsByLightID)
+            {
+                if (chromaLightSwitchEventEffect.LightsID != contract.Item1)
+                {
+                    continue;
+                }
+
+                contract.Item2(chromaLightSwitchEventEffect.Colorizer);
+                _contractsByLightID.Remove(contract);
+            }
+        }
+
+        internal void CreateLightColorizerContractByLightID(int lightId, Action<LightColorizer> callback)
+        {
+            if (ColorizersByLightID.TryGetValue(lightId, out LightColorizer colorizer))
+            {
+                callback(colorizer);
+            }
+            else
+            {
+                _contractsByLightID.Add(lightId, callback);
             }
         }
 
@@ -113,13 +141,12 @@ namespace Chroma.Colorizer
         private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor0BoostAccessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor0Boost");
         private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor1BoostAccessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor1Boost");
 
-        private static readonly FieldAccessor<LightSwitchEventEffect, BasicBeatmapEventType>.Accessor _eventAccessor = FieldAccessor<LightSwitchEventEffect, BasicBeatmapEventType>.GetAccessor("_event");
         private static readonly FieldAccessor<MultipliedColorSO, SimpleColorSO>.Accessor _baseColorAccessor = FieldAccessor<MultipliedColorSO, SimpleColorSO>.GetAccessor("_baseColor");
         private static readonly FieldAccessor<LightWithIdManager, List<ILightWithId>?[]>.Accessor _lightsAccessor = FieldAccessor<LightWithIdManager, List<ILightWithId>?[]>.GetAccessor("_lights");
 
         private readonly LightColorizerManager _colorizerManager;
 
-        private readonly BasicBeatmapEventType _eventType;
+        private readonly int _lightId;
 
         private readonly Color?[] _colors = new Color?[COLOR_FIELDS];
         private readonly SimpleColorSO[] _originalColors = new SimpleColorSO[COLOR_FIELDS];
@@ -132,8 +159,7 @@ namespace Chroma.Colorizer
             ChromaLightSwitchEventEffect = chromaLightSwitchEventEffect;
             _colorizerManager = colorizerManager;
 
-            LightSwitchEventEffect lightSwitchEventEffect = chromaLightSwitchEventEffect.LightSwitchEventEffect;
-            _eventType = _eventAccessor(ref lightSwitchEventEffect);
+            _lightId = chromaLightSwitchEventEffect.LightsID;
 
             void Initialize(ColorSO colorSO, int index)
             {
@@ -153,6 +179,7 @@ namespace Chroma.Colorizer
                 }
             }
 
+            LightSwitchEventEffect lightSwitchEventEffect = chromaLightSwitchEventEffect.LightSwitchEventEffect;
             Initialize(_lightColor0Accessor(ref lightSwitchEventEffect), 0);
             Initialize(_lightColor1Accessor(ref lightSwitchEventEffect), 1);
             Initialize(_lightColor0BoostAccessor(ref lightSwitchEventEffect), 2);
@@ -269,8 +296,7 @@ namespace Chroma.Colorizer
 
         public IEnumerable<ILightWithId> GetLightWithIds(IEnumerable<int> ids)
         {
-            int type = (int)_eventType;
-            IEnumerable<int> newIds = ids.Select(n => LightIDTableManager.GetActiveTableValue(type, n) ?? n);
+            IEnumerable<int> newIds = ids.Select(n => LightIDTableManager.GetActiveTableValue(_lightId, n) ?? n);
 
             return newIds.Select(id => Lights.ElementAtOrDefault(id)).Where(lightWithId => lightWithId != null).ToList();
         }

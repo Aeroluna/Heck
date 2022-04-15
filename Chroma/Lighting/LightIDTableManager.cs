@@ -19,22 +19,22 @@ namespace Chroma.Lighting
 
         private static HashSet<Tuple<int, int>> _failureLog = new();
 
-        internal static int? GetActiveTableValue(int type, int id)
+        internal static int? GetActiveTableValue(int lightID, int id)
         {
             if (_activeTable != null)
             {
-                if (_activeTable.TryGetValue(type, out Dictionary<int, int> dictioanry) && dictioanry.TryGetValue(id, out int newId))
+                if (_activeTable.TryGetValue(lightID, out Dictionary<int, int> dictioanry) && dictioanry.TryGetValue(id, out int newId))
                 {
                     return newId;
                 }
 
-                Tuple<int, int> failure = new(type, id);
+                Tuple<int, int> failure = new(lightID, id);
                 if (_failureLog.Contains(failure))
                 {
                     return null;
                 }
 
-                Log.Logger.Log($"Unable to find value for type [{type}] and id [{id}]. Omitting future messages...", Logger.Level.Error);
+                Log.Logger.Log($"Unable to find value for light ID [{lightID}] and id [{id}]. Omitting future messages...", Logger.Level.Error);
                 _failureLog.Add(failure);
 
                 return null;
@@ -45,11 +45,11 @@ namespace Chroma.Lighting
             return null;
         }
 
-        internal static int? GetActiveTableValueReverse(int type, int id)
+        internal static int? GetActiveTableValueReverse(int lightID, int id)
         {
             if (_activeTable != null)
             {
-                if (!_activeTable.TryGetValue(type, out Dictionary<int, int> dictioanry))
+                if (!_activeTable.TryGetValue(lightID, out Dictionary<int, int> dictioanry))
                 {
                     return null;
                 }
@@ -80,18 +80,18 @@ namespace Chroma.Lighting
             else
             {
                 _activeTable = new Dictionary<int, Dictionary<int, int>>();
-                Enumerable.Range(0, 5).Do(n => _activeTable[n] = new Dictionary<int, int>());
+                Enumerable.Range(0, 10).Do(n => _activeTable[n] = new Dictionary<int, int>());
                 Log.Logger.Log($"Table not found for: {environmentName}", Logger.Level.Warning);
             }
 
             _failureLog = new HashSet<Tuple<int, int>>();
         }
 
-        internal static void RegisterIndex(int type, int index, int? requestedKey)
+        internal static void RegisterIndex(int lightID, int index, int? requestedKey)
         {
             if (_activeTable != null)
             {
-                if (_activeTable.TryGetValue(type, out Dictionary<int, int> dictioanry))
+                if (_activeTable.TryGetValue(lightID, out Dictionary<int, int> dictioanry))
                 {
                     int key;
 
@@ -118,12 +118,12 @@ namespace Chroma.Lighting
                     dictioanry.Add(key, index);
                     if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                     {
-                        Log.Logger.Log($"Registered key [{key}] to type [{type}].");
+                        Log.Logger.Log($"Registered key [{key}] to light ID [{lightID}].");
                     }
                 }
                 else
                 {
-                    Log.Logger.Log($"Table does not contain type [{type}].", Logger.Level.Warning);
+                    Log.Logger.Log($"Table does not contain light ID [{lightID}].", Logger.Level.Warning);
                 }
             }
             else
