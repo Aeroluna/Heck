@@ -4,6 +4,7 @@ using System.Linq;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
+using IPA.Logging;
 using static Heck.HeckController;
 
 namespace Heck
@@ -15,10 +16,10 @@ namespace Heck
             CustomBeatmapData beatmapData,
             Dictionary<string, PointDefinition> pointDefinitions,
             Dictionary<string, Track> tracks,
-            List<CustomEventData> customEventDatas)
+            List<CustomEventData> customEventDatas,
+            bool v2)
         {
             Dictionary<CustomEventData, ICustomEventCustomData> dictionary = new();
-
             foreach (CustomEventData customEventData in customEventDatas)
             {
                 try
@@ -27,11 +28,16 @@ namespace Heck
                     {
                         case ANIMATE_TRACK:
                         case ASSIGN_PATH_ANIMATION:
-                            dictionary.Add(customEventData, ProcessCoroutineEvent(customEventData, pointDefinitions, tracks));
+                            dictionary.Add(customEventData, ProcessCoroutineEvent(customEventData, pointDefinitions, tracks, v2));
                             break;
 
                         case INVOKE_EVENT:
-                            IDictionary<string, CustomEventData> eventDefinitions = beatmapData.customData.Get<IDictionary<string, CustomEventData>>("eventDefinitions")
+                            if (v2)
+                            {
+                                break;
+                            }
+
+                            IDictionary<string, CustomEventData> eventDefinitions = beatmapData.customData.Get<IDictionary<string, CustomEventData>>(EVENT_DEFINITIONS)
                                                                                     ?? throw new InvalidOperationException("Could not find event definitions in BeatmapData.");
                             string eventName = customEventData.customData.Get<string>(EVENT) ?? throw new InvalidOperationException("Event name was not defined.");
                             dictionary.Add(customEventData, new HeckInvokeEventData(eventDefinitions[eventName]));
@@ -50,41 +56,71 @@ namespace Heck
             return dictionary;
         }
 
-        private static HeckCoroutineEventData ProcessCoroutineEvent(CustomEventData customEventData, Dictionary<string, PointDefinition> pointDefinitions, Dictionary<string, Track> beatmapTracks)
+        private static HeckCoroutineEventData ProcessCoroutineEvent(
+            CustomEventData customEventData,
+            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, Track> beatmapTracks,
+            bool v2)
         {
             HeckCoroutineEventData heckEventData = new();
 
             Dictionary<string, object?> data = customEventData.customData;
 
-            Functions? easing = data.GetStringToEnum<Functions?>(EASING);
+            Functions? easing = data.GetStringToEnum<Functions?>(v2 ? V2_EASING : EASING);
             heckEventData.Easing = easing ?? Functions.easeLinear;
 
-            heckEventData.Duration = data.Get<float?>(DURATION) ?? 0f;
+            heckEventData.Duration = data.Get<float?>(v2 ? V2_DURATION : DURATION) ?? 0f;
 
-            IEnumerable<Track> tracks = data.GetTrackArray(beatmapTracks) ?? throw new InvalidOperationException("Track was not defined.");
+            IEnumerable<Track> tracks = data.GetTrackArray(beatmapTracks, v2);
 
-            string[] excludedStrings = { TRACK, DURATION, EASING };
+            string[] excludedStrings = { V2_TRACK, V2_DURATION, V2_EASING, TRACK, DURATION, EASING };
             IEnumerable<string> propertyKeys = data.Keys.Where(n => excludedStrings.All(m => m != n)).ToList();
             foreach (Track track in tracks)
             {
-                IDictionary<string, Property> properties = customEventData.eventType switch
+                IDictionary<string, Property> properties;
+                IDictionary<string, List<Property>> propertyAliases;
+                switch (customEventData.eventType)
                 {
-                    ANIMATE_TRACK => track.Properties,
-                    ASSIGN_PATH_ANIMATION => track.PathProperties,
-                    _ => throw new InvalidOperationException("Custom event was not of correct type.")
-                };
+                    case ANIMATE_TRACK:
+                        properties = track.Properties;
+                        propertyAliases = track.PropertyAliases;
+                        break;
+
+                    case ASSIGN_PATH_ANIMATION:
+                        properties = track.PathProperties;
+                        propertyAliases = track.PathPropertyAliases;
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("Custom event was not of correct type.");
+                }
 
                 foreach (string propertyKey in propertyKeys)
                 {
-                    if (!properties.TryGetValue(propertyKey, out Property property))
+                    void CreateInfo(Property prop)
                     {
-                        Log.Logger.Log($"Could not find property {propertyKey}!", IPA.Logging.Logger.Level.Error);
-                        continue;
+                        HeckCoroutineEventData.CoroutineInfo coroutineInfo = new(data.GetPointData(propertyKey, pointDefinitions), prop);
+                        heckEventData.CoroutineInfos.Add(coroutineInfo);
                     }
 
-                    HeckCoroutineEventData.CoroutineInfo coroutineInfo = new(data.GetPointData(propertyKey, pointDefinitions), property);
+                    if (!v2)
+                    {
+                        if (properties.TryGetValue(propertyKey, out Property property))
+                        {
+                            CreateInfo(property);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if (propertyAliases.TryGetValue(propertyKey, out List<Property> aliasedProperties))
+                        {
+                            aliasedProperties.ForEach(CreateInfo);
+                            continue;
+                        }
+                    }
 
-                    heckEventData.CoroutineInfos.Add(coroutineInfo);
+                    Log.Logger.Log($"Could not find property {propertyKey}!", Logger.Level.Error);
                 }
             }
 

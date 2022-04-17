@@ -56,7 +56,7 @@ namespace Chroma
                 if (value &&
                     customBeatmapSaveData != null &&
                     !ChromaConfig.Instance.EnvironmentEnhancementsDisabled &&
-                    ((customBeatmapSaveData.beatmapCustomData.Get<List<object>>(ENVIRONMENT_REMOVAL)?.Any() ?? false) || (customBeatmapSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false)))
+                    ((customBeatmapSaveData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) || (customBeatmapSaveData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false)))
                 {
                     moduleArgs.OverrideEnvironmentSettings = null;
                 }

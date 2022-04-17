@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Chroma.Extras;
 using Chroma.Lighting;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
@@ -11,6 +10,7 @@ using Heck.Animation;
 using UnityEngine;
 using Zenject;
 using static Chroma.ChromaController;
+using static Heck.HeckController;
 
 namespace Chroma
 {
@@ -20,14 +20,15 @@ namespace Chroma
         internal static void DeserializerEarly(
             TrackBuilder trackBuilder,
             CustomBeatmapData beatmapData,
-            IReadOnlyList<CustomEventData> customEventDatas)
+            IReadOnlyList<CustomEventData> customEventDatas,
+            bool v2)
         {
-            IEnumerable<Dictionary<string, object?>>? environmentData = beatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object?>>();
+            IEnumerable<Dictionary<string, object?>>? environmentData = beatmapData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Cast<Dictionary<string, object?>>();
             if (environmentData != null)
             {
                 foreach (Dictionary<string, object?> gameObjectData in environmentData)
                 {
-                    string? trackName = gameObjectData.Get<string>("_track");
+                    string? trackName = gameObjectData.Get<string>(v2 ? V2_TRACK : TRACK);
                     if (trackName != null)
                     {
                         trackBuilder.AddTrack(trackName);
@@ -42,7 +43,8 @@ namespace Chroma
                     switch (customEventData.eventType)
                     {
                         case ASSIGN_FOG_TRACK:
-                            trackBuilder.AddTrack(customEventData.customData.Get<string>("_track") ?? throw new InvalidOperationException("Track was not defined."));
+                            trackBuilder.AddTrack(customEventData.customData.Get<string>(v2 ? V2_TRACK : TRACK)
+                                                  ?? throw new InvalidOperationException("Track was not defined."));
                             break;
 
                         default:
@@ -59,7 +61,8 @@ namespace Chroma
         [CustomEventsDeserializer]
         internal static Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents(
             Dictionary<string, Track> beatmapTracks,
-            IReadOnlyList<CustomEventData> customEventDatas)
+            IReadOnlyList<CustomEventData> customEventDatas,
+            bool v2)
         {
             Dictionary<CustomEventData, ICustomEventCustomData> dictionary = new();
 
@@ -72,7 +75,7 @@ namespace Chroma
                     switch (customEventData.eventType)
                     {
                         case ASSIGN_FOG_TRACK:
-                            chromaCustomEventData = new ChromaCustomEventData(customEventData.customData.GetTrack(beatmapTracks) ?? throw new InvalidOperationException("Track was not defined."));
+                            chromaCustomEventData = new ChromaCustomEventData(customEventData.customData.GetTrack(beatmapTracks, v2));
                             break;
 
                         default:
@@ -94,7 +97,8 @@ namespace Chroma
         internal static Dictionary<BeatmapObjectData, IObjectCustomData> DeserializeObjects(
             Dictionary<string, Track> beatmapTracks,
             Dictionary<string, PointDefinition> pointDefinitions,
-            IReadOnlyList<BeatmapObjectData> beatmapObjectDatas)
+            IReadOnlyList<BeatmapObjectData> beatmapObjectDatas,
+            bool v2)
         {
             Dictionary<BeatmapObjectData, IObjectCustomData> dictionary = new();
 
@@ -111,8 +115,8 @@ namespace Chroma
                             customData = customNoteData.customData;
                             chromaObjectData = new ChromaNoteData
                             {
-                                Color = ChromaUtils.GetColorFromData(customData),
-                                DisableSpawnEffect = customData.Get<bool?>(DISABLE_SPAWN_EFFECT)
+                                Color = GetColorFromData(customData, v2),
+                                DisableSpawnEffect = customData.Get<bool?>(V2_DISABLE_SPAWN_EFFECT) // TODO: rework spawn effect
                             };
                             break;
 
@@ -120,7 +124,7 @@ namespace Chroma
                             customData = customObstacleData.customData;
                             chromaObjectData = new ChromaObjectData
                             {
-                                Color = ChromaUtils.GetColorFromData(customData)
+                                Color = GetColorFromData(customData, v2)
                             };
                             break;
 
@@ -128,13 +132,13 @@ namespace Chroma
                             continue;
                     }
 
-                    Dictionary<string, object?>? animationObjectDyn = customData.Get<Dictionary<string, object?>>(ANIMATION);
+                    Dictionary<string, object?>? animationObjectDyn = customData.Get<Dictionary<string, object?>>(v2 ? V2_ANIMATION : ANIMATION);
                     if (animationObjectDyn != null)
                     {
-                        chromaObjectData.LocalPathColor = animationObjectDyn.GetPointData(COLOR, pointDefinitions);
+                        chromaObjectData.LocalPathColor = animationObjectDyn.GetPointData(v2 ? V2_COLOR : COLOR, pointDefinitions);
                     }
 
-                    chromaObjectData.Track = customData.GetTrackArray(beatmapTracks)?.ToList();
+                    chromaObjectData.Track = customData.GetNullableTrackArray(beatmapTracks, v2)?.ToList();
 
                     dictionary.Add(beatmapObjectData, chromaObjectData);
                 }
@@ -150,10 +154,16 @@ namespace Chroma
         [EventsDeserializer]
         internal static Dictionary<BeatmapEventData, IEventCustomData> DeserializeEvents(
             IReadOnlyList<BeatmapEventData> allBeatmapEventDatas,
-            DiContainer container)
+            DiContainer container,
+            bool v2)
         {
             List<BasicBeatmapEventData> beatmapEventDatas = allBeatmapEventDatas.OfType<BasicBeatmapEventData>().ToList();
-            container.Bind<LegacyLightHelper>().FromInstance(new LegacyLightHelper(beatmapEventDatas)).AsSingle();
+
+            LegacyLightHelper? legacyLightHelper = null;
+            if (v2)
+            {
+                legacyLightHelper = new LegacyLightHelper(beatmapEventDatas);
+            }
 
             Dictionary<BeatmapEventData, IEventCustomData> dictionary = new();
             foreach (BasicBeatmapEventData beatmapEventData in beatmapEventDatas)
@@ -161,35 +171,45 @@ namespace Chroma
                 try
                 {
                     Dictionary<string, object?> customData = ((ICustomData)beatmapEventData).customData;
-                    ChromaEventData chromaEventData = new(
-                        customData.Get<object>(PROPAGATION_ID),
-                        ChromaUtils.GetColorFromData(customData),
-                        customData.GetStringToEnum<Functions?>(EASING),
-                        customData.GetStringToEnum<LerpType?>(LERP_TYPE),
-                        customData.Get<bool?>(LOCK_POSITION).GetValueOrDefault(false),
-                        customData.Get<string>(NAME_FILTER),
-                        customData.Get<int?>(DIRECTION),
-                        customData.Get<bool?>(COUNTER_SPIN),
-                        customData.Get<bool?>(RESET),
-                        customData.Get<float?>(STEP),
-                        customData.Get<float?>(PROP),
-                        customData.Get<float?>(SPEED) ?? customData.Get<float?>(PRECISE_SPEED),
-                        customData.Get<float?>(ROTATION),
-                        customData.Get<float?>(STEP_MULT).GetValueOrDefault(1f),
-                        customData.Get<float?>(PROP_MULT).GetValueOrDefault(1f),
-                        customData.Get<float?>(SPEED_MULT).GetValueOrDefault(1f));
 
-                    Dictionary<string, object?>? gradientObject = customData.Get<Dictionary<string, object?>>(LIGHT_GRADIENT);
-                    if (gradientObject != null)
+                    Color? color = GetColorFromData(customData, v2);
+                    if (legacyLightHelper != null)
                     {
-                        chromaEventData.GradientObject = new ChromaEventData.GradientObjectData(
-                            gradientObject.Get<float>(DURATION),
-                            ChromaUtils.GetColorFromData(gradientObject, START_COLOR) ?? Color.white,
-                            ChromaUtils.GetColorFromData(gradientObject, END_COLOR) ?? Color.white,
-                            gradientObject.GetStringToEnum<Functions?>(EASING) ?? Functions.easeLinear);
+                        color ??= legacyLightHelper.GetLegacyColor(beatmapEventData);
                     }
 
-                    object? lightID = customData.Get<object>(LIGHT_ID);
+                    ChromaEventData chromaEventData = new(
+                        v2 ? customData.Get<object>(V2_PROPAGATION_ID) : null,
+                        color,
+                        customData.GetStringToEnum<Functions?>(v2 ? V2_EASING : EASING),
+                        customData.GetStringToEnum<LerpType?>(v2 ? V2_LERP_TYPE : LERP_TYPE),
+                        customData.Get<bool?>(v2 ? V2_LOCK_POSITION : LOCK_POSITION).GetValueOrDefault(false),
+                        customData.Get<string>(v2 ? V2_NAME_FILTER : NAME_FILTER),
+                        customData.Get<int?>(v2 ? V2_DIRECTION : DIRECTION),
+                        v2 ? customData.Get<bool?>(V2_COUNTER_SPIN) : null, // TODO: YEET
+                        v2 ? customData.Get<bool?>(V2_RESET) : null,
+                        customData.Get<float?>(v2 ? V2_STEP : STEP),
+                        customData.Get<float?>(v2 ? V2_PROP : PROP),
+                        customData.Get<float?>(v2 ? V2_SPEED : SPEED) ?? (v2 ? customData.Get<float?>(V2_PRECISE_SPEED) : null),
+                        customData.Get<float?>(v2 ? V2_ROTATION : RING_ROTATION),
+                        v2 ? customData.Get<float?>(V2_STEP_MULT).GetValueOrDefault(1f) : 1,
+                        v2 ? customData.Get<float?>(V2_PROP_MULT).GetValueOrDefault(1f) : 1,
+                        v2 ? customData.Get<float?>(V2_SPEED_MULT).GetValueOrDefault(1f) : 1);
+
+                    if (v2)
+                    {
+                        Dictionary<string, object?>? gradientObject = customData.Get<Dictionary<string, object?>>(V2_LIGHT_GRADIENT);
+                        if (gradientObject != null)
+                        {
+                            chromaEventData.GradientObject = new ChromaEventData.GradientObjectData(
+                                gradientObject.Get<float>(V2_DURATION),
+                                GetColorFromData(gradientObject, V2_START_COLOR) ?? Color.white,
+                                GetColorFromData(gradientObject, V2_END_COLOR) ?? Color.white,
+                                gradientObject.GetStringToEnum<Functions?>(V2_EASING) ?? Functions.easeLinear);
+                        }
+                    }
+
+                    object? lightID = customData.Get<object>(v2 ? V2_LIGHT_ID : LIGHT_ID);
                     if (lightID != null)
                     {
                         chromaEventData.LightID = lightID switch
@@ -277,6 +297,22 @@ namespace Chroma
             }
 
             return dictionary;
+        }
+
+        private static Color? GetColorFromData(Dictionary<string, object?> data, bool v2)
+        {
+            return GetColorFromData(data, v2 ? V2_COLOR : COLOR);
+        }
+
+        private static Color? GetColorFromData(Dictionary<string, object?> data, string member = COLOR)
+        {
+            List<float>? color = data.Get<List<object>>(member)?.Select(Convert.ToSingle).ToList();
+            if (color == null)
+            {
+                return null;
+            }
+
+            return new Color(color[0], color[1], color[2], color.Count > 3 ? color[3] : 1);
         }
     }
 }

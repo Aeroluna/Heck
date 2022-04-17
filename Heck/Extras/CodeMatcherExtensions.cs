@@ -1,5 +1,6 @@
 ﻿using System;
 using HarmonyLib;
+using IPA.Logging;
 using IPA.Utilities;
 using JetBrains.Annotations;
 
@@ -11,8 +12,8 @@ namespace Heck
         public static CodeMatcher PrintInstructions(this CodeMatcher codeMatcher, HeckLogger logger, string seperator = "\t")
         {
             logger.Log("Printing instructions:");
-            IPA.Logging.Logger ipaLogger = logger.IPALogger;
-            codeMatcher.Instructions().ForEach(n => ipaLogger.Log(IPA.Logging.Logger.Level.Info, seperator + n));
+            Logger ipaLogger = logger.IPALogger;
+            codeMatcher.Instructions().ForEach(n => ipaLogger.Log(Logger.Level.Info, seperator + n));
             return codeMatcher;
         }
 

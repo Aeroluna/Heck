@@ -66,8 +66,7 @@ namespace NoodleExtensions.Managers
         internal bool GetCuttable(NoteData noteData)
         {
             _customData.Resolve(noteData, out NoodleNoteData? noodleData);
-            bool? cuttable = noodleData?.Cuttable;
-            return !cuttable.HasValue || cuttable.Value;
+            return noodleData?.Uninteractable is not true;
         }
     }
 }

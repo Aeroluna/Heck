@@ -5,7 +5,6 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
 using Heck.Animation;
-using IPA.Utilities;
 using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;
@@ -15,11 +14,6 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 {
     internal class NoteInitNoodlifier : IAffinity, IDisposable
     {
-        private static readonly FieldAccessor<NoteJump, Quaternion>.Accessor _endRotationAccessor = FieldAccessor<NoteJump, Quaternion>.GetAccessor("_endRotation");
-        private static readonly FieldAccessor<NoteJump, Quaternion>.Accessor _middleRotationAccessor = FieldAccessor<NoteJump, Quaternion>.GetAccessor("_middleRotation");
-
-        private static readonly FieldAccessor<NoteJump, Vector3[]>.Accessor _randomRotationsAccessor = FieldAccessor<NoteJump, Vector3[]>.GetAccessor("_randomRotations");
-
         private static readonly FieldInfo _noteDataField = AccessTools.Field(typeof(NoteController), "_noteData");
         private static readonly MethodInfo _flipYSideGetter = AccessTools.PropertyGetter(typeof(NoteData), nameof(NoteData.flipYSide));
 
@@ -60,26 +54,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             moveEndPos.z += zOffset;
             jumpEndPos.z += zOffset;
 
-            float? cutDirectionAngle = noodleData.CutDirectionAngle;
-
             NoteJump noteJump = NoteJumpAccessor(ref ____noteMovement);
             NoteFloorMovement floorMovement = NoteFloorMovementAccessor(ref ____noteMovement);
-
-            if (cutDirectionAngle.HasValue)
-            {
-                Quaternion quatVal = Quaternion.Euler(0, 0, cutDirectionAngle.Value + noteData.cutDirectionAngleOffset);
-                _endRotationAccessor(ref noteJump) = quatVal;
-                Vector3 vector = quatVal.eulerAngles;
-                if (useRandomRotation)
-                {
-                    Vector3[] randomRotations = _randomRotationsAccessor(ref noteJump);
-                    int num = Mathf.RoundToInt((noteData.time * 10f) + (moveEndPos.x * 2f) + (moveEndPos.y * 2f)) % randomRotations.Length;
-                    vector += randomRotations[num] * 20f;
-                }
-
-                Quaternion midrotation = Quaternion.Euler(vector);
-                _middleRotationAccessor(ref noteJump) = midrotation;
-            }
 
             Quaternion? worldRotationQuaternion = noodleData.WorldRotationQuaternion;
             Quaternion? localRotationQuaternion = noodleData.LocalRotationQuaternion;

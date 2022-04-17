@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Heck;
 using Heck.Animation;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
+using static Heck.HeckController;
 using static Heck.NullableExtensions;
 using static NoodleExtensions.NoodleController;
 
@@ -129,7 +129,7 @@ namespace NoodleExtensions.Animation
 
         private void Update()
         {
-            Quaternion? rotation = _track.GetProperty<Quaternion?>(ROTATION);
+            Quaternion? rotation = _track.GetProperty<Quaternion?>(WORLD_ROTATION);
             if (rotation.HasValue)
             {
                 if (_leftHanded)
@@ -138,7 +138,8 @@ namespace NoodleExtensions.Animation
                 }
             }
 
-            Vector3? position = _track.GetProperty<Vector3?>(POSITION);
+            // TODO: wtf clean up this mess
+            Vector3? position = _track.GetProperty<Vector3?>(OFFSET_POSITION);
             if (position.HasValue)
             {
                 if (_leftHanded)
@@ -190,7 +191,7 @@ namespace NoodleExtensions.Animation
         private readonly HashSet<ParentObject> _parentObjects = new();
         private readonly BeatmapObjectSpawnMovementData _movementData;
 
-        internal ParentController([Inject(Id = HeckController.LEFT_HANDED)] bool leftHanded, IBeatmapObjectSpawnController spawnController)
+        internal ParentController([Inject(Id = LEFT_HANDED_ID)] bool leftHanded, IBeatmapObjectSpawnController spawnController)
         {
             _leftHanded = leftHanded;
             _movementData = spawnController.beatmapObjectSpawnMovementData;

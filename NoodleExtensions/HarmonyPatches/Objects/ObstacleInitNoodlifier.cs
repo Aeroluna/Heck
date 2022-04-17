@@ -120,7 +120,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 }
             }
 
-            if (noodleData is { Cuttable: false })
+            if (noodleData is { Uninteractable: true })
             {
                 ____bounds.size = Vector3.zero;
             }

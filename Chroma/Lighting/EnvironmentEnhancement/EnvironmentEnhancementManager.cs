@@ -15,6 +15,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
 using static Chroma.ChromaController;
+using static Heck.HeckController;
 using Logger = IPA.Logging.Logger;
 using Object = UnityEngine.Object;
 
@@ -38,6 +39,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
+
+        private static readonly Version _version2_6_0 = new("2.6.0");
 
         private readonly List<GameObjectInfo> _gameObjectInfos = new();
 
@@ -87,7 +90,11 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         {
             yield return new WaitForEndOfFrame();
 
-            IEnumerable<Dictionary<string, object?>>? environmentData = _beatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Cast<Dictionary<string, object?>>();
+            bool v2 = _beatmapData.version.CompareTo(_version2_6_0) <= 0;
+
+            IEnumerable<Dictionary<string, object?>>? environmentData = _beatmapData.customData
+                .Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)?
+                .Cast<Dictionary<string, object?>>();
             GetAllGameObjects();
 
             if (environmentData != null)
@@ -101,21 +108,23 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                 foreach (Dictionary<string, object?> gameObjectData in environmentData)
                 {
-                    string id = gameObjectData.Get<string>(GAMEOBJECT_ID) ?? throw new InvalidOperationException("Id was not defined.");
+                    string id = gameObjectData.Get<string>(v2 ? V2_GAMEOBJECT_ID : GAMEOBJECT_ID)
+                                ?? throw new InvalidOperationException("Id was not defined.");
 
-                    LookupMethod lookupMethod = gameObjectData.GetStringToEnum<LookupMethod?>(LOOKUP_METHOD) ?? throw new InvalidOperationException("Lookup method was not defined.");
+                    LookupMethod lookupMethod = gameObjectData.GetStringToEnum<LookupMethod?>(v2 ? V2_LOOKUP_METHOD : LOOKUP_METHOD)
+                                                ?? throw new InvalidOperationException("Lookup method was not defined.");
 
-                    int? dupeAmount = gameObjectData.Get<int?>(DUPLICATION_AMOUNT);
+                    int? dupeAmount = gameObjectData.Get<int?>(v2 ? V2_DUPLICATION_AMOUNT : DUPLICATION_AMOUNT);
 
-                    bool? active = gameObjectData.Get<bool?>(ACTIVE);
+                    bool? active = gameObjectData.Get<bool?>(v2 ? V2_ACTIVE : ACTIVE);
 
-                    Vector3? scale = gameObjectData.GetVector3(SCALE);
-                    Vector3? position = gameObjectData.GetVector3(POSITION);
-                    Vector3? rotation = gameObjectData.GetVector3(OBJECT_ROTATION);
-                    Vector3? localPosition = gameObjectData.GetVector3(LOCAL_POSITION);
-                    Vector3? localRotation = gameObjectData.GetVector3(LOCAL_ROTATION);
+                    Vector3? scale = gameObjectData.GetVector3(v2 ? V2_SCALE : SCALE);
+                    Vector3? position = gameObjectData.GetVector3(v2 ? V2_POSITION : POSITION);
+                    Vector3? rotation = gameObjectData.GetVector3(v2 ? V2_ROTATION : ROTATION);
+                    Vector3? localPosition = gameObjectData.GetVector3(v2 ? V2_LOCAL_POSITION : LOCAL_POSITION);
+                    Vector3? localRotation = gameObjectData.GetVector3(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION);
 
-                    int? lightID = gameObjectData.Get<int?>(LIGHT_ID);
+                    int? lightID = gameObjectData.Get<int?>(v2 ? V2_LIGHT_ID : LIGHT_ID);
 
                     List<GameObjectInfo> foundObjects = LookupID(gameObjectInfoIds, id, lookupMethod);
                     if (foundObjects.Count > 0)
@@ -274,7 +283,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                             trackLaneRing,
                             parametricBoxController,
                             beatmapObjectsAvoidance,
-                            _tracks);
+                            _tracks,
+                            v2);
                         if (trackController != null)
                         {
                             _gameObjectTrackControllers.Add(trackController);
@@ -290,7 +300,10 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             try
             {
-                LegacyEnvironmentRemoval.Init(_beatmapData);
+                if (v2)
+                {
+                    LegacyEnvironmentRemoval.Init(_beatmapData);
+                }
             }
             catch (Exception e)
             {

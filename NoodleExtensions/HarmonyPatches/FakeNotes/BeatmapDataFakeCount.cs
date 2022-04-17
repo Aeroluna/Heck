@@ -34,7 +34,7 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
 
         private static bool FakeCondition(this Dictionary<string, object?> data)
         {
-            bool? fake = data.Get<bool?>(FAKE_NOTE);
+            bool? fake = data.Get<bool?>(V2_FAKE_NOTE);
             return !fake.HasValue || !fake.Value;
         }
     }

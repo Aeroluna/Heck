@@ -10,52 +10,69 @@ namespace Chroma
 
     internal static class ChromaController
     {
-        internal const string ANIMATION = "_animation";
-        internal const string COLOR = "_color";
-        internal const string COUNTER_SPIN = "_counterSpin";
-        internal const string DIRECTION = "_direction";
-        internal const string DISABLE_SPAWN_EFFECT = "_disableSpawnEffect";
-        internal const string DURATION = "_duration";
-        internal const string EASING = "_easing";
-        internal const string END_COLOR = "_endColor";
-        internal const string ENVIRONMENT_REMOVAL = "_environmentRemoval";
-        internal const string LERP_TYPE = "_lerpType";
-        internal const string LIGHT_GRADIENT = "_lightGradient";
-        internal const string LIGHT_ID = "_lightID";
-        internal const string LOCK_POSITION = "_lockPosition";
-        internal const string NAME_FILTER = "_nameFilter";
-        internal const string PRECISE_SPEED = "_preciseSpeed";
-        internal const string PROP = "_prop";
-        internal const string PROPAGATION_ID = "_propID";
-        internal const string PROP_MULT = "_propMult";
-        internal const string RESET = "_reset";
-        internal const string SPEED = "_speed";
-        internal const string SPEED_MULT = "_speedMult";
-        internal const string START_COLOR = "_startColor";
-        internal const string STEP = "_step";
-        internal const string STEP_MULT = "_stepMult";
-        internal const string ROTATION = "_rotation";
+        internal const string V2_COLOR = "_color";
+        internal const string V2_COUNTER_SPIN = "_counterSpin";
+        internal const string V2_DIRECTION = "_direction";
+        internal const string V2_DISABLE_SPAWN_EFFECT = "_disableSpawnEffect";
+        internal const string V2_END_COLOR = "_endColor";
+        internal const string V2_ENVIRONMENT_REMOVAL = "_environmentRemoval";
+        internal const string V2_LERP_TYPE = "_lerpType";
+        internal const string V2_LIGHT_GRADIENT = "_lightGradient";
+        internal const string V2_LIGHT_ID = "_lightID";
+        internal const string V2_LOCK_POSITION = "_lockPosition";
+        internal const string V2_NAME_FILTER = "_nameFilter";
+        internal const string V2_PRECISE_SPEED = "_preciseSpeed";
+        internal const string V2_PROP = "_prop";
+        internal const string V2_PROPAGATION_ID = "_propID";
+        internal const string V2_PROP_MULT = "_propMult";
+        internal const string V2_RESET = "_reset";
+        internal const string V2_SPEED = "_speed";
+        internal const string V2_SPEED_MULT = "_speedMult";
+        internal const string V2_START_COLOR = "_startColor";
+        internal const string V2_STEP = "_step";
+        internal const string V2_STEP_MULT = "_stepMult";
+        internal const string V2_LOCAL_POSITION = "_localPosition";
 
-        internal const string ENVIRONMENT = "_environment";
-        internal const string GAMEOBJECT_ID = "_id";
-        internal const string LOOKUP_METHOD = "_lookupMethod";
-        internal const string DUPLICATION_AMOUNT = "_duplicate";
-        internal const string ACTIVE = "_active";
-        internal const string SCALE = "_scale";
-        internal const string POSITION = "_position";
-        internal const string LOCAL_POSITION = "_localPosition";
-        internal const string OBJECT_ROTATION = "_rotation";
-        internal const string LOCAL_ROTATION = "_localRotation";
+        internal const string V2_ENVIRONMENT = "_environment";
+        internal const string V2_GAMEOBJECT_ID = "_id";
+        internal const string V2_LOOKUP_METHOD = "_lookupMethod";
+        internal const string V2_DUPLICATION_AMOUNT = "_duplicate";
+        internal const string V2_ACTIVE = "_active";
+
+        internal const string V2_ATTENUATION = "_attenuation";
+        internal const string V2_OFFSET = "_offset";
+        internal const string V2_HEIGHT_FOG_STARTY = "_startY";
+        internal const string V2_HEIGHT_FOG_HEIGHT = "_height";
+
+        internal const string COLOR = "color";
+        internal const string DIRECTION = "direction";
+        internal const string NOTE_SPAWN_EFFECT = "spawnEffect";
+        internal const string LERP_TYPE = "lerpType";
+        internal const string LIGHT_ID = "lightID";
+        internal const string LOCK_POSITION = "lock";
+        internal const string NAME_FILTER = "nameFilter";
+        internal const string PROP = "prop";
+        internal const string SPEED = "speed";
+        internal const string STEP = "step";
+        internal const string RING_ROTATION = "degrees";
+
+        internal const string ENVIRONMENT = "environment";
+        internal const string GAMEOBJECT_ID = "id";
+        internal const string LOOKUP_METHOD = "lookupMethod";
+        internal const string DUPLICATION_AMOUNT = "duplicate";
+        internal const string ACTIVE = "active";
+        internal const string LOCAL_POSITION = "localPosition";
+
+        internal const string ATTENUATION = "attenuation";
+        internal const string OFFSET = "offset";
+        internal const string HEIGHT_FOG_STARTY = "startY";
+        internal const string HEIGHT_FOG_HEIGHT = "height";
 
         internal const string ASSIGN_FOG_TRACK = "AssignFogTrack";
-        internal const string ATTENUATION = "_attenuation";
-        internal const string OFFSET = "_offset";
-        internal const string HEIGHT_FOG_STARTY = "_startY";
-        internal const string HEIGHT_FOG_HEIGHT = "_height";
 
         internal const string CAPABILITY = "Chroma";
         internal const string ID = "Chroma";
-        internal const string HARMONY_ID = "com.aeroluna.Chroma";
+        internal const string HARMONY_ID = "aeroluna.Chroma";
 
         internal static HeckPatcher CorePatcher { get; } = new(HARMONY_ID + "Core");
 

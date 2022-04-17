@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using Heck;
 using Heck.Animation;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using static Chroma.ChromaController;
+using static Heck.HeckController;
 using static Heck.NullableExtensions;
 
 namespace Chroma.Lighting.EnvironmentEnhancement
@@ -40,7 +40,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             TrackLaneRing? trackLaneRing,
             ParametricBoxController? parametricBoxController,
             BeatmapObjectsAvoidance? beatmapObjectsAvoidance,
-            Dictionary<string, Track> tracks)
+            Dictionary<string, Track> tracks,
+            bool v2)
         {
             GameObjectTrackController existingTrackController = gameObject.GetComponent<GameObjectTrackController>();
             if (existingTrackController != null)
@@ -49,7 +50,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             }
 
             // TODO: stop being lazy and deserialize the tracks properly
-            Track? track = gameObjectData.GetTrack(tracks);
+            Track? track = gameObjectData.GetNullableTrack(tracks, v2);
             if (track == null)
             {
                 return null;
@@ -78,7 +79,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         [UsedImplicitly]
         [Inject]
         private void Construct(
-            [Inject(Id = HeckController.LEFT_HANDED)] bool leftHanded,
+            [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
             EnvironmentEnhancementManager environmentManager,
             ParametricBoxControllerParameters parametricBoxControllerParameters)
         {
@@ -89,11 +90,11 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
         private void Update()
         {
-            Quaternion? rotation = GetQuaternionNullable(ROTATION);
-            Quaternion? localRotation = GetQuaternionNullable(LOCAL_ROTATION);
-            Vector3? position = GetVectorNullable(POSITION);
-            Vector3? localPosition = GetVectorNullable(LOCAL_POSITION);
-            Vector3? scale = GetVectorNullable(SCALE);
+            Quaternion? rotation = GetQuaternionNullable(V2_ROTATION);
+            Quaternion? localRotation = GetQuaternionNullable(V2_LOCAL_ROTATION);
+            Vector3? position = GetVectorNullable(V2_POSITION);
+            Vector3? localPosition = GetVectorNullable(V2_LOCAL_POSITION);
+            Vector3? scale = GetVectorNullable(V2_SCALE);
 
             bool updateParametricBox = false;
 

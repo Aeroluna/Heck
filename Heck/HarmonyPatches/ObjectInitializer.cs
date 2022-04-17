@@ -2,8 +2,8 @@
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
+using UnityEngine;
 using Zenject;
-using Object = UnityEngine.Object;
 
 namespace Heck.HarmonyPatches
 {

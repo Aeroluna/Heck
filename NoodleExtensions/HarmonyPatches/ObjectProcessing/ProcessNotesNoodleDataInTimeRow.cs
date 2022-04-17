@@ -5,6 +5,7 @@ using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
 using UnityEngine;
+using static Heck.HeckController;
 using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
@@ -46,7 +47,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
 
                 Dictionary<string, object?> dynData = noteData.customData;
 
-                IEnumerable<float?>? position = dynData.GetNullableFloats(POSITION)?.ToList();
+                IEnumerable<float?>? position = dynData.GetNullableFloats(V2_POSITION)?.ToList();
                 float lineIndex = position?.ElementAtOrDefault(0) ?? (noteData.lineIndex - 2);
                 float lineLayer = position?.ElementAtOrDefault(1) ?? (float)noteData.noteLineLayer;
 
@@ -59,7 +60,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 bool flag = false;
                 for (int k = 0; k < list.Count; k++)
                 {
-                    IEnumerable<float?>? listPosition = list[k].customData.GetNullableFloats(POSITION);
+                    IEnumerable<float?>? listPosition = list[k].customData.GetNullableFloats(V2_POSITION);
                     float listLineLayer = listPosition?.ElementAtOrDefault(1) ?? (float)list[k].noteLineLayer;
                     if (!(listLineLayer > lineLayer))
                     {
@@ -132,7 +133,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 }
 
                 Dictionary<string, object?> dynData = noteData.customData;
-                IEnumerable<float?>? position = dynData.GetNullableFloats(POSITION)?.ToList();
+                IEnumerable<float?>? position = dynData.GetNullableFloats(V2_POSITION)?.ToList();
                 lineIndexes[i] = position?.ElementAtOrDefault(0) ?? (colorNotesData[i].lineIndex - 2);
                 lineLayers[i] = position?.ElementAtOrDefault(1) ?? (float)colorNotesData[i].noteLineLayer;
             }

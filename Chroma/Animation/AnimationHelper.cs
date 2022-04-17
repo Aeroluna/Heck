@@ -3,6 +3,7 @@ using System.Linq;
 using Heck.Animation;
 using UnityEngine;
 using static Chroma.ChromaController;
+using static Heck.HeckController;
 using static Heck.NullableExtensions;
 
 namespace Chroma.Animation
@@ -45,21 +46,21 @@ namespace Chroma.Animation
 
         internal static void OnTrackCreated(Track track)
         {
-            track.AddProperty(COLOR, PropertyType.Vector4);
-            track.AddPathProperty(COLOR, PropertyType.Vector4);
+            track.AddProperty(COLOR, PropertyType.Vector4, V2_COLOR);
+            track.AddPathProperty(COLOR, PropertyType.Vector4, V2_COLOR);
 
             // For Environment Enhancements
-            track.AddProperty(POSITION, PropertyType.Vector3);
-            track.AddProperty(LOCAL_POSITION, PropertyType.Vector3);
-            track.AddProperty(OBJECT_ROTATION, PropertyType.Quaternion);
-            track.AddProperty(LOCAL_ROTATION, PropertyType.Quaternion);
-            track.AddProperty(SCALE, PropertyType.Vector3);
+            track.AddProperty(POSITION, PropertyType.Vector3, V2_POSITION);
+            track.AddProperty(LOCAL_POSITION, PropertyType.Vector3, V2_LOCAL_POSITION);
+            track.AddProperty(ROTATION, PropertyType.Quaternion, V2_ROTATION);
+            track.AddProperty(LOCAL_ROTATION, PropertyType.Quaternion, V2_LOCAL_ROTATION);
+            track.AddProperty(SCALE, PropertyType.Vector3, V2_SCALE);
 
             // For Fog Control
-            track.AddProperty(ATTENUATION, PropertyType.Linear);
-            track.AddProperty(OFFSET, PropertyType.Linear);
-            track.AddProperty(HEIGHT_FOG_STARTY, PropertyType.Linear);
-            track.AddProperty(HEIGHT_FOG_HEIGHT, PropertyType.Linear);
+            track.AddProperty(ATTENUATION, PropertyType.Linear, V2_ATTENUATION);
+            track.AddProperty(OFFSET, PropertyType.Linear, V2_OFFSET);
+            track.AddProperty(HEIGHT_FOG_STARTY, PropertyType.Linear, V2_HEIGHT_FOG_STARTY);
+            track.AddProperty(HEIGHT_FOG_HEIGHT, PropertyType.Linear, V2_HEIGHT_FOG_HEIGHT);
         }
     }
 }

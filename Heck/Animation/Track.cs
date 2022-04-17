@@ -6,6 +6,13 @@ namespace Heck.Animation
 {
     public class TrackBuilder
     {
+        private readonly bool _v2;
+
+        public TrackBuilder(bool v2)
+        {
+            _v2 = v2;
+        }
+
         public static event Action<Track>? TrackCreated;
 
         public Dictionary<string, Track> Tracks { get; } = new();
@@ -17,7 +24,7 @@ namespace Heck.Animation
                 return;
             }
 
-            Track track = new();
+            Track track = new(_v2);
             TrackCreated?.Invoke(track);
             Tracks.Add(trackName, track);
         }
@@ -25,6 +32,13 @@ namespace Heck.Animation
 
     public class Track
     {
+        private readonly bool _v2;
+
+        public Track(bool v2)
+        {
+            _v2 = v2;
+        }
+
         public event Action<GameObject>? OnGameObjectAdded;
 
         public event Action<GameObject>? OnGameObjectRemoved;
@@ -34,6 +48,10 @@ namespace Heck.Animation
         internal IDictionary<string, Property> Properties { get; } = new Dictionary<string, Property>();
 
         internal IDictionary<string, Property> PathProperties { get; } = new Dictionary<string, Property>();
+
+        internal IDictionary<string, List<Property>> PropertyAliases { get; } = new Dictionary<string, List<Property>>();
+
+        internal IDictionary<string, List<Property>> PathPropertyAliases { get; } = new Dictionary<string, List<Property>>();
 
         public void AddGameObject(GameObject gameObject)
         {
@@ -57,28 +75,45 @@ namespace Heck.Animation
             OnGameObjectRemoved?.Invoke(gameObject);
         }
 
-        public void AddProperty(string name, PropertyType propertyType)
+        public void AddProperty(string name, PropertyType propertyType, string? v2Alias = null)
         {
-            if (Properties.ContainsKey(name))
-            {
-                ////Log.Logger.Log($"Duplicate property {name}, skipping...", IPA.Logging.Logger.Level.Trace);
-            }
-            else
-            {
-                Properties.Add(name, new Property(propertyType));
-            }
+            Property property = new(propertyType);
+            AddProperty(name, property, v2Alias, Properties, PropertyAliases);
         }
 
-        public void AddPathProperty(string name, PropertyType propertyType)
+        public void AddPathProperty(string name, PropertyType propertyType, string? v2Alias = null)
         {
-            if (PathProperties.ContainsKey(name))
+            PathProperty property = new(propertyType);
+            AddProperty(name, property, v2Alias, PathProperties, PathPropertyAliases);
+        }
+
+        private void AddProperty(
+            string name,
+            Property property,
+            string? v2Alias,
+            IDictionary<string, Property> properties,
+            IDictionary<string, List<Property>> aliases)
+        {
+            if (properties.ContainsKey(name))
             {
-                ////Log.Logger.Log($"Duplicate path property {name}, skipping...", IPA.Logging.Logger.Level.Trace);
+                return;
             }
-            else
+
+            properties[name] = property;
+
+            // handle v2 aliasing
+            if (!_v2 || v2Alias == null)
             {
-                PathProperties.Add(name, new PathProperty(propertyType));
+                return;
             }
+
+            if (!aliases.TryGetValue(v2Alias, out List<Property> aliasedProperties))
+            {
+                aliasedProperties = new List<Property>();
+                aliases[v2Alias] = aliasedProperties;
+            }
+
+            aliasedProperties.Add(property);
         }
     }
 }

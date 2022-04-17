@@ -4,8 +4,8 @@
 namespace System.Diagnostics.CodeAnalysis
 {
     /// <summary>Specifies that when a method returns <see cref="ReturnValue"/>, the parameter will not be null even if the corresponding type allows it.</summary>
-    [AttributeUsage(AttributeTargets.Parameter)]
     [PublicAPI]
+    [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class NotNullWhenAttribute : Attribute
     {
         /// <summary>Initializes a new instance of the <see cref="NotNullWhenAttribute"/> class with the specified return value condition.</summary>
@@ -18,37 +18,18 @@ namespace System.Diagnostics.CodeAnalysis
         public bool ReturnValue { get; }
     }
 
-    /// <summary>Specifies that an output may be null even if the corresponding type disallows it.</summary>
+    /// <summary>Specifies that the output will be non-null if the named parameter is non-null.</summary>
     [PublicAPI]
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue)]
-    public sealed class MaybeNullAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, AllowMultiple = true)]
+    public sealed class NotNullIfNotNullAttribute : Attribute
     {
-    }
-
-    /// <summary>Specifies that null is allowed as an input even if the corresponding type disallows it.</summary>
-    [PublicAPI]
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property)]
-    public sealed class AllowNullAttribute : Attribute
-    {
-    }
-
-    /// <summary>
-    /// Specifies that the method will not return if the associated Boolean parameter is passed the specified value.
-    /// </summary>
-    [PublicAPI]
-    [AttributeUsage(AttributeTargets.Parameter)]
-    public class DoesNotReturnIfAttribute : Attribute
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DoesNotReturnIfAttribute"/> class.
-        /// </summary>
-        /// <param name="parameterValue">
-        /// The condition parameter value. Code after the method will be considered unreachable by diagnostics if the argument to
-        /// the associated parameter matches this value.
+        /// <summary>Initializes a new instance of the <see cref="NotNullIfNotNullAttribute"/> class with the associated parameter name.</summary>
+        /// <param name="parameterName">
+        /// The associated parameter name.  The output will be non-null if the argument to the parameter specified is non-null.
         /// </param>
-        public DoesNotReturnIfAttribute(bool parameterValue) => ParameterValue = parameterValue;
+        public NotNullIfNotNullAttribute(string parameterName) => ParameterName = parameterName;
 
-        /// <summary>Gets the condition parameter value.</summary>
-        public bool ParameterValue { get; }
+        /// <summary>Gets the associated parameter name.</summary>
+        public string ParameterName { get; }
     }
 }

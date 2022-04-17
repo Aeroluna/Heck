@@ -73,7 +73,7 @@ namespace Heck.HarmonyPatches
 
             container.Bind<ObjectInitializerManager>().AsSingle();
 
-            container.Bind<bool>().WithId(HeckController.LEFT_HANDED).FromInstance(playerSpecificSettings.leftHanded);
+            container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(playerSpecificSettings.leftHanded);
         }
 
         private static void BindHeckMultiPlayer(
@@ -82,7 +82,7 @@ namespace Heck.HarmonyPatches
         {
             container.Bind<ObjectInitializerManager>().AsSingle();
 
-            container.Bind<bool>().WithId(HeckController.LEFT_HANDED).FromInstance(playerSpecificSettings.leftHanded);
+            container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(playerSpecificSettings.leftHanded);
         }
     }
 }

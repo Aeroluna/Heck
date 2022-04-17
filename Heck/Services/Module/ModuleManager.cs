@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using CustomJSONData;
 using HarmonyLib;
-using Logger = IPA.Logging.Logger;
+using IPA.Logging;
 
 namespace Heck
 {

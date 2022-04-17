@@ -4,15 +4,17 @@ using System.Linq;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
+using IPA.Logging;
 using Zenject;
 using static Heck.HeckController;
-using Logger = IPA.Logging.Logger;
 
 namespace Heck
 {
     public static class DeserializerManager
     {
         private static readonly HashSet<CustomDataDeserializer> _customDataDeserializers = new();
+
+        private static readonly Version _version2_6_0 = new("2.6.0");
 
         public static CustomDataDeserializer RegisterDeserialize<T>(object? id)
         {
@@ -29,8 +31,14 @@ namespace Heck
         {
             Log.Logger.Log("Deserializing BeatmapData.", Logger.Level.Trace);
 
+            bool v2 = customBeatmapData.version.CompareTo(_version2_6_0) <= 0;
+            if (v2)
+            {
+                Log.Logger.Log("BeatmapData is v2, converting...", Logger.Level.Trace);
+            }
+
             // tracks are built based off the untransformed beatmapdata so modifiers like "no walls" do not prevent track creation
-            TrackBuilder trackManager = new();
+            TrackBuilder trackManager = new(v2);
             IReadOnlyList<BeatmapObjectData> untransformedObjectDatas = untransformedBeatmapData.GetBeatmapDataItems<NoteData>()
                 .Cast<BeatmapObjectData>()
                 .Concat(untransformedBeatmapData.GetBeatmapDataItems<ObstacleData>())
@@ -53,7 +61,7 @@ namespace Heck
                 }
 
                 // for epic tracks thing
-                object? trackNameRaw = dynData.Get<object>(TRACK);
+                object? trackNameRaw = dynData.Get<object>(v2 ? V2_TRACK : TRACK);
                 if (trackNameRaw == null)
                 {
                     continue;
@@ -91,13 +99,13 @@ namespace Heck
             }
 
             IEnumerable<Dictionary<string, object?>>? pointDefinitionsRaw =
-                customBeatmapData.customData.Get<List<object>>(POINT_DEFINITIONS)?.Cast<Dictionary<string, object?>>();
+                customBeatmapData.customData.Get<List<object>>(v2 ? V2_POINT_DEFINITIONS : POINT_DEFINITIONS)?.Cast<Dictionary<string, object?>>();
             if (pointDefinitionsRaw != null)
             {
                 foreach (Dictionary<string, object?> pointDefintionRaw in pointDefinitionsRaw)
                 {
-                    string pointName = pointDefintionRaw.Get<string>(NAME) ?? throw new InvalidOperationException("Failed to retrieve point name.");
-                    PointDefinition pointData = PointDefinition.ListToPointDefinition(pointDefintionRaw.Get<List<object>>(POINTS)
+                    string pointName = pointDefintionRaw.Get<string>(v2 ? V2_NAME : NAME) ?? throw new InvalidOperationException("Failed to retrieve point name.");
+                    PointDefinition pointData = PointDefinition.ListToPointDefinition(pointDefintionRaw.Get<List<object>>(V2_POINTS)
                                                                                       ?? throw new InvalidOperationException(
                                                                                           "Failed to retrieve point array."));
                     AddPoint(pointName, pointData);
@@ -107,30 +115,33 @@ namespace Heck
             // Event definitions
             IDictionary<string, CustomEventData> eventDefinitions = new Dictionary<string, CustomEventData>();
 
-            void AddEvent(string eventDefinitionName, CustomEventData eventDefinition)
+            if (!v2)
             {
-                if (!eventDefinitions.ContainsKey(eventDefinitionName))
+                void AddEvent(string eventDefinitionName, CustomEventData eventDefinition)
                 {
-                    eventDefinitions.Add(eventDefinitionName, eventDefinition);
+                    if (!eventDefinitions.ContainsKey(eventDefinitionName))
+                    {
+                        eventDefinitions.Add(eventDefinitionName, eventDefinition);
+                    }
+                    else
+                    {
+                        Log.Logger.Log($"Duplicate event defintion name, {eventDefinitionName} could not be registered!", Logger.Level.Error);
+                    }
                 }
-                else
-                {
-                    Log.Logger.Log($"Duplicate event defintion name, {eventDefinitionName} could not be registered!", Logger.Level.Error);
-                }
-            }
 
-            IEnumerable<Dictionary<string, object?>>? eventDefinitionsRaw =
-                customBeatmapData.customData.Get<List<object>>(EVENT_DEFINITIONS)?.Cast<Dictionary<string, object?>>();
-            if (eventDefinitionsRaw != null)
-            {
-                foreach (Dictionary<string, object?> eventDefinitionRaw in eventDefinitionsRaw)
+                IEnumerable<Dictionary<string, object?>>? eventDefinitionsRaw =
+                    customBeatmapData.customData.Get<List<object>>(EVENT_DEFINITIONS)?.Cast<Dictionary<string, object?>>();
+                if (eventDefinitionsRaw != null)
                 {
-                    string eventName = eventDefinitionRaw.Get<string>(NAME) ?? throw new InvalidOperationException("Failed to retrieve event name.");
-                    string type = eventDefinitionRaw.Get<string>("_type") ?? throw new InvalidOperationException("Failed to retrieve event type.");
-                    Dictionary<string, object?> data = eventDefinitionRaw.Get<Dictionary<string, object?>>("_data")
-                                                       ?? throw new InvalidOperationException("Failed to retrieve event data.");
+                    foreach (Dictionary<string, object?> eventDefinitionRaw in eventDefinitionsRaw)
+                    {
+                        string eventName = eventDefinitionRaw.Get<string>(NAME) ?? throw new InvalidOperationException("Failed to retrieve event name.");
+                        string type = eventDefinitionRaw.Get<string>(TYPE) ?? throw new InvalidOperationException("Failed to retrieve event type.");
+                        Dictionary<string, object?> data = eventDefinitionRaw.Get<Dictionary<string, object?>>("_data")
+                                                           ?? throw new InvalidOperationException("Failed to retrieve event data.");
 
-                    AddEvent(eventName, new CustomEventData(-1, type, data));
+                        AddEvent(eventName, new CustomEventData(-1, type, data));
+                    }
                 }
             }
 
@@ -170,7 +181,8 @@ namespace Heck
                 customEventsData.ToList(),
                 beatmapEventDatas,
                 objectDatas,
-                container
+                container,
+                v2
             };
 
             CustomDataDeserializer[] deserializers = _customDataDeserializers.Where(n => n.Enabled).ToArray();

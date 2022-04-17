@@ -7,8 +7,6 @@ namespace NoodleExtensions
 {
     internal class NoodleNoteData : NoodleObjectData
     {
-        internal float? CutDirectionAngle { get; set; }
-
         internal Vector3 MoveStartPos { get; set; }
 
         internal Vector3 MoveEndPos { get; set; }
@@ -65,7 +63,7 @@ namespace NoodleExtensions
 
         internal Vector3 NoteOffset { get; set; }
 
-        internal bool? Cuttable { get; set; }
+        internal bool? Uninteractable { get; set; }
 
         internal bool? Fake { get; set; }
 

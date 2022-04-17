@@ -1,12 +1,11 @@
-﻿using Heck;
-using Heck.Animation;
+﻿using Heck.Animation;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using NoodleExtensions.HarmonyPatches.SmallFixes;
 using UnityEngine;
 using Zenject;
+using static Heck.HeckController;
 using static Heck.NullableExtensions;
-using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions.Animation
 {
@@ -40,7 +39,7 @@ namespace NoodleExtensions.Animation
         [Inject]
         private void Construct(
             PauseController pauseController,
-            [Inject(Id = HeckController.LEFT_HANDED)] bool leftHanded,
+            [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
             InitializedSpawnMovementData movementData)
         {
             _pauseController = pauseController;
@@ -79,7 +78,7 @@ namespace NoodleExtensions.Animation
                 return;
             }
 
-            Quaternion? rotation = _track.GetProperty<Quaternion?>(ROTATION);
+            Quaternion? rotation = _track.GetProperty<Quaternion?>(V2_ROTATION);
             if (rotation.HasValue)
             {
                 if (_leftHanded)
@@ -88,7 +87,7 @@ namespace NoodleExtensions.Animation
                 }
             }
 
-            Vector3? position = _track.GetProperty<Vector3?>(POSITION);
+            Vector3? position = _track.GetProperty<Vector3?>(V2_POSITION);
             if (position.HasValue)
             {
                 if (_leftHanded)
@@ -108,7 +107,7 @@ namespace NoodleExtensions.Animation
             }
 
             worldRotationQuatnerion *= _startLocalRot;
-            Quaternion? localRotation = _track.GetProperty<Quaternion?>(LOCAL_ROTATION);
+            Quaternion? localRotation = _track.GetProperty<Quaternion?>(V2_LOCAL_ROTATION);
             if (localRotation.HasValue)
             {
                 if (_leftHanded)

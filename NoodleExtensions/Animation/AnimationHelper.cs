@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Heck;
 using Heck.Animation;
 using JetBrains.Annotations;
 using NoodleExtensions.HarmonyPatches.SmallFixes;
 using UnityEngine;
 using Zenject;
+using static Heck.HeckController;
 using static Heck.NullableExtensions;
 using static NoodleExtensions.NoodleController;
 
@@ -17,7 +17,7 @@ namespace NoodleExtensions.Animation
         private readonly BeatmapObjectSpawnMovementData _movementData;
         private readonly bool _leftHanded;
 
-        private AnimationHelper([Inject(Id = HeckController.LEFT_HANDED)] bool leftHanded, InitializedSpawnMovementData movementData)
+        private AnimationHelper([Inject(Id = LEFT_HANDED_ID)] bool leftHanded, InitializedSpawnMovementData movementData)
         {
             _leftHanded = leftHanded;
             _movementData = movementData.MovementData;
@@ -25,23 +25,23 @@ namespace NoodleExtensions.Animation
 
         internal static void OnTrackCreated(Track track)
         {
-            track.AddProperty(POSITION, PropertyType.Vector3);
-            track.AddProperty(ROTATION, PropertyType.Quaternion);
-            track.AddProperty(SCALE, PropertyType.Vector3);
-            track.AddProperty(LOCAL_ROTATION, PropertyType.Quaternion);
-            track.AddProperty(DISSOLVE, PropertyType.Linear);
-            track.AddProperty(DISSOLVE_ARROW, PropertyType.Linear);
-            track.AddProperty(TIME, PropertyType.Linear);
-            track.AddProperty(CUTTABLE, PropertyType.Linear);
+            track.AddProperty(OFFSET_POSITION, PropertyType.Vector3, V2_POSITION);
+            track.AddProperty(WORLD_ROTATION, PropertyType.Quaternion, V2_ROTATION);
+            track.AddProperty(SCALE, PropertyType.Vector3, V2_SCALE);
+            track.AddProperty(LOCAL_ROTATION, PropertyType.Quaternion, V2_LOCAL_ROTATION);
+            track.AddProperty(DISSOLVE, PropertyType.Linear, V2_DISSOLVE);
+            track.AddProperty(DISSOLVE_ARROW, PropertyType.Linear, V2_DISSOLVE_ARROW);
+            track.AddProperty(TIME, PropertyType.Linear, V2_TIME);
+            track.AddProperty(INTERACTABLE, PropertyType.Linear, V2_CUTTABLE);
 
-            track.AddPathProperty(POSITION, PropertyType.Vector3);
-            track.AddPathProperty(ROTATION, PropertyType.Quaternion);
-            track.AddPathProperty(SCALE, PropertyType.Vector3);
-            track.AddPathProperty(LOCAL_ROTATION, PropertyType.Quaternion);
-            track.AddPathProperty(DEFINITE_POSITION, PropertyType.Vector3);
-            track.AddPathProperty(DISSOLVE, PropertyType.Linear);
-            track.AddPathProperty(DISSOLVE_ARROW, PropertyType.Linear);
-            track.AddPathProperty(CUTTABLE, PropertyType.Linear);
+            track.AddPathProperty(OFFSET_POSITION, PropertyType.Vector3, V2_POSITION);
+            track.AddPathProperty(WORLD_ROTATION, PropertyType.Quaternion, V2_ROTATION);
+            track.AddPathProperty(SCALE, PropertyType.Vector3, V2_SCALE);
+            track.AddPathProperty(LOCAL_ROTATION, PropertyType.Quaternion, V2_LOCAL_ROTATION);
+            track.AddPathProperty(DEFINITE_POSITION, PropertyType.Vector3, V2_DEFINITE_POSITION);
+            track.AddPathProperty(DISSOLVE, PropertyType.Linear, V2_DISSOLVE);
+            track.AddPathProperty(DISSOLVE_ARROW, PropertyType.Linear, V2_DISSOLVE_ARROW);
+            track.AddPathProperty(INTERACTABLE, PropertyType.Linear, V2_CUTTABLE);
         }
 
         internal void GetDefinitePositionOffset(
@@ -67,14 +67,14 @@ namespace NoodleExtensions.Animation
                 {
                     if (tracks.Count > 1)
                     {
-                        pathPosition ??= SumVectorNullables(tracks.Select(n => n.GetVector3PathProperty(POSITION, time)));
-                        positionOffset = SumVectorNullables(SumVectorNullables(tracks.Select(n => n.GetProperty<Vector3?>(POSITION))), pathPosition);
+                        pathPosition ??= SumVectorNullables(tracks.Select(n => n.GetVector3PathProperty(OFFSET_POSITION, time)));
+                        positionOffset = SumVectorNullables(SumVectorNullables(tracks.Select(n => n.GetProperty<Vector3?>(OFFSET_POSITION))), pathPosition);
                     }
                     else
                     {
                         Track track = tracks.First();
-                        pathPosition ??= track.GetVector3PathProperty(POSITION, time);
-                        positionOffset = SumVectorNullables(track.GetProperty<Vector3?>(POSITION), pathPosition);
+                        pathPosition ??= track.GetVector3PathProperty(OFFSET_POSITION, time);
+                        positionOffset = SumVectorNullables(track.GetProperty<Vector3?>(OFFSET_POSITION), pathPosition);
                     }
                 }
                 else
@@ -147,40 +147,40 @@ namespace NoodleExtensions.Animation
 
                 if (tracks.Count > 1)
                 {
-                    pathPosition ??= SumVectorNullables(tracks.Select(n => n.GetVector3PathProperty(POSITION, time)));
-                    pathRotation ??= MultQuaternionNullables(tracks.Select(n => n.GetQuaternionPathProperty(ROTATION, time)));
+                    pathPosition ??= SumVectorNullables(tracks.Select(n => n.GetVector3PathProperty(OFFSET_POSITION, time)));
+                    pathRotation ??= MultQuaternionNullables(tracks.Select(n => n.GetQuaternionPathProperty(WORLD_ROTATION, time)));
                     pathScale ??= MultVectorNullables(tracks.Select(n => n.GetVector3PathProperty(SCALE, time)));
                     pathLocalRotation ??= MultQuaternionNullables(tracks.Select(n => n.GetQuaternionPathProperty(LOCAL_ROTATION, time)));
                     pathDissolve ??= MultFloatNullables(tracks.Select(n => n.GetLinearPathProperty(DISSOLVE, time)));
                     pathDissolveArrow ??= MultFloatNullables(tracks.Select(n => n.GetLinearPathProperty(DISSOLVE_ARROW, time)));
-                    pathCuttable ??= MultFloatNullables(tracks.Select(n => n.GetLinearPathProperty(CUTTABLE, time)));
+                    pathCuttable ??= MultFloatNullables(tracks.Select(n => n.GetLinearPathProperty(INTERACTABLE, time)));
 
-                    trackPosition = SumVectorNullables(tracks.Select(n => n.GetProperty<Vector3?>(POSITION)));
-                    trackRotation = MultQuaternionNullables(tracks.Select(n => n.GetProperty<Quaternion?>(ROTATION)));
+                    trackPosition = SumVectorNullables(tracks.Select(n => n.GetProperty<Vector3?>(OFFSET_POSITION)));
+                    trackRotation = MultQuaternionNullables(tracks.Select(n => n.GetProperty<Quaternion?>(WORLD_ROTATION)));
                     trackScale = MultVectorNullables(tracks.Select(n => n.GetProperty<Vector3?>(SCALE)));
                     trackLocalRotation = MultQuaternionNullables(tracks.Select(n => n.GetProperty<Quaternion?>(LOCAL_ROTATION)));
                     trackDissolve = MultFloatNullables(tracks.Select(n => n.GetProperty<float?>(DISSOLVE)));
                     trackDissolveArrow = MultFloatNullables(tracks.Select(n => n.GetProperty<float?>(DISSOLVE_ARROW)));
-                    trackCuttable = MultFloatNullables(tracks.Select(n => n.GetProperty<float?>(CUTTABLE)));
+                    trackCuttable = MultFloatNullables(tracks.Select(n => n.GetProperty<float?>(INTERACTABLE)));
                 }
                 else
                 {
                     Track track = tracks.First();
-                    pathPosition ??= track.GetVector3PathProperty(POSITION, time);
-                    pathRotation ??= track.GetQuaternionPathProperty(ROTATION, time);
+                    pathPosition ??= track.GetVector3PathProperty(OFFSET_POSITION, time);
+                    pathRotation ??= track.GetQuaternionPathProperty(WORLD_ROTATION, time);
                     pathScale ??= track.GetVector3PathProperty(SCALE, time);
                     pathLocalRotation ??= track.GetQuaternionPathProperty(LOCAL_ROTATION, time);
                     pathDissolve ??= track.GetLinearPathProperty(DISSOLVE, time);
                     pathDissolveArrow ??= track.GetLinearPathProperty(DISSOLVE_ARROW, time);
-                    pathCuttable ??= track.GetLinearPathProperty(CUTTABLE, time);
+                    pathCuttable ??= track.GetLinearPathProperty(V2_CUTTABLE, time);
 
-                    trackPosition = track.GetProperty<Vector3?>(POSITION);
-                    trackRotation = track.GetProperty<Quaternion?>(ROTATION);
+                    trackPosition = track.GetProperty<Vector3?>(OFFSET_POSITION);
+                    trackRotation = track.GetProperty<Quaternion?>(WORLD_ROTATION);
                     trackScale = track.GetProperty<Vector3?>(SCALE);
                     trackLocalRotation = track.GetProperty<Quaternion?>(LOCAL_ROTATION);
                     trackDissolve = track.GetProperty<float?>(DISSOLVE);
                     trackDissolveArrow = track.GetProperty<float?>(DISSOLVE_ARROW);
-                    trackCuttable = track.GetProperty<float?>(CUTTABLE);
+                    trackCuttable = track.GetProperty<float?>(INTERACTABLE);
                 }
 
                 positionOffset = SumVectorNullables(trackPosition, pathPosition) * _movementData.noteLinesDistance;

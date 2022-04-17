@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Tweening;
 using UnityEngine;
 using Zenject;
+using Logger = IPA.Logging.Logger;
 
 namespace Chroma.Lighting
 {
@@ -42,7 +43,6 @@ namespace Chroma.Lighting
         private readonly BeatmapCallbacksController _callbacksController;
         private readonly CustomData _customData;
         private readonly ChromaGradientController? _gradientController;
-        private readonly LegacyLightHelper _legacyLightHelper;
 
         private readonly BeatmapDataCallbackWrapper _basicCallbackWrapper;
         private readonly BeatmapDataCallbackWrapper _boostCallbackWrapper;
@@ -68,8 +68,7 @@ namespace Chroma.Lighting
             LightColorizerManager lightColorizerManager,
             BeatmapCallbacksController callbacksController,
             [Inject(Id = ChromaController.ID)] CustomData customData,
-            [InjectOptional] ChromaGradientController? gradientController,
-            LegacyLightHelper legacyLightHelper)
+            [InjectOptional] ChromaGradientController? gradientController)
         {
             LightSwitchEventEffect = lightSwitchEventEffect;
             _lightManager = lightManager;
@@ -77,7 +76,6 @@ namespace Chroma.Lighting
             _callbacksController = callbacksController;
             _customData = customData;
             _gradientController = gradientController;
-            _legacyLightHelper = legacyLightHelper;
 
             EventType = _eventAccessor(ref lightSwitchEventEffect);
             LightsID = _lightsIDAccessor(ref lightSwitchEventEffect);
@@ -390,7 +388,7 @@ namespace Chroma.Lighting
             }
             else
             {
-                Log.Logger.Log("Attempted to register duplicate ILightWithId.", IPA.Logging.Logger.Level.Error);
+                Log.Logger.Log("Attempted to register duplicate ILightWithId.", Logger.Level.Error);
             }
         }
 
@@ -411,9 +409,6 @@ namespace Chroma.Lighting
                 if (_customData.Resolve(beatmapEventData, out ChromaEventData? chromaData))
                 {
                     Color? color = null;
-
-                    // legacy was a mistake
-                    color = _legacyLightHelper.GetLegacyColor(beatmapEventData) ?? color;
 
                     if (chromaData.LightID != null)
                     {

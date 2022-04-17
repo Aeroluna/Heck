@@ -9,10 +9,10 @@ using Heck.Animation;
 using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
+using IPA.Logging;
 using JetBrains.Annotations;
 using SiraUtil.Zenject;
 using static Chroma.ChromaController;
-using Logger = IPA.Logging.Logger;
 
 namespace Chroma
 {

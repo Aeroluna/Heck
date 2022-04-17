@@ -4,6 +4,7 @@ using System.Linq;
 using CustomJSONData;
 using UnityEngine;
 using static Heck.HeckController;
+using Logger = IPA.Logging.Logger;
 
 namespace Heck.Animation
 {
@@ -58,7 +59,7 @@ namespace Heck.Animation
                         return pointData;
                     }
 
-                    Log.Logger.Log($"Could not find point definition [{castedString}].", IPA.Logging.Logger.Level.Error);
+                    Log.Logger.Log($"Could not find point definition [{castedString}].", Logger.Level.Error);
                     return null;
 
                 case List<object> list:
@@ -69,7 +70,37 @@ namespace Heck.Animation
             }
         }
 
-        public static Track? GetTrack(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name = TRACK)
+        public static Track GetTrack(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, bool v2)
+        {
+            return GetTrack(customData, beatmapTracks, v2 ? V2_TRACK : TRACK);
+        }
+
+        public static Track GetTrack(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name)
+        {
+            return GetNullableTrack(customData, beatmapTracks, name) ?? throw new InvalidOperationException($"{name} was not defined.");
+        }
+
+        public static Track? GetNullableTrack(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, bool v2)
+        {
+            return GetNullableTrack(customData, beatmapTracks, v2 ? V2_TRACK : TRACK);
+        }
+
+        public static IEnumerable<Track> GetTrackArray(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, bool v2)
+        {
+            return GetTrackArray(customData, beatmapTracks, v2 ? V2_TRACK : TRACK);
+        }
+
+        public static IEnumerable<Track> GetTrackArray(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name)
+        {
+            return GetNullableTrackArray(customData, beatmapTracks, name) ?? throw new InvalidOperationException($"{name} was not defined.");
+        }
+
+        public static IEnumerable<Track>? GetNullableTrackArray(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, bool v2)
+        {
+            return GetNullableTrackArray(customData, beatmapTracks, v2 ? V2_TRACK : TRACK);
+        }
+
+        public static Track? GetNullableTrack(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name)
         {
             string? trackName = customData.Get<string>(name);
             if (trackName == null)
@@ -85,7 +116,7 @@ namespace Heck.Animation
             throw new InvalidOperationException($"Could not find track [{trackName}].");
         }
 
-        public static IEnumerable<Track>? GetTrackArray(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name = TRACK)
+        public static IEnumerable<Track>? GetNullableTrackArray(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name)
         {
             object? trackNameRaw = customData.Get<object>(name);
             if (trackNameRaw == null)

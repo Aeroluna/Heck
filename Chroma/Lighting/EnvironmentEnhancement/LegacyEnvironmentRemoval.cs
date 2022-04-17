@@ -4,6 +4,7 @@ using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using UnityEngine;
 using static Chroma.ChromaController;
+using Logger = IPA.Logging.Logger;
 
 namespace Chroma.Lighting.EnvironmentEnhancement
 {
@@ -11,15 +12,15 @@ namespace Chroma.Lighting.EnvironmentEnhancement
     {
         internal static void Init(CustomBeatmapData customBeatmap)
         {
-            IEnumerable<string>? objectsToKill = customBeatmap.beatmapCustomData.Get<List<object>>(ENVIRONMENT_REMOVAL)?.Cast<string>();
+            IEnumerable<string>? objectsToKill = customBeatmap.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Cast<string>();
 
             if (objectsToKill == null)
             {
                 return;
             }
 
-            Log.Logger.Log("Legacy Environment Removal Detected...", IPA.Logging.Logger.Level.Warning);
-            Log.Logger.Log("Please do not use Legacy Environment Removal for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", IPA.Logging.Logger.Level.Warning);
+            Log.Logger.Log("Legacy Environment Removal Detected...", Logger.Level.Warning);
+            Log.Logger.Log("Please do not use Legacy Environment Removal for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", Logger.Level.Warning);
 
             IEnumerable<GameObject> gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
             foreach (string s in objectsToKill)

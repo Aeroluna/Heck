@@ -3,6 +3,7 @@ using System.Linq;
 using Heck.Animation.Events;
 using Heck.SettingsSetter;
 using IPA;
+using IPA.Logging;
 using JetBrains.Annotations;
 using SiraUtil.Zenject;
 using static Heck.HeckController;
@@ -15,7 +16,7 @@ namespace Heck
     {
         [UsedImplicitly]
         [Init]
-        public Plugin(IPA.Logging.Logger pluginLogger, Zenjector zenjector)
+        public Plugin(Logger pluginLogger, Zenjector zenjector)
         {
             Log.Logger = new HeckLogger(pluginLogger);
 
