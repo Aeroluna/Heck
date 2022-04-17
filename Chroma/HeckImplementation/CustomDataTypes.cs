@@ -18,7 +18,7 @@ namespace Chroma
 
     internal class ChromaNoteData : ChromaObjectData
     {
-        internal bool? DisableSpawnEffect { get; set; }
+        internal bool? SpawnEffect { get; set; }
     }
 
     internal class ChromaObjectData : IObjectCustomData

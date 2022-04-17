@@ -116,7 +116,7 @@ namespace Chroma
                             chromaObjectData = new ChromaNoteData
                             {
                                 Color = GetColorFromData(customData, v2),
-                                DisableSpawnEffect = customData.Get<bool?>(V2_DISABLE_SPAWN_EFFECT) // TODO: rework spawn effect
+                                SpawnEffect = customData.Get<bool?>(NOTE_SPAWN_EFFECT) ?? !customData.Get<bool?>(V2_DISABLE_SPAWN_EFFECT)
                             };
                             break;
 
