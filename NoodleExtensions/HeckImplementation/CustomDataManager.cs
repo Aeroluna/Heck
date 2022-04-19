@@ -5,6 +5,7 @@ using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
+using IPA.Utilities;
 using UnityEngine;
 using static Heck.HeckController;
 using static NoodleExtensions.NoodleController;
@@ -13,6 +14,9 @@ namespace NoodleExtensions
 {
     internal class CustomDataManager
     {
+        private static readonly PropertyAccessor<NoteData, NoteData.ScoringType>.Setter _scoringTypeAccessor =
+            PropertyAccessor<NoteData, NoteData.ScoringType>.GetSetter("scoringType");
+
         [EarlyDeserializer]
         internal static void DeserializeEarly(TrackBuilder trackBuilder, List<CustomEventData> customEventDatas, bool v2)
         {
@@ -180,9 +184,6 @@ namespace NoodleExtensions
                 noodleObjectData.Uninteractable = dynData.Get<bool?>(UNINTERACTABLE);
             }
 
-            // TODO: handle fake shit
-            noodleObjectData.Fake = dynData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
-
             IEnumerable<float?>? position = dynData.GetNullableFloats(v2 ? V2_POSITION : NOTE_OFFSET)?.ToList();
             noodleObjectData.StartX = position?.ElementAtOrDefault(0);
             noodleObjectData.StartY = position?.ElementAtOrDefault(1);
@@ -206,6 +207,15 @@ namespace NoodleExtensions
                 }
             }
 
+            bool? fake = customData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
+            if (fake.HasValue && fake.Value)
+            {
+                NoteData noteData = customNoteData;
+                _scoringTypeAccessor(ref noteData, NoteData.ScoringType.Ignore);
+            }
+
+            noodleNoteData.Fake = fake;
+
             noodleNoteData.FlipYSideInternal = customData.Get<float?>(INTERNAL_FLIPYSIDE);
             noodleNoteData.FlipLineIndexInternal = customData.Get<float?>(INTERNAL_FLIPLINEINDEX);
 
@@ -225,6 +235,8 @@ namespace NoodleExtensions
             noodleObstacleData.Width = scale?.ElementAtOrDefault(0);
             noodleObstacleData.Height = scale?.ElementAtOrDefault(1);
             noodleObstacleData.Length = scale?.ElementAtOrDefault(2);
+
+            noodleObstacleData.Fake = dynData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
 
             return noodleObstacleData;
         }

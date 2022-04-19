@@ -34,7 +34,6 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(ScoreController), nameof(ScoreController.HandleNoteWasCut))]
         [AffinityPatch(typeof(BadNoteCutEffectSpawner), nameof(BadNoteCutEffectSpawner.HandleNoteWasCut))]
         [AffinityPatch(typeof(NoteCutSoundEffectManager), nameof(NoteCutSoundEffectManager.HandleNoteWasSpawned))] // Do not create a NoteCutSoundEffect for fake notes
         [AffinityPatch(typeof(BombCutSoundEffectManager), nameof(BombCutSoundEffectManager.HandleNoteWasCut))]
