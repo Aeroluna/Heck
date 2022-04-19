@@ -208,7 +208,7 @@ namespace NoodleExtensions
             }
 
             bool? fake = customData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
-            if (fake.HasValue && fake.Value)
+            if (fake.GetValueOrDefault())
             {
                 NoteData noteData = customNoteData;
                 _scoringTypeAccessor(ref noteData, NoteData.ScoringType.Ignore);

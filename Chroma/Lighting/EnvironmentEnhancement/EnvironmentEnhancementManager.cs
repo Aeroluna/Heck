@@ -122,6 +122,21 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     Vector3? localPosition = gameObjectData.GetVector3(v2 ? V2_LOCAL_POSITION : LOCAL_POSITION);
                     Vector3? localRotation = gameObjectData.GetVector3(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION);
 
+                    if (v2)
+                    {
+                        // ReSharper disable once UseNullPropagation
+                        if (position.HasValue)
+                        {
+                            position = position.Value * _noteLinesDistance;
+                        }
+
+                        // ReSharper disable once UseNullPropagation
+                        if (localPosition.HasValue)
+                        {
+                            localPosition = localPosition.Value * _noteLinesDistance;
+                        }
+                    }
+
                     int? lightID = gameObjectData.Get<int?>(v2 ? V2_LIGHT_ID : LIGHT_ID);
 
                     List<GameObjectInfo> foundObjects = LookupID(gameObjectInfoIds, id, lookupMethod);
@@ -208,7 +223,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                         if (position.HasValue)
                         {
-                            transform.position = position.Value * _noteLinesDistance;
+                            transform.position = position.Value;
                         }
 
                         if (rotation.HasValue)
@@ -218,7 +233,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                         if (localPosition.HasValue)
                         {
-                            transform.localPosition = localPosition.Value * _noteLinesDistance;
+                            transform.localPosition = localPosition.Value;
                         }
 
                         if (localRotation.HasValue)

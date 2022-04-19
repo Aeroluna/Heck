@@ -120,7 +120,11 @@ namespace Heck
                         }
                     }
 
-                    Log.Logger.Log($"Could not find property {propertyKey}!", Logger.Level.Error);
+                    Log.Logger.Log(
+                        customEventData.eventType == ASSIGN_PATH_ANIMATION
+                            ? $"Could not find path property [{propertyKey}]."
+                            : $"Could not find property [{propertyKey}].",
+                        Logger.Level.Error);
                 }
             }
 

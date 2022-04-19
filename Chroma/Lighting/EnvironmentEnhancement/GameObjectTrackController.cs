@@ -27,6 +27,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         private bool _handleTrackLaneRing;
         private bool _handleParametricBoxController;
         private bool _handleBeatmapObjectsAvoidance;
+        private bool _v2;
 
         private bool _leftHanded;
         private EnvironmentEnhancementManager _environmentManager = null!;
@@ -58,11 +59,17 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             // this is NOT the correct way to do this, but fuck you im lazy.
             GameObjectTrackController trackController = factory.Create(gameObject);
-            trackController.Init(track, noteLinesDistance, trackLaneRing, parametricBoxController, beatmapObjectsAvoidance);
+            trackController.Init(track, noteLinesDistance, trackLaneRing, parametricBoxController, beatmapObjectsAvoidance, v2);
             return trackController;
         }
 
-        internal void Init(Track track, float noteLinesDistance, TrackLaneRing? trackLaneRing, ParametricBoxController? parametricBoxController, BeatmapObjectsAvoidance? beatmapObjectsAvoidance)
+        internal void Init(
+            Track track,
+            float noteLinesDistance,
+            TrackLaneRing? trackLaneRing,
+            ParametricBoxController? parametricBoxController,
+            BeatmapObjectsAvoidance? beatmapObjectsAvoidance,
+            bool v2)
         {
             _track = track;
             _noteLinesDistance = noteLinesDistance;
@@ -72,6 +79,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             _handleTrackLaneRing = trackLaneRing != null;
             _handleParametricBoxController = parametricBoxController != null;
             _handleBeatmapObjectsAvoidance = beatmapObjectsAvoidance != null;
+            _v2 = v2;
 
             track.AddGameObject(gameObject);
         }
@@ -143,7 +151,12 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             if (position.HasValue)
             {
-                Vector3 positionValue = position.Value * _noteLinesDistance;
+                Vector3 positionValue = position.Value;
+                if (_v2)
+                {
+                    positionValue *= _noteLinesDistance;
+                }
+
                 Vector3 finalOffset = _handleParent ? _parent!.InverseTransformPoint(positionValue) : positionValue;
 
                 if (_handleTrackLaneRing)
@@ -163,7 +176,12 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             if (localPosition.HasValue)
             {
-                Vector3 localPositionValue = localPosition.Value * _noteLinesDistance;
+                Vector3 localPositionValue = localPosition.Value;
+                if (_v2)
+                {
+                    localPositionValue *= _noteLinesDistance;
+                }
+
                 if (_handleTrackLaneRing)
                 {
                     _positionOffsetAccessor(ref _trackLaneRing!) = localPositionValue;

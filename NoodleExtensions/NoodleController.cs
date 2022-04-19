@@ -15,7 +15,7 @@ namespace NoodleExtensions
         internal const string V2_DEFINITE_POSITION = "_definitePosition";
         internal const string V2_DISSOLVE = "_dissolve";
         internal const string V2_DISSOLVE_ARROW = "_dissolveArrow";
-        internal const string V2_FAKE_NOTE = "_fake"; // TODO: REWORK FAKE
+        internal const string V2_FAKE_NOTE = "_fake";
         internal const string V2_FLIP = "_flip";
         internal const string V2_NOTE_GRAVITY_DISABLE = "_disableNoteGravity";
         internal const string V2_NOTE_JUMP_SPEED = "_noteJumpMovementSpeed";
