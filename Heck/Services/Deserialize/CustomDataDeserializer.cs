@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 
@@ -8,28 +9,16 @@ namespace Heck
 {
     public class CustomDataDeserializer
     {
-        private MethodInfo? _customEventMethod;
-        private MethodInfo? _beatmapEventMethod;
-        private MethodInfo? _beatmapObjectMethod;
-        private MethodInfo? _earlyMethod;
+        private readonly MethodInfo? _customEventMethod;
+        private readonly MethodInfo? _beatmapEventMethod;
+        private readonly MethodInfo? _beatmapObjectMethod;
+        private readonly MethodInfo? _earlyMethod;
 
-        internal CustomDataDeserializer(object? id)
+        internal CustomDataDeserializer(object? id, IReflect type)
         {
             Id = id;
-        }
 
-        public bool Enabled { get; set; }
-
-        public object? Id { get; }
-
-        public override string ToString()
-        {
-            return Id?.ToString() ?? "NULL";
-        }
-
-        internal void Bind<T>()
-        {
-            foreach (MethodInfo method in typeof(T).GetMethods(AccessTools.allDeclared))
+            foreach (MethodInfo method in type.GetMethods(AccessTools.allDeclared))
             {
                 void AccessAttribute<TAttribute>(ref MethodInfo? savedMethod)
                     where TAttribute : Attribute
@@ -47,6 +36,15 @@ namespace Heck
                 AccessAttribute<EventsDeserializer>(ref _beatmapEventMethod);
                 AccessAttribute<ObjectsDeserializer>(ref _beatmapObjectMethod);
             }
+        }
+
+        public bool Enabled { get; set; }
+
+        public object? Id { get; }
+
+        public override string ToString()
+        {
+            return Id?.ToString() ?? "NULL";
         }
 
         internal void InjectedInvokeEarly(object[] inputs)

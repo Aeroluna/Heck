@@ -1,4 +1,5 @@
-﻿using Heck;
+﻿using CustomJSONData.CustomBeatmap;
+using Heck;
 
 namespace NoodleExtensions
 {
@@ -34,7 +35,6 @@ namespace NoodleExtensions
         internal const string DEFINITE_POSITION = "definitePosition";
         internal const string DISSOLVE = "dissolve";
         internal const string DISSOLVE_ARROW = "dissolveArrow";
-        internal const string FAKE_NOTE = "fake";
         internal const string FLIP = "flip";
         internal const string NOTE_GRAVITY_DISABLE = "disableNoteGravity";
         internal const string NOTE_JUMP_SPEED = "noteJumpMovementSpeed";
@@ -48,6 +48,7 @@ namespace NoodleExtensions
         internal const string INTERNAL_STARTNOTELINELAYER = "NE_startNoteLineLayer";
         internal const string INTERNAL_FLIPYSIDE = "NE_flipYSide";
         internal const string INTERNAL_FLIPLINEINDEX = "NE_flipLineIndex";
+        internal const string INTERNAL_FAKE_NOTE = "NE_fake";
 
         internal const string ASSIGN_PLAYER_TO_TRACK = "AssignPlayerToTrack";
         internal const string ASSIGN_TRACK_PARENT = "AssignTrackParent";
@@ -60,7 +61,9 @@ namespace NoodleExtensions
 
         internal static HeckPatcher FeaturesPatcher { get; } = new(HARMONY_ID + "Features", PatchType.Features);
 
-        internal static CustomDataDeserializer Deserializer { get; } = DeserializerManager.RegisterDeserialize<CustomDataManager>(ID);
+        internal static CustomDataDeserializer Deserializer { get; } = DeserializerManager.Register<CustomDataManager>(ID);
+
+        internal static CustomJSONDataDeserializer JSONDeserializer { get; } = CustomJSONDataDeserializer.Register<FakeNotesJSON>();
 
         internal static Module FeaturesModule { get; } = ModuleManager.RegisterModule<ModuleCallbacks>(
             "Noodle",

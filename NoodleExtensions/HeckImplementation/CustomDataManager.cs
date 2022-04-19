@@ -181,7 +181,7 @@ namespace NoodleExtensions
             }
 
             // TODO: handle fake shit
-            noodleObjectData.Fake = dynData.Get<bool?>(v2 ? V2_FAKE_NOTE : FAKE_NOTE);
+            noodleObjectData.Fake = dynData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
 
             IEnumerable<float?>? position = dynData.GetNullableFloats(v2 ? V2_POSITION : NOTE_OFFSET)?.ToList();
             noodleObjectData.StartX = position?.ElementAtOrDefault(0);

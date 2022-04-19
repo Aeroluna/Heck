@@ -14,12 +14,9 @@ namespace Heck
     {
         private static readonly HashSet<CustomDataDeserializer> _customDataDeserializers = new();
 
-        private static readonly Version _version2_6_0 = new("2.6.0");
-
-        public static CustomDataDeserializer RegisterDeserialize<T>(object? id)
+        public static CustomDataDeserializer Register<T>(object? id)
         {
-            CustomDataDeserializer deserializer = new(id);
-            deserializer.Bind<T>();
+            CustomDataDeserializer deserializer = new(id, typeof(T));
             _customDataDeserializers.Add(deserializer);
             return deserializer;
         }
@@ -31,7 +28,7 @@ namespace Heck
         {
             Log.Logger.Log("Deserializing BeatmapData.", Logger.Level.Trace);
 
-            bool v2 = customBeatmapData.version.CompareTo(_version2_6_0) <= 0;
+            bool v2 = customBeatmapData.version2_6_0AndEarlier;
             if (v2)
             {
                 Log.Logger.Log("BeatmapData is v2, converting...", Logger.Level.Trace);
@@ -105,7 +102,7 @@ namespace Heck
                 foreach (Dictionary<string, object?> pointDefintionRaw in pointDefinitionsRaw)
                 {
                     string pointName = pointDefintionRaw.Get<string>(v2 ? V2_NAME : NAME) ?? throw new InvalidOperationException("Failed to retrieve point name.");
-                    PointDefinition pointData = PointDefinition.ListToPointDefinition(pointDefintionRaw.Get<List<object>>(V2_POINTS)
+                    PointDefinition pointData = PointDefinition.ListToPointDefinition(pointDefintionRaw.Get<List<object>>(v2 ? V2_POINTS : POINTS)
                                                                                       ?? throw new InvalidOperationException(
                                                                                           "Failed to retrieve point array."));
                     AddPoint(pointName, pointData);

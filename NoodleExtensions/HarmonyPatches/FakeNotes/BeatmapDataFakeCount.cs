@@ -23,18 +23,20 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
                 return true;
             }
 
-            int count = beatmapSaveData.colorNotes.Count(n => ((CustomBeatmapSaveData.ColorNoteData)n).customData.FakeCondition());
-            int count2 = beatmapSaveData.obstacles.Count(n => ((CustomBeatmapSaveData.ObstacleData)n).customData.FakeCondition());
-            int count3 = beatmapSaveData.bombNotes.Count(n => ((CustomBeatmapSaveData.BombNoteData)n).customData.FakeCondition());
+            string name = customBeatmapSaveData.version2_6_0AndEarlier ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE;
+
+            int count = beatmapSaveData.colorNotes.Count(n => ((CustomBeatmapSaveData.ColorNoteData)n).customData.FakeCondition(name));
+            int count2 = beatmapSaveData.obstacles.Count(n => ((CustomBeatmapSaveData.ObstacleData)n).customData.FakeCondition(name));
+            int count3 = beatmapSaveData.bombNotes.Count(n => ((CustomBeatmapSaveData.BombNoteData)n).customData.FakeCondition(name));
             List<string> list = beatmapSaveData.basicEventTypesWithKeywords.data
                 .Select(basicEventTypesForKeyword => basicEventTypesForKeyword.keyword).ToList();
             __result = new BeatmapDataBasicInfo(4, count, count2, count3, list);
             return false;
         }
 
-        private static bool FakeCondition(this Dictionary<string, object?> data)
+        private static bool FakeCondition(this Dictionary<string, object?> data, string name)
         {
-            bool? fake = data.Get<bool?>(V2_FAKE_NOTE);
+            bool? fake = data.Get<bool?>(name);
             return !fake.HasValue || !fake.Value;
         }
     }

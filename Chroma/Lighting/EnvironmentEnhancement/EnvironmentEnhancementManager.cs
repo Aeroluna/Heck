@@ -40,8 +40,6 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
 
-        private static readonly Version _version2_6_0 = new("2.6.0");
-
         private readonly List<GameObjectInfo> _gameObjectInfos = new();
 
         private readonly CustomBeatmapData _beatmapData;
@@ -90,7 +88,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         {
             yield return new WaitForEndOfFrame();
 
-            bool v2 = _beatmapData.version.CompareTo(_version2_6_0) <= 0;
+            bool v2 = _beatmapData.version2_6_0AndEarlier;
 
             IEnumerable<Dictionary<string, object?>>? environmentData = _beatmapData.customData
                 .Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)?

@@ -80,7 +80,7 @@ namespace Chroma
 
         internal static HeckPatcher FeaturesPatcher { get; } = new(HARMONY_ID + "Features", PatchType.Features);
 
-        internal static CustomDataDeserializer Deserializer { get; } = DeserializerManager.RegisterDeserialize<CustomDataManager>(ID);
+        internal static CustomDataDeserializer Deserializer { get; } = DeserializerManager.Register<CustomDataManager>(ID);
 
         internal static Module ColorizerModule { get; } = ModuleManager.RegisterModule<ModuleCallbacks>(
             "ChromaColorizer",

@@ -33,6 +33,7 @@ namespace NoodleExtensions
             TrackBuilder.TrackCreated += AnimationHelper.OnTrackCreated;
             CorePatcher.Enabled = true;
             FeaturesModule.Enabled = true;
+            JSONDeserializer.Enabled = true;
         }
 
         [UsedImplicitly]
@@ -45,6 +46,7 @@ namespace NoodleExtensions
             FeaturesPatcher.Enabled = false;
             FeaturesModule.Enabled = false;
             Deserializer.Enabled = false;
+            JSONDeserializer.Enabled = false;
         }
 #pragma warning restore CA1822
     }

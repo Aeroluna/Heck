@@ -14,6 +14,7 @@ namespace Heck
 
         private static bool _sorted;
 
+        // TODO: rename w/ technicolor
         public static Module RegisterModule<T>(
             string id,
             int priority,
