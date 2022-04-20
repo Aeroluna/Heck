@@ -70,8 +70,8 @@ namespace Heck.HarmonyPatches
         }
 
         [HarmonyTranspiler]
-        [HarmonyPatch("Init")]
-        [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO))]
+        [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO), "Init")]
+        [HarmonyPatch(typeof(MultiplayerLevelScenesTransitionSetupDataSO), "Init")]
         private static IEnumerable<CodeInstruction> Replace(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
