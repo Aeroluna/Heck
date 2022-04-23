@@ -98,11 +98,11 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
         private void Update()
         {
-            Quaternion? rotation = GetQuaternionNullable(V2_ROTATION);
-            Quaternion? localRotation = GetQuaternionNullable(V2_LOCAL_ROTATION);
-            Vector3? position = GetVectorNullable(V2_POSITION);
-            Vector3? localPosition = GetVectorNullable(V2_LOCAL_POSITION);
-            Vector3? scale = GetVectorNullable(V2_SCALE);
+            Quaternion? rotation = GetQuaternionNullable(ROTATION);
+            Quaternion? localRotation = GetQuaternionNullable(LOCAL_ROTATION);
+            Vector3? position = GetVectorNullable(POSITION);
+            Vector3? localPosition = GetVectorNullable(LOCAL_POSITION);
+            Vector3? scale = GetVectorNullable(SCALE);
 
             bool updateParametricBox = false;
 
