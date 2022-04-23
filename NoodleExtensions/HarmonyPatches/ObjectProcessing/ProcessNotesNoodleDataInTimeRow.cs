@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
@@ -14,8 +17,10 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
     [HarmonyPatch(typeof(BeatmapObjectsInTimeRowProcessor))]
     internal static class ProcessNotesNoodleDataInTimeRow
     {
+        private static readonly ConcurrentDictionary<Type, MethodInfo> _getItemsMethods = new();
+
         [HarmonyTranspiler]
-        [HarmonyPatch(nameof(BeatmapObjectsInTimeRowProcessor.HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice))]
+        [HarmonyPatch("HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice")]
         private static IEnumerable<CodeInstruction> PepegaClamp(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
@@ -32,11 +37,11 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(nameof(BeatmapObjectsInTimeRowProcessor.HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice))]
-        private static void ProcessAllNotesInTimeRowPatch(BeatmapObjectsInTimeRowProcessor.TimeSliceContainer<BeatmapDataItem> allObjectsTimeSlice)
+        [HarmonyPatch("HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice")]
+        private static void ProcessAllNotesInTimeRowPatch(object allObjectsTimeSlice)
         {
             List<CustomNoteData> notesToSetFlip = new();
-            IEnumerable<NoteData> notesInTimeRow = allObjectsTimeSlice.items.OfType<NoteData>();
+            IEnumerable<NoteData> notesInTimeRow = AccessContainerItems<BeatmapDataItem>(allObjectsTimeSlice).OfType<NoteData>();
             Dictionary<float, List<CustomNoteData>> notesInColumns = new();
             foreach (NoteData t in notesInTimeRow)
             {
@@ -113,10 +118,10 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(nameof(BeatmapObjectsInTimeRowProcessor.HandleCurrentTimeSliceColorNotesDidFinishTimeSlice))]
-        private static void ProcessColorNotesInTimeRowPatch(BeatmapObjectsInTimeRowProcessor.TimeSliceContainer<NoteData> currentTimeSlice)
+        [HarmonyPatch("HandleCurrentTimeSliceColorNotesDidFinishTimeSlice")]
+        private static void ProcessColorNotesInTimeRowPatch(object currentTimeSlice)
         {
-            IReadOnlyList<NoteData> colorNotesData = currentTimeSlice.items;
+            IReadOnlyList<NoteData> colorNotesData = AccessContainerItems<NoteData>(currentTimeSlice);
             int customNoteCount = colorNotesData.Count;
             if (customNoteCount != 2)
             {
@@ -170,6 +175,21 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                     dynData[INTERNAL_FLIPYSIDE] = flipYSide;
                 }
             }
+        }
+
+        private static IReadOnlyList<T> AccessContainerItems<T>(object timeSliceContainer)
+        {
+            // ReSharper disable once InvertIf
+            if (!_getItemsMethods.TryGetValue(typeof(T), out MethodInfo getItems))
+            {
+                Type genericType = Type.GetType("BeatmapObjectsInTimeRowProcessor+TimeSliceContainer`1,BeatmapCore")
+                                   ?? throw new InvalidOperationException("Unable to resolve [TimeSliceContainer] type.");
+                Type constructed = genericType.MakeGenericType(typeof(T));
+                getItems = AccessTools.PropertyGetter(constructed, "items");
+                _getItemsMethods[typeof(T)] = getItems;
+            }
+
+            return (IReadOnlyList<T>)getItems.Invoke(timeSliceContainer, null);
         }
     }
 }
