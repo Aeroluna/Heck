@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- This file contains project properties used by the build. -->
 <Project>
+  <ItemDefinitionGroup>
+    <Reference Private="False"/>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
   </ItemGroup>

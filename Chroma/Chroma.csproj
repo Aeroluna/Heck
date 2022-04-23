@@ -1,146 +1,66 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <OutputType>Library</OutputType>
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
-    <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
-    <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <DebugType>portable</DebugType>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(DefineConstants.Contains('CIBuild')) OR '$(NCrunch)' == '1'">
-    <DisableCopyToPlugins>True</DisableCopyToPlugins>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(NCrunch)' == '1'">
-    <DisableCopyToPlugins>True</DisableCopyToPlugins>
-    <DisableZipRelease>True</DisableZipRelease>
-  </PropertyGroup>
-
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="BeatmapCore">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="BSML">
-      <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Colors">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="CustomJSONData">
-      <HintPath>$(BeatSaberDir)\Plugins\CustomJSONData.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="GameplayCore">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Heck">
-      <HintPath>$(BeatSaberDir)\Plugins\Heck.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="HMLib">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="HMRendering">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="IPA.Loader">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Main">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Rendering">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Rendering.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SiraUtil">
-      <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SongCore">
-      <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Zenject, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Zenject.dll</HintPath>
-    </Reference>
-    <Reference Include="Zenject-usage, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Zenject-usage.dll</HintPath>
-    </Reference>
+    <Reference Include="0Harmony" HintPath="$(BeatSaberDir)\Libs\0Harmony.dll"/>
+    <Reference Include="BeatmapCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll"/>
+    <Reference Include="BSML" HintPath="$(BeatSaberDir)\Plugins\BSML.dll"/>
+    <Reference Include="Colors" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll"/>
+    <Reference Include="CustomJSONData" HintPath="$(BeatSaberDir)\Plugins\CustomJSONData.dll"/>
+    <Reference Include="GameplayCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll"/>
+    <Reference Include="Heck" HintPath="$(BeatSaberDir)\Plugins\Heck.dll"/>
+    <Reference Include="HMLib" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll"/>
+    <Reference Include="HMRendering" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll"/>
+    <Reference Include="IPA.Loader" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll"/>
+    <Reference Include="Main" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll"/>
+    <Reference Include="Newtonsoft.Json" HintPath="$(BeatSaberDir)\Libs\Newtonsoft.Json.dll"/>
+    <Reference Include="Rendering" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Rendering.dll"/>
+    <Reference Include="SiraUtil" HintPath="$(BeatSaberDir)\Plugins\SiraUtil.dll"/>
+    <Reference Include="SongCore" HintPath="$(BeatSaberDir)\Plugins\SongCore.dll"/>
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll"/>
+    <Reference Include="UnityEngine.ParticleSystemModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.ParticleSystemModule.dll"/>
+    <Reference Include="Zenject" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll"/>
+    <Reference Include="Zenject-usage" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll"/>
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
-    <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
-    <None Include="Chroma.csproj.user" Condition="Exists('Chroma.csproj.user')" />
+    <EmbeddedResource Include="LightIDTables\BigMirrorEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\BillieEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\BTSEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\CrabRaveEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\DefaultEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\DragonsEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\FitBeatEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\GlassDesertEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\GreenDayEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\GreenDayGrenadeEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\HalloweenEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\InterscopeEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\KaleidoscopeEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\KDAEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\LinkinParkEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\MonstercatEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\NiceEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\OriginsEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\PanicEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\RocketEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\SkrillexEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\TimbalandEnvironment.json"/>
+    <EmbeddedResource Include="LightIDTables\TriangleEnvironment.json"/>
+    <EmbeddedResource Include="manifest.json"/>
+    <EmbeddedResource Include="Settings\modifiers.bsml"/>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="LightIDTables\HalloweenEnvironment.json" />
-    <EmbeddedResource Include="manifest.json" />
-    <EmbeddedResource Include="LightIDTables\BigMirrorEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\BTSEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\CrabRaveEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\DefaultEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\DragonsEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\FitBeatEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\GlassDesertEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\GreenDayEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\GreenDayGrenadeEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\KDAEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\LinkinParkEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\MonstercatEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\NiceEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\OriginsEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\PanicEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\RocketEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\TimbalandEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\TriangleEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\KaleidoscopeEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\InterscopeEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\SkrillexEnvironment.json" />
-    <EmbeddedResource Include="LightIDTables\BillieEnvironment.json" />
-    <EmbeddedResource Include="Settings\modifiers.bsml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="BeatSaberModdingTools.Tasks" Version="1.4.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers">
-      <Version>1.2.0-beta.354</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="BeatSaberModdingTools.Tasks" Version="1.4.3"/>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.354"/>
   </ItemGroup>
 </Project>
