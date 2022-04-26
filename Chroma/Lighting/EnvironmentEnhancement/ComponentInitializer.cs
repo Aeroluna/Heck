@@ -20,6 +20,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         private static readonly FieldAccessor<Spectrogram, BasicSpectrogramData>.Accessor _spectrogramDataAccessor = FieldAccessor<Spectrogram, BasicSpectrogramData>.GetAccessor("_spectrogramData");
         private static readonly FieldAccessor<LightRotationEventEffect, BeatmapCallbacksController>.Accessor _lightCallbackControllerAccessor = FieldAccessor<LightRotationEventEffect, BeatmapCallbacksController>.GetAccessor("_beatmapCallbacksController");
         private static readonly FieldAccessor<LightPairRotationEventEffect, BeatmapCallbacksController>.Accessor _lightPairCallbackControllerAccessor = FieldAccessor<LightPairRotationEventEffect, BeatmapCallbacksController>.GetAccessor("_beatmapCallbacksController");
+        private static readonly FieldAccessor<LightPairRotationEventEffect, IAudioTimeSource>.Accessor _audioTimeSourceAccessor = FieldAccessor<LightPairRotationEventEffect, IAudioTimeSource>.GetAccessor("_audioTimeSource");
         private static readonly FieldAccessor<LightPairRotationEventEffect, Transform>.Accessor _transformLAccessor = FieldAccessor<LightPairRotationEventEffect, Transform>.GetAccessor("_transformL");
         private static readonly FieldAccessor<LightPairRotationEventEffect, Transform>.Accessor _transformRAccessor = FieldAccessor<LightPairRotationEventEffect, Transform>.GetAccessor("_transformR");
         private static readonly FieldAccessor<ParticleSystemEventEffect, BeatmapCallbacksController>.Accessor _particleCallbackControllerAccessor = FieldAccessor<ParticleSystemEventEffect, BeatmapCallbacksController>.GetAccessor("_beatmapCallbacksController");
@@ -214,6 +215,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             GetComponentAndOriginal<LightPairRotationEventEffect>((rootComponent, originalComponent) =>
             {
                 _lightPairCallbackControllerAccessor(ref rootComponent) = _lightPairCallbackControllerAccessor(ref originalComponent);
+                _audioTimeSourceAccessor(ref rootComponent) = _audioTimeSourceAccessor(ref originalComponent);
 
                 Transform transformL = _transformLAccessor(ref originalComponent);
                 Transform transformR = _transformRAccessor(ref originalComponent);
