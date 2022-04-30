@@ -5,11 +5,11 @@
   "gameVersion": "1.21.0",
   "id": "NoodleExtensions",
   "name": "NoodleExtensions",
-  "version": "1.4.9",
+  "version": "1.4.10",
   "dependsOn": {
-    "_Heck": "^1.3.3",
+    "_Heck": "^1.3.7",
     "SongCore": "^3.9.5",
-    "CustomJSONData": "^2.2.0",
+    "CustomJSONData": "^2.2.5",
     "BSIPA": "^4.2.2",
     "SiraUtil": "^3.0.5"
   }

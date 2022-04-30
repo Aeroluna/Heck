@@ -5,14 +5,14 @@
   "gameVersion": "1.21.0",
   "id": "Chroma",
   "name": "Chroma",
-  "version": "2.5.11",
+  "version": "2.5.12",
   "dependsOn": {
-    "_Heck": "^1.3.3",
+    "_Heck": "^1.3.7",
     "BeatSaberMarkupLanguage": "^1.6.3",
-    "CustomJSONData": "^2.2.0",
+    "CustomJSONData": "^2.2.5",
     "SongCore": "^3.9.5",
     "BSIPA": "^4.2.2",
-    "LookupID": "^1.0.0",
+    "LookupID": "^1.0.1",
     "SiraUtil": "^3.0.5"
   }
 }
