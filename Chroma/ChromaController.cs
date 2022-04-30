@@ -49,12 +49,12 @@ namespace Chroma
         internal const string NOTE_SPAWN_EFFECT = "spawnEffect";
         internal const string LERP_TYPE = "lerpType";
         internal const string LIGHT_ID = "lightID";
-        internal const string LOCK_POSITION = "lock";
+        internal const string LOCK_POSITION = "lockRotation";
         internal const string NAME_FILTER = "nameFilter";
         internal const string PROP = "prop";
         internal const string SPEED = "speed";
         internal const string STEP = "step";
-        internal const string RING_ROTATION = "degrees";
+        internal const string RING_ROTATION = "rotation";
 
         internal const string ENVIRONMENT = "environment";
         internal const string GAMEOBJECT_ID = "id";
