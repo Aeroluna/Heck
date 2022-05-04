@@ -26,7 +26,7 @@ namespace NoodleExtensions.Animation
         internal static void OnTrackCreated(Track track)
         {
             track.AddProperty(OFFSET_POSITION, PropertyType.Vector3, V2_POSITION);
-            track.AddProperty(WORLD_ROTATION, PropertyType.Quaternion, V2_ROTATION);
+            track.AddProperty(OFFSET_ROTATION, PropertyType.Quaternion, V2_ROTATION);
             track.AddProperty(SCALE, PropertyType.Vector3, V2_SCALE);
             track.AddProperty(LOCAL_ROTATION, PropertyType.Quaternion, V2_LOCAL_ROTATION);
             track.AddProperty(DISSOLVE, PropertyType.Linear, V2_DISSOLVE);
@@ -35,7 +35,7 @@ namespace NoodleExtensions.Animation
             track.AddProperty(INTERACTABLE, PropertyType.Linear, V2_CUTTABLE);
 
             track.AddPathProperty(OFFSET_POSITION, PropertyType.Vector3, V2_POSITION);
-            track.AddPathProperty(WORLD_ROTATION, PropertyType.Quaternion, V2_ROTATION);
+            track.AddPathProperty(OFFSET_ROTATION, PropertyType.Quaternion, V2_ROTATION);
             track.AddPathProperty(SCALE, PropertyType.Vector3, V2_SCALE);
             track.AddPathProperty(LOCAL_ROTATION, PropertyType.Quaternion, V2_LOCAL_ROTATION);
             track.AddPathProperty(DEFINITE_POSITION, PropertyType.Vector3, V2_DEFINITE_POSITION);
@@ -148,7 +148,7 @@ namespace NoodleExtensions.Animation
                 if (tracks.Count > 1)
                 {
                     pathPosition ??= SumVectorNullables(tracks.Select(n => n.GetVector3PathProperty(OFFSET_POSITION, time)));
-                    pathRotation ??= MultQuaternionNullables(tracks.Select(n => n.GetQuaternionPathProperty(WORLD_ROTATION, time)));
+                    pathRotation ??= MultQuaternionNullables(tracks.Select(n => n.GetQuaternionPathProperty(OFFSET_ROTATION, time)));
                     pathScale ??= MultVectorNullables(tracks.Select(n => n.GetVector3PathProperty(SCALE, time)));
                     pathLocalRotation ??= MultQuaternionNullables(tracks.Select(n => n.GetQuaternionPathProperty(LOCAL_ROTATION, time)));
                     pathDissolve ??= MultFloatNullables(tracks.Select(n => n.GetLinearPathProperty(DISSOLVE, time)));
@@ -156,7 +156,7 @@ namespace NoodleExtensions.Animation
                     pathCuttable ??= MultFloatNullables(tracks.Select(n => n.GetLinearPathProperty(INTERACTABLE, time)));
 
                     trackPosition = SumVectorNullables(tracks.Select(n => n.GetProperty<Vector3?>(OFFSET_POSITION)));
-                    trackRotation = MultQuaternionNullables(tracks.Select(n => n.GetProperty<Quaternion?>(WORLD_ROTATION)));
+                    trackRotation = MultQuaternionNullables(tracks.Select(n => n.GetProperty<Quaternion?>(OFFSET_ROTATION)));
                     trackScale = MultVectorNullables(tracks.Select(n => n.GetProperty<Vector3?>(SCALE)));
                     trackLocalRotation = MultQuaternionNullables(tracks.Select(n => n.GetProperty<Quaternion?>(LOCAL_ROTATION)));
                     trackDissolve = MultFloatNullables(tracks.Select(n => n.GetProperty<float?>(DISSOLVE)));
@@ -167,7 +167,7 @@ namespace NoodleExtensions.Animation
                 {
                     Track track = tracks.First();
                     pathPosition ??= track.GetVector3PathProperty(OFFSET_POSITION, time);
-                    pathRotation ??= track.GetQuaternionPathProperty(WORLD_ROTATION, time);
+                    pathRotation ??= track.GetQuaternionPathProperty(OFFSET_ROTATION, time);
                     pathScale ??= track.GetVector3PathProperty(SCALE, time);
                     pathLocalRotation ??= track.GetQuaternionPathProperty(LOCAL_ROTATION, time);
                     pathDissolve ??= track.GetLinearPathProperty(DISSOLVE, time);
@@ -175,7 +175,7 @@ namespace NoodleExtensions.Animation
                     pathCuttable ??= track.GetLinearPathProperty(V2_CUTTABLE, time);
 
                     trackPosition = track.GetProperty<Vector3?>(OFFSET_POSITION);
-                    trackRotation = track.GetProperty<Quaternion?>(WORLD_ROTATION);
+                    trackRotation = track.GetProperty<Quaternion?>(OFFSET_ROTATION);
                     trackScale = track.GetProperty<Vector3?>(SCALE);
                     trackLocalRotation = track.GetProperty<Quaternion?>(LOCAL_ROTATION);
                     trackDissolve = track.GetProperty<float?>(DISSOLVE);

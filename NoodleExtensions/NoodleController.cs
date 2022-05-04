@@ -32,6 +32,7 @@ namespace NoodleExtensions
         internal const string INTERACTABLE = "interactable";
         internal const string UNINTERACTABLE = "uninteractable";
         internal const string OFFSET_POSITION = "offsetPosition";
+        internal const string OFFSET_ROTATION = "offsetWorldRotation";
         internal const string DEFINITE_POSITION = "definitePosition";
         internal const string DISSOLVE = "dissolve";
         internal const string DISSOLVE_ARROW = "dissolveArrow";

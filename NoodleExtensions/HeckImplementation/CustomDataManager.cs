@@ -164,7 +164,7 @@ namespace NoodleExtensions
                 NoodleObjectData.AnimationObjectData animationObjectData = new()
                 {
                     LocalPosition = animationObjectDyn.GetPointData(v2 ? V2_POSITION : OFFSET_POSITION, pointDefinitions),
-                    LocalRotation = animationObjectDyn.GetPointData(v2 ? V2_ROTATION : WORLD_ROTATION, pointDefinitions),
+                    LocalRotation = animationObjectDyn.GetPointData(v2 ? V2_ROTATION : OFFSET_ROTATION, pointDefinitions),
                     LocalScale = animationObjectDyn.GetPointData(v2 ? V2_SCALE : SCALE, pointDefinitions),
                     LocalLocalRotation = animationObjectDyn.GetPointData(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION, pointDefinitions),
                     LocalDissolve = animationObjectDyn.GetPointData(v2 ? V2_DISSOLVE : DISSOLVE, pointDefinitions),
