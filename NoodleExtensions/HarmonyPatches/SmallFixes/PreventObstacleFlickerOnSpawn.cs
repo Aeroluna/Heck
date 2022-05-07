@@ -44,7 +44,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         {
             if (_deserializedData.Resolve(obstacleController.obstacleData, out NoodleObstacleData? noodleData))
             {
-                noodleData.DoUnhide = true;
+                noodleData.InternalDoUnhide = true;
             }
         }
     }

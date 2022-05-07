@@ -155,7 +155,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 _animationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, time, out Vector3? position);
                 if (position.HasValue)
                 {
-                    Vector3 noteOffset = noodleData.NoteOffset;
+                    Vector3 noteOffset = noodleData.InternalNoteOffset;
                     _definitePosition = true;
                     return position.Value + noteOffset;
                 }

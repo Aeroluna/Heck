@@ -57,7 +57,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 return original;
             }
 
-            Vector3 noteOffset = noodleData.NoteOffset;
+            Vector3 noteOffset = noodleData.InternalNoteOffset;
             Vector3 endPos = FloorEndPosAccessor(ref noteFloorMovement);
             return original + (position.Value + noteOffset - endPos);
         }
@@ -69,7 +69,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             NoodleNoteData? noodleData = _noteUpdateNoodlifier.NoodleData;
             if (noodleData is { DisableLook: true })
             {
-                ____rotatedObject.localRotation = Quaternion.Euler(0, 0, noodleData.EndRotation);
+                ____rotatedObject.localRotation = Quaternion.Euler(0, 0, noodleData.InternalEndRotation);
             }
         }
     }

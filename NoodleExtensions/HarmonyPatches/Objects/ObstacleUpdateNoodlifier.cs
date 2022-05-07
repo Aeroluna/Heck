@@ -97,7 +97,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 return;
             }
 
-            if (noodleData.DoUnhide)
+            if (noodleData.InternalDoUnhide)
             {
                 __instance.Hide(false);
             }
@@ -127,9 +127,9 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
             if (positionOffset.HasValue)
             {
-                Vector3 startPos = noodleData.StartPos;
-                Vector3 midPos = noodleData.MidPos;
-                Vector3 endPos = noodleData.EndPos;
+                Vector3 startPos = noodleData.InternalStartPos;
+                Vector3 midPos = noodleData.InternalMidPos;
+                Vector3 endPos = noodleData.InternalEndPos;
 
                 Vector3 offset = positionOffset.Value;
                 ____startPos = startPos + offset;
@@ -141,8 +141,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
             if (rotationOffset.HasValue || localRotationOffset.HasValue)
             {
-                Quaternion worldRotation = noodleData.WorldRotation;
-                Quaternion localRotation = noodleData.LocalRotation;
+                Quaternion worldRotation = noodleData.InternalWorldRotation;
+                Quaternion localRotation = noodleData.InternalLocalRotation;
 
                 Quaternion worldRotationQuatnerion = worldRotation;
                 if (rotationOffset.HasValue)
@@ -171,7 +171,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 }
                 else
                 {
-                    Vector3 boundsSize = noodleData.BoundsSize;
+                    Vector3 boundsSize = noodleData.InternalBoundsSize;
                     ____bounds.size = boundsSize;
                 }
             }
@@ -212,9 +212,9 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 return true;
             }
 
-            Vector3 noteOffset = noodleData.NoteOffset;
+            Vector3 noteOffset = noodleData.InternalNoteOffset;
             Vector3 definitePosition = position.Value + noteOffset;
-            definitePosition.x += noodleData.XOffset;
+            definitePosition.x += noodleData.InternalXOffset;
             if (time < ____move1Duration)
             {
                 __result = Vector3.LerpUnclamped(____startPos, ____midPos, time / ____move1Duration);

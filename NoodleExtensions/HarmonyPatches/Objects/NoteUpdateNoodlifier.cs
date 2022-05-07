@@ -85,9 +85,9 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
             if (positionOffset.HasValue)
             {
-                Vector3 moveStartPos = noodleData.MoveStartPos;
-                Vector3 moveEndPos = noodleData.MoveEndPos;
-                Vector3 jumpEndPos = noodleData.JumpEndPos;
+                Vector3 moveStartPos = noodleData.InternalStartPos;
+                Vector3 moveEndPos = noodleData.InternalMidPos;
+                Vector3 jumpEndPos = noodleData.InternalEndPos;
 
                 Vector3 offset = positionOffset.Value;
                 _floorStartPosAccessor(ref floorMovement) = moveStartPos + offset;
@@ -100,8 +100,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
             if (rotationOffset.HasValue || localRotationOffset.HasValue)
             {
-                Quaternion worldRotation = noodleData.WorldRotation;
-                Quaternion localRotation = noodleData.LocalRotation;
+                Quaternion worldRotation = noodleData.InternalWorldRotation;
+                Quaternion localRotation = noodleData.InternalLocalRotation;
 
                 Quaternion worldRotationQuatnerion = worldRotation;
                 if (rotationOffset.HasValue)

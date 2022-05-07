@@ -86,9 +86,9 @@ namespace NoodleExtensions.Managers
                 _movementData.noteLinesDistance);
 
             // for definite position
-            noodleData.NoteOffset = _movementData.centerPos + obstacleOffset;
+            noodleData.InternalNoteOffset = _movementData.centerPos + obstacleOffset;
             float? width = noodleData.Width;
-            noodleData.XOffset = ((width.GetValueOrDefault(obstacleData.lineIndex) / 2f) - 0.5f) * _movementData.noteLinesDistance;
+            noodleData.InternalXOffset = ((width.GetValueOrDefault(obstacleData.lineIndex) / 2f) - 0.5f) * _movementData.noteLinesDistance;
 
             return false;
         }
@@ -100,10 +100,10 @@ namespace NoodleExtensions.Managers
                 return true;
             }
 
-            float? flipLineIndex = noodleData.FlipLineIndexInternal;
+            float? flipLineIndex = noodleData.InternalFlipLineIndex;
             float njs = noodleData.NJS ?? _movementData.noteJumpMovementSpeed;
             float? spawnoffset = noodleData.SpawnOffset;
-            float? startlinelayer = noodleData.StartNoteLineLayerInternal;
+            float? startlinelayer = noodleData.InternalStartNoteLineLayer;
 
             bool gravityOverride = noodleData.DisableGravity;
 
@@ -154,7 +154,7 @@ namespace NoodleExtensions.Managers
             float num2 = jumpDuration * 0.5f;
             float startVerticalVelocity = jumpGravity * num2;
             float yOffset = (startVerticalVelocity * num2) - (jumpGravity * num2 * num2 * 0.5f);
-            noodleData.NoteOffset = _movementData.centerPos + noteOffset + new Vector3(0, yOffset, 0);
+            noodleData.InternalNoteOffset = _movementData.centerPos + noteOffset + new Vector3(0, yOffset, 0);
 
             return false;
         }

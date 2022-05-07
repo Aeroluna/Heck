@@ -1,8 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Chroma.Lighting;
+using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
 using UnityEngine;
+using static Chroma.ChromaController;
+using static Heck.HeckController;
 
 namespace Chroma
 {
@@ -18,63 +23,108 @@ namespace Chroma
 
     internal class ChromaNoteData : ChromaObjectData
     {
-        internal bool? SpawnEffect { get; set; }
+        internal ChromaNoteData(
+            CustomData customData,
+            Dictionary<string, Track> beatmapTracks,
+            Dictionary<string, PointDefinition> pointDefinitions,
+            bool v2)
+            : base(customData, beatmapTracks, pointDefinitions, v2)
+        {
+            SpawnEffect = customData.Get<bool?>(NOTE_SPAWN_EFFECT) ?? !customData.Get<bool?>(V2_DISABLE_SPAWN_EFFECT);
+        }
+
+        internal bool? SpawnEffect { get; }
     }
 
     internal class ChromaObjectData : IObjectCustomData
     {
-        internal Color? Color { get; set; }
+        internal ChromaObjectData(
+            CustomData customData,
+            Dictionary<string, Track> beatmapTracks,
+            Dictionary<string, PointDefinition> pointDefinitions,
+            bool v2)
+        {
+            Color = CustomDataManager.GetColorFromData(customData, v2);
+            CustomData? animationData = customData.Get<CustomData>(v2 ? V2_ANIMATION : ANIMATION);
+            if (animationData != null)
+            {
+                LocalPathColor = animationData.GetPointData(v2 ? V2_COLOR : COLOR, pointDefinitions);
+            }
 
-        internal List<Track>? Track { get; set; }
+            Track = customData.GetNullableTrackArray(beatmapTracks, v2)?.ToList();
+        }
 
-        internal PointDefinition? LocalPathColor { get; set; }
+        internal Color? Color { get; }
+
+        internal List<Track>? Track { get; }
+
+        internal PointDefinition? LocalPathColor { get; }
     }
 
     internal class ChromaEventData : IEventCustomData
     {
         internal ChromaEventData(
-            object? propID,
-            Color? colorData,
-            Functions? easing,
-            LerpType? lerpType,
-            bool lockPosition,
-            string? nameFilter,
-            int? direction,
-            bool? counterSpin,
-            bool? reset,
-            float? step,
-            float? prop,
-            float? speed,
-            float? rotation,
-            float stepMult,
-            float propMult,
-            float speedMult)
+            BasicBeatmapEventData beatmapEventData,
+            LegacyLightHelper? legacyLightHelper,
+            bool v2)
         {
-            PropID = propID;
-            ColorData = colorData;
-            Easing = easing;
-            LerpType = lerpType;
-            LockPosition = lockPosition;
-            NameFilter = nameFilter;
-            Direction = direction;
-            CounterSpin = counterSpin;
-            Reset = reset;
-            Step = step;
-            Prop = prop;
-            Speed = speed;
-            Rotation = rotation;
-            StepMult = stepMult;
-            PropMult = propMult;
-            SpeedMult = speedMult;
+            CustomData customData = ((ICustomData)beatmapEventData).customData;
+
+            Color? color = CustomDataManager.GetColorFromData(customData, v2);
+            if (legacyLightHelper != null)
+            {
+                color ??= legacyLightHelper.GetLegacyColor(beatmapEventData);
+            }
+
+            PropID = v2 ? customData.Get<object>(V2_PROPAGATION_ID) : null;
+            ColorData = color;
+            Easing = customData.GetStringToEnum<Functions?>(v2 ? V2_EASING : EASING);
+            LerpType = customData.GetStringToEnum<LerpType?>(v2 ? V2_LERP_TYPE : LERP_TYPE);
+            LockPosition = customData.Get<bool?>(v2 ? V2_LOCK_POSITION : LOCK_POSITION).GetValueOrDefault(false);
+            NameFilter = customData.Get<string>(v2 ? V2_NAME_FILTER : NAME_FILTER);
+            Direction = customData.Get<int?>(v2 ? V2_DIRECTION : DIRECTION);
+            CounterSpin = v2 ? customData.Get<bool?>(V2_COUNTER_SPIN) : null; // TODO: YEET
+            Reset = v2 ? customData.Get<bool?>(V2_RESET) : null;
+            Step = customData.Get<float?>(v2 ? V2_STEP : STEP);
+            Prop = customData.Get<float?>(v2 ? V2_PROP : PROP);
+            Speed = customData.Get<float?>(v2 ? V2_SPEED : SPEED) ?? (v2 ? customData.Get<float?>(V2_PRECISE_SPEED) : null);
+            Rotation = customData.Get<float?>(v2 ? V2_ROTATION : RING_ROTATION);
+            StepMult = v2 ? customData.Get<float?>(V2_STEP_MULT).GetValueOrDefault(1f) : 1;
+            PropMult = v2 ? customData.Get<float?>(V2_PROP_MULT).GetValueOrDefault(1f) : 1;
+            SpeedMult = v2 ? customData.Get<float?>(V2_SPEED_MULT).GetValueOrDefault(1f) : 1;
+
+            if (v2)
+            {
+                CustomData? gradientObject = customData.Get<CustomData>(V2_LIGHT_GRADIENT);
+                if (gradientObject != null)
+                {
+                    GradientObject = new GradientObjectData(
+                        gradientObject.Get<float>(V2_DURATION),
+                        CustomDataManager.GetColorFromData(gradientObject, V2_START_COLOR) ?? Color.white,
+                        CustomDataManager.GetColorFromData(gradientObject, V2_END_COLOR) ?? Color.white,
+                        gradientObject.GetStringToEnum<Functions?>(V2_EASING) ?? Functions.easeLinear);
+                }
+            }
+
+            object? lightID = customData.Get<object>(v2 ? V2_LIGHT_ID : LIGHT_ID);
+            if (lightID != null)
+            {
+                LightID = lightID switch
+                {
+                    List<object> lightIDobjects => lightIDobjects.Select(Convert.ToInt32),
+                    long lightIDint => new[] { (int)lightIDint },
+                    _ => null
+                };
+            }
         }
 
-        internal IEnumerable<int>? LightID { get; set; }
+        internal IEnumerable<int>? LightID { get; }
 
         internal object? PropID { get; }
 
         internal Color? ColorData { get; }
 
-        internal GradientObjectData? GradientObject { get; set; }
+        internal GradientObjectData? GradientObject { get; }
 
         internal Functions? Easing { get; }
 

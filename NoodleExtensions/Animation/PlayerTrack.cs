@@ -108,7 +108,7 @@ namespace NoodleExtensions.Animation
             }
 
             worldRotationQuatnerion *= _startLocalRot;
-            Quaternion? localRotation = _track.GetProperty<Quaternion?>(V2_LOCAL_ROTATION);
+            Quaternion? localRotation = _track.GetProperty<Quaternion?>(LOCAL_ROTATION);
             if (localRotation.HasValue)
             {
                 if (_leftHanded)

@@ -23,7 +23,8 @@ namespace Heck
         internal static void DeserializeBeatmapDataAndBind(
             DiContainer container,
             CustomBeatmapData customBeatmapData,
-            IReadonlyBeatmapData untransformedBeatmapData)
+            IReadonlyBeatmapData untransformedBeatmapData,
+            bool leftHanded)
         {
             Log.Logger.Log("Deserializing BeatmapData.", Logger.Level.Trace);
 
@@ -178,7 +179,7 @@ namespace Heck
                 beatmapEventDatas,
                 objectDatas,
                 container,
-                v2
+                leftHanded
             };
 
             DataDeserializer[] deserializers = _customDataDeserializers.Where(n => n.Enabled).ToArray();

@@ -181,25 +181,12 @@ namespace Heck
 
         public static void MirrorVectorNullable(ref Vector3? vector)
         {
-            if (!vector.HasValue)
-            {
-                return;
-            }
-
-            Vector3 modifiedVector = vector.Value;
-            modifiedVector.x *= -1;
-            vector = modifiedVector;
+            vector = vector?.Mirror();
         }
 
         public static void MirrorQuaternionNullable(ref Quaternion? quaternion)
         {
-            if (!quaternion.HasValue)
-            {
-                return;
-            }
-
-            Quaternion modifiedVector = quaternion.Value;
-            quaternion = new Quaternion(modifiedVector.x, modifiedVector.y * -1, modifiedVector.z * -1, modifiedVector.w);
+            quaternion = quaternion?.Mirror();
         }
     }
 }

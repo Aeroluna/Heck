@@ -66,14 +66,16 @@ namespace Heck.HarmonyPatches
                 untransformedBeatmapData = sceneSetupData.transformedBeatmapData;
             }
 
+            bool leftHanded = playerSpecificSettings.leftHanded;
             DeserializerManager.DeserializeBeatmapDataAndBind(
                 container,
                 (CustomBeatmapData)sceneSetupData.transformedBeatmapData,
-                untransformedBeatmapData);
+                untransformedBeatmapData,
+                leftHanded);
 
             container.Bind<ObjectInitializerManager>().AsSingle();
 
-            container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(playerSpecificSettings.leftHanded);
+            container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(leftHanded);
         }
 
         private static void BindHeckMultiPlayer(

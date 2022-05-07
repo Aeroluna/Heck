@@ -129,11 +129,11 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 _obstacleTracker.AddActive(__instance);
             }
 
-            noodleData.StartPos = ____startPos;
-            noodleData.MidPos = ____midPos;
-            noodleData.EndPos = ____endPos;
-            noodleData.LocalRotation = localRotation;
-            noodleData.BoundsSize = ____bounds.size;
+            noodleData.InternalStartPos = ____startPos;
+            noodleData.InternalMidPos = ____midPos;
+            noodleData.InternalEndPos = ____endPos;
+            noodleData.InternalLocalRotation = localRotation;
+            noodleData.InternalBoundsSize = ____bounds.size;
         }
 
         private Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
@@ -151,7 +151,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 worldRotation = worldRotationQuaternion.Value;
             }
 
-            noodleData.WorldRotation = worldRotation;
+            noodleData.InternalWorldRotation = worldRotation;
 
             return worldRotation;
         }

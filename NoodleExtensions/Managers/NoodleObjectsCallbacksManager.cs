@@ -38,7 +38,7 @@ namespace NoodleExtensions.Managers
                     float? noteJumpMovementSpeed = noodleData.NJS;
                     float? noteJumpStartBeatOffset = noodleData.SpawnOffset;
                     float aheadTime = spawnDataManager.GetSpawnAheadTime(noteJumpMovementSpeed, noteJumpStartBeatOffset);
-                    noodleData.AheadTimeInternal = aheadTime;
+                    noodleData.InternalAheadTime = aheadTime;
                     return beatmapObjectData.time - aheadTime;
                 });
 
@@ -65,7 +65,7 @@ namespace NoodleExtensions.Managers
                     throw new InvalidOperationException($"Failed to get ahead time for [{value2.GetType()}] at [{value2.time}].");
                 }
 
-                if (value2.time - noodleData.AheadTimeInternal > songTime)
+                if (value2.time - noodleData.InternalAheadTime > songTime)
                 {
                     break;
                 }

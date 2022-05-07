@@ -101,12 +101,12 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 }
             }
 
-            noodleData.EndRotation = endRotation;
-            noodleData.MoveStartPos = moveStartPos;
-            noodleData.MoveEndPos = moveEndPos;
-            noodleData.JumpEndPos = jumpEndPos;
-            noodleData.WorldRotation = __instance.worldRotation;
-            noodleData.LocalRotation = localRotation;
+            noodleData.InternalEndRotation = endRotation;
+            noodleData.InternalStartPos = moveStartPos;
+            noodleData.InternalMidPos = moveEndPos;
+            noodleData.InternalEndPos = jumpEndPos;
+            noodleData.InternalWorldRotation = __instance.worldRotation;
+            noodleData.InternalLocalRotation = localRotation;
         }
 
         [AffinityTranspiler]
@@ -126,7 +126,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private float GetFlipYSide(NoteData noteData, float @default)
         {
             _deserializedData.Resolve(noteData, out NoodleNoteData? noodleData);
-            return noodleData?.FlipYSideInternal ?? @default;
+            return noodleData?.InternalFlipYSide ?? @default;
         }
     }
 }
