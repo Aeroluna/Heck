@@ -77,6 +77,11 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
                 worldMovementData.AddNewData(saberBladeTopPos, saberBladeBottomPos, time);
             }
 
+            if (saber.transform.parent == null)
+            {
+                return;
+            }
+
             // Convert world pos to local
             Transform? playerTransform = saber.transform.parent.parent;
 
@@ -93,6 +98,11 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
 
         private static void ConvertToWorld(Saber saber, ref Vector3 topPos, ref Vector3 bottomPos)
         {
+            if (saber.transform.parent == null)
+            {
+                return;
+            }
+
             Transform playerTransform = saber.transform.parent.parent;
 
             if (playerTransform == null)
