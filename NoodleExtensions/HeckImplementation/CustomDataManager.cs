@@ -56,27 +56,20 @@ namespace NoodleExtensions
             Dictionary<BeatmapObjectData, IObjectCustomData> dictionary = new();
             foreach (BeatmapObjectData beatmapObjectData in beatmapObjectsDatas)
             {
-                try
+                CustomData customData = ((ICustomData)beatmapObjectData).customData;
+                switch (beatmapObjectData)
                 {
-                    CustomData customData = ((ICustomData)beatmapObjectData).customData;
-                    switch (beatmapObjectData)
-                    {
-                        case CustomObstacleData customObstacleData:
-                            dictionary.Add(beatmapObjectData, new NoodleObstacleData(customObstacleData, customData, pointDefinitions, beatmapTracks, v2, leftHanded));
-                            break;
+                    case CustomObstacleData customObstacleData:
+                        dictionary.Add(beatmapObjectData, new NoodleObstacleData(customObstacleData, customData, pointDefinitions, beatmapTracks, v2, leftHanded));
+                        break;
 
-                        case CustomNoteData customNoteData:
-                            dictionary.Add(beatmapObjectData, new NoodleNoteData(customNoteData, customData, pointDefinitions, beatmapTracks, v2, leftHanded));
-                            break;
+                    case CustomNoteData customNoteData:
+                        dictionary.Add(beatmapObjectData, new NoodleNoteData(customNoteData, customData, pointDefinitions, beatmapTracks, v2, leftHanded));
+                        break;
 
-                        default:
-                            dictionary.Add(beatmapObjectData, new NoodleObjectData(customData, pointDefinitions, beatmapTracks, v2, leftHanded));
-                            break;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Log.Logger.LogFailure(e, beatmapObjectData);
+                    default:
+                        dictionary.Add(beatmapObjectData, new NoodleObjectData(beatmapObjectData, customData, pointDefinitions, beatmapTracks, v2, leftHanded));
+                        break;
                 }
             }
 
@@ -100,8 +93,7 @@ namespace NoodleExtensions
                     switch (customEventData.eventType)
                     {
                         case ASSIGN_PLAYER_TO_TRACK:
-                            Track track = customEventData.customData.GetTrack(tracks, v2);
-                            dictionary.Add(customEventData, new NoodlePlayerTrackEventData(track));
+                            dictionary.Add(customEventData, new NoodlePlayerTrackEventData(data, tracks, v2));
                             break;
 
                         case ASSIGN_TRACK_PARENT:

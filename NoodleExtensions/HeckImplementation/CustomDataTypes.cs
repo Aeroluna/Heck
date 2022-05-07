@@ -23,34 +23,41 @@ namespace NoodleExtensions
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
-            : base(customData, pointDefinitions, beatmapTracks, v2, leftHanded)
+            : base(noteData, customData, pointDefinitions, beatmapTracks, v2, leftHanded)
         {
-            if (v2)
+            try
             {
-                float? cutDir = customData.Get<float?>(V2_CUT_DIRECTION);
-                if (cutDir.HasValue)
+                if (v2)
                 {
-                    noteData.SetCutDirectionAngleOffset(cutDir.Value.Mirror(leftHanded));
-                    noteData.ChangeNoteCutDirection(NoteCutDirection.Down);
+                    float? cutDir = customData.Get<float?>(V2_CUT_DIRECTION);
+                    if (cutDir.HasValue)
+                    {
+                        noteData.SetCutDirectionAngleOffset(cutDir.Value.Mirror(leftHanded));
+                        noteData.ChangeNoteCutDirection(NoteCutDirection.Down);
+                    }
                 }
-            }
 
-            bool? fake = customData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
-            if (fake.GetValueOrDefault())
+                bool? fake = customData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
+                if (fake.GetValueOrDefault())
+                {
+                    _scoringTypeAccessor(ref noteData, NoteData.ScoringType.Ignore);
+                }
+
+                Fake = fake;
+
+                InternalFlipYSide = customData.Get<float?>(INTERNAL_FLIPYSIDE);
+                InternalFlipLineIndex = customData.Get<float?>(INTERNAL_FLIPLINEINDEX)?.Mirror(leftHanded);
+                InternalStartNoteLineLayer = customData.Get<float?>(INTERNAL_STARTNOTELINELAYER);
+
+                DisableGravity = customData.Get<bool?>(v2 ? V2_NOTE_GRAVITY_DISABLE : NOTE_GRAVITY_DISABLE) ?? false;
+                DisableLook = customData.Get<bool?>(v2 ? V2_NOTE_LOOK_DISABLE : NOTE_LOOK_DISABLE) ?? false;
+
+                StartX = StartX?.Mirror(leftHanded);
+            }
+            catch (Exception e)
             {
-                _scoringTypeAccessor(ref noteData, NoteData.ScoringType.Ignore);
+                Log.Logger.LogFailure(e, noteData);
             }
-
-            Fake = fake;
-
-            InternalFlipYSide = customData.Get<float?>(INTERNAL_FLIPYSIDE);
-            InternalFlipLineIndex = customData.Get<float?>(INTERNAL_FLIPLINEINDEX)?.Mirror(leftHanded);
-            InternalStartNoteLineLayer = customData.Get<float?>(INTERNAL_STARTNOTELINELAYER);
-
-            DisableGravity = customData.Get<bool?>(v2 ? V2_NOTE_GRAVITY_DISABLE : NOTE_GRAVITY_DISABLE) ?? false;
-            DisableLook = customData.Get<bool?>(v2 ? V2_NOTE_LOOK_DISABLE : NOTE_LOOK_DISABLE) ?? false;
-
-            StartX = StartX?.Mirror(leftHanded);
         }
 
         internal float? InternalFlipYSide { get; }
@@ -75,29 +82,36 @@ namespace NoodleExtensions
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
-            : base(customData, pointDefinitions, beatmapTracks, v2, leftHanded)
+            : base(obstacleData, customData, pointDefinitions, beatmapTracks, v2, leftHanded)
         {
-            IEnumerable<float?>? scale = customData.GetNullableFloats(v2 ? V2_SCALE : OBSTACLE_SIZE)?.ToList();
-            Width = scale?.ElementAtOrDefault(0);
-            Height = scale?.ElementAtOrDefault(1);
-            Length = scale?.ElementAtOrDefault(2);
-
-            Fake = customData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
-
-            if (!leftHanded)
+            try
             {
-                return;
+                IEnumerable<float?>? scale = customData.GetNullableFloats(v2 ? V2_SCALE : OBSTACLE_SIZE)?.ToList();
+                Width = scale?.ElementAtOrDefault(0);
+                Height = scale?.ElementAtOrDefault(1);
+                Length = scale?.ElementAtOrDefault(2);
+
+                Fake = customData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
+
+                if (!leftHanded)
+                {
+                    return;
+                }
+
+                float width = Width ?? obstacleData.width;
+                if (StartX.HasValue)
+                {
+                    StartX = (StartX.Value + width) * -1;
+                }
+                else if (Width.HasValue)
+                {
+                    float lineIndex = obstacleData.lineIndex - 2;
+                    Width = (lineIndex + width) * -1;
+                }
             }
-
-            float width = Width ?? obstacleData.width;
-            if (StartX.HasValue)
+            catch (Exception e)
             {
-                StartX = (StartX.Value + width) * -1;
-            }
-            else if (Width.HasValue)
-            {
-                float lineIndex = obstacleData.lineIndex - 2;
-                Width = (lineIndex + width) * -1;
+                Log.Logger.LogFailure(e, obstacleData);
             }
         }
 
@@ -117,52 +131,60 @@ namespace NoodleExtensions
     internal class NoodleObjectData : IObjectCustomData
     {
         internal NoodleObjectData(
+            BeatmapObjectData beatmapObjectData,
             CustomData customData,
             Dictionary<string, PointDefinition> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
         {
-            object? rotation = customData.Get<object>(v2 ? V2_ROTATION : WORLD_ROTATION);
-            if (rotation != null)
+            try
             {
-                if (rotation is List<object> list)
+                object? rotation = customData.Get<object>(v2 ? V2_ROTATION : WORLD_ROTATION);
+                if (rotation != null)
                 {
-                    List<float> rot = list.Select(Convert.ToSingle).ToList();
-                    WorldRotationQuaternion = Quaternion.Euler(rot[0], rot[1], rot[2]).Mirror(leftHanded);
+                    if (rotation is List<object> list)
+                    {
+                        List<float> rot = list.Select(Convert.ToSingle).ToList();
+                        WorldRotationQuaternion = Quaternion.Euler(rot[0], rot[1], rot[2]).Mirror(leftHanded);
+                    }
+                    else
+                    {
+                        WorldRotationQuaternion = Quaternion.Euler(0, Convert.ToSingle(rotation), 0).Mirror(leftHanded);
+                    }
                 }
-                else
+
+                LocalRotationQuaternion = customData.GetQuaternion(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION)?.Mirror(leftHanded);
+
+                Track = customData.GetNullableTrackArray(beatmapTracks, v2)?.ToList();
+
+                CustomData? animationData = customData.Get<CustomData>(v2 ? V2_ANIMATION : ANIMATION);
+                if (animationData != null)
                 {
-                    WorldRotationQuaternion = Quaternion.Euler(0, Convert.ToSingle(rotation), 0).Mirror(leftHanded);
+                    AnimationObject = new AnimationObjectData(
+                        animationData.GetPointData(v2 ? V2_POSITION : OFFSET_POSITION, pointDefinitions),
+                        animationData.GetPointData(v2 ? V2_ROTATION : OFFSET_ROTATION, pointDefinitions),
+                        animationData.GetPointData(v2 ? V2_SCALE : SCALE, pointDefinitions),
+                        animationData.GetPointData(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION, pointDefinitions),
+                        animationData.GetPointData(v2 ? V2_DISSOLVE : DISSOLVE, pointDefinitions),
+                        animationData.GetPointData(v2 ? V2_DISSOLVE_ARROW : DISSOLVE_ARROW, pointDefinitions),
+                        animationData.GetPointData(v2 ? V2_CUTTABLE : INTERACTABLE, pointDefinitions),
+                        animationData.GetPointData(v2 ? V2_DEFINITE_POSITION : DEFINITE_POSITION, pointDefinitions));
                 }
+
+                Uninteractable = v2 ? !customData.Get<bool?>(V2_CUTTABLE) : customData.Get<bool?>(UNINTERACTABLE);
+
+                IEnumerable<float?>? position = customData.GetNullableFloats(v2 ? V2_POSITION : NOTE_OFFSET)?.ToList();
+                StartX = position?.ElementAtOrDefault(0);
+                StartY = position?.ElementAtOrDefault(1);
+
+                NJS = customData.Get<float?>(v2 ? V2_NOTE_JUMP_SPEED : NOTE_JUMP_SPEED);
+                SpawnOffset = customData.Get<float?>(v2 ? V2_NOTE_SPAWN_OFFSET : NOTE_SPAWN_OFFSET);
             }
-
-            LocalRotationQuaternion = customData.GetQuaternion(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION)?.Mirror(leftHanded);
-
-            Track = customData.GetNullableTrackArray(beatmapTracks, v2)?.ToList();
-
-            CustomData? animationData = customData.Get<CustomData>(v2 ? V2_ANIMATION : ANIMATION);
-            if (animationData != null)
+            catch (Exception e)
             {
-                AnimationObject = new AnimationObjectData(
-                    animationData.GetPointData(v2 ? V2_POSITION : OFFSET_POSITION, pointDefinitions),
-                    animationData.GetPointData(v2 ? V2_ROTATION : OFFSET_ROTATION, pointDefinitions),
-                    animationData.GetPointData(v2 ? V2_SCALE : SCALE, pointDefinitions),
-                    animationData.GetPointData(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION, pointDefinitions),
-                    animationData.GetPointData(v2 ? V2_DISSOLVE : DISSOLVE, pointDefinitions),
-                    animationData.GetPointData(v2 ? V2_DISSOLVE_ARROW : DISSOLVE_ARROW, pointDefinitions),
-                    animationData.GetPointData(v2 ? V2_CUTTABLE : INTERACTABLE, pointDefinitions),
-                    animationData.GetPointData(v2 ? V2_DEFINITE_POSITION : DEFINITE_POSITION, pointDefinitions));
+                Log.Logger.LogFailure(e, beatmapObjectData);
             }
-
-            Uninteractable = v2 ? !customData.Get<bool?>(V2_CUTTABLE) : customData.Get<bool?>(UNINTERACTABLE);
-
-            IEnumerable<float?>? position = customData.GetNullableFloats(v2 ? V2_POSITION : NOTE_OFFSET)?.ToList();
-            StartX = position?.ElementAtOrDefault(0);
-            StartY = position?.ElementAtOrDefault(1);
-
-            NJS = customData.Get<float?>(v2 ? V2_NOTE_JUMP_SPEED : NOTE_JUMP_SPEED);
-            SpawnOffset = customData.Get<float?>(v2 ? V2_NOTE_SPAWN_OFFSET : NOTE_SPAWN_OFFSET);
         }
 
         internal Vector3 InternalStartPos { get; set; }
@@ -241,8 +263,12 @@ namespace NoodleExtensions
 
     internal class NoodlePlayerTrackEventData : ICustomEventCustomData
     {
-        internal NoodlePlayerTrackEventData(Track track)
+        internal NoodlePlayerTrackEventData(
+            CustomData customData,
+            Dictionary<string, Track> tracks,
+            bool v2)
         {
+            Track track = customData.GetTrack(tracks, v2);
             Track = track;
         }
 
