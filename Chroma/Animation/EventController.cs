@@ -11,17 +11,17 @@ namespace Chroma.Animation
     internal class EventController : IDisposable
     {
         private readonly BeatmapCallbacksController _callbacksController;
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
         private readonly LazyInject<ChromaFogController> _fogController;
         private readonly BeatmapDataCallbackWrapper _callbackWrapper;
 
         internal EventController(
             BeatmapCallbacksController callbacksController,
-            [Inject(Id = ID)] CustomData customData,
+            [Inject(Id = ID)] DeserializedData deserializedData,
             LazyInject<ChromaFogController> fogController)
         {
             _callbacksController = callbacksController;
-            _customData = customData;
+            _deserializedData = deserializedData;
             _fogController = fogController;
 
             _callbackWrapper = callbacksController.AddBeatmapCallback<CustomEventData>(HandleCallback);
@@ -39,7 +39,7 @@ namespace Chroma.Animation
                 return;
             }
 
-            if (_customData.Resolve(customEventData, out ChromaCustomEventData? chromaData))
+            if (_deserializedData.Resolve(customEventData, out ChromaCustomEventData? chromaData))
             {
                 _fogController.Value.AssignTrack(chromaData.Track);
             }

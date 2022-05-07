@@ -13,18 +13,18 @@ namespace NoodleExtensions.Animation
     internal class EventController : IDisposable
     {
         private readonly BeatmapCallbacksController? _callbacksController;
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
         private readonly LazyInject<ParentController> _parentController;
         private readonly LazyInject<PlayerTrack> _playerTrack;
         private readonly BeatmapDataCallbackWrapper? _callbackWrapper;
 
         private EventController(
             BeatmapCallbacksController callbacksController,
-            [Inject(Id = ID)] CustomData customData,
+            [Inject(Id = ID)] DeserializedData deserializedData,
             LazyInject<ParentController> parentController,
             LazyInject<PlayerTrack> playerTrack)
         {
-            _customData = customData;
+            _deserializedData = deserializedData;
             _parentController = parentController;
             _playerTrack = playerTrack;
             _callbacksController = callbacksController;
@@ -41,7 +41,7 @@ namespace NoodleExtensions.Animation
             switch (customEventData.eventType)
             {
                 case ASSIGN_TRACK_PARENT:
-                    if (!_customData.Resolve(customEventData, out NoodleParentTrackEventData? noodleParentData))
+                    if (!_deserializedData.Resolve(customEventData, out NoodleParentTrackEventData? noodleParentData))
                     {
                         return;
                     }
@@ -58,7 +58,7 @@ namespace NoodleExtensions.Animation
                         noodleParentData.Scale);
                     break;
                 case ASSIGN_PLAYER_TO_TRACK:
-                    if (_customData.Resolve(customEventData, out NoodlePlayerTrackEventData? noodlePlayerData))
+                    if (_deserializedData.Resolve(customEventData, out NoodlePlayerTrackEventData? noodlePlayerData))
                     {
                         _playerTrack.Value.AssignTrack(noodlePlayerData.Track);
                     }

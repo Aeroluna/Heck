@@ -20,22 +20,22 @@ namespace NoodleExtensions.Managers
         private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _obstacleTopPosYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_obstacleTopPosY");
 
         private readonly BeatmapObjectSpawnController.InitData _initData;
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
         private BeatmapObjectSpawnMovementData _movementData;
 
         private SpawnDataManager(
             InitializedSpawnMovementData initializedSpawnMovementData,
             BeatmapObjectSpawnController.InitData initData,
-            [Inject(Id = NoodleController.ID)] CustomData customData)
+            [Inject(Id = NoodleController.ID)] DeserializedData deserializedData)
         {
             _initData = initData;
             _movementData = initializedSpawnMovementData.MovementData;
-            _customData = customData;
+            _deserializedData = deserializedData;
         }
 
         internal bool GetObstacleSpawnData(ObstacleData obstacleData, ref BeatmapObjectSpawnMovementData.ObstacleSpawnData result)
         {
-            if (!_customData.Resolve(obstacleData, out NoodleObstacleData? noodleData))
+            if (!_deserializedData.Resolve(obstacleData, out NoodleObstacleData? noodleData))
             {
                 return true;
             }
@@ -95,7 +95,7 @@ namespace NoodleExtensions.Managers
 
         internal bool GetJumpingNoteSpawnData(NoteData noteData, ref BeatmapObjectSpawnMovementData.NoteSpawnData result)
         {
-            if (!_customData.Resolve(noteData, out NoodleNoteData? noodleData))
+            if (!_deserializedData.Resolve(noteData, out NoodleNoteData? noodleData))
             {
                 return true;
             }

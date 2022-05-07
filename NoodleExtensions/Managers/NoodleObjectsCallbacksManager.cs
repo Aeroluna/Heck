@@ -10,7 +10,7 @@ namespace NoodleExtensions.Managers
     [UsedImplicitly]
     internal class NoodleObjectsCallbacksManager
     {
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
         private readonly float _startFilterTime;
         private readonly LinkedListNode<BeatmapDataItem>? _firstNode;
 
@@ -21,16 +21,16 @@ namespace NoodleExtensions.Managers
         private NoodleObjectsCallbacksManager(
             BeatmapCallbacksController.InitData initData,
             SpawnDataManager spawnDataManager,
-            [Inject(Id = NoodleController.ID)] CustomData customData)
+            [Inject(Id = NoodleController.ID)] DeserializedData deserializedData)
         {
-            _customData = customData;
+            _deserializedData = deserializedData;
             IReadonlyBeatmapData beatmapData = initData.beatmapData;
             IEnumerable<BeatmapDataItem> objectDatas = beatmapData.GetBeatmapDataItems<NoteData>()
                 .Cast<BeatmapObjectData>()
                 .Concat(beatmapData.GetBeatmapDataItems<ObstacleData>())
                 .OrderBy(beatmapObjectData =>
                 {
-                    if (!customData.Resolve(beatmapObjectData, out NoodleObjectData? noodleData))
+                    if (!deserializedData.Resolve(beatmapObjectData, out NoodleObjectData? noodleData))
                     {
                         throw new InvalidOperationException("Failed to get data.");
                     }
@@ -60,7 +60,7 @@ namespace NoodleExtensions.Managers
                 linkedListNode = linkedListNode.Next)
             {
                 BeatmapObjectData value2 = (BeatmapObjectData)linkedListNode.Value;
-                if (!_customData.Resolve(value2, out NoodleObjectData? noodleData))
+                if (!_deserializedData.Resolve(value2, out NoodleObjectData? noodleData))
                 {
                     throw new InvalidOperationException($"Failed to get ahead time for [{value2.GetType()}] at [{value2.time}].");
                 }

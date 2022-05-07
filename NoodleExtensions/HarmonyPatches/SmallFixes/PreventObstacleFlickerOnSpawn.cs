@@ -16,11 +16,11 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         private static readonly MethodInfo _spawnhiddenGetter = AccessTools.PropertyGetter(typeof(BeatmapObjectManager), nameof(BeatmapObjectManager.spawnHidden));
         private static readonly MethodInfo _getHiddenForType = AccessTools.Method(typeof(PreventObstacleFlickerOnSpawn), nameof(GetHiddenForType));
 
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
 
-        private PreventObstacleFlickerOnSpawn([Inject(Id = NoodleController.ID)] CustomData customData)
+        private PreventObstacleFlickerOnSpawn([Inject(Id = NoodleController.ID)] DeserializedData deserializedData)
         {
-            _customData = customData;
+            _deserializedData = deserializedData;
         }
 
         private static bool GetHiddenForType(BeatmapObjectManager beatmapObjectManager)
@@ -42,7 +42,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         [AffinityPatch(typeof(BeatmapObjectManager), "AddSpawnedObstacleController")]
         private void SetUnhideFlag(ObstacleController obstacleController)
         {
-            if (_customData.Resolve(obstacleController.obstacleData, out NoodleObstacleData? noodleData))
+            if (_deserializedData.Resolve(obstacleController.obstacleData, out NoodleObstacleData? noodleData))
             {
                 noodleData.DoUnhide = true;
             }

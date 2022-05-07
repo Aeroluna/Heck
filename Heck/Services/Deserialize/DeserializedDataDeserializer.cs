@@ -7,14 +7,14 @@ using HarmonyLib;
 
 namespace Heck
 {
-    public class CustomDataDeserializer
+    public class DataDeserializer
     {
         private readonly MethodInfo? _customEventMethod;
         private readonly MethodInfo? _beatmapEventMethod;
         private readonly MethodInfo? _beatmapObjectMethod;
         private readonly MethodInfo? _earlyMethod;
 
-        internal CustomDataDeserializer(object? id, IReflect type)
+        internal DataDeserializer(object? id, IReflect type)
         {
             Id = id;
 

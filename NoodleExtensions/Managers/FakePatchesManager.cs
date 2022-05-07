@@ -16,11 +16,11 @@ namespace NoodleExtensions.Managers
         private static readonly MethodInfo _currentGetter = AccessTools.PropertyGetter(typeof(List<ObstacleController>.Enumerator), nameof(List<ObstacleController>.Enumerator.Current));
 
         private readonly CodeInstruction _obstacleFakeCheck;
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
 
-        private FakePatchesManager([Inject(Id = NoodleController.ID)] CustomData customData)
+        private FakePatchesManager([Inject(Id = NoodleController.ID)] DeserializedData deserializedData)
         {
-            _customData = customData;
+            _deserializedData = deserializedData;
             _obstacleFakeCheck = InstanceTranspilers.EmitInstanceDelegate<Func<ObstacleController, bool>>(BoundsNullCheck);
         }
 
@@ -36,7 +36,7 @@ namespace NoodleExtensions.Managers
                 return true;
             }
 
-            _customData.Resolve(obstacleController.obstacleData, out NoodleObstacleData? noodleData);
+            _deserializedData.Resolve(obstacleController.obstacleData, out NoodleObstacleData? noodleData);
             return noodleData?.Fake is true;
         }
 
@@ -59,13 +59,13 @@ namespace NoodleExtensions.Managers
 
         internal bool GetFakeNote(NoteController noteController)
         {
-            _customData.Resolve(noteController.noteData, out NoodleNoteData? noodleData);
+            _deserializedData.Resolve(noteController.noteData, out NoodleNoteData? noodleData);
             return noodleData?.Fake is not true;
         }
 
         internal bool GetCuttable(NoteData noteData)
         {
-            _customData.Resolve(noteData, out NoodleNoteData? noodleData);
+            _deserializedData.Resolve(noteData, out NoodleNoteData? noodleData);
             return noodleData?.Uninteractable is not true;
         }
     }

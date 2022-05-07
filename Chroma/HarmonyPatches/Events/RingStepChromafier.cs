@@ -15,11 +15,11 @@ namespace Chroma.HarmonyPatches.Events
 
         private readonly CodeInstruction _getPrecisionStep;
         private readonly CodeInstruction _getPrecisionSpeed;
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
 
-        private RingStepChromafier([Inject(Id = ChromaController.ID)] CustomData customData)
+        private RingStepChromafier([Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
         {
-            _customData = customData;
+            _deserializedData = deserializedData;
             _getPrecisionStep = InstanceTranspilers.EmitInstanceDelegate<Func<float, BasicBeatmapEventData, float>>(GetPrecisionStep);
             _getPrecisionSpeed = InstanceTranspilers.EmitInstanceDelegate<Func<float, BasicBeatmapEventData, float>>(GetPrecisionSpeed);
         }
@@ -50,13 +50,13 @@ namespace Chroma.HarmonyPatches.Events
 
         private float GetPrecisionStep(float @default, BasicBeatmapEventData beatmapEventData)
         {
-            _customData.Resolve(beatmapEventData, out ChromaEventData? chromaData);
+            _deserializedData.Resolve(beatmapEventData, out ChromaEventData? chromaData);
             return chromaData is { Step: { } } ? chromaData.Step.Value : @default;
         }
 
         private float GetPrecisionSpeed(float @default, BasicBeatmapEventData beatmapEventData)
         {
-            _customData.Resolve(beatmapEventData, out ChromaEventData? chromaData);
+            _deserializedData.Resolve(beatmapEventData, out ChromaEventData? chromaData);
             return chromaData is { Speed: { } } ? chromaData.Speed.Value : @default;
         }
     }

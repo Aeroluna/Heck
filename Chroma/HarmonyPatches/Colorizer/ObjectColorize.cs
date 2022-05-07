@@ -20,20 +20,20 @@ namespace Chroma.HarmonyPatches.Colorizer
         private readonly NoteColorizerManager _noteManager;
         private readonly ObstacleColorizerManager _obstacleManager;
         private readonly IAudioTimeSource _audioTimeSource;
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
 
         private ObjectColorize(
             BombColorizerManager bombManager,
             NoteColorizerManager noteManager,
             ObstacleColorizerManager obstacleManager,
             IAudioTimeSource audioTimeSource,
-            [Inject(Id = ChromaController.ID)] CustomData customData)
+            [Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
         {
             _bombManager = bombManager;
             _noteManager = noteManager;
             _obstacleManager = obstacleManager;
             _audioTimeSource = audioTimeSource;
-            _customData = customData;
+            _deserializedData = deserializedData;
         }
 
         [AffinityPostfix]
@@ -41,7 +41,7 @@ namespace Chroma.HarmonyPatches.Colorizer
         private void BombColorize(BombNoteController __instance, NoteData noteData)
         {
             // They said it couldn't be done, they called me a madman
-            if (_customData.Resolve(noteData, out ChromaObjectData? chromaData))
+            if (_deserializedData.Resolve(noteData, out ChromaObjectData? chromaData))
             {
                 _bombManager.Colorize(__instance, chromaData.Color);
             }
@@ -56,7 +56,7 @@ namespace Chroma.HarmonyPatches.Colorizer
                 return;
             }
 
-            if (_customData.Resolve(noteData, out ChromaObjectData? chromaData))
+            if (_deserializedData.Resolve(noteData, out ChromaObjectData? chromaData))
             {
                 _noteManager.Colorize(__instance, chromaData.Color);
             }
@@ -66,7 +66,7 @@ namespace Chroma.HarmonyPatches.Colorizer
         [AffinityPatch(typeof(ObstacleController), nameof(ObstacleController.Init))]
         private void ObstacleColorize(ObstacleController __instance, ObstacleData obstacleData)
         {
-            if (_customData.Resolve(obstacleData, out ChromaObjectData? chromaData))
+            if (_deserializedData.Resolve(obstacleData, out ChromaObjectData? chromaData))
             {
                 _obstacleManager.Colorize(__instance, chromaData.Color);
             }
@@ -77,7 +77,7 @@ namespace Chroma.HarmonyPatches.Colorizer
         private void NoteUpdateColorize(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
             if (ChromaConfig.Instance.NoteColoringDisabled
-                || !_customData.Resolve(____noteData, out ChromaObjectData? chromaData))
+                || !_deserializedData.Resolve(____noteData, out ChromaObjectData? chromaData))
             {
                 return;
             }
@@ -124,7 +124,7 @@ namespace Chroma.HarmonyPatches.Colorizer
             float ____move2Duration,
             float ____obstacleDuration)
         {
-            if (!_customData.Resolve(____obstacleData, out ChromaObjectData? chromaData))
+            if (!_deserializedData.Resolve(____obstacleData, out ChromaObjectData? chromaData))
             {
                 return;
             }

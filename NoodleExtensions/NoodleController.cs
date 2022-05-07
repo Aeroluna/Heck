@@ -62,7 +62,7 @@ namespace NoodleExtensions
 
         internal static HeckPatcher FeaturesPatcher { get; } = new(HARMONY_ID + "Features", PatchType.Features);
 
-        internal static CustomDataDeserializer Deserializer { get; } = DeserializerManager.Register<CustomDataManager>(ID);
+        internal static DataDeserializer Deserializer { get; } = DeserializerManager.Register<CustomDataManager>(ID);
 
         internal static CustomJSONDataDeserializer JSONDeserializer { get; } = CustomJSONDataDeserializer.Register<FakeNotesJSON>();
 

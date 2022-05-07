@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Chroma.Settings;
-using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
@@ -90,9 +89,9 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             bool v2 = _beatmapData.version2_6_0AndEarlier;
 
-            IEnumerable<Dictionary<string, object?>>? environmentData = _beatmapData.customData
+            IEnumerable<CustomData>? environmentData = _beatmapData.customData
                 .Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)?
-                .Cast<Dictionary<string, object?>>();
+                .Cast<CustomData>();
             GetAllGameObjects();
 
             if (environmentData != null)
@@ -104,7 +103,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                 string[] gameObjectInfoIds = _gameObjectInfos.Select(n => n.FullID).ToArray();
 
-                foreach (Dictionary<string, object?> gameObjectData in environmentData)
+                foreach (CustomData gameObjectData in environmentData)
                 {
                     string id = gameObjectData.Get<string>(v2 ? V2_GAMEOBJECT_ID : GAMEOBJECT_ID)
                                 ?? throw new InvalidOperationException("Id was not defined.");

@@ -50,9 +50,10 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                     continue;
                 }
 
-                Dictionary<string, object?> dynData = noteData.customData;
+                CustomData customData = noteData.customData;
 
-                IEnumerable<float?>? position = dynData.GetNullableFloats(V2_POSITION)?.ToList();
+                // TODO: figure out a way to get v2
+                IEnumerable<float?>? position = customData.GetNullableFloats(V2_POSITION)?.ToList();
                 float lineIndex = position?.ElementAtOrDefault(0) ?? (noteData.lineIndex - 2);
                 float lineLayer = position?.ElementAtOrDefault(1) ?? (float)noteData.noteLineLayer;
 
@@ -83,22 +84,22 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 }
 
                 // Flippy stuff
-                IEnumerable<float?>? flip = dynData.GetNullableFloats(FLIP)?.ToList();
+                IEnumerable<float?>? flip = customData.GetNullableFloats(FLIP)?.ToList();
                 float? flipX = flip?.ElementAtOrDefault(0);
                 float? flipY = flip?.ElementAtOrDefault(1);
                 if (flipX.HasValue || flipY.HasValue)
                 {
                     if (flipX.HasValue)
                     {
-                        dynData[INTERNAL_FLIPLINEINDEX] = flipX.Value;
+                        customData[INTERNAL_FLIPLINEINDEX] = flipX.Value;
                     }
 
                     if (flipY.HasValue)
                     {
-                        dynData[INTERNAL_FLIPYSIDE] = flipY.Value;
+                        customData[INTERNAL_FLIPYSIDE] = flipY.Value;
                     }
                 }
-                else if (!dynData.ContainsKey(INTERNAL_FLIPYSIDE))
+                else if (!customData.ContainsKey(INTERNAL_FLIPYSIDE))
                 {
                     notesToSetFlip.Add(noteData);
                 }
@@ -114,7 +115,10 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
             }
 
             // Process flip data
-            notesToSetFlip.ForEach(c => c.customData[INTERNAL_FLIPYSIDE] = 0);
+            notesToSetFlip.ForEach(c =>
+            {
+                c.customData[INTERNAL_FLIPYSIDE] = 0;
+            });
         }
 
         [HarmonyPrefix]
@@ -137,8 +141,8 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                     continue;
                 }
 
-                Dictionary<string, object?> dynData = noteData.customData;
-                IEnumerable<float?>? position = dynData.GetNullableFloats(V2_POSITION)?.ToList();
+                CustomData customData = noteData.customData;
+                IEnumerable<float?>? position = customData.GetNullableFloats(V2_POSITION)?.ToList();
                 lineIndexes[i] = position?.ElementAtOrDefault(0) ?? (colorNotesData[i].lineIndex - 2);
                 lineLayers[i] = position?.ElementAtOrDefault(1) ?? (float)colorNotesData[i].noteLineLayer;
             }
@@ -160,8 +164,8 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
 
                     // apparently I can use customData to store my own variables in noteData, neat
                     // ^ comment from a very young and naive aero
-                    Dictionary<string, object?> dynData = noteData.customData;
-                    dynData[INTERNAL_FLIPLINEINDEX] = lineIndexes[1 - i];
+                    CustomData customData = noteData.customData;
+                    customData[INTERNAL_FLIPLINEINDEX] = lineIndexes[1 - i];
 
                     float flipYSide = (lineIndexes[i] > lineIndexes[1 - i]) ? 1 : -1;
                     if ((lineIndexes[i] > lineIndexes[1 - i] &&
@@ -172,7 +176,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                         flipYSide *= -1f;
                     }
 
-                    dynData[INTERNAL_FLIPYSIDE] = flipYSide;
+                    customData[INTERNAL_FLIPYSIDE] = flipYSide;
                 }
             }
         }

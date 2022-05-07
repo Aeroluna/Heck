@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
 using UnityEngine;
 using static Heck.HeckController;
 using Logger = IPA.Logging.Logger;
@@ -45,7 +45,7 @@ namespace Heck.Animation
             return (T?)property?.Value;
         }
 
-        public static PointDefinition? GetPointData(this Dictionary<string, object?> customData, string pointName, Dictionary<string, PointDefinition> pointDefinitions)
+        public static PointDefinition? GetPointData(this CustomData customData, string pointName, Dictionary<string, PointDefinition> pointDefinitions)
         {
             object? pointString = customData.Get<object>(pointName);
             switch (pointString)
@@ -70,37 +70,37 @@ namespace Heck.Animation
             }
         }
 
-        public static Track GetTrack(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, bool v2)
+        public static Track GetTrack(this CustomData customData, Dictionary<string, Track> beatmapTracks, bool v2)
         {
             return GetTrack(customData, beatmapTracks, v2 ? V2_TRACK : TRACK);
         }
 
-        public static Track GetTrack(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name)
+        public static Track GetTrack(this CustomData customData, Dictionary<string, Track> beatmapTracks, string name)
         {
             return GetNullableTrack(customData, beatmapTracks, name) ?? throw new InvalidOperationException($"{name} was not defined.");
         }
 
-        public static Track? GetNullableTrack(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, bool v2)
+        public static Track? GetNullableTrack(this CustomData customData, Dictionary<string, Track> beatmapTracks, bool v2)
         {
             return GetNullableTrack(customData, beatmapTracks, v2 ? V2_TRACK : TRACK);
         }
 
-        public static IEnumerable<Track> GetTrackArray(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, bool v2)
+        public static IEnumerable<Track> GetTrackArray(this CustomData customData, Dictionary<string, Track> beatmapTracks, bool v2)
         {
             return GetTrackArray(customData, beatmapTracks, v2 ? V2_TRACK : TRACK);
         }
 
-        public static IEnumerable<Track> GetTrackArray(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name)
+        public static IEnumerable<Track> GetTrackArray(this CustomData customData, Dictionary<string, Track> beatmapTracks, string name)
         {
             return GetNullableTrackArray(customData, beatmapTracks, name) ?? throw new InvalidOperationException($"{name} was not defined.");
         }
 
-        public static IEnumerable<Track>? GetNullableTrackArray(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, bool v2)
+        public static IEnumerable<Track>? GetNullableTrackArray(this CustomData customData, Dictionary<string, Track> beatmapTracks, bool v2)
         {
             return GetNullableTrackArray(customData, beatmapTracks, v2 ? V2_TRACK : TRACK);
         }
 
-        public static Track? GetNullableTrack(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name)
+        public static Track? GetNullableTrack(this CustomData customData, Dictionary<string, Track> beatmapTracks, string name)
         {
             string? trackName = customData.Get<string>(name);
             if (trackName == null)
@@ -116,7 +116,7 @@ namespace Heck.Animation
             throw new InvalidOperationException($"Could not find track [{trackName}].");
         }
 
-        public static IEnumerable<Track>? GetNullableTrackArray(this Dictionary<string, object?> customData, Dictionary<string, Track> beatmapTracks, string name)
+        public static IEnumerable<Track>? GetNullableTrackArray(this CustomData customData, Dictionary<string, Track> beatmapTracks, string name)
         {
             object? trackNameRaw = customData.Get<object>(name);
             if (trackNameRaw == null)

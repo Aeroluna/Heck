@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
@@ -18,16 +17,16 @@ namespace NoodleExtensions.HarmonyPatches.LeftHanded
         [HarmonyPatch(nameof(ObstacleData.Mirror))]
         private static void Prefix(ObstacleData __instance) // prefix because we need to know the lineIndex before it gets mirrored
         {
-            if (__instance is not CustomObstacleData customData)
+            if (__instance is not CustomObstacleData customNoteData)
             {
                 return;
             }
 
-            Dictionary<string, object?> dynData = customData.customData;
-            IEnumerable<float?>? position = dynData.GetNullableFloats(V2_POSITION)?.ToList();
-            IEnumerable<float?>? scale = dynData.GetNullableFloats(V2_SCALE)?.ToList();
-            Vector3? localrot = dynData.GetVector3(V2_LOCAL_ROTATION);
-            object? rotation = dynData.Get<object>(V2_ROTATION);
+            CustomData customData = customNoteData.customData;
+            IEnumerable<float?>? position = customData.GetNullableFloats(V2_POSITION)?.ToList();
+            IEnumerable<float?>? scale = customData.GetNullableFloats(V2_SCALE)?.ToList();
+            Vector3? localrot = customData.GetVector3(V2_LOCAL_ROTATION);
+            object? rotation = customData.Get<object>(V2_ROTATION);
 
             float? startX = position?.ElementAtOrDefault(0);
             float? scaleX = scale?.ElementAtOrDefault(0);
@@ -35,19 +34,19 @@ namespace NoodleExtensions.HarmonyPatches.LeftHanded
             float width = scaleX.GetValueOrDefault(__instance.width);
             if (startX.HasValue)
             {
-                dynData[V2_POSITION] = new List<object?> { (startX.Value + width) * -1, position!.ElementAtOrDefault(1) };
+                customData[V2_POSITION] = new List<object?> { (startX.Value + width) * -1, position!.ElementAtOrDefault(1) };
             }
             else if (scaleX.HasValue)
             {
                 float lineIndex = __instance.lineIndex - 2;
-                dynData[V2_POSITION] = new List<object?> { (lineIndex + width) * -1, position?.ElementAtOrDefault(1) ?? 0 };
+                customData[V2_POSITION] = new List<object?> { (lineIndex + width) * -1, position?.ElementAtOrDefault(1) ?? 0 };
             }
 
             if (localrot != null)
             {
                 Quaternion modifiedVector = Quaternion.Euler(localrot.Value);
                 Vector3 vector = new Quaternion(modifiedVector.x, modifiedVector.y * -1, modifiedVector.z * -1, modifiedVector.w).eulerAngles;
-                dynData[V2_LOCAL_ROTATION] = new List<object> { vector.x, vector.y, vector.z };
+                customData[V2_LOCAL_ROTATION] = new List<object> { vector.x, vector.y, vector.z };
             }
 
             if (rotation == null)
@@ -61,11 +60,11 @@ namespace NoodleExtensions.HarmonyPatches.LeftHanded
                     List<float> rot = list.Select(Convert.ToSingle).ToList();
                     Quaternion modifiedVector = Quaternion.Euler(rot[0], rot[1], rot[2]);
                     Vector3 vector = new Quaternion(modifiedVector.x, modifiedVector.y * -1, modifiedVector.z * -1, modifiedVector.w).eulerAngles;
-                    dynData[V2_ROTATION] = new List<object> { vector.x, vector.y, vector.z };
+                    customData[V2_ROTATION] = new List<object> { vector.x, vector.y, vector.z };
                 }
                 else
                 {
-                    dynData[V2_ROTATION] = Convert.ToSingle(rotation) * -1;
+                    customData[V2_ROTATION] = Convert.ToSingle(rotation) * -1;
                 }
             }
         }

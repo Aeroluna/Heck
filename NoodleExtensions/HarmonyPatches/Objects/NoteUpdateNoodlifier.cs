@@ -24,18 +24,18 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.Accessor _gameNoteSmallCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.GetAccessor("_smallCuttableBySaberList");
         private static readonly FieldAccessor<BombNoteController, CuttableBySaber>.Accessor _bombNoteCuttableAccessor = FieldAccessor<BombNoteController, CuttableBySaber>.GetAccessor("_cuttableBySaber");
 
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
         private readonly AnimationHelper _animationHelper;
         private readonly CutoutManager _cutoutManager;
         private readonly LazyInject<NoteJumpNoodlifier> _noteJumpNoodlifier;
 
         private NoteUpdateNoodlifier(
-            [Inject(Id = NoodleController.ID)] CustomData customData,
+            [Inject(Id = NoodleController.ID)] DeserializedData deserializedData,
             AnimationHelper animationHelper,
             CutoutManager cutoutManager,
             LazyInject<NoteJumpNoodlifier> noteJumpNoodlifier)
         {
-            _customData = customData;
+            _deserializedData = deserializedData;
             _animationHelper = animationHelper;
             _cutoutManager = cutoutManager;
             _noteJumpNoodlifier = noteJumpNoodlifier;
@@ -47,7 +47,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         [AffinityPatch(typeof(NoteController), nameof(NoteController.ManualUpdate))]
         private void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
-            if (!_customData.Resolve(____noteData, out NoodleNoteData? noodleData))
+            if (!_deserializedData.Resolve(____noteData, out NoodleNoteData? noodleData))
             {
                 NoodleData = null;
                 return;

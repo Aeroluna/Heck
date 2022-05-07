@@ -12,14 +12,14 @@ namespace Chroma.HarmonyPatches.Events
         private readonly Dictionary<TrackLaneRingsRotationEffect, ChromaRingsRotationEffect> _chromaRings = new();
 
         private readonly ChromaRingsRotationEffect.Factory _factory;
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
 
         private RingRotationChromafier(
             ChromaRingsRotationEffect.Factory factory,
-            [Inject(Id = ChromaController.ID)] CustomData customData)
+            [Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
         {
             _factory = factory;
-            _customData = customData;
+            _deserializedData = deserializedData;
         }
 
         [AffinityPrefix]
@@ -61,7 +61,7 @@ namespace Chroma.HarmonyPatches.Events
             float ____rotationFlexySpeed,
             TrackLaneRingsRotationEffectSpawner.RotationStepType ____rotationStepType)
         {
-            if (!_customData.Resolve(basicBeatmapEventData, out ChromaEventData? chromaData))
+            if (!_deserializedData.Resolve(basicBeatmapEventData, out ChromaEventData? chromaData))
             {
                 return false;
             }

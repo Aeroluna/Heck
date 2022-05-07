@@ -41,7 +41,7 @@ namespace Chroma.Lighting
         private readonly LightWithIdManager _lightManager;
         private readonly SongTimeTweeningManager _tweeningManager;
         private readonly BeatmapCallbacksController _callbacksController;
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
         private readonly ChromaGradientController? _gradientController;
 
         private readonly BeatmapDataCallbackWrapper _basicCallbackWrapper;
@@ -67,14 +67,14 @@ namespace Chroma.Lighting
             SongTimeTweeningManager tweeningManager,
             LightColorizerManager lightColorizerManager,
             BeatmapCallbacksController callbacksController,
-            [Inject(Id = ChromaController.ID)] CustomData customData,
+            [Inject(Id = ChromaController.ID)] DeserializedData deserializedData,
             [InjectOptional] ChromaGradientController? gradientController)
         {
             LightSwitchEventEffect = lightSwitchEventEffect;
             _lightManager = lightManager;
             _tweeningManager = tweeningManager;
             _callbacksController = callbacksController;
-            _customData = customData;
+            _deserializedData = deserializedData;
             _gradientController = gradientController;
 
             EventType = _eventAccessor(ref lightSwitchEventEffect);
@@ -203,7 +203,7 @@ namespace Chroma.Lighting
                 // this code is UGLY
                 void CheckNextEventForFadeBetter()
                 {
-                    _customData.Resolve(previousEvent, out ChromaEventData? eventData);
+                    _deserializedData.Resolve(previousEvent, out ChromaEventData? eventData);
                     Dictionary<int, BasicBeatmapEventData>? nextSameTypesDict = eventData?.NextSameTypeEvent;
                     BasicBeatmapEventData? nextSameTypeEvent;
                     if (ChromaController.FeaturesPatcher.Enabled && (nextSameTypesDict?.ContainsKey(tween.Id) ?? false))
@@ -224,7 +224,7 @@ namespace Chroma.Lighting
                     int nextValue = nextSameTypeEvent.value;
                     Color nextColor;
 
-                    _customData.Resolve(nextSameTypeEvent, out ChromaEventData? nextEventData);
+                    _deserializedData.Resolve(nextSameTypeEvent, out ChromaEventData? nextEventData);
                     Color? nextColorData = nextEventData?.ColorData;
                     if (ChromaController.FeaturesPatcher.Enabled && nextColorData.HasValue)
                     {
@@ -406,7 +406,7 @@ namespace Chroma.Lighting
                     throw new InvalidOperationException("Chroma Features requires the gradient controller.");
                 }
 
-                if (_customData.Resolve(beatmapEventData, out ChromaEventData? chromaData))
+                if (_deserializedData.Resolve(beatmapEventData, out ChromaEventData? chromaData))
                 {
                     Color? color = null;
 

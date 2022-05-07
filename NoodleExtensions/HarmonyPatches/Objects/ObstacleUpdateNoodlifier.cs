@@ -22,16 +22,16 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private static readonly FieldInfo _finishMovementTime = AccessTools.Field(typeof(ObstacleController), "_finishMovementTime");
 
         private readonly CodeInstruction _obstacleTimeAdjust;
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
         private readonly AnimationHelper _animationHelper;
         private readonly CutoutManager _cutoutManager;
 
         private ObstacleUpdateNoodlifier(
-            [Inject(Id = ID)] CustomData customData,
+            [Inject(Id = ID)] DeserializedData deserializedData,
             AnimationHelper animationHelper,
             CutoutManager cutoutManager)
         {
-            _customData = customData;
+            _deserializedData = deserializedData;
             _animationHelper = animationHelper;
             _cutoutManager = cutoutManager;
             _obstacleTimeAdjust = InstanceTranspilers.EmitInstanceDelegate<Func<float, ObstacleData, float, float, float>>(ObstacleTimeAdjust);
@@ -61,7 +61,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
         private float ObstacleTimeAdjust(float original, ObstacleData obstacleData, float move1Duration, float finishMovementTime)
         {
-            if (!(original > move1Duration) || !_customData.Resolve(obstacleData, out NoodleObstacleData? noodleData))
+            if (!(original > move1Duration) || !_deserializedData.Resolve(obstacleData, out NoodleObstacleData? noodleData))
             {
                 return original;
             }
@@ -92,7 +92,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             ref Quaternion ____inverseWorldRotation,
             ref Bounds ____bounds)
         {
-            if (!_customData.Resolve(____obstacleData, out NoodleObstacleData? noodleData))
+            if (!_deserializedData.Resolve(____obstacleData, out NoodleObstacleData? noodleData))
             {
                 return;
             }
@@ -199,7 +199,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             float ____obstacleDuration,
             float time)
         {
-            if (!_customData.Resolve(____obstacleData, out NoodleObstacleData? noodleData))
+            if (!_deserializedData.Resolve(____obstacleData, out NoodleObstacleData? noodleData))
             {
                 return true;
             }

@@ -8,6 +8,7 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
 using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -115,13 +116,13 @@ namespace Heck.SettingsSetter
             // When in doubt, wrap everything in one big try catch statement!
             try
             {
-                Dictionary<string, object?>? settings = startParameters.DifficultyBeatmap.GetBeatmapCustomData().Get<Dictionary<string, object?>>("_settings");
+                CustomData? settings = startParameters.DifficultyBeatmap.GetBeatmapCustomData().Get<CustomData>("_settings");
                 if (settings != null)
                 {
                     _contents.Clear();
                     _modifiedParameters = startParameters;
 
-                    Dictionary<string, object?>? jsonPlayerOptions = settings.Get<Dictionary<string, object?>>("_playerOptions");
+                    CustomData? jsonPlayerOptions = settings.Get<CustomData>("_playerOptions");
                     if (jsonPlayerOptions != null)
                     {
                         PlayerSpecificSettings playerSettings = startParameters.PlayerSpecificSettings;
@@ -162,7 +163,7 @@ namespace Heck.SettingsSetter
                         _modifiedParameters.PlayerSpecificSettings = modifiedPlayerSettings;
                     }
 
-                    Dictionary<string, object?>? jsonModifiers = settings.Get<Dictionary<string, object?>>("_modifiers");
+                    CustomData? jsonModifiers = settings.Get<CustomData>("_modifiers");
                     if (jsonModifiers != null)
                     {
                         GameplayModifiers gameplayModifiers = startParameters.GameplayModifiers;
@@ -210,7 +211,7 @@ namespace Heck.SettingsSetter
                         _modifiedParameters.GameplayModifiers = modifiedGameplayModifiers;
                     }
 
-                    Dictionary<string, object?>? jsonEnvironments = settings.Get<Dictionary<string, object?>>("_environments");
+                    CustomData? jsonEnvironments = settings.Get<CustomData>("_environments");
                     if (jsonEnvironments != null)
                     {
                         OverrideEnvironmentSettings environmentOverrideSettings = startParameters.OverrideEnvironmentSettings;
@@ -235,7 +236,7 @@ namespace Heck.SettingsSetter
                         }
                     }
 
-                    Dictionary<string, object?>? jsonColors = settings.Get<Dictionary<string, object?>>("_colors");
+                    CustomData? jsonColors = settings.Get<CustomData>("_colors");
                     if (jsonColors != null)
                     {
                         Dictionary<string, object> settableColorSetting = SettingSetterSettableSettingsManager.SettingsTable["_colors"].First();
@@ -254,7 +255,7 @@ namespace Heck.SettingsSetter
 
                     _modifiedMainSettings = null;
                     _cachedMainSettings = null;
-                    Dictionary<string, object?>? jsonGraphics = settings.Get<Dictionary<string, object?>>("_graphics");
+                    CustomData? jsonGraphics = settings.Get<CustomData>("_graphics");
                     if (jsonGraphics != null)
                     {
                         List<Dictionary<string, object>> settableGraphicsSettings = SettingSetterSettableSettingsManager.SettingsTable["_graphics"];
@@ -308,7 +309,7 @@ namespace Heck.SettingsSetter
                     _settableSettingsToSet = null;
                     foreach ((string s, Dictionary<string, ISettableSetting> value) in SettingSetterSettableSettingsManager.SettableSettings)
                     {
-                        Dictionary<string, object?>? jsonGroup = settings.Get<Dictionary<string, object?>>(s);
+                        CustomData? jsonGroup = settings.Get<CustomData>(s);
                         if (jsonGroup == null)
                         {
                             continue;

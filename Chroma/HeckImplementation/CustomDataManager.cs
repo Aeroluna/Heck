@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Chroma.Lighting;
-using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
@@ -23,10 +22,10 @@ namespace Chroma
             IReadOnlyList<CustomEventData> customEventDatas,
             bool v2)
         {
-            IEnumerable<Dictionary<string, object?>>? environmentData = beatmapData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Cast<Dictionary<string, object?>>();
+            IEnumerable<CustomData>? environmentData = beatmapData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Cast<CustomData>();
             if (environmentData != null)
             {
-                foreach (Dictionary<string, object?> gameObjectData in environmentData)
+                foreach (CustomData gameObjectData in environmentData)
                 {
                     string? trackName = gameObjectData.Get<string>(v2 ? V2_TRACK : TRACK);
                     if (trackName != null)
@@ -107,7 +106,7 @@ namespace Chroma
                 try
                 {
                     ChromaObjectData chromaObjectData;
-                    Dictionary<string, object?> customData;
+                    CustomData customData;
 
                     switch (beatmapObjectData)
                     {
@@ -132,10 +131,10 @@ namespace Chroma
                             continue;
                     }
 
-                    Dictionary<string, object?>? animationObjectDyn = customData.Get<Dictionary<string, object?>>(v2 ? V2_ANIMATION : ANIMATION);
-                    if (animationObjectDyn != null)
+                    CustomData? animationData = customData.Get<CustomData>(v2 ? V2_ANIMATION : ANIMATION);
+                    if (animationData != null)
                     {
-                        chromaObjectData.LocalPathColor = animationObjectDyn.GetPointData(v2 ? V2_COLOR : COLOR, pointDefinitions);
+                        chromaObjectData.LocalPathColor = animationData.GetPointData(v2 ? V2_COLOR : COLOR, pointDefinitions);
                     }
 
                     chromaObjectData.Track = customData.GetNullableTrackArray(beatmapTracks, v2)?.ToList();
@@ -170,7 +169,7 @@ namespace Chroma
             {
                 try
                 {
-                    Dictionary<string, object?> customData = ((ICustomData)beatmapEventData).customData;
+                    CustomData customData = ((ICustomData)beatmapEventData).customData;
 
                     Color? color = GetColorFromData(customData, v2);
                     if (legacyLightHelper != null)
@@ -198,7 +197,7 @@ namespace Chroma
 
                     if (v2)
                     {
-                        Dictionary<string, object?>? gradientObject = customData.Get<Dictionary<string, object?>>(V2_LIGHT_GRADIENT);
+                        CustomData? gradientObject = customData.Get<CustomData>(V2_LIGHT_GRADIENT);
                         if (gradientObject != null)
                         {
                             chromaEventData.GradientObject = new ChromaEventData.GradientObjectData(
@@ -299,12 +298,12 @@ namespace Chroma
             return dictionary;
         }
 
-        private static Color? GetColorFromData(Dictionary<string, object?> data, bool v2)
+        private static Color? GetColorFromData(CustomData data, bool v2)
         {
             return GetColorFromData(data, v2 ? V2_COLOR : COLOR);
         }
 
-        private static Color? GetColorFromData(Dictionary<string, object?> data, string member = COLOR)
+        private static Color? GetColorFromData(CustomData data, string member = COLOR)
         {
             List<float>? color = data.Get<List<object>>(member)?.Select(Convert.ToSingle).ToList();
             if (color == null)

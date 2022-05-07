@@ -18,24 +18,24 @@ namespace Heck.Animation.Events
         private readonly IBpmController _bpmController;
         private readonly EventController _eventController;
         private readonly IAudioTimeSource _audioTimeSource;
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
 
         [UsedImplicitly]
         private CoroutineEventManager(
             IBpmController bpmController,
             EventController eventController,
             IAudioTimeSource audioTimeSource,
-            [Inject(Id = ID)] CustomData customData)
+            [Inject(Id = ID)] DeserializedData deserializedData)
         {
             _bpmController = bpmController;
             _eventController = eventController;
             _audioTimeSource = audioTimeSource;
-            _customData = customData;
+            _deserializedData = deserializedData;
         }
 
         internal void StartEventCoroutine(CustomEventData customEventData, EventType eventType)
         {
-            if (!_customData.Resolve(customEventData, out HeckCoroutineEventData? heckData))
+            if (!_deserializedData.Resolve(customEventData, out HeckCoroutineEventData? heckData))
             {
                 return;
             }

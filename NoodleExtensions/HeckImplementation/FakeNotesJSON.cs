@@ -10,7 +10,7 @@ namespace NoodleExtensions
     internal class FakeNotesJSON
     {
         [CustomJSONDataDeserializer.JSONDeserializer("fakeColorNotes")]
-        private static bool HandleFakeNotes(CustomBeatmapSaveData.CustomData customData, List<BeatmapSaveData.ColorNoteData> colorNotes, JsonTextReader reader)
+        private static bool HandleFakeNotes(CustomBeatmapSaveData.SaveDataCustomDatas customData, List<BeatmapSaveData.ColorNoteData> colorNotes, JsonTextReader reader)
         {
             if (CheckRequirement(customData))
             {
@@ -27,7 +27,7 @@ namespace NoodleExtensions
         }
 
         [CustomJSONDataDeserializer.JSONDeserializer("fakeBombNotes")]
-        private static bool HandleFakeBombs(CustomBeatmapSaveData.CustomData customData, List<BeatmapSaveData.BombNoteData> bombNotes, JsonTextReader reader)
+        private static bool HandleFakeBombs(CustomBeatmapSaveData.SaveDataCustomDatas customData, List<BeatmapSaveData.BombNoteData> bombNotes, JsonTextReader reader)
         {
             if (CheckRequirement(customData))
             {
@@ -44,7 +44,7 @@ namespace NoodleExtensions
         }
 
         [CustomJSONDataDeserializer.JSONDeserializer("fakeObstacles")]
-        private static bool HandleFakeObstacles(CustomBeatmapSaveData.CustomData customData, List<BeatmapSaveData.ObstacleData> obstacles, JsonTextReader reader)
+        private static bool HandleFakeObstacles(CustomBeatmapSaveData.SaveDataCustomDatas customData, List<BeatmapSaveData.ObstacleData> obstacles, JsonTextReader reader)
         {
             if (CheckRequirement(customData))
             {
@@ -60,7 +60,7 @@ namespace NoodleExtensions
             return false;
         }
 
-        private static bool CheckRequirement(CustomBeatmapSaveData.CustomData customData)
+        private static bool CheckRequirement(CustomBeatmapSaveData.SaveDataCustomDatas customData)
         {
             return !(customData.beatmapCustomData.Get<List<object>>("_requirements")?.Contains(CAPABILITY) ?? false);
         }

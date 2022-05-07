@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Logging;
@@ -64,7 +63,7 @@ namespace Heck
         {
             HeckCoroutineEventData heckEventData = new();
 
-            Dictionary<string, object?> data = customEventData.customData;
+            CustomData data = customEventData.customData;
 
             Functions? easing = data.GetStringToEnum<Functions?>(v2 ? V2_EASING : EASING);
             heckEventData.Easing = easing ?? Functions.easeLinear;

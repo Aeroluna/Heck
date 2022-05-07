@@ -129,7 +129,7 @@ namespace NoodleExtensions.Animation
 
         private void Update()
         {
-            Quaternion? rotation = _track.GetProperty<Quaternion?>(WORLD_ROTATION);
+            Quaternion? rotation = _track.GetProperty<Quaternion?>(OFFSET_ROTATION);
             if (rotation.HasValue)
             {
                 if (_leftHanded)

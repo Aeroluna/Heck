@@ -25,16 +25,16 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private readonly CodeInstruction _getCustomWidth;
         private readonly CodeInstruction _getCustomLength;
 
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
         private readonly BeatmapObjectSpawnMovementData _movementData;
         private readonly ManagedActiveObstacleTracker _obstacleTracker;
 
         private ObstacleInitNoodlifier(
-            [Inject(Id = NoodleController.ID)] CustomData customData,
+            [Inject(Id = NoodleController.ID)] DeserializedData deserializedData,
             IBeatmapObjectSpawnController spawnController,
             ManagedActiveObstacleTracker obstacleTracker)
         {
-            _customData = customData;
+            _deserializedData = deserializedData;
             _obstacleTracker = obstacleTracker;
             _movementData = spawnController.beatmapObjectSpawnMovementData;
 
@@ -92,7 +92,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         [AffinityPatch(typeof(ObstacleController), nameof(ObstacleController.Init))]
         private void Postfix(ObstacleController __instance, Quaternion ____worldRotation, ObstacleData obstacleData, Vector3 ____startPos, Vector3 ____midPos, Vector3 ____endPos, ref Bounds ____bounds)
         {
-            if (!_customData.Resolve(obstacleData, out NoodleObstacleData? noodleData))
+            if (!_deserializedData.Resolve(obstacleData, out NoodleObstacleData? noodleData))
             {
                 return;
             }
@@ -140,7 +140,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         {
             Quaternion worldRotation = Quaternion.Euler(0, @default, 0);
 
-            if (!_customData.Resolve(obstacleData, out NoodleObstacleData? noodleData))
+            if (!_deserializedData.Resolve(obstacleData, out NoodleObstacleData? noodleData))
             {
                 return worldRotation;
             }
@@ -158,13 +158,13 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
         private float GetCustomWidth(float @default, ObstacleData obstacleData)
         {
-            _customData.Resolve(obstacleData, out NoodleObstacleData? noodleData);
+            _deserializedData.Resolve(obstacleData, out NoodleObstacleData? noodleData);
             return noodleData?.Width ?? @default;
         }
 
         private float GetCustomLength(float @default, ObstacleData obstacleData)
         {
-            _customData.Resolve(obstacleData, out NoodleObstacleData? noodleData);
+            _deserializedData.Resolve(obstacleData, out NoodleObstacleData? noodleData);
             return noodleData?.Length * _movementData.noteLinesDistance ?? @default;
         }
     }

@@ -5,13 +5,13 @@ using CustomJSONData.CustomBeatmap;
 
 namespace Heck
 {
-    public class CustomData
+    public class DeserializedData
     {
         private readonly Dictionary<CustomEventData, ICustomEventCustomData> _customEventCustomDatas;
         private readonly Dictionary<BeatmapEventData, IEventCustomData> _eventCustomDatas;
         private readonly Dictionary<BeatmapObjectData, IObjectCustomData> _objectCustomDatas;
 
-        internal CustomData(
+        internal DeserializedData(
             Dictionary<CustomEventData, ICustomEventCustomData> customEventCustomDatas,
             Dictionary<BeatmapEventData, IEventCustomData> eventCustomDatas,
             Dictionary<BeatmapObjectData, IObjectCustomData> objectCustomDatas)

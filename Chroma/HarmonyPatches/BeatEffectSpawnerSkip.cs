@@ -14,13 +14,13 @@ namespace Chroma.HarmonyPatches
         private static readonly FieldInfo _hideNoteSpawnEffect =
             AccessTools.Field(typeof(BeatEffectSpawner.InitData), nameof(BeatEffectSpawner.InitData.hideNoteSpawnEffect));
 
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
 
         private readonly CodeInstruction _beatEffectForce;
 
-        private BeatEffectSpawnerSkip([Inject(Id = ChromaController.ID)] CustomData customData)
+        private BeatEffectSpawnerSkip([Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
         {
-            _customData = customData;
+            _deserializedData = deserializedData;
             _beatEffectForce = InstanceTranspilers.EmitInstanceDelegate<Func<bool, NoteController, bool>>(BeatEffectForce);
         }
 
@@ -44,7 +44,7 @@ namespace Chroma.HarmonyPatches
 
         private bool BeatEffectForce(bool hideNoteSpawnEffect, NoteController noteController)
         {
-            if (_customData.Resolve(noteController.noteData, out ChromaNoteData? chromaData) && chromaData.SpawnEffect.HasValue)
+            if (_deserializedData.Resolve(noteController.noteData, out ChromaNoteData? chromaData) && chromaData.SpawnEffect.HasValue)
             {
                 return !chromaData.SpawnEffect.Value;
             }

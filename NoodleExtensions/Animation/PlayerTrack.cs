@@ -6,6 +6,7 @@ using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
 using static Heck.NullableExtensions;
+using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions.Animation
 {
@@ -78,7 +79,7 @@ namespace NoodleExtensions.Animation
                 return;
             }
 
-            Quaternion? rotation = _track.GetProperty<Quaternion?>(V2_ROTATION);
+            Quaternion? rotation = _track.GetProperty<Quaternion?>(OFFSET_ROTATION);
             if (rotation.HasValue)
             {
                 if (_leftHanded)
@@ -87,7 +88,7 @@ namespace NoodleExtensions.Animation
                 }
             }
 
-            Vector3? position = _track.GetProperty<Vector3?>(V2_POSITION);
+            Vector3? position = _track.GetProperty<Vector3?>(OFFSET_POSITION);
             if (position.HasValue)
             {
                 if (_leftHanded)

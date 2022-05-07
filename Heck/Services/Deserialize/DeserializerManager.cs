@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Logging;
@@ -12,11 +11,11 @@ namespace Heck
 {
     public static class DeserializerManager
     {
-        private static readonly HashSet<CustomDataDeserializer> _customDataDeserializers = new();
+        private static readonly HashSet<DataDeserializer> _customDataDeserializers = new();
 
-        public static CustomDataDeserializer Register<T>(object? id)
+        public static DataDeserializer Register<T>(object? id)
         {
-            CustomDataDeserializer deserializer = new(id, typeof(T));
+            DataDeserializer deserializer = new(id, typeof(T));
             _customDataDeserializers.Add(deserializer);
             return deserializer;
         }
@@ -42,15 +41,15 @@ namespace Heck
                 .ToArray();
             foreach (BeatmapObjectData beatmapObjectData in untransformedObjectDatas)
             {
-                Dictionary<string, object?> dynData = ((ICustomData)beatmapObjectData).customData;
+                CustomData customData = ((ICustomData)beatmapObjectData).customData;
                 switch (beatmapObjectData)
                 {
                     case CustomObstacleData obstacleData:
-                        dynData = obstacleData.customData;
+                        customData = obstacleData.customData;
                         break;
 
                     case CustomNoteData noteData:
-                        dynData = noteData.customData;
+                        customData = noteData.customData;
                         break;
 
                     default:
@@ -58,7 +57,7 @@ namespace Heck
                 }
 
                 // for epic tracks thing
-                object? trackNameRaw = dynData.Get<object>(v2 ? V2_TRACK : TRACK);
+                object? trackNameRaw = customData.Get<object>(v2 ? V2_TRACK : TRACK);
                 if (trackNameRaw == null)
                 {
                     continue;
@@ -95,11 +94,11 @@ namespace Heck
                 }
             }
 
-            IEnumerable<Dictionary<string, object?>>? pointDefinitionsRaw =
-                customBeatmapData.customData.Get<List<object>>(v2 ? V2_POINT_DEFINITIONS : POINT_DEFINITIONS)?.Cast<Dictionary<string, object?>>();
+            IEnumerable<CustomData>? pointDefinitionsRaw =
+                customBeatmapData.customData.Get<List<object>>(v2 ? V2_POINT_DEFINITIONS : POINT_DEFINITIONS)?.Cast<CustomData>();
             if (pointDefinitionsRaw != null)
             {
-                foreach (Dictionary<string, object?> pointDefintionRaw in pointDefinitionsRaw)
+                foreach (CustomData pointDefintionRaw in pointDefinitionsRaw)
                 {
                     string pointName = pointDefintionRaw.Get<string>(v2 ? V2_NAME : NAME) ?? throw new InvalidOperationException("Failed to retrieve point name.");
                     PointDefinition pointData = PointDefinition.ListToPointDefinition(pointDefintionRaw.Get<List<object>>(v2 ? V2_POINTS : POINTS)
@@ -126,15 +125,15 @@ namespace Heck
                     }
                 }
 
-                IEnumerable<Dictionary<string, object?>>? eventDefinitionsRaw =
-                    customBeatmapData.customData.Get<List<object>>(EVENT_DEFINITIONS)?.Cast<Dictionary<string, object?>>();
+                IEnumerable<CustomData>? eventDefinitionsRaw =
+                    customBeatmapData.customData.Get<List<object>>(EVENT_DEFINITIONS)?.Cast<CustomData>();
                 if (eventDefinitionsRaw != null)
                 {
-                    foreach (Dictionary<string, object?> eventDefinitionRaw in eventDefinitionsRaw)
+                    foreach (CustomData eventDefinitionRaw in eventDefinitionsRaw)
                     {
                         string eventName = eventDefinitionRaw.Get<string>(NAME) ?? throw new InvalidOperationException("Failed to retrieve event name.");
                         string type = eventDefinitionRaw.Get<string>(TYPE) ?? throw new InvalidOperationException("Failed to retrieve event type.");
-                        Dictionary<string, object?> data = eventDefinitionRaw.Get<Dictionary<string, object?>>("_data")
+                        CustomData data = eventDefinitionRaw.Get<CustomData>("_data")
                                                            ?? throw new InvalidOperationException("Failed to retrieve event data.");
 
                         AddEvent(eventName, new CustomEventData(-1, type, data));
@@ -182,14 +181,14 @@ namespace Heck
                 v2
             };
 
-            CustomDataDeserializer[] deserializers = _customDataDeserializers.Where(n => n.Enabled).ToArray();
+            DataDeserializer[] deserializers = _customDataDeserializers.Where(n => n.Enabled).ToArray();
 
-            foreach (CustomDataDeserializer deserializer in deserializers)
+            foreach (DataDeserializer deserializer in deserializers)
             {
                 deserializer.InjectedInvokeEarly(inputs);
             }
 
-            foreach (CustomDataDeserializer deserializer in deserializers)
+            foreach (DataDeserializer deserializer in deserializers)
             {
                 Dictionary<CustomEventData, ICustomEventCustomData> customEventCustomDatas = deserializer.InjectedInvokeCustomEvent(inputs);
                 Dictionary<BeatmapEventData, IEventCustomData> eventCustomDatas = deserializer.InjectedInvokeEvent(inputs);
@@ -197,9 +196,9 @@ namespace Heck
 
                 Log.Logger.Log($"Binding [{deserializer.Id}].", Logger.Level.Trace);
 
-                container.Bind<CustomData>()
+                container.Bind<DeserializedData>()
                     .WithId(deserializer.Id)
-                    .FromInstance(new CustomData(customEventCustomDatas, eventCustomDatas, objectCustomDatas));
+                    .FromInstance(new DeserializedData(customEventCustomDatas, eventCustomDatas, objectCustomDatas));
             }
         }
     }

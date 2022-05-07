@@ -22,12 +22,12 @@ namespace NoodleExtensions.HarmonyPatches.LeftHanded
                     continue;
                 }
 
-                Dictionary<string, object?> dynData = customData.customData;
-                float? rotation = dynData.Get<float?>(ROTATION);
+                CustomData customData = customData.customData;
+                float? rotation = customData.Get<float?>(ROTATION);
 
                 if (rotation.HasValue)
                 {
-                    dynData["_rotation"] = rotation * -1;
+                    customData["_rotation"] = rotation * -1;
                 }
             }
         }

@@ -7,11 +7,11 @@ namespace Chroma.HarmonyPatches.Events
 {
     internal class LightRotationChromafier : IAffinity
     {
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
 
-        private LightRotationChromafier([Inject(Id = ChromaController.ID)] CustomData customData)
+        private LightRotationChromafier([Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
         {
-            _customData = customData;
+            _deserializedData = deserializedData;
         }
 
         [AffinityPrefix]
@@ -24,7 +24,7 @@ namespace Chroma.HarmonyPatches.Events
             ref float ____rotationSpeed,
             Vector3 ____rotationVector)
         {
-            if (!_customData.Resolve(basicBeatmapEventData, out ChromaEventData? chromaData))
+            if (!_deserializedData.Resolve(basicBeatmapEventData, out ChromaEventData? chromaData))
             {
                 return true;
             }

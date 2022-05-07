@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BeatmapSaveDataVersion3;
-using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
@@ -34,7 +33,7 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
             return false;
         }
 
-        private static bool FakeCondition(this Dictionary<string, object?> data, string name)
+        private static bool FakeCondition(this CustomData data, string name)
         {
             bool? fake = data.Get<bool?>(name);
             return !fake.HasValue || !fake.Value;

@@ -11,12 +11,12 @@ namespace NoodleExtensions.HarmonyPatches.Mirror
     [HeckPatch(PatchType.Features)]
     internal class MirroredNoteNoodleTracker : IAffinity
     {
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
         private readonly CutoutManager _cutoutManager;
 
-        private MirroredNoteNoodleTracker([Inject(Id = NoodleController.ID)] CustomData customData, CutoutManager cutoutManager)
+        private MirroredNoteNoodleTracker([Inject(Id = NoodleController.ID)] DeserializedData deserializedData, CutoutManager cutoutManager)
         {
-            _customData = customData;
+            _deserializedData = deserializedData;
             _cutoutManager = cutoutManager;
         }
 
@@ -114,7 +114,7 @@ namespace NoodleExtensions.HarmonyPatches.Mirror
 
         private void AddToTrack(NoteData noteData, GameObject gameObject)
         {
-            if (!_customData.Resolve(noteData, out NoodleNoteData? noodleData) || noodleData.Track == null)
+            if (!_deserializedData.Resolve(noteData, out NoodleNoteData? noodleData) || noodleData.Track == null)
             {
                 return;
             }

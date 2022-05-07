@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
@@ -60,7 +59,7 @@ namespace NoodleExtensions
             {
                 try
                 {
-                    Dictionary<string, object?> customData;
+                    CustomData customData;
                     NoodleObjectData noodleObjectData;
                     switch (beatmapObjectData)
                     {
@@ -104,7 +103,7 @@ namespace NoodleExtensions
             {
                 try
                 {
-                    Dictionary<string, object?> data = customEventData.customData;
+                    CustomData data = customEventData.customData;
                     switch (customEventData.eventType)
                     {
                         case ASSIGN_PLAYER_TO_TRACK:
@@ -130,13 +129,13 @@ namespace NoodleExtensions
         }
 
         private static void FinalizeCustomObject(
-            Dictionary<string, object?> dynData,
+            CustomData customData,
             NoodleObjectData noodleObjectData,
             Dictionary<string, PointDefinition> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2)
         {
-            object? rotation = dynData.Get<object>(v2 ? V2_ROTATION : WORLD_ROTATION);
+            object? rotation = customData.Get<object>(v2 ? V2_ROTATION : WORLD_ROTATION);
             if (rotation != null)
             {
                 if (rotation is List<object> list)
@@ -150,51 +149,51 @@ namespace NoodleExtensions
                 }
             }
 
-            Vector3? localrot = dynData.GetVector3(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION);
+            Vector3? localrot = customData.GetVector3(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION);
             if (localrot.HasValue)
             {
                 noodleObjectData.LocalRotationQuaternion = Quaternion.Euler(localrot.Value);
             }
 
-            noodleObjectData.Track = dynData.GetNullableTrackArray(beatmapTracks, v2)?.ToList();
+            noodleObjectData.Track = customData.GetNullableTrackArray(beatmapTracks, v2)?.ToList();
 
-            Dictionary<string, object?>? animationObjectDyn = dynData.Get<Dictionary<string, object?>>(v2 ? V2_ANIMATION : ANIMATION);
-            if (animationObjectDyn != null)
+            CustomData? animationData = customData.Get<CustomData>(v2 ? V2_ANIMATION : ANIMATION);
+            if (animationData != null)
             {
                 NoodleObjectData.AnimationObjectData animationObjectData = new()
                 {
-                    LocalPosition = animationObjectDyn.GetPointData(v2 ? V2_POSITION : OFFSET_POSITION, pointDefinitions),
-                    LocalRotation = animationObjectDyn.GetPointData(v2 ? V2_ROTATION : OFFSET_ROTATION, pointDefinitions),
-                    LocalScale = animationObjectDyn.GetPointData(v2 ? V2_SCALE : SCALE, pointDefinitions),
-                    LocalLocalRotation = animationObjectDyn.GetPointData(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION, pointDefinitions),
-                    LocalDissolve = animationObjectDyn.GetPointData(v2 ? V2_DISSOLVE : DISSOLVE, pointDefinitions),
-                    LocalDissolveArrow = animationObjectDyn.GetPointData(v2 ? V2_DISSOLVE_ARROW : DISSOLVE_ARROW, pointDefinitions),
-                    LocalCuttable = animationObjectDyn.GetPointData(v2 ? V2_CUTTABLE : INTERACTABLE, pointDefinitions),
-                    LocalDefinitePosition = animationObjectDyn.GetPointData(v2 ? V2_DEFINITE_POSITION : DEFINITE_POSITION, pointDefinitions)
+                    LocalPosition = animationData.GetPointData(v2 ? V2_POSITION : OFFSET_POSITION, pointDefinitions),
+                    LocalRotation = animationData.GetPointData(v2 ? V2_ROTATION : OFFSET_ROTATION, pointDefinitions),
+                    LocalScale = animationData.GetPointData(v2 ? V2_SCALE : SCALE, pointDefinitions),
+                    LocalLocalRotation = animationData.GetPointData(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION, pointDefinitions),
+                    LocalDissolve = animationData.GetPointData(v2 ? V2_DISSOLVE : DISSOLVE, pointDefinitions),
+                    LocalDissolveArrow = animationData.GetPointData(v2 ? V2_DISSOLVE_ARROW : DISSOLVE_ARROW, pointDefinitions),
+                    LocalCuttable = animationData.GetPointData(v2 ? V2_CUTTABLE : INTERACTABLE, pointDefinitions),
+                    LocalDefinitePosition = animationData.GetPointData(v2 ? V2_DEFINITE_POSITION : DEFINITE_POSITION, pointDefinitions)
                 };
                 noodleObjectData.AnimationObject = animationObjectData;
             }
 
             if (v2)
             {
-                noodleObjectData.Uninteractable = !dynData.Get<bool?>(V2_CUTTABLE);
+                noodleObjectData.Uninteractable = !customData.Get<bool?>(V2_CUTTABLE);
             }
             else
             {
-                noodleObjectData.Uninteractable = dynData.Get<bool?>(UNINTERACTABLE);
+                noodleObjectData.Uninteractable = customData.Get<bool?>(UNINTERACTABLE);
             }
 
-            IEnumerable<float?>? position = dynData.GetNullableFloats(v2 ? V2_POSITION : NOTE_OFFSET)?.ToList();
+            IEnumerable<float?>? position = customData.GetNullableFloats(v2 ? V2_POSITION : NOTE_OFFSET)?.ToList();
             noodleObjectData.StartX = position?.ElementAtOrDefault(0);
             noodleObjectData.StartY = position?.ElementAtOrDefault(1);
 
-            noodleObjectData.NJS = dynData.Get<float?>(v2 ? V2_NOTE_JUMP_SPEED : NOTE_JUMP_SPEED);
-            noodleObjectData.SpawnOffset = dynData.Get<float?>(v2 ? V2_NOTE_SPAWN_OFFSET : NOTE_SPAWN_OFFSET);
+            noodleObjectData.NJS = customData.Get<float?>(v2 ? V2_NOTE_JUMP_SPEED : NOTE_JUMP_SPEED);
+            noodleObjectData.SpawnOffset = customData.Get<float?>(v2 ? V2_NOTE_SPAWN_OFFSET : NOTE_SPAWN_OFFSET);
         }
 
         private static NoodleNoteData ProcessCustomNote(CustomNoteData customNoteData, bool v2)
         {
-            Dictionary<string, object?> customData = customNoteData.customData;
+            CustomData customData = customNoteData.customData;
             NoodleNoteData noodleNoteData = new();
 
             if (v2)
@@ -227,22 +226,22 @@ namespace NoodleExtensions
             return noodleNoteData;
         }
 
-        private static NoodleObstacleData ProcessCustomObstacle(Dictionary<string, object?> dynData, bool v2)
+        private static NoodleObstacleData ProcessCustomObstacle(CustomData customData, bool v2)
         {
             NoodleObstacleData noodleObstacleData = new();
 
-            IEnumerable<float?>? scale = dynData.GetNullableFloats(v2 ? V2_SCALE : OBSTACLE_SIZE)?.ToList();
+            IEnumerable<float?>? scale = customData.GetNullableFloats(v2 ? V2_SCALE : OBSTACLE_SIZE)?.ToList();
             noodleObstacleData.Width = scale?.ElementAtOrDefault(0);
             noodleObstacleData.Height = scale?.ElementAtOrDefault(1);
             noodleObstacleData.Length = scale?.ElementAtOrDefault(2);
 
-            noodleObstacleData.Fake = dynData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
+            noodleObstacleData.Fake = customData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
 
             return noodleObstacleData;
         }
 
         private static NoodleParentTrackEventData ProcessParentTrackEvent(
-            Dictionary<string, object?> customData,
+            CustomData customData,
             Dictionary<string, Track> beatmapTracks,
             bool v2)
         {

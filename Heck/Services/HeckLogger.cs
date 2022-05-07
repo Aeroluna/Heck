@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using CustomJSONData;
 using HarmonyLib;
 using IPA.Logging;
 using JetBrains.Annotations;
@@ -32,12 +31,6 @@ namespace Heck
 
             message ??= "NULL";
             IPALogger.Log(level, HeckController.DebugMode ? $"{member}({line}): {message}" : message);
-        }
-
-        [PublicAPI]
-        public void LogDictionary(object? dictionary, Logger.Level level = Logger.Level.Debug, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
-        {
-            Log(DictionaryExtensions.FormatObject(dictionary), level, member, line);
         }
 
         [PublicAPI]

@@ -7,13 +7,13 @@ namespace Chroma.HarmonyPatches.Events
 {
     internal class LightPairRotationChromafier : IAffinity
     {
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
 
         private BasicBeatmapEventData? _lastData;
 
-        private LightPairRotationChromafier([Inject(Id = ChromaController.ID)] CustomData customData)
+        private LightPairRotationChromafier([Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
         {
-            _customData = customData;
+            _deserializedData = deserializedData;
         }
 
         // Laser rotation
@@ -44,7 +44,7 @@ namespace Chroma.HarmonyPatches.Events
             LightPairRotationEventEffect.RotationData ____rotationDataR,
             Vector3 ____rotationVector)
         {
-            if (_lastData == null || !_customData.Resolve(_lastData, out ChromaEventData? chromaData))
+            if (_lastData == null || !_deserializedData.Resolve(_lastData, out ChromaEventData? chromaData))
             {
                 return true;
             }

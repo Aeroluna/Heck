@@ -18,11 +18,11 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private static readonly MethodInfo _flipYSideGetter = AccessTools.PropertyGetter(typeof(NoteData), nameof(NoteData.flipYSide));
 
         private readonly CodeInstruction _flipYSide;
-        private readonly CustomData _customData;
+        private readonly DeserializedData _deserializedData;
 
-        private NoteInitNoodlifier([Inject(Id = NoodleController.ID)] CustomData customData)
+        private NoteInitNoodlifier([Inject(Id = NoodleController.ID)] DeserializedData deserializedData)
         {
-            _customData = customData;
+            _deserializedData = deserializedData;
             _flipYSide = InstanceTranspilers.EmitInstanceDelegate<Func<NoteData, float, float>>(GetFlipYSide);
         }
 
@@ -43,7 +43,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             float endRotation,
             bool useRandomRotation)
         {
-            if (!_customData.Resolve(noteData, out NoodleNoteData? noodleData))
+            if (!_deserializedData.Resolve(noteData, out NoodleNoteData? noodleData))
             {
                 return;
             }
@@ -125,7 +125,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
         private float GetFlipYSide(NoteData noteData, float @default)
         {
-            _customData.Resolve(noteData, out NoodleNoteData? noodleData);
+            _deserializedData.Resolve(noteData, out NoodleNoteData? noodleData);
             return noodleData?.FlipYSideInternal ?? @default;
         }
     }
