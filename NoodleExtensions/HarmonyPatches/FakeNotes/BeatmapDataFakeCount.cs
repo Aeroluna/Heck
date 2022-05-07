@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BeatmapSaveDataVersion3;
 using CustomJSONData.CustomBeatmap;
@@ -24,19 +25,28 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
 
             string name = customBeatmapSaveData.version2_6_0AndEarlier ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE;
 
-            int count = beatmapSaveData.colorNotes.Count(n => ((CustomBeatmapSaveData.ColorNoteData)n).customData.FakeCondition(name));
-            int count2 = beatmapSaveData.obstacles.Count(n => ((CustomBeatmapSaveData.ObstacleData)n).customData.FakeCondition(name));
-            int count3 = beatmapSaveData.bombNotes.Count(n => ((CustomBeatmapSaveData.BombNoteData)n).customData.FakeCondition(name));
+            int count = beatmapSaveData.colorNotes.Count(n => n.FakeCondition(name));
+            int count2 = beatmapSaveData.obstacles.Count(n => n.FakeCondition(name));
+            int count3 = beatmapSaveData.bombNotes.Count(n => n.FakeCondition(name));
             List<string> list = beatmapSaveData.basicEventTypesWithKeywords.data
                 .Select(basicEventTypesForKeyword => basicEventTypesForKeyword.keyword).ToList();
             __result = new BeatmapDataBasicInfo(4, count, count2, count3, list);
             return false;
         }
 
-        private static bool FakeCondition(this CustomData data, string name)
+        private static bool FakeCondition(this BeatmapSaveData.BeatmapSaveDataItem dataItem, string name)
         {
-            bool? fake = data.Get<bool?>(name);
-            return !fake.HasValue || !fake.Value;
+            try
+            {
+                bool? fake = ((ICustomData)dataItem).customData.Get<bool?>(name);
+                return !fake.HasValue || !fake.Value;
+            }
+            catch (Exception e)
+            {
+                Log.Logger.Log($"Could not parse fake for object [{dataItem.GetType().Name}] at [{dataItem.beat}].", IPA.Logging.Logger.Level.Error);
+                Log.Logger.Log(e, IPA.Logging.Logger.Level.Error);
+                return true;
+            }
         }
     }
 }
