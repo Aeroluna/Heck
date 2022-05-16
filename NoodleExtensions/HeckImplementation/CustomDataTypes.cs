@@ -33,7 +33,10 @@ namespace NoodleExtensions
                     if (cutDir.HasValue)
                     {
                         noteData.SetCutDirectionAngleOffset(cutDir.Value.Mirror(leftHanded));
-                        noteData.ChangeNoteCutDirection(NoteCutDirection.Down);
+                        if (noteData.cutDirection != NoteCutDirection.Any)
+                        {
+                            noteData.ChangeNoteCutDirection(NoteCutDirection.Down);
+                        }
                     }
                 }
 
