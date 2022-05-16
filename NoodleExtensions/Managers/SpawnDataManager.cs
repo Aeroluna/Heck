@@ -101,7 +101,7 @@ namespace NoodleExtensions.Managers
             }
 
             float? flipLineIndex = noodleData.InternalFlipLineIndex;
-            float njs = noodleData.NJS ?? _movementData.noteJumpMovementSpeed;
+            float? njs = noodleData.NJS;
             float? spawnoffset = noodleData.SpawnOffset;
             float? startlinelayer = noodleData.InternalStartNoteLineLayer;
 
@@ -129,7 +129,7 @@ namespace NoodleExtensions.Managers
                 _movementData.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
 
             // NoteJumpGravityForLineLayer
-            float num = jumpDistance / njs * 0.5f;
+            float num = jumpDistance / (njs ?? _movementData.noteJumpMovementSpeed) * 0.5f;
             num = 2 / (num * num);
 
             float GetJumpGravity(float gravityLineYPos) => (highestJump - gravityLineYPos) * num;
@@ -199,10 +199,10 @@ namespace NoodleExtensions.Managers
             float? inputNjs,
             float? inputOffset)
         {
-            /*if (_initData.noteJumpValueType != BeatmapObjectSpawnMovementData.NoteJumpValueType.BeatOffset)
+            if (!inputNjs.HasValue && !inputOffset.HasValue && _initData.noteJumpValueType == BeatmapObjectSpawnMovementData.NoteJumpValueType.JumpDuration)
             {
                 return _movementData.jumpDuration;
-            }*/
+            }
 
             float oneBeatDuration = _initData.beatsPerMinute.OneBeatDuration();
             float halfJumpDurationInBeats = CoreMathUtils.CalculateHalfJumpDurationInBeats(
@@ -223,13 +223,12 @@ namespace NoodleExtensions.Managers
             out Vector3 moveEndPos,
             out Vector3 jumpEndPos)
         {
-            float noteJumpMovementSpeed = inputNjs ?? _movementData.noteJumpMovementSpeed;
-            jumpDuration = GetJumpDuration(noteJumpMovementSpeed, inputOffset);
+            jumpDuration = GetJumpDuration(inputNjs, inputOffset);
 
             Vector3 centerPos = _movementData.centerPos;
             Vector3 forwardVec = _forwardVecAccessor(ref _movementData);
 
-            jumpDistance = noteJumpMovementSpeed * jumpDuration;
+            jumpDistance = (inputNjs ?? _movementData.noteJumpMovementSpeed) * jumpDuration;
             moveEndPos = centerPos + (forwardVec * (jumpDistance * 0.5f));
             jumpEndPos = centerPos - (forwardVec * (jumpDistance * 0.5f));
             moveStartPos = centerPos + (forwardVec * (_moveDistanceAccessor(ref _movementData) + (jumpDistance * 0.5f)));
