@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -10,6 +11,7 @@ using HarmonyLib;
 using Heck.Animation;
 using IPA.Utilities;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -71,6 +73,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             _trackControllerFactory = trackControllerFactory;
             spawnController.StartCoroutine(DelayedStart());
         }
+
+        private static string EnvironmentName = string.Empty;
 
         internal Dictionary<TrackLaneRing, Quaternion> RingRotationOffsets { get; } = new();
 
@@ -440,10 +444,14 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             List<string> objectsToPrint = new();
 
+            Dictionary<string, GameObjectJSON> objectMap = new();
+
             foreach (GameObject gameObject in gameObjects)
             {
                 GameObjectInfo gameObjectInfo = new(gameObject);
-                _gameObjectInfos.Add(new GameObjectInfo(gameObject));
+                _gameObjectInfos.Add(gameObjectInfo);
+                objectMap[gameObjectInfo.FullID] = new GameObjectJSON(gameObject);
+
                 objectsToPrint.Add(gameObjectInfo.FullID);
 
                 // seriously what the fuck beat games
@@ -461,6 +469,27 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             objectsToPrint.Sort();
             objectsToPrint.ForEach(n => Log.Logger.Log(n));
+
+            string fileDumpPath = $@"UserData\Chroma\{EnvironmentName}.json";
+
+            if (!File.Exists(fileDumpPath))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(fileDumpPath) ?? throw new InvalidOperationException());
+            }
+
+            Log.Logger.Log($"Writing to {fileDumpPath}", Logger.Level.Info);
+
+            string str = JsonConvert.SerializeObject(objectMap);
+
+            using FileStream file = new(fileDumpPath, FileMode.Create, FileAccess.Write);
+            using StreamWriter stream = new(file);
+
+            stream.WriteLine(str);
+        }
+
+        internal static void SetEnvironment(string environmentName)
+        {
+            EnvironmentName = environmentName;
         }
     }
 }

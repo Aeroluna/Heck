@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Chroma.Lighting;
+using Chroma.Lighting.EnvironmentEnhancement;
 using Chroma.Settings;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
@@ -37,7 +38,10 @@ namespace Chroma
                 Log.Logger.Log("Please do not use Legacy Chroma Lights for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", Logger.Level.Warning);
             }
 
-            LightIDTableManager.SetEnvironment(difficultyBeatmap.GetEnvironmentInfo().serializedName);
+            string? environmentName = difficultyBeatmap.GetEnvironmentInfo().serializedName;
+            LightIDTableManager.SetEnvironment(environmentName);
+            EnvironmentEnhancementManager.SetEnvironment(environmentName);
+
 
             return (chromaRequirement || legacyOverride) && !ChromaConfig.Instance.ChromaEventsDisabled;
         }
