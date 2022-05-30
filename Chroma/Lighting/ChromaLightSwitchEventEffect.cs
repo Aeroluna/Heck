@@ -225,7 +225,7 @@ namespace Chroma.Lighting
                         nextSameTypeEvent = previousEvent.nextSameTypeEventData;
                     }
 
-                    if (!nextSameTypeEvent.HasLightFadeEventDataValue())
+                    if (nextSameTypeEvent == null || !nextSameTypeEvent.HasLightFadeEventDataValue())
                     {
                         return;
                     }
