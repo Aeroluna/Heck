@@ -22,7 +22,7 @@ namespace Chroma
             IReadOnlyList<CustomEventData> customEventDatas)
         {
             bool v2 = beatmapData.version2_6_0AndEarlier;
-            IEnumerable<CustomData>? environmentData = beatmapData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Cast<CustomData>();
+            IEnumerable<CustomData>? environmentData = beatmapData.customData.Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)?.Cast<CustomData>();
             if (environmentData != null)
             {
                 foreach (CustomData gameObjectData in environmentData)
