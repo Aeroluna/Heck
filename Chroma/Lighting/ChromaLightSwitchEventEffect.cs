@@ -41,6 +41,7 @@ namespace Chroma.Lighting
         private readonly LightWithIdManager _lightManager;
         private readonly SongTimeTweeningManager _tweeningManager;
         private readonly BeatmapCallbacksController _callbacksController;
+        private readonly ColorManager _colorManager;
         private readonly DeserializedData _deserializedData;
         private readonly ChromaGradientController? _gradientController;
 
@@ -67,6 +68,7 @@ namespace Chroma.Lighting
             SongTimeTweeningManager tweeningManager,
             LightColorizerManager lightColorizerManager,
             BeatmapCallbacksController callbacksController,
+            ColorManager colorManager,
             [Inject(Id = ChromaController.ID)] DeserializedData deserializedData,
             [InjectOptional] ChromaGradientController? gradientController)
         {
@@ -74,6 +76,7 @@ namespace Chroma.Lighting
             _lightManager = lightManager;
             _tweeningManager = tweeningManager;
             _callbacksController = callbacksController;
+            _colorManager = colorManager;
             _deserializedData = deserializedData;
             _gradientController = gradientController;
 
@@ -122,11 +125,6 @@ namespace Chroma.Lighting
 
         public LightColorizer Colorizer { get; }
 
-        public static bool IsColor0(int value)
-        {
-            return value is 1 or 2 or 3 or 4 or 0 or -1;
-        }
-
         public void Dispose()
         {
             _callbacksController.RemoveBeatmapCallback(_basicCallbackWrapper);
@@ -135,42 +133,54 @@ namespace Chroma.Lighting
 
         public Color GetNormalColor(int beatmapEventValue)
         {
-            if (_usingBoostColors)
+            switch (BeatmapEventDataLightsExtensions.GetLightColorTypeFromEventDataValue(beatmapEventValue))
             {
-                if (!IsColor0(beatmapEventValue))
-                {
-                    return Colorizer.Color[3] * _lightColor1BoostMult;
-                }
+                ////case EnvironmentColorType.Color0:
+                default:
+                    if (_usingBoostColors)
+                    {
+                        return Colorizer.Color[2] * _lightColor0BoostMult;
+                    }
 
-                return Colorizer.Color[2] * _lightColor0BoostMult;
+                    return Colorizer.Color[0] * _lightColor0Mult;
+
+                case EnvironmentColorType.Color1:
+                    if (_usingBoostColors)
+                    {
+                        return Colorizer.Color[3] * _lightColor1BoostMult;
+                    }
+
+                    return Colorizer.Color[1] * _lightColor1Mult;
+
+                case EnvironmentColorType.ColorW:
+                    return _colorManager.ColorForType(EnvironmentColorType.ColorW, _usingBoostColors);
             }
-
-            if (!IsColor0(beatmapEventValue))
-            {
-                return Colorizer.Color[1] * _lightColor1Mult;
-            }
-
-            return Colorizer.Color[0] * _lightColor0Mult;
         }
 
         public Color GetHighlightColor(int beatmapEventValue)
         {
-            if (_usingBoostColors)
+            switch (BeatmapEventDataLightsExtensions.GetLightColorTypeFromEventDataValue(beatmapEventValue))
             {
-                if (!IsColor0(beatmapEventValue))
-                {
-                    return Colorizer.Color[3] * _highlightColor1BoostMult;
-                }
+                ////case EnvironmentColorType.Color0:
+                default:
+                    if (_usingBoostColors)
+                    {
+                        return Colorizer.Color[2] * _highlightColor0BoostMult;
+                    }
 
-                return Colorizer.Color[2] * _highlightColor0BoostMult;
+                    return Colorizer.Color[0] * _highlightColor0Mult;
+
+                case EnvironmentColorType.Color1:
+                    if (_usingBoostColors)
+                    {
+                        return Colorizer.Color[3] * _highlightColor1BoostMult;
+                    }
+
+                    return Colorizer.Color[1] * _highlightColor1Mult;
+
+                case EnvironmentColorType.ColorW:
+                    return _colorManager.ColorForType(EnvironmentColorType.ColorW, _usingBoostColors);
             }
-
-            if (!IsColor0(beatmapEventValue))
-            {
-                return Colorizer.Color[1] * _highlightColor1Mult;
-            }
-
-            return Colorizer.Color[0] * _highlightColor0Mult;
         }
 
         public void Refresh(bool hard, IEnumerable<ILightWithId>? selectLights, BasicBeatmapEventData? beatmapEventData = null, Functions? easing = null, LerpType? lerpType = null)
@@ -215,23 +225,26 @@ namespace Chroma.Lighting
                         nextSameTypeEvent = previousEvent.nextSameTypeEventData;
                     }
 
-                    if (nextSameTypeEvent is not { value: 4 or 8 })
+                    if (!nextSameTypeEvent.HasLightFadeEventDataValue())
                     {
                         return;
                     }
 
                     float nextFloatValue = nextSameTypeEvent.floatValue;
                     int nextValue = nextSameTypeEvent.value;
+                    EnvironmentColorType nextColorType = BeatmapEventDataLightsExtensions.GetLightColorTypeFromEventDataValue(nextSameTypeEvent.value);
                     Color nextColor;
 
                     _deserializedData.Resolve(nextSameTypeEvent, out ChromaEventData? nextEventData);
                     Color? nextColorData = nextEventData?.ColorData;
-                    if (ChromaController.FeaturesPatcher.Enabled && nextColorData.HasValue)
+                    if (nextColorType != EnvironmentColorType.ColorW &&
+                        ChromaController.FeaturesPatcher.Enabled &&
+                        nextColorData.HasValue)
                     {
                         Color multiplierColor;
                         if (_usingBoostColors)
                         {
-                            if (!IsColor0(nextValue))
+                            if (nextColorType == EnvironmentColorType.Color1)
                             {
                                 multiplierColor = _highlightColor1BoostMult;
                             }
@@ -240,7 +253,7 @@ namespace Chroma.Lighting
                         }
                         else
                         {
-                            if (!IsColor0(nextValue))
+                            if (nextColorType == EnvironmentColorType.Color1)
                             {
                                 multiplierColor = _highlightColor1Mult;
                             }
@@ -261,7 +274,7 @@ namespace Chroma.Lighting
                     {
                         prevColor = nextColor.ColorWithAlpha(0f);
                     }
-                    else if (previousValue is not (2 or 6 or 3 or 7 or -1))
+                    else if (previousEvent.HasFixedDurationLightSwitchEventDataValue())
                     {
                         prevColor = GetNormalColor(previousValue).MultAlpha(previousFloatValue);
                     }
@@ -303,8 +316,10 @@ namespace Chroma.Lighting
 
                     case 1:
                     case 5:
+                    case 9:
                     case 4:
                     case 8:
+                    case 12:
                         {
                             if (hard)
                             {
@@ -322,6 +337,7 @@ namespace Chroma.Lighting
 
                     case 2:
                     case 6:
+                    case 10:
                         {
                             Color colorFrom = GetHighlightColor(previousValue).MultAlpha(previousFloatValue);
                             Color colorTo = GetNormalColor(previousValue).MultAlpha(previousFloatValue);
@@ -342,6 +358,7 @@ namespace Chroma.Lighting
 
                     case 3:
                     case 7:
+                    case 11:
                     case -1:
                         {
                             Color colorFrom = GetHighlightColor(previousValue).MultAlpha(previousFloatValue);
