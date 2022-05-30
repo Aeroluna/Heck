@@ -274,7 +274,7 @@ namespace Chroma.Lighting
                     {
                         prevColor = nextColor.ColorWithAlpha(0f);
                     }
-                    else if (previousEvent.HasFixedDurationLightSwitchEventDataValue())
+                    else if (!previousEvent.HasFixedDurationLightSwitchEventDataValue())
                     {
                         prevColor = GetNormalColor(previousValue).MultAlpha(previousFloatValue);
                     }
