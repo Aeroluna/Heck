@@ -41,7 +41,6 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
         private static void ProcessAllNotesInTimeRowPatch(BeatmapObjectsInTimeRowProcessor __instance, object allObjectsTimeSlice)
         {
             bool v2 = NoodleBeatmapObjectsInTimeRowProcessor.GetV2(__instance);
-            List<CustomNoteData> notesToSetFlip = new();
             IEnumerable<NoteData> notesInTimeRow = AccessContainerItems<BeatmapDataItem>(allObjectsTimeSlice).OfType<NoteData>();
             Dictionary<float, List<CustomNoteData>> notesInColumns = new();
             foreach (NoteData t in notesInTimeRow)
@@ -101,7 +100,8 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 }
                 else if (!customData.ContainsKey(INTERNAL_FLIPYSIDE))
                 {
-                    notesToSetFlip.Add(noteData);
+                    customData[INTERNAL_FLIPLINEINDEX] = lineIndex;
+                    customData[INTERNAL_FLIPYSIDE] = 0;
                 }
             }
 
@@ -113,12 +113,6 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                     list2[m].customData[INTERNAL_STARTNOTELINELAYER] = m;
                 }
             }
-
-            // Process flip data
-            notesToSetFlip.ForEach(c =>
-            {
-                c.customData[INTERNAL_FLIPYSIDE] = 0;
-            });
         }
 
         [HarmonyPrefix]
