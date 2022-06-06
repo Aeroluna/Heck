@@ -1,7 +1,9 @@
 ﻿using System;
+using IPA.Logging;
 using IPA.Utilities;
 using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
+using Zenject;
 
 namespace NoodleExtensions.HarmonyPatches.FakeNotes
 {
@@ -10,12 +12,20 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
         private static readonly Action<BeatmapObjectManager, NoteController> _despawnMethod = MethodAccessor<BeatmapObjectManager, Action<BeatmapObjectManager, NoteController>>.GetDelegate("Despawn");
 
         private readonly FakePatchesManager _fakePatchesManager;
-        private readonly NoteCutCoreEffectsSpawner _noteCutCoreEffectsSpawner;
+        private readonly NoteCutCoreEffectsSpawner? _noteCutCoreEffectsSpawner;
 
-        private FakeNotePatches(FakePatchesManager fakePatchesManager, NoteCutCoreEffectsSpawner noteCutCoreEffectsSpawner)
+        private FakeNotePatches(
+            FakePatchesManager fakePatchesManager,
+            [InjectOptional] GameObjectContext? context,
+            [InjectOptional] NoteCutCoreEffectsSpawner? noteCutCoreEffectsSpawner)
         {
             _fakePatchesManager = fakePatchesManager;
-            _noteCutCoreEffectsSpawner = noteCutCoreEffectsSpawner;
+            _noteCutCoreEffectsSpawner = context != null ? context.GetComponentInChildren<NoteCutCoreEffectsSpawner>() : noteCutCoreEffectsSpawner;
+
+            if (_noteCutCoreEffectsSpawner == null)
+            {
+                Log.Logger.Log($"Could not get [{nameof(NoteCutCoreEffectsSpawner)}].", Logger.Level.Error);
+            }
         }
 
         [AffinityPrefix]
@@ -27,7 +37,11 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
                 return true;
             }
 
-            _noteCutCoreEffectsSpawner.HandleNoteWasCut(noteController, noteCutInfo);
+            if (_noteCutCoreEffectsSpawner != null)
+            {
+                _noteCutCoreEffectsSpawner.HandleNoteWasCut(noteController, noteCutInfo);
+            }
+
             _despawnMethod(__instance, noteController);
 
             return false;
