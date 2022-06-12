@@ -5,6 +5,7 @@ using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
 using IPA.Utilities;
+using NoodleExtensions.Animation;
 using UnityEngine;
 using static Heck.HeckController;
 using static NoodleExtensions.NoodleController;
@@ -273,9 +274,14 @@ namespace NoodleExtensions
         {
             Track track = customData.GetTrack(tracks, v2);
             Track = track;
+
+            // DEFAULT TO PLAYER IF NOT SPECIFIED
+            PlayerTrackObject = customData.GetStringToEnum<PlayerTrackObject?>(v2 ? V2_PLAYER_TRACK_OBJECT : PLAYER_TRACK_OBJECT) ?? PlayerTrackObject.ENTIRE_PLAYER;
         }
 
         internal Track Track { get; }
+
+        internal PlayerTrackObject PlayerTrackObject { get; }
     }
 
     internal class NoodleParentTrackEventData : ICustomEventCustomData
