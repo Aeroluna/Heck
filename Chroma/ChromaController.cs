@@ -34,6 +34,8 @@ namespace Chroma
         internal const string V2_LOCAL_POSITION = "_localPosition";
 
         internal const string V2_ENVIRONMENT = "_environment";
+        internal const string V2_GEOMETRY = "_geometry";
+        internal const string V2_GEOMETRY_TYPE = "_geometryType";
         internal const string V2_GAMEOBJECT_ID = "_id";
         internal const string V2_LOOKUP_METHOD = "_lookupMethod";
         internal const string V2_DUPLICATION_AMOUNT = "_duplicate";
@@ -57,6 +59,8 @@ namespace Chroma
         internal const string RING_ROTATION = "rotation";
 
         internal const string ENVIRONMENT = "environment";
+        internal const string GEOMETRY = "geometry";
+        internal const string GEOMETRY_TYPE = "geometryType";
         internal const string GAMEOBJECT_ID = "id";
         internal const string LOOKUP_METHOD = "lookupMethod";
         internal const string DUPLICATION_AMOUNT = "duplicate";

@@ -83,6 +83,79 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             _gameObjectTrackControllers.Do(Object.Destroy);
         }
 
+        internal enum GeometryType
+        {
+            SPHERE,
+            CAPSULE,
+            CYLINDER,
+            CUBE,
+            PLANE,
+            QUAD,
+        }
+
+        internal readonly struct SpawnData
+        {
+            public readonly Vector3? Scale;
+            public readonly Vector3? Position;
+            public readonly Vector3? Rotation;
+            public readonly Vector3? LocalPosition;
+            public readonly Vector3? LocalRotation;
+
+            public SpawnData(CustomData gameObjectData, bool v2, float _noteLinesDistance)
+            {
+                Scale = gameObjectData.GetVector3(v2 ? V2_SCALE : SCALE);
+                Position = gameObjectData.GetVector3(v2 ? V2_POSITION : POSITION);
+                Rotation = gameObjectData.GetVector3(v2 ? V2_ROTATION : ROTATION);
+                LocalPosition = gameObjectData.GetVector3(v2 ? V2_LOCAL_POSITION : LOCAL_POSITION);
+                LocalRotation = gameObjectData.GetVector3(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION);
+
+                if (!v2)
+                {
+                    return;
+                }
+
+                // ReSharper disable once UseNullPropagation
+                if (Position.HasValue)
+                {
+                    Position = Position.Value * _noteLinesDistance;
+                }
+
+                // ReSharper disable once UseNullPropagation
+                if (LocalPosition.HasValue)
+                {
+                    LocalPosition = LocalPosition.Value * _noteLinesDistance;
+                }
+            }
+
+            public void TransformObject(Transform transform)
+            {
+                if (Scale.HasValue)
+                {
+                    transform.localScale = Scale.Value;
+                }
+
+                if (Position.HasValue)
+                {
+                    transform.position = Position.Value;
+                }
+
+                if (Rotation.HasValue)
+                {
+                    transform.eulerAngles = Rotation.Value;
+                }
+
+                if (LocalPosition.HasValue)
+                {
+                    transform.localPosition = LocalPosition.Value;
+                }
+
+                if (LocalRotation.HasValue)
+                {
+                    transform.localEulerAngles = LocalRotation.Value;
+                }
+            }
+        }
+
         internal IEnumerator DelayedStart()
         {
             yield return new WaitForEndOfFrame();
@@ -115,26 +188,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                     bool? active = gameObjectData.Get<bool?>(v2 ? V2_ACTIVE : ACTIVE);
 
-                    Vector3? scale = gameObjectData.GetVector3(v2 ? V2_SCALE : SCALE);
-                    Vector3? position = gameObjectData.GetVector3(v2 ? V2_POSITION : POSITION);
-                    Vector3? rotation = gameObjectData.GetVector3(v2 ? V2_ROTATION : ROTATION);
-                    Vector3? localPosition = gameObjectData.GetVector3(v2 ? V2_LOCAL_POSITION : LOCAL_POSITION);
-                    Vector3? localRotation = gameObjectData.GetVector3(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION);
-
-                    if (v2)
-                    {
-                        // ReSharper disable once UseNullPropagation
-                        if (position.HasValue)
-                        {
-                            position = position.Value * _noteLinesDistance;
-                        }
-
-                        // ReSharper disable once UseNullPropagation
-                        if (localPosition.HasValue)
-                        {
-                            localPosition = localPosition.Value * _noteLinesDistance;
-                        }
-                    }
+                    SpawnData spawnData = new(gameObjectData, v2, _noteLinesDistance);
 
                     int? lightID = gameObjectData.Get<int?>(v2 ? V2_LIGHT_ID : LIGHT_ID);
 
@@ -204,6 +258,12 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                         gameObjectInfos = foundObjects;
                     }
 
+                    Vector3? scale = spawnData.Scale;
+                    Vector3? position = spawnData.Position;
+                    Vector3? localPosition = spawnData.LocalPosition;
+                    Vector3? rotation = spawnData.Rotation;
+                    Vector3? localRotation = spawnData.LocalRotation;
+
                     foreach (GameObjectInfo gameObjectInfo in gameObjectInfos)
                     {
                         GameObject gameObject = gameObjectInfo.GameObject;
@@ -215,30 +275,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                         Transform transform = gameObject.transform;
 
-                        if (scale.HasValue)
-                        {
-                            transform.localScale = scale.Value;
-                        }
-
-                        if (position.HasValue)
-                        {
-                            transform.position = position.Value;
-                        }
-
-                        if (rotation.HasValue)
-                        {
-                            transform.eulerAngles = rotation.Value;
-                        }
-
-                        if (localPosition.HasValue)
-                        {
-                            transform.localPosition = localPosition.Value;
-                        }
-
-                        if (localRotation.HasValue)
-                        {
-                            transform.localEulerAngles = localRotation.Value;
-                        }
+                        spawnData.TransformObject(transform);
 
                         // Handle TrackLaneRing
                         TrackLaneRing trackLaneRing = gameObject.GetComponent<TrackLaneRing>();
@@ -321,6 +358,103 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             {
                 Log.Logger.Log("Could not run Legacy Enviroment Removal");
                 Log.Logger.Log(e);
+            }
+
+            HandleGeometry(_beatmapData.customData, v2);
+        }
+
+        private void HandleGeometry(CustomData customData, bool v2)
+        {
+            IEnumerable<CustomData>? geometriesData = customData
+                .Get<List<object>>(v2 ? V2_GEOMETRY : GEOMETRY)?
+                .Cast<CustomData>();
+
+            if (geometriesData == null)
+            {
+                return;
+            }
+
+            // TODO: Find a better way to do this
+            Transform environment = GameObject.Find("Environment").transform;
+
+            // Specular and Standard are built in Unity
+            // TODO: Make a material programatically instead of relying on this
+            Material standardMaterial = new(Shader.Find("Standard"));
+
+            Dictionary<Color, Material> materials = new();
+
+            // Cache materials to improve bulk rendering performance
+            Material GetMaterial(Color color)
+            {
+                if (materials.TryGetValue(color, out Material material))
+                {
+                    return material;
+                }
+
+                materials[color] = material = Material.Instantiate(standardMaterial);
+                material.color = color;
+
+                return material;
+            }
+
+            foreach (CustomData geometryData in geometriesData)
+            {
+                SpawnData spawnData = new(geometryData, v2, _noteLinesDistance);
+                Color color = CustomDataManager.GetColorFromData(geometryData, v2) ?? Color.cyan;
+                GeometryType? geometryType = customData.GetStringToEnum<GeometryType?>(v2 ? V2_GEOMETRY_TYPE : GEOMETRY_TYPE);
+
+                PrimitiveType primitiveType;
+                switch (geometryType)
+                {
+                    case GeometryType.SPHERE:
+                        primitiveType = PrimitiveType.Sphere;
+                        break;
+                    case GeometryType.CAPSULE:
+                        primitiveType = PrimitiveType.Capsule;
+                        break;
+                    case GeometryType.CYLINDER:
+                        primitiveType = PrimitiveType.Cylinder;
+                        break;
+                    case GeometryType.CUBE:
+                        primitiveType = PrimitiveType.Cube;
+                        break;
+                    case GeometryType.PLANE:
+                        primitiveType = PrimitiveType.Plane;
+                        break;
+                    case GeometryType.QUAD:
+                        primitiveType = PrimitiveType.Quad;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(geometryType), $"Geometry type {geometryType} does not match a primitive!");
+                }
+
+                GameObject gameObject = GameObject.CreatePrimitive(primitiveType);
+                Transform transform = gameObject.transform;
+                transform.SetParent(transform, true);
+                transform.localScale = spawnData.Scale ?? Vector3.one;
+                spawnData.TransformObject(transform);
+
+                MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
+
+                // Shared material is usually better performance as far as I know
+                meshRenderer.sharedMaterial = GetMaterial(color);
+
+                // TODO: Texture?
+
+                GameObjectTrackController? trackController = GameObjectTrackController.HandleTrackData(
+                    _trackControllerFactory,
+                    gameObject,
+                    geometryData,
+                    _noteLinesDistance,
+                    null,
+                    null,
+                    null,
+                    _tracks,
+                    v2);
+                if (trackController != null)
+                {
+                    _gameObjectTrackControllers.Add(trackController);
+                }
             }
         }
 
