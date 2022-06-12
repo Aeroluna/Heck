@@ -28,8 +28,7 @@ namespace NoodleExtensions.Installers
             // Events
             Container.BindInterfacesTo<EventController>().AsSingle();
             Container.Bind<ParentController>().AsSingle();
-            Container.Bind<PlayerTrack>().FromFactory<PlayerTrack.PlayerTrackFactory>().AsSingle();
-
+            Container.BindIFactory<PlayerTrackObject, PlayerTrack, PlayerTrack.PlayerTrackFactory>().AsSingle();
             // Cutout
             Container.BindInterfacesTo<ObjectInitializer>().AsSingle();
 

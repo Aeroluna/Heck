@@ -2,6 +2,7 @@
 using Heck;
 using Heck.Animation;
 using Heck.Animation.Transform;
+using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -10,6 +11,14 @@ using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions.Animation
 {
+    internal enum PlayerTrackObject
+    {
+        ENTIRE_PLAYER,
+        HMD,
+        LEFT_HAND,
+        RIGHT_HAND
+    }
+
     internal class PlayerTrack : MonoBehaviour
     {
         // because camera2 is cringe
@@ -201,7 +210,7 @@ namespace NoodleExtensions.Animation
         }
 
         [UsedImplicitly]
-        internal class PlayerTrackFactory : IFactory<PlayerTrack>
+        internal class PlayerTrackFactory : IFactory<PlayerTrackObject, PlayerTrack>
         {
             private readonly IInstantiator _container;
 
@@ -210,13 +219,43 @@ namespace NoodleExtensions.Animation
                 _container = container;
             }
 
-            public PlayerTrack Create()
+            public PlayerTrack Create(PlayerTrackObject playerTrackObject)
             {
-                Transform player = GameObject.Find("LocalPlayerGameCore").transform;
                 GameObject noodleObject = new("NoodlePlayerTrack");
                 Transform origin = noodleObject.transform;
-                origin.SetParent(player.parent, true);
-                player.SetParent(origin, true);
+
+                switch (playerTrackObject)
+                {
+                    case PlayerTrackObject.ENTIRE_PLAYER:
+                    {
+                        Transform player = GameObject.Find("LocalPlayerGameCore").transform;
+                        origin.SetParent(player.parent, true);
+                        player.SetParent(origin, true);
+                        break;
+                    }
+
+                    case PlayerTrackObject.HMD:
+                        Transform hmd = GameObject.Find("VRGameCore/MainCamera").transform;
+                        origin.SetParent(hmd.parent, true);
+                        hmd.SetParent(origin, true);
+                        break;
+
+                    // TODO: Figure out the right name for these objects
+                    // just placeholder
+                    case PlayerTrackObject.LEFT_HAND:
+                        Transform leftController = GameObject.Find("VRGameCore/LeftController").transform;
+                        origin.SetParent(leftController.parent, true);
+                        leftController.SetParent(origin, true);
+                        break;
+                    case PlayerTrackObject.RIGHT_HAND:
+                        Transform rightController = GameObject.Find("VRGameCore/RightController").transform;
+                        origin.SetParent(rightController.parent, true);
+                        rightController.SetParent(origin, true);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(playerTrackObject), playerTrackObject, null);
+                }
+
                 return _container.InstantiateComponent<PlayerTrack>(noodleObject);
             }
         }

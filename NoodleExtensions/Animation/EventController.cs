@@ -12,19 +12,20 @@ namespace NoodleExtensions.Animation
         private readonly BeatmapCallbacksController _callbacksController;
         private readonly DeserializedData _deserializedData;
         private readonly LazyInject<ParentController> _parentController;
-        private readonly LazyInject<PlayerTrack> _playerTrack;
+        private readonly PlayerTrack.PlayerTrackFactory _playerTrackFactory;
         private readonly BeatmapDataCallbackWrapper? _callbackWrapper;
+        private readonly Dictionary<PlayerTrackObject, PlayerTrack> _playerTracks = new();
 
         [UsedImplicitly]
         private EventController(
             BeatmapCallbacksController callbacksController,
             [Inject(Id = ID)] DeserializedData deserializedData,
             LazyInject<ParentController> parentController,
-            LazyInject<PlayerTrack> playerTrack)
+            PlayerTrack.PlayerTrackFactory playerTrackFactory)
         {
             _deserializedData = deserializedData;
             _parentController = parentController;
-            _playerTrack = playerTrack;
+            _playerTrackFactory = playerTrackFactory;
             _callbacksController = callbacksController;
             _callbackWrapper = callbacksController.AddBeatmapCallback<CustomEventData>(HandleCallback);
         }
@@ -45,7 +46,14 @@ namespace NoodleExtensions.Animation
                 case ASSIGN_PLAYER_TO_TRACK:
                     if (_deserializedData.Resolve(customEventData, out NoodlePlayerTrackEventData? noodlePlayerData))
                     {
-                        _playerTrack.Value.AssignTrack(noodlePlayerData.Track);
+                        PlayerTrackObject resultPlayerTrackObject = noodlePlayerData.PlayerTrackObject;
+                        if (!_playerTracks.TryGetValue(resultPlayerTrackObject, out PlayerTrack? playerTrack))
+                        {
+                            _playerTracks[resultPlayerTrackObject] = playerTrack =
+                                _playerTrackFactory.Create(resultPlayerTrackObject);
+                        }
+
+                        playerTrack.AssignTrack(noodlePlayerData.Track);
                     }
 
                     break;
