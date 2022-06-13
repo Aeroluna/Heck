@@ -181,8 +181,9 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     string id = gameObjectData.Get<string>(v2 ? V2_GAMEOBJECT_ID : GAMEOBJECT_ID)
                                 ?? throw new InvalidOperationException("Id was not defined.");
 
-                    LookupMethod lookupMethod = gameObjectData.GetStringToEnum<LookupMethod?>(v2 ? V2_LOOKUP_METHOD : LOOKUP_METHOD)
-                                                ?? throw new InvalidOperationException("Lookup method was not defined.");
+                    LookupMethod lookupMethod =
+                        gameObjectData.GetStringToEnum<LookupMethod?>(v2 ? V2_LOOKUP_METHOD : LOOKUP_METHOD)
+                        ?? throw new InvalidOperationException("Lookup method was not defined.");
 
                     int? dupeAmount = gameObjectData.Get<int?>(v2 ? V2_DUPLICATION_AMOUNT : DUPLICATION_AMOUNT);
 
@@ -203,7 +204,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     }
                     else
                     {
-                        Log.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.", Logger.Level.Error);
+                        Log.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.",
+                            Logger.Level.Error);
                     }
 
                     List<GameObjectInfo> gameObjectInfos;
@@ -227,15 +229,18 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                                 List<IComponentData> componentDatas = new();
                                 _componentInitializer.Value.PrefillComponentsData(gameObject.transform, componentDatas);
                                 GameObject newGameObject = Object.Instantiate(gameObject);
-                                _componentInitializer.Value.PostfillComponentsData(newGameObject.transform, gameObject.transform, componentDatas);
+                                _componentInitializer.Value.PostfillComponentsData(newGameObject.transform,
+                                    gameObject.transform, componentDatas);
                                 SceneManager.MoveGameObjectToScene(newGameObject, scene);
 
                                 // ReSharper disable once Unity.InstantiateWithoutParent
                                 // need to move shit to right scene first
                                 newGameObject.transform.SetParent(parent, true);
-                                _componentInitializer.Value.InitializeComponents(newGameObject.transform, gameObject.transform, _gameObjectInfos, componentDatas, lightID);
+                                _componentInitializer.Value.InitializeComponents(newGameObject.transform,
+                                    gameObject.transform, _gameObjectInfos, componentDatas, lightID);
 
-                                List<GameObjectInfo> gameObjects = _gameObjectInfos.Where(n => n.GameObject == newGameObject).ToList();
+                                List<GameObjectInfo> gameObjects =
+                                    _gameObjectInfos.Where(n => n.GameObject == newGameObject).ToList();
                                 gameObjectInfos.AddRange(gameObjects);
 
                                 if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
@@ -252,7 +257,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     {
                         if (lightID.HasValue)
                         {
-                            Log.Logger.Log("LightID requested but no duplicated object to apply to.", Logger.Level.Error);
+                            Log.Logger.Log("LightID requested but no duplicated object to apply to.",
+                                Logger.Level.Error);
                         }
 
                         gameObjectInfos = foundObjects;
@@ -295,22 +301,26 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                         }
 
                         // Handle ParametricBoxController
-                        ParametricBoxController parametricBoxController = gameObject.GetComponent<ParametricBoxController>();
+                        ParametricBoxController parametricBoxController =
+                            gameObject.GetComponent<ParametricBoxController>();
                         if (parametricBoxController != null)
                         {
                             if (position.HasValue || localPosition.HasValue)
                             {
-                                _parametricBoxControllerParameters.SetTransformPosition(parametricBoxController, transform.localPosition);
+                                _parametricBoxControllerParameters.SetTransformPosition(parametricBoxController,
+                                    transform.localPosition);
                             }
 
                             if (scale.HasValue)
                             {
-                                _parametricBoxControllerParameters.SetTransformScale(parametricBoxController, transform.localScale);
+                                _parametricBoxControllerParameters.SetTransformScale(parametricBoxController,
+                                    transform.localScale);
                             }
                         }
 
                         // Handle BeatmapObjectsAvoidance
-                        BeatmapObjectsAvoidance beatmapObjectsAvoidance = gameObject.GetComponent<BeatmapObjectsAvoidance>();
+                        BeatmapObjectsAvoidance beatmapObjectsAvoidance =
+                            gameObject.GetComponent<BeatmapObjectsAvoidance>();
                         if (beatmapObjectsAvoidance != null)
                         {
                             if (position.HasValue || localPosition.HasValue)
@@ -360,7 +370,15 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 Log.Logger.Log(e);
             }
 
-            HandleGeometry(_beatmapData.customData, v2);
+            try
+            {
+                HandleGeometry(_beatmapData.customData, v2);
+            }
+            catch (Exception e)
+            {
+                Log.Logger.Log("Could not run Geometry Extensions", Logger.Level.Error);
+                Log.Logger.Log(e, Logger.Level.Error);
+            }
         }
 
         private void HandleGeometry(CustomData customData, bool v2)
@@ -401,36 +419,22 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             {
                 SpawnData spawnData = new(geometryData, v2, _noteLinesDistance);
                 Color color = CustomDataManager.GetColorFromData(geometryData, v2) ?? Color.cyan;
-                GeometryType? geometryType = customData.GetStringToEnum<GeometryType?>(v2 ? V2_GEOMETRY_TYPE : GEOMETRY_TYPE);
+                GeometryType? geometryType = geometryData.GetStringToEnum<GeometryType?>(v2 ? V2_GEOMETRY_TYPE : GEOMETRY_TYPE) ?? throw new InvalidOperationException("Geometry type was not defined");
 
-                PrimitiveType primitiveType;
-                switch (geometryType)
+                PrimitiveType primitiveType = geometryType switch
                 {
-                    case GeometryType.SPHERE:
-                        primitiveType = PrimitiveType.Sphere;
-                        break;
-                    case GeometryType.CAPSULE:
-                        primitiveType = PrimitiveType.Capsule;
-                        break;
-                    case GeometryType.CYLINDER:
-                        primitiveType = PrimitiveType.Cylinder;
-                        break;
-                    case GeometryType.CUBE:
-                        primitiveType = PrimitiveType.Cube;
-                        break;
-                    case GeometryType.PLANE:
-                        primitiveType = PrimitiveType.Plane;
-                        break;
-                    case GeometryType.QUAD:
-                        primitiveType = PrimitiveType.Quad;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(geometryType), $"Geometry type {geometryType} does not match a primitive!");
-                }
+                    GeometryType.SPHERE => PrimitiveType.Sphere,
+                    GeometryType.CAPSULE => PrimitiveType.Capsule,
+                    GeometryType.CYLINDER => PrimitiveType.Cylinder,
+                    GeometryType.CUBE => PrimitiveType.Cube,
+                    GeometryType.PLANE => PrimitiveType.Plane,
+                    GeometryType.QUAD => PrimitiveType.Quad,
+                    _ => throw new ArgumentOutOfRangeException(nameof(geometryType), $"Geometry type {geometryType} does not match a primitive!")
+                };
 
                 GameObject gameObject = GameObject.CreatePrimitive(primitiveType);
                 Transform transform = gameObject.transform;
-                transform.SetParent(transform, true);
+                transform.SetParent(environment, true);
                 transform.localScale = spawnData.Scale ?? Vector3.one;
                 spawnData.TransformObject(transform);
 
