@@ -243,12 +243,12 @@ namespace NoodleExtensions.Animation
                     // TODO: Figure out the right name for these objects
                     // just placeholder
                     case PlayerTrackObject.LEFT_HAND:
-                        Transform leftController = GameObject.Find("VRGameCore/LeftController").transform;
+                        Transform leftController = GameObject.Find("VRGameCore/LeftHand").transform;
                         origin.SetParent(leftController.parent, true);
                         leftController.SetParent(origin, true);
                         break;
                     case PlayerTrackObject.RIGHT_HAND:
-                        Transform rightController = GameObject.Find("VRGameCore/RightController").transform;
+                        Transform rightController = GameObject.Find("VRGameCore/RightHand").transform;
                         origin.SetParent(rightController.parent, true);
                         rightController.SetParent(origin, true);
                         break;
