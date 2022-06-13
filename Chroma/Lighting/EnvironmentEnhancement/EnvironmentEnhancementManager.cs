@@ -11,6 +11,7 @@ using Heck.Animation;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using Zenject;
 using static Chroma.ChromaController;
@@ -397,7 +398,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             // Specular and Standard are built in Unity
             // TODO: Make a material programatically instead of relying on this
-            Material standardMaterial = new(Shader.Find("Standard"));
+            // This is the shader BTS Cube uses
+            Material standardMaterial = new(Shader.Find("Custom/SimpleLit"));
 
             Dictionary<Color, Material> materials = new();
 
@@ -439,6 +441,10 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 spawnData.TransformObject(transform);
 
                 MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
+
+                // Disable expensive shadows
+                meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
+                meshRenderer.receiveShadows = false;
 
                 // Shared material is usually better performance as far as I know
                 meshRenderer.sharedMaterial = GetMaterial(color);
