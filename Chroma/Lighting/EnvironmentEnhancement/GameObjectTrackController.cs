@@ -23,11 +23,15 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         private TrackLaneRing? _trackLaneRing;
         private ParametricBoxController? _parametricBoxController;
         private BeatmapObjectsAvoidance? _beatmapObjectsAvoidance;
+        private TubeBloomPrePassLight? _tubeBloomPrePassLight;
+        private Material? _material;
 
         private bool _handleParent;
         private bool _handleTrackLaneRing;
         private bool _handleParametricBoxController;
         private bool _handleBeatmapObjectsAvoidance;
+        private bool _handleTubeBloomPrePassLight;
+        private bool _handleMaterial;
         private bool _v2;
 
         private bool _leftHanded;
@@ -40,6 +44,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             CustomData gameObjectData,
             float noteLinesDistance,
             TrackLaneRing? trackLaneRing,
+            TubeBloomPrePassLight? tubeBloomPrePassLight,
+            Material? material,
             ParametricBoxController? parametricBoxController,
             BeatmapObjectsAvoidance? beatmapObjectsAvoidance,
             Dictionary<string, Track> tracks,
@@ -60,7 +66,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             // this is NOT the correct way to do this, but fuck you im lazy.
             GameObjectTrackController trackController = factory.Create(gameObject);
-            trackController.Init(track, noteLinesDistance, trackLaneRing, parametricBoxController, beatmapObjectsAvoidance, v2);
+            trackController.Init(track, noteLinesDistance, trackLaneRing, tubeBloomPrePassLight, material, parametricBoxController, beatmapObjectsAvoidance, v2);
             return trackController;
         }
 
@@ -68,6 +74,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             Track track,
             float noteLinesDistance,
             TrackLaneRing? trackLaneRing,
+            TubeBloomPrePassLight? tubeBloomPrePassLight,
+            Material? material,
             ParametricBoxController? parametricBoxController,
             BeatmapObjectsAvoidance? beatmapObjectsAvoidance,
             bool v2)
@@ -75,9 +83,13 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             _track = track;
             _noteLinesDistance = noteLinesDistance;
             _trackLaneRing = trackLaneRing;
+            _tubeBloomPrePassLight = tubeBloomPrePassLight;
+            _material = material;
             _parametricBoxController = parametricBoxController;
             _beatmapObjectsAvoidance = beatmapObjectsAvoidance;
             _handleTrackLaneRing = trackLaneRing != null;
+            _handleTubeBloomPrePassLight = tubeBloomPrePassLight != null;
+            _handleMaterial = material != null;
             _handleParametricBoxController = parametricBoxController != null;
             _handleBeatmapObjectsAvoidance = beatmapObjectsAvoidance != null;
             _v2 = v2;
@@ -104,6 +116,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             Vector3? position = GetVectorNullable(POSITION);
             Vector3? localPosition = GetVectorNullable(LOCAL_POSITION);
             Vector3? scale = GetVectorNullable(SCALE);
+            Color? color = GetColorNullable(COLOR);
 
             bool updateParametricBox = false;
 
@@ -204,6 +217,19 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 updateParametricBox = true;
             }
 
+            if (color.HasValue)
+            {
+                if (_handleTubeBloomPrePassLight)
+                {
+                    _tubeBloomPrePassLight!.color = color.Value;
+                }
+
+                if (_handleMaterial)
+                {
+                    _material!.color = color.Value;
+                }
+            }
+
             // Handle ParametricBoxController
             if (!updateParametricBox || !_handleParametricBoxController)
             {
@@ -227,6 +253,14 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             {
                 MirrorVectorNullable(ref nullable);
             }
+
+            return nullable;
+        }
+
+        private Color? GetColorNullable(string property)
+        {
+            Color? nullable = _track.GetProperty<Vector4?>(property);
+
 
             return nullable;
         }

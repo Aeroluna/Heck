@@ -36,6 +36,10 @@ namespace Chroma
         internal const string V2_ENVIRONMENT = "_environment";
         internal const string V2_GEOMETRY = "_geometry";
         internal const string V2_GEOMETRY_TYPE = "_geometryType";
+        internal const string V2_SHADER_PRESET = "_shaderPreset";
+        internal const string V2_SHADER_KEYWORDS = "_shaderKeywords";
+        internal const string V2_SPAWN_COUNT = "_spawnCount";
+        internal const string V2_COLLISION = "_collision";
         internal const string V2_GAMEOBJECT_ID = "_id";
         internal const string V2_LOOKUP_METHOD = "_lookupMethod";
         internal const string V2_DUPLICATION_AMOUNT = "_duplicate";
@@ -61,6 +65,10 @@ namespace Chroma
         internal const string ENVIRONMENT = "environment";
         internal const string GEOMETRY = "geometry";
         internal const string GEOMETRY_TYPE = "geometryType";
+        internal const string SHADER_PRESET = "shaderPreset";
+        internal const string SHADER_KEYWORDS = "shaderKeywords";
+        internal const string SPAWN_COUNT = "spawnCount";
+        internal const string COLLISION = "collision";
         internal const string GAMEOBJECT_ID = "id";
         internal const string LOOKUP_METHOD = "lookupMethod";
         internal const string DUPLICATION_AMOUNT = "duplicate";

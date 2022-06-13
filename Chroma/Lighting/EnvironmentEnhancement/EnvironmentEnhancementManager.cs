@@ -39,6 +39,12 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
+        private static readonly FieldAccessor<TubeBloomPrePassLight, float>.Accessor _colorAlphaMultiplierAccessor = FieldAccessor<TubeBloomPrePassLight, float>.GetAccessor("_colorAlphaMultiplier");
+        private static readonly FieldAccessor<TubeBloomPrePassLight, BoolSO>.Accessor _mainEffectPostProcessEnabledAccessor = FieldAccessor<TubeBloomPrePassLight, BoolSO>.GetAccessor("_mainEffectPostProcessEnabled");
+        private static readonly FieldAccessor<TubeBloomPrePassLight, bool>.Accessor _forceUseBakedGlowAccessor = FieldAccessor<TubeBloomPrePassLight, bool>.GetAccessor("_forceUseBakedGlow");
+        private static readonly FieldAccessor<TubeBloomPrePassLight, Parametric3SliceSpriteController>.Accessor _dynamic3SliceSpriteAccessor = FieldAccessor<TubeBloomPrePassLight, Parametric3SliceSpriteController>.GetAccessor("_dynamic3SliceSprite");
+        private static readonly FieldAccessor<BloomPrePassLight, BloomPrePassLightTypeSO>.Accessor _lightTypeAccessor = FieldAccessor<BloomPrePassLight, BloomPrePassLightTypeSO>.GetAccessor("_lightType");
+        private static readonly FieldAccessor<BloomPrePassLight, BloomPrePassLightTypeSO>.Accessor _registeredWithLightTypeAccessor = FieldAccessor<BloomPrePassLight, BloomPrePassLightTypeSO>.GetAccessor("_registeredWithLightType");
 
         private readonly List<GameObjectInfo> _gameObjectInfos = new();
 
@@ -92,6 +98,13 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             CUBE,
             PLANE,
             QUAD,
+        }
+
+        internal enum ShaderPreset
+        {
+            STANDARD,
+            NO_SHADE,
+            LIGHT_BOX
         }
 
         internal readonly struct SpawnData
@@ -341,6 +354,8 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                             gameObjectData,
                             _noteLinesDistance,
                             trackLaneRing,
+                            null,
+                            null,
                             parametricBoxController,
                             beatmapObjectsAvoidance,
                             _tracks,
@@ -400,19 +415,52 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             // TODO: Make a material programatically instead of relying on this
             // This is the shader BTS Cube uses
             Material standardMaterial = new(Shader.Find("Custom/SimpleLit"));
+            Material lightMaterial = new(Shader.Find("Custom/OpaqueNeonLight"));
 
-            Dictionary<Color, Material> materials = new();
+            TubeBloomPrePassLight? originalTubeBloomPrePassLight = Resources.FindObjectsOfTypeAll<TubeBloomPrePassLight>().FirstOrDefault();
+
+            Dictionary<(Color, ShaderPreset), Material> materials = new();
 
             // Cache materials to improve bulk rendering performance
-            Material GetMaterial(Color color)
+            // TODO: Cache shader keywords
+            Material GetMaterial(Color color, ShaderPreset shaderPreset)
             {
-                if (materials.TryGetValue(color, out Material material))
+                if (materials.TryGetValue((color, shaderPreset), out Material material))
                 {
                     return material;
                 }
 
-                materials[color] = material = Material.Instantiate(standardMaterial);
+                Material originalMaterial = shaderPreset switch
+                {
+                    ShaderPreset.LIGHT_BOX => lightMaterial,
+                    _ => standardMaterial
+                };
+
+                materials[(color, shaderPreset)] = material = Material.Instantiate(originalMaterial);
                 material.color = color;
+                material.globalIlluminationFlags = shaderPreset switch
+                {
+                    ShaderPreset.LIGHT_BOX => MaterialGlobalIlluminationFlags.EmissiveIsBlack,
+                    _ => MaterialGlobalIlluminationFlags.RealtimeEmissive,
+                };
+
+
+                material.enableInstancing = true;
+                material.shaderKeywords = shaderPreset switch
+                {
+                    // Keywords found in RUE PC in BS 1.22.1
+                    ShaderPreset.STANDARD => new[]
+                    {
+                        "DIFFUSE", "ENABLE_DIFFUSE", "ENABLE_FOG", "ENABLE_HEIGHT_FOG", "ENABLE_SPECULAR", "FOG",
+                        "HEIGHT_FOG", "REFLECTION_PROBE_BOX_PROJECTION", "SPECULAR", "_EMISSION",
+                        "_ENABLE_FOG_TINT", "_RIMLIGHT_NONE"
+                    },
+                    ShaderPreset.LIGHT_BOX => new []
+                    {
+                        "DIFFUSE", "ENABLE_BLUE_NOISE", "ENABLE_DIFFUSE", "ENABLE_HEIGHT_FOG", "ENABLE_LIGHTNING", "USE_COLOR_FOG"
+                    },
+                    _ => material.shaderKeywords
+                };
 
                 return material;
             }
@@ -421,7 +469,18 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             {
                 SpawnData spawnData = new(geometryData, v2, _noteLinesDistance);
                 Color color = CustomDataManager.GetColorFromData(geometryData, v2) ?? Color.cyan;
-                GeometryType? geometryType = geometryData.GetStringToEnum<GeometryType?>(v2 ? V2_GEOMETRY_TYPE : GEOMETRY_TYPE) ?? throw new InvalidOperationException("Geometry type was not defined");
+                GeometryType geometryType = geometryData.GetStringToEnum<GeometryType?>(v2 ? V2_GEOMETRY_TYPE : GEOMETRY_TYPE) ?? throw new InvalidOperationException("Geometry type was not defined");
+                ShaderPreset shaderPreset = geometryData.GetStringToEnum<ShaderPreset?>(v2 ? V2_SHADER_PRESET : SHADER_PRESET) ?? ShaderPreset.STANDARD;
+                IEnumerable<string>? shaderKeywords = geometryData.Get<List<object>?>(v2 ? V2_SHADER_KEYWORDS : SHADER_PRESET)?.Cast<string>();
+                int count = geometryData.Get<int?>(v2 ? V2_SPAWN_COUNT : SPAWN_COUNT) ?? 1;
+
+                // Omitted in Quest
+                bool collision = geometryData.Get<bool?>(v2 ? V2_COLLISION : COLLISION) ?? false;
+
+                if (count < 1)
+                {
+                    count = 1;
+                }
 
                 PrimitiveType primitiveType = geometryType switch
                 {
@@ -441,22 +500,64 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 spawnData.TransformObject(transform);
 
                 MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
+                TubeBloomPrePassLight? tubeBloomPrePassLight = null;
 
                 // Disable expensive shadows
                 meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
                 meshRenderer.receiveShadows = false;
 
                 // Shared material is usually better performance as far as I know
-                meshRenderer.sharedMaterial = GetMaterial(color);
+                Material material = GetMaterial(color, shaderPreset);
+                meshRenderer.sharedMaterial = material;
+
+                if (!collision)
+                {
+                    // destroy colliders
+                    Object.Destroy(gameObject.GetComponent<SphereCollider>());
+                    Object.Destroy(gameObject.GetComponent<CapsuleCollider>());
+                    Object.Destroy(gameObject.GetComponent<BoxCollider>());
+                    Object.Destroy(gameObject.GetComponent<Collider>());
+                    Object.Destroy(gameObject.GetComponent<MeshCollider>());
+                }
+
+                // THIS REDUCES PERFORMANCE FOR BULK RENDERING
+                if (shaderKeywords != null)
+                {
+                    meshRenderer.sharedMaterial = material = Material.Instantiate(meshRenderer.sharedMaterial);
+                    meshRenderer.sharedMaterial.shaderKeywords = shaderKeywords.ToArray();
+                }
+
+                if (shaderPreset == ShaderPreset.LIGHT_BOX)
+                {
+                    // I have no clue how this works
+                    tubeBloomPrePassLight = gameObject.AddComponent<TubeBloomPrePassLight>();
+                    _colorAlphaMultiplierAccessor(ref tubeBloomPrePassLight) = 10;
+                    _mainEffectPostProcessEnabledAccessor(ref tubeBloomPrePassLight) =
+                        _mainEffectPostProcessEnabledAccessor(ref originalTubeBloomPrePassLight);
+                    _forceUseBakedGlowAccessor(ref tubeBloomPrePassLight) =
+                        _forceUseBakedGlowAccessor(ref originalTubeBloomPrePassLight);
+                    _dynamic3SliceSpriteAccessor(ref tubeBloomPrePassLight) =
+                        _dynamic3SliceSpriteAccessor(ref originalTubeBloomPrePassLight);
+
+                    BloomPrePassLight bloomPrePassLight = tubeBloomPrePassLight;
+                    BloomPrePassLight originalBloomPrePassLight = originalTubeBloomPrePassLight;
+
+                    _lightTypeAccessor(ref bloomPrePassLight) = _lightTypeAccessor(ref originalBloomPrePassLight);
+                    _registeredWithLightTypeAccessor(ref bloomPrePassLight) =
+                        _registeredWithLightTypeAccessor(ref originalBloomPrePassLight);
+
+                    tubeBloomPrePassLight.color = color;
+                }
 
                 // TODO: Texture?
-
                 GameObjectTrackController? trackController = GameObjectTrackController.HandleTrackData(
                     _trackControllerFactory,
                     gameObject,
                     geometryData,
                     _noteLinesDistance,
                     null,
+                    tubeBloomPrePassLight,
+                    material,
                     null,
                     null,
                     _tracks,
@@ -464,6 +565,11 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 if (trackController != null)
                 {
                     _gameObjectTrackControllers.Add(trackController);
+                }
+
+                for (int i = 1; i < count; i++)
+                {
+                    Object.Instantiate(gameObject, environment, true);
                 }
             }
         }

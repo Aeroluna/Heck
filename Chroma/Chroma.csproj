@@ -27,6 +27,7 @@
     <Reference Include="SongCore" HintPath="$(BeatSaberDir)\Plugins\SongCore.dll"/>
     <Reference Include="UnityEngine.CoreModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll"/>
     <Reference Include="UnityEngine.ParticleSystemModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.ParticleSystemModule.dll"/>
+    <Reference Include="UnityEngine.PhysicsModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.PhysicsModule.dll"/>
     <Reference Include="Zenject" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll"/>
     <Reference Include="Zenject-usage" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll"/>
   </ItemGroup>
