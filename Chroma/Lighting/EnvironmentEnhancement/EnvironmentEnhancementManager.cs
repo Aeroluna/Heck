@@ -98,6 +98,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             CUBE,
             PLANE,
             QUAD,
+            TRIANGLE
         }
 
         internal enum ShaderPreset
@@ -490,6 +491,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     GeometryType.CUBE => PrimitiveType.Cube,
                     GeometryType.PLANE => PrimitiveType.Plane,
                     GeometryType.QUAD => PrimitiveType.Quad,
+                    GeometryType.TRIANGLE => PrimitiveType.Quad,
                     _ => throw new ArgumentOutOfRangeException(nameof(geometryType), $"Geometry type {geometryType} does not match a primitive!")
                 };
 
@@ -509,6 +511,11 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 // Shared material is usually better performance as far as I know
                 Material material = GetMaterial(color, shaderPreset);
                 meshRenderer.sharedMaterial = material;
+
+                if (geometryType == GeometryType.TRIANGLE)
+                {
+                    gameObject.GetComponent<MeshFilter>().sharedMesh = GeometryUtils.CreateTriangleMesh();
+                }
 
                 if (!collision)
                 {
@@ -553,14 +560,20 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                         _dynamic3SliceSpriteAccessor(ref tubeBloomPrePassLight) =
                             _dynamic3SliceSpriteAccessor(ref originalTubeBloomPrePassLight);
 
-                    BloomPrePassLight bloomPrePassLight = tubeBloomPrePassLight;
-                    BloomPrePassLight originalBloomPrePassLight = originalTubeBloomPrePassLight;
+                        BloomPrePassLight bloomPrePassLight = tubeBloomPrePassLight;
+                        BloomPrePassLight originalBloomPrePassLight = originalTubeBloomPrePassLight;
 
-                    _lightTypeAccessor(ref bloomPrePassLight) = _lightTypeAccessor(ref originalBloomPrePassLight);
-                    _registeredWithLightTypeAccessor(ref bloomPrePassLight) =
-                        _registeredWithLightTypeAccessor(ref originalBloomPrePassLight);
+                        _lightTypeAccessor(ref bloomPrePassLight) = _lightTypeAccessor(ref originalBloomPrePassLight);
+                        _registeredWithLightTypeAccessor(ref bloomPrePassLight) =
+                            _registeredWithLightTypeAccessor(ref originalBloomPrePassLight);
 
-                    tubeBloomPrePassLight.color = color;
+                        tubeBloomPrePassLight.color = color;
+                    }
+                    else
+                    {
+                        Log.Logger.Log($"Unable to properly initialize bloom light. Original bloom light is null {originalTubeBloomPrePassLight == null}", Logger.Level.Error);
+                    }
+                    gameObject.SetActive(true);
                 }
 
                 // TODO: Texture?
