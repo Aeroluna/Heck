@@ -210,7 +210,7 @@ namespace NoodleExtensions.Animation
         }
 
         [UsedImplicitly]
-        internal class PlayerTrackFactory : IFactory<PlayerTrackObject, PlayerTrack>
+        internal class PlayerTrackFactory : PlaceholderFactory<PlayerTrackObject, PlayerTrack>
         {
             private readonly IInstantiator _container;
 
