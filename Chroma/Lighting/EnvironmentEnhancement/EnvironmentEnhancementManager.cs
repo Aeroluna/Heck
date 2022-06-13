@@ -514,7 +514,16 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                 if (geometryType == GeometryType.TRIANGLE)
                 {
-                    gameObject.GetComponent<MeshFilter>().sharedMesh = GeometryUtils.CreateTriangleMesh();
+                    Mesh mesh = GeometryUtils.CreateTriangleMesh();
+                    gameObject.GetComponent<MeshFilter>().sharedMesh = mesh;
+                    if (collision)
+                    {
+                        MeshCollider meshCollider = gameObject.GetComponent<MeshCollider>();
+                        if (meshCollider != null)
+                        {
+                            meshCollider.sharedMesh = mesh;
+                        }
+                    }
                 }
 
                 if (!collision)
