@@ -529,15 +529,29 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                 if (shaderPreset == ShaderPreset.LIGHT_BOX)
                 {
+                    // Stop TubeBloomPrePassLight from running OnEnable before I can set the fields
+                    gameObject.SetActive(false);
+
                     // I have no clue how this works
-                    tubeBloomPrePassLight = gameObject.AddComponent<TubeBloomPrePassLight>();
-                    _colorAlphaMultiplierAccessor(ref tubeBloomPrePassLight) = 10;
-                    _mainEffectPostProcessEnabledAccessor(ref tubeBloomPrePassLight) =
-                        _mainEffectPostProcessEnabledAccessor(ref originalTubeBloomPrePassLight);
-                    _forceUseBakedGlowAccessor(ref tubeBloomPrePassLight) =
-                        _forceUseBakedGlowAccessor(ref originalTubeBloomPrePassLight);
-                    _dynamic3SliceSpriteAccessor(ref tubeBloomPrePassLight) =
-                        _dynamic3SliceSpriteAccessor(ref originalTubeBloomPrePassLight);
+                    try
+                    {
+                        tubeBloomPrePassLight = gameObject.AddComponent<TubeBloomPrePassLight>();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Logger.Log("Caught exception adding tube bloom light.");
+                        Log.Logger.Log(e);
+                    }
+
+                    if (originalTubeBloomPrePassLight != null && tubeBloomPrePassLight != null)
+                    {
+                        _colorAlphaMultiplierAccessor(ref tubeBloomPrePassLight) = 10;
+                        _mainEffectPostProcessEnabledAccessor(ref tubeBloomPrePassLight) =
+                            _mainEffectPostProcessEnabledAccessor(ref originalTubeBloomPrePassLight);
+                        _forceUseBakedGlowAccessor(ref tubeBloomPrePassLight) =
+                            _forceUseBakedGlowAccessor(ref originalTubeBloomPrePassLight);
+                        _dynamic3SliceSpriteAccessor(ref tubeBloomPrePassLight) =
+                            _dynamic3SliceSpriteAccessor(ref originalTubeBloomPrePassLight);
 
                     BloomPrePassLight bloomPrePassLight = tubeBloomPrePassLight;
                     BloomPrePassLight originalBloomPrePassLight = originalTubeBloomPrePassLight;
