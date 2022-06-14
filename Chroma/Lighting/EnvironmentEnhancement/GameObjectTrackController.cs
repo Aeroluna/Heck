@@ -261,7 +261,6 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         {
             Color? nullable = _track.GetProperty<Vector4?>(property);
 
-
             return nullable;
         }
 

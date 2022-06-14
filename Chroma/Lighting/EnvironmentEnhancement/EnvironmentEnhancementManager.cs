@@ -31,6 +31,24 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         EndsWith
     }
 
+    internal enum GeometryType
+    {
+        SPHERE,
+        CAPSULE,
+        CYLINDER,
+        CUBE,
+        PLANE,
+        QUAD,
+        TRIANGLE
+    }
+
+    internal enum ShaderPreset
+    {
+        STANDARD,
+        NO_SHADE,
+        LIGHT_BOX
+    }
+
     [UsedImplicitly]
     internal class EnvironmentEnhancementManager : IDisposable
     {
@@ -88,24 +106,6 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         public void Dispose()
         {
             _gameObjectTrackControllers.Do(Object.Destroy);
-        }
-
-        internal enum GeometryType
-        {
-            SPHERE,
-            CAPSULE,
-            CYLINDER,
-            CUBE,
-            PLANE,
-            QUAD,
-            TRIANGLE
-        }
-
-        internal enum ShaderPreset
-        {
-            STANDARD,
-            NO_SHADE,
-            LIGHT_BOX
         }
 
         internal readonly struct SpawnData
@@ -417,6 +417,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             // This is the shader BTS Cube uses
             Material standardMaterial = new(Shader.Find("Custom/SimpleLit"));
             Material lightMaterial = new(Shader.Find("Custom/OpaqueNeonLight"));
+            Material transparentLightMaterial = new(Shader.Find("Custom/TransparentNeonLight"));
 
             TubeBloomPrePassLight? originalTubeBloomPrePassLight = Resources.FindObjectsOfTypeAll<TubeBloomPrePassLight>().FirstOrDefault();
 
@@ -445,18 +446,17 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     _ => MaterialGlobalIlluminationFlags.RealtimeEmissive,
                 };
 
-
                 material.enableInstancing = true;
                 material.shaderKeywords = shaderPreset switch
                 {
-                    // Keywords found in RUE PC in BS 1.22.1
+                    // Keywords found in RUE PC in BS 1.23
                     ShaderPreset.STANDARD => new[]
                     {
                         "DIFFUSE", "ENABLE_DIFFUSE", "ENABLE_FOG", "ENABLE_HEIGHT_FOG", "ENABLE_SPECULAR", "FOG",
                         "HEIGHT_FOG", "REFLECTION_PROBE_BOX_PROJECTION", "SPECULAR", "_EMISSION",
-                        "_ENABLE_FOG_TINT", "_RIMLIGHT_NONE"
+                        "_ENABLE_FOG_TINT", "_RIMLIGHT_NONE", "_ZWRITE_ON", "REFLECTION_PROBE", "LIGHT_FALLOFF"
                     },
-                    ShaderPreset.LIGHT_BOX => new []
+                    ShaderPreset.LIGHT_BOX => new[]
                     {
                         "DIFFUSE", "ENABLE_BLUE_NOISE", "ENABLE_DIFFUSE", "ENABLE_HEIGHT_FOG", "ENABLE_LIGHTNING", "USE_COLOR_FOG"
                     },
@@ -543,7 +543,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     meshRenderer.sharedMaterial.shaderKeywords = shaderKeywords.ToArray();
                 }
 
-                if (shaderPreset == ShaderPreset.LIGHT_BOX)
+                if (shaderPreset is ShaderPreset.LIGHT_BOX)
                 {
                     // Stop TubeBloomPrePassLight from running OnEnable before I can set the fields
                     gameObject.SetActive(false);
@@ -582,6 +582,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     {
                         Log.Logger.Log($"Unable to properly initialize bloom light. Original bloom light is null {originalTubeBloomPrePassLight == null}", Logger.Level.Error);
                     }
+
                     gameObject.SetActive(true);
                 }
 
