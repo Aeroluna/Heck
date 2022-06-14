@@ -7,7 +7,6 @@ using static Chroma.ChromaController;
 
 namespace Chroma.Animation
 {
-    [UsedImplicitly]
     internal class EventController : IDisposable
     {
         private readonly BeatmapCallbacksController _callbacksController;
@@ -15,6 +14,7 @@ namespace Chroma.Animation
         private readonly LazyInject<ChromaFogController> _fogController;
         private readonly BeatmapDataCallbackWrapper _callbackWrapper;
 
+        [UsedImplicitly]
         internal EventController(
             BeatmapCallbacksController callbacksController,
             [Inject(Id = ID)] DeserializedData deserializedData,

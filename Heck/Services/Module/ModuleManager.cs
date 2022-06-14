@@ -75,6 +75,7 @@ namespace Heck
 
         internal static void Activate(
             IDifficultyBeatmap? difficultyBeatmap,
+            IPreviewBeatmapLevel? previewBeatmapLevel,
             LevelType levelType,
             ref OverrideEnvironmentSettings? overrideEnvironmentSettings)
         {
@@ -101,6 +102,7 @@ namespace Heck
             {
                 new Capabilities(requirements, suggestions),
                 difficultyBeatmap ?? new EmptyDifficultyBeatmap(),
+                previewBeatmapLevel ?? new EmptyBeatmapLevel(),
                 moduleArgs,
                 levelType
             };

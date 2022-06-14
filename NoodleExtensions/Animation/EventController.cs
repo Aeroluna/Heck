@@ -9,15 +9,15 @@ using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions.Animation
 {
-    [UsedImplicitly]
     internal class EventController : IDisposable
     {
-        private readonly BeatmapCallbacksController? _callbacksController;
+        private readonly BeatmapCallbacksController _callbacksController;
         private readonly DeserializedData _deserializedData;
         private readonly LazyInject<ParentController> _parentController;
         private readonly LazyInject<PlayerTrack> _playerTrack;
         private readonly BeatmapDataCallbackWrapper? _callbackWrapper;
 
+        [UsedImplicitly]
         private EventController(
             BeatmapCallbacksController callbacksController,
             [Inject(Id = ID)] DeserializedData deserializedData,
@@ -33,7 +33,7 @@ namespace NoodleExtensions.Animation
 
         public void Dispose()
         {
-            _callbacksController?.RemoveBeatmapCallback(_callbackWrapper);
+            _callbacksController.RemoveBeatmapCallback(_callbackWrapper);
         }
 
         private void HandleCallback(CustomEventData customEventData)

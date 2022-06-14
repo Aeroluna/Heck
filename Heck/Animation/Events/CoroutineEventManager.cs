@@ -16,20 +16,20 @@ namespace Heck.Animation.Events
     internal class CoroutineEventManager
     {
         private readonly IBpmController _bpmController;
-        private readonly EventController _eventController;
         private readonly IAudioTimeSource _audioTimeSource;
+        private readonly CoroutineDummy _coroutineDummy;
         private readonly DeserializedData _deserializedData;
 
         [UsedImplicitly]
         private CoroutineEventManager(
             IBpmController bpmController,
-            EventController eventController,
             IAudioTimeSource audioTimeSource,
+            CoroutineDummy coroutineDummy,
             [Inject(Id = ID)] DeserializedData deserializedData)
         {
             _bpmController = bpmController;
-            _eventController = eventController;
             _audioTimeSource = audioTimeSource;
+            _coroutineDummy = coroutineDummy;
             _deserializedData = deserializedData;
         }
 
@@ -52,7 +52,7 @@ namespace Heck.Animation.Events
 
                 if (property.Coroutine != null)
                 {
-                    _eventController.StopCoroutine(property.Coroutine);
+                    _coroutineDummy.StopCoroutine(property.Coroutine);
                 }
 
                 if (pointData == null)
@@ -73,7 +73,7 @@ namespace Heck.Animation.Events
                     switch (eventType)
                     {
                         case EventType.AnimateTrack:
-                            property.Coroutine = _eventController.StartCoroutine(AnimateTrackCoroutine(
+                            property.Coroutine = _coroutineDummy.StartCoroutine(AnimateTrackCoroutine(
                                 pointData,
                                 property,
                                 duration,
@@ -83,7 +83,7 @@ namespace Heck.Animation.Events
 
                         case EventType.AssignPathAnimation:
                             ((PathProperty)property).Interpolation.Init(pointData);
-                            property.Coroutine = _eventController.StartCoroutine(AssignPathAnimationCoroutine(
+                            property.Coroutine = _coroutineDummy.StartCoroutine(AssignPathAnimationCoroutine(
                                 property,
                                 duration,
                                 customEventData.time,

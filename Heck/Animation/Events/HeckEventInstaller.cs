@@ -13,7 +13,8 @@ namespace Heck.Animation.Events
                 return;
             }
 
-            Container.Bind<EventController>().FromNewComponentOnRoot().AsSingle().NonLazy();
+            Container.Bind<CoroutineDummy>().FromNewComponentOnRoot().AsSingle();
+            Container.Bind<EventController>().AsSingle().NonLazy();
             Container.Bind<CoroutineEventManager>().AsSingle();
         }
     }
