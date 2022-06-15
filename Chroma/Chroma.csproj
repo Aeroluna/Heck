@@ -10,58 +10,58 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="0Harmony" HintPath="$(BeatSaberDir)\Libs\0Harmony.dll"/>
-    <Reference Include="BeatmapCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll"/>
-    <Reference Include="BSML" HintPath="$(BeatSaberDir)\Plugins\BSML.dll"/>
-    <Reference Include="Colors" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll"/>
-    <Reference Include="CustomJSONData" HintPath="$(BeatSaberDir)\Plugins\CustomJSONData.dll"/>
-    <Reference Include="GameplayCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll"/>
-    <Reference Include="Heck" HintPath="$(BeatSaberDir)\Plugins\Heck.dll"/>
-    <Reference Include="HMLib" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll"/>
-    <Reference Include="HMRendering" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll"/>
-    <Reference Include="IPA.Loader" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll"/>
-    <Reference Include="Main" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll"/>
-    <Reference Include="Newtonsoft.Json" HintPath="$(BeatSaberDir)\Libs\Newtonsoft.Json.dll"/>
-    <Reference Include="Rendering" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Rendering.dll"/>
-    <Reference Include="SiraUtil" HintPath="$(BeatSaberDir)\Plugins\SiraUtil.dll"/>
-    <Reference Include="SongCore" HintPath="$(BeatSaberDir)\Plugins\SongCore.dll"/>
-    <Reference Include="UnityEngine.CoreModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll"/>
-    <Reference Include="UnityEngine.ParticleSystemModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.ParticleSystemModule.dll"/>
-    <Reference Include="UnityEngine.PhysicsModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.PhysicsModule.dll"/>
-    <Reference Include="Zenject" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll"/>
-    <Reference Include="Zenject-usage" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll"/>
+    <Reference Include="0Harmony" HintPath="$(BeatSaberDir)\Libs\0Harmony.dll" />
+    <Reference Include="BeatmapCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll" />
+    <Reference Include="BSML" HintPath="$(BeatSaberDir)\Plugins\BSML.dll" />
+    <Reference Include="Colors" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll" />
+    <Reference Include="CustomJSONData" HintPath="$(BeatSaberDir)\Plugins\CustomJSONData.dll" />
+    <Reference Include="GameplayCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll" />
+    <Reference Include="Heck" HintPath="$(BeatSaberDir)\Plugins\Heck.dll" />
+    <Reference Include="HMLib" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll" />
+    <Reference Include="HMRendering" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll" />
+    <Reference Include="IPA.Loader" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll" />
+    <Reference Include="Main" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll" />
+    <Reference Include="Newtonsoft.Json" HintPath="$(BeatSaberDir)\Libs\Newtonsoft.Json.dll" />
+    <Reference Include="Rendering" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Rendering.dll" />
+    <Reference Include="SiraUtil" HintPath="$(BeatSaberDir)\Plugins\SiraUtil.dll" />
+    <Reference Include="SongCore" HintPath="$(BeatSaberDir)\Plugins\SongCore.dll" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll" />
+    <Reference Include="UnityEngine.ParticleSystemModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.ParticleSystemModule.dll" />
+    <Reference Include="UnityEngine.PhysicsModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.PhysicsModule.dll" />
+    <Reference Include="Zenject" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll" />
+    <Reference Include="Zenject-usage" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="LightIDTables\BigMirrorEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\BillieEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\BTSEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\CrabRaveEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\DefaultEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\DragonsEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\FitBeatEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\GlassDesertEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\GreenDayEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\GreenDayGrenadeEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\HalloweenEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\InterscopeEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\KaleidoscopeEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\KDAEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\LinkinParkEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\MonstercatEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\NiceEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\OriginsEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\PanicEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\RocketEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\SkrillexEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\TimbalandEnvironment.json"/>
-    <EmbeddedResource Include="LightIDTables\TriangleEnvironment.json"/>
-    <EmbeddedResource Include="manifest.json"/>
-    <EmbeddedResource Include="Settings\modifiers.bsml"/>
+    <EmbeddedResource Include="LightIDTables\BigMirrorEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\BillieEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\BTSEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\CrabRaveEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\DefaultEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\DragonsEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\FitBeatEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\GlassDesertEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\GreenDayEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\GreenDayGrenadeEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\HalloweenEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\InterscopeEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\KaleidoscopeEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\KDAEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\LinkinParkEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\MonstercatEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\NiceEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\OriginsEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\PanicEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\RocketEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\SkrillexEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\TimbalandEnvironment.json" />
+    <EmbeddedResource Include="LightIDTables\TriangleEnvironment.json" />
+    <EmbeddedResource Include="manifest.json" />
+    <EmbeddedResource Include="Settings\modifiers.bsml" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BeatSaberModdingTools.Tasks" Version="1.4.3"/>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.354"/>
+    <PackageReference Include="BeatSaberModdingTools.Tasks" Version="1.4.3" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.354" />
   </ItemGroup>
 </Project>

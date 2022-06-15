@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using Chroma.Extras;
 using Chroma.Settings;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
@@ -108,69 +109,6 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             _gameObjectTrackControllers.Do(Object.Destroy);
         }
 
-        internal readonly struct SpawnData
-        {
-            public readonly Vector3? Scale;
-            public readonly Vector3? Position;
-            public readonly Vector3? Rotation;
-            public readonly Vector3? LocalPosition;
-            public readonly Vector3? LocalRotation;
-
-            public SpawnData(CustomData gameObjectData, bool v2, float _noteLinesDistance)
-            {
-                Scale = gameObjectData.GetVector3(v2 ? V2_SCALE : SCALE);
-                Position = gameObjectData.GetVector3(v2 ? V2_POSITION : POSITION);
-                Rotation = gameObjectData.GetVector3(v2 ? V2_ROTATION : ROTATION);
-                LocalPosition = gameObjectData.GetVector3(v2 ? V2_LOCAL_POSITION : LOCAL_POSITION);
-                LocalRotation = gameObjectData.GetVector3(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION);
-
-                if (!v2)
-                {
-                    return;
-                }
-
-                // ReSharper disable once UseNullPropagation
-                if (Position.HasValue)
-                {
-                    Position = Position.Value * _noteLinesDistance;
-                }
-
-                // ReSharper disable once UseNullPropagation
-                if (LocalPosition.HasValue)
-                {
-                    LocalPosition = LocalPosition.Value * _noteLinesDistance;
-                }
-            }
-
-            public void TransformObject(Transform transform)
-            {
-                if (Scale.HasValue)
-                {
-                    transform.localScale = Scale.Value;
-                }
-
-                if (Position.HasValue)
-                {
-                    transform.position = Position.Value;
-                }
-
-                if (Rotation.HasValue)
-                {
-                    transform.eulerAngles = Rotation.Value;
-                }
-
-                if (LocalPosition.HasValue)
-                {
-                    transform.localPosition = LocalPosition.Value;
-                }
-
-                if (LocalRotation.HasValue)
-                {
-                    transform.localEulerAngles = LocalRotation.Value;
-                }
-            }
-        }
-
         internal IEnumerator DelayedStart()
         {
             yield return new WaitForEndOfFrame();
@@ -219,8 +157,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     }
                     else
                     {
-                        Log.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.",
-                            Logger.Level.Error);
+                        Log.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.", Logger.Level.Error);
                     }
 
                     List<GameObjectInfo> gameObjectInfos;
@@ -244,15 +181,21 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                                 List<IComponentData> componentDatas = new();
                                 _componentInitializer.Value.PrefillComponentsData(gameObject.transform, componentDatas);
                                 GameObject newGameObject = Object.Instantiate(gameObject);
-                                _componentInitializer.Value.PostfillComponentsData(newGameObject.transform,
-                                    gameObject.transform, componentDatas);
+                                _componentInitializer.Value.PostfillComponentsData(
+                                    newGameObject.transform,
+                                    gameObject.transform,
+                                    componentDatas);
                                 SceneManager.MoveGameObjectToScene(newGameObject, scene);
 
                                 // ReSharper disable once Unity.InstantiateWithoutParent
                                 // need to move shit to right scene first
                                 newGameObject.transform.SetParent(parent, true);
-                                _componentInitializer.Value.InitializeComponents(newGameObject.transform,
-                                    gameObject.transform, _gameObjectInfos, componentDatas, lightID);
+                                _componentInitializer.Value.InitializeComponents(
+                                    newGameObject.transform,
+                                    gameObject.transform,
+                                    _gameObjectInfos,
+                                    componentDatas,
+                                    lightID);
 
                                 List<GameObjectInfo> gameObjects =
                                     _gameObjectInfos.Where(n => n.GameObject == newGameObject).ToList();
@@ -272,8 +215,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     {
                         if (lightID.HasValue)
                         {
-                            Log.Logger.Log("LightID requested but no duplicated object to apply to.",
-                                Logger.Level.Error);
+                            Log.Logger.Log("LightID requested but no duplicated object to apply to.", Logger.Level.Error);
                         }
 
                         gameObjectInfos = foundObjects;
@@ -322,13 +264,15 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                         {
                             if (position.HasValue || localPosition.HasValue)
                             {
-                                _parametricBoxControllerParameters.SetTransformPosition(parametricBoxController,
+                                _parametricBoxControllerParameters.SetTransformPosition(
+                                    parametricBoxController,
                                     transform.localPosition);
                             }
 
                             if (scale.HasValue)
                             {
-                                _parametricBoxControllerParameters.SetTransformScale(parametricBoxController,
+                                _parametricBoxControllerParameters.SetTransformScale(
+                                    parametricBoxController,
                                     transform.localScale);
                             }
                         }
@@ -387,9 +331,14 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 Log.Logger.Log(e);
             }
 
+            if (v2)
+            {
+                yield break;
+            }
+
             try
             {
-                HandleGeometry(_beatmapData.customData, v2);
+                HandleGeometry(_beatmapData.customData);
             }
             catch (Exception e)
             {
@@ -398,10 +347,10 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             }
         }
 
-        private void HandleGeometry(CustomData customData, bool v2)
+        private void HandleGeometry(CustomData customData)
         {
             IEnumerable<CustomData>? geometriesData = customData
-                .Get<List<object>>(v2 ? V2_GEOMETRY : GEOMETRY)?
+                .Get<List<object>>(GEOMETRY)?
                 .Cast<CustomData>();
 
             if (geometriesData == null)
@@ -417,7 +366,6 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             // This is the shader BTS Cube uses
             Material standardMaterial = new(Shader.Find("Custom/SimpleLit"));
             Material lightMaterial = new(Shader.Find("Custom/OpaqueNeonLight"));
-            Material transparentLightMaterial = new(Shader.Find("Custom/TransparentNeonLight"));
 
             TubeBloomPrePassLight? originalTubeBloomPrePassLight = Resources.FindObjectsOfTypeAll<TubeBloomPrePassLight>().FirstOrDefault();
 
@@ -438,7 +386,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     _ => standardMaterial
                 };
 
-                materials[(color, shaderPreset)] = material = Material.Instantiate(originalMaterial);
+                materials[(color, shaderPreset)] = material = Object.Instantiate(originalMaterial);
                 material.color = color;
                 material.globalIlluminationFlags = shaderPreset switch
                 {
@@ -468,15 +416,15 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             foreach (CustomData geometryData in geometriesData)
             {
-                SpawnData spawnData = new(geometryData, v2, _noteLinesDistance);
-                Color color = CustomDataManager.GetColorFromData(geometryData, v2) ?? Color.cyan;
-                GeometryType geometryType = geometryData.GetStringToEnum<GeometryType?>(v2 ? V2_GEOMETRY_TYPE : GEOMETRY_TYPE) ?? throw new InvalidOperationException("Geometry type was not defined");
-                ShaderPreset shaderPreset = geometryData.GetStringToEnum<ShaderPreset?>(v2 ? V2_SHADER_PRESET : SHADER_PRESET) ?? ShaderPreset.STANDARD;
-                IEnumerable<string>? shaderKeywords = geometryData.Get<List<object>?>(v2 ? V2_SHADER_KEYWORDS : SHADER_PRESET)?.Cast<string>();
-                int count = geometryData.Get<int?>(v2 ? V2_SPAWN_COUNT : SPAWN_COUNT) ?? 1;
+                SpawnData spawnData = new(geometryData, false, _noteLinesDistance);
+                Color color = CustomDataManager.GetColorFromData(geometryData, false) ?? Color.cyan;
+                GeometryType geometryType = geometryData.GetStringToEnum<GeometryType?>(GEOMETRY_TYPE) ?? throw new Heck.JSONNotDefinedException(GEOMETRY_TYPE);
+                ShaderPreset shaderPreset = geometryData.GetStringToEnum<ShaderPreset?>(SHADER_PRESET) ?? ShaderPreset.STANDARD;
+                IEnumerable<string>? shaderKeywords = geometryData.Get<List<object>?>(SHADER_PRESET)?.Cast<string>();
+                int count = geometryData.Get<int?>(SPAWN_COUNT) ?? 1;
 
                 // Omitted in Quest
-                bool collision = geometryData.Get<bool?>(v2 ? V2_COLLISION : COLLISION) ?? false;
+                bool collision = geometryData.Get<bool?>(COLLISION) ?? false;
 
                 if (count < 1)
                 {
@@ -514,7 +462,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                 if (geometryType == GeometryType.TRIANGLE)
                 {
-                    Mesh mesh = GeometryUtils.CreateTriangleMesh();
+                    Mesh mesh = ChromaUtils.CreateTriangleMesh();
                     gameObject.GetComponent<MeshFilter>().sharedMesh = mesh;
                     if (collision)
                     {
@@ -539,7 +487,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 // THIS REDUCES PERFORMANCE FOR BULK RENDERING
                 if (shaderKeywords != null)
                 {
-                    meshRenderer.sharedMaterial = material = Material.Instantiate(meshRenderer.sharedMaterial);
+                    meshRenderer.sharedMaterial = material = Object.Instantiate(meshRenderer.sharedMaterial);
                     meshRenderer.sharedMaterial.shaderKeywords = shaderKeywords.ToArray();
                 }
 
@@ -598,7 +546,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                     null,
                     null,
                     _tracks,
-                    v2);
+                    false);
                 if (trackController != null)
                 {
                     _gameObjectTrackControllers.Add(trackController);
@@ -748,6 +696,69 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             objectsToPrint.Sort();
             objectsToPrint.ForEach(n => Log.Logger.Log(n));
+        }
+
+        internal readonly struct SpawnData
+        {
+            public readonly Vector3? Scale;
+            public readonly Vector3? Position;
+            public readonly Vector3? Rotation;
+            public readonly Vector3? LocalPosition;
+            public readonly Vector3? LocalRotation;
+
+            public SpawnData(CustomData gameObjectData, bool v2, float _noteLinesDistance)
+            {
+                Scale = gameObjectData.GetVector3(v2 ? V2_SCALE : SCALE);
+                Position = gameObjectData.GetVector3(v2 ? V2_POSITION : POSITION);
+                Rotation = gameObjectData.GetVector3(v2 ? V2_ROTATION : ROTATION);
+                LocalPosition = gameObjectData.GetVector3(v2 ? V2_LOCAL_POSITION : LOCAL_POSITION);
+                LocalRotation = gameObjectData.GetVector3(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION);
+
+                if (!v2)
+                {
+                    return;
+                }
+
+                // ReSharper disable once UseNullPropagation
+                if (Position.HasValue)
+                {
+                    Position = Position.Value * _noteLinesDistance;
+                }
+
+                // ReSharper disable once UseNullPropagation
+                if (LocalPosition.HasValue)
+                {
+                    LocalPosition = LocalPosition.Value * _noteLinesDistance;
+                }
+            }
+
+            public void TransformObject(Transform transform)
+            {
+                if (Scale.HasValue)
+                {
+                    transform.localScale = Scale.Value;
+                }
+
+                if (Position.HasValue)
+                {
+                    transform.position = Position.Value;
+                }
+
+                if (Rotation.HasValue)
+                {
+                    transform.eulerAngles = Rotation.Value;
+                }
+
+                if (LocalPosition.HasValue)
+                {
+                    transform.localPosition = LocalPosition.Value;
+                }
+
+                if (LocalRotation.HasValue)
+                {
+                    transform.localEulerAngles = LocalRotation.Value;
+                }
+            }
         }
     }
 }
