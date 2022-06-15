@@ -131,12 +131,9 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
                 foreach (CustomData gameObjectData in environmentData)
                 {
-                    string id = gameObjectData.Get<string>(v2 ? V2_GAMEOBJECT_ID : GAMEOBJECT_ID)
-                                ?? throw new InvalidOperationException("Id was not defined.");
+                    string id = gameObjectData.GetRequired<string>(v2 ? V2_GAMEOBJECT_ID : GAMEOBJECT_ID);
 
-                    LookupMethod lookupMethod =
-                        gameObjectData.GetStringToEnum<LookupMethod?>(v2 ? V2_LOOKUP_METHOD : LOOKUP_METHOD)
-                        ?? throw new InvalidOperationException("Lookup method was not defined.");
+                    LookupMethod lookupMethod = gameObjectData.GetStringToEnumRequired<LookupMethod>(v2 ? V2_LOOKUP_METHOD : LOOKUP_METHOD);
 
                     int? dupeAmount = gameObjectData.Get<int?>(v2 ? V2_DUPLICATION_AMOUNT : DUPLICATION_AMOUNT);
 
@@ -418,7 +415,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
             {
                 SpawnData spawnData = new(geometryData, false, _noteLinesDistance);
                 Color color = CustomDataManager.GetColorFromData(geometryData, false) ?? Color.cyan;
-                GeometryType geometryType = geometryData.GetStringToEnum<GeometryType?>(GEOMETRY_TYPE) ?? throw new Heck.JSONNotDefinedException(GEOMETRY_TYPE);
+                GeometryType geometryType = geometryData.GetStringToEnumRequired<GeometryType>(GEOMETRY_TYPE);
                 ShaderPreset shaderPreset = geometryData.GetStringToEnum<ShaderPreset?>(SHADER_PRESET) ?? ShaderPreset.STANDARD;
                 IEnumerable<string>? shaderKeywords = geometryData.Get<List<object>?>(SHADER_PRESET)?.Cast<string>();
                 int count = geometryData.Get<int?>(SPAWN_COUNT) ?? 1;

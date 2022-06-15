@@ -50,8 +50,7 @@ namespace Chroma
                     switch (customEventData.eventType)
                     {
                         case ASSIGN_FOG_TRACK:
-                            trackBuilder.AddTrack(customEventData.customData.Get<string>(v2 ? V2_TRACK : TRACK)
-                                                  ?? throw new InvalidOperationException("Track was not defined."));
+                            trackBuilder.AddFromCustomData(customEventData.customData, v2);
                             break;
 
                         default:

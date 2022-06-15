@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using UnityEngine;
 using static Heck.HeckController;
@@ -77,7 +78,7 @@ namespace Heck.Animation
 
         public static Track GetTrack(this CustomData customData, Dictionary<string, Track> beatmapTracks, string name)
         {
-            return GetNullableTrack(customData, beatmapTracks, name) ?? throw new InvalidOperationException($"{name} was not defined.");
+            return GetNullableTrack(customData, beatmapTracks, name) ?? throw new JsonNotDefinedException(name);
         }
 
         public static Track? GetNullableTrack(this CustomData customData, Dictionary<string, Track> beatmapTracks, bool v2)
@@ -92,7 +93,7 @@ namespace Heck.Animation
 
         public static IEnumerable<Track> GetTrackArray(this CustomData customData, Dictionary<string, Track> beatmapTracks, string name)
         {
-            return GetNullableTrackArray(customData, beatmapTracks, name) ?? throw new InvalidOperationException($"{name} was not defined.");
+            return GetNullableTrackArray(customData, beatmapTracks, name) ?? throw new JsonNotDefinedException(name);
         }
 
         public static IEnumerable<Track>? GetNullableTrackArray(this CustomData customData, Dictionary<string, Track> beatmapTracks, bool v2)

@@ -101,10 +101,9 @@ namespace Heck
             {
                 foreach (CustomData pointDefintionRaw in pointDefinitionsRaw)
                 {
-                    string pointName = pointDefintionRaw.Get<string>(v2 ? V2_NAME : NAME) ?? throw new InvalidOperationException("Failed to retrieve point name.");
-                    PointDefinition pointData = PointDefinition.ListToPointDefinition(pointDefintionRaw.Get<List<object>>(v2 ? V2_POINTS : POINTS)
-                                                                                      ?? throw new InvalidOperationException(
-                                                                                          "Failed to retrieve point array."));
+                    string pointName = pointDefintionRaw.GetRequired<string>(v2 ? V2_NAME : NAME);
+                    PointDefinition pointData = PointDefinition.ListToPointDefinition(
+                        pointDefintionRaw.GetRequired<List<object>>(v2 ? V2_POINTS : POINTS));
                     AddPoint(pointName, pointData);
                 }
             }
@@ -132,10 +131,9 @@ namespace Heck
                 {
                     foreach (CustomData eventDefinitionRaw in eventDefinitionsRaw)
                     {
-                        string eventName = eventDefinitionRaw.Get<string>(NAME) ?? throw new InvalidOperationException("Failed to retrieve event name.");
-                        string type = eventDefinitionRaw.Get<string>(TYPE) ?? throw new InvalidOperationException("Failed to retrieve event type.");
-                        CustomData data = eventDefinitionRaw.Get<CustomData>("_data")
-                                                           ?? throw new InvalidOperationException("Failed to retrieve event data.");
+                        string eventName = eventDefinitionRaw.GetRequired<string>(NAME);
+                        string type = eventDefinitionRaw.GetRequired<string>(TYPE);
+                        CustomData data = eventDefinitionRaw.GetRequired<CustomData>("_data");
 
                         AddEvent(eventName, new CustomEventData(-1, type, data));
                     }

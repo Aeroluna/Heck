@@ -108,9 +108,8 @@ namespace Heck
         // ReSharper disable once SuggestBaseTypeForParameterInConstructor
         internal HeckInvokeEventData(CustomBeatmapData beatmapData, CustomEventData customEventData)
         {
-            IDictionary<string, CustomEventData> eventDefinitions = beatmapData.customData.Get<IDictionary<string, CustomEventData>>(EVENT_DEFINITIONS)
-                                                                    ?? throw new InvalidOperationException("Could not find event definitions in BeatmapData.");
-            string eventName = customEventData.customData.Get<string>(EVENT) ?? throw new InvalidOperationException("Event name was not defined.");
+            IDictionary<string, CustomEventData> eventDefinitions = beatmapData.customData.GetRequired<IDictionary<string, CustomEventData>>(EVENT_DEFINITIONS);
+            string eventName = customEventData.customData.GetRequired<string>(EVENT);
             CustomEventData = eventDefinitions[eventName];
         }
 
