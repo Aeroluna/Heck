@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using CustomJSONData.CustomBeatmap;
+using JetBrains.Annotations;
 using UnityEngine;
+using static Heck.HeckController;
 
 namespace Heck.Animation
 {
@@ -27,6 +30,25 @@ namespace Heck.Animation
             Track track = new(_v2);
             TrackCreated?.Invoke(track);
             Tracks.Add(trackName, track);
+        }
+
+        public void AddFromCustomData(CustomData customData, bool v2, bool doThrow = true)
+        {
+            AddFromCustomData(customData, v2 ? V2_TRACK : TRACK, doThrow);
+        }
+
+        [AssertionMethod]
+        public void AddFromCustomData(CustomData customData, string name, bool doThrow = true)
+        {
+            string? trackName = customData.Get<string>(name);
+            if (trackName != null)
+            {
+                AddTrack(trackName);
+            }
+            else if (doThrow)
+            {
+                throw new JSONNotDefinedException(name);
+            }
         }
     }
 

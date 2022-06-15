@@ -27,10 +27,18 @@ namespace Chroma
             {
                 foreach (CustomData gameObjectData in environmentData)
                 {
-                    string? trackName = gameObjectData.Get<string>(v2 ? V2_TRACK : TRACK);
-                    if (trackName != null)
+                    trackBuilder.AddFromCustomData(gameObjectData, v2, false);
+                }
+            }
+
+            if (v2)
+            {
+                IEnumerable<CustomData>? geometriesData = beatmapData.customData.Get<List<object>>(GEOMETRY)?.Cast<CustomData>();
+                if (geometriesData != null)
+                {
+                    foreach (CustomData gameObjectData in geometriesData)
                     {
-                        trackBuilder.AddTrack(trackName);
+                        trackBuilder.AddFromCustomData(gameObjectData, false, false);
                     }
                 }
             }

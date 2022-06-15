@@ -57,6 +57,12 @@ namespace Chroma
         internal const string RING_ROTATION = "rotation";
 
         internal const string ENVIRONMENT = "environment";
+        internal const string GEOMETRY = "geometry";
+        internal const string GEOMETRY_TYPE = "geometryType";
+        internal const string SHADER_PRESET = "shaderPreset";
+        internal const string SHADER_KEYWORDS = "shaderKeywords";
+        internal const string SPAWN_COUNT = "spawnCount";
+        internal const string COLLISION = "collision";
         internal const string GAMEOBJECT_ID = "id";
         internal const string LOOKUP_METHOD = "lookupMethod";
         internal const string DUPLICATION_AMOUNT = "duplicate";

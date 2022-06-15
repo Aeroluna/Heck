@@ -5,6 +5,7 @@ heck.
 
  These mods are all about giving the mapper more power to make amazing maps! These features range from moving walls around mid-flight, creating fake notes, and even coloring bombs, all on a pre-programmed path. Together these mods can be installed by a user and will activate on a map that requires these mods. Combining these mods in one map culminates into something called a [modhcart](https://youtu.be/5xA3iR5v-Rk) (C18H27NO3 - Mapped by Mawntee).
 
+Join the Discord here: https://discord.gg/rrZf3kapeh
 
 ## Documentation
 For any mappers interested in using any of these mods, please visit the wiki at https://github.com/Aeroluna/Heck/wiki
