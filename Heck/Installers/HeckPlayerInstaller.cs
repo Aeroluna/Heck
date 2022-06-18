@@ -1,10 +1,12 @@
-﻿using JetBrains.Annotations;
+﻿using Heck.Animation.Events;
+using Heck.Animation.Transform;
+using JetBrains.Annotations;
 using Zenject;
 
-namespace Heck.Animation.Events
+namespace Heck.Installers
 {
     [UsedImplicitly]
-    internal class HeckEventInstaller : Installer
+    internal class HeckPlayerInstaller : Installer
     {
         public override void InstallBindings()
         {
@@ -13,9 +15,13 @@ namespace Heck.Animation.Events
                 return;
             }
 
+            // Events
             Container.Bind<CoroutineDummy>().FromNewComponentOnRoot().AsSingle();
             Container.Bind<EventController>().AsSingle().NonLazy();
             Container.Bind<CoroutineEventManager>().AsSingle();
+
+            // TransformController
+            Container.Bind<TransformControllerFactory>().AsSingle();
         }
     }
 }

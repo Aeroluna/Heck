@@ -9,7 +9,6 @@ using Heck.Animation;
 using UnityEngine;
 using Zenject;
 using static Chroma.ChromaController;
-using static Heck.HeckController;
 
 namespace Chroma
 {
@@ -28,18 +27,6 @@ namespace Chroma
                 foreach (CustomData gameObjectData in environmentData)
                 {
                     trackBuilder.AddFromCustomData(gameObjectData, v2, false);
-                }
-            }
-
-            if (v2)
-            {
-                IEnumerable<CustomData>? geometriesData = beatmapData.customData.Get<List<object>>(GEOMETRY)?.Cast<CustomData>();
-                if (geometriesData != null)
-                {
-                    foreach (CustomData gameObjectData in geometriesData)
-                    {
-                        trackBuilder.AddFromCustomData(gameObjectData, false, false);
-                    }
                 }
             }
 

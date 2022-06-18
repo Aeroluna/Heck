@@ -1,6 +1,8 @@
-﻿using Chroma.Lighting.EnvironmentEnhancement;
+﻿using System.Collections.Generic;
 using HarmonyLib;
 using Heck;
+using Heck.Animation.Transform;
+using IPA.Utilities;
 using SiraUtil.Affinity;
 using UnityEngine;
 
@@ -10,11 +12,46 @@ namespace Chroma.HarmonyPatches.EnvironmentComponent
     [HeckPatch(PatchType.Features)]
     internal class TrackLaneRingOffset : IAffinity
     {
-        private readonly EnvironmentEnhancementManager _environmentManager;
+        private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
+        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
+        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
 
-        private TrackLaneRingOffset(EnvironmentEnhancementManager environmentManager)
+        private readonly Dictionary<TrackLaneRing, Quaternion> _rotationOffsets = new();
+
+        internal static void UpdatePosition(TrackLaneRing trackLaneRing)
         {
-            _environmentManager = environmentManager;
+            _positionOffsetAccessor(ref trackLaneRing) = trackLaneRing.transform.localPosition;
+        }
+
+        internal void SetTransform(TrackLaneRing trackLaneRing, TransformData transformData)
+        {
+            if (transformData.Position.HasValue || transformData.LocalPosition.HasValue)
+            {
+                UpdatePosition(trackLaneRing);
+                _positionOffsetAccessor(ref trackLaneRing) = trackLaneRing.transform.localPosition;
+                _posZAccessor(ref trackLaneRing) = 0;
+            }
+
+            // ReSharper disable once InvertIf
+            if (transformData.Rotation.HasValue || transformData.LocalRotation.HasValue)
+            {
+                UpdateRotation(trackLaneRing);
+                _rotZAccessor(ref trackLaneRing) = 0;
+            }
+        }
+
+        internal void UpdateRotation(TrackLaneRing trackLaneRing)
+        {
+            _rotationOffsets[trackLaneRing] = trackLaneRing.transform.localRotation;
+        }
+
+        // 7 days...
+        internal void CopyRing(TrackLaneRing originalRing, TrackLaneRing newRing)
+        {
+            if (_rotationOffsets.TryGetValue(originalRing, out Quaternion offset))
+            {
+                _rotationOffsets.Add(newRing, offset);
+            }
         }
 
         [HarmonyPostfix]
@@ -57,7 +94,7 @@ namespace Chroma.HarmonyPatches.EnvironmentComponent
             float ____posZ,
             Transform ____transform)
         {
-            if (!_environmentManager.RingRotationOffsets.TryGetValue(__instance, out Quaternion rotation))
+            if (!_rotationOffsets.TryGetValue(__instance, out Quaternion rotation))
             {
                 rotation = Quaternion.identity;
             }

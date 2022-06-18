@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using Heck;
 using Heck.Animation;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
-using static Heck.NullableExtensions;
 using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions.Animation
@@ -79,8 +79,8 @@ namespace NoodleExtensions.Animation
             {
                 foreach (ParentObject parentObject in parentObjects)
                 {
-                    track.OnGameObjectAdded -= parentObject.OnTrackGameObjectAdded;
-                    track.OnGameObjectRemoved -= OnTrackGameObjectRemoved;
+                    track.GameObjectAdded -= parentObject.OnTrackGameObjectAdded;
+                    track.GameObjectRemoved -= OnTrackGameObjectRemoved;
                     parentObject.ChildrenTracks.Remove(track);
                 }
 
@@ -91,8 +91,8 @@ namespace NoodleExtensions.Animation
 
                 ChildrenTracks.Add(track);
 
-                track.OnGameObjectAdded += OnTrackGameObjectAdded;
-                track.OnGameObjectRemoved += OnTrackGameObjectRemoved;
+                track.GameObjectAdded += OnTrackGameObjectAdded;
+                track.GameObjectRemoved += OnTrackGameObjectRemoved;
             }
 
             parentObjects.Add(this);
@@ -122,31 +122,17 @@ namespace NoodleExtensions.Animation
         {
             foreach (Track track in ChildrenTracks)
             {
-                track.OnGameObjectAdded -= OnTrackGameObjectAdded;
-                track.OnGameObjectRemoved -= OnTrackGameObjectRemoved;
+                track.GameObjectAdded -= OnTrackGameObjectAdded;
+                track.GameObjectRemoved -= OnTrackGameObjectRemoved;
             }
         }
 
         private void Update()
         {
-            Quaternion? rotation = _track.GetProperty<Quaternion?>(OFFSET_ROTATION);
-            if (rotation.HasValue)
-            {
-                if (_leftHanded)
-                {
-                    MirrorQuaternionNullable(ref rotation);
-                }
-            }
+            Quaternion? rotation = _track.GetProperty<Quaternion?>(OFFSET_ROTATION)?.Mirror(_leftHanded);
 
             // TODO: wtf clean up this mess
-            Vector3? position = _track.GetProperty<Vector3?>(OFFSET_POSITION);
-            if (position.HasValue)
-            {
-                if (_leftHanded)
-                {
-                    MirrorVectorNullable(ref position);
-                }
-            }
+            Vector3? position = _track.GetProperty<Vector3?>(OFFSET_POSITION)?.Mirror(_leftHanded);
 
             Quaternion worldRotationQuatnerion = _startRot;
             Vector3 positionVector = worldRotationQuatnerion * (_startPos * _movementData.noteLinesDistance);
@@ -159,15 +145,10 @@ namespace NoodleExtensions.Animation
             }
 
             worldRotationQuatnerion *= _startLocalRot;
-            Quaternion? localRotation = _track.GetProperty<Quaternion?>(LOCAL_ROTATION);
+            Quaternion? localRotation = _track.GetProperty<Quaternion?>(LOCAL_ROTATION)?.Mirror(_leftHanded);
             if (localRotation.HasValue)
             {
-                if (_leftHanded)
-                {
-                    MirrorQuaternionNullable(ref localRotation);
-                }
-
-                worldRotationQuatnerion *= localRotation!.Value;
+                worldRotationQuatnerion *= localRotation.Value;
             }
 
             Vector3 scaleVector = _startScale;

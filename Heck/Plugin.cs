@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Heck.Animation.Events;
+using Heck.Installers;
 using Heck.SettingsSetter;
 using IPA;
 using IPA.Logging;
@@ -29,7 +29,7 @@ namespace Heck
 
             SettingSetterSettableSettingsManager.SetupSettingsTable();
 
-            zenjector.Install<HeckEventInstaller>(Location.Player);
+            zenjector.Install<HeckPlayerInstaller>(Location.Player);
             zenjector.Install<HeckSettingsSetterInstaller>(Location.Menu);
 
             ModuleManager.RegisterModule<ModuleCallbacks>("Heck", 0, RequirementType.None);

@@ -17,6 +17,7 @@
         public const string V2_LOCAL_ROTATION = "_localRotation";
         public const string V2_POSITION = "_position";
         public const string V2_ROTATION = "_rotation";
+        public const string V2_LOCAL_POSITION = "_localPosition";
         public const string V2_SCALE = "_scale";
 
         public const string DURATION = "duration";
@@ -29,6 +30,7 @@
         public const string POSITION = "position";
         public const string ROTATION = "rotation";
         public const string LOCAL_ROTATION = "localRotation";
+        public const string LOCAL_POSITION = "localPosition";
         public const string SCALE = "scale";
         public const string EVENT = "event";
         public const string TYPE = "type";

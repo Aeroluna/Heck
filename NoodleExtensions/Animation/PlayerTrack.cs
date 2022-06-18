@@ -1,11 +1,11 @@
-﻿using Heck.Animation;
+﻿using Heck;
+using Heck.Animation;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using NoodleExtensions.HarmonyPatches.SmallFixes;
 using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
-using static Heck.NullableExtensions;
 using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions.Animation
@@ -79,23 +79,8 @@ namespace NoodleExtensions.Animation
                 return;
             }
 
-            Quaternion? rotation = _track.GetProperty<Quaternion?>(OFFSET_ROTATION);
-            if (rotation.HasValue)
-            {
-                if (_leftHanded)
-                {
-                    MirrorQuaternionNullable(ref rotation);
-                }
-            }
-
-            Vector3? position = _track.GetProperty<Vector3?>(OFFSET_POSITION);
-            if (position.HasValue)
-            {
-                if (_leftHanded)
-                {
-                    MirrorVectorNullable(ref position);
-                }
-            }
+            Quaternion? rotation = _track.GetProperty<Quaternion?>(OFFSET_ROTATION)?.Mirror(_leftHanded);
+            Vector3? position = _track.GetProperty<Vector3?>(OFFSET_POSITION)?.Mirror(_leftHanded);
 
             Quaternion worldRotationQuatnerion = Quaternion.identity;
             Vector3 positionVector = _startPos;
@@ -108,15 +93,10 @@ namespace NoodleExtensions.Animation
             }
 
             worldRotationQuatnerion *= _startLocalRot;
-            Quaternion? localRotation = _track.GetProperty<Quaternion?>(LOCAL_ROTATION);
+            Quaternion? localRotation = _track.GetProperty<Quaternion?>(LOCAL_ROTATION)?.Mirror(_leftHanded);
             if (localRotation.HasValue)
             {
-                if (_leftHanded)
-                {
-                    MirrorQuaternionNullable(ref localRotation);
-                }
-
-                worldRotationQuatnerion *= localRotation!.Value;
+                worldRotationQuatnerion *= localRotation.Value;
             }
 
             Transform transform1 = transform;

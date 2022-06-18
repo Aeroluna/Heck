@@ -1,4 +1,4 @@
-﻿using Chroma.Lighting.EnvironmentEnhancement;
+﻿using Chroma.EnvironmentEnhancement;
 using SiraUtil.Affinity;
 using Zenject;
 

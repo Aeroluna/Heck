@@ -1,5 +1,6 @@
 ﻿using Chroma.Animation;
 using Chroma.Colorizer;
+using Chroma.EnvironmentEnhancement;
 using Chroma.HarmonyPatches;
 using Chroma.HarmonyPatches.Colorizer;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
@@ -8,7 +9,6 @@ using Chroma.HarmonyPatches.Events;
 using Chroma.HarmonyPatches.Mirror;
 using Chroma.HarmonyPatches.ZenModeWalls;
 using Chroma.Lighting;
-using Chroma.Lighting.EnvironmentEnhancement;
 using Heck.Animation;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -66,10 +66,11 @@ namespace Chroma.Installers
                 Container.BindInterfacesTo<ObjectColorize>().AsSingle();
 
                 // EnvironmentComponent
-                Container.BindInterfacesTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();
-                Container.BindInterfacesTo<ParametricBoxControllerTransformOverride>().AsSingle();
-                Container.BindInterfacesTo<TrackLaneRingOffset>().AsSingle();
+                Container.BindInterfacesAndSelfTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();
+                Container.BindInterfacesAndSelfTo<ParametricBoxControllerTransformOverride>().AsSingle();
+                Container.BindInterfacesAndSelfTo<TrackLaneRingOffset>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackLaneRingsManagerTracker>().AsSingle();
+                Container.BindInterfacesAndSelfTo<GeometryFactory>().AsSingle();
 
                 // Events
                 Container.BindInterfacesTo<LightPairRotationChromafier>().AsSingle();
@@ -97,9 +98,6 @@ namespace Chroma.Installers
                 // EnvironmentEnhancement
                 Container.Bind<ComponentInitializer>().AsSingle();
                 Container.BindInterfacesAndSelfTo<EnvironmentEnhancementManager>().AsSingle().NonLazy();
-                Container.BindFactory<GameObject, GameObjectTrackController, GameObjectTrackController.Factory>()
-                    .FromFactory<GameObjectTrackController.GameObjectTrackControllerFactory>();
-                Container.Bind<ParametricBoxControllerParameters>().AsSingle();
             }
 
             // Zen mode

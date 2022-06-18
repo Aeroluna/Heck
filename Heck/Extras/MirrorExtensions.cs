@@ -14,6 +14,11 @@ namespace Heck
             return mirror ? quaternion.Mirror() : quaternion;
         }
 
+        public static Vector3 Mirror(this Vector3 vector, bool mirror)
+        {
+            return mirror ? vector.Mirror() : vector;
+        }
+
         public static Quaternion Mirror(this Quaternion quaternion)
         {
             return new Quaternion(quaternion.x, quaternion.y * -1, quaternion.z * -1, quaternion.w);

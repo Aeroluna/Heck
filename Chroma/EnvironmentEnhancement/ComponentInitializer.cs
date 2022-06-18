@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
+using Chroma.HarmonyPatches.EnvironmentComponent;
 using Chroma.Settings;
 using HarmonyLib;
+using Heck.Animation.Transform;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Chroma.Lighting.EnvironmentEnhancement
+namespace Chroma.EnvironmentEnhancement
 {
     [UsedImplicitly]
     internal class ComponentInitializer
@@ -36,16 +38,16 @@ namespace Chroma.Lighting.EnvironmentEnhancement
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
 
-        private readonly EnvironmentEnhancementManager _environmentManager;
+        private readonly TrackLaneRingOffset _trackLaneRingOffset;
         private readonly LightWithIdRegisterer _lightWithIdRegisterer;
 
         private readonly HashSet<TrackLaneRingsManager> _trackLaneRingsManagers;
 
         private ComponentInitializer(
-            EnvironmentEnhancementManager environmentManager,
+            TrackLaneRingOffset trackLaneRingOffset,
             LightWithIdRegisterer lightWithIdRegisterer)
         {
-            _environmentManager = environmentManager;
+            _trackLaneRingOffset = trackLaneRingOffset;
             _lightWithIdRegisterer = lightWithIdRegisterer;
             _trackLaneRingsManagers = Resources.FindObjectsOfTypeAll<TrackLaneRingsManager>().ToHashSet();
         }
@@ -118,6 +120,12 @@ namespace Chroma.Lighting.EnvironmentEnhancement
                 }
             }
 
+            TransformController transformController = root.GetComponent<TransformController>();
+            if (transformController != null)
+            {
+                Object.Destroy(transformController);
+            }
+
             GetComponentAndOriginal<LightWithIdMonoBehaviour>((rootComponent, originalComponent) =>
             {
                 _lightWithIdMonoBehaviourManagerAccessor(ref rootComponent) = _lightWithIdMonoBehaviourManagerAccessor(ref originalComponent);
@@ -145,10 +153,7 @@ namespace Chroma.Lighting.EnvironmentEnhancement
 
             GetComponentAndOriginal<TrackLaneRing>((rootComponent, originalComponent) =>
             {
-                if (_environmentManager.RingRotationOffsets.TryGetValue(originalComponent, out Quaternion offset))
-                {
-                    _environmentManager.RingRotationOffsets.Add(rootComponent, offset);
-                }
+                _trackLaneRingOffset.CopyRing(originalComponent, rootComponent);
 
                 _ringTransformAccessor(ref rootComponent) = root;
                 _positionOffsetAccessor(ref rootComponent) = _positionOffsetAccessor(ref originalComponent);

@@ -3,7 +3,6 @@ using System.Linq;
 using Heck.Animation;
 using UnityEngine;
 using static Chroma.ChromaController;
-using static Heck.HeckController;
 using static Heck.NullableExtensions;
 
 namespace Chroma.Animation
@@ -48,13 +47,6 @@ namespace Chroma.Animation
         {
             track.AddProperty(COLOR, PropertyType.Vector4, V2_COLOR);
             track.AddPathProperty(COLOR, PropertyType.Vector4, V2_COLOR);
-
-            // For Environment Enhancements
-            track.AddProperty(POSITION, PropertyType.Vector3, V2_POSITION);
-            track.AddProperty(LOCAL_POSITION, PropertyType.Vector3, V2_LOCAL_POSITION);
-            track.AddProperty(ROTATION, PropertyType.Quaternion, V2_ROTATION);
-            track.AddProperty(LOCAL_ROTATION, PropertyType.Quaternion, V2_LOCAL_ROTATION);
-            track.AddProperty(SCALE, PropertyType.Vector3, V2_SCALE);
 
             // For Fog Control
             track.AddProperty(ATTENUATION, PropertyType.Linear, V2_ATTENUATION);

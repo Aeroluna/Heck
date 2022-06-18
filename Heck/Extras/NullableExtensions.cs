@@ -178,15 +178,5 @@ namespace Heck
 
             return valid ? total : null;
         }
-
-        public static void MirrorVectorNullable(ref Vector3? vector)
-        {
-            vector = vector?.Mirror();
-        }
-
-        public static void MirrorQuaternionNullable(ref Quaternion? quaternion)
-        {
-            quaternion = quaternion?.Mirror();
-        }
     }
 }
