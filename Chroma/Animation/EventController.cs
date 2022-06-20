@@ -11,14 +11,14 @@ namespace Chroma.Animation
     {
         private readonly BeatmapCallbacksController _callbacksController;
         private readonly DeserializedData _deserializedData;
-        private readonly LazyInject<ChromaFogController> _fogController;
+        private readonly LazyInject<FogAnimatorV2> _fogController;
         private readonly BeatmapDataCallbackWrapper _callbackWrapper;
 
         [UsedImplicitly]
         internal EventController(
             BeatmapCallbacksController callbacksController,
             [Inject(Id = ID)] DeserializedData deserializedData,
-            LazyInject<ChromaFogController> fogController)
+            LazyInject<FogAnimatorV2> fogController)
         {
             _callbacksController = callbacksController;
             _deserializedData = deserializedData;

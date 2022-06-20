@@ -1,6 +1,7 @@
 ﻿using Chroma.Animation;
 using Chroma.Colorizer;
 using Chroma.EnvironmentEnhancement;
+using Chroma.EnvironmentEnhancement.Component;
 using Chroma.HarmonyPatches;
 using Chroma.HarmonyPatches.Colorizer;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
@@ -60,7 +61,7 @@ namespace Chroma.Installers
             {
                 // Animation
                 Container.Bind<EventController>().AsSingle().NonLazy();
-                Container.BindInterfacesAndSelfTo<ChromaFogController>().AsSingle();
+                Container.BindInterfacesAndSelfTo<FogAnimatorV2>().AsSingle();
 
                 // Colorizer Patch
                 Container.BindInterfacesTo<ObjectColorize>().AsSingle();
@@ -70,7 +71,6 @@ namespace Chroma.Installers
                 Container.BindInterfacesAndSelfTo<ParametricBoxControllerTransformOverride>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackLaneRingOffset>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackLaneRingsManagerTracker>().AsSingle();
-                Container.BindInterfacesAndSelfTo<GeometryFactory>().AsSingle();
 
                 // Events
                 Container.BindInterfacesTo<LightPairRotationChromafier>().AsSingle();
@@ -96,8 +96,11 @@ namespace Chroma.Installers
                     ChromaGradientController.ChromaGradientEvent.Factory>().AsSingle();
 
                 // EnvironmentEnhancement
-                Container.Bind<ComponentInitializer>().AsSingle();
-                Container.BindInterfacesAndSelfTo<EnvironmentEnhancementManager>().AsSingle().NonLazy();
+                Container.Bind<DuplicateInitializer>().AsSingle();
+                Container.Bind<EnvironmentEnhancementManager>().AsSingle().NonLazy();
+                Container.Bind<ComponentCustomizer>().AsSingle();
+                Container.Bind<GeometryFactory>().AsSingle();
+                Container.Bind<ILightWithIdCustomizer>().AsSingle();
             }
 
             // Zen mode

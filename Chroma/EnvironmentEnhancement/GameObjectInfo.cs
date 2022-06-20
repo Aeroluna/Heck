@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Chroma.EnvironmentEnhancement
 {
-    internal class GameObjectInfo
+    internal readonly struct GameObjectInfo
     {
         internal GameObjectInfo(GameObject gameObject)
         {

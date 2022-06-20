@@ -20,7 +20,6 @@ namespace Chroma.Lighting
         HSV
     }
 
-    [UsedImplicitly]
     public sealed class ChromaLightSwitchEventEffect : IDisposable
     {
         private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor0Accessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor0");
@@ -62,6 +61,7 @@ namespace Chroma.Lighting
 
         private bool _usingBoostColors;
 
+        [UsedImplicitly]
         private ChromaLightSwitchEventEffect(
             LightSwitchEventEffect lightSwitchEventEffect,
             LightWithIdManager lightManager,
@@ -407,6 +407,17 @@ namespace Chroma.Lighting
             {
                 Log.Logger.Log("Attempted to register duplicate ILightWithId.", Logger.Level.Error);
             }
+        }
+
+        internal void UnregisterLight(ILightWithId lightWithId)
+        {
+            if (!ColorTweens.TryGetValue(lightWithId, out ChromaIDColorTween tween))
+            {
+                return;
+            }
+
+            tween.Kill();
+            ColorTweens.Remove(lightWithId);
         }
 
         private void BasicCallback(BasicBeatmapEventData beatmapEventData)

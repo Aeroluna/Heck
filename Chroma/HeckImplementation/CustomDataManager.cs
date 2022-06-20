@@ -30,6 +30,11 @@ namespace Chroma
                 }
             }
 
+            if (!v2)
+            {
+                return;
+            }
+
             foreach (CustomEventData customEventData in customEventDatas)
             {
                 try

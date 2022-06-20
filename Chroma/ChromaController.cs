@@ -58,19 +58,13 @@ namespace Chroma
         internal const string ENVIRONMENT = "environment";
         internal const string GEOMETRY = "geometry";
         internal const string GEOMETRY_TYPE = "type";
-        internal const string SHADER_PRESET = "shaderPreset";
+        internal const string SHADER_PRESET = "shader";
         internal const string SHADER_KEYWORDS = "shaderKeywords";
         internal const string COLLISION = "collision";
         internal const string GAMEOBJECT_ID = "id";
         internal const string LOOKUP_METHOD = "lookupMethod";
         internal const string DUPLICATION_AMOUNT = "duplicate";
         internal const string ACTIVE = "active";
-
-        internal const string ATTENUATION = "attenuation";
-        internal const string OFFSET = "offset";
-        internal const string HEIGHT_FOG_STARTY = "startY";
-        internal const string HEIGHT_FOG_HEIGHT = "height";
-
         internal const string ASSIGN_FOG_TRACK = "AssignFogTrack";
 
         internal const string CAPABILITY = "Chroma";

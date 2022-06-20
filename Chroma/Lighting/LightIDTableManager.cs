@@ -132,6 +132,39 @@ namespace Chroma.Lighting
             }
         }
 
+        internal static void UnregisterIndex(int lightID, int index)
+        {
+            if (_activeTable != null)
+            {
+                if (_activeTable.TryGetValue(lightID, out Dictionary<int, int> dictioanry))
+                {
+                    foreach ((int key, int value) in dictioanry)
+                    {
+                        if (value == index)
+                        {
+                            dictioanry.Remove(key);
+                            if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                            {
+                                Log.Logger.Log($"Unregistered key [{key}] from light ID [{lightID}].");
+                            }
+
+                            return;
+                        }
+
+                        Log.Logger.Log($"Could not find key to unregister.", Logger.Level.Warning);
+                    }
+                }
+                else
+                {
+                    Log.Logger.Log($"Table does not contain light ID [{lightID}].", Logger.Level.Warning);
+                }
+            }
+            else
+            {
+                Log.Logger.Log("No active table, could not unregister index.", Logger.Level.Warning);
+            }
+        }
+
         internal static void InitTable()
         {
             const string tableNamespace = "Chroma.LightIDTables.";

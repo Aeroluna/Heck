@@ -49,10 +49,10 @@ namespace Chroma.Animation
             track.AddPathProperty(COLOR, PropertyType.Vector4, V2_COLOR);
 
             // For Fog Control
-            track.AddProperty(ATTENUATION, PropertyType.Linear, V2_ATTENUATION);
-            track.AddProperty(OFFSET, PropertyType.Linear, V2_OFFSET);
-            track.AddProperty(HEIGHT_FOG_STARTY, PropertyType.Linear, V2_HEIGHT_FOG_STARTY);
-            track.AddProperty(HEIGHT_FOG_HEIGHT, PropertyType.Linear, V2_HEIGHT_FOG_HEIGHT);
+            track.AddProperty(V2_ATTENUATION, PropertyType.Linear, V2_ATTENUATION);
+            track.AddProperty(V2_OFFSET, PropertyType.Linear, V2_OFFSET);
+            track.AddProperty(V2_HEIGHT_FOG_STARTY, PropertyType.Linear, V2_HEIGHT_FOG_STARTY);
+            track.AddProperty(V2_HEIGHT_FOG_HEIGHT, PropertyType.Linear, V2_HEIGHT_FOG_HEIGHT);
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Chroma.EnvironmentEnhancement.Component;
 using Chroma.HarmonyPatches.EnvironmentComponent;
 using Chroma.Settings;
 using CustomJSONData.CustomBeatmap;
@@ -39,7 +40,8 @@ namespace Chroma.EnvironmentEnhancement
         private readonly TrackLaneRingOffset _trackLaneRingOffset;
         private readonly ParametricBoxControllerTransformOverride _parametricBoxControllerTransformOverride;
         private readonly BeatmapObjectsAvoidanceTransformOverride _beatmapObjectsAvoidanceTransformOverride;
-        private readonly LazyInject<ComponentInitializer> _componentInitializer;
+        private readonly DuplicateInitializer _duplicateInitializer;
+        private readonly ComponentCustomizer _componentCustomizer;
         private readonly TransformControllerFactory _controllerFactory;
 
         private EnvironmentEnhancementManager(
@@ -51,7 +53,8 @@ namespace Chroma.EnvironmentEnhancement
             TrackLaneRingOffset trackLaneRingOffset,
             ParametricBoxControllerTransformOverride parametricBoxControllerTransformOverride,
             BeatmapObjectsAvoidanceTransformOverride beatmapObjectsAvoidanceTransformOverride,
-            LazyInject<ComponentInitializer> componentInitializer,
+            DuplicateInitializer duplicateInitializer,
+            ComponentCustomizer componentCustomizer,
             TransformControllerFactory controllerFactory)
         {
             if (beatmapData is not CustomBeatmapData customBeatmapData)
@@ -67,7 +70,8 @@ namespace Chroma.EnvironmentEnhancement
             _trackLaneRingOffset = trackLaneRingOffset;
             _parametricBoxControllerTransformOverride = parametricBoxControllerTransformOverride;
             _beatmapObjectsAvoidanceTransformOverride = beatmapObjectsAvoidanceTransformOverride;
-            _componentInitializer = componentInitializer;
+            _duplicateInitializer = duplicateInitializer;
+            _componentCustomizer = componentCustomizer;
             _controllerFactory = controllerFactory;
             spawnController.StartCoroutine(DelayedStart());
         }
@@ -130,7 +134,7 @@ namespace Chroma.EnvironmentEnhancement
 
                     // cause i know ppl are gonna fck it up
                     string? id = gameObjectData.Get<string>(GAMEOBJECT_ID);
-                    LookupMethod? lookupMethod = gameObjectData.GetStringToEnum<LookupMethod>(LOOKUP_METHOD);
+                    LookupMethod? lookupMethod = gameObjectData.GetStringToEnum<LookupMethod?>(LOOKUP_METHOD);
                     if (id != null || lookupMethod != null)
                     {
                         throw new InvalidOperationException("you cant have geometry and an id you goofball");
@@ -156,12 +160,18 @@ namespace Chroma.EnvironmentEnhancement
                     }
                 }
 
-                List<GameObjectInfo> gameObjectInfos;
+                CustomData? componentData = null;
+                if (!v2)
+                {
+                    componentData = gameObjectData.Get<CustomData>(ComponentConstants.COMPONENTS);
+                }
+
+                List<GameObject> gameObjects;
 
                 // handle duplicating
                 if (dupeAmount.HasValue)
                 {
-                    gameObjectInfos = new List<GameObjectInfo>();
+                    gameObjects = new List<GameObject>();
                     foreach (GameObjectInfo gameObjectInfo in foundObjects)
                     {
                         if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
@@ -176,9 +186,9 @@ namespace Chroma.EnvironmentEnhancement
                         for (int i = 0; i < dupeAmount.Value; i++)
                         {
                             List<IComponentData> componentDatas = new();
-                            _componentInitializer.Value.PrefillComponentsData(gameObject.transform, componentDatas);
+                            _duplicateInitializer.PrefillComponentsData(gameObject.transform, componentDatas);
                             GameObject newGameObject = Object.Instantiate(gameObject);
-                            _componentInitializer.Value.PostfillComponentsData(
+                            _duplicateInitializer.PostfillComponentsData(
                                 newGameObject.transform,
                                 gameObject.transform,
                                 componentDatas);
@@ -187,20 +197,20 @@ namespace Chroma.EnvironmentEnhancement
                             // ReSharper disable once Unity.InstantiateWithoutParent
                             // need to move shit to right scene first
                             newGameObject.transform.SetParent(parent, true);
-                            _componentInitializer.Value.InitializeComponents(
+                            _duplicateInitializer.InitializeComponents(
                                 newGameObject.transform,
                                 gameObject.transform,
                                 allGameObjectInfos,
                                 componentDatas,
                                 lightID);
 
-                            List<GameObjectInfo> gameObjects =
+                            List<GameObjectInfo> gameObjectInfos =
                                 allGameObjectInfos.Where(n => n.GameObject == newGameObject).ToList();
-                            gameObjectInfos.AddRange(gameObjects);
+                            gameObjects.AddRange(gameObjectInfos.Select(n => n.GameObject));
 
                             if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
                             {
-                                gameObjects.ForEach(n => Log.Logger.Log(n.FullID));
+                                gameObjectInfos.ForEach(n => Log.Logger.Log(n.FullID));
                             }
                         }
                     }
@@ -215,13 +225,11 @@ namespace Chroma.EnvironmentEnhancement
                         Log.Logger.Log("LightID requested but no duplicated object to apply to.", Logger.Level.Error);
                     }
 
-                    gameObjectInfos = foundObjects;
+                    gameObjects = foundObjects.Select(n => n.GameObject).ToList();
                 }
 
-                foreach (GameObjectInfo gameObjectInfo in gameObjectInfos)
+                foreach (GameObject gameObject in gameObjects)
                 {
-                    GameObject gameObject = gameObjectInfo.GameObject;
-
                     if (active.HasValue)
                     {
                         gameObject.SetActive(active.Value);
@@ -232,7 +240,7 @@ namespace Chroma.EnvironmentEnhancement
                     spawnData.Apply(transform, _leftHanded, v2, _noteLinesDistance);
 
                     // Handle TrackLaneRing
-                    TrackLaneRing? trackLaneRing = gameObject.GetComponent<TrackLaneRing>();
+                    TrackLaneRing? trackLaneRing = gameObject.GetComponentInChildren<TrackLaneRing>();
                     if (trackLaneRing != null)
                     {
                         _trackLaneRingOffset.SetTransform(trackLaneRing, spawnData);
@@ -240,7 +248,7 @@ namespace Chroma.EnvironmentEnhancement
 
                     // Handle ParametricBoxController
                     ParametricBoxController parametricBoxController =
-                        gameObject.GetComponent<ParametricBoxController>();
+                        gameObject.GetComponentInChildren<ParametricBoxController>();
                     if (parametricBoxController != null)
                     {
                         _parametricBoxControllerTransformOverride.SetTransform(parametricBoxController, spawnData);
@@ -248,10 +256,15 @@ namespace Chroma.EnvironmentEnhancement
 
                     // Handle BeatmapObjectsAvoidance
                     BeatmapObjectsAvoidance beatmapObjectsAvoidance =
-                        gameObject.GetComponent<BeatmapObjectsAvoidance>();
+                        gameObject.GetComponentInChildren<BeatmapObjectsAvoidance>();
                     if (beatmapObjectsAvoidance != null)
                     {
                         _beatmapObjectsAvoidanceTransformOverride.SetTransform(beatmapObjectsAvoidance, spawnData);
+                    }
+
+                    if (componentData != null)
+                    {
+                        _componentCustomizer.Customize(transform, componentData);
                     }
 
                     Track? track = gameObjectData.GetNullableTrack(_tracks, v2);

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Chroma.Colorizer;
 using Chroma.Extras;
+using Chroma.HarmonyPatches.Colorizer.Initialize;
+using Chroma.HarmonyPatches.EnvironmentComponent;
 using CustomJSONData.CustomBeatmap;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -25,48 +28,51 @@ namespace Chroma.EnvironmentEnhancement
         Triangle
     }
 
-    internal enum ShaderPreset
+    internal enum ShaderType
     {
         Standard,
-        None,
-        Light
+        OpaqueLight,
+        TransparentLight
     }
 
     internal class GeometryFactory
     {
-        private static readonly FieldAccessor<TubeBloomPrePassLight, float>.Accessor _colorAlphaMultiplierAccessor = FieldAccessor<TubeBloomPrePassLight, float>.GetAccessor("_colorAlphaMultiplier");
         private static readonly FieldAccessor<TubeBloomPrePassLight, BoolSO>.Accessor _mainEffectPostProcessEnabledAccessor = FieldAccessor<TubeBloomPrePassLight, BoolSO>.GetAccessor("_mainEffectPostProcessEnabled");
-        private static readonly FieldAccessor<TubeBloomPrePassLight, bool>.Accessor _forceUseBakedGlowAccessor = FieldAccessor<TubeBloomPrePassLight, bool>.GetAccessor("_forceUseBakedGlow");
-        private static readonly FieldAccessor<TubeBloomPrePassLight, Parametric3SliceSpriteController>.Accessor _dynamic3SliceSpriteAccessor = FieldAccessor<TubeBloomPrePassLight, Parametric3SliceSpriteController>.GetAccessor("_dynamic3SliceSprite");
+        private static readonly FieldAccessor<TubeBloomPrePassLight, ParametricBoxController>.Accessor _parametricBoxControllerAccessor = FieldAccessor<TubeBloomPrePassLight, ParametricBoxController>.GetAccessor("_parametricBoxController");
         private static readonly FieldAccessor<BloomPrePassLight, BloomPrePassLightTypeSO>.Accessor _lightTypeAccessor = FieldAccessor<BloomPrePassLight, BloomPrePassLightTypeSO>.GetAccessor("_lightType");
         private static readonly FieldAccessor<BloomPrePassLight, BloomPrePassLightTypeSO>.Accessor _registeredWithLightTypeAccessor = FieldAccessor<BloomPrePassLight, BloomPrePassLightTypeSO>.GetAccessor("_registeredWithLightType");
         private static readonly FieldAccessor<TubeBloomPrePassLightWithId, TubeBloomPrePassLight>.Accessor _tubeBloomPrePassLightAccessor = FieldAccessor<TubeBloomPrePassLightWithId, TubeBloomPrePassLight>.GetAccessor("_tubeBloomPrePassLight");
+        private static readonly FieldAccessor<ParametricBoxController, MeshRenderer>.Accessor _meshRendererAccessor = FieldAccessor<ParametricBoxController, MeshRenderer>.GetAccessor("_meshRenderer");
 
-        // Specular and Standard are built in Unity
-        // TODO: Make a material programatically instead of relying on this
-        // This is the shader BTS Cube uses
-        private static readonly Material _standardMaterial = new(Shader.Find("Custom/SimpleLit"));
-        private static readonly Material _lightMaterial = new(Shader.Find("Custom/OpaqueNeonLight"));
+        private static readonly Material _standardMaterial = InstantiateSharedMaterial(ShaderType.Standard);
+        private static readonly Material _opaqueLightMaterial = InstantiateSharedMaterial(ShaderType.OpaqueLight);
+        private static readonly Material _transparentLightMaterial = InstantiateSharedMaterial(ShaderType.TransparentLight);
 
-        private static readonly Dictionary<(Color, ShaderPreset), Material> _cachedMaterials = new();
-        private static TubeBloomPrePassLight? _originalTubeBloomPrePassLight = Resources.FindObjectsOfTypeAll<TubeBloomPrePassLight>().FirstOrDefault();
+        private static readonly Dictionary<(Color, ShaderType), HashSet<(string[]?, Material)>> _cachedMaterials = new();
 
         private readonly IInstantiator _instantiator;
+        private readonly LightWithIdRegisterer _lightWithIdRegisterer;
+        private readonly ParametricBoxControllerTransformOverride _parametricBoxControllerTransformOverride;
+        private TubeBloomPrePassLight? _originalTubeBloomPrePassLight = Resources.FindObjectsOfTypeAll<TubeBloomPrePassLight>().FirstOrDefault();
 
         [UsedImplicitly]
-        private GeometryFactory(IInstantiator instantiator)
+        private GeometryFactory(
+            IInstantiator instantiator,
+            LightColorizerManager lightColorizerManager,
+            LightWithIdRegisterer lightWithIdRegisterer,
+            ParametricBoxControllerTransformOverride parametricBoxControllerTransformOverride)
         {
             _instantiator = instantiator;
+            _lightWithIdRegisterer = lightWithIdRegisterer;
+            _parametricBoxControllerTransformOverride = parametricBoxControllerTransformOverride;
         }
 
         internal GameObject Create(CustomData customData)
         {
-            Color color = CustomDataManager.GetColorFromData(customData) ?? Color.cyan;
+            Color color = CustomDataManager.GetColorFromData(customData) ?? new Color(0, 0, 0, 0);
             GeometryType geometryType = customData.GetStringToEnumRequired<GeometryType>(GEOMETRY_TYPE);
-            ShaderPreset shaderPreset = customData.GetStringToEnum<ShaderPreset?>(SHADER_PRESET) ?? ShaderPreset.Standard;
-            IEnumerable<string>? shaderKeywords = customData.Get<List<object>?>(SHADER_KEYWORDS)?.Cast<string>();
-
-            // Omitted in Quest
+            ShaderType shaderType = customData.GetStringToEnum<ShaderType?>(SHADER_PRESET) ?? ShaderType.Standard;
+            string[]? shaderKeywords = customData.Get<List<object>?>(SHADER_KEYWORDS)?.Cast<string>().ToArray();
             bool collision = customData.Get<bool?>(COLLISION) ?? false;
 
             PrimitiveType primitiveType = geometryType switch
@@ -82,7 +88,7 @@ namespace Chroma.EnvironmentEnhancement
             };
 
             GameObject gameObject = GameObject.CreatePrimitive(primitiveType);
-            gameObject.name = $"{geometryType}{shaderPreset}";
+            gameObject.name = $"{geometryType}{shaderType}";
             MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
 
             // Disable expensive shadows
@@ -90,7 +96,7 @@ namespace Chroma.EnvironmentEnhancement
             meshRenderer.receiveShadows = false;
 
             // Shared material is usually better performance as far as I know
-            Material material = GetMaterial(color, shaderPreset);
+            Material material = GetMaterial(color, shaderType, shaderKeywords);
             meshRenderer.sharedMaterial = material;
 
             if (geometryType == GeometryType.Triangle)
@@ -113,15 +119,8 @@ namespace Chroma.EnvironmentEnhancement
                 Object.Destroy(gameObject.GetComponent<Collider>());
             }
 
-            // THIS REDUCES PERFORMANCE FOR BULK RENDERING
-            if (shaderKeywords != null)
-            {
-                meshRenderer.sharedMaterial = material = Object.Instantiate(meshRenderer.sharedMaterial);
-                meshRenderer.sharedMaterial.shaderKeywords = shaderKeywords.ToArray();
-            }
-
             // Handle light preset
-            if (shaderPreset is not ShaderPreset.Light)
+            if (!IsLightType(shaderType))
             {
                 return gameObject;
             }
@@ -129,18 +128,16 @@ namespace Chroma.EnvironmentEnhancement
             // Stop TubeBloomPrePassLight from running OnEnable before I can set the fields
             gameObject.SetActive(false);
 
-            // I have no clue how this works
             TubeBloomPrePassLight tubeBloomPrePassLight = gameObject.AddComponent<TubeBloomPrePassLight>();
+            ParametricBoxController parametricBoxController = gameObject.AddComponent<ParametricBoxController>();
+            _parametricBoxControllerTransformOverride.UpdatePosition(parametricBoxController);
+            _parametricBoxControllerTransformOverride.UpdateScale(parametricBoxController);
+            _meshRendererAccessor(ref parametricBoxController) = meshRenderer;
 
             if (_originalTubeBloomPrePassLight != null)
             {
-                _colorAlphaMultiplierAccessor(ref tubeBloomPrePassLight) = 10;
                 _mainEffectPostProcessEnabledAccessor(ref tubeBloomPrePassLight) =
                     _mainEffectPostProcessEnabledAccessor(ref _originalTubeBloomPrePassLight);
-                _forceUseBakedGlowAccessor(ref tubeBloomPrePassLight) =
-                    _forceUseBakedGlowAccessor(ref _originalTubeBloomPrePassLight);
-                _dynamic3SliceSpriteAccessor(ref tubeBloomPrePassLight) =
-                    _dynamic3SliceSpriteAccessor(ref _originalTubeBloomPrePassLight);
 
                 BloomPrePassLight bloomPrePassLight = tubeBloomPrePassLight;
                 BloomPrePassLight originalBloomPrePassLight = _originalTubeBloomPrePassLight;
@@ -148,62 +145,109 @@ namespace Chroma.EnvironmentEnhancement
                 _lightTypeAccessor(ref bloomPrePassLight) = _lightTypeAccessor(ref originalBloomPrePassLight);
                 _registeredWithLightTypeAccessor(ref bloomPrePassLight) =
                     _registeredWithLightTypeAccessor(ref originalBloomPrePassLight);
-
-                TubeBloomPrePassLightWithId lightWithId = _instantiator.InstantiateComponent<TubeBloomPrePassLightWithId>(gameObject);
-                _tubeBloomPrePassLightAccessor(ref lightWithId) = tubeBloomPrePassLight;
-                lightWithId.SetLightId(0);
             }
             else
             {
                 throw new InvalidOperationException($"[{nameof(_originalTubeBloomPrePassLight)}] was null.");
             }
 
+            _parametricBoxControllerAccessor(ref tubeBloomPrePassLight) = parametricBoxController;
+            TubeBloomPrePassLightWithId lightWithId = _instantiator.InstantiateComponent<TubeBloomPrePassLightWithId>(gameObject);
+            _tubeBloomPrePassLightAccessor(ref lightWithId) = tubeBloomPrePassLight;
+            _lightWithIdRegisterer.MarkForTableRegister(lightWithId);
+
             gameObject.SetActive(true);
 
             return gameObject;
         }
 
-        // Cache materials to improve bulk rendering performance
-        // TODO: Cache shader keywords
-        private static Material GetMaterial(Color color, ShaderPreset shaderPreset)
+        private static Material InstantiateSharedMaterial(ShaderType shaderType)
         {
-            if (_cachedMaterials.TryGetValue((color, shaderPreset), out Material material))
+            return new Material(Shader.Find(shaderType switch
             {
-                return material;
+                ShaderType.OpaqueLight => "Custom/OpaqueNeonLight",
+                ShaderType.TransparentLight => "Custom/TransparentNeonLight",
+                _ => "Custom/SimpleLit"
+            }))
+            {
+                globalIlluminationFlags = IsLightType(shaderType)
+                    ? MaterialGlobalIlluminationFlags.EmissiveIsBlack
+                    : MaterialGlobalIlluminationFlags.RealtimeEmissive,
+                enableInstancing = true,
+                shaderKeywords = shaderType switch
+                {
+                    // Keywords found in RUE PC in BS 1.23
+                    ShaderType.Standard => new[]
+                    {
+                        "DIFFUSE", "ENABLE_DIFFUSE", "ENABLE_FOG", "ENABLE_HEIGHT_FOG", "ENABLE_SPECULAR", "FOG",
+                        "HEIGHT_FOG", "REFLECTION_PROBE_BOX_PROJECTION", "SPECULAR", "_EMISSION",
+                        "_ENABLE_FOG_TINT", "_RIMLIGHT_NONE", "_ZWRITE_ON", "REFLECTION_PROBE", "LIGHT_FALLOFF"
+                    },
+                    ShaderType.OpaqueLight => new[]
+                    {
+                        "DIFFUSE", "ENABLE_BLUE_NOISE", "ENABLE_DIFFUSE", "ENABLE_HEIGHT_FOG", "ENABLE_LIGHTNING", "USE_COLOR_FOG"
+                    },
+                    ShaderType.TransparentLight => new[]
+                    {
+                        "ENABLE_HEIGHT_FOG", "MULTIPLY_COLOR_WITH_ALPHA", "_ENABLE_MAIN_EFFECT_WHITE_BOOST"
+                    },
+                    _ => Array.Empty<string>()
+                }
+            };
+        }
+
+        // Cache materials to improve bulk rendering performance
+        private static Material GetMaterial(Color color, ShaderType shaderType, string[]? keywords)
+        {
+            if (_cachedMaterials.TryGetValue((color, shaderType), out HashSet<(string[]?, Material)> materials))
+            {
+                IEnumerable<(string[]?, Material)> cachedMaterials = materials.Where(n =>
+                {
+                    (string[]? strings, _) = n;
+                    if (keywords == null && strings == null)
+                    {
+                        return true;
+                    }
+
+                    if (keywords != null && strings != null)
+                    {
+                        return strings.SequenceEqual(keywords);
+                    }
+
+                    return false;
+                });
+
+                foreach ((string[]?, Material) current in cachedMaterials)
+                {
+                    return current.Item2;
+                }
+            }
+            else
+            {
+                materials = new HashSet<(string[]?, Material)>();
+                _cachedMaterials[(color, shaderType)] = materials;
             }
 
-            Material originalMaterial = shaderPreset switch
+            Material originalMaterial = shaderType switch
             {
-                ShaderPreset.Light => _lightMaterial,
+                ShaderType.OpaqueLight => _opaqueLightMaterial,
+                ShaderType.TransparentLight => _transparentLightMaterial,
                 _ => _standardMaterial
             };
-
-            _cachedMaterials[(color, shaderPreset)] = material = Object.Instantiate(originalMaterial);
+            Material material = Object.Instantiate(originalMaterial);
             material.color = color;
-            material.globalIlluminationFlags = shaderPreset switch
+            if (keywords != null)
             {
-                ShaderPreset.Light => MaterialGlobalIlluminationFlags.EmissiveIsBlack,
-                _ => MaterialGlobalIlluminationFlags.RealtimeEmissive
-            };
+                material.shaderKeywords = keywords;
+            }
 
-            material.enableInstancing = true;
-            material.shaderKeywords = shaderPreset switch
-            {
-                // Keywords found in RUE PC in BS 1.23
-                ShaderPreset.Standard => new[]
-                {
-                    "DIFFUSE", "ENABLE_DIFFUSE", "ENABLE_FOG", "ENABLE_HEIGHT_FOG", "ENABLE_SPECULAR", "FOG",
-                    "HEIGHT_FOG", "REFLECTION_PROBE_BOX_PROJECTION", "SPECULAR", "_EMISSION",
-                    "_ENABLE_FOG_TINT", "_RIMLIGHT_NONE", "_ZWRITE_ON", "REFLECTION_PROBE", "LIGHT_FALLOFF"
-                },
-                ShaderPreset.Light => new[]
-                {
-                    "DIFFUSE", "ENABLE_BLUE_NOISE", "ENABLE_DIFFUSE", "ENABLE_HEIGHT_FOG", "ENABLE_LIGHTNING", "USE_COLOR_FOG"
-                },
-                _ => material.shaderKeywords
-            };
-
+            materials.Add((keywords, material));
             return material;
+        }
+
+        private static bool IsLightType(ShaderType shaderType)
+        {
+            return shaderType is ShaderType.OpaqueLight or ShaderType.TransparentLight;
         }
     }
 }

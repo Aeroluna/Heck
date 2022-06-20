@@ -9,8 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace Chroma.Animation
 {
-    [UsedImplicitly]
-    internal class ChromaFogController : ITickable, IDisposable
+    internal class FogAnimatorV2 : ITickable, IDisposable
     {
         private static readonly FieldAccessor<BloomFogSO, float>.Accessor _transitionAccessor = FieldAccessor<BloomFogSO, float>.GetAccessor("_transition");
 
@@ -19,7 +18,8 @@ namespace Chroma.Animation
         private readonly BloomFogEnvironmentParams _transitionFogParams;
         private Track? _track;
 
-        private ChromaFogController(BloomFogSO bloomFog)
+        [UsedImplicitly]
+        private FogAnimatorV2(BloomFogSO bloomFog)
         {
             _bloomFog = bloomFog;
 
@@ -45,25 +45,25 @@ namespace Chroma.Animation
                 return;
             }
 
-            float? attenuation = _track.GetProperty<float?>(ATTENUATION);
+            float? attenuation = _track.GetProperty<float?>(V2_ATTENUATION);
             if (attenuation.HasValue)
             {
                 _transitionFogParams.attenuation = attenuation.Value;
             }
 
-            float? offset = _track.GetProperty<float?>(OFFSET);
+            float? offset = _track.GetProperty<float?>(V2_OFFSET);
             if (offset.HasValue)
             {
                 _transitionFogParams.offset = offset.Value;
             }
 
-            float? startY = _track.GetProperty<float?>(HEIGHT_FOG_STARTY);
+            float? startY = _track.GetProperty<float?>(V2_HEIGHT_FOG_STARTY);
             if (startY.HasValue)
             {
                 _transitionFogParams.heightFogStartY = startY.Value;
             }
 
-            float? height = _track.GetProperty<float?>(HEIGHT_FOG_HEIGHT);
+            float? height = _track.GetProperty<float?>(V2_HEIGHT_FOG_HEIGHT);
             if (height.HasValue)
             {
                 _transitionFogParams.heightFogHeight = height.Value;

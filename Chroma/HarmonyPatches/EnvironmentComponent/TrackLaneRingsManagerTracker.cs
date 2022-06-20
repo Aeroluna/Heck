@@ -1,4 +1,4 @@
-﻿using Chroma.EnvironmentEnhancement;
+﻿using Chroma.EnvironmentEnhancement.Component;
 using SiraUtil.Affinity;
 using Zenject;
 
@@ -6,9 +6,9 @@ namespace Chroma.HarmonyPatches.EnvironmentComponent
 {
     internal class TrackLaneRingsManagerTracker : IAffinity
     {
-        private readonly LazyInject<ComponentInitializer> _componentInitializer;
+        private readonly LazyInject<DuplicateInitializer> _componentInitializer;
 
-        private TrackLaneRingsManagerTracker(LazyInject<ComponentInitializer> componentInitializer)
+        private TrackLaneRingsManagerTracker(LazyInject<DuplicateInitializer> componentInitializer)
         {
             _componentInitializer = componentInitializer;
         }
