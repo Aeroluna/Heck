@@ -62,6 +62,7 @@ namespace Chroma.Installers
                 // Animation
                 Container.Bind<EventController>().AsSingle().NonLazy();
                 Container.BindInterfacesAndSelfTo<FogAnimatorV2>().AsSingle();
+                Container.Bind<AnimateComponentEvent>().AsSingle();
 
                 // Colorizer Patch
                 Container.BindInterfacesTo<ObjectColorize>().AsSingle();

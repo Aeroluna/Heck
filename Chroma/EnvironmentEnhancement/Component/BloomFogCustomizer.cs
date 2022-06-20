@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
+using Heck.Animation;
 using IPA.Utilities;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 
@@ -51,6 +52,15 @@ namespace Chroma.EnvironmentEnhancement.Component
                     fogParams.heightFogHeight = heightFogHeight.Value;
                 }
             }
+        }
+
+        internal static object[] GetComponents(Track track)
+        {
+            return track.GameObjects
+                .SelectMany(n => n.GetComponentsInChildren<BloomFogEnvironment>())
+                .Select(n => _fogParamsAccessor(ref n))
+                .Cast<object>()
+                .ToArray();
         }
     }
 }

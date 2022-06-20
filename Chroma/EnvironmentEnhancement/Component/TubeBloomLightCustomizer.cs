@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
+using Heck.Animation;
 using IPA.Utilities;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 
@@ -9,7 +10,6 @@ namespace Chroma.EnvironmentEnhancement.Component
     internal static class TubeBloomLightCustomizer
     {
         private static readonly FieldAccessor<TubeBloomPrePassLight, float>.Accessor _colorAlphaMultiplierAccessor = FieldAccessor<TubeBloomPrePassLight, float>.GetAccessor("_colorAlphaMultiplier");
-        private static readonly FieldAccessor<TubeBloomPrePassLight, float>.Accessor _bloomFogIntensityMultiplierAccessor = FieldAccessor<TubeBloomPrePassLight, float>.GetAccessor("_bloomFogIntensityMultiplier");
 
         internal static void TubeBloomPrePassLightInit(List<UnityEngine.Component> allComponents, CustomData customData)
         {
@@ -27,18 +27,30 @@ namespace Chroma.EnvironmentEnhancement.Component
 
             foreach (TubeBloomPrePassLight tubeBloomPrePassLight in tubeBloomPrePassLights)
             {
-                TubeBloomPrePassLight tubeBloomPrePassLightRef = tubeBloomPrePassLight;
-
                 if (colorAlphaMultiplier.HasValue)
                 {
-                    _colorAlphaMultiplierAccessor(ref tubeBloomPrePassLightRef) = colorAlphaMultiplier.Value;
+                    SetColorAlphaMultiplier(tubeBloomPrePassLight, colorAlphaMultiplier.Value);
                 }
 
                 if (bloomFogIntensityMultiplier.HasValue)
                 {
-                    _bloomFogIntensityMultiplierAccessor(ref tubeBloomPrePassLightRef) = bloomFogIntensityMultiplier.Value;
+                    tubeBloomPrePassLight.bloomFogIntensityMultiplier = bloomFogIntensityMultiplier.Value;
                 }
             }
+        }
+
+        internal static object[] GetComponents(Track track)
+        {
+            return track.GameObjects
+                .SelectMany(n => n.GetComponentsInChildren<TubeBloomPrePassLight>())
+                .Cast<object>()
+                .ToArray();
+        }
+
+        internal static void SetColorAlphaMultiplier(TubeBloomPrePassLight tubeBloomPrePassLight, float value)
+        {
+            _colorAlphaMultiplierAccessor(ref tubeBloomPrePassLight) = value;
+            tubeBloomPrePassLight.MarkDirty();
         }
     }
 }

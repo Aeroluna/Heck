@@ -289,6 +289,8 @@ namespace Chroma.EnvironmentEnhancement
                         controller.RotationUpdated += () => _beatmapObjectsAvoidanceTransformOverride.UpdateRotation(beatmapObjectsAvoidance);
                         controller.PositionUpdated += () => _beatmapObjectsAvoidanceTransformOverride.UpdatePosition(beatmapObjectsAvoidance);
                     }
+
+                    track.AddGameObject(gameObject);
                 }
 
                 if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)

@@ -18,8 +18,6 @@ namespace Heck
         {
             CustomData data = customEventData.customData;
 
-            Functions? easing = data.GetStringToEnum<Functions?>(v2 ? V2_EASING : EASING);
-
             IEnumerable<Track> tracks = data.GetTrackArray(beatmapTracks, v2);
 
             string[] excludedStrings = { V2_TRACK, V2_DURATION, V2_EASING, TRACK, DURATION, EASING };
@@ -79,7 +77,7 @@ namespace Heck
             }
 
             Duration = data.Get<float?>(v2 ? V2_DURATION : DURATION) ?? 0f;
-            Easing = easing ?? Functions.easeLinear;
+            Easing = data.GetStringToEnum<Functions?>(v2 ? V2_EASING : EASING) ?? Functions.easeLinear;
             CoroutineInfos = coroutineInfos;
         }
 

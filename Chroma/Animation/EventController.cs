@@ -12,17 +12,20 @@ namespace Chroma.Animation
         private readonly BeatmapCallbacksController _callbacksController;
         private readonly DeserializedData _deserializedData;
         private readonly LazyInject<FogAnimatorV2> _fogController;
+        private readonly AnimateComponentEvent _animateComponentEvent;
         private readonly BeatmapDataCallbackWrapper _callbackWrapper;
 
         [UsedImplicitly]
         internal EventController(
             BeatmapCallbacksController callbacksController,
             [Inject(Id = ID)] DeserializedData deserializedData,
-            LazyInject<FogAnimatorV2> fogController)
+            LazyInject<FogAnimatorV2> fogController,
+            AnimateComponentEvent animateComponentEvent)
         {
             _callbacksController = callbacksController;
             _deserializedData = deserializedData;
             _fogController = fogController;
+            _animateComponentEvent = animateComponentEvent;
 
             _callbackWrapper = callbacksController.AddBeatmapCallback<CustomEventData>(HandleCallback);
         }
@@ -34,14 +37,19 @@ namespace Chroma.Animation
 
         private void HandleCallback(CustomEventData customEventData)
         {
-            if (customEventData.eventType != ASSIGN_FOG_TRACK)
+            switch (customEventData.eventType)
             {
-                return;
-            }
+                case ASSIGN_FOG_TRACK:
+                    if (_deserializedData.Resolve(customEventData, out ChromaAssignFogEventData? chromaData))
+                    {
+                        _fogController.Value.AssignTrack(chromaData.Track);
+                    }
 
-            if (_deserializedData.Resolve(customEventData, out ChromaCustomEventData? chromaData))
-            {
-                _fogController.Value.AssignTrack(chromaData.Track);
+                    break;
+
+                case ANIMATE_COMPONENT:
+                    _animateComponentEvent.StartEventCoroutine(customEventData);
+                    break;
             }
         }
     }

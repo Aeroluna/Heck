@@ -65,7 +65,9 @@ namespace Chroma
         internal const string LOOKUP_METHOD = "lookupMethod";
         internal const string DUPLICATION_AMOUNT = "duplicate";
         internal const string ACTIVE = "active";
+
         internal const string ASSIGN_FOG_TRACK = "AssignFogTrack";
+        internal const string ANIMATE_COMPONENT = "AnimateComponent";
 
         internal const string CAPABILITY = "Chroma";
         internal const string ID = "Chroma";

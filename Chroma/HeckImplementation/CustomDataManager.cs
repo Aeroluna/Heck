@@ -60,6 +60,7 @@ namespace Chroma
         internal static Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents(
             CustomBeatmapData beatmapData,
             Dictionary<string, Track> beatmapTracks,
+            Dictionary<string, PointDefinition> pointDefinitions,
             IReadOnlyList<CustomEventData> customEventDatas)
         {
             bool v2 = beatmapData.version2_6_0AndEarlier;
@@ -74,7 +75,21 @@ namespace Chroma
                     switch (customEventData.eventType)
                     {
                         case ASSIGN_FOG_TRACK:
-                            chromaCustomEventData = new ChromaCustomEventData(customEventData.customData.GetTrack(beatmapTracks, v2));
+                            if (!v2)
+                            {
+                                continue;
+                            }
+
+                            chromaCustomEventData = new ChromaAssignFogEventData(customEventData.customData.GetTrack(beatmapTracks, v2));
+                            break;
+
+                        case ANIMATE_COMPONENT:
+                            if (v2)
+                            {
+                                continue;
+                            }
+
+                            chromaCustomEventData = new ChromaAnimateComponentData(customEventData.customData, beatmapTracks, pointDefinitions);
                             break;
 
                         default:
