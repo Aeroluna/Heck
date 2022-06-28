@@ -57,12 +57,7 @@ namespace Chroma.EnvironmentEnhancement
             ComponentCustomizer componentCustomizer,
             TransformControllerFactory controllerFactory)
         {
-            if (beatmapData is not CustomBeatmapData customBeatmapData)
-            {
-                throw new ArgumentNullException(nameof(beatmapData));
-            }
-
-            _beatmapData = customBeatmapData;
+            _beatmapData = (CustomBeatmapData)beatmapData;
             _noteLinesDistance = spawnController.noteLinesDistance;
             _tracks = tracks;
             _leftHanded = leftHanded;

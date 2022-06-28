@@ -27,31 +27,60 @@ namespace Chroma
                 foreach (CustomData gameObjectData in environmentData)
                 {
                     trackBuilder.AddFromCustomData(gameObjectData, v2, false);
-                }
-            }
 
-            if (!v2)
-            {
-                return;
-            }
-
-            foreach (CustomEventData customEventData in customEventDatas)
-            {
-                try
-                {
-                    switch (customEventData.eventType)
+                    CustomData? geometryData = gameObjectData.Get<CustomData?>(GEOMETRY);
+                    if (v2 || geometryData == null)
                     {
-                        case ASSIGN_FOG_TRACK:
-                            trackBuilder.AddFromCustomData(customEventData.customData, v2);
-                            break;
+                        continue;
+                    }
 
-                        default:
-                            continue;
+                    CustomData? materialData = gameObjectData.Get<CustomData?>(MATERIAL);
+                    if (materialData != null)
+                    {
+                        trackBuilder.AddFromCustomData(materialData, v2, false);
                     }
                 }
-                catch (Exception e)
+            }
+
+            if (v2)
+            {
+                foreach (CustomEventData customEventData in customEventDatas)
                 {
-                    Log.Logger.LogFailure(e, customEventData);
+                    try
+                    {
+                        switch (customEventData.eventType)
+                        {
+                            case ASSIGN_FOG_TRACK:
+                                trackBuilder.AddFromCustomData(customEventData.customData, v2);
+                                break;
+
+                            default:
+                                continue;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Logger.LogFailure(e, customEventData);
+                    }
+                }
+            }
+            else
+            {
+                IEnumerable<CustomData>? materialsData = beatmapData.customData
+                    .Get<List<object>>(MATERIALS)?
+                    .Cast<CustomData>();
+                if (materialsData == null)
+                {
+                    return;
+                }
+
+                foreach (CustomData customData in materialsData)
+                {
+                    CustomData? materialData = customData.Get<CustomData?>(MATERIAL);
+                    if (materialData != null)
+                    {
+                        trackBuilder.AddFromCustomData(materialData, v2, false);
+                    }
                 }
             }
         }

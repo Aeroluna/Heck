@@ -101,6 +101,8 @@ namespace Chroma.Installers
                 Container.Bind<EnvironmentEnhancementManager>().AsSingle().NonLazy();
                 Container.Bind<ComponentCustomizer>().AsSingle();
                 Container.Bind<GeometryFactory>().AsSingle();
+                Container.Bind<MaterialsManager>().AsSingle();
+                Container.BindInterfacesAndSelfTo<MaterialColorAnimator>().AsSingle();
                 Container.Bind<ILightWithIdCustomizer>().AsSingle();
             }
 

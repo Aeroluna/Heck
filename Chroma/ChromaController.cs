@@ -55,16 +55,18 @@ namespace Chroma
         internal const string STEP = "step";
         internal const string RING_ROTATION = "rotation";
 
-        internal const string ENVIRONMENT = "environment";
         internal const string GEOMETRY = "geometry";
         internal const string GEOMETRY_TYPE = "type";
         internal const string SHADER_PRESET = "shader";
         internal const string SHADER_KEYWORDS = "shaderKeywords";
         internal const string COLLISION = "collision";
+        internal const string ENVIRONMENT = "environment";
         internal const string GAMEOBJECT_ID = "id";
         internal const string LOOKUP_METHOD = "lookupMethod";
         internal const string DUPLICATION_AMOUNT = "duplicate";
         internal const string ACTIVE = "active";
+        internal const string MATERIALS = "materials";
+        internal const string MATERIAL = "material";
 
         internal const string ASSIGN_FOG_TRACK = "AssignFogTrack";
         internal const string ANIMATE_COMPONENT = "AnimateComponent";
