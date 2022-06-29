@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
+using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -35,19 +36,20 @@ namespace Chroma.EnvironmentEnhancement
                 return;
             }
 
-            IEnumerable<CustomData>? materialsData = beatmapData.customData
-                .Get<List<object>>(MATERIALS)?
-                .Cast<CustomData>();
+            CustomData? materialsData = beatmapData.customData.Get<CustomData>(MATERIALS);
             if (materialsData == null)
             {
                 return;
             }
 
-            foreach (CustomData customData in materialsData)
+            foreach ((string key, object? value) in materialsData)
             {
-                string name = customData.GetRequired<string>(NAME);
-                CustomData materialData = customData.GetRequired<CustomData>(MATERIAL);
-                MaterialInfos.Add(name, CreateMaterialInfo(materialData));
+                if (value == null)
+                {
+                    throw new InvalidOperationException($"[{key}] was null.");
+                }
+
+                MaterialInfos.Add(key, CreateMaterialInfo((CustomData)value));
             }
         }
 

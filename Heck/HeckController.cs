@@ -24,7 +24,6 @@
         public const string EASING = "easing";
         public const string NAME = "name";
         public const string POINT_DEFINITIONS = "pointDefinitions";
-        public const string POINTS = "points";
         public const string TRACK = "track";
         public const string ANIMATION = "animation";
         public const string POSITION = "position";
