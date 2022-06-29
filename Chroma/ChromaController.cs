@@ -83,14 +83,14 @@ namespace Chroma
 
         internal static DataDeserializer Deserializer { get; } = DeserializerManager.Register<CustomDataManager>(ID);
 
-        internal static Module ColorizerModule { get; } = ModuleManager.RegisterModule<ModuleCallbacks>(
+        internal static Module ColorizerModule { get; } = ModuleManager.Register<ModuleCallbacks>(
             "ChromaColorizer",
             0,
             RequirementType.None,
             PatchType.Colorizer,
             new[] { "Heck" });
 
-        internal static Module FeaturesModule { get; } = ModuleManager.RegisterModule<ModuleCallbacks>(
+        internal static Module FeaturesModule { get; } = ModuleManager.Register<ModuleCallbacks>(
             "Chroma",
             2,
             RequirementType.Condition,

@@ -66,7 +66,7 @@ namespace NoodleExtensions
 
         internal static CustomJSONDataDeserializer JSONDeserializer { get; } = CustomJSONDataDeserializer.Register<FakeNotesJSON>();
 
-        internal static Module FeaturesModule { get; } = ModuleManager.RegisterModule<ModuleCallbacks>(
+        internal static Module FeaturesModule { get; } = ModuleManager.Register<ModuleCallbacks>(
             "Noodle",
             2,
             RequirementType.Condition,
