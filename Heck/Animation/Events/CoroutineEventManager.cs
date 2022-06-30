@@ -113,7 +113,8 @@ namespace Heck.Animation.Events
                 float elapsedTime = _audioTimeSource.songTime - startTime;
                 if (!onLast)
                 {
-                    float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
+                    float normalizedTime = duration > 0f ? Mathf.Min(elapsedTime / duration, 1) : 1f;
+                    float time = Easings.Interpolate(normalizedTime, easing);
                     switch (property.PropertyType)
                     {
                         case PropertyType.Linear:
@@ -160,7 +161,7 @@ namespace Heck.Animation.Events
                     }
                 }
 
-                if (elapsedTime < duration)
+                if (duration > 0 && elapsedTime < duration)
                 {
                     if (repeat <= 0 && onLast)
                     {
@@ -189,7 +190,8 @@ namespace Heck.Animation.Events
             do
             {
                 elapsedTime = _audioTimeSource.songTime - startTime;
-                pointDataInterpolation.Time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
+                float normalizedTime = duration > 0f ? Mathf.Min(elapsedTime / duration, 1) : 1f;
+                pointDataInterpolation.Time = Easings.Interpolate(normalizedTime, easing);
                 yield return null;
             }
             while (elapsedTime < duration);
