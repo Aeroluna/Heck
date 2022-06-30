@@ -41,22 +41,9 @@ namespace NoodleExtensions.Animation
             switch (customEventData.eventType)
             {
                 case ASSIGN_TRACK_PARENT:
-                    if (!_deserializedData.Resolve(customEventData, out NoodleParentTrackEventData? noodleParentData))
-                    {
-                        return;
-                    }
-
-                    List<Track> tracks = noodleParentData.ChildrenTracks;
-                    Track parentTrack = noodleParentData.ParentTrack;
-                    _parentController.Value.Create(
-                        tracks,
-                        parentTrack,
-                        noodleParentData.WorldPositionStays,
-                        noodleParentData.Position,
-                        noodleParentData.Rotation,
-                        noodleParentData.LocalRotation,
-                        noodleParentData.Scale);
+                    _parentController.Value.Create(customEventData);
                     break;
+
                 case ASSIGN_PLAYER_TO_TRACK:
                     if (_deserializedData.Resolve(customEventData, out NoodlePlayerTrackEventData? noodlePlayerData))
                     {

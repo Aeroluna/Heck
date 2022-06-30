@@ -11,18 +11,18 @@ namespace Chroma.Lighting
     [UsedImplicitly]
     internal class ChromaGradientController : ITickable
     {
+        private readonly IAudioTimeSource _timeSource;
         private readonly LightColorizerManager _manager;
         private readonly IBpmController _bpmController;
-        private readonly ChromaGradientEvent.Factory _factory;
 
         private ChromaGradientController(
+            IAudioTimeSource timeSource,
             LightColorizerManager manager,
-            IBpmController bpmController,
-            ChromaGradientEvent.Factory factory)
+            IBpmController bpmController)
         {
+            _timeSource = timeSource;
             _manager = manager;
             _bpmController = bpmController;
-            _factory = factory;
         }
 
         private IDictionary<BasicBeatmapEventType, ChromaGradientEvent> Gradients { get; } = new Dictionary<BasicBeatmapEventType, ChromaGradientEvent>();
@@ -55,7 +55,7 @@ namespace Chroma.Lighting
             Color endcolor = gradientObject.EndColor;
             Functions easing = gradientObject.Easing;
 
-            ChromaGradientEvent gradientEvent = _factory.Create(initcolor, endcolor, time, 60 * duration / _bpmController.currentBpm, id, easing);
+            ChromaGradientEvent gradientEvent = new(_timeSource, this, initcolor, endcolor, time, 60 * duration / _bpmController.currentBpm, id, easing);
             Gradients[id] = gradientEvent;
             return gradientEvent.Interpolate();
         }
@@ -107,11 +107,6 @@ namespace Chroma.Lighting
 
                 _gradientController.Gradients.Remove(_event);
                 return _endcolor;
-            }
-
-            [UsedImplicitly]
-            internal class Factory : PlaceholderFactory<Color, Color, float, float, BasicBeatmapEventType, Functions, ChromaGradientEvent>
-            {
             }
         }
     }

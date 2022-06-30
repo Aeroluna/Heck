@@ -77,24 +77,14 @@ namespace Chroma.Installers
                 Container.BindInterfacesTo<LightPairRotationChromafier>().AsSingle();
                 Container.BindInterfacesTo<LightRotationChromafier>().AsSingle();
                 Container.BindInterfacesTo<RingRotationChromafier>().AsSingle();
-                Container.BindFactory<TrackLaneRingsRotationEffect, ChromaRingsRotationEffect, ChromaRingsRotationEffect.Factory>()
-                    .FromFactory<ChromaRingsRotationEffect.ChromaRingFactory>();
                 Container.BindInterfacesTo<RingStepChromafier>().AsSingle();
+                Container.Bind<ChromaRingsRotationEffect.Factory>().AsSingle();
 
                 // Disable Spawn Effect
                 Container.BindInterfacesTo<BeatEffectSpawnerSkip>().AsSingle();
 
                 // Lighting
                 Container.BindInterfacesAndSelfTo<ChromaGradientController>().AsSingle();
-                Container.BindFactory<
-                    Color,
-                    Color,
-                    float,
-                    float,
-                    BasicBeatmapEventType,
-                    Functions,
-                    ChromaGradientController.ChromaGradientEvent,
-                    ChromaGradientController.ChromaGradientEvent.Factory>().AsSingle();
 
                 // EnvironmentEnhancement
                 Container.Bind<DuplicateInitializer>().AsSingle();

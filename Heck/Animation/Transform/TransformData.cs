@@ -7,20 +7,24 @@ namespace Heck.Animation.Transform
 {
     public readonly struct TransformData
     {
-        public readonly Vector3? Scale;
-        public readonly Vector3? Position;
-        public readonly Vector3? Rotation;
-        public readonly Vector3? LocalPosition;
-        public readonly Vector3? LocalRotation;
-
         public TransformData(CustomData customData, bool v2 = false)
         {
             Scale = customData.GetVector3(v2 ? V2_SCALE : SCALE);
             Position = customData.GetVector3(v2 ? V2_POSITION : POSITION);
-            Rotation = customData.GetVector3(v2 ? V2_ROTATION : ROTATION);
+            Rotation = customData.GetQuaternion(v2 ? V2_ROTATION : ROTATION);
             LocalPosition = customData.GetVector3(v2 ? V2_LOCAL_POSITION : LOCAL_POSITION);
-            LocalRotation = customData.GetVector3(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION);
+            LocalRotation = customData.GetQuaternion(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION);
         }
+
+        public Vector3? Scale { get; }
+
+        public Vector3? Position { get; }
+
+        public Quaternion? Rotation { get; }
+
+        public Vector3? LocalPosition { get; }
+
+        public Quaternion? LocalRotation { get; }
 
         public void Apply(UnityEngine.Transform transform, bool leftHanded, bool v2, float noteLinesDistance)
         {
@@ -55,9 +59,9 @@ namespace Heck.Animation.Transform
             bool leftHanded,
             Vector3? scale,
             Vector3? position,
-            Vector3? rotation,
+            Quaternion? rotation,
             Vector3? localPosition,
-            Vector3? localRotation)
+            Quaternion? localRotation)
         {
             if (leftHanded)
             {
@@ -84,11 +88,11 @@ namespace Heck.Animation.Transform
 
             if (rotation.HasValue)
             {
-                transform.eulerAngles = rotation.Value;
+                transform.rotation = rotation.Value;
             }
             else if (localRotation.HasValue)
             {
-                transform.localEulerAngles = localRotation.Value;
+                transform.localRotation = localRotation.Value;
             }
         }
     }
