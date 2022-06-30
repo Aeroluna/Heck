@@ -33,6 +33,7 @@ namespace Heck.Animation
 
         internal Coroutine? Coroutine { get; set; }
 
+        // TODO: Avoid boxing this, could use a Vector4 and PropertyType
         internal virtual object? Value { get; set; }
     }
 }
