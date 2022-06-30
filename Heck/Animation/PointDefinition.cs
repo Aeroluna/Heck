@@ -100,6 +100,8 @@ namespace Heck.Animation
             return stringBuilder.ToString();
         }
 
+        public bool IsSingle() => _points.Count == 1;
+
         public Vector3 Interpolate(float time)
         {
             if (_points.Count == 0)

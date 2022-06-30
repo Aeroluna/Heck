@@ -70,13 +70,17 @@ namespace Heck.Animation.Events
                 }
                 else
                 {
+                    // Avoid needless background running of the event if it's just a single point
+                    // TODO: Implement Swifter's PointDefinition trimming optimization
+                    float pointDuration = pointData.IsSingle() ? 0 : duration;
+
                     switch (eventType)
                     {
                         case EventType.AnimateTrack:
                             property.Coroutine = _coroutineDummy.StartCoroutine(AnimateTrackCoroutine(
                                 pointData,
                                 property,
-                                duration,
+                                pointDuration,
                                 customEventData.time,
                                 easing));
                             break;
@@ -85,7 +89,7 @@ namespace Heck.Animation.Events
                             ((PathProperty)property).Interpolation.Init(pointData);
                             property.Coroutine = _coroutineDummy.StartCoroutine(AssignPathAnimationCoroutine(
                                 property,
-                                duration,
+                                pointDuration,
                                 customEventData.time,
                                 easing));
                             break;
