@@ -20,7 +20,7 @@ namespace Heck
 
             IEnumerable<Track> tracks = data.GetTrackArray(beatmapTracks, v2);
 
-            string[] excludedStrings = { V2_TRACK, V2_DURATION, V2_EASING, TRACK, DURATION, EASING };
+            string[] excludedStrings = { V2_TRACK, V2_DURATION, V2_EASING, TRACK, DURATION, EASING, REPEAT };
             IEnumerable<string> propertyKeys = data.Keys.Where(n => excludedStrings.All(m => m != n)).ToList();
             List<CoroutineInfo> coroutineInfos = new();
             foreach (Track track in tracks)
@@ -79,11 +79,18 @@ namespace Heck
             Duration = data.Get<float?>(v2 ? V2_DURATION : DURATION) ?? 0f;
             Easing = data.GetStringToEnum<Functions?>(v2 ? V2_EASING : EASING) ?? Functions.easeLinear;
             CoroutineInfos = coroutineInfos;
+
+            if (!v2)
+            {
+                Repeat = data.Get<int?>(REPEAT) ?? 0;
+            }
         }
 
         internal float Duration { get; }
 
         internal Functions Easing { get; }
+
+        internal int Repeat { get; }
 
         internal List<CoroutineInfo> CoroutineInfos { get; }
 

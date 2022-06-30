@@ -40,11 +40,9 @@ namespace Heck.Animation.Events
                 return;
             }
 
-            float duration = heckData.Duration;
-            duration = 60f * duration / _bpmController.currentBpm; // Convert to real time;
-
+            float duration = 60f * heckData.Duration / _bpmController.currentBpm; // Convert to real time;
             Functions easing = heckData.Easing;
-
+            int repeat = heckData.Repeat;
             foreach (HeckCoroutineEventData.CoroutineInfo coroutineInfo in heckData.CoroutineInfos)
             {
                 Property property = coroutineInfo.Property;
@@ -78,7 +76,8 @@ namespace Heck.Animation.Events
                                 property,
                                 duration,
                                 customEventData.time,
-                                easing));
+                                easing,
+                                repeat));
                             break;
 
                         case EventType.AssignPathAnimation:
@@ -99,9 +98,10 @@ namespace Heck.Animation.Events
             Property property,
             float duration,
             float startTime,
-            Functions easing)
+            Functions easing,
+            int repeat)
         {
-            while (true)
+            while (repeat >= 0)
             {
                 float elapsedTime = _audioTimeSource.songTime - startTime;
                 float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
@@ -120,7 +120,8 @@ namespace Heck.Animation.Events
                 }
                 else
                 {
-                    break;
+                    repeat--;
+                    startTime += duration;
                 }
             }
         }
@@ -132,20 +133,14 @@ namespace Heck.Animation.Events
             Functions easing)
         {
             PointDefinitionInterpolation pointDataInterpolation = ((PathProperty)property).Interpolation;
-            while (true)
+            float elapsedTime;
+            do
             {
-                float elapsedTime = _audioTimeSource.songTime - startTime;
+                elapsedTime = _audioTimeSource.songTime - startTime;
                 pointDataInterpolation.Time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
-
-                if (elapsedTime < duration)
-                {
-                    yield return null;
-                }
-                else
-                {
-                    break;
-                }
+                yield return null;
             }
+            while (elapsedTime < duration);
 
             pointDataInterpolation.Finish();
         }
