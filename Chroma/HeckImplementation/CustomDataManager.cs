@@ -29,13 +29,13 @@ namespace Chroma
                 {
                     trackBuilder.AddFromCustomData(gameObjectData, v2, false);
 
-                    CustomData? geometryData = gameObjectData.Get<CustomData?>(GEOMETRY);
-                    if (v2 || geometryData == null)
+                    CustomData? geometryData = gameObjectData.Get<CustomData?>(v2 ? V2_GEOMETRY : GEOMETRY);
+                    if (geometryData == null)
                     {
                         continue;
                     }
 
-                    CustomData? materialData = gameObjectData.Get<CustomData?>(MATERIAL);
+                    CustomData? materialData = gameObjectData.Get<CustomData?>(v2 ? V2_MATERIAL : MATERIAL);
                     if (materialData != null)
                     {
                         trackBuilder.AddFromCustomData(materialData, v2, false);
@@ -43,44 +43,44 @@ namespace Chroma
                 }
             }
 
-            if (v2)
+            CustomData? materialsData = beatmapData.customData.Get<CustomData>(v2 ? V2_MATERIALS : MATERIALS);
+            if (materialsData == null)
             {
-                foreach (CustomEventData customEventData in customEventDatas)
-                {
-                    try
-                    {
-                        switch (customEventData.eventType)
-                        {
-                            case ASSIGN_FOG_TRACK:
-                                trackBuilder.AddFromCustomData(customEventData.customData, v2);
-                                break;
-
-                            default:
-                                continue;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Logger.LogFailure(e, customEventData);
-                    }
-                }
+                return;
             }
-            else
+
+            foreach ((string _, object? value) in materialsData)
             {
-                CustomData? materialsData = beatmapData.customData.Get<CustomData>(MATERIALS);
-                if (materialsData == null)
+                if (value == null)
                 {
-                    return;
+                    continue;
                 }
 
-                foreach ((string _, object? value) in materialsData)
-                {
-                    if (value == null)
-                    {
-                        continue;
-                    }
+                trackBuilder.AddFromCustomData((CustomData)value, v2, false);
+            }
 
-                    trackBuilder.AddFromCustomData((CustomData)value, v2, false);
+            if (!v2)
+            {
+                return;
+            }
+
+            foreach (CustomEventData customEventData in customEventDatas)
+            {
+                try
+                {
+                    switch (customEventData.eventType)
+                    {
+                        case ASSIGN_FOG_TRACK:
+                            trackBuilder.AddFromCustomData(customEventData.customData, v2);
+                            break;
+
+                        default:
+                            continue;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Logger.LogFailure(e, customEventData);
                 }
             }
         }

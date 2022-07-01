@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using static Chroma.ChromaController;
-using static Heck.HeckController;
 using Object = UnityEngine.Object;
 
 namespace Chroma.EnvironmentEnhancement
@@ -21,6 +20,7 @@ namespace Chroma.EnvironmentEnhancement
 
         private readonly Dictionary<string, Track> _beatmapTracks;
         private readonly LazyInject<MaterialColorAnimator> _materialColorAnimator;
+        private readonly bool _v2;
 
         [UsedImplicitly]
         private MaterialsManager(
@@ -29,14 +29,11 @@ namespace Chroma.EnvironmentEnhancement
             LazyInject<MaterialColorAnimator> materialColorAnimator)
         {
             CustomBeatmapData beatmapData = (CustomBeatmapData)readonlyBeatmap;
+            _v2 = beatmapData.version2_6_0AndEarlier;
             _beatmapTracks = beatmapTracks;
             _materialColorAnimator = materialColorAnimator;
-            if (beatmapData.version2_6_0AndEarlier)
-            {
-                return;
-            }
 
-            CustomData? materialsData = beatmapData.customData.Get<CustomData>(MATERIALS);
+            CustomData? materialsData = beatmapData.customData.Get<CustomData>(_v2 ? V2_MATERIALS : MATERIALS);
             if (materialsData == null)
             {
                 return;
@@ -58,8 +55,8 @@ namespace Chroma.EnvironmentEnhancement
         internal MaterialInfo CreateMaterialInfo(CustomData customData)
         {
             Color color = CustomDataManager.GetColorFromData(customData) ?? new Color(0, 0, 0, 0);
-            ShaderType shaderType = customData.GetStringToEnumRequired<ShaderType>(SHADER_PRESET);
-            string[]? shaderKeywords = customData.Get<List<object>?>(SHADER_KEYWORDS)?.Cast<string>().ToArray();
+            ShaderType shaderType = customData.GetStringToEnumRequired<ShaderType>(_v2 ? V2_SHADER_PRESET : SHADER_PRESET);
+            string[]? shaderKeywords = customData.Get<List<object>?>(_v2 ? V2_SHADER_KEYWORDS : SHADER_KEYWORDS)?.Cast<string>().ToArray();
             List<Track>? track = customData.GetNullableTrackArray(_beatmapTracks, false)?.ToList();
 
             Material originalMaterial = shaderType switch

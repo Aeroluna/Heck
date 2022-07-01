@@ -37,6 +37,13 @@ namespace Chroma
         internal const string V2_LOOKUP_METHOD = "_lookupMethod";
         internal const string V2_DUPLICATION_AMOUNT = "_duplicate";
         internal const string V2_ACTIVE = "_active";
+        internal const string V2_GEOMETRY = "_geometry";
+        internal const string V2_GEOMETRY_TYPE = "_type";
+        internal const string V2_SHADER_PRESET = "_shader";
+        internal const string V2_SHADER_KEYWORDS = "_shaderKeywords";
+        internal const string V2_COLLISION = "_collision";
+        internal const string V2_MATERIALS = "_materials";
+        internal const string V2_MATERIAL = "_material";
 
         internal const string V2_ATTENUATION = "_attenuation";
         internal const string V2_OFFSET = "_offset";
@@ -55,16 +62,16 @@ namespace Chroma
         internal const string STEP = "step";
         internal const string RING_ROTATION = "rotation";
 
-        internal const string GEOMETRY = "geometry";
-        internal const string GEOMETRY_TYPE = "type";
-        internal const string SHADER_PRESET = "shader";
-        internal const string SHADER_KEYWORDS = "shaderKeywords";
-        internal const string COLLISION = "collision";
         internal const string ENVIRONMENT = "environment";
         internal const string GAMEOBJECT_ID = "id";
         internal const string LOOKUP_METHOD = "lookupMethod";
         internal const string DUPLICATION_AMOUNT = "duplicate";
         internal const string ACTIVE = "active";
+        internal const string GEOMETRY = "geometry";
+        internal const string GEOMETRY_TYPE = "type";
+        internal const string SHADER_PRESET = "shader";
+        internal const string SHADER_KEYWORDS = "shaderKeywords";
+        internal const string COLLISION = "collision";
         internal const string MATERIALS = "materials";
         internal const string MATERIAL = "material";
 

@@ -115,8 +115,8 @@ namespace Chroma.EnvironmentEnhancement
                 int? lightID = gameObjectData.Get<int?>(V2_LIGHT_ID);
 
                 List<GameObjectInfo> foundObjects;
-                CustomData? geometryData = gameObjectData.Get<CustomData?>(GEOMETRY);
-                if (!v2 && geometryData != null)
+                CustomData? geometryData = gameObjectData.Get<CustomData?>(v2 ? V2_GEOMETRY : GEOMETRY);
+                if (geometryData != null)
                 {
                     GameObjectInfo newObjectInfo = new(_geometryFactory.Create(geometryData));
                     allGameObjectInfos.Add(newObjectInfo);

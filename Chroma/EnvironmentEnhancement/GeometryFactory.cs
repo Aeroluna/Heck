@@ -44,6 +44,7 @@ namespace Chroma.EnvironmentEnhancement
         private static readonly FieldAccessor<ParametricBoxController, MeshRenderer>.Accessor _meshRendererAccessor = FieldAccessor<ParametricBoxController, MeshRenderer>.GetAccessor("_meshRenderer");
 
         private readonly IInstantiator _instantiator;
+        private readonly bool _v2;
         private readonly MaterialsManager _materialsManager;
         private readonly LightWithIdRegisterer _lightWithIdRegisterer;
         private readonly ParametricBoxControllerTransformOverride _parametricBoxControllerTransformOverride;
@@ -52,12 +53,14 @@ namespace Chroma.EnvironmentEnhancement
         [UsedImplicitly]
         private GeometryFactory(
             IInstantiator instantiator,
+            IReadonlyBeatmapData beatmapData,
             MaterialsManager materialsManager,
             LightColorizerManager lightColorizerManager,
             LightWithIdRegisterer lightWithIdRegisterer,
             ParametricBoxControllerTransformOverride parametricBoxControllerTransformOverride)
         {
             _instantiator = instantiator;
+            _v2 = ((CustomBeatmapData)beatmapData).version2_6_0AndEarlier;
             _materialsManager = materialsManager;
             _lightWithIdRegisterer = lightWithIdRegisterer;
             _parametricBoxControllerTransformOverride = parametricBoxControllerTransformOverride;
@@ -70,10 +73,10 @@ namespace Chroma.EnvironmentEnhancement
 
         internal GameObject Create(CustomData customData)
         {
-            GeometryType geometryType = customData.GetStringToEnumRequired<GeometryType>(GEOMETRY_TYPE);
-            bool collision = customData.Get<bool?>(COLLISION) ?? false;
+            GeometryType geometryType = customData.GetStringToEnumRequired<GeometryType>(_v2 ? V2_GEOMETRY_TYPE : GEOMETRY_TYPE);
+            bool collision = customData.Get<bool?>(_v2 ? V2_COLLISION : COLLISION) ?? false;
 
-            object materialData = customData.GetRequired<object>(MATERIAL);
+            object materialData = customData.GetRequired<object>(_v2 ? V2_MATERIAL : MATERIAL);
             MaterialsManager.MaterialInfo materialInfo = materialData switch
             {
                 string name => _materialsManager.MaterialInfos[name],

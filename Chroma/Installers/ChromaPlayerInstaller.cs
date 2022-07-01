@@ -10,9 +10,7 @@ using Chroma.HarmonyPatches.Events;
 using Chroma.HarmonyPatches.Mirror;
 using Chroma.HarmonyPatches.ZenModeWalls;
 using Chroma.Lighting;
-using Heck.Animation;
 using JetBrains.Annotations;
-using UnityEngine;
 using Zenject;
 
 namespace Chroma.Installers
