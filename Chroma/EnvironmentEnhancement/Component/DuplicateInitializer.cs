@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Chroma.HarmonyPatches.Colorizer.Initialize;
 using Chroma.HarmonyPatches.EnvironmentComponent;
 using Chroma.Settings;
 using HarmonyLib;
@@ -31,19 +32,23 @@ namespace Chroma.EnvironmentEnhancement.Component
         private static readonly FieldAccessor<TrackLaneRingsPositionStepEffectSpawner, TrackLaneRingsManager>.Accessor _stepSpawnerRingsManagerAccessor = FieldAccessor<TrackLaneRingsPositionStepEffectSpawner, TrackLaneRingsManager>.GetAccessor("_trackLaneRingsManager");
         private static readonly FieldAccessor<TrackLaneRingsRotationEffectSpawner, TrackLaneRingsRotationEffect>.Accessor _trackLaneRingsRotationEffectAccessor = FieldAccessor<TrackLaneRingsRotationEffectSpawner, TrackLaneRingsRotationEffect>.GetAccessor("_trackLaneRingsRotationEffect");
         private static readonly FieldAccessor<TrackLaneRingsRotationEffectSpawner, BeatmapCallbacksController>.Accessor _rotationEffectSpawnerCallbackControllerAccessor = FieldAccessor<TrackLaneRingsRotationEffectSpawner, BeatmapCallbacksController>.GetAccessor("_beatmapCallbacksController");
+        private static readonly FieldAccessor<LightWithIds, IEnumerable<LightWithIds.LightWithId>>.Accessor _lightWithIdsAccessor = FieldAccessor<LightWithIds, IEnumerable<LightWithIds.LightWithId>>.GetAccessor("_lightWithIds");
 
         private static readonly FieldAccessor<TrackLaneRing, Transform>.Accessor _ringTransformAccessor = FieldAccessor<TrackLaneRing, Transform>.GetAccessor("_transform");
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
         private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
 
         private readonly TrackLaneRingOffset _trackLaneRingOffset;
+        private readonly LightWithIdRegisterer _lightWithIdRegisterer;
 
         private readonly HashSet<TrackLaneRingsManager> _trackLaneRingsManagers;
 
         private DuplicateInitializer(
-            TrackLaneRingOffset trackLaneRingOffset)
+            TrackLaneRingOffset trackLaneRingOffset,
+            LightWithIdRegisterer lightWithIdRegisterer)
         {
             _trackLaneRingOffset = trackLaneRingOffset;
+            _lightWithIdRegisterer = lightWithIdRegisterer;
             _trackLaneRingsManagers = Resources.FindObjectsOfTypeAll<TrackLaneRingsManager>().ToHashSet();
         }
 
@@ -96,7 +101,7 @@ namespace Chroma.EnvironmentEnhancement.Component
             }
         }
 
-        internal void InitializeComponents(Transform root, Transform original, List<GameObjectInfo> gameObjectInfos, List<IComponentData> componentDatas, int? lightID)
+        internal void InitializeComponents(Transform root, Transform original, List<GameObjectInfo> gameObjectInfos, List<IComponentData> componentDatas)
         {
             void GetComponentAndOriginal<T>(Action<T, T> initializeDelegate)
                 where T : UnityEngine.Component
@@ -118,17 +123,23 @@ namespace Chroma.EnvironmentEnhancement.Component
             TransformController transformController = root.GetComponent<TransformController>();
             if (transformController != null)
             {
-                Object.Destroy(transformController);
+                Object.DestroyImmediate(transformController);
             }
 
             GetComponentAndOriginal<LightWithIdMonoBehaviour>((rootComponent, originalComponent) =>
             {
                 _lightWithIdMonoBehaviourManagerAccessor(ref rootComponent) = _lightWithIdMonoBehaviourManagerAccessor(ref originalComponent);
+                _lightWithIdRegisterer.MarkForTableRegister(rootComponent);
             });
 
             GetComponentAndOriginal<LightWithIds>((rootComponent, originalComponent) =>
             {
                 _lightWithIdsManagerAccessor(ref rootComponent) = _lightWithIdsManagerAccessor(ref originalComponent);
+                IEnumerable<ILightWithId> lightsWithId = _lightWithIdsAccessor(ref rootComponent);
+                foreach (ILightWithId light in lightsWithId)
+                {
+                    _lightWithIdRegisterer.MarkForTableRegister(light);
+                }
             });
 
             GetComponentAndOriginal<TrackLaneRing>((rootComponent, originalComponent) =>
@@ -254,7 +265,7 @@ namespace Chroma.EnvironmentEnhancement.Component
             foreach (Transform transform in root)
             {
                 int index = transform.GetSiblingIndex();
-                InitializeComponents(transform, original.GetChild(index), gameObjectInfos, componentDatas, lightID);
+                InitializeComponents(transform, original.GetChild(index), gameObjectInfos, componentDatas);
             }
         }
     }

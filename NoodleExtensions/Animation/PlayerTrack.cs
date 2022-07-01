@@ -47,12 +47,7 @@ namespace NoodleExtensions.Animation
                 return;
             }
 
-            if (_transformController != null)
-            {
-                Destroy(_transformController);
-            }
-
-            _transformController = _transformFactory.Create(gameObject, _track);
+            _transformController = _transformFactory.Create(gameObject, _track, true);
         }
 
         [UsedImplicitly]

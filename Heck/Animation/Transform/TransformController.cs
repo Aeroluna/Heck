@@ -110,13 +110,21 @@ namespace Heck.Animation.Transform
             _transformControllers.DoIf(n => n != null, Object.Destroy);
         }
 
-        public TransformController Create(GameObject gameObject, Track track)
+        public TransformController Create(GameObject gameObject, Track track, bool overwrite = false)
         {
             TransformController existing = gameObject.GetComponent<TransformController>();
             if (existing != null)
             {
-                Log.Logger.Log($"Could not create [{nameof(TransformController)}], [{gameObject.name}] already has one.", Logger.Level.Error);
-                return existing;
+                if (overwrite)
+                {
+                    Log.Logger.Log($"Overwriting existing [{nameof(TransformController)}] on [{gameObject.name}]...", Logger.Level.Error);
+                    Object.Destroy(existing);
+                }
+                else
+                {
+                    Log.Logger.Log($"Could not create [{nameof(TransformController)}], [{gameObject.name}] already has one.", Logger.Level.Error);
+                    return existing;
+                }
             }
 
             TransformController controller = _instantiator.InstantiateComponent<TransformController>(gameObject, new object[] { track });
