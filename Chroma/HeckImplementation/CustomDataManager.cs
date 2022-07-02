@@ -6,6 +6,7 @@ using Chroma.Lighting;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
+using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 using static Chroma.ChromaController;
@@ -27,7 +28,35 @@ namespace Chroma
                 foreach (CustomData gameObjectData in environmentData)
                 {
                     trackBuilder.AddFromCustomData(gameObjectData, v2, false);
+
+                    CustomData? geometryData = gameObjectData.Get<CustomData?>(v2 ? V2_GEOMETRY : GEOMETRY);
+                    if (geometryData == null)
+                    {
+                        continue;
+                    }
+
+                    CustomData? materialData = gameObjectData.Get<CustomData?>(v2 ? V2_MATERIAL : MATERIAL);
+                    if (materialData != null)
+                    {
+                        trackBuilder.AddFromCustomData(materialData, v2, false);
+                    }
                 }
+            }
+
+            CustomData? materialsData = beatmapData.customData.Get<CustomData>(v2 ? V2_MATERIALS : MATERIALS);
+            if (materialsData == null)
+            {
+                return;
+            }
+
+            foreach ((string _, object? value) in materialsData)
+            {
+                if (value == null)
+                {
+                    continue;
+                }
+
+                trackBuilder.AddFromCustomData((CustomData)value, v2, false);
             }
 
             if (!v2)

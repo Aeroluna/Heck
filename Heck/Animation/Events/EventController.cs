@@ -15,8 +15,7 @@ namespace Heck.Animation.Events
         [UsedImplicitly]
         private EventController(
             BeatmapCallbacksController callbacksController,
-            LazyInject<CoroutineEventManager> coroutineEventManager,
-            IReadonlyBeatmapData beatmapData)
+            LazyInject<CoroutineEventManager> coroutineEventManager)
         {
             _callbacksController = callbacksController;
             _coroutineEventManager = coroutineEventManager;

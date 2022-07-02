@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Logging;
+using IPA.Utilities;
 using Zenject;
 using static Heck.HeckController;
 
@@ -94,16 +96,36 @@ namespace Heck
                 }
             }
 
-            IEnumerable<CustomData>? pointDefinitionsRaw =
-                customBeatmapData.customData.Get<List<object>>(v2 ? V2_POINT_DEFINITIONS : POINT_DEFINITIONS)?.Cast<CustomData>();
-            if (pointDefinitionsRaw != null)
+            if (v2)
             {
-                foreach (CustomData pointDefintionRaw in pointDefinitionsRaw)
+                IEnumerable<CustomData>? pointDefinitionsRaw =
+                    customBeatmapData.customData.Get<List<object>>(V2_POINT_DEFINITIONS)?.Cast<CustomData>();
+                if (pointDefinitionsRaw != null)
                 {
-                    string pointName = pointDefintionRaw.GetRequired<string>(v2 ? V2_NAME : NAME);
-                    PointDefinition pointData = PointDefinition.ListToPointDefinition(
-                        pointDefintionRaw.GetRequired<List<object>>(v2 ? V2_POINTS : POINTS));
-                    AddPoint(pointName, pointData);
+                    foreach (CustomData pointDefintionRaw in pointDefinitionsRaw)
+                    {
+                        string pointName = pointDefintionRaw.GetRequired<string>(V2_NAME);
+                        PointDefinition pointData = PointDefinition.ListToPointDefinition(
+                            pointDefintionRaw.GetRequired<List<object>>(V2_POINTS));
+                        AddPoint(pointName, pointData);
+                    }
+                }
+            }
+            else
+            {
+                CustomData? pointDefinitionsRaw = customBeatmapData.customData.Get<CustomData>(POINT_DEFINITIONS);
+                if (pointDefinitionsRaw != null)
+                {
+                    foreach ((string key, object? value) in pointDefinitionsRaw)
+                    {
+                        if (value == null)
+                        {
+                            throw new InvalidOperationException($"[{key}] was null.");
+                        }
+
+                        PointDefinition pointData = PointDefinition.ListToPointDefinition((List<object>)value);
+                        AddPoint(key, pointData);
+                    }
                 }
             }
 
@@ -112,18 +134,6 @@ namespace Heck
 
             if (!v2)
             {
-                void AddEvent(string eventDefinitionName, CustomEventData eventDefinition)
-                {
-                    if (!eventDefinitions.ContainsKey(eventDefinitionName))
-                    {
-                        eventDefinitions.Add(eventDefinitionName, eventDefinition);
-                    }
-                    else
-                    {
-                        Log.Logger.Log($"Duplicate event defintion name, {eventDefinitionName} could not be registered!", Logger.Level.Error);
-                    }
-                }
-
                 IEnumerable<CustomData>? eventDefinitionsRaw =
                     customBeatmapData.customData.Get<List<object>>(EVENT_DEFINITIONS)?.Cast<CustomData>();
                 if (eventDefinitionsRaw != null)
@@ -132,9 +142,16 @@ namespace Heck
                     {
                         string eventName = eventDefinitionRaw.GetRequired<string>(NAME);
                         string type = eventDefinitionRaw.GetRequired<string>(TYPE);
-                        CustomData data = eventDefinitionRaw.GetRequired<CustomData>("_data");
+                        CustomData data = eventDefinitionRaw.GetRequired<CustomData>("data");
 
-                        AddEvent(eventName, new CustomEventData(-1, type, data));
+                        if (!eventDefinitions.ContainsKey(eventName))
+                        {
+                            eventDefinitions.Add(eventName, new CustomEventData(-1, type, data));
+                        }
+                        else
+                        {
+                            Log.Logger.Log($"Duplicate event defintion name, {eventName} could not be registered!", Logger.Level.Error);
+                        }
                     }
                 }
             }

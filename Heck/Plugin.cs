@@ -32,7 +32,7 @@ namespace Heck
             zenjector.Install<HeckPlayerInstaller>(Location.Player);
             zenjector.Install<HeckSettingsSetterInstaller>(Location.Menu);
 
-            ModuleManager.RegisterModule<ModuleCallbacks>("Heck", 0, RequirementType.None);
+            ModuleManager.Register<ModuleCallbacks>("Heck", 0, RequirementType.None);
         }
 
 #pragma warning disable CA1822

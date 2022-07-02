@@ -1,5 +1,7 @@
-﻿using Heck;
+﻿using CustomJSONData.CustomBeatmap;
+using Heck;
 using Heck.Animation;
+using Heck.Animation.Transform;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using NoodleExtensions.HarmonyPatches.SmallFixes;
@@ -23,6 +25,7 @@ namespace NoodleExtensions.Animation
         private Transform _transform = null!;
 
         private bool _leftHanded;
+        private bool _v2;
 
         private Vector3 _startPos = Vector3.zero;
         private Quaternion _startLocalRot = Quaternion.identity;
@@ -31,26 +34,47 @@ namespace NoodleExtensions.Animation
         private PauseController _pauseController = null!;
         private BeatmapObjectSpawnMovementData _movementData = null!;
 
-        internal void AssignTrack(Track track)
+        private TransformController? _transformController;
+        private TransformControllerFactory _transformFactory = null!;
+
+        internal void AssignTrack(
+            Track track)
         {
             _track = track;
+
+            if (!_v2)
+            {
+                return;
+            }
+
+            _transformController = _transformFactory.Create(gameObject, _track, true);
         }
 
         [UsedImplicitly]
         [Inject]
         private void Construct(
+            IReadonlyBeatmapData beatmapData,
             PauseController pauseController,
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
-            InitializedSpawnMovementData movementData)
+            InitializedSpawnMovementData movementData,
+            TransformControllerFactory transformControllerFactory)
         {
             _pauseController = pauseController;
 
             pauseController.didPauseEvent += OnDidPauseEvent;
+            pauseController.didResumeEvent += OnDidResumeEvent;
             Transform origin = transform;
             _startLocalRot = origin.localRotation;
             _startPos = origin.localPosition;
             _leftHanded = leftHanded;
             _movementData = movementData.MovementData;
+            _transformFactory = transformControllerFactory;
+
+            _v2 = ((CustomBeatmapData)beatmapData).version2_6_0AndEarlier;
+            if (!_v2)
+            {
+                enabled = false;
+            }
 
             // cam2 is cringe cam2 is cringe cam2 is cringe
             _instance = this;
@@ -62,6 +86,18 @@ namespace NoodleExtensions.Animation
             Transform transform1 = transform;
             transform1.localRotation = _startLocalRot;
             transform1.localPosition = _startPos;
+            if (_transformController != null)
+            {
+                _transformController.enabled = false;
+            }
+        }
+
+        private void OnDidResumeEvent()
+        {
+            if (_transformController != null)
+            {
+                _transformController.enabled = true;
+            }
         }
 
         private void OnDestroy()
@@ -69,6 +105,11 @@ namespace NoodleExtensions.Animation
             if (_pauseController != null)
             {
                 _pauseController.didPauseEvent -= OnDidPauseEvent;
+            }
+
+            if (_transformController != null)
+            {
+                Destroy(_transformController);
             }
         }
 
@@ -107,9 +148,9 @@ namespace NoodleExtensions.Animation
         [UsedImplicitly]
         internal class PlayerTrackFactory : IFactory<PlayerTrack>
         {
-            private readonly DiContainer _container;
+            private readonly IInstantiator _container;
 
-            private PlayerTrackFactory(DiContainer container)
+            private PlayerTrackFactory(IInstantiator container)
             {
                 _container = container;
             }

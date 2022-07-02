@@ -38,6 +38,7 @@ namespace NoodleExtensions.Animation
             track.AddPathProperty(OFFSET_POSITION, PropertyType.Vector3, V2_POSITION);
             track.AddPathProperty(OFFSET_ROTATION, PropertyType.Quaternion, V2_ROTATION);
             track.AddPathProperty(SCALE, PropertyType.Vector3, V2_SCALE);
+            track.AddPathProperty(LOCAL_ROTATION, PropertyType.Quaternion, V2_LOCAL_ROTATION);
             track.AddPathProperty(DEFINITE_POSITION, PropertyType.Vector3, V2_DEFINITE_POSITION);
             track.AddPathProperty(DISSOLVE, PropertyType.Linear, V2_DISSOLVE);
             track.AddPathProperty(DISSOLVE_ARROW, PropertyType.Linear, V2_DISSOLVE_ARROW);

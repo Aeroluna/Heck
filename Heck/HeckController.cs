@@ -20,11 +20,11 @@
         public const string V2_LOCAL_POSITION = "_localPosition";
         public const string V2_SCALE = "_scale";
 
+        public const string REPEAT = "repeat";
         public const string DURATION = "duration";
         public const string EASING = "easing";
         public const string NAME = "name";
         public const string POINT_DEFINITIONS = "pointDefinitions";
-        public const string POINTS = "points";
         public const string TRACK = "track";
         public const string ANIMATION = "animation";
         public const string POSITION = "position";

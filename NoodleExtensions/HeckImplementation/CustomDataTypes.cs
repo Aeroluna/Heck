@@ -4,6 +4,7 @@ using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
+using Heck.Animation.Transform;
 using IPA.Utilities;
 using UnityEngine;
 using static Heck.HeckController;
@@ -288,10 +289,9 @@ namespace NoodleExtensions
             ParentTrack = customData.GetTrack(beatmapTracks, v2 ? V2_PARENT_TRACK : PARENT_TRACK);
             ChildrenTracks = customData.GetTrackArray(beatmapTracks, v2 ? V2_CHILDREN_TRACKS : CHILDREN_TRACKS).ToList();
             WorldPositionStays = customData.Get<bool?>(v2 ? V2_WORLD_POSITION_STAYS : WORLD_POSITION_STAYS) ?? false;
-            Position = customData.GetVector3(v2 ? V2_POSITION : OFFSET_POSITION);
-            Rotation = customData.GetQuaternion(v2 ? V2_ROTATION : WORLD_ROTATION);
-            LocalRotation = customData.GetQuaternion(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION);
-            Scale = customData.GetVector3(v2 ? V2_SCALE : SCALE);
+            OffsetPosition = customData.GetVector3(v2 ? V2_POSITION : OFFSET_POSITION);
+            WorldRotation = customData.GetQuaternion(v2 ? V2_ROTATION : WORLD_ROTATION);
+            TransformData = new TransformData(customData, v2);
         }
 
         internal Track ParentTrack { get; }
@@ -300,12 +300,10 @@ namespace NoodleExtensions
 
         internal bool WorldPositionStays { get; }
 
-        internal Vector3? Position { get; }
+        internal Vector3? OffsetPosition { get; }
 
-        internal Quaternion? Rotation { get; }
+        internal Quaternion? WorldRotation { get; }
 
-        internal Quaternion? LocalRotation { get; }
-
-        internal Vector3? Scale { get; }
+        internal TransformData TransformData { get; }
     }
 }

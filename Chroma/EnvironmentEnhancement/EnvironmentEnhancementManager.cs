@@ -57,12 +57,7 @@ namespace Chroma.EnvironmentEnhancement
             ComponentCustomizer componentCustomizer,
             TransformControllerFactory controllerFactory)
         {
-            if (beatmapData is not CustomBeatmapData customBeatmapData)
-            {
-                throw new ArgumentNullException(nameof(beatmapData));
-            }
-
-            _beatmapData = customBeatmapData;
+            _beatmapData = (CustomBeatmapData)beatmapData;
             _noteLinesDistance = spawnController.noteLinesDistance;
             _tracks = tracks;
             _leftHanded = leftHanded;
@@ -117,11 +112,11 @@ namespace Chroma.EnvironmentEnhancement
                 int? dupeAmount = gameObjectData.Get<int?>(v2 ? V2_DUPLICATION_AMOUNT : DUPLICATION_AMOUNT);
                 bool? active = gameObjectData.Get<bool?>(v2 ? V2_ACTIVE : ACTIVE);
                 TransformData spawnData = new(gameObjectData, v2);
-                int? lightID = gameObjectData.Get<int?>(v2 ? V2_LIGHT_ID : LIGHT_ID);
+                int? lightID = gameObjectData.Get<int?>(V2_LIGHT_ID);
 
                 List<GameObjectInfo> foundObjects;
-                CustomData? geometryData = gameObjectData.Get<CustomData?>(GEOMETRY);
-                if (!v2 && geometryData != null)
+                CustomData? geometryData = gameObjectData.Get<CustomData?>(v2 ? V2_GEOMETRY : GEOMETRY);
+                if (geometryData != null)
                 {
                     GameObjectInfo newObjectInfo = new(_geometryFactory.Create(geometryData));
                     allGameObjectInfos.Add(newObjectInfo);
@@ -165,6 +160,18 @@ namespace Chroma.EnvironmentEnhancement
                 {
                     componentData = gameObjectData.Get<CustomData>(ComponentConstants.COMPONENTS);
                 }
+                else if (lightID != null)
+                {
+                    componentData = new CustomData(new[]
+                    {
+                        new KeyValuePair<string, object?>(
+                            ComponentConstants.LIGHT_WITH_ID,
+                            new CustomData(new[]
+                            {
+                                new KeyValuePair<string, object?>(LIGHT_ID, lightID.Value)
+                            }))
+                    });
+                }
 
                 List<GameObject> gameObjects;
 
@@ -201,8 +208,7 @@ namespace Chroma.EnvironmentEnhancement
                                 newGameObject.transform,
                                 gameObject.transform,
                                 allGameObjectInfos,
-                                componentDatas,
-                                lightID);
+                                componentDatas);
 
                             List<GameObjectInfo> gameObjectInfos =
                                 allGameObjectInfos.Where(n => n.GameObject == newGameObject).ToList();
@@ -273,7 +279,7 @@ namespace Chroma.EnvironmentEnhancement
                         continue;
                     }
 
-                    TransformController controller = _controllerFactory.Create(gameObject, track);
+                    TransformController controller = _controllerFactory.Create(gameObject, track, true);
                     if (trackLaneRing != null)
                     {
                         controller.RotationUpdated += () => _trackLaneRingOffset.UpdateRotation(trackLaneRing);
