@@ -144,9 +144,13 @@ namespace Heck.Animation.Events
                 elapsedTime = _audioTimeSource.songTime - startTime;
                 float normalizedTime = duration > 0f ? Mathf.Min(elapsedTime / duration, 1) : 1f;
                 pointDataInterpolation.Time = Easings.Interpolate(normalizedTime, easing);
-                yield return null;
+                if (duration > 0) {
+                    yield return null;
+                } else {
+                    yield break;
+                }
             }
-            while (duration > 0 && elapsedTime < duration);
+            while (elapsedTime < duration);
 
             pointDataInterpolation.Finish();
         }
