@@ -44,19 +44,17 @@ namespace Chroma
             }
 
             CustomData? materialsData = beatmapData.customData.Get<CustomData>(v2 ? V2_MATERIALS : MATERIALS);
-            if (materialsData == null)
+            if (materialsData != null)
             {
-                return;
-            }
-
-            foreach ((string _, object? value) in materialsData)
-            {
-                if (value == null)
+                foreach ((string _, object? value) in materialsData)
                 {
-                    continue;
-                }
+                    if (value == null)
+                    {
+                        continue;
+                    }
 
-                trackBuilder.AddFromCustomData((CustomData)value, v2, false);
+                    trackBuilder.AddFromCustomData((CustomData)value, v2, false);
+                }
             }
 
             if (!v2)
