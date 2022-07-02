@@ -72,6 +72,7 @@ namespace Heck.Animation
 
         public event Action<GameObject>? GameObjectRemoved;
 
+        // TODO: use this more and possible replace with frameCount comparisons
         public bool UpdatedThisFrame { get; internal set; }
 
         public HashSet<GameObject> GameObjects { get; } = new();
