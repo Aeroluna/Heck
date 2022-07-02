@@ -39,11 +39,24 @@ namespace Heck.Animation
             return pointDataInterpolation?.InterpolateVector4(time);
         }
 
-        public static T? GetProperty<T>(this Track? track, string propertyName)
+        public static float? GetLinearProperty(this Track? track, string propertyName)
         {
-            Property? property = null;
-            track?.Properties.TryGetValue(propertyName, out property);
-            return (T?)property?.Value;
+            return GetTrackProperty(track, propertyName)?.LinearValue;
+        }
+
+        public static Quaternion? GetQuaternionProperty(this Track? track, string propertyName)
+        {
+            return GetTrackProperty(track, propertyName)?.QuaternionValue;
+        }
+
+        public static Vector3? GetVector3Property(this Track? track, string propertyName)
+        {
+            return GetTrackProperty(track, propertyName)?.Vector3Value;
+        }
+
+        public static Vector4? GetVector4Property(this Track? track, string propertyName)
+        {
+            return GetTrackProperty(track, propertyName)?.Vector4Value;
         }
 
         public static PointDefinition? GetPointData(this CustomData customData, string pointName, Dictionary<string, PointDefinition> pointDefinitions)
@@ -156,6 +169,16 @@ namespace Heck.Animation
             Property? pathProperty = null;
             track?.PathProperties.TryGetValue(propertyName, out pathProperty);
             return ((PathProperty?)pathProperty)?.Interpolation;
+        }
+
+        private static Property? GetTrackProperty(Track? track, string propertyName)
+        {
+            if (track != null && track.Properties.TryGetValue(propertyName, out Property? property))
+            {
+                return property;
+            }
+
+            return null;
         }
     }
 }

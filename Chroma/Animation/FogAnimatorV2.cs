@@ -45,25 +45,25 @@ namespace Chroma.Animation
                 return;
             }
 
-            float? attenuation = _track.GetProperty<float?>(V2_ATTENUATION);
+            float? attenuation = _track.GetLinearProperty(V2_ATTENUATION);
             if (attenuation.HasValue)
             {
                 _transitionFogParams.attenuation = attenuation.Value;
             }
 
-            float? offset = _track.GetProperty<float?>(V2_OFFSET);
+            float? offset = _track.GetLinearProperty(V2_OFFSET);
             if (offset.HasValue)
             {
                 _transitionFogParams.offset = offset.Value;
             }
 
-            float? startY = _track.GetProperty<float?>(V2_HEIGHT_FOG_STARTY);
+            float? startY = _track.GetLinearProperty(V2_HEIGHT_FOG_STARTY);
             if (startY.HasValue)
             {
                 _transitionFogParams.heightFogStartY = startY.Value;
             }
 
-            float? height = _track.GetProperty<float?>(V2_HEIGHT_FOG_HEIGHT);
+            float? height = _track.GetLinearProperty(V2_HEIGHT_FOG_HEIGHT);
             if (height.HasValue)
             {
                 _transitionFogParams.heightFogHeight = height.Value;

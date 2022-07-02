@@ -72,6 +72,8 @@ namespace Heck.Animation
 
         public event Action<GameObject>? GameObjectRemoved;
 
+        public bool UpdatedThisFrame { get; internal set; }
+
         public HashSet<GameObject> GameObjects { get; } = new();
 
         internal IDictionary<string, Property> Properties { get; } = new Dictionary<string, Property>();

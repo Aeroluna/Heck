@@ -47,7 +47,7 @@ namespace Heck
                 {
                     void CreateInfo(Property prop)
                     {
-                        CoroutineInfo coroutineInfo = new(data.GetPointData(propertyKey, pointDefinitions), prop);
+                        CoroutineInfo coroutineInfo = new(data.GetPointData(propertyKey, pointDefinitions), prop, track);
                         coroutineInfos.Add(coroutineInfo);
                     }
 
@@ -96,15 +96,18 @@ namespace Heck
 
         internal readonly struct CoroutineInfo
         {
-            internal CoroutineInfo(PointDefinition? pointDefinition, Property property)
+            internal CoroutineInfo(PointDefinition? pointDefinition, Property property, Track track)
             {
                 PointDefinition = pointDefinition;
                 Property = property;
+                Track = track;
             }
 
             internal PointDefinition? PointDefinition { get; }
 
             internal Property Property { get; }
+
+            internal Track Track { get; }
         }
     }
 

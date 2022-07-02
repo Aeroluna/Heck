@@ -39,7 +39,25 @@ namespace Heck.Animation.Transform
             _track = track;
         }
 
+        private void OnEnable()
+        {
+            UpdatePos();
+        }
+
+        private void OnTransformParentChanged()
+        {
+            UpdatePos();
+        }
+
         private void Update()
+        {
+            if (_track.UpdatedThisFrame)
+            {
+                UpdatePos();
+            }
+        }
+
+        private void UpdatePos()
         {
             Vector3? scale = GetVectorNullable(SCALE);
             Quaternion? rotation = GetQuaternionNullable(ROTATION);
@@ -88,9 +106,9 @@ namespace Heck.Animation.Transform
             }
         }
 
-        private Vector3? GetVectorNullable(string property) => _track.GetProperty<Vector3?>(property)?.Mirror(_leftHanded);
+        private Vector3? GetVectorNullable(string property) => _track.GetVector3Property(property)?.Mirror(_leftHanded);
 
-        private Quaternion? GetQuaternionNullable(string property) => _track.GetProperty<Quaternion?>(property)?.Mirror(_leftHanded);
+        private Quaternion? GetQuaternionNullable(string property) => _track.GetQuaternionProperty(property)?.Mirror(_leftHanded);
     }
 
     public sealed class TransformControllerFactory : IDisposable

@@ -59,7 +59,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         internal float NoteJumpTimeAdjust(float original, float jumpDuration)
         {
             NoodleObjectData? noodleData = _noteUpdateNoodlifier.NoodleData;
-            float? time = noodleData?.Track?.Select(n => n.GetProperty<float?>(NoodleController.TIME)).FirstOrDefault(n => n.HasValue);
+            float? time = noodleData?.Track?.Select(n => n.GetLinearProperty(NoodleController.TIME)).FirstOrDefault(n => n.HasValue);
             if (time.HasValue)
             {
                 return time.Value * jumpDuration;

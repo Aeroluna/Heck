@@ -58,7 +58,11 @@ namespace Heck.Animation.Events
                     switch (eventType)
                     {
                         case EventType.AnimateTrack:
-                            property.Value = null;
+                            coroutineInfo.Track.UpdatedThisFrame = true;
+                            property.LinearValue = null;
+                            property.QuaternionValue = null;
+                            property.Vector3Value = null;
+                            property.Vector4Value = null;
                             break;
 
                         case EventType.AssignPathAnimation:
@@ -73,6 +77,7 @@ namespace Heck.Animation.Events
                         case EventType.AnimateTrack:
                             property.Coroutine = _coroutineDummy.StartCoroutine(AnimateTrackCoroutine(
                                 pointData,
+                                coroutineInfo.Track,
                                 property,
                                 duration,
                                 customEventData.time,
@@ -95,33 +100,80 @@ namespace Heck.Animation.Events
 
         private IEnumerator AnimateTrackCoroutine(
             PointDefinition points,
+            Track track,
             Property property,
             float duration,
             float startTime,
             Functions easing,
             int repeat)
         {
+            bool onLast = false;
             while (repeat >= 0)
             {
                 float elapsedTime = _audioTimeSource.songTime - startTime;
-                float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
-                property.Value = property.PropertyType switch
+                if (!onLast)
                 {
-                    PropertyType.Linear => points.InterpolateLinear(time),
-                    PropertyType.Vector3 => points.Interpolate(time),
-                    PropertyType.Vector4 => points.InterpolateVector4(time),
-                    PropertyType.Quaternion => points.InterpolateQuaternion(time),
-                    _ => property.Value
-                };
+                    float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
+                    switch (property.PropertyType)
+                    {
+                        case PropertyType.Linear:
+                            float value = points.InterpolateLinear(time, out onLast);
+
+                            // ReSharper disable once CompareOfFloatsByEqualityOperator
+                            if (property.LinearValue != value)
+                            {
+                                property.LinearValue = value;
+                                track.UpdatedThisFrame = true;
+                            }
+
+                            break;
+
+                        case PropertyType.Quaternion:
+                            Quaternion quaternion = points.InterpolateQuaternion(time, out onLast);
+                            if (property.QuaternionValue != quaternion)
+                            {
+                                property.QuaternionValue = quaternion;
+                                track.UpdatedThisFrame = true;
+                            }
+
+                            break;
+
+                        case PropertyType.Vector3:
+                            Vector3 vector = points.Interpolate(time, out onLast);
+                            if (property.Vector3Value != vector)
+                            {
+                                property.Vector3Value = vector;
+                                track.UpdatedThisFrame = true;
+                            }
+
+                            break;
+
+                        case PropertyType.Vector4:
+                            Vector4 vector4 = points.InterpolateVector4(time, out onLast);
+                            if (property.Vector4Value != vector4)
+                            {
+                                property.Vector4Value = vector4;
+                                track.UpdatedThisFrame = true;
+                            }
+
+                            break;
+                    }
+                }
 
                 if (elapsedTime < duration)
                 {
-                    yield return null;
+                    if (repeat <= 0 && onLast)
+                    {
+                        break;
+                    }
+
+                    yield return new WaitForEndOfFrame();
                 }
                 else
                 {
                     repeat--;
                     startTime += duration;
+                    onLast = false;
                 }
             }
         }

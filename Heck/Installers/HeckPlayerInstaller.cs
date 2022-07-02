@@ -1,4 +1,5 @@
-﻿using Heck.Animation.Events;
+﻿using Heck.Animation;
+using Heck.Animation.Events;
 using Heck.Animation.Transform;
 using JetBrains.Annotations;
 using Zenject;
@@ -22,6 +23,9 @@ namespace Heck.Installers
 
             // TransformController
             Container.Bind<TransformControllerFactory>().AsSingle();
+
+            // Track updater
+            Container.BindInterfacesTo<TrackUpdateManager>().AsSingle().NonLazy();
         }
     }
 }

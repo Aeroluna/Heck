@@ -18,13 +18,13 @@ namespace Chroma.Animation
                 if (tracks.Count > 1)
                 {
                     pathColor ??= MultVector4Nullables(tracks.Select(n => n.GetVector4PathProperty(COLOR, time)));
-                    colorVector = MultVector4Nullables(MultVector4Nullables(tracks.Select(n => n.GetProperty<Vector4?>(COLOR))), pathColor);
+                    colorVector = MultVector4Nullables(MultVector4Nullables(tracks.Select(n => n.GetVector4Property(COLOR))), pathColor);
                 }
                 else
                 {
                     Track track = tracks.First();
                     pathColor ??= track.GetVector4PathProperty(COLOR, time);
-                    colorVector = MultVector4Nullables(track.GetProperty<Vector4?>(COLOR), pathColor);
+                    colorVector = MultVector4Nullables(track.GetVector4Property(COLOR), pathColor);
                 }
             }
             else
