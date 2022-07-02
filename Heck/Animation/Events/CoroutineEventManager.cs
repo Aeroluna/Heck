@@ -131,7 +131,8 @@ namespace Heck.Animation.Events
 
                         case PropertyType.Quaternion:
                             Quaternion quaternion = points.InterpolateQuaternion(time, out onLast);
-                            if (property.QuaternionValue != quaternion)
+                            if (!property.QuaternionValue.HasValue ||
+                                Quaternion.Dot(property.QuaternionValue.Value, quaternion) < 1)
                             {
                                 property.QuaternionValue = quaternion;
                                 track.UpdatedThisFrame = true;
