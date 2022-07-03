@@ -23,7 +23,7 @@ namespace NoodleExtensions.Installers
             Container.Bind<SpawnDataManager>().AsSingle();
             Container.Bind<CutoutManager>().AsSingle();
             Container.Bind<AnimationHelper>().AsSingle();
-            Container.Bind<NoodleObjectsCallbacksManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<NoodleObjectsCallbacksManager>().AsSingle();
 
             // Events
             Container.Bind<EventController>().AsSingle().NonLazy();

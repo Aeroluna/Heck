@@ -26,6 +26,11 @@ namespace Heck.Installers
 
             // Track updater
             Container.BindInterfacesTo<TrackUpdateManager>().AsSingle().NonLazy();
+
+            if (HeckController.DebugMode)
+            {
+                Container.BindInterfacesAndSelfTo<Reloader>().AsSingle().NonLazy();
+            }
         }
     }
 }

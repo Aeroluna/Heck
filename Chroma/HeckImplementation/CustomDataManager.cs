@@ -8,7 +8,6 @@ using Heck;
 using Heck.Animation;
 using IPA.Utilities;
 using UnityEngine;
-using Zenject;
 using static Chroma.ChromaController;
 
 namespace Chroma
@@ -175,8 +174,7 @@ namespace Chroma
         [EventsDeserializer]
         internal static Dictionary<BeatmapEventData, IEventCustomData> DeserializeEvents(
             CustomBeatmapData beatmapData,
-            IReadOnlyList<BeatmapEventData> allBeatmapEventDatas,
-            DiContainer container)
+            IReadOnlyList<BeatmapEventData> allBeatmapEventDatas)
         {
             bool v2 = beatmapData.version2_6_0AndEarlier;
             List<BasicBeatmapEventData> beatmapEventDatas = allBeatmapEventDatas.OfType<BasicBeatmapEventData>().ToList();

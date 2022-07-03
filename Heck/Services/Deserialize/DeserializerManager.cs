@@ -5,7 +5,6 @@ using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Logging;
 using IPA.Utilities;
-using Zenject;
 using static Heck.HeckController;
 
 namespace Heck
@@ -21,11 +20,12 @@ namespace Heck
             return deserializer;
         }
 
-        internal static void DeserializeBeatmapDataAndBind(
-            DiContainer container,
+        internal static void DeserializeBeatmapData(
             CustomBeatmapData customBeatmapData,
             IReadonlyBeatmapData untransformedBeatmapData,
-            bool leftHanded)
+            bool leftHanded,
+            out Dictionary<string, Track> beatmapTracks,
+            out HashSet<(object? Id, DeserializedData DeserializedData)> deserializedDatas)
         {
             Log.Logger.Log("Deserializing BeatmapData.", Logger.Level.Trace);
 
@@ -162,7 +162,7 @@ namespace Heck
             ////customBeatmapData.customData["eventDefinitions"] = eventDefinitions;
 
             // Currently used by Chroma.GameObjectTrackController
-            container.Bind<Dictionary<string, Track>>().FromInstance(trackManager.Tracks).AsSingle();
+            beatmapTracks = trackManager.Tracks;
 
             IReadOnlyList<CustomEventData> customEventsData = customBeatmapData
                 .GetBeatmapDataItems<CustomEventData>()
@@ -192,7 +192,6 @@ namespace Heck
                 customEventsData.ToList(),
                 beatmapEventDatas,
                 objectDatas,
-                container,
                 leftHanded
             };
 
@@ -203,6 +202,7 @@ namespace Heck
                 deserializer.InjectedInvokeEarly(inputs);
             }
 
+            deserializedDatas = new HashSet<(object? Id, DeserializedData DeserializedData)>(deserializers.Length);
             foreach (DataDeserializer deserializer in deserializers)
             {
                 Dictionary<CustomEventData, ICustomEventCustomData> customEventCustomDatas = deserializer.InjectedInvokeCustomEvent(inputs);
@@ -211,9 +211,7 @@ namespace Heck
 
                 Log.Logger.Log($"Binding [{deserializer.Id}].", Logger.Level.Trace);
 
-                container.Bind<DeserializedData>()
-                    .WithId(deserializer.Id)
-                    .FromInstance(new DeserializedData(customEventCustomDatas, eventCustomDatas, objectCustomDatas));
+                deserializedDatas.Add((deserializer.Id, new DeserializedData(customEventCustomDatas, eventCustomDatas, objectCustomDatas)));
             }
         }
     }

@@ -7,9 +7,9 @@ namespace Heck
 {
     public class DeserializedData
     {
-        private readonly Dictionary<CustomEventData, ICustomEventCustomData> _customEventCustomDatas;
-        private readonly Dictionary<BeatmapEventData, IEventCustomData> _eventCustomDatas;
-        private readonly Dictionary<BeatmapObjectData, IObjectCustomData> _objectCustomDatas;
+        private Dictionary<CustomEventData, ICustomEventCustomData> _customEventCustomDatas;
+        private Dictionary<BeatmapEventData, IEventCustomData> _eventCustomDatas;
+        private Dictionary<BeatmapObjectData, IObjectCustomData> _objectCustomDatas;
 
         internal DeserializedData(
             Dictionary<CustomEventData, ICustomEventCustomData> customEventCustomDatas,
@@ -37,6 +37,14 @@ namespace Heck
             where T : IObjectCustomData
         {
             return Resolve(_objectCustomDatas, beatmapObjectData, out result);
+        }
+
+        // HIGHLY ILLEGAL!!!!
+        internal void Remap(DeserializedData source)
+        {
+            _customEventCustomDatas = source._customEventCustomDatas;
+            _eventCustomDatas = source._eventCustomDatas;
+            _objectCustomDatas = source._objectCustomDatas;
         }
 
         private static bool Resolve<TBaseData, TResultType, TResultData>(

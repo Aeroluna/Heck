@@ -151,7 +151,7 @@ namespace Chroma.Lighting
                             return;
                         }
 
-                        Log.Logger.Log($"Could not find key to unregister.", Logger.Level.Warning);
+                        Log.Logger.Log("Could not find key to unregister.", Logger.Level.Warning);
                     }
                 }
                 else

@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+using Heck.Animation;
 using Zenject;
 
 namespace Heck.HarmonyPatches
@@ -67,11 +68,17 @@ namespace Heck.HarmonyPatches
             }
 
             bool leftHanded = playerSpecificSettings.leftHanded;
-            DeserializerManager.DeserializeBeatmapDataAndBind(
-                container,
+            DeserializerManager.DeserializeBeatmapData(
                 (CustomBeatmapData)sceneSetupData.transformedBeatmapData,
                 untransformedBeatmapData,
-                leftHanded);
+                leftHanded,
+                out Dictionary<string, Track> beatmapTracks,
+                out HashSet<(object? Id, DeserializedData DeserializedData)> deserializedDatas);
+            container.Bind<Dictionary<string, Track>>().FromInstance(beatmapTracks).AsSingle();
+            deserializedDatas.Do(n =>
+            container.Bind<DeserializedData>()
+                .WithId(n.Id)
+                .FromInstance(n.DeserializedData));
 
             container.Bind<ObjectInitializerManager>().AsSingle();
 

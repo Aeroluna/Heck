@@ -12,12 +12,16 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         private readonly List<NoteController> _hitsoundQueue = new();
 
         private readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
+        private readonly IAudioTimeSource _audioTimeSource;
         private int _lastFrame = -1;
         private int _cutCount = -1;
 
-        internal NoteCutSoundLimiter(NoteCutSoundEffectManager noteCutSoundEffectManager)
+        internal NoteCutSoundLimiter(
+            NoteCutSoundEffectManager noteCutSoundEffectManager,
+            IAudioTimeSource audioTimeSource)
         {
             _noteCutSoundEffectManager = noteCutSoundEffectManager;
+            _audioTimeSource = audioTimeSource;
         }
 
         public void Tick()
@@ -33,7 +37,6 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
             Log.Logger.Log($"{noteControllers.Count} cut sounds moved to next frame!");
         }
 
-        // Do not create a NoteCutSoundEffect for fake notes
         [AffinityPriority(Priority.Low)]
         [AffinityPrefix]
         [AffinityPatch(typeof(NoteCutSoundEffectManager), "HandleNoteWasSpawned")]
@@ -41,6 +44,12 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         {
             if (!__runOriginal)
             {
+                return;
+            }
+
+            if (noteController.noteData.time < _audioTimeSource.songTime)
+            {
+                __runOriginal = false;
                 return;
             }
 
