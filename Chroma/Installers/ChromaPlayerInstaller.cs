@@ -10,6 +10,7 @@ using Chroma.HarmonyPatches.Events;
 using Chroma.HarmonyPatches.Mirror;
 using Chroma.HarmonyPatches.ZenModeWalls;
 using Chroma.Lighting;
+using Heck;
 using JetBrains.Annotations;
 using Zenject;
 
@@ -27,13 +28,15 @@ namespace Chroma.Installers
                 Container.BindFactory<NoteControllerBase, BombColorizer, BombColorizer.Factory>().AsSingle();
                 Container.Bind<LightColorizerManager>().AsSingle();
                 Container.BindFactory<ChromaLightSwitchEventEffect, LightColorizer, LightColorizer.Factory>().AsSingle();
-                Container.BindFactory<LightSwitchEventEffect, ChromaLightSwitchEventEffect, ChromaLightSwitchEventEffect.Factory>().AsSingle();
+                Container.BindFactory<LightSwitchEventEffect, ChromaLightSwitchEventEffect, ChromaLightSwitchEventEffect.Factory>()
+                    .FromFactory<DisposableClassFactory<LightSwitchEventEffect, ChromaLightSwitchEventEffect>>();
                 Container.BindInterfacesAndSelfTo<NoteColorizerManager>().AsSingle();
                 Container.BindFactory<NoteControllerBase, NoteColorizer, NoteColorizer.Factory>().AsSingle();
                 Container.Bind<ObstacleColorizerManager>().AsSingle();
                 Container.BindFactory<ObstacleControllerBase, ObstacleColorizer, ObstacleColorizer.Factory>().AsSingle();
                 Container.Bind<ParticleColorizerManager>().AsSingle();
-                Container.BindFactory<ParticleSystemEventEffect, ParticleColorizer, ParticleColorizer.Factory>().AsSingle();
+                Container.BindFactory<ParticleSystemEventEffect, ParticleColorizer, ParticleColorizer.Factory>()
+                    .FromFactory<DisposableClassFactory<ParticleSystemEventEffect, ParticleColorizer>>();
                 Container.Bind<SaberColorizerManager>().AsSingle();
                 Container.BindFactory<Saber, SaberColorizer, SaberColorizer.Factory>().AsSingle();
                 Container.Bind<SaberColorizerIntialize>().AsSingle().NonLazy();
@@ -58,7 +61,7 @@ namespace Chroma.Installers
             if (ChromaController.FeaturesPatcher.Enabled)
             {
                 // Animation
-                Container.Bind<EventController>().AsSingle().NonLazy();
+                Container.BindInterfacesTo<EventController>().AsSingle();
                 Container.BindInterfacesAndSelfTo<FogAnimatorV2>().AsSingle();
                 Container.Bind<AnimateComponentEvent>().AsSingle();
 

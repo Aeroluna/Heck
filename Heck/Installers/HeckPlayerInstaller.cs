@@ -18,11 +18,11 @@ namespace Heck.Installers
 
             // Events
             Container.Bind<CoroutineDummy>().FromNewComponentOnRoot().AsSingle();
-            Container.Bind<EventController>().AsSingle().NonLazy();
+            Container.BindInterfacesTo<EventController>().AsSingle();
             Container.Bind<CoroutineEventManager>().AsSingle();
 
             // TransformController
-            Container.Bind<TransformControllerFactory>().AsSingle();
+            Container.BindInterfacesAndSelfTo<TransformControllerFactory>().AsSingle();
 
             // Track updater
             Container.BindInterfacesTo<TrackUpdateManager>().AsSingle().NonLazy();

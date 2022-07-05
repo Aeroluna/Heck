@@ -26,7 +26,7 @@ namespace NoodleExtensions.Installers
             Container.BindInterfacesAndSelfTo<NoodleObjectsCallbacksManager>().AsSingle();
 
             // Events
-            Container.Bind<EventController>().AsSingle().NonLazy();
+            Container.BindInterfacesTo<EventController>().AsSingle();
             Container.Bind<ParentController>().AsSingle();
             Container.Bind<PlayerTrack>().FromFactory<PlayerTrack.PlayerTrackFactory>().AsSingle();
 
