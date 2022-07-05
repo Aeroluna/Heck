@@ -31,7 +31,7 @@ namespace NoodleExtensions.Animation
         private Quaternion _startLocalRot = Quaternion.identity;
 
         private Track _track = null!;
-        private PauseController _pauseController = null!;
+        private PauseController? _pauseController;
         private BeatmapObjectSpawnMovementData _movementData = null!;
 
         private TransformController? _transformController;
@@ -54,15 +54,17 @@ namespace NoodleExtensions.Animation
         [Inject]
         private void Construct(
             IReadonlyBeatmapData beatmapData,
-            PauseController pauseController,
+            [InjectOptional]PauseController pauseController,
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
             InitializedSpawnMovementData movementData,
             TransformControllerFactory transformControllerFactory)
         {
             _pauseController = pauseController;
-
-            pauseController.didPauseEvent += OnDidPauseEvent;
-            pauseController.didResumeEvent += OnDidResumeEvent;
+            if (pauseController != null)
+            {
+                pauseController.didPauseEvent += OnDidPauseEvent;
+                pauseController.didResumeEvent += OnDidResumeEvent;
+            }
             Transform origin = transform;
             _startLocalRot = origin.localRotation;
             _startPos = origin.localPosition;
@@ -115,7 +117,7 @@ namespace NoodleExtensions.Animation
 
         private void Update()
         {
-            if (_pausedAccessor(ref _pauseController))
+            if (_pauseController != null && _pausedAccessor(ref _pauseController))
             {
                 return;
             }

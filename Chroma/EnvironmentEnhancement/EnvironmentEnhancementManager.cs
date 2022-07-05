@@ -6,6 +6,7 @@ using Chroma.EnvironmentEnhancement.Component;
 using Chroma.HarmonyPatches.EnvironmentComponent;
 using Chroma.Settings;
 using CustomJSONData.CustomBeatmap;
+using Heck;
 using Heck.Animation;
 using Heck.Animation.Transform;
 using JetBrains.Annotations;
@@ -55,7 +56,8 @@ namespace Chroma.EnvironmentEnhancement
             BeatmapObjectsAvoidanceTransformOverride beatmapObjectsAvoidanceTransformOverride,
             DuplicateInitializer duplicateInitializer,
             ComponentCustomizer componentCustomizer,
-            TransformControllerFactory controllerFactory)
+            TransformControllerFactory controllerFactory,
+            CoroutineDummy coroutineDummy)
         {
             _beatmapData = (CustomBeatmapData)beatmapData;
             _noteLinesDistance = spawnController.noteLinesDistance;
@@ -68,7 +70,7 @@ namespace Chroma.EnvironmentEnhancement
             _duplicateInitializer = duplicateInitializer;
             _componentCustomizer = componentCustomizer;
             _controllerFactory = controllerFactory;
-            spawnController.StartCoroutine(DelayedStart());
+            coroutineDummy.StartCoroutine(DelayedStart());
         }
 
         internal IEnumerator DelayedStart()
