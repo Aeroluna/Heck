@@ -86,7 +86,7 @@ namespace Chroma.Installers
 
                 // EnvironmentEnhancement
                 Container.Bind<DuplicateInitializer>().AsSingle();
-                Container.Bind<EnvironmentEnhancementManager>().AsSingle().NonLazy();
+                Container.BindInterfacesAndSelfTo<EnvironmentEnhancementManager>().AsSingle().NonLazy();
                 Container.Bind<ComponentCustomizer>().AsSingle();
                 Container.Bind<GeometryFactory>().AsSingle();
                 Container.Bind<MaterialsManager>().AsSingle();

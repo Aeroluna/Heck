@@ -9,6 +9,7 @@ using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using Heck.Animation.Transform;
 using JetBrains.Annotations;
+using SiraUtil.Affinity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -30,7 +31,7 @@ namespace Chroma.EnvironmentEnhancement
     }
 
     [UsedImplicitly]
-    internal class EnvironmentEnhancementManager
+    internal class EnvironmentEnhancementManager : IAffinity
     {
         private readonly CustomBeatmapData _beatmapData;
         private readonly float _noteLinesDistance;
@@ -68,7 +69,13 @@ namespace Chroma.EnvironmentEnhancement
             _duplicateInitializer = duplicateInitializer;
             _componentCustomizer = componentCustomizer;
             _controllerFactory = controllerFactory;
-            spawnController.StartCoroutine(DelayedStart());
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(BeatmapObjectSpawnController), nameof(BeatmapObjectSpawnController.Start))]
+        private void Start(BeatmapObjectSpawnController __instance)
+        {
+            __instance.StartCoroutine(DelayedStart());
         }
 
         internal IEnumerator DelayedStart()
