@@ -102,19 +102,29 @@ namespace Heck.Animation
 
         public Vector3 Interpolate(float time)
         {
-            if (_points.Count == 0)
+            return Interpolate(time, out _);
+        }
+
+        public Vector3 Interpolate(float time, out bool last)
+        {
+            last = false;
+            int count = _points.Count;
+            if (count == 0)
             {
                 return Vector3.zero;
             }
 
-            if (_points.First().Point.w >= time)
+            Vector4 firstPoint = _points[0].Point;
+            if (firstPoint.w >= time)
             {
-                return _points.First().Point;
+                return firstPoint;
             }
 
-            if (_points.Last().Point.w <= time)
+            Vector4 lastPoint = _points[count - 1].Point;
+            if (lastPoint.w <= time)
             {
-                return _points.Last().Point;
+                last = true;
+                return lastPoint;
             }
 
             SearchIndex(time, PropertyType.Vector3, out int l, out int r);
@@ -139,32 +149,42 @@ namespace Heck.Animation
 
         public Quaternion InterpolateQuaternion(float time)
         {
-            if (_points.Count == 0)
+            return InterpolateQuaternion(time, out _);
+        }
+
+        public Quaternion InterpolateQuaternion(float time, out bool last)
+        {
+            last = false;
+            int count = _points.Count;
+            if (count == 0)
             {
                 return Quaternion.identity;
             }
 
-            if (_points.First().Point.w >= time)
+            Vector5 firstPoint = _points[0].Vector4Point;
+            if (firstPoint.v >= time)
             {
-                return Quaternion.Euler(_points.First().Point);
+                return firstPoint;
             }
 
-            if (_points.Last().Point.w <= time)
+            Vector5 lastPoint = _points[count - 1].Vector4Point;
+            if (lastPoint.v <= time)
             {
-                return Quaternion.Euler(_points.Last().Point);
+                last = true;
+                return lastPoint;
             }
 
             SearchIndex(time, PropertyType.Quaternion, out int l, out int r);
-            Vector4 pointL = _points[l].Point;
-            Vector4 pointR = _points[r].Point;
-            Quaternion quaternionOne = Quaternion.Euler(pointL);
-            Quaternion quaternionTwo = Quaternion.Euler(pointR);
+            Vector5 pointL = _points[l].Vector4Point;
+            Vector5 pointR = _points[r].Vector4Point;
+            Quaternion quaternionOne = pointL;
+            Quaternion quaternionTwo = pointR;
 
             float normalTime;
-            float divisor = pointR.w - pointL.w;
+            float divisor = pointR.v - pointL.v;
             if (divisor != 0)
             {
-                normalTime = (time - pointL.w) / divisor;
+                normalTime = (time - pointL.v) / divisor;
             }
             else
             {
@@ -175,22 +195,32 @@ namespace Heck.Animation
             return Quaternion.SlerpUnclamped(quaternionOne, quaternionTwo, normalTime);
         }
 
-        // Kind of a sloppy way of implementing this, but hell if it works
         public float InterpolateLinear(float time)
         {
-            if (_points.Count == 0)
+            return InterpolateLinear(time, out _);
+        }
+
+        // Kind of a sloppy way of implementing this, but hell if it works
+        public float InterpolateLinear(float time, out bool last)
+        {
+            last = false;
+            int count = _points.Count;
+            if (count == 0)
             {
                 return 0;
             }
 
-            if (_points.First().LinearPoint.y >= time)
+            Vector2 firstPoint = _points[0].LinearPoint;
+            if (firstPoint.y >= time)
             {
-                return _points.First().LinearPoint.x;
+                return firstPoint.x;
             }
 
-            if (_points.Last().LinearPoint.y <= time)
+            Vector2 lastPoint = _points[count - 1].LinearPoint;
+            if (lastPoint.y <= time)
             {
-                return _points.Last().LinearPoint.x;
+                last = true;
+                return lastPoint.x;
             }
 
             SearchIndex(time, PropertyType.Linear, out int l, out int r);
@@ -214,19 +244,29 @@ namespace Heck.Animation
 
         public Vector4 InterpolateVector4(float time)
         {
-            if (_points.Count == 0)
+            return InterpolateVector4(time, out _);
+        }
+
+        public Vector4 InterpolateVector4(float time, out bool last)
+        {
+            last = false;
+            int count = _points.Count;
+            if (count == 0)
             {
                 return Vector4.zero;
             }
 
-            if (_points.First().Vector4Point.v >= time)
+            Vector5 firstPoint = _points[0].Vector4Point;
+            if (firstPoint.v >= time)
             {
-                return _points.First().Vector4Point;
+                return firstPoint;
             }
 
-            if (_points.Last().Vector4Point.v <= time)
+            Vector5 lastPoint = _points[count - 1].Vector4Point;
+            if (lastPoint.v <= time)
             {
-                return _points.Last().Vector4Point;
+                last = true;
+                return lastPoint;
             }
 
             SearchIndex(time, PropertyType.Vector4, out int l, out int r);
@@ -308,6 +348,14 @@ namespace Heck.Animation
 
         private readonly struct Vector5
         {
+            private readonly float x;
+
+            private readonly float y;
+
+            private readonly float z;
+
+            private readonly float w;
+
             internal Vector5(float x, float y, float z, float w, float v)
             {
                 this.x = x;
@@ -319,19 +367,16 @@ namespace Heck.Animation
 
 #pragma warning disable SA1300 // Element should begin with upper-case letter
             internal float v { get; }
-
-            private float x { get; }
-
-            private float y { get; }
-
-            private float z { get; }
-
-            private float w { get; }
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 
             public static implicit operator Vector4(Vector5 vector)
             {
                 return new Vector4(vector.x, vector.y, vector.z, vector.w);
+            }
+
+            public static implicit operator Quaternion(Vector5 vector)
+            {
+                return new Quaternion(vector.x, vector.y, vector.z, vector.w);
             }
         }
 
@@ -342,6 +387,8 @@ namespace Heck.Animation
                 Point = point;
                 Easing = easing;
                 Smooth = smooth;
+                Quaternion quaternion = Quaternion.Euler(point);
+                Vector4Point = new Vector5(quaternion.x, quaternion.y, quaternion.z, quaternion.w, point.w);
             }
 
             internal PointData(Vector2 point, Functions easing = Functions.easeLinear)

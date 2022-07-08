@@ -1,12 +1,14 @@
-﻿using System;
+using CustomJSONData.CustomBeatmap;
+using Heck;
+using System;
 using Heck.Animation;
+using Heck.Animation.Transform;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using NoodleExtensions.HarmonyPatches.SmallFixes;
 using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
-using static Heck.NullableExtensions;
 using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions.Animation
@@ -32,34 +34,58 @@ namespace NoodleExtensions.Animation
         private Transform _transform = null!;
 
         private bool _leftHanded;
+        private bool _v2;
 
         private Vector3 _startPos = Vector3.zero;
         private Quaternion _startLocalRot = Quaternion.identity;
 
         private Track _track = null!;
-        private PauseController _pauseController = null!;
+        private PauseController? _pauseController;
         private BeatmapObjectSpawnMovementData _movementData = null!;
 
-        internal void AssignTrack(Track track)
+        private TransformController? _transformController;
+        private TransformControllerFactory _transformFactory = null!;
+
+        internal void AssignTrack(
+            Track track)
         {
             _track = track;
+
+            if (!_v2)
+            {
+                return;
+            }
+
+            _transformController = _transformFactory.Create(gameObject, _track, true);
         }
 
         [UsedImplicitly]
         [Inject]
         private void Construct(
-            PauseController pauseController,
+            IReadonlyBeatmapData beatmapData,
+            [InjectOptional]PauseController pauseController,
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
-            InitializedSpawnMovementData movementData)
+            InitializedSpawnMovementData movementData,
+            TransformControllerFactory transformControllerFactory)
         {
             _pauseController = pauseController;
-
-            pauseController.didPauseEvent += OnDidPauseEvent;
+            if (pauseController != null)
+            {
+                pauseController.didPauseEvent += OnDidPauseEvent;
+                pauseController.didResumeEvent += OnDidResumeEvent;
+            }
             Transform origin = transform;
             _startLocalRot = origin.localRotation;
             _startPos = origin.localPosition;
             _leftHanded = leftHanded;
             _movementData = movementData.MovementData;
+            _transformFactory = transformControllerFactory;
+
+            _v2 = ((CustomBeatmapData)beatmapData).version2_6_0AndEarlier;
+            if (!_v2)
+            {
+                enabled = false;
+            }
 
             // cam2 is cringe cam2 is cringe cam2 is cringe
             _instance = this;
@@ -71,6 +97,18 @@ namespace NoodleExtensions.Animation
             Transform transform1 = transform;
             transform1.localRotation = _startLocalRot;
             transform1.localPosition = _startPos;
+            if (_transformController != null)
+            {
+                _transformController.enabled = false;
+            }
+        }
+
+        private void OnDidResumeEvent()
+        {
+            if (_transformController != null)
+            {
+                _transformController.enabled = true;
+            }
         }
 
         private void OnDestroy()
@@ -79,32 +117,22 @@ namespace NoodleExtensions.Animation
             {
                 _pauseController.didPauseEvent -= OnDidPauseEvent;
             }
+
+            if (_transformController != null)
+            {
+                Destroy(_transformController);
+            }
         }
 
         private void Update()
         {
-            if (_pausedAccessor(ref _pauseController))
+            if (_pauseController != null && _pausedAccessor(ref _pauseController))
             {
                 return;
             }
 
-            Quaternion? rotation = _track.GetProperty<Quaternion?>(OFFSET_ROTATION);
-            if (rotation.HasValue)
-            {
-                if (_leftHanded)
-                {
-                    MirrorQuaternionNullable(ref rotation);
-                }
-            }
-
-            Vector3? position = _track.GetProperty<Vector3?>(OFFSET_POSITION);
-            if (position.HasValue)
-            {
-                if (_leftHanded)
-                {
-                    MirrorVectorNullable(ref position);
-                }
-            }
+            Quaternion? rotation = _track.GetQuaternionProperty(OFFSET_ROTATION)?.Mirror(_leftHanded);
+            Vector3? position = _track.GetVector3Property(OFFSET_POSITION)?.Mirror(_leftHanded);
 
             Quaternion worldRotationQuatnerion = Quaternion.identity;
             Vector3 positionVector = _startPos;
@@ -117,15 +145,10 @@ namespace NoodleExtensions.Animation
             }
 
             worldRotationQuatnerion *= _startLocalRot;
-            Quaternion? localRotation = _track.GetProperty<Quaternion?>(LOCAL_ROTATION);
+            Quaternion? localRotation = _track.GetQuaternionProperty(LOCAL_ROTATION)?.Mirror(_leftHanded);
             if (localRotation.HasValue)
             {
-                if (_leftHanded)
-                {
-                    MirrorQuaternionNullable(ref localRotation);
-                }
-
-                worldRotationQuatnerion *= localRotation!.Value;
+                worldRotationQuatnerion *= localRotation.Value;
             }
 
             Transform transform1 = transform;
@@ -136,9 +159,9 @@ namespace NoodleExtensions.Animation
         [UsedImplicitly]
         internal class PlayerTrackFactory : PlaceholderFactory<PlayerTrackObject, PlayerTrack>
         {
-            private readonly DiContainer _container;
+            private readonly IInstantiator _container;
 
-            private PlayerTrackFactory(DiContainer container)
+            private PlayerTrackFactory(IInstantiator container)
             {
                 _container = container;
             }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
-using static Heck.HeckController;
 using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions
@@ -24,13 +23,11 @@ namespace NoodleExtensions
                     switch (customEventData.eventType)
                     {
                         case ASSIGN_PLAYER_TO_TRACK:
-                            trackBuilder.AddTrack(customEventData.customData.Get<string>(v2 ? V2_TRACK : TRACK)
-                                                  ?? throw new InvalidOperationException("Track was not defined."));
+                            trackBuilder.AddFromCustomData(customEventData.customData, v2);
                             break;
 
                         case ASSIGN_TRACK_PARENT:
-                            trackBuilder.AddTrack(customEventData.customData.Get<string>(v2 ? V2_PARENT_TRACK : PARENT_TRACK)
-                                                  ?? throw new InvalidOperationException("Parent track was not defined."));
+                            trackBuilder.AddFromCustomData(customEventData.customData, v2 ? V2_PARENT_TRACK : PARENT_TRACK);
                             break;
 
                         default:

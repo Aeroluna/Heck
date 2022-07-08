@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using CustomJSONData;
+using CustomJSONData.CustomBeatmap;
+using JetBrains.Annotations;
 using UnityEngine;
+using static Heck.HeckController;
 
 namespace Heck.Animation
 {
@@ -28,6 +32,25 @@ namespace Heck.Animation
             TrackCreated?.Invoke(track);
             Tracks.Add(trackName, track);
         }
+
+        public void AddFromCustomData(CustomData customData, bool v2, bool required = true)
+        {
+            AddFromCustomData(customData, v2 ? V2_TRACK : TRACK, required);
+        }
+
+        [AssertionMethod]
+        public void AddFromCustomData(CustomData customData, string name, bool required = true)
+        {
+            string? trackName = customData.Get<string>(name);
+            if (trackName != null)
+            {
+                AddTrack(trackName);
+            }
+            else if (required)
+            {
+                throw new JsonNotDefinedException(name);
+            }
+        }
     }
 
     public class Track
@@ -37,11 +60,20 @@ namespace Heck.Animation
         public Track(bool v2)
         {
             _v2 = v2;
+
+            AddProperty(POSITION, PropertyType.Vector3, V2_POSITION);
+            AddProperty(LOCAL_POSITION, PropertyType.Vector3, V2_LOCAL_POSITION);
+            AddProperty(ROTATION, PropertyType.Quaternion, V2_ROTATION);
+            AddProperty(LOCAL_ROTATION, PropertyType.Quaternion, V2_LOCAL_ROTATION);
+            AddProperty(SCALE, PropertyType.Vector3, V2_SCALE);
         }
 
-        public event Action<GameObject>? OnGameObjectAdded;
+        public event Action<GameObject>? GameObjectAdded;
 
-        public event Action<GameObject>? OnGameObjectRemoved;
+        public event Action<GameObject>? GameObjectRemoved;
+
+        // TODO: use this more and possible replace with frameCount comparisons
+        public bool UpdatedThisFrame { get; internal set; }
 
         public HashSet<GameObject> GameObjects { get; } = new();
 
@@ -61,7 +93,7 @@ namespace Heck.Animation
             }
 
             GameObjects.Add(gameObject);
-            OnGameObjectAdded?.Invoke(gameObject);
+            GameObjectAdded?.Invoke(gameObject);
         }
 
         public void RemoveGameObject(GameObject gameObject)
@@ -72,7 +104,7 @@ namespace Heck.Animation
             }
 
             GameObjects.Remove(gameObject);
-            OnGameObjectRemoved?.Invoke(gameObject);
+            GameObjectRemoved?.Invoke(gameObject);
         }
 
         public void AddProperty(string name, PropertyType propertyType, string? v2Alias = null)

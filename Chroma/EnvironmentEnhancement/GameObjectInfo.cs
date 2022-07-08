@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Chroma.Lighting.EnvironmentEnhancement
+namespace Chroma.EnvironmentEnhancement
 {
-    internal class GameObjectInfo
+    internal readonly struct GameObjectInfo
     {
         internal GameObjectInfo(GameObject gameObject)
         {

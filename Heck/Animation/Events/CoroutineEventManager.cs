@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using CustomJSONData.CustomBeatmap;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -16,20 +17,20 @@ namespace Heck.Animation.Events
     internal class CoroutineEventManager
     {
         private readonly IBpmController _bpmController;
-        private readonly EventController _eventController;
         private readonly IAudioTimeSource _audioTimeSource;
+        private readonly CoroutineDummy _coroutineDummy;
         private readonly DeserializedData _deserializedData;
 
         [UsedImplicitly]
         private CoroutineEventManager(
             IBpmController bpmController,
-            EventController eventController,
             IAudioTimeSource audioTimeSource,
+            CoroutineDummy coroutineDummy,
             [Inject(Id = ID)] DeserializedData deserializedData)
         {
             _bpmController = bpmController;
-            _eventController = eventController;
             _audioTimeSource = audioTimeSource;
+            _coroutineDummy = coroutineDummy;
             _deserializedData = deserializedData;
         }
 
@@ -40,11 +41,10 @@ namespace Heck.Animation.Events
                 return;
             }
 
-            float duration = heckData.Duration;
-            duration = 60f * duration / _bpmController.currentBpm; // Convert to real time;
-
+            float duration = 60f * heckData.Duration / _bpmController.currentBpm; // Convert to real time;
             Functions easing = heckData.Easing;
-
+            int repeat = heckData.Repeat;
+            bool noDuration = duration == 0 || customEventData.time + duration < _audioTimeSource.songTime;
             foreach (HeckCoroutineEventData.CoroutineInfo coroutineInfo in heckData.CoroutineInfos)
             {
                 Property property = coroutineInfo.Property;
@@ -52,7 +52,7 @@ namespace Heck.Animation.Events
 
                 if (property.Coroutine != null)
                 {
-                    _eventController.StopCoroutine(property.Coroutine);
+                    _coroutineDummy.StopCoroutine(property.Coroutine);
                 }
 
                 if (pointData == null)
@@ -60,7 +60,11 @@ namespace Heck.Animation.Events
                     switch (eventType)
                     {
                         case EventType.AnimateTrack:
-                            property.Value = null;
+                            coroutineInfo.Track.UpdatedThisFrame = true;
+                            property.LinearValue = null;
+                            property.QuaternionValue = null;
+                            property.Vector3Value = null;
+                            property.Vector4Value = null;
                             break;
 
                         case EventType.AssignPathAnimation:
@@ -73,54 +77,137 @@ namespace Heck.Animation.Events
                     switch (eventType)
                     {
                         case EventType.AnimateTrack:
-                            property.Coroutine = _eventController.StartCoroutine(AnimateTrackCoroutine(
-                                pointData,
-                                property,
-                                duration,
-                                customEventData.time,
-                                easing));
+                            if (noDuration)
+                            {
+                                SetPropertyValue(pointData, coroutineInfo.Track, property, 1, out _);
+                            }
+                            else
+                            {
+                                property.Coroutine = _coroutineDummy.StartCoroutine(AnimateTrackCoroutine(
+                                    pointData,
+                                    coroutineInfo.Track,
+                                    property,
+                                    duration,
+                                    customEventData.time,
+                                    easing,
+                                    repeat));
+                            }
+
                             break;
 
                         case EventType.AssignPathAnimation:
-                            ((PathProperty)property).Interpolation.Init(pointData);
-                            property.Coroutine = _eventController.StartCoroutine(AssignPathAnimationCoroutine(
-                                property,
-                                duration,
-                                customEventData.time,
-                                easing));
+                            PathProperty pathProperty = (PathProperty)property;
+                            pathProperty.Interpolation.Init(pointData);
+                            if (noDuration)
+                            {
+                                pathProperty.Interpolation.Finish();
+                            }
+                            else
+                            {
+                                property.Coroutine = _coroutineDummy.StartCoroutine(AssignPathAnimationCoroutine(
+                                    property,
+                                    duration,
+                                    customEventData.time,
+                                    easing));
+                            }
+
                             break;
                     }
                 }
             }
         }
 
+        private static void SetPropertyValue(
+            PointDefinition points,
+            Track track,
+            Property property,
+            float time,
+            out bool onLast)
+        {
+            switch (property.PropertyType)
+            {
+                case PropertyType.Linear:
+                    float value = points.InterpolateLinear(time, out onLast);
+
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
+                    if (property.LinearValue != value)
+                    {
+                        property.LinearValue = value;
+                        track.UpdatedThisFrame = true;
+                    }
+
+                    break;
+
+                case PropertyType.Quaternion:
+                    Quaternion quaternion = points.InterpolateQuaternion(time, out onLast);
+                    if (!property.QuaternionValue.HasValue ||
+                        Quaternion.Dot(property.QuaternionValue.Value, quaternion) < 1)
+                    {
+                        property.QuaternionValue = quaternion;
+                        track.UpdatedThisFrame = true;
+                    }
+
+                    break;
+
+                case PropertyType.Vector3:
+                    Vector3 vector = points.Interpolate(time, out onLast);
+                    if (property.Vector3Value != vector)
+                    {
+                        property.Vector3Value = vector;
+                        track.UpdatedThisFrame = true;
+                    }
+
+                    break;
+
+                case PropertyType.Vector4:
+                    Vector4 vector4 = points.InterpolateVector4(time, out onLast);
+                    if (property.Vector4Value != vector4)
+                    {
+                        property.Vector4Value = vector4;
+                        track.UpdatedThisFrame = true;
+                    }
+
+                    break;
+
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
         private IEnumerator AnimateTrackCoroutine(
             PointDefinition points,
+            Track track,
             Property property,
             float duration,
             float startTime,
-            Functions easing)
+            Functions easing,
+            int repeat)
         {
-            while (true)
+            bool onLast = false;
+            while (repeat >= 0)
             {
                 float elapsedTime = _audioTimeSource.songTime - startTime;
-                float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
-                property.Value = property.PropertyType switch
+                if (!onLast)
                 {
-                    PropertyType.Linear => points.InterpolateLinear(time),
-                    PropertyType.Vector3 => points.Interpolate(time),
-                    PropertyType.Vector4 => points.InterpolateVector4(time),
-                    PropertyType.Quaternion => points.InterpolateQuaternion(time),
-                    _ => property.Value
-                };
+                    float normalizedTime = Mathf.Min(elapsedTime / duration, 1);
+                    float time = Easings.Interpolate(normalizedTime, easing);
+                    SetPropertyValue(points, track, property, time, out onLast);
+                }
 
                 if (elapsedTime < duration)
                 {
-                    yield return null;
+                    if (repeat <= 0 && onLast)
+                    {
+                        break;
+                    }
+
+                    yield return new WaitForEndOfFrame();
                 }
                 else
                 {
-                    break;
+                    repeat--;
+                    startTime += duration;
+                    onLast = false;
                 }
             }
         }
@@ -132,20 +219,15 @@ namespace Heck.Animation.Events
             Functions easing)
         {
             PointDefinitionInterpolation pointDataInterpolation = ((PathProperty)property).Interpolation;
-            while (true)
+            float elapsedTime;
+            do
             {
-                float elapsedTime = _audioTimeSource.songTime - startTime;
-                pointDataInterpolation.Time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
-
-                if (elapsedTime < duration)
-                {
-                    yield return null;
-                }
-                else
-                {
-                    break;
-                }
+                elapsedTime = _audioTimeSource.songTime - startTime;
+                float normalizedTime = Mathf.Min(elapsedTime / duration, 1);
+                pointDataInterpolation.Time = Easings.Interpolate(normalizedTime, easing);
+                yield return null;
             }
+            while (elapsedTime < duration);
 
             pointDataInterpolation.Finish();
         }

@@ -5,20 +5,58 @@ using Chroma.Lighting;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
+using IPA.Utilities;
 using UnityEngine;
 using static Chroma.ChromaController;
+using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 using static Heck.HeckController;
 
 namespace Chroma
 {
-    internal class ChromaCustomEventData : ICustomEventCustomData
+    internal class ChromaAssignFogEventData : ICustomEventCustomData
     {
-        public ChromaCustomEventData(Track track)
+        internal ChromaAssignFogEventData(Track track)
         {
             Track = track;
         }
 
         internal Track Track { get; }
+    }
+
+    internal class ChromaAnimateComponentData : ICustomEventCustomData
+    {
+        internal ChromaAnimateComponentData(
+            CustomData customData,
+            Dictionary<string, Track> beatmapTracks,
+            Dictionary<string, PointDefinition> pointDefinitions)
+        {
+            Track = customData.GetTrackArray(beatmapTracks, false).ToList();
+            Duration = customData.Get<float?>(DURATION) ?? 0f;
+            Easing = customData.GetStringToEnum<Functions?>(EASING) ?? Functions.easeLinear;
+
+            string[] availableNames = { BLOOM_FOG_ENVIRONMENT, TUBE_BLOOM_PRE_PASS_LIGHT };
+            List<KeyValuePair<string, object?>> componentKeys = customData.Where(n => availableNames.Contains(n.Key)).ToList();
+            foreach ((string key, object? value) in componentKeys)
+            {
+                if (value == null)
+                {
+                    continue;
+                }
+
+                CustomData component = (CustomData)value;
+                Dictionary<string, PointDefinition?> componentPoints = component.Keys
+                    .ToDictionary(propertyKey => propertyKey, propertyKey => component.GetPointData(propertyKey, pointDefinitions));
+                CoroutineInfos.Add((key, componentPoints));
+            }
+        }
+
+        internal List<Track> Track { get; }
+
+        internal float Duration { get; }
+
+        internal Functions Easing { get; }
+
+        internal List<(string ComponentName, Dictionary<string, PointDefinition?> PointDefinition)> CoroutineInfos { get; } = new();
     }
 
     internal class ChromaNoteData : ChromaObjectData
@@ -106,7 +144,7 @@ namespace Chroma
                 }
             }
 
-            object? lightID = customData.Get<object>(v2 ? V2_LIGHT_ID : LIGHT_ID);
+            object? lightID = customData.Get<object>(v2 ? V2_LIGHT_ID : ChromaController.LIGHT_ID);
             if (lightID != null)
             {
                 LightID = lightID switch

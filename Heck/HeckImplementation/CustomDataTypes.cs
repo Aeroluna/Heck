@@ -18,11 +18,9 @@ namespace Heck
         {
             CustomData data = customEventData.customData;
 
-            Functions? easing = data.GetStringToEnum<Functions?>(v2 ? V2_EASING : EASING);
-
             IEnumerable<Track> tracks = data.GetTrackArray(beatmapTracks, v2);
 
-            string[] excludedStrings = { V2_TRACK, V2_DURATION, V2_EASING, TRACK, DURATION, EASING };
+            string[] excludedStrings = { V2_TRACK, V2_DURATION, V2_EASING, TRACK, DURATION, EASING, REPEAT };
             IEnumerable<string> propertyKeys = data.Keys.Where(n => excludedStrings.All(m => m != n)).ToList();
             List<CoroutineInfo> coroutineInfos = new();
             foreach (Track track in tracks)
@@ -49,7 +47,7 @@ namespace Heck
                 {
                     void CreateInfo(Property prop)
                     {
-                        CoroutineInfo coroutineInfo = new(data.GetPointData(propertyKey, pointDefinitions), prop);
+                        CoroutineInfo coroutineInfo = new(data.GetPointData(propertyKey, pointDefinitions), prop, track);
                         coroutineInfos.Add(coroutineInfo);
                     }
 
@@ -79,27 +77,37 @@ namespace Heck
             }
 
             Duration = data.Get<float?>(v2 ? V2_DURATION : DURATION) ?? 0f;
-            Easing = easing ?? Functions.easeLinear;
+            Easing = data.GetStringToEnum<Functions?>(v2 ? V2_EASING : EASING) ?? Functions.easeLinear;
             CoroutineInfos = coroutineInfos;
+
+            if (!v2)
+            {
+                Repeat = data.Get<int?>(REPEAT) ?? 0;
+            }
         }
 
         internal float Duration { get; }
 
         internal Functions Easing { get; }
 
+        internal int Repeat { get; }
+
         internal List<CoroutineInfo> CoroutineInfos { get; }
 
         internal readonly struct CoroutineInfo
         {
-            internal CoroutineInfo(PointDefinition? pointDefinition, Property property)
+            internal CoroutineInfo(PointDefinition? pointDefinition, Property property, Track track)
             {
                 PointDefinition = pointDefinition;
                 Property = property;
+                Track = track;
             }
 
             internal PointDefinition? PointDefinition { get; }
 
             internal Property Property { get; }
+
+            internal Track Track { get; }
         }
     }
 
@@ -108,9 +116,8 @@ namespace Heck
         // ReSharper disable once SuggestBaseTypeForParameterInConstructor
         internal HeckInvokeEventData(CustomBeatmapData beatmapData, CustomEventData customEventData)
         {
-            IDictionary<string, CustomEventData> eventDefinitions = beatmapData.customData.Get<IDictionary<string, CustomEventData>>(EVENT_DEFINITIONS)
-                                                                    ?? throw new InvalidOperationException("Could not find event definitions in BeatmapData.");
-            string eventName = customEventData.customData.Get<string>(EVENT) ?? throw new InvalidOperationException("Event name was not defined.");
+            IDictionary<string, CustomEventData> eventDefinitions = beatmapData.customData.GetRequired<IDictionary<string, CustomEventData>>(EVENT_DEFINITIONS);
+            string eventName = customEventData.customData.GetRequired<string>(EVENT);
             CustomEventData = eventDefinitions[eventName];
         }
 

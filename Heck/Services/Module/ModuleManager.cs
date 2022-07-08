@@ -6,6 +6,7 @@ using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using IPA.Logging;
+using JetBrains.Annotations;
 
 namespace Heck
 {
@@ -15,8 +16,17 @@ namespace Heck
 
         private static bool _sorted;
 
-        // TODO: rename w/ technicolor
+        [PublicAPI]
+        [Obsolete("Use [Register] instead.", true)]
         public static Module RegisterModule<T>(
+            string id,
+            int priority,
+            RequirementType requirementType,
+            object? attributeId = null,
+            string[]? depends = null,
+            string[]? conflict = null) => Register<T>(id, priority, requirementType, attributeId, depends, conflict);
+
+        public static Module Register<T>(
             string id,
             int priority,
             RequirementType requirementType,
@@ -75,6 +85,7 @@ namespace Heck
 
         internal static void Activate(
             IDifficultyBeatmap? difficultyBeatmap,
+            IPreviewBeatmapLevel? previewBeatmapLevel,
             LevelType levelType,
             ref OverrideEnvironmentSettings? overrideEnvironmentSettings)
         {
@@ -101,6 +112,7 @@ namespace Heck
             {
                 new Capabilities(requirements, suggestions),
                 difficultyBeatmap ?? new EmptyDifficultyBeatmap(),
+                previewBeatmapLevel ?? new EmptyBeatmapLevel(),
                 moduleArgs,
                 levelType
             };

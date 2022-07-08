@@ -8,42 +8,50 @@ using Zenject;
 namespace NoodleExtensions.Managers
 {
     [UsedImplicitly]
-    internal class NoodleObjectsCallbacksManager
+    internal class NoodleObjectsCallbacksManager : IDisposable
     {
+        private readonly IReadonlyBeatmapData _beatmapData;
+        private readonly SpawnDataManager _spawnDataManager;
         private readonly DeserializedData _deserializedData;
         private readonly float _startFilterTime;
-        private readonly LinkedListNode<BeatmapDataItem>? _firstNode;
+        private readonly Reloader? _reloader;
 
         private readonly CallbacksInTime _callbacksInTime = new(0);
 
+        private LinkedListNode<BeatmapDataItem>? _firstNode;
         private float _prevSongtime = float.MinValue;
 
         private NoodleObjectsCallbacksManager(
             BeatmapCallbacksController.InitData initData,
             SpawnDataManager spawnDataManager,
-            [Inject(Id = NoodleController.ID)] DeserializedData deserializedData)
+            [Inject(Id = NoodleController.ID)] DeserializedData deserializedData,
+            [InjectOptional] Reloader? reloader)
         {
+            _spawnDataManager = spawnDataManager;
             _deserializedData = deserializedData;
-            IReadonlyBeatmapData beatmapData = initData.beatmapData;
-            IEnumerable<BeatmapDataItem> objectDatas = beatmapData.GetBeatmapDataItems<NoteData>()
-                .Cast<BeatmapObjectData>()
-                .Concat(beatmapData.GetBeatmapDataItems<ObstacleData>())
-                .OrderBy(beatmapObjectData =>
-                {
-                    if (!deserializedData.Resolve(beatmapObjectData, out NoodleObjectData? noodleData))
-                    {
-                        throw new InvalidOperationException("Failed to get data.");
-                    }
-
-                    float? noteJumpMovementSpeed = noodleData.NJS;
-                    float? noteJumpStartBeatOffset = noodleData.SpawnOffset;
-                    float aheadTime = spawnDataManager.GetSpawnAheadTime(noteJumpMovementSpeed, noteJumpStartBeatOffset);
-                    noodleData.InternalAheadTime = aheadTime;
-                    return beatmapObjectData.time - aheadTime;
-                });
-
-            _firstNode = new LinkedList<BeatmapDataItem>(objectDatas).First;
+            _reloader = reloader;
+            _beatmapData = initData.beatmapData;
             _startFilterTime = initData.startFilterTime;
+            Init();
+
+            if (reloader == null)
+            {
+                return;
+            }
+
+            reloader.Reloaded += OnReload;
+            reloader.Rewinded += OnRewind;
+        }
+
+        public void Dispose()
+        {
+            if (_reloader == null)
+            {
+                return;
+            }
+
+            _reloader.Reloaded -= OnReload;
+            _reloader.Rewinded -= OnRewind;
         }
 
         internal void ManualUpdate(float songTime)
@@ -70,7 +78,15 @@ namespace NoodleExtensions.Managers
                     break;
                 }
 
-                if (value2.time >= _startFilterTime)
+                float filterTime = value2 switch
+                {
+                    NoteData noteData => noteData.time,
+                    ObstacleData obstacleData => obstacleData.time + obstacleData.duration,
+                    SliderData sliderData => sliderData.tailTime,
+                    _ => 0
+                };
+
+                if (value2.time >= _startFilterTime && songTime < filterTime)
                 {
                     _callbacksInTime.CallCallbacks(value2);
                 }
@@ -87,6 +103,39 @@ namespace NoodleExtensions.Managers
             BeatmapDataCallbackWrapper<T> beatmapDataCallbackWrapper = new(callback, aheadTime);
             _callbacksInTime.AddCallback(beatmapDataCallbackWrapper);
             return beatmapDataCallbackWrapper;
+        }
+
+        private void Init()
+        {
+            IEnumerable<BeatmapDataItem> objectDatas = _beatmapData.GetBeatmapDataItems<NoteData>()
+                .Cast<BeatmapObjectData>()
+                .Concat(_beatmapData.GetBeatmapDataItems<ObstacleData>())
+                .OrderBy(beatmapObjectData =>
+                {
+                    if (!_deserializedData.Resolve(beatmapObjectData, out NoodleObjectData? noodleData))
+                    {
+                        throw new InvalidOperationException("Failed to get data.");
+                    }
+
+                    float? noteJumpMovementSpeed = noodleData.NJS;
+                    float? noteJumpStartBeatOffset = noodleData.SpawnOffset;
+                    float aheadTime = _spawnDataManager.GetSpawnAheadTime(noteJumpMovementSpeed, noteJumpStartBeatOffset);
+                    noodleData.InternalAheadTime = aheadTime;
+                    return beatmapObjectData.time - aheadTime;
+                });
+
+            _firstNode = new LinkedList<BeatmapDataItem>(objectDatas).First;
+        }
+
+        private void OnReload()
+        {
+            Init();
+        }
+
+        private void OnRewind()
+        {
+            _prevSongtime = 0;
+            _callbacksInTime.lastProcessedNode = null;
         }
     }
 }

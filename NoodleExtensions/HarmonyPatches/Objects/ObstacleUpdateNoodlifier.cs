@@ -66,7 +66,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 return original;
             }
 
-            float? time = noodleData.Track?.Select(n => n.GetProperty<float?>(TIME)).FirstOrDefault(n => n.HasValue);
+            float? time = noodleData.Track?.Select(n => n.GetLinearProperty(TIME)).FirstOrDefault(n => n.HasValue);
             if (time.HasValue)
             {
                 return (time.Value * (finishMovementTime - move1Duration)) + move1Duration;

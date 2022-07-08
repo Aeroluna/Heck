@@ -5,7 +5,7 @@ using UnityEngine;
 using static Chroma.ChromaController;
 using Logger = IPA.Logging.Logger;
 
-namespace Chroma.Lighting.EnvironmentEnhancement
+namespace Chroma.EnvironmentEnhancement
 {
     internal static class LegacyEnvironmentRemoval
     {

@@ -1,24 +1,30 @@
-﻿using CustomJSONData.CustomBeatmap;
+﻿using System;
+using CustomJSONData.CustomBeatmap;
 using JetBrains.Annotations;
-using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
 
 namespace Heck.Animation.Events
 {
-    internal class EventController : MonoBehaviour
+    internal class EventController : IDisposable
     {
-        private LazyInject<CoroutineEventManager> _coroutineEventManager = null!;
+        private readonly BeatmapCallbacksController _callbacksController;
+        private readonly LazyInject<CoroutineEventManager> _coroutineEventManager;
+        private readonly BeatmapDataCallbackWrapper _callbackWrapper;
 
         [UsedImplicitly]
-        [Inject]
-        internal void Construct(
-            BeatmapCallbacksController beatmapCallbacksController,
-            LazyInject<CoroutineEventManager> coroutineEventManager,
-            IReadonlyBeatmapData beatmapData)
+        private EventController(
+            BeatmapCallbacksController callbacksController,
+            LazyInject<CoroutineEventManager> coroutineEventManager)
         {
+            _callbacksController = callbacksController;
             _coroutineEventManager = coroutineEventManager;
-            beatmapCallbacksController.AddBeatmapCallback<CustomEventData>(HandleCallback);
+            _callbackWrapper = callbacksController.AddBeatmapCallback<CustomEventData>(HandleCallback);
+        }
+
+        public void Dispose()
+        {
+            _callbacksController.RemoveBeatmapCallback(_callbackWrapper);
         }
 
         private void HandleCallback(CustomEventData customEventData)

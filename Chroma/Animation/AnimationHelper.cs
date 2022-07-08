@@ -3,7 +3,6 @@ using System.Linq;
 using Heck.Animation;
 using UnityEngine;
 using static Chroma.ChromaController;
-using static Heck.HeckController;
 using static Heck.NullableExtensions;
 
 namespace Chroma.Animation
@@ -19,13 +18,13 @@ namespace Chroma.Animation
                 if (tracks.Count > 1)
                 {
                     pathColor ??= MultVector4Nullables(tracks.Select(n => n.GetVector4PathProperty(COLOR, time)));
-                    colorVector = MultVector4Nullables(MultVector4Nullables(tracks.Select(n => n.GetProperty<Vector4?>(COLOR))), pathColor);
+                    colorVector = MultVector4Nullables(MultVector4Nullables(tracks.Select(n => n.GetVector4Property(COLOR))), pathColor);
                 }
                 else
                 {
                     Track track = tracks.First();
                     pathColor ??= track.GetVector4PathProperty(COLOR, time);
-                    colorVector = MultVector4Nullables(track.GetProperty<Vector4?>(COLOR), pathColor);
+                    colorVector = MultVector4Nullables(track.GetVector4Property(COLOR), pathColor);
                 }
             }
             else
@@ -49,18 +48,11 @@ namespace Chroma.Animation
             track.AddProperty(COLOR, PropertyType.Vector4, V2_COLOR);
             track.AddPathProperty(COLOR, PropertyType.Vector4, V2_COLOR);
 
-            // For Environment Enhancements
-            track.AddProperty(POSITION, PropertyType.Vector3, V2_POSITION);
-            track.AddProperty(LOCAL_POSITION, PropertyType.Vector3, V2_LOCAL_POSITION);
-            track.AddProperty(ROTATION, PropertyType.Quaternion, V2_ROTATION);
-            track.AddProperty(LOCAL_ROTATION, PropertyType.Quaternion, V2_LOCAL_ROTATION);
-            track.AddProperty(SCALE, PropertyType.Vector3, V2_SCALE);
-
             // For Fog Control
-            track.AddProperty(ATTENUATION, PropertyType.Linear, V2_ATTENUATION);
-            track.AddProperty(OFFSET, PropertyType.Linear, V2_OFFSET);
-            track.AddProperty(HEIGHT_FOG_STARTY, PropertyType.Linear, V2_HEIGHT_FOG_STARTY);
-            track.AddProperty(HEIGHT_FOG_HEIGHT, PropertyType.Linear, V2_HEIGHT_FOG_HEIGHT);
+            track.AddProperty(V2_ATTENUATION, PropertyType.Linear, V2_ATTENUATION);
+            track.AddProperty(V2_OFFSET, PropertyType.Linear, V2_OFFSET);
+            track.AddProperty(V2_HEIGHT_FOG_STARTY, PropertyType.Linear, V2_HEIGHT_FOG_STARTY);
+            track.AddProperty(V2_HEIGHT_FOG_HEIGHT, PropertyType.Linear, V2_HEIGHT_FOG_HEIGHT);
         }
     }
 }

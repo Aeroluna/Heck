@@ -4,7 +4,7 @@ using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Logging;
-using Zenject;
+using IPA.Utilities;
 using static Heck.HeckController;
 
 namespace Heck
@@ -20,11 +20,12 @@ namespace Heck
             return deserializer;
         }
 
-        internal static void DeserializeBeatmapDataAndBind(
-            DiContainer container,
+        internal static void DeserializeBeatmapData(
             CustomBeatmapData customBeatmapData,
             IReadonlyBeatmapData untransformedBeatmapData,
-            bool leftHanded)
+            bool leftHanded,
+            out Dictionary<string, Track> beatmapTracks,
+            out HashSet<(object? Id, DeserializedData DeserializedData)> deserializedDatas)
         {
             Log.Logger.Log("Deserializing BeatmapData.", Logger.Level.Trace);
 
@@ -95,17 +96,36 @@ namespace Heck
                 }
             }
 
-            IEnumerable<CustomData>? pointDefinitionsRaw =
-                customBeatmapData.customData.Get<List<object>>(v2 ? V2_POINT_DEFINITIONS : POINT_DEFINITIONS)?.Cast<CustomData>();
-            if (pointDefinitionsRaw != null)
+            if (v2)
             {
-                foreach (CustomData pointDefintionRaw in pointDefinitionsRaw)
+                IEnumerable<CustomData>? pointDefinitionsRaw =
+                    customBeatmapData.customData.Get<List<object>>(V2_POINT_DEFINITIONS)?.Cast<CustomData>();
+                if (pointDefinitionsRaw != null)
                 {
-                    string pointName = pointDefintionRaw.Get<string>(v2 ? V2_NAME : NAME) ?? throw new InvalidOperationException("Failed to retrieve point name.");
-                    PointDefinition pointData = PointDefinition.ListToPointDefinition(pointDefintionRaw.Get<List<object>>(v2 ? V2_POINTS : POINTS)
-                                                                                      ?? throw new InvalidOperationException(
-                                                                                          "Failed to retrieve point array."));
-                    AddPoint(pointName, pointData);
+                    foreach (CustomData pointDefintionRaw in pointDefinitionsRaw)
+                    {
+                        string pointName = pointDefintionRaw.GetRequired<string>(V2_NAME);
+                        PointDefinition pointData = PointDefinition.ListToPointDefinition(
+                            pointDefintionRaw.GetRequired<List<object>>(V2_POINTS));
+                        AddPoint(pointName, pointData);
+                    }
+                }
+            }
+            else
+            {
+                CustomData? pointDefinitionsRaw = customBeatmapData.customData.Get<CustomData>(POINT_DEFINITIONS);
+                if (pointDefinitionsRaw != null)
+                {
+                    foreach ((string key, object? value) in pointDefinitionsRaw)
+                    {
+                        if (value == null)
+                        {
+                            throw new InvalidOperationException($"[{key}] was null.");
+                        }
+
+                        PointDefinition pointData = PointDefinition.ListToPointDefinition((List<object>)value);
+                        AddPoint(key, pointData);
+                    }
                 }
             }
 
@@ -114,30 +134,24 @@ namespace Heck
 
             if (!v2)
             {
-                void AddEvent(string eventDefinitionName, CustomEventData eventDefinition)
-                {
-                    if (!eventDefinitions.ContainsKey(eventDefinitionName))
-                    {
-                        eventDefinitions.Add(eventDefinitionName, eventDefinition);
-                    }
-                    else
-                    {
-                        Log.Logger.Log($"Duplicate event defintion name, {eventDefinitionName} could not be registered!", Logger.Level.Error);
-                    }
-                }
-
                 IEnumerable<CustomData>? eventDefinitionsRaw =
                     customBeatmapData.customData.Get<List<object>>(EVENT_DEFINITIONS)?.Cast<CustomData>();
                 if (eventDefinitionsRaw != null)
                 {
                     foreach (CustomData eventDefinitionRaw in eventDefinitionsRaw)
                     {
-                        string eventName = eventDefinitionRaw.Get<string>(NAME) ?? throw new InvalidOperationException("Failed to retrieve event name.");
-                        string type = eventDefinitionRaw.Get<string>(TYPE) ?? throw new InvalidOperationException("Failed to retrieve event type.");
-                        CustomData data = eventDefinitionRaw.Get<CustomData>("_data")
-                                                           ?? throw new InvalidOperationException("Failed to retrieve event data.");
+                        string eventName = eventDefinitionRaw.GetRequired<string>(NAME);
+                        string type = eventDefinitionRaw.GetRequired<string>(TYPE);
+                        CustomData data = eventDefinitionRaw.GetRequired<CustomData>("data");
 
-                        AddEvent(eventName, new CustomEventData(-1, type, data));
+                        if (!eventDefinitions.ContainsKey(eventName))
+                        {
+                            eventDefinitions.Add(eventName, new CustomEventData(-1, type, data));
+                        }
+                        else
+                        {
+                            Log.Logger.Log($"Duplicate event defintion name, {eventName} could not be registered!", Logger.Level.Error);
+                        }
                     }
                 }
             }
@@ -148,7 +162,7 @@ namespace Heck
             ////customBeatmapData.customData["eventDefinitions"] = eventDefinitions;
 
             // Currently used by Chroma.GameObjectTrackController
-            container.Bind<Dictionary<string, Track>>().FromInstance(trackManager.Tracks).AsSingle();
+            beatmapTracks = trackManager.Tracks;
 
             IReadOnlyList<CustomEventData> customEventsData = customBeatmapData
                 .GetBeatmapDataItems<CustomEventData>()
@@ -178,7 +192,6 @@ namespace Heck
                 customEventsData.ToList(),
                 beatmapEventDatas,
                 objectDatas,
-                container,
                 leftHanded
             };
 
@@ -189,6 +202,7 @@ namespace Heck
                 deserializer.InjectedInvokeEarly(inputs);
             }
 
+            deserializedDatas = new HashSet<(object? Id, DeserializedData DeserializedData)>(deserializers.Length);
             foreach (DataDeserializer deserializer in deserializers)
             {
                 Dictionary<CustomEventData, ICustomEventCustomData> customEventCustomDatas = deserializer.InjectedInvokeCustomEvent(inputs);
@@ -197,9 +211,7 @@ namespace Heck
 
                 Log.Logger.Log($"Binding [{deserializer.Id}].", Logger.Level.Trace);
 
-                container.Bind<DeserializedData>()
-                    .WithId(deserializer.Id)
-                    .FromInstance(new DeserializedData(customEventCustomDatas, eventCustomDatas, objectCustomDatas));
+                deserializedDatas.Add((deserializer.Id, new DeserializedData(customEventCustomDatas, eventCustomDatas, objectCustomDatas)));
             }
         }
     }

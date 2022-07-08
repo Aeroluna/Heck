@@ -94,23 +94,18 @@ namespace Chroma.Lighting
         }
 
         [UsedImplicitly]
-        internal class Factory : PlaceholderFactory<TrackLaneRingsRotationEffect, ChromaRingsRotationEffect>
-        {
-        }
-
-        [UsedImplicitly]
-        internal class ChromaRingFactory : IFactory<TrackLaneRingsRotationEffect, ChromaRingsRotationEffect>
+        internal class Factory
         {
             private readonly IInstantiator _container;
             private readonly TickableManager _tickableManager;
 
-            private ChromaRingFactory(IInstantiator container, TickableManager tickableManager)
+            private Factory(IInstantiator container, TickableManager tickableManager)
             {
                 _container = container;
                 _tickableManager = tickableManager;
             }
 
-            public ChromaRingsRotationEffect Create(TrackLaneRingsRotationEffect trackLaneRingsRotationEffect)
+            internal ChromaRingsRotationEffect Create(TrackLaneRingsRotationEffect trackLaneRingsRotationEffect)
             {
                 ChromaRingsRotationEffect chromaRing = _container.Instantiate<ChromaRingsRotationEffect>(new[] { trackLaneRingsRotationEffect });
                 _tickableManager.AddFixed(chromaRing);

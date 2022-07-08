@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using CustomJSONData.CustomBeatmap;
+using Heck;
 using Heck.Animation;
+using Heck.Animation.Transform;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
-using static Heck.NullableExtensions;
 using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions.Animation
@@ -25,32 +27,60 @@ namespace NoodleExtensions.Animation
         internal HashSet<Track> ChildrenTracks { get; } = new();
 
         internal void Init(
-            List<Track> tracks,
-            Track parentTrack,
-            bool worldPositionStays,
-            Vector3? startPos,
-            Quaternion? startRot,
-            Quaternion? startLocalRot,
-            Vector3? startScale,
+            NoodleParentTrackEventData noodleData,
             bool leftHanded,
             BeatmapObjectSpawnMovementData movementData,
             HashSet<ParentObject> parentObjects)
         {
+            List<Track> tracks = noodleData.ChildrenTracks;
+            Track parentTrack = noodleData.ParentTrack;
             if (tracks.Contains(parentTrack))
             {
                 throw new InvalidOperationException("How could a track contain itself?");
             }
 
-            Transform transform1 = transform;
             _track = parentTrack;
-            _worldPositionStays = worldPositionStays;
+            _worldPositionStays = noodleData.WorldPositionStays;
             _leftHanded = leftHanded;
             _movementData = movementData;
 
+            parentTrack.AddGameObject(gameObject);
+
+            foreach (Track track in tracks)
+            {
+                foreach (ParentObject parentObject in parentObjects)
+                {
+                    track.GameObjectAdded -= parentObject.OnTrackGameObjectAdded;
+                    track.GameObjectRemoved -= OnTrackGameObjectRemoved;
+                    parentObject.ChildrenTracks.Remove(track);
+                }
+
+                foreach (GameObject go in track.GameObjects)
+                {
+                    ParentToObject(go.transform);
+                }
+
+                ChildrenTracks.Add(track);
+
+                track.GameObjectAdded += OnTrackGameObjectAdded;
+                track.GameObjectRemoved += OnTrackGameObjectRemoved;
+            }
+
+            parentObjects.Add(this);
+        }
+
+        internal void ApplyV2Transform(NoodleParentTrackEventData noodleData)
+        {
+            Vector3? startPos = noodleData.OffsetPosition;
+            Quaternion? startRot = noodleData.WorldRotation;
+            Quaternion? startLocalRot = noodleData.TransformData.LocalRotation;
+            Vector3? startScale = noodleData.TransformData.Scale;
+
+            Transform transform1 = transform;
             if (startPos.HasValue)
             {
                 _startPos = startPos.Value;
-                transform1.localPosition = _startPos * movementData.noteLinesDistance;
+                transform1.localPosition = _startPos * _movementData.noteLinesDistance;
             }
 
             if (startRot.HasValue)
@@ -67,45 +97,17 @@ namespace NoodleExtensions.Animation
                 transform1.localRotation *= _startLocalRot;
             }
 
+            // ReSharper disable once InvertIf
             if (startScale.HasValue)
             {
                 _startScale = startScale.Value;
                 transform1.localScale = _startScale;
             }
-
-            parentTrack.AddGameObject(gameObject);
-
-            foreach (Track track in tracks)
-            {
-                foreach (ParentObject parentObject in parentObjects)
-                {
-                    track.OnGameObjectAdded -= parentObject.OnTrackGameObjectAdded;
-                    track.OnGameObjectRemoved -= OnTrackGameObjectRemoved;
-                    parentObject.ChildrenTracks.Remove(track);
-                }
-
-                foreach (GameObject go in track.GameObjects)
-                {
-                    ParentToObject(go.transform);
-                }
-
-                ChildrenTracks.Add(track);
-
-                track.OnGameObjectAdded += OnTrackGameObjectAdded;
-                track.OnGameObjectRemoved += OnTrackGameObjectRemoved;
-            }
-
-            parentObjects.Add(this);
-        }
-
-        private static void ResetTransformParent(Transform transform)
-        {
-            transform.SetParent(null, false);
         }
 
         private static void OnTrackGameObjectRemoved(GameObject trackGameObject)
         {
-            ResetTransformParent(trackGameObject.transform);
+            trackGameObject.transform.SetParent(null, false);
         }
 
         private void OnTrackGameObjectAdded(GameObject trackGameObject)
@@ -122,31 +124,15 @@ namespace NoodleExtensions.Animation
         {
             foreach (Track track in ChildrenTracks)
             {
-                track.OnGameObjectAdded -= OnTrackGameObjectAdded;
-                track.OnGameObjectRemoved -= OnTrackGameObjectRemoved;
+                track.GameObjectAdded -= OnTrackGameObjectAdded;
+                track.GameObjectRemoved -= OnTrackGameObjectRemoved;
             }
         }
 
         private void Update()
         {
-            Quaternion? rotation = _track.GetProperty<Quaternion?>(OFFSET_ROTATION);
-            if (rotation.HasValue)
-            {
-                if (_leftHanded)
-                {
-                    MirrorQuaternionNullable(ref rotation);
-                }
-            }
-
-            // TODO: wtf clean up this mess
-            Vector3? position = _track.GetProperty<Vector3?>(OFFSET_POSITION);
-            if (position.HasValue)
-            {
-                if (_leftHanded)
-                {
-                    MirrorVectorNullable(ref position);
-                }
-            }
+            Quaternion? rotation = _track.GetQuaternionProperty(OFFSET_ROTATION)?.Mirror(_leftHanded);
+            Vector3? position = _track.GetVector3Property(OFFSET_POSITION)?.Mirror(_leftHanded);
 
             Quaternion worldRotationQuatnerion = _startRot;
             Vector3 positionVector = worldRotationQuatnerion * (_startPos * _movementData.noteLinesDistance);
@@ -159,19 +145,14 @@ namespace NoodleExtensions.Animation
             }
 
             worldRotationQuatnerion *= _startLocalRot;
-            Quaternion? localRotation = _track.GetProperty<Quaternion?>(LOCAL_ROTATION);
+            Quaternion? localRotation = _track.GetQuaternionProperty(LOCAL_ROTATION)?.Mirror(_leftHanded);
             if (localRotation.HasValue)
             {
-                if (_leftHanded)
-                {
-                    MirrorQuaternionNullable(ref localRotation);
-                }
-
-                worldRotationQuatnerion *= localRotation!.Value;
+                worldRotationQuatnerion *= localRotation.Value;
             }
 
             Vector3 scaleVector = _startScale;
-            Vector3? scale = _track.GetProperty<Vector3?>(SCALE);
+            Vector3? scale = _track.GetVector3Property(SCALE);
             if (scale.HasValue)
             {
                 scaleVector = Vector3.Scale(_startScale, scale.Value);
@@ -187,38 +168,53 @@ namespace NoodleExtensions.Animation
     [UsedImplicitly]
     internal class ParentController
     {
+        private readonly bool _v2;
+        private readonly DeserializedData _deserializedData;
         private readonly bool _leftHanded;
-        private readonly HashSet<ParentObject> _parentObjects = new();
+        private readonly TransformControllerFactory _transformControllerFactory;
         private readonly BeatmapObjectSpawnMovementData _movementData;
+        private readonly HashSet<ParentObject> _parentObjects = new();
 
-        internal ParentController([Inject(Id = LEFT_HANDED_ID)] bool leftHanded, IBeatmapObjectSpawnController spawnController)
+        internal ParentController(
+            IReadonlyBeatmapData beatmapData,
+            [Inject(Id = ID)] DeserializedData deserializedData,
+            [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
+            IBeatmapObjectSpawnController spawnController,
+            TransformControllerFactory transformControllerFactory)
         {
+            _v2 = ((CustomBeatmapData)beatmapData).version2_6_0AndEarlier;
+            _deserializedData = deserializedData;
             _leftHanded = leftHanded;
+            _transformControllerFactory = transformControllerFactory;
             _movementData = spawnController.beatmapObjectSpawnMovementData;
         }
 
         internal void Create(
-            List<Track> tracks,
-            Track parentTrack,
-            bool worldPositionStays,
-            Vector3? startPos,
-            Quaternion? startRot,
-            Quaternion? startLocalRot,
-            Vector3? startScale)
+            CustomEventData customEventData)
         {
+            if (!_deserializedData.Resolve(customEventData, out NoodleParentTrackEventData? noodleData))
+            {
+                return;
+            }
+
             GameObject parentGameObject = new("ParentObject");
             ParentObject instance = parentGameObject.AddComponent<ParentObject>();
             instance.Init(
-                tracks,
-                parentTrack,
-                worldPositionStays,
-                startPos,
-                startRot,
-                startLocalRot,
-                startScale,
+                noodleData,
                 _leftHanded,
                 _movementData,
                 _parentObjects);
+
+            if (_v2)
+            {
+                instance.ApplyV2Transform(noodleData);
+            }
+            else
+            {
+                instance.enabled = false;
+                noodleData.TransformData.Apply(instance.transform, _leftHanded);
+                _transformControllerFactory.Create(parentGameObject, noodleData.ParentTrack);
+            }
         }
     }
 }

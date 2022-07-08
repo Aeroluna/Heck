@@ -8,7 +8,7 @@ using Zenject;
 namespace Chroma.Colorizer
 {
     [UsedImplicitly]
-    public class ParticleColorizerManager
+    public sealed class ParticleColorizerManager
     {
         private static readonly FieldAccessor<ParticleSystemEventEffect, BasicBeatmapEventType>.Accessor _eventAccessor = FieldAccessor<ParticleSystemEventEffect, BasicBeatmapEventType>.GetAccessor("_colorEvent");
 

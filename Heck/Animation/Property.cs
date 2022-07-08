@@ -18,8 +18,6 @@ namespace Heck.Animation
         }
 
         internal PointDefinitionInterpolation Interpolation { get; } = new();
-
-        internal override object Value => Interpolation;
     }
 
     internal class Property
@@ -33,6 +31,13 @@ namespace Heck.Animation
 
         internal Coroutine? Coroutine { get; set; }
 
-        internal virtual object? Value { get; set; }
+        // avoid boxing
+        internal float? LinearValue { get; set; }
+
+        internal Vector3? Vector3Value { get; set; }
+
+        internal Vector4? Vector4Value { get; set; }
+
+        internal Quaternion? QuaternionValue { get; set; }
     }
 }

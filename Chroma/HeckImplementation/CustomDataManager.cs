@@ -6,10 +6,9 @@ using Chroma.Lighting;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
+using IPA.Utilities;
 using UnityEngine;
-using Zenject;
 using static Chroma.ChromaController;
-using static Heck.HeckController;
 
 namespace Chroma
 {
@@ -27,12 +26,39 @@ namespace Chroma
             {
                 foreach (CustomData gameObjectData in environmentData)
                 {
-                    string? trackName = gameObjectData.Get<string>(v2 ? V2_TRACK : TRACK);
-                    if (trackName != null)
+                    trackBuilder.AddFromCustomData(gameObjectData, v2, false);
+
+                    CustomData? geometryData = gameObjectData.Get<CustomData?>(v2 ? V2_GEOMETRY : GEOMETRY);
+                    if (geometryData == null)
                     {
-                        trackBuilder.AddTrack(trackName);
+                        continue;
+                    }
+
+                    CustomData? materialData = gameObjectData.Get<CustomData?>(v2 ? V2_MATERIAL : MATERIAL);
+                    if (materialData != null)
+                    {
+                        trackBuilder.AddFromCustomData(materialData, v2, false);
                     }
                 }
+            }
+
+            CustomData? materialsData = beatmapData.customData.Get<CustomData>(v2 ? V2_MATERIALS : MATERIALS);
+            if (materialsData != null)
+            {
+                foreach ((string _, object? value) in materialsData)
+                {
+                    if (value == null)
+                    {
+                        continue;
+                    }
+
+                    trackBuilder.AddFromCustomData((CustomData)value, v2, false);
+                }
+            }
+
+            if (!v2)
+            {
+                return;
             }
 
             foreach (CustomEventData customEventData in customEventDatas)
@@ -42,8 +68,7 @@ namespace Chroma
                     switch (customEventData.eventType)
                     {
                         case ASSIGN_FOG_TRACK:
-                            trackBuilder.AddTrack(customEventData.customData.Get<string>(v2 ? V2_TRACK : TRACK)
-                                                  ?? throw new InvalidOperationException("Track was not defined."));
+                            trackBuilder.AddFromCustomData(customEventData.customData, v2);
                             break;
 
                         default:
@@ -61,6 +86,7 @@ namespace Chroma
         internal static Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents(
             CustomBeatmapData beatmapData,
             Dictionary<string, Track> beatmapTracks,
+            Dictionary<string, PointDefinition> pointDefinitions,
             IReadOnlyList<CustomEventData> customEventDatas)
         {
             bool v2 = beatmapData.version2_6_0AndEarlier;
@@ -75,7 +101,21 @@ namespace Chroma
                     switch (customEventData.eventType)
                     {
                         case ASSIGN_FOG_TRACK:
-                            chromaCustomEventData = new ChromaCustomEventData(customEventData.customData.GetTrack(beatmapTracks, v2));
+                            if (!v2)
+                            {
+                                continue;
+                            }
+
+                            chromaCustomEventData = new ChromaAssignFogEventData(customEventData.customData.GetTrack(beatmapTracks, v2));
+                            break;
+
+                        case ANIMATE_COMPONENT:
+                            if (v2)
+                            {
+                                continue;
+                            }
+
+                            chromaCustomEventData = new ChromaAnimateComponentData(customEventData.customData, beatmapTracks, pointDefinitions);
                             break;
 
                         default:
@@ -134,8 +174,7 @@ namespace Chroma
         [EventsDeserializer]
         internal static Dictionary<BeatmapEventData, IEventCustomData> DeserializeEvents(
             CustomBeatmapData beatmapData,
-            IReadOnlyList<BeatmapEventData> allBeatmapEventDatas,
-            DiContainer container)
+            IReadOnlyList<BeatmapEventData> allBeatmapEventDatas)
         {
             bool v2 = beatmapData.version2_6_0AndEarlier;
             List<BasicBeatmapEventData> beatmapEventDatas = allBeatmapEventDatas.OfType<BasicBeatmapEventData>().ToList();

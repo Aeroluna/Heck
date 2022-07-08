@@ -1,5 +1,7 @@
 ﻿using Chroma.Animation;
 using Chroma.Colorizer;
+using Chroma.EnvironmentEnhancement;
+using Chroma.EnvironmentEnhancement.Component;
 using Chroma.HarmonyPatches;
 using Chroma.HarmonyPatches.Colorizer;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
@@ -8,10 +10,8 @@ using Chroma.HarmonyPatches.Events;
 using Chroma.HarmonyPatches.Mirror;
 using Chroma.HarmonyPatches.ZenModeWalls;
 using Chroma.Lighting;
-using Chroma.Lighting.EnvironmentEnhancement;
-using Heck.Animation;
+using Heck;
 using JetBrains.Annotations;
-using UnityEngine;
 using Zenject;
 
 namespace Chroma.Installers
@@ -28,13 +28,15 @@ namespace Chroma.Installers
                 Container.BindFactory<NoteControllerBase, BombColorizer, BombColorizer.Factory>().AsSingle();
                 Container.Bind<LightColorizerManager>().AsSingle();
                 Container.BindFactory<ChromaLightSwitchEventEffect, LightColorizer, LightColorizer.Factory>().AsSingle();
-                Container.BindFactory<LightSwitchEventEffect, ChromaLightSwitchEventEffect, ChromaLightSwitchEventEffect.Factory>().AsSingle();
+                Container.BindFactory<LightSwitchEventEffect, ChromaLightSwitchEventEffect, ChromaLightSwitchEventEffect.Factory>()
+                    .FromFactory<DisposableClassFactory<LightSwitchEventEffect, ChromaLightSwitchEventEffect>>();
                 Container.BindInterfacesAndSelfTo<NoteColorizerManager>().AsSingle();
                 Container.BindFactory<NoteControllerBase, NoteColorizer, NoteColorizer.Factory>().AsSingle();
                 Container.Bind<ObstacleColorizerManager>().AsSingle();
                 Container.BindFactory<ObstacleControllerBase, ObstacleColorizer, ObstacleColorizer.Factory>().AsSingle();
                 Container.Bind<ParticleColorizerManager>().AsSingle();
-                Container.BindFactory<ParticleSystemEventEffect, ParticleColorizer, ParticleColorizer.Factory>().AsSingle();
+                Container.BindFactory<ParticleSystemEventEffect, ParticleColorizer, ParticleColorizer.Factory>()
+                    .FromFactory<DisposableClassFactory<ParticleSystemEventEffect, ParticleColorizer>>();
                 Container.Bind<SaberColorizerManager>().AsSingle();
                 Container.BindFactory<Saber, SaberColorizer, SaberColorizer.Factory>().AsSingle();
                 Container.Bind<SaberColorizerIntialize>().AsSingle().NonLazy();
@@ -59,47 +61,40 @@ namespace Chroma.Installers
             if (ChromaController.FeaturesPatcher.Enabled)
             {
                 // Animation
-                Container.Bind<EventController>().AsSingle().NonLazy();
-                Container.BindInterfacesAndSelfTo<ChromaFogController>().AsSingle();
+                Container.BindInterfacesTo<EventController>().AsSingle();
+                Container.BindInterfacesAndSelfTo<FogAnimatorV2>().AsSingle();
+                Container.Bind<AnimateComponentEvent>().AsSingle();
 
                 // Colorizer Patch
                 Container.BindInterfacesTo<ObjectColorize>().AsSingle();
 
                 // EnvironmentComponent
-                Container.BindInterfacesTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();
-                Container.BindInterfacesTo<ParametricBoxControllerTransformOverride>().AsSingle();
-                Container.BindInterfacesTo<TrackLaneRingOffset>().AsSingle();
+                Container.BindInterfacesAndSelfTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();
+                Container.BindInterfacesAndSelfTo<ParametricBoxControllerTransformOverride>().AsSingle();
+                Container.BindInterfacesAndSelfTo<TrackLaneRingOffset>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackLaneRingsManagerTracker>().AsSingle();
 
                 // Events
                 Container.BindInterfacesTo<LightPairRotationChromafier>().AsSingle();
                 Container.BindInterfacesTo<LightRotationChromafier>().AsSingle();
                 Container.BindInterfacesTo<RingRotationChromafier>().AsSingle();
-                Container.BindFactory<TrackLaneRingsRotationEffect, ChromaRingsRotationEffect, ChromaRingsRotationEffect.Factory>()
-                    .FromFactory<ChromaRingsRotationEffect.ChromaRingFactory>();
                 Container.BindInterfacesTo<RingStepChromafier>().AsSingle();
+                Container.Bind<ChromaRingsRotationEffect.Factory>().AsSingle();
 
                 // Disable Spawn Effect
                 Container.BindInterfacesTo<BeatEffectSpawnerSkip>().AsSingle();
 
                 // Lighting
                 Container.BindInterfacesAndSelfTo<ChromaGradientController>().AsSingle();
-                Container.BindFactory<
-                    Color,
-                    Color,
-                    float,
-                    float,
-                    BasicBeatmapEventType,
-                    Functions,
-                    ChromaGradientController.ChromaGradientEvent,
-                    ChromaGradientController.ChromaGradientEvent.Factory>().AsSingle();
 
                 // EnvironmentEnhancement
-                Container.Bind<ComponentInitializer>().AsSingle();
+                Container.Bind<DuplicateInitializer>().AsSingle();
                 Container.BindInterfacesAndSelfTo<EnvironmentEnhancementManager>().AsSingle().NonLazy();
-                Container.BindFactory<GameObject, GameObjectTrackController, GameObjectTrackController.Factory>()
-                    .FromFactory<GameObjectTrackController.GameObjectTrackControllerFactory>();
-                Container.Bind<ParametricBoxControllerParameters>().AsSingle();
+                Container.Bind<ComponentCustomizer>().AsSingle();
+                Container.Bind<GeometryFactory>().AsSingle();
+                Container.Bind<MaterialsManager>().AsSingle();
+                Container.BindInterfacesAndSelfTo<MaterialColorAnimator>().AsSingle();
+                Container.Bind<ILightWithIdCustomizer>().AsSingle();
             }
 
             // Zen mode

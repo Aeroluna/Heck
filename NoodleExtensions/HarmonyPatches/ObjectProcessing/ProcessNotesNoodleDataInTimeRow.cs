@@ -38,9 +38,9 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
 
         [HarmonyPrefix]
         [HarmonyPatch("HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice")]
-        private static void ProcessAllNotesInTimeRowPatch(object allObjectsTimeSlice)
+        private static void ProcessAllNotesInTimeRowPatch(BeatmapObjectsInTimeRowProcessor __instance, object allObjectsTimeSlice)
         {
-            List<CustomNoteData> notesToSetFlip = new();
+            bool v2 = NoodleBeatmapObjectsInTimeRowProcessor.GetV2(__instance);
             IEnumerable<NoteData> notesInTimeRow = AccessContainerItems<BeatmapDataItem>(allObjectsTimeSlice).OfType<NoteData>();
             Dictionary<float, List<CustomNoteData>> notesInColumns = new();
             foreach (NoteData t in notesInTimeRow)
@@ -52,8 +52,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
 
                 CustomData customData = noteData.customData;
 
-                // TODO: figure out a way to get v2
-                IEnumerable<float?>? position = customData.GetNullableFloats(V2_POSITION)?.ToList();
+                IEnumerable<float?>? position = customData.GetNullableFloats(v2 ? V2_POSITION : POSITION)?.ToList();
                 float lineIndex = position?.ElementAtOrDefault(0) ?? (noteData.lineIndex - 2);
                 float lineLayer = position?.ElementAtOrDefault(1) ?? (float)noteData.noteLineLayer;
 
@@ -66,7 +65,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 bool flag = false;
                 for (int k = 0; k < list.Count; k++)
                 {
-                    IEnumerable<float?>? listPosition = list[k].customData.GetNullableFloats(V2_POSITION);
+                    IEnumerable<float?>? listPosition = list[k].customData.GetNullableFloats(v2 ? V2_POSITION : POSITION);
                     float listLineLayer = listPosition?.ElementAtOrDefault(1) ?? (float)list[k].noteLineLayer;
                     if (!(listLineLayer > lineLayer))
                     {
@@ -84,7 +83,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 }
 
                 // Flippy stuff
-                IEnumerable<float?>? flip = customData.GetNullableFloats(FLIP)?.ToList();
+                IEnumerable<float?>? flip = customData.GetNullableFloats(v2 ? V2_FLIP : FLIP)?.ToList();
                 float? flipX = flip?.ElementAtOrDefault(0);
                 float? flipY = flip?.ElementAtOrDefault(1);
                 if (flipX.HasValue || flipY.HasValue)
@@ -101,7 +100,8 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 }
                 else if (!customData.ContainsKey(INTERNAL_FLIPYSIDE))
                 {
-                    notesToSetFlip.Add(noteData);
+                    customData[INTERNAL_FLIPLINEINDEX] = lineIndex;
+                    customData[INTERNAL_FLIPYSIDE] = 0;
                 }
             }
 
@@ -113,17 +113,11 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                     list2[m].customData[INTERNAL_STARTNOTELINELAYER] = m;
                 }
             }
-
-            // Process flip data
-            notesToSetFlip.ForEach(c =>
-            {
-                c.customData[INTERNAL_FLIPYSIDE] = 0;
-            });
         }
 
         [HarmonyPrefix]
         [HarmonyPatch("HandleCurrentTimeSliceColorNotesDidFinishTimeSlice")]
-        private static void ProcessColorNotesInTimeRowPatch(object currentTimeSlice)
+        private static void ProcessColorNotesInTimeRowPatch(BeatmapObjectsInTimeRowProcessor __instance, object currentTimeSlice)
         {
             IReadOnlyList<NoteData> colorNotesData = AccessContainerItems<NoteData>(currentTimeSlice);
             int customNoteCount = colorNotesData.Count;
@@ -131,6 +125,8 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
             {
                 return;
             }
+
+            bool v2 = NoodleBeatmapObjectsInTimeRowProcessor.GetV2(__instance);
 
             float[] lineIndexes = new float[2];
             float[] lineLayers = new float[2];
@@ -142,7 +138,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 }
 
                 CustomData customData = noteData.customData;
-                IEnumerable<float?>? position = customData.GetNullableFloats(V2_POSITION)?.ToList();
+                IEnumerable<float?>? position = customData.GetNullableFloats(v2 ? V2_POSITION : POSITION)?.ToList();
                 lineIndexes[i] = position?.ElementAtOrDefault(0) ?? (colorNotesData[i].lineIndex - 2);
                 lineLayers[i] = position?.ElementAtOrDefault(1) ?? (float)colorNotesData[i].noteLineLayer;
             }
