@@ -221,40 +221,20 @@ namespace NoodleExtensions.Animation
 
             public PlayerTrack Create(PlayerTrackObject playerTrackObject)
             {
-                GameObject noodleObject = new("NoodlePlayerTrack");
+                GameObject noodleObject = new($"NoodlePlayerTrack{playerTrackObject}");
                 Transform origin = noodleObject.transform;
 
-                switch (playerTrackObject)
+                Transform target = playerTrackObject switch
                 {
-                    case PlayerTrackObject.ENTIRE_PLAYER:
-                    {
-                        Transform player = GameObject.Find("LocalPlayerGameCore").transform;
-                        origin.SetParent(player.parent, true);
-                        player.SetParent(origin, true);
-                        break;
-                    }
+                    PlayerTrackObject.ENTIRE_PLAYER => GameObject.Find("LocalPlayerGameCore").transform,
+                    PlayerTrackObject.HMD => GameObject.Find("VRGameCore/MainCamera").transform,
+                    PlayerTrackObject.LEFT_HAND => GameObject.Find("VRGameCore/LeftHand").transform,
+                    PlayerTrackObject.RIGHT_HAND => GameObject.Find("VRGameCore/RightHand").transform,
+                    _ => throw new ArgumentOutOfRangeException(nameof(playerTrackObject), playerTrackObject, null)
+                };
 
-                    case PlayerTrackObject.HMD:
-                        Transform hmd = GameObject.Find("VRGameCore/MainCamera").transform;
-                        origin.SetParent(hmd.parent, true);
-                        hmd.SetParent(origin, true);
-                        break;
-
-                    // TODO: Figure out the right name for these objects
-                    // just placeholder
-                    case PlayerTrackObject.LEFT_HAND:
-                        Transform leftController = GameObject.Find("VRGameCore/LeftHand").transform;
-                        origin.SetParent(leftController.parent, true);
-                        leftController.SetParent(origin, true);
-                        break;
-                    case PlayerTrackObject.RIGHT_HAND:
-                        Transform rightController = GameObject.Find("VRGameCore/RightHand").transform;
-                        origin.SetParent(rightController.parent, true);
-                        rightController.SetParent(origin, true);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(playerTrackObject), playerTrackObject, null);
-                }
+                origin.SetParent(target.parent, true);
+                target.SetParent(origin, true);
 
                 return _container.InstantiateComponent<PlayerTrack>(noodleObject);
             }
