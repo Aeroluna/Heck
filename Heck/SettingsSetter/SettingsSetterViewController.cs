@@ -32,6 +32,9 @@ namespace Heck.SettingsSetter
         [UIObject("contentObject")]
         private readonly GameObject? _contentObject;
 
+        [UIObject("decline-button")]
+        private readonly GameObject? _declineButton;
+
         private MainSystemInit _mainSystemInit = null!;
         private MainSettingsModelSO _mainSettings = null!;
         private ColorSchemesSettings _colorSchemesSettings = null!;
@@ -608,6 +611,7 @@ namespace Heck.SettingsSetter
                         _defaultMultiplayerParameters = startParameters;
                         _presentViewController(_activeFlowCoordinator, this, MultiplayerViewControllerPresented, AnimationDirection.Horizontal, false);
                         BSMLParser.instance.Parse(ContentBSML, gameObject, this);
+                        _declineButton.SetActive(true);
                         return;
                     }
                 }
