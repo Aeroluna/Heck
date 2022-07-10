@@ -35,20 +35,30 @@ namespace Heck.SettingsSetter
         private MainSystemInit _mainSystemInit = null!;
         private MainSettingsModelSO _mainSettings = null!;
         private ColorSchemesSettings _colorSchemesSettings = null!;
+        private GameServerLobbyFlowCoordinator _gameServerLobbyFlowCoordinator = null!;
+        private PlayerDataModel _playerDataModel = null!;
+        private LobbyGameStateController _lobbyGameStateController = null!;
 
-        private SinglePlayerLevelSelectionFlowCoordinator? _activeFlowCoordinator;
+        private FlowCoordinator? _activeFlowCoordinator;
 
         private MenuTransitionsHelper? _menuTransitionsHelper;
 
         private StartStandardLevelParameters _defaultParameters;
-
         private StartStandardLevelParameters _modifiedParameters;
-
         private StartStandardLevelParameters _cachedParameters;
 
-        private SettableMainSettings? _cachedMainSettings;
+        private StartMultiplayerLevelParameters _defaultMultiplayerParameters;
+        private StartMultiplayerLevelParameters _modifiedMultiplayerParameters;
 
+        private SettableMainSettings? _cachedMainSettings;
         private SettableMainSettings? _modifiedMainSettings;
+
+        private bool _isMultiplayer;
+        private bool _acceptImmediately;
+        private bool _viewControllerPresented;
+        private bool _multiplayerDeclined;
+
+        private OverrideEnvironmentSettings? _cachedOverrideEnvironmentSettings;
 
         private List<Tuple<ISettableSetting, object>>? _settableSettingsToSet;
 
@@ -93,6 +103,13 @@ namespace Heck.SettingsSetter
                 }
 
                 _settableSettingsToSet = null;
+            }
+
+            // Needed for multiplayer
+            if (_cachedOverrideEnvironmentSettings != null)
+            {
+                _playerDataModel.playerData.SetProperty<PlayerData, OverrideEnvironmentSettings>("overrideEnvironmentSettings", _cachedOverrideEnvironmentSettings);
+                _cachedOverrideEnvironmentSettings = null;
             }
 
             if (_cachedMainSettings == null)
@@ -356,6 +373,292 @@ namespace Heck.SettingsSetter
             DoPresent = false;
         }
 
+        internal void MultiplayerInit(StartMultiplayerLevelParameters startParameters)
+        {
+            // When in doubt, wrap everything in one big try catch statement!
+            try
+            {
+                CustomData? settings = startParameters.DifficultyBeatmap.GetBeatmapCustomData().Get<CustomData>("_settings");
+                if (settings != null)
+                {
+                    _contents.Clear();
+                    _modifiedMultiplayerParameters = startParameters;
+
+                    CustomData? jsonPlayerOptions = settings.Get<CustomData>("_playerOptions");
+                    if (jsonPlayerOptions != null)
+                    {
+                        PlayerSpecificSettings playerSettings = startParameters.PlayerSpecificSettings;
+                        List<Dictionary<string, object>> settablePlayerSettings = SettingSetterSettableSettingsManager.SettingsTable["_playerOptions"];
+
+                        PlayerSpecificSettings modifiedPlayerSettings = playerSettings.CopyWith();
+
+                        foreach (Dictionary<string, object> settablePlayerSetting in settablePlayerSettings)
+                        {
+                            string settingName = (string) settablePlayerSetting["_name"];
+                            string fieldName = (string) settablePlayerSetting["_fieldName"];
+
+                            object? json = jsonPlayerOptions.Get<object>(fieldName);
+                            if (json == null)
+                            {
+                                continue;
+                            }
+
+                            FieldInfo field = typeof(PlayerSpecificSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)
+                                              ?? throw new InvalidOperationException($"Unable to find field with name {fieldName}.");
+                            object activeValue = field.GetValue(playerSettings);
+                            json = json switch
+                            {
+                                string jsonString => Enum.Parse(typeof(EnvironmentEffectsFilterPreset), jsonString),
+                                IConvertible => Convert.ChangeType(json, activeValue.GetType()),
+                                _ => json
+                            };
+
+                            if (json.Equals(activeValue))
+                            {
+                                continue;
+                            }
+
+                            _contents.Add(new ListObject($"[Player Options] {settingName}", $"{activeValue} -> {json}"));
+                            field.SetValue(modifiedPlayerSettings, json);
+                        }
+
+                        _modifiedMultiplayerParameters.PlayerSpecificSettings = modifiedPlayerSettings;
+                    }
+
+                    CustomData? jsonModifiers = settings.Get<CustomData>("_modifiers");
+                    if (jsonModifiers != null)
+                    {
+                        GameplayModifiers gameplayModifiers = startParameters.GameplayModifiers;
+                        List<Dictionary<string, object>> settableGameplayModifiers = SettingSetterSettableSettingsManager.SettingsTable["_modifiers"];
+
+                        GameplayModifiers modifiedGameplayModifiers = gameplayModifiers.CopyWith();
+
+                        foreach (Dictionary<string, object> settableGameplayModifier in settableGameplayModifiers)
+                        {
+                            string settingName = (string) settableGameplayModifier["_name"];
+                            string fieldName = (string) settableGameplayModifier["_fieldName"];
+
+                            object? json = jsonModifiers.Get<object>(fieldName);
+                            if (json == null)
+                            {
+                                continue;
+                            }
+
+                            FieldInfo field = typeof(GameplayModifiers).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)
+                                              ?? throw new InvalidOperationException($"Unable to find field with name {fieldName}.");
+                            object activeValue = field.GetValue(gameplayModifiers);
+                            json = json switch
+                            {
+                                string jsonString => fieldName switch
+                                {
+                                    "_energyType" => Enum.Parse(typeof(GameplayModifiers.EnergyType), jsonString),
+                                    "_enabledObstacleType" => Enum.Parse(
+                                        typeof(GameplayModifiers.EnabledObstacleType), jsonString),
+                                    "_songSpeed" => Enum.Parse(typeof(GameplayModifiers.SongSpeed), jsonString),
+                                    _ => json
+                                },
+                                IConvertible => Convert.ChangeType(json, activeValue.GetType()),
+                                _ => json
+                            };
+
+                            if (json.Equals(activeValue))
+                            {
+                                continue;
+                            }
+
+                            _contents.Add(new ListObject($"[Modifiers] {settingName}", $"{activeValue} -> {json}"));
+                            field.SetValue(modifiedGameplayModifiers, json);
+                        }
+
+                        _modifiedMultiplayerParameters.GameplayModifiers = modifiedGameplayModifiers;
+                    }
+
+                    CustomData? jsonEnvironments = settings.Get<CustomData>("_environments");
+                    if (jsonEnvironments != null)
+                    {
+                        _cachedOverrideEnvironmentSettings = _playerDataModel.playerData.overrideEnvironmentSettings;
+                        OverrideEnvironmentSettings environmentOverrideSettings = _playerDataModel.playerData.overrideEnvironmentSettings;
+
+                        Dictionary<string, object> settableEnvironmentSetting = SettingSetterSettableSettingsManager.SettingsTable["_environments"].First();
+                        string settingName = (string) settableEnvironmentSetting["_name"];
+                        string fieldName = (string) settableEnvironmentSetting["_fieldName"];
+                        bool activeValue = environmentOverrideSettings.overrideEnvironments;
+                        bool? json = jsonEnvironments.Get<bool>(fieldName);
+
+                        if (json != activeValue)
+                        {
+                            _contents.Add(new ListObject($"[Environments] {settingName}", $"{activeValue} -> {json}"));
+
+                            // copy fields from original overrideenvironmentsettings to our new copy
+                            OverrideEnvironmentSettings modifiedOverrideEnvironmentSettings = new();
+                            modifiedOverrideEnvironmentSettings.SetField("_data", environmentOverrideSettings.GetField<Dictionary<EnvironmentTypeSO, EnvironmentInfoSO>, OverrideEnvironmentSettings>("_data"));
+
+                            modifiedOverrideEnvironmentSettings.overrideEnvironments = json.Value;
+
+                            _playerDataModel.playerData.SetProperty<PlayerData, OverrideEnvironmentSettings>("overrideEnvironmentSettings", modifiedOverrideEnvironmentSettings);
+                        }
+                    }
+
+                    CustomData? jsonColors = settings.Get<CustomData>("_colors");
+                    if (jsonColors != null)
+                    {
+                        Dictionary<string, object> settableColorSetting = SettingSetterSettableSettingsManager.SettingsTable["_colors"].First();
+                        string settingName = (string) settableColorSetting["_name"];
+                        string fieldName = (string) settableColorSetting["_fieldName"];
+                        bool activeValue = _colorSchemesSettings.overrideDefaultColors;
+                        bool? json = jsonColors.Get<bool>(fieldName);
+
+                        if (json != activeValue)
+                        {
+                            _contents.Add(new ListObject($"[Colors] {settingName}", $"{activeValue} -> {json}"));
+
+                            _modifiedMultiplayerParameters.OverrideColorScheme = json.Value ? _colorSchemesSettings.GetOverrideColorScheme() : null;
+                        }
+                    }
+
+                    _modifiedMainSettings = null;
+                    _cachedMainSettings = null;
+                    CustomData? jsonGraphics = settings.Get<CustomData>("_graphics");
+                    if (jsonGraphics != null)
+                    {
+                        List<Dictionary<string, object>> settableGraphicsSettings = SettingSetterSettableSettingsManager.SettingsTable["_graphics"];
+
+                        _cachedMainSettings = new SettableMainSettings(
+                            _mainSettings.mirrorGraphicsSettings,
+                            _mainSettings.mainEffectGraphicsSettings,
+                            _mainSettings.smokeGraphicsSettings,
+                            _mainSettings.burnMarkTrailsEnabled,
+                            _mainSettings.screenDisplacementEffectsEnabled,
+                            _mainSettings.maxShockwaveParticles);
+                        _modifiedMainSettings = _cachedMainSettings with { };
+
+                        foreach (Dictionary<string, object> settableGraphicSetting in settableGraphicsSettings)
+                        {
+                            string settingName = (string) settableGraphicSetting["_name"];
+                            string fieldName = (string) settableGraphicSetting["_fieldName"];
+
+                            object? json = jsonGraphics.Get<object>(fieldName);
+                            if (json == null)
+                            {
+                                continue;
+                            }
+
+                            // substring is to remove underscore
+                            object valueSO = typeof(MainSettingsModelSO).GetField(fieldName.Substring(1), BindingFlags.Instance | BindingFlags.Public)?.GetValue(_mainSettings)
+                                             ?? throw new InvalidOperationException($"Unable to find valueSO with name [{fieldName.Substring(1)}].");
+                            object activeValue = valueSO switch
+                            {
+                                BoolSO boolSO => boolSO.value,
+                                IntSO intSO => intSO.value,
+                                _ => throw new InvalidOperationException($"How the hell did you reach this? [{valueSO.GetType()}]")
+                            };
+                            if (json is IConvertible)
+                            {
+                                json = Convert.ChangeType(json, activeValue.GetType());
+                            }
+
+                            if (json.Equals(activeValue))
+                            {
+                                continue;
+                            }
+
+                            _contents.Add(new ListObject($"[Graphics] {settingName}", $"{activeValue} -> {json}"));
+                            FieldInfo field = typeof(SettableMainSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)
+                                              ?? throw new InvalidOperationException($"Unable to find field with name {fieldName}.");
+                            field.SetValue(_modifiedMainSettings, json);
+                        }
+                    }
+
+                    _settableSettingsToSet = null;
+                    foreach ((string s, Dictionary<string, ISettableSetting> value) in SettingSetterSettableSettingsManager.SettableSettings)
+                    {
+                        CustomData? jsonGroup = settings.Get<CustomData>(s);
+                        if (jsonGroup == null)
+                        {
+                            continue;
+                        }
+
+                        _settableSettingsToSet = new List<Tuple<ISettableSetting, object>>();
+
+                        foreach ((string key, ISettableSetting settableSetting) in value)
+                        {
+                            object? json = jsonGroup.Get<object>(key);
+                            object activeValue = settableSetting.TrueValue;
+                            if (json == null || json.Equals(activeValue))
+                            {
+                                continue;
+                            }
+
+                            _contents.Add(new ListObject($"[{settableSetting.GroupName}] {settableSetting.FieldName}", $"{activeValue} -> {json}"));
+                            _settableSettingsToSet.Add(new Tuple<ISettableSetting, object>(settableSetting, json));
+                        }
+                    }
+
+                    if (_contents.Any())
+                    {
+                        if (_contentObject != null)
+                        {
+                            Destroy(_contentObject);
+                        }
+
+                        DoPresent = true;
+                        _isMultiplayer = true;
+                        _multiplayerDeclined = false;
+                        _activeFlowCoordinator = _gameServerLobbyFlowCoordinator;
+                        _defaultMultiplayerParameters = startParameters;
+                        _presentViewController(_activeFlowCoordinator, this, MultiplayerViewControllerPresented, AnimationDirection.Horizontal, false);
+                        BSMLParser.instance.Parse(ContentBSML, gameObject, this);
+                        return;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Heck.Log.Logger.Log("Could not setup settable settings!", Logger.Level.Error);
+                Heck.Log.Logger.Log(e, Logger.Level.Error);
+            }
+
+            DoPresent = false;
+        }
+
+        private void MultiplayerViewControllerPresented()
+        {
+            if (_acceptImmediately)
+            {
+                OnAcceptClick();
+                _acceptImmediately = false;
+            }
+            else
+            {
+                _viewControllerPresented = true;
+            }
+        }
+
+        internal void AcceptAndStartMultiplayerLevel()
+        {
+            if (isActivated)
+            {
+                if (_viewControllerPresented)
+                {
+                    OnAcceptClick();
+                    _viewControllerPresented = false;
+                }
+                else
+                {
+                    _acceptImmediately = true;
+                }
+            }
+
+            if (!_multiplayerDeclined)
+            {
+                StartMultiplayerWithParameters(_modifiedMultiplayerParameters);
+            }
+            else
+            {
+                StartMultiplayerWithParameters(_defaultMultiplayerParameters);
+            }
+        }
+
         internal void StartWithParameters(StartStandardLevelParameters startParameters, bool force = false)
         {
             if (!force)
@@ -402,12 +705,60 @@ namespace Heck.SettingsSetter
                 startParameters.LevelFinishedCallback);
         }
 
+        internal void StartMultiplayerWithParameters(StartMultiplayerLevelParameters startParameters)
+        {
+            _lobbyGameStateController.SetProperty<LobbyGameStateController, bool>("countdownStarted", false);
+            _lobbyGameStateController.StopListeningToGameStart();
+
+            if (_modifiedMainSettings != null)
+            {
+                Heck.Log.Logger.Log("Main settings modified.", Logger.Level.Trace);
+                _mainSettings.mirrorGraphicsSettings.value = _modifiedMainSettings.MirrorGraphicsSettings;
+                _mainSettings.mainEffectGraphicsSettings.value = _modifiedMainSettings.MainEffectGraphicsSettings;
+                _mainSettings.smokeGraphicsSettings.value = _modifiedMainSettings.SmokeGraphicsSettings;
+                _mainSettings.burnMarkTrailsEnabled.value = _modifiedMainSettings.BurnMarkTrailsEnabled;
+                _mainSettings.screenDisplacementEffectsEnabled.value = _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
+                _mainSettings.maxShockwaveParticles.value = _modifiedMainSettings.MaxShockwaveParticles;
+                _modifiedMainSettings = null;
+                _mainSystemInit.Init();
+            }
+
+            if (_settableSettingsToSet != null)
+            {
+                foreach ((ISettableSetting settableSetting, object item2) in _settableSettingsToSet)
+                {
+                    Heck.Log.Logger.Log($"Set settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}] to [{item2}].", Logger.Level.Trace);
+                    settableSetting.SetTemporary(item2);
+                }
+            }
+
+            MenuTransitionHelper.StartMultiplayerLevel(
+                startParameters.GameMode,
+                startParameters.PreviewBeatmapLevel,
+                startParameters.BeatmapDifficulty,
+                startParameters.BeatmapCharacteristic,
+                startParameters.DifficultyBeatmap,
+                startParameters.OverrideColorScheme,
+                startParameters.GameplayModifiers,
+                startParameters.PlayerSpecificSettings,
+                startParameters.PracticeSettings,
+                startParameters.BackButtonText,
+                startParameters.UseTestNoteCutSoundEffects,
+                startParameters.BeforeSceneSwitchCallback,
+                startParameters.LevelFinishedCallback,
+                startParameters.DidDisconnectCallback);
+        }
+
+
         [UsedImplicitly]
         [Inject]
-        private void Construct(GameplaySetupViewController gameplaySetupViewController, MenuTransitionsHelper menuTransitionsHelper)
+        private void Construct(GameplaySetupViewController gameplaySetupViewController, MenuTransitionsHelper menuTransitionsHelper, PlayerDataModel playerDataModel, GameServerLobbyFlowCoordinator gameServerLobbyFlowCoordinator, ILobbyGameStateController lobbyGameStateController)
         {
             _colorSchemesSettings = gameplaySetupViewController.colorSchemesSettings;
             _menuTransitionsHelper = menuTransitionsHelper;
+            _playerDataModel = playerDataModel;
+            _gameServerLobbyFlowCoordinator = gameServerLobbyFlowCoordinator;
+            _lobbyGameStateController = (LobbyGameStateController)lobbyGameStateController;
             _mainSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().First();
             _mainSystemInit = Resources.FindObjectsOfTypeAll<MainSystemInit>().First();
         }
@@ -419,8 +770,18 @@ namespace Heck.SettingsSetter
             _cachedMainSettings = null;
             _modifiedMainSettings = null;
             _settableSettingsToSet = null;
+            _cachedOverrideEnvironmentSettings = null;
             Dismiss();
-            StartWithParameters(_defaultParameters);
+
+            if (!_isMultiplayer)
+            {
+                StartWithParameters(_defaultParameters);
+            }
+            else
+            {
+                _multiplayerDeclined = true;
+                _isMultiplayer = false;
+            }
         }
 
         [UsedImplicitly]
@@ -428,7 +789,15 @@ namespace Heck.SettingsSetter
         private void OnAcceptClick()
         {
             Dismiss();
-            StartWithParameters(_modifiedParameters);
+            if (!_isMultiplayer)
+            {
+                StartWithParameters(_modifiedParameters);
+            }
+            else
+            {
+                _multiplayerDeclined = false;
+                _isMultiplayer = false;
+            }
         }
 
         private void Dismiss()
