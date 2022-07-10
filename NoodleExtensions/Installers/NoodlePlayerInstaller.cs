@@ -55,6 +55,8 @@ namespace NoodleExtensions.Installers
             Container.BindInterfacesAndSelfTo<NoteUpdateNoodlifier>().AsSingle();
             Container.BindInterfacesTo<ObstacleInitNoodlifier>().AsSingle();
             Container.BindInterfacesTo<ObstacleUpdateNoodlifier>().AsSingle();
+            Container.BindInterfacesTo<SliderInitNoodlifier>().AsSingle();
+            Container.BindInterfacesTo<SliderUpdateNoodlifier>().AsSingle();
 
             // SmallFixes
             Container.BindInterfacesTo<NoteCutSoundLimiter>().AsSingle();

@@ -16,7 +16,6 @@ namespace Heck.Animation.Transform
     {
         private bool _v2;
         private bool _leftHanded;
-        private float _noteLinesDistance;
         private Track _track = null!;
 
         public event Action? RotationUpdated;
@@ -29,12 +28,10 @@ namespace Heck.Animation.Transform
         [UsedImplicitly]
         private void Construct(
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
-            BeatmapObjectSpawnController spawnController,
             IReadonlyBeatmapData beatmapData,
             Track track)
         {
             _leftHanded = leftHanded;
-            _noteLinesDistance = spawnController.noteLinesDistance;
             _v2 = beatmapData is CustomBeatmapData { version2_6_0AndEarlier: true };
             _track = track;
         }
@@ -87,7 +84,7 @@ namespace Heck.Animation.Transform
                 Vector3 positionValue = position.Value;
                 if (_v2)
                 {
-                    positionValue *= _noteLinesDistance;
+                    positionValue *= StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
                 }
 
                 transform.position = positionValue;
@@ -98,7 +95,7 @@ namespace Heck.Animation.Transform
                 Vector3 localPositionValue = localPosition.Value;
                 if (_v2)
                 {
-                    localPositionValue *= _noteLinesDistance;
+                    localPositionValue *= StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
                 }
 
                 transform.localPosition = localPositionValue;

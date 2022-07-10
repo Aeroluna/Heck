@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
-using Heck.Animation;
 using IPA.Utilities;
 using NoodleExtensions.Animation;
 using SiraUtil.Affinity;
@@ -58,8 +57,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
         internal float NoteJumpTimeAdjust(float original, float jumpDuration)
         {
-            NoodleObjectData? noodleData = _noteUpdateNoodlifier.NoodleData;
-            float? time = noodleData?.Track?.Select(n => n.GetLinearProperty(NoodleController.TIME)).FirstOrDefault(n => n.HasValue);
+            float? time = _noteUpdateNoodlifier.NoodleData?.GetTimeProperty();
             if (time.HasValue)
             {
                 return time.Value * jumpDuration;

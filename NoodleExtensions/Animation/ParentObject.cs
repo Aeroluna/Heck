@@ -22,14 +22,11 @@ namespace NoodleExtensions.Animation
         private Quaternion _startLocalRot = Quaternion.identity;
         private Vector3 _startScale = Vector3.one;
 
-        private BeatmapObjectSpawnMovementData _movementData = null!;
-
         internal HashSet<Track> ChildrenTracks { get; } = new();
 
         internal void Init(
             NoodleParentTrackEventData noodleData,
             bool leftHanded,
-            BeatmapObjectSpawnMovementData movementData,
             HashSet<ParentObject> parentObjects)
         {
             List<Track> tracks = noodleData.ChildrenTracks;
@@ -42,7 +39,6 @@ namespace NoodleExtensions.Animation
             _track = parentTrack;
             _worldPositionStays = noodleData.WorldPositionStays;
             _leftHanded = leftHanded;
-            _movementData = movementData;
 
             parentTrack.AddGameObject(gameObject);
 
@@ -80,7 +76,7 @@ namespace NoodleExtensions.Animation
             if (startPos.HasValue)
             {
                 _startPos = startPos.Value;
-                transform1.localPosition = _startPos * _movementData.noteLinesDistance;
+                transform1.localPosition = _startPos * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
             }
 
             if (startRot.HasValue)
@@ -135,13 +131,13 @@ namespace NoodleExtensions.Animation
             Vector3? position = _track.GetVector3Property(OFFSET_POSITION)?.Mirror(_leftHanded);
 
             Quaternion worldRotationQuatnerion = _startRot;
-            Vector3 positionVector = worldRotationQuatnerion * (_startPos * _movementData.noteLinesDistance);
+            Vector3 positionVector = worldRotationQuatnerion * (_startPos * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance);
             if (rotation.HasValue || position.HasValue)
             {
                 Quaternion rotationOffset = rotation ?? Quaternion.identity;
                 worldRotationQuatnerion *= rotationOffset;
                 Vector3 positionOffset = position ?? Vector3.zero;
-                positionVector = worldRotationQuatnerion * ((positionOffset + _startPos) * _movementData.noteLinesDistance);
+                positionVector = worldRotationQuatnerion * ((positionOffset + _startPos) * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance);
             }
 
             worldRotationQuatnerion *= _startLocalRot;
@@ -172,21 +168,18 @@ namespace NoodleExtensions.Animation
         private readonly DeserializedData _deserializedData;
         private readonly bool _leftHanded;
         private readonly TransformControllerFactory _transformControllerFactory;
-        private readonly BeatmapObjectSpawnMovementData _movementData;
         private readonly HashSet<ParentObject> _parentObjects = new();
 
         internal ParentController(
             IReadonlyBeatmapData beatmapData,
             [Inject(Id = ID)] DeserializedData deserializedData,
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
-            IBeatmapObjectSpawnController spawnController,
             TransformControllerFactory transformControllerFactory)
         {
             _v2 = ((CustomBeatmapData)beatmapData).version2_6_0AndEarlier;
             _deserializedData = deserializedData;
             _leftHanded = leftHanded;
             _transformControllerFactory = transformControllerFactory;
-            _movementData = spawnController.beatmapObjectSpawnMovementData;
         }
 
         internal void Create(
@@ -202,7 +195,6 @@ namespace NoodleExtensions.Animation
             instance.Init(
                 noodleData,
                 _leftHanded,
-                _movementData,
                 _parentObjects);
 
             if (_v2)

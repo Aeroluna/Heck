@@ -12,6 +12,8 @@ namespace NoodleExtensions.Managers
         internal Dictionary<NoteControllerBase, CutoutEffectWrapper> NoteCutoutEffects { get; } = new();
 
         internal Dictionary<NoteControllerBase, DisappearingArrowWrapper> NoteDisappearingArrowWrappers { get; } = new();
+
+        internal Dictionary<SliderMovement, CutoutAnimateEffectWrapper> SliderCutoutEffects { get; } = new();
     }
 
     internal abstract class CutoutWrapper

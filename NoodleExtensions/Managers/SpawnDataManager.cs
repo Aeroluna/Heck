@@ -7,7 +7,6 @@ using Zenject;
 
 namespace NoodleExtensions.Managers
 {
-    [UsedImplicitly]
     internal class SpawnDataManager
     {
         // these are the fields that dont have a property
@@ -23,6 +22,7 @@ namespace NoodleExtensions.Managers
         private readonly DeserializedData _deserializedData;
         private BeatmapObjectSpawnMovementData _movementData;
 
+        [UsedImplicitly]
         private SpawnDataManager(
             InitializedSpawnMovementData initializedSpawnMovementData,
             BeatmapObjectSpawnController.InitData initData,
@@ -31,6 +31,12 @@ namespace NoodleExtensions.Managers
             _initData = initData;
             _movementData = initializedSpawnMovementData.MovementData;
             _deserializedData = deserializedData;
+        }
+
+        internal static Vector2 Get2DNoteOffset(float lineIndex, int noteLinesCount, float lineLayer)
+        {
+            float distance = -(noteLinesCount - 1f) * 0.5f;
+            return new Vector2((distance + lineIndex) * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance, LineYPosForLineLayer(lineLayer));
         }
 
         internal bool GetObstacleSpawnData(ObstacleData obstacleData, ref BeatmapObjectSpawnMovementData.ObstacleSpawnData result)
@@ -43,17 +49,13 @@ namespace NoodleExtensions.Managers
             float? njs = noodleData.NJS;
             float? spawnoffset = noodleData.SpawnOffset;
 
-            float? startX = noodleData.StartX;
-            float? startY = noodleData.StartY;
+            float lineIndex = noodleData.StartX + (_movementData.noteLinesCount / 2) ?? obstacleData.lineIndex;
+            float lineLayer = noodleData.StartY ?? (float)obstacleData.lineLayer;
 
-            float? height = noodleData.Height;
-
-            Vector3 obstacleOffset = GetObstacleOffset(startX, startY, obstacleData.lineIndex, obstacleData.lineLayer);
+            Vector3 obstacleOffset = GetObstacleOffset(lineIndex, lineLayer);
             obstacleOffset.y += _movementData.jumpOffsetY;
 
-            // original code has this line, not sure how important it is
-            ////obstacleOffset.y = Mathf.Max(obstacleOffset.y, this._verticalObstaclePosY);
-
+            float? height = noodleData.Height;
             float obstacleHeight;
             if (height.HasValue)
             {
@@ -83,12 +85,13 @@ namespace NoodleExtensions.Managers
                 obstacleHeight,
                 _movementData.moveDuration,
                 jumpDuration,
-                _movementData.noteLinesDistance);
+                StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance);
 
             // for definite position
-            noodleData.InternalNoteOffset = _movementData.centerPos + obstacleOffset;
-            float? width = noodleData.Width;
-            noodleData.InternalXOffset = ((width.GetValueOrDefault(obstacleData.lineIndex) / 2f) - 0.5f) * _movementData.noteLinesDistance;
+            float xOffset = ((noodleData.Width.GetValueOrDefault(obstacleData.lineIndex) / 2f) - 0.5f) * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
+            Vector3 internalOffset = _movementData.centerPos + obstacleOffset;
+            internalOffset.x += xOffset;
+            noodleData.InternalNoteOffset = internalOffset;
 
             return false;
         }
@@ -100,17 +103,18 @@ namespace NoodleExtensions.Managers
                 return true;
             }
 
-            float? flipLineIndex = noodleData.InternalFlipLineIndex;
             float? njs = noodleData.NJS;
             float? spawnoffset = noodleData.SpawnOffset;
-            float? startlinelayer = noodleData.InternalStartNoteLineLayer;
 
             bool gravityOverride = noodleData.DisableGravity;
 
-            float? startX = noodleData.StartX;
-            float? startY = noodleData.StartY;
+            float offset = _movementData.noteLinesCount / 2f;
+            float? flipLineIndex = noodleData.InternalFlipLineIndex;
+            float lineIndex = noodleData.StartX + offset ?? noteData.lineIndex;
+            float lineLayer = noodleData.StartY ?? (float)noteData.noteLineLayer;
+            float startlinelayer = noodleData.InternalStartNoteLineLayer + offset ?? (float)noteData.beforeJumpNoteLineLayer;
 
-            Vector3 noteOffset = GetNoteOffset(startX, startlinelayer, noteData.lineIndex, noteData.beforeJumpNoteLineLayer);
+            Vector3 noteOffset = GetNoteOffset(lineIndex, startlinelayer);
             GetNoteJumpValues(
                 njs,
                 spawnoffset,
@@ -120,32 +124,23 @@ namespace NoodleExtensions.Managers
                 out Vector3 moveEndPos,
                 out Vector3 jumpEndPos);
 
-            float lineYPos = LineYPosForLineLayer(startY, noteData.noteLineLayer);
-            float startLayerLineYPos = LineYPosForLineLayer(startlinelayer, noteData.beforeJumpNoteLineLayer);
-
-            // HighestJumpPosYForLineLayer
-            // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
-            float highestJump = startY.HasValue ? (0.875f * lineYPos) + 0.639583f + _movementData.jumpOffsetY :
-                _movementData.HighestJumpPosYForLineLayer(noteData.noteLineLayer);
-
-            // NoteJumpGravityForLineLayer
-            float num = jumpDistance / (njs ?? _movementData.noteJumpMovementSpeed) * 0.5f;
-            num = 2 / (num * num);
-
-            float GetJumpGravity(float gravityLineYPos) => (highestJump - gravityLineYPos) * num;
-            float jumpGravity = GetJumpGravity(startLayerLineYPos);
+            NoteJumpGravityForLineLayer(
+                lineLayer,
+                startlinelayer,
+                jumpDistance,
+                njs,
+                out float jumpGravity,
+                out float noGravity);
 
             Vector3 noteOffset2 = GetNoteOffset(
-                flipLineIndex ?? startX,
-                gravityOverride ? startY : startlinelayer,
-                noteData.flipLineIndex,
-                gravityOverride ? noteData.noteLineLayer : noteData.beforeJumpNoteLineLayer);
+                flipLineIndex ?? lineIndex,
+                gravityOverride ? lineLayer : startlinelayer);
 
             result = new BeatmapObjectSpawnMovementData.NoteSpawnData(
                 moveStartPos + noteOffset2,
                 moveEndPos + noteOffset2,
                 jumpEndPos + noteOffset,
-                gravityOverride ? GetJumpGravity(lineYPos) : jumpGravity,
+                gravityOverride ? noGravity : jumpGravity,
                 _movementData.moveDuration,
                 jumpDuration);
 
@@ -159,40 +154,120 @@ namespace NoodleExtensions.Managers
             return false;
         }
 
+        internal bool GetSliderSpawnData(SliderData sliderData, ref BeatmapObjectSpawnMovementData.SliderSpawnData result)
+        {
+            if (!_deserializedData.Resolve(sliderData, out NoodleBaseSliderData? noodleData))
+            {
+                return true;
+            }
+
+            float? njs = noodleData.NJS;
+            float? spawnoffset = noodleData.SpawnOffset;
+
+            bool gravityOverride = noodleData.DisableGravity;
+
+            float offset = _movementData.noteLinesCount / 2f;
+            float headLineIndex = noodleData.StartX + offset ?? sliderData.headLineIndex;
+            float headLineLayer = noodleData.StartY ?? (float)sliderData.headLineLayer;
+            float headStartlinelayer = noodleData.InternalStartNoteLineLayer + offset ?? (float)sliderData.headBeforeJumpLineLayer;
+            float tailLineIndex = noodleData.TailStartX + offset ?? sliderData.tailLineIndex;
+            float tailLineLayer = noodleData.TailStartY ?? (float)sliderData.tailLineLayer;
+            float tailStartlinelayer = noodleData.InternalTailStartNoteLineLayer + offset ?? (float)sliderData.tailBeforeJumpLineLayer;
+
+            Vector3 headOffset = GetNoteOffset(headLineIndex, headStartlinelayer);
+            Vector3 tailOffset = GetNoteOffset(tailLineIndex, tailStartlinelayer);
+            GetNoteJumpValues(
+                njs,
+                spawnoffset,
+                out float jumpDuration,
+                out float jumpDistance,
+                out Vector3 moveStartPos,
+                out Vector3 moveEndPos,
+                out Vector3 jumpEndPos);
+
+            NoteJumpGravityForLineLayer(
+                headLineLayer,
+                headStartlinelayer,
+                jumpDistance,
+                njs,
+                out float headJumpGravity,
+                out float headNoGravity);
+
+            NoteJumpGravityForLineLayer(
+                tailLineLayer,
+                tailStartlinelayer,
+                jumpDistance,
+                njs,
+                out float tailJumpGravity,
+                out float tailNoGravity);
+
+            result = new BeatmapObjectSpawnMovementData.SliderSpawnData(
+                moveStartPos + headOffset,
+                moveEndPos + headOffset,
+                jumpEndPos + headOffset,
+                gravityOverride ? headNoGravity : headJumpGravity,
+                moveStartPos + tailOffset,
+                moveEndPos + tailOffset,
+                jumpEndPos + tailOffset,
+                gravityOverride ? tailNoGravity : tailJumpGravity,
+                _movementData.moveDuration,
+                jumpDuration);
+
+            // IDK!!!!!!!
+            float num2 = jumpDuration * 0.5f;
+            float startVerticalVelocity = headJumpGravity * num2;
+            float yOffset = (startVerticalVelocity * num2) - (headJumpGravity * num2 * num2 * 0.5f);
+            noodleData.InternalNoteOffset = _movementData.centerPos + headOffset + new Vector3(0, yOffset, 0);
+
+            return false;
+        }
+
         internal float GetSpawnAheadTime(float? inputNjs, float? inputOffset)
         {
             return _movementData.moveDuration + (GetJumpDuration(inputNjs, inputOffset) * 0.5f);
         }
 
-        private Vector3 GetNoteOffset(float? startX, float? startY, int noteLineIndex, NoteLineLayer noteLineLayer)
+        private static float LineYPosForLineLayer(float height)
         {
-            int noteLinesCount = _movementData.noteLinesCount;
-
-            // Add last part to simulate https://github.com/spookyGh0st/beatwalls/#wall
-            float distance = (-(noteLinesCount - 1f) * 0.5f) + (startX.HasValue ? noteLinesCount / 2f : 0);
-            float lineIndex = startX.GetValueOrDefault(noteLineIndex);
-            distance = (distance + lineIndex) * _movementData.noteLinesDistance;
-
-            return (_rightVecAccessor(ref _movementData) * distance)
-                   + new Vector3(0, LineYPosForLineLayer(startY, noteLineLayer), 0);
+            return StaticBeatmapObjectSpawnMovementData.kBaseLinesYPos
+                   + (height * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance); // offset by 0.25
         }
 
-        private Vector3 GetObstacleOffset(float? startX, float? startY, int noteLineIndex, NoteLineLayer noteLineLayer)
+        private Vector3 GetNoteOffset(float lineIndex, float lineLayer)
         {
-            Vector3 result = GetNoteOffset(startX, startY, noteLineIndex, noteLineLayer);
-            result.y -= 0.15f;
+            Vector2 coords = Get2DNoteOffset(lineIndex, _movementData.noteLinesCount, lineLayer);
+            return (_rightVecAccessor(ref _movementData) * coords.x)
+                   + new Vector3(0, coords.y, 0);
+        }
+
+        private Vector3 GetObstacleOffset(float lineIndex, float lineLayer)
+        {
+            Vector3 result = GetNoteOffset(lineIndex, lineLayer);
+            result.y += StaticBeatmapObjectSpawnMovementData.kObstacleVerticalOffset;
             return result;
         }
 
-        private float LineYPosForLineLayer(float? height, NoteLineLayer noteLineLayer)
+        private void NoteJumpGravityForLineLayer(
+            float lineLayer,
+            float startLineLayer,
+            float jumpDistance,
+            float? njs,
+            out float gravity,
+            out float noGravity)
         {
-            if (height.HasValue)
-            {
-                return StaticBeatmapObjectSpawnMovementData.kBaseLinesYPos
-                       + (height.Value * _movementData.noteLinesDistance); // offset by 0.25
-            }
+            float lineYPos = LineYPosForLineLayer(lineLayer);
+            float startLayerLineYPos = LineYPosForLineLayer(startLineLayer);
 
-            return StaticBeatmapObjectSpawnMovementData.LineYPosForLineLayer(noteLineLayer);
+            // HighestJumpPosYForLineLayer
+            // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
+            float highestJump = (0.875f * lineYPos) + 0.639583f + _movementData.jumpOffsetY;
+
+            // NoteJumpGravityForLineLayer
+            float num = jumpDistance / (njs ?? _movementData.noteJumpMovementSpeed) * 0.5f;
+            num = 2 / (num * num);
+            float GetJumpGravity(float gravityLineYPos) => (highestJump - gravityLineYPos) * num;
+            gravity = GetJumpGravity(startLayerLineYPos);
+            noGravity = GetJumpGravity(lineYPos);
         }
 
         private float GetJumpDuration(

@@ -26,17 +26,14 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private readonly CodeInstruction _getCustomLength;
 
         private readonly DeserializedData _deserializedData;
-        private readonly BeatmapObjectSpawnMovementData _movementData;
         private readonly ManagedActiveObstacleTracker _obstacleTracker;
 
         private ObstacleInitNoodlifier(
             [Inject(Id = NoodleController.ID)] DeserializedData deserializedData,
-            IBeatmapObjectSpawnController spawnController,
             ManagedActiveObstacleTracker obstacleTracker)
         {
             _deserializedData = deserializedData;
             _obstacleTracker = obstacleTracker;
-            _movementData = spawnController.beatmapObjectSpawnMovementData;
 
             _getWorldRotation = InstanceTranspilers.EmitInstanceDelegate<Func<ObstacleData, float, Quaternion>>(GetWorldRotation);
             _getCustomWidth = InstanceTranspilers.EmitInstanceDelegate<Func<float, ObstacleData, float>>(GetCustomWidth);
@@ -165,7 +162,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private float GetCustomLength(float @default, ObstacleData obstacleData)
         {
             _deserializedData.Resolve(obstacleData, out NoodleObstacleData? noodleData);
-            return noodleData?.Length * _movementData.noteLinesDistance ?? @default;
+            return noodleData?.Length * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance ?? @default;
         }
     }
 }

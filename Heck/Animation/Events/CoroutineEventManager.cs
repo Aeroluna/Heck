@@ -129,8 +129,8 @@ namespace Heck.Animation.Events
                 case PropertyType.Linear:
                     float value = points.InterpolateLinear(time, out onLast);
 
-                    // ReSharper disable once CompareOfFloatsByEqualityOperator
-                    if (property.LinearValue != value)
+                    if (!property.LinearValue.HasValue ||
+                        !Mathf.Approximately(property.LinearValue.Value, value))
                     {
                         property.LinearValue = value;
                         track.UpdatedThisFrame = true;

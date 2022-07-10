@@ -110,6 +110,7 @@ namespace NoodleExtensions.Managers
             IEnumerable<BeatmapDataItem> objectDatas = _beatmapData.GetBeatmapDataItems<NoteData>()
                 .Cast<BeatmapObjectData>()
                 .Concat(_beatmapData.GetBeatmapDataItems<ObstacleData>())
+                .Concat(_beatmapData.GetBeatmapDataItems<SliderData>())
                 .OrderBy(beatmapObjectData =>
                 {
                     if (!_deserializedData.Resolve(beatmapObjectData, out NoodleObjectData? noodleData))

@@ -64,6 +64,10 @@ namespace NoodleExtensions
                         dictionary.Add(beatmapObjectData, new NoodleNoteData(customNoteData, customData, pointDefinitions, beatmapTracks, v2, leftHanded));
                         break;
 
+                    case CustomSliderData customSliderData:
+                        dictionary.Add(beatmapObjectData, new NoodleBaseSliderData(customSliderData, customData, pointDefinitions, beatmapTracks, v2, leftHanded));
+                        break;
+
                     default:
                         dictionary.Add(beatmapObjectData, new NoodleObjectData(beatmapObjectData, customData, pointDefinitions, beatmapTracks, v2, leftHanded));
                         break;

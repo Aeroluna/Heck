@@ -34,7 +34,6 @@ namespace Chroma.EnvironmentEnhancement
     internal class EnvironmentEnhancementManager
     {
         private readonly CustomBeatmapData _beatmapData;
-        private readonly float _noteLinesDistance;
         private readonly Dictionary<string, Track> _tracks;
         private readonly bool _leftHanded;
         private readonly GeometryFactory _geometryFactory;
@@ -60,7 +59,6 @@ namespace Chroma.EnvironmentEnhancement
             CoroutineDummy coroutineDummy)
         {
             _beatmapData = (CustomBeatmapData)beatmapData;
-            _noteLinesDistance = spawnController.noteLinesDistance;
             _tracks = tracks;
             _leftHanded = leftHanded;
             _geometryFactory = geometryFactory;
@@ -245,7 +243,7 @@ namespace Chroma.EnvironmentEnhancement
 
                     Transform transform = gameObject.transform;
 
-                    spawnData.Apply(transform, _leftHanded, v2, _noteLinesDistance);
+                    spawnData.Apply(transform, _leftHanded, v2);
 
                     // Handle TrackLaneRing
                     TrackLaneRing? trackLaneRing = gameObject.GetComponentInChildren<TrackLaneRing>();

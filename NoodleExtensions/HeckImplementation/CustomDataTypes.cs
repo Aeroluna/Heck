@@ -41,13 +41,10 @@ namespace NoodleExtensions
                     }
                 }
 
-                bool? fake = customData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
-                if (fake.GetValueOrDefault())
+                if (Fake.GetValueOrDefault())
                 {
                     _scoringTypeAccessor(ref noteData, NoteData.ScoringType.Ignore);
                 }
-
-                Fake = fake;
 
                 InternalFlipYSide = customData.Get<float?>(INTERNAL_FLIPYSIDE);
                 InternalFlipLineIndex = customData.Get<float?>(INTERNAL_FLIPLINEINDEX)?.Mirror(leftHanded);
@@ -95,8 +92,6 @@ namespace NoodleExtensions
                 Height = scale?.ElementAtOrDefault(1);
                 Length = scale?.ElementAtOrDefault(2);
 
-                Fake = customData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
-
                 if (!leftHanded)
                 {
                     return;
@@ -127,9 +122,48 @@ namespace NoodleExtensions
 
         internal float? Length { get; }
 
-        internal float InternalXOffset { get; set; }
-
         internal bool InternalDoUnhide { get; set; }
+    }
+
+    internal class NoodleBaseSliderData : NoodleObjectData
+    {
+        internal NoodleBaseSliderData(
+            BeatmapObjectData sliderData,
+            CustomData customData,
+            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, Track> beatmapTracks,
+            bool v2,
+            bool leftHanded)
+            : base(sliderData, customData, pointDefinitions, beatmapTracks, v2, leftHanded)
+        {
+            try
+            {
+                InternalStartNoteLineLayer = customData.Get<float?>(INTERNAL_STARTNOTELINELAYER);
+                InternalTailStartNoteLineLayer = customData.Get<float?>(INTERNAL_TAILSTARTNOTELINELAYER);
+
+                DisableGravity = customData.Get<bool?>(v2 ? V2_NOTE_GRAVITY_DISABLE : NOTE_GRAVITY_DISABLE) ?? false;
+
+                StartX = StartX?.Mirror(leftHanded);
+
+                IEnumerable<float?>? position = customData.GetNullableFloats(TAIL_NOTE_OFFSET)?.ToList();
+                TailStartX = position?.ElementAtOrDefault(0)?.Mirror(leftHanded);
+                TailStartY = position?.ElementAtOrDefault(1);
+            }
+            catch (Exception e)
+            {
+                Log.Logger.LogFailure(e, sliderData);
+            }
+        }
+
+        internal float? TailStartX { get; }
+
+        internal float? TailStartY { get; }
+
+        internal float? InternalStartNoteLineLayer { get; }
+
+        internal float? InternalTailStartNoteLineLayer { get; }
+
+        internal bool DisableGravity { get; }
     }
 
     internal class NoodleObjectData : IObjectCustomData
@@ -157,6 +191,8 @@ namespace NoodleExtensions
                         WorldRotationQuaternion = Quaternion.Euler(0, Convert.ToSingle(rotation), 0).Mirror(leftHanded);
                     }
                 }
+
+                Fake = customData.Get<bool?>(v2 ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE);
 
                 LocalRotationQuaternion = customData.GetQuaternion(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION)?.Mirror(leftHanded);
 
@@ -213,7 +249,7 @@ namespace NoodleExtensions
 
         internal bool? Uninteractable { get; }
 
-        internal bool? Fake { get; private protected set; }
+        internal bool? Fake { get; }
 
         internal float? StartX { get; private protected set; }
 
@@ -224,6 +260,11 @@ namespace NoodleExtensions
         internal float? SpawnOffset { get; }
 
         internal float? InternalAheadTime { get; set; }
+
+        internal float? GetTimeProperty()
+        {
+            return Track?.Select(n => n.GetLinearProperty(TIME)).FirstOrDefault(n => n.HasValue);
+        }
 
         internal class AnimationObjectData
         {

@@ -13,9 +13,11 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
     {
         private static readonly ConstructorInfo _noteDataCtor = AccessTools.FirstConstructor(typeof(BeatmapDataCallback<NoteData>), _ => true);
         private static readonly ConstructorInfo _obstacleDataCtor = AccessTools.FirstConstructor(typeof(BeatmapDataCallback<ObstacleData>), _ => true);
+        private static readonly ConstructorInfo _sliderDataCtor = AccessTools.FirstConstructor(typeof(BeatmapDataCallback<SliderData>), _ => true);
 
         private readonly CodeInstruction _addObstacleCallback;
         private readonly CodeInstruction _addNoteCallback;
+        private readonly CodeInstruction _addSliderCallback;
         private readonly NoodleObjectsCallbacksManager _noodleObjectsCallbacksManager;
 
         private ObjectCallbackAheadTimeReorder(NoodleObjectsCallbacksManager noodleObjectsCallbacksManager)
@@ -27,12 +29,16 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
             _addNoteCallback =
                 InstanceTranspilers.EmitInstanceDelegate<Func<float, BeatmapDataCallback<NoteData>, BeatmapDataCallbackWrapper>>((x, y) =>
                     _noodleObjectsCallbacksManager.AddBeatmapCallback(x, y));
+            _addSliderCallback =
+                InstanceTranspilers.EmitInstanceDelegate<Func<float, BeatmapDataCallback<SliderData>, BeatmapDataCallbackWrapper>>((x, y) =>
+                    _noodleObjectsCallbacksManager.AddBeatmapCallback(x, y));
         }
 
         public void Dispose()
         {
             InstanceTranspilers.DisposeDelegate(_addObstacleCallback);
             InstanceTranspilers.DisposeDelegate(_addNoteCallback);
+            InstanceTranspilers.DisposeDelegate(_addSliderCallback);
         }
 
         [AffinityTranspiler]
@@ -51,6 +57,13 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 .Advance(1)
                 .RemoveInstruction()
                 .Insert(_addNoteCallback)
+                .Advance(-8)
+                .RemoveInstructions(2)
+
+                .MatchForward(false, new CodeMatch(OpCodes.Newobj, _sliderDataCtor))
+                .Advance(1)
+                .RemoveInstruction()
+                .Insert(_addSliderCallback)
                 .Advance(-8)
                 .RemoveInstructions(2)
 

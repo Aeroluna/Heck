@@ -17,7 +17,6 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpStartPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_startPos");
         private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpEndPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_endPos");
 
-        private static readonly FieldAccessor<NoteJump, IAudioTimeSource>.Accessor _audioTimeSyncControllerAccessor = FieldAccessor<NoteJump, IAudioTimeSource>.GetAccessor("_audioTimeSyncController");
         private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
 
         private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.Accessor _gameNoteBigCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.GetAccessor("_bigCuttableBySaberList");
@@ -27,18 +26,18 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private readonly DeserializedData _deserializedData;
         private readonly AnimationHelper _animationHelper;
         private readonly CutoutManager _cutoutManager;
-        private readonly LazyInject<NoteJumpNoodlifier> _noteJumpNoodlifier;
+        private readonly AudioTimeSyncController _audioTimeSyncController;
 
         private NoteUpdateNoodlifier(
             [Inject(Id = NoodleController.ID)] DeserializedData deserializedData,
             AnimationHelper animationHelper,
             CutoutManager cutoutManager,
-            LazyInject<NoteJumpNoodlifier> noteJumpNoodlifier)
+            AudioTimeSyncController audioTimeSyncController)
         {
             _deserializedData = deserializedData;
             _animationHelper = animationHelper;
             _cutoutManager = cutoutManager;
-            _noteJumpNoodlifier = noteJumpNoodlifier;
+            _audioTimeSyncController = audioTimeSyncController;
         }
 
         internal NoodleNoteData? NoodleData { get; private set; }
@@ -65,11 +64,18 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             NoteJump noteJump = NoteJumpAccessor(ref ____noteMovement);
             NoteFloorMovement floorMovement = NoteFloorMovementAccessor(ref ____noteMovement);
 
-            // idk i just copied base game time
-            float jumpDuration = _jumpDurationAccessor(ref noteJump);
-            float elapsedTime = _audioTimeSyncControllerAccessor(ref noteJump).songTime - (____noteData.time - (jumpDuration * 0.5f));
-            elapsedTime = _noteJumpNoodlifier.Value.NoteJumpTimeAdjust(elapsedTime, jumpDuration);
-            float normalTime = elapsedTime / jumpDuration;
+            float? time = noodleData.GetTimeProperty();
+            float normalTime;
+            if (time.HasValue)
+            {
+                normalTime = time.Value;
+            }
+            else
+            {
+                float jumpDuration = _jumpDurationAccessor(ref noteJump);
+                float elapsedTime = _audioTimeSyncController.songTime - (____noteData.time - (jumpDuration * 0.5f));
+                normalTime = elapsedTime / jumpDuration;
+            }
 
             _animationHelper.GetObjectOffset(
                 animationObject,

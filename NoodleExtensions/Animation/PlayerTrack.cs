@@ -4,7 +4,6 @@ using Heck.Animation;
 using Heck.Animation.Transform;
 using IPA.Utilities;
 using JetBrains.Annotations;
-using NoodleExtensions.HarmonyPatches.SmallFixes;
 using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
@@ -32,7 +31,6 @@ namespace NoodleExtensions.Animation
 
         private Track _track = null!;
         private PauseController? _pauseController;
-        private BeatmapObjectSpawnMovementData _movementData = null!;
 
         private TransformController? _transformController;
         private TransformControllerFactory _transformFactory = null!;
@@ -56,7 +54,6 @@ namespace NoodleExtensions.Animation
             IReadonlyBeatmapData beatmapData,
             [InjectOptional]PauseController pauseController,
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
-            InitializedSpawnMovementData movementData,
             TransformControllerFactory transformControllerFactory)
         {
             _pauseController = pauseController;
@@ -65,11 +62,11 @@ namespace NoodleExtensions.Animation
                 pauseController.didPauseEvent += OnDidPauseEvent;
                 pauseController.didResumeEvent += OnDidResumeEvent;
             }
+
             Transform origin = transform;
             _startLocalRot = origin.localRotation;
             _startPos = origin.localPosition;
             _leftHanded = leftHanded;
-            _movementData = movementData.MovementData;
             _transformFactory = transformControllerFactory;
 
             _v2 = ((CustomBeatmapData)beatmapData).version2_6_0AndEarlier;
@@ -132,7 +129,7 @@ namespace NoodleExtensions.Animation
                 Quaternion finalRot = rotation ?? Quaternion.identity;
                 worldRotationQuatnerion *= finalRot;
                 Vector3 finalPos = position ?? Vector3.zero;
-                positionVector = worldRotationQuatnerion * ((finalPos * _movementData.noteLinesDistance) + _startPos);
+                positionVector = worldRotationQuatnerion * ((finalPos * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance) + _startPos);
             }
 
             worldRotationQuatnerion *= _startLocalRot;
