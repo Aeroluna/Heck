@@ -127,8 +127,11 @@ namespace Heck.HarmonyPatches
         private bool ForceAcceptOptions()
         {
             _settableSettingsWasShown = false;
-            _setterViewController.AcceptAndStartMultiplayerLevel();
-            return false;
+            if (_setterViewController.DoPresent)
+            {
+                _setterViewController.AcceptAndStartMultiplayerLevel();
+            }
+            return !_setterViewController.DoPresent;
         }
 
         [AffinityPrefix]
