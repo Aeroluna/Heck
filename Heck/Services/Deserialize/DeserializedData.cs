@@ -39,6 +39,11 @@ namespace Heck
             return Resolve(_objectCustomDatas, beatmapObjectData, out result);
         }
 
+        internal void RegisterNewObject(BeatmapObjectData beatmapObjectData, IObjectCustomData objectCustomData)
+        {
+            _objectCustomDatas.Add(beatmapObjectData, objectCustomData);
+        }
+
         // HIGHLY ILLEGAL!!!!
         internal void Remap(DeserializedData source)
         {

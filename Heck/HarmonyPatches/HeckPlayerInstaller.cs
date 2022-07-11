@@ -76,9 +76,9 @@ namespace Heck.HarmonyPatches
                 out HashSet<(object? Id, DeserializedData DeserializedData)> deserializedDatas);
             container.Bind<Dictionary<string, Track>>().FromInstance(beatmapTracks).AsSingle();
             deserializedDatas.Do(n =>
-            container.Bind<DeserializedData>()
-                .WithId(n.Id)
-                .FromInstance(n.DeserializedData));
+                container.BindInstance(n.DeserializedData)
+                    .WithId(n.Id));
+            container.BindInstance(deserializedDatas);
 
             container.Bind<ObjectInitializerManager>().AsSingle();
 

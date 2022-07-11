@@ -57,16 +57,15 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 return original;
             }
 
-            Vector3 noteOffset = noodleData.InternalNoteOffset;
             Vector3 endPos = FloorEndPosAccessor(ref noteFloorMovement);
-            return original + (position.Value + noteOffset - endPos);
+            return original + (position.Value + noodleData.InternalNoteOffset - endPos);
         }
 
         [AffinityPrefix]
         [AffinityPatch(typeof(NoteFloorMovement), nameof(NoteFloorMovement.SetToStart))]
         private void NoteFloorMovementSetToStart(Transform ____rotatedObject)
         {
-            NoodleNoteData? noodleData = _noteUpdateNoodlifier.NoodleData;
+            NoodleBaseNoteData? noodleData = _noteUpdateNoodlifier.NoodleData;
             if (noodleData is { DisableLook: true })
             {
                 ____rotatedObject.localRotation = Quaternion.Euler(0, 0, noodleData.InternalEndRotation);

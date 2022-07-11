@@ -59,13 +59,13 @@ namespace NoodleExtensions.Managers
 
         internal bool GetFakeNote(NoteController noteController)
         {
-            _deserializedData.Resolve(noteController.noteData, out NoodleNoteData? noodleData);
+            _deserializedData.Resolve(noteController.noteData, out NoodleBaseNoteData? noodleData);
             return noodleData?.Fake is not true;
         }
 
         internal bool GetCuttable(NoteData noteData)
         {
-            _deserializedData.Resolve(noteData, out NoodleNoteData? noodleData);
+            _deserializedData.Resolve(noteData, out NoodleBaseNoteData? noodleData);
             return noodleData?.Uninteractable is not true;
         }
     }

@@ -32,7 +32,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private readonly AudioTimeSyncController _audioTimeSyncController;
         private readonly PlayerTransforms _playerTransforms;
 
-        private NoodleBaseSliderData? _noodleData;
+        private NoodleSliderData? _noodleData;
 
         private SliderUpdateNoodlifier(
             [Inject(Id = ID)] DeserializedData deserializedData,
@@ -194,13 +194,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 _cutoutManager.SliderCutoutEffects[instance].SetCutout(dissolve.Value);
             }
 
-            Vector3 localPosition;
             _animationHelper.GetDefinitePositionOffset(animationObject, tracks, normalizedTime, out Vector3? definitePosition);
             if (definitePosition.HasValue)
             {
-                Vector3 noteOffset = _noodleData!.InternalNoteOffset;
-                localPosition = definitePosition.Value + noteOffset;
-                transform.localPosition = localPosition;
+                transform.localPosition = definitePosition.Value;
 
                 return;
             }
@@ -213,7 +210,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 Vector3 offset = positionOffset.Value;
                 headNoteJumpStartPos = startPos + offset;
                 headNoteJumpEndPos = endPos + offset;
-                localPosition = Vector3.LerpUnclamped(headNoteJumpStartPos, headNoteJumpEndPos, normalizedTime);
+                Vector3 localPosition = Vector3.LerpUnclamped(headNoteJumpStartPos, headNoteJumpEndPos, normalizedTime);
                 localPosition.z = _playerTransforms.MoveTowardsHead(headNoteJumpStartPos.z, headNoteJumpEndPos.z, inverseWorldRotation, normalizedHeadTime);
                 transform.localPosition = localPosition;
 
@@ -228,7 +225,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         [AffinityPatch(typeof(SliderController), nameof(SliderController.ManualUpdate))]
         private void GetData(SliderData ____sliderData)
         {
-            _deserializedData.Resolve(____sliderData, out NoodleBaseSliderData? noodleData);
+            _deserializedData.Resolve(____sliderData, out NoodleSliderData? noodleData);
             _noodleData = noodleData;
         }
     }

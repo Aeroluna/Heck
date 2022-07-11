@@ -87,18 +87,12 @@ namespace NoodleExtensions.Managers
                 jumpDuration,
                 StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance);
 
-            // for definite position
-            float xOffset = ((noodleData.Width.GetValueOrDefault(obstacleData.lineIndex) / 2f) - 0.5f) * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
-            Vector3 internalOffset = _movementData.centerPos + obstacleOffset;
-            internalOffset.x += xOffset;
-            noodleData.InternalNoteOffset = internalOffset;
-
             return false;
         }
 
         internal bool GetJumpingNoteSpawnData(NoteData noteData, ref BeatmapObjectSpawnMovementData.NoteSpawnData result)
         {
-            if (!_deserializedData.Resolve(noteData, out NoodleNoteData? noodleData))
+            if (!_deserializedData.Resolve(noteData, out NoodleBaseNoteData? noodleData))
             {
                 return true;
             }
@@ -112,7 +106,7 @@ namespace NoodleExtensions.Managers
             float? flipLineIndex = noodleData.InternalFlipLineIndex;
             float lineIndex = noodleData.StartX + offset ?? noteData.lineIndex;
             float lineLayer = noodleData.StartY ?? (float)noteData.noteLineLayer;
-            float startlinelayer = noodleData.InternalStartNoteLineLayer + offset ?? (float)noteData.beforeJumpNoteLineLayer;
+            float startlinelayer = noodleData.InternalStartNoteLineLayer ?? (float)noteData.beforeJumpNoteLineLayer;
 
             Vector3 noteOffset = GetNoteOffset(lineIndex, startlinelayer);
             GetNoteJumpValues(
@@ -144,19 +138,12 @@ namespace NoodleExtensions.Managers
                 _movementData.moveDuration,
                 jumpDuration);
 
-            // DEFINITE POSITION IS WEIRD, OK?
-            // fuck
-            float num2 = jumpDuration * 0.5f;
-            float startVerticalVelocity = jumpGravity * num2;
-            float yOffset = (startVerticalVelocity * num2) - (jumpGravity * num2 * num2 * 0.5f);
-            noodleData.InternalNoteOffset = _movementData.centerPos + noteOffset + new Vector3(0, yOffset, 0);
-
             return false;
         }
 
         internal bool GetSliderSpawnData(SliderData sliderData, ref BeatmapObjectSpawnMovementData.SliderSpawnData result)
         {
-            if (!_deserializedData.Resolve(sliderData, out NoodleBaseSliderData? noodleData))
+            if (!_deserializedData.Resolve(sliderData, out NoodleSliderData? noodleData))
             {
                 return true;
             }
@@ -212,12 +199,6 @@ namespace NoodleExtensions.Managers
                 gravityOverride ? tailNoGravity : tailJumpGravity,
                 _movementData.moveDuration,
                 jumpDuration);
-
-            // IDK!!!!!!!
-            float num2 = jumpDuration * 0.5f;
-            float startVerticalVelocity = headJumpGravity * num2;
-            float yOffset = (startVerticalVelocity * num2) - (headJumpGravity * num2 * num2 * 0.5f);
-            noodleData.InternalNoteOffset = _movementData.centerPos + headOffset + new Vector3(0, yOffset, 0);
 
             return false;
         }

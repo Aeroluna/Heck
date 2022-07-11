@@ -40,13 +40,13 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             _audioTimeSyncController = audioTimeSyncController;
         }
 
-        internal NoodleNoteData? NoodleData { get; private set; }
+        internal NoodleBaseNoteData? NoodleData { get; private set; }
 
         [AffinityPrefix]
         [AffinityPatch(typeof(NoteController), nameof(NoteController.ManualUpdate))]
         private void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
         {
-            if (!_deserializedData.Resolve(____noteData, out NoodleNoteData? noodleData))
+            if (!_deserializedData.Resolve(____noteData, out NoodleBaseNoteData? noodleData))
             {
                 NoodleData = null;
                 return;

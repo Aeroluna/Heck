@@ -114,7 +114,7 @@ namespace NoodleExtensions.HarmonyPatches.Mirror
 
         private void AddToTrack(NoteData noteData, GameObject gameObject)
         {
-            if (!_deserializedData.Resolve(noteData, out NoodleNoteData? noodleData) || noodleData.Track == null)
+            if (!_deserializedData.Resolve(noteData, out NoodleBaseNoteData? noodleData) || noodleData.Track == null)
             {
                 return;
             }

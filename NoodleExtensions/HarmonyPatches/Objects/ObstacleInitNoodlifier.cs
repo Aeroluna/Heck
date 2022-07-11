@@ -131,6 +131,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             noodleData.InternalEndPos = ____endPos;
             noodleData.InternalLocalRotation = localRotation;
             noodleData.InternalBoundsSize = ____bounds.size;
+
+            Vector3 noteOffset = ____endPos;
+            noteOffset.z = 0;
+            noodleData.InternalNoteOffset = noteOffset;
         }
 
         private Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)

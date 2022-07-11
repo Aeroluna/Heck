@@ -11,4 +11,9 @@
     public interface IObjectCustomData
     {
     }
+
+    public interface ICopyable<out T>
+    {
+        public T Copy();
+    }
 }

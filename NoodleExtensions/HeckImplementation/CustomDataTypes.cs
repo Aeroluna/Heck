@@ -12,7 +12,7 @@ using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions
 {
-    internal class NoodleNoteData : NoodleObjectData
+    internal class NoodleNoteData : NoodleBaseNoteData
     {
         private static readonly PropertyAccessor<NoteData, NoteData.ScoringType>.Setter _scoringTypeAccessor =
             PropertyAccessor<NoteData, NoteData.ScoringType>.GetSetter("scoringType");
@@ -45,7 +45,34 @@ namespace NoodleExtensions
                 {
                     _scoringTypeAccessor(ref noteData, NoteData.ScoringType.Ignore);
                 }
+            }
+            catch (Exception e)
+            {
+                Log.Logger.LogFailure(e, noteData);
+            }
+        }
+    }
 
+    internal class NoodleBaseNoteData : NoodleObjectData
+    {
+        internal NoodleBaseNoteData(NoodleBaseNoteData original)
+            : base(original)
+        {
+            DisableGravity = original.DisableGravity;
+            DisableLook = original.DisableLook;
+        }
+
+        internal NoodleBaseNoteData(
+            BeatmapObjectData noteData,
+            CustomData customData,
+            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, Track> beatmapTracks,
+            bool v2,
+            bool leftHanded)
+            : base(noteData, customData, pointDefinitions, beatmapTracks, v2, leftHanded)
+        {
+            try
+            {
                 InternalFlipYSide = customData.Get<float?>(INTERNAL_FLIPYSIDE);
                 InternalFlipLineIndex = customData.Get<float?>(INTERNAL_FLIPLINEINDEX)?.Mirror(leftHanded);
                 InternalStartNoteLineLayer = customData.Get<float?>(INTERNAL_STARTNOTELINELAYER);
@@ -125,9 +152,9 @@ namespace NoodleExtensions
         internal bool InternalDoUnhide { get; set; }
     }
 
-    internal class NoodleBaseSliderData : NoodleObjectData
+    internal class NoodleSliderData : NoodleBaseNoteData, ICopyable<IObjectCustomData>
     {
-        internal NoodleBaseSliderData(
+        internal NoodleSliderData(
             BeatmapObjectData sliderData,
             CustomData customData,
             Dictionary<string, PointDefinition> pointDefinitions,
@@ -138,12 +165,7 @@ namespace NoodleExtensions
         {
             try
             {
-                InternalStartNoteLineLayer = customData.Get<float?>(INTERNAL_STARTNOTELINELAYER);
                 InternalTailStartNoteLineLayer = customData.Get<float?>(INTERNAL_TAILSTARTNOTELINELAYER);
-
-                DisableGravity = customData.Get<bool?>(v2 ? V2_NOTE_GRAVITY_DISABLE : NOTE_GRAVITY_DISABLE) ?? false;
-
-                StartX = StartX?.Mirror(leftHanded);
 
                 IEnumerable<float?>? position = customData.GetNullableFloats(TAIL_NOTE_OFFSET)?.ToList();
                 TailStartX = position?.ElementAtOrDefault(0)?.Mirror(leftHanded);
@@ -159,15 +181,26 @@ namespace NoodleExtensions
 
         internal float? TailStartY { get; }
 
-        internal float? InternalStartNoteLineLayer { get; }
-
         internal float? InternalTailStartNoteLineLayer { get; }
 
-        internal bool DisableGravity { get; }
+        public IObjectCustomData Copy()
+        {
+            return new NoodleBaseNoteData(this);
+        }
     }
 
     internal class NoodleObjectData : IObjectCustomData
     {
+        internal NoodleObjectData(NoodleObjectData original)
+        {
+            WorldRotationQuaternion = original.WorldRotationQuaternion;
+            LocalRotationQuaternion = original.LocalRotationQuaternion;
+            Track = original.Track;
+            AnimationObject = original.AnimationObject;
+            Uninteractable = original.Uninteractable;
+            Fake = original.Fake;
+        }
+
         internal NoodleObjectData(
             BeatmapObjectData beatmapObjectData,
             CustomData customData,

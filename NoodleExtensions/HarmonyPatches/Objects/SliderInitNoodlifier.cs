@@ -75,7 +75,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             Vector3 headNoteJumpEndPos,
             Vector3 tailNoteJumpEndPos)
         {
-            if (!_deserializedData.Resolve(sliderData, out NoodleBaseSliderData? noodleData))
+            if (!_deserializedData.Resolve(sliderData, out NoodleSliderData? noodleData))
             {
                 return;
             }
@@ -138,8 +138,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 return false;
             }
 
-            if (!_deserializedData.Resolve(____sliderData, out NoodleBaseSliderData? noodleSliderData) ||
-                !_deserializedData.Resolve(noteData, out NoodleNoteData? noodleNoteData))
+            if (!_deserializedData.Resolve(____sliderData, out NoodleSliderData? noodleSliderData) ||
+                !_deserializedData.Resolve(noteData, out NoodleBaseNoteData? noodleNoteData))
             {
                 return true;
             }
