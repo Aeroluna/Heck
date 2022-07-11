@@ -67,6 +67,7 @@ namespace Chroma.Installers
 
                 // Colorizer Patch
                 Container.BindInterfacesTo<ObjectColorize>().AsSingle();
+                Container.BindInterfacesTo<NoteObjectColorize>().AsSingle();
 
                 // EnvironmentComponent
                 Container.BindInterfacesAndSelfTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();

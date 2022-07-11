@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Chroma.Animation;
 using Chroma.Colorizer;
-using Chroma.Settings;
 using Heck;
 using Heck.Animation;
 using IPA.Utilities;
@@ -13,53 +12,20 @@ namespace Chroma.HarmonyPatches.Colorizer
 {
     internal class ObjectColorize : IAffinity
     {
-        private static readonly FieldAccessor<NoteMovement, NoteJump>.Accessor _noteJumpAccessor = FieldAccessor<NoteMovement, NoteJump>.GetAccessor("_jump");
-        private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
+        private static readonly FieldAccessor<SliderMovement, float>.Accessor _sliderJumpDurationAccessor = FieldAccessor<SliderMovement, float>.GetAccessor("_jumpDuration");
 
-        private readonly BombColorizerManager _bombManager;
-        private readonly NoteColorizerManager _noteManager;
         private readonly ObstacleColorizerManager _obstacleManager;
-        private readonly IAudioTimeSource _audioTimeSource;
+        private readonly SliderColorizerManager _sliderManager;
         private readonly DeserializedData _deserializedData;
 
         private ObjectColorize(
-            BombColorizerManager bombManager,
-            NoteColorizerManager noteManager,
             ObstacleColorizerManager obstacleManager,
-            IAudioTimeSource audioTimeSource,
+            SliderColorizerManager sliderManager,
             [Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
         {
-            _bombManager = bombManager;
-            _noteManager = noteManager;
             _obstacleManager = obstacleManager;
-            _audioTimeSource = audioTimeSource;
+            _sliderManager = sliderManager;
             _deserializedData = deserializedData;
-        }
-
-        [AffinityPostfix]
-        [AffinityPatch(typeof(BombNoteController), nameof(BombNoteController.Init))]
-        private void BombColorize(BombNoteController __instance, NoteData noteData)
-        {
-            // They said it couldn't be done, they called me a madman
-            if (_deserializedData.Resolve(noteData, out ChromaObjectData? chromaData))
-            {
-                _bombManager.Colorize(__instance, chromaData.Color);
-            }
-        }
-
-        [AffinityPostfix]
-        [AffinityPatch(typeof(GameNoteController), nameof(GameNoteController.Init))]
-        private void NoteColorize(GameNoteController __instance, NoteData noteData)
-        {
-            if (ChromaConfig.Instance.NoteColoringDisabled)
-            {
-                return;
-            }
-
-            if (_deserializedData.Resolve(noteData, out ChromaObjectData? chromaData))
-            {
-                _noteManager.Colorize(__instance, chromaData.Color);
-            }
         }
 
         [AffinityPostfix]
@@ -73,56 +39,25 @@ namespace Chroma.HarmonyPatches.Colorizer
         }
 
         [AffinityPostfix]
-        [AffinityPatch(typeof(NoteController), nameof(NoteController.ManualUpdate))]
-        private void NoteUpdateColorize(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
+        [AffinityPatch(typeof(SliderController), nameof(SliderController.Init))]
+        private void SliderColorize(SliderController __instance, SliderData sliderData)
         {
-            if (ChromaConfig.Instance.NoteColoringDisabled
-                || !_deserializedData.Resolve(____noteData, out ChromaObjectData? chromaData))
+            if (_deserializedData.Resolve(sliderData, out ChromaObjectData? chromaData))
             {
-                return;
-            }
-
-            List<Track>? tracks = chromaData.Track;
-            PointDefinition? pathPointDefinition = chromaData.LocalPathColor;
-            if (tracks == null && pathPointDefinition == null)
-            {
-                return;
-            }
-
-            NoteJump noteJump = _noteJumpAccessor(ref ____noteMovement);
-
-            float jumpDuration = _jumpDurationAccessor(ref noteJump);
-            float elapsedTime = _audioTimeSource.songTime - (____noteData.time - (jumpDuration * 0.5f));
-            float normalTime = elapsedTime / jumpDuration;
-
-            AnimationHelper.GetColorOffset(pathPointDefinition, tracks, normalTime, out Color? colorOffset);
-
-            if (!colorOffset.HasValue)
-            {
-                return;
-            }
-
-            Color color = colorOffset.Value;
-            if (__instance is BombNoteController)
-            {
-                _bombManager.Colorize(__instance, color);
-            }
-            else
-            {
-                _noteManager.Colorize(__instance, color);
+                _sliderManager.Colorize(__instance, chromaData.Color);
             }
         }
 
         [AffinityPostfix]
-        [AffinityPatch(typeof(ObstacleController), nameof(ObstacleController.Update))]
+        [AffinityPatch(typeof(ObstacleController), nameof(ObstacleController.GetPosForTime))]
         private void ObstacleUpdateColorize(
             ObstacleController __instance,
             ObstacleData ____obstacleData,
-            AudioTimeSyncController ____audioTimeSyncController,
             float ____startTimeOffset,
             float ____move1Duration,
             float ____move2Duration,
-            float ____obstacleDuration)
+            float ____obstacleDuration,
+            float time)
         {
             if (!_deserializedData.Resolve(____obstacleData, out ChromaObjectData? chromaData))
             {
@@ -136,14 +71,44 @@ namespace Chroma.HarmonyPatches.Colorizer
                 return;
             }
 
-            float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
-            float normalTime = (elapsedTime - ____move1Duration) / (____move2Duration + ____obstacleDuration);
+            float normalTime = (time - ____move1Duration) / (____move2Duration + ____obstacleDuration);
 
             AnimationHelper.GetColorOffset(pathPointDefinition, tracks, normalTime, out Color? colorOffset);
 
             if (colorOffset.HasValue)
             {
                 _obstacleManager.Colorize(__instance, colorOffset.Value);
+            }
+        }
+
+        [AffinityPostfix]
+        [AffinityPatch(typeof(SliderController), nameof(SliderController.ManualUpdate))]
+        private void SliderUpdateColorize(
+            SliderController __instance,
+            SliderData ____sliderData,
+            SliderMovement ____sliderMovement)
+        {
+            if (!_deserializedData.Resolve(____sliderData, out ChromaObjectData? chromaData))
+            {
+                return;
+            }
+
+            List<Track>? tracks = chromaData.Track;
+            PointDefinition? pathPointDefinition = chromaData.LocalPathColor;
+            if (tracks == null && pathPointDefinition == null)
+            {
+                return;
+            }
+
+            float jumpDuration = _sliderJumpDurationAccessor(ref ____sliderMovement);
+            float duration = (jumpDuration * 0.75f) + (____sliderData.tailTime - ____sliderData.time);
+            float normalTime = ____sliderMovement.timeSinceHeadNoteJump / (jumpDuration + duration);
+
+            AnimationHelper.GetColorOffset(pathPointDefinition, tracks, normalTime, out Color? colorOffset);
+
+            if (colorOffset.HasValue)
+            {
+                _sliderManager.Colorize(__instance, colorOffset.Value);
             }
         }
     }

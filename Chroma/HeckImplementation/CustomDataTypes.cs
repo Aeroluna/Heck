@@ -59,7 +59,7 @@ namespace Chroma
         internal List<(string ComponentName, Dictionary<string, PointDefinition?> PointDefinition)> CoroutineInfos { get; } = new();
     }
 
-    internal class ChromaNoteData : ChromaObjectData
+    internal class ChromaNoteData : ChromaObjectData, ICopyable<IObjectCustomData>
     {
         internal ChromaNoteData(
             CustomData customData,
@@ -71,11 +71,29 @@ namespace Chroma
             SpawnEffect = customData.Get<bool?>(NOTE_SPAWN_EFFECT) ?? !customData.Get<bool?>(V2_DISABLE_SPAWN_EFFECT);
         }
 
+        private ChromaNoteData(ChromaNoteData original)
+            : base(original)
+        {
+            SpawnEffect = original.SpawnEffect;
+        }
+
         internal bool? SpawnEffect { get; }
+
+        public IObjectCustomData Copy()
+        {
+            return new ChromaNoteData(this);
+        }
     }
 
     internal class ChromaObjectData : IObjectCustomData
     {
+        internal ChromaObjectData(ChromaObjectData original)
+        {
+            Color = original.Color;
+            Track = original.Track;
+            LocalPathColor = original.LocalPathColor;
+        }
+
         internal ChromaObjectData(
             CustomData customData,
             Dictionary<string, Track> beatmapTracks,

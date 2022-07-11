@@ -225,8 +225,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         [AffinityPatch(typeof(SliderController), nameof(SliderController.ManualUpdate))]
         private void GetData(SliderData ____sliderData)
         {
-            _deserializedData.Resolve(____sliderData, out NoodleSliderData? noodleData);
-            _noodleData = noodleData;
+            _deserializedData.Resolve(____sliderData, out _noodleData);
         }
     }
 }
