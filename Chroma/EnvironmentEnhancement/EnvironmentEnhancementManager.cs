@@ -6,10 +6,10 @@ using Chroma.EnvironmentEnhancement.Component;
 using Chroma.HarmonyPatches.EnvironmentComponent;
 using Chroma.Settings;
 using CustomJSONData.CustomBeatmap;
-using Heck;
 using Heck.Animation;
 using Heck.Animation.Transform;
 using JetBrains.Annotations;
+using SiraUtil.Affinity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -31,7 +31,7 @@ namespace Chroma.EnvironmentEnhancement
     }
 
     [UsedImplicitly]
-    internal class EnvironmentEnhancementManager
+    internal class EnvironmentEnhancementManager : IAffinity
     {
         private readonly CustomBeatmapData _beatmapData;
         private readonly Dictionary<string, Track> _tracks;
@@ -55,8 +55,7 @@ namespace Chroma.EnvironmentEnhancement
             BeatmapObjectsAvoidanceTransformOverride beatmapObjectsAvoidanceTransformOverride,
             DuplicateInitializer duplicateInitializer,
             ComponentCustomizer componentCustomizer,
-            TransformControllerFactory controllerFactory,
-            CoroutineDummy coroutineDummy)
+            TransformControllerFactory controllerFactory)
         {
             _beatmapData = (CustomBeatmapData)beatmapData;
             _tracks = tracks;
@@ -68,7 +67,13 @@ namespace Chroma.EnvironmentEnhancement
             _duplicateInitializer = duplicateInitializer;
             _componentCustomizer = componentCustomizer;
             _controllerFactory = controllerFactory;
-            coroutineDummy.StartCoroutine(DelayedStart());
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(BeatmapObjectSpawnController), nameof(BeatmapObjectSpawnController.Start))]
+        private void Start(BeatmapObjectSpawnController __instance)
+        {
+            __instance.StartCoroutine(DelayedStart());
         }
 
         internal IEnumerator DelayedStart()
