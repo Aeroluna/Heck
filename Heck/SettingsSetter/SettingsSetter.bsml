@@ -3,7 +3,7 @@
     <text text='This map recommends these settings, do you want to change to them?&#xA;(Your settings will be restored after the map.)' align='Center' font-size='4'/>
   </vertical>
   <horizontal anchor-max-y='0.25' horizontal-fit='PreferredSize' vertical-fit='PreferredSize' spacing='2'>
-    <button text='decline' on-click='decline-click' preferred-height='10' preferred-width='24'/>
+    <button id='decline-button' text='decline' on-click='decline-click' preferred-height='10' preferred-width='24'/>
     <primary-button text='accept' on-click='accept-click' preferred-height='10' preferred-width='24'/>
   </horizontal>
 </bg>

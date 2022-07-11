@@ -32,23 +32,34 @@ namespace Heck.SettingsSetter
         [UIObject("contentObject")]
         private readonly GameObject? _contentObject;
 
+        [UIObject("decline-button")]
+        private readonly GameObject? _declineButton;
+
         private MainSystemInit _mainSystemInit = null!;
         private MainSettingsModelSO _mainSettings = null!;
         private ColorSchemesSettings _colorSchemesSettings = null!;
+        private GameServerLobbyFlowCoordinator _gameServerLobbyFlowCoordinator = null!;
+        private SinglePlayerLevelSelectionFlowCoordinator _singlePlayerLevelSelectionFlowCoordinator = null!;
+        private PlayerDataModel _playerDataModel = null!;
+        private LobbyGameStateController _lobbyGameStateController = null!;
 
-        private SinglePlayerLevelSelectionFlowCoordinator? _activeFlowCoordinator;
+        private FlowCoordinator? _activeFlowCoordinator;
 
         private MenuTransitionsHelper? _menuTransitionsHelper;
 
-        private StartStandardLevelParameters _defaultParameters;
-
-        private StartStandardLevelParameters _modifiedParameters;
-
-        private StartStandardLevelParameters _cachedParameters;
+        private StartStandardLevelParameters? _defaultParameters;
+        private StartStandardLevelParameters? _modifiedParameters;
+        private StartStandardLevelParameters? _cachedParameters;
 
         private SettableMainSettings? _cachedMainSettings;
-
         private SettableMainSettings? _modifiedMainSettings;
+
+        private bool _isMultiplayer;
+        private bool _acceptImmediately;
+        private bool _viewControllerPresented;
+        private bool _multiplayerDeclined;
+
+        private OverrideEnvironmentSettings? _cachedOverrideEnvironmentSettings;
 
         private List<Tuple<ISettableSetting, object>>? _settableSettingsToSet;
 
@@ -95,6 +106,13 @@ namespace Heck.SettingsSetter
                 _settableSettingsToSet = null;
             }
 
+            // Needed for multiplayer
+            if (_cachedOverrideEnvironmentSettings != null)
+            {
+                _playerDataModel.playerData.SetProperty("overrideEnvironmentSettings", _cachedOverrideEnvironmentSettings);
+                _cachedOverrideEnvironmentSettings = null;
+            }
+
             if (_cachedMainSettings == null)
             {
                 return;
@@ -111,7 +129,7 @@ namespace Heck.SettingsSetter
             _mainSystemInit.Init();
         }
 
-        internal void Init(SinglePlayerLevelSelectionFlowCoordinator flowCoordinator, StartStandardLevelParameters startParameters)
+        internal void Init(StartStandardLevelParameters startParameters)
         {
             // When in doubt, wrap everything in one big try catch statement!
             try
@@ -120,7 +138,8 @@ namespace Heck.SettingsSetter
                 if (settings != null)
                 {
                     _contents.Clear();
-                    _modifiedParameters = startParameters;
+                    _modifiedParameters = startParameters.Copy();
+                    bool isMultiplayer = _modifiedParameters is StartMultiplayerLevelParameters;
 
                     CustomData? jsonPlayerOptions = settings.Get<CustomData>("_playerOptions");
                     if (jsonPlayerOptions != null)
@@ -214,7 +233,16 @@ namespace Heck.SettingsSetter
                     CustomData? jsonEnvironments = settings.Get<CustomData>("_environments");
                     if (jsonEnvironments != null)
                     {
-                        OverrideEnvironmentSettings environmentOverrideSettings = startParameters.OverrideEnvironmentSettings;
+                        OverrideEnvironmentSettings environmentOverrideSettings;
+                        if (isMultiplayer)
+                        {
+                            _cachedOverrideEnvironmentSettings = _playerDataModel.playerData.overrideEnvironmentSettings;
+                            environmentOverrideSettings = _cachedOverrideEnvironmentSettings;
+                        }
+                        else
+                        {
+                            environmentOverrideSettings = startParameters.OverrideEnvironmentSettings!;
+                        }
 
                         Dictionary<string, object> settableEnvironmentSetting = SettingSetterSettableSettingsManager.SettingsTable["_environments"].First();
                         string settingName = (string)settableEnvironmentSetting["_name"];
@@ -232,7 +260,15 @@ namespace Heck.SettingsSetter
 
                             modifiedOverrideEnvironmentSettings.overrideEnvironments = json.Value;
 
-                            _modifiedParameters.OverrideEnvironmentSettings = modifiedOverrideEnvironmentSettings;
+                            if (isMultiplayer)
+                            {
+                                // must be set directly for multiplayer
+                                _playerDataModel.playerData.SetProperty("overrideEnvironmentSettings", modifiedOverrideEnvironmentSettings);
+                            }
+                            else
+                            {
+                                _modifiedParameters.OverrideEnvironmentSettings = modifiedOverrideEnvironmentSettings;
+                            }
                         }
                     }
 
@@ -339,9 +375,24 @@ namespace Heck.SettingsSetter
                         }
 
                         DoPresent = true;
-                        _activeFlowCoordinator = flowCoordinator;
                         _defaultParameters = startParameters;
-                        _presentViewController(flowCoordinator, this, null, AnimationDirection.Horizontal, false);
+                        if (isMultiplayer)
+                        {
+                            _isMultiplayer = true;
+                            _multiplayerDeclined = false;
+                            _activeFlowCoordinator = _gameServerLobbyFlowCoordinator;
+                            _presentViewController(_activeFlowCoordinator, this, MultiplayerViewControllerPresented, AnimationDirection.Horizontal, false);
+                            if (_declineButton != null)
+                            {
+                                _declineButton.SetActive(true);
+                            }
+                        }
+                        else
+                        {
+                            _activeFlowCoordinator = _singlePlayerLevelSelectionFlowCoordinator;
+                            _presentViewController(_activeFlowCoordinator, this, null, AnimationDirection.Horizontal, false);
+                        }
+
                         BSMLParser.instance.Parse(ContentBSML, gameObject, this);
                         return;
                     }
@@ -356,33 +407,36 @@ namespace Heck.SettingsSetter
             DoPresent = false;
         }
 
-        internal void StartWithParameters(StartStandardLevelParameters startParameters, bool force = false)
+        internal void AcceptAndStartMultiplayerLevel()
         {
+            if (isActivated)
+            {
+                if (_viewControllerPresented)
+                {
+                    OnAcceptClick();
+                    _viewControllerPresented = false;
+                }
+                else
+                {
+                    _acceptImmediately = true;
+                }
+            }
+
+            StartMultiplayerWithParameters(!_multiplayerDeclined ? _modifiedParameters : _defaultParameters);
+        }
+
+        internal void StartWithParameters(StartStandardLevelParameters? startParameters, bool force = false)
+        {
+            if (startParameters == null)
+            {
+                throw new ArgumentNullException(nameof(startParameters));
+            }
+
             if (!force)
             {
                 _cachedParameters = startParameters;
 
-                if (_modifiedMainSettings != null)
-                {
-                    Heck.Log.Logger.Log("Main settings modified.", Logger.Level.Trace);
-                    _mainSettings.mirrorGraphicsSettings.value = _modifiedMainSettings.MirrorGraphicsSettings;
-                    _mainSettings.mainEffectGraphicsSettings.value = _modifiedMainSettings.MainEffectGraphicsSettings;
-                    _mainSettings.smokeGraphicsSettings.value = _modifiedMainSettings.SmokeGraphicsSettings;
-                    _mainSettings.burnMarkTrailsEnabled.value = _modifiedMainSettings.BurnMarkTrailsEnabled;
-                    _mainSettings.screenDisplacementEffectsEnabled.value = _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
-                    _mainSettings.maxShockwaveParticles.value = _modifiedMainSettings.MaxShockwaveParticles;
-                    _modifiedMainSettings = null;
-                    _mainSystemInit.Init();
-                }
-
-                if (_settableSettingsToSet != null)
-                {
-                    foreach ((ISettableSetting settableSetting, object item2) in _settableSettingsToSet)
-                    {
-                        Heck.Log.Logger.Log($"Set settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}] to [{item2}].", Logger.Level.Trace);
-                        settableSetting.SetTemporary(item2);
-                    }
-                }
+                ApplySettings();
             }
 
             MenuTransitionHelper.StartStandardLevel(
@@ -402,12 +456,89 @@ namespace Heck.SettingsSetter
                 startParameters.LevelFinishedCallback);
         }
 
+        internal void StartMultiplayerWithParameters(StartStandardLevelParameters? startStandardParameters)
+        {
+            if (startStandardParameters is not StartMultiplayerLevelParameters startParameters)
+            {
+                throw new ArgumentException($"Was not of type [{nameof(StartMultiplayerLevelParameters)}]", nameof(startStandardParameters));
+            }
+
+            _lobbyGameStateController.SetProperty("countdownStarted", false);
+            _lobbyGameStateController.StopListeningToGameStart();
+
+            ApplySettings();
+
+            MenuTransitionHelper.StartMultiplayerLevel(
+                startParameters.GameMode,
+                startParameters.PreviewBeatmapLevel,
+                startParameters.BeatmapDifficulty,
+                startParameters.BeatmapCharacteristic,
+                startParameters.DifficultyBeatmap,
+                startParameters.OverrideColorScheme,
+                startParameters.GameplayModifiers,
+                startParameters.PlayerSpecificSettings,
+                startParameters.PracticeSettings,
+                startParameters.BackButtonText,
+                startParameters.UseTestNoteCutSoundEffects,
+                startParameters.BeforeSceneSwitchCallback,
+                startParameters.MultiplayerLevelFinishedCallback,
+                startParameters.DidDisconnectCallback);
+        }
+
+        private void ApplySettings()
+        {
+            if (_modifiedMainSettings != null)
+            {
+                Heck.Log.Logger.Log("Main settings modified.", Logger.Level.Trace);
+                _mainSettings.mirrorGraphicsSettings.value = _modifiedMainSettings.MirrorGraphicsSettings;
+                _mainSettings.mainEffectGraphicsSettings.value = _modifiedMainSettings.MainEffectGraphicsSettings;
+                _mainSettings.smokeGraphicsSettings.value = _modifiedMainSettings.SmokeGraphicsSettings;
+                _mainSettings.burnMarkTrailsEnabled.value = _modifiedMainSettings.BurnMarkTrailsEnabled;
+                _mainSettings.screenDisplacementEffectsEnabled.value = _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
+                _mainSettings.maxShockwaveParticles.value = _modifiedMainSettings.MaxShockwaveParticles;
+                _modifiedMainSettings = null;
+                _mainSystemInit.Init();
+            }
+
+            // ReSharper disable once InvertIf
+            if (_settableSettingsToSet != null)
+            {
+                foreach ((ISettableSetting settableSetting, object item2) in _settableSettingsToSet)
+                {
+                    Heck.Log.Logger.Log($"Set settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}] to [{item2}].", Logger.Level.Trace);
+                    settableSetting.SetTemporary(item2);
+                }
+            }
+        }
+
+        private void MultiplayerViewControllerPresented()
+        {
+            if (_acceptImmediately)
+            {
+                OnAcceptClick();
+                _acceptImmediately = false;
+            }
+            else
+            {
+                _viewControllerPresented = true;
+            }
+        }
+
         [UsedImplicitly]
         [Inject]
-        private void Construct(GameplaySetupViewController gameplaySetupViewController, MenuTransitionsHelper menuTransitionsHelper)
+        private void Construct(
+            GameplaySetupViewController gameplaySetupViewController,
+            MenuTransitionsHelper menuTransitionsHelper,
+            PlayerDataModel playerDataModel,
+            GameServerLobbyFlowCoordinator gameServerLobbyFlowCoordinator,
+            ILobbyGameStateController lobbyGameStateController)
         {
             _colorSchemesSettings = gameplaySetupViewController.colorSchemesSettings;
             _menuTransitionsHelper = menuTransitionsHelper;
+            _playerDataModel = playerDataModel;
+            _gameServerLobbyFlowCoordinator = gameServerLobbyFlowCoordinator;
+            _singlePlayerLevelSelectionFlowCoordinator = Resources.FindObjectsOfTypeAll<SinglePlayerLevelSelectionFlowCoordinator>().First();
+            _lobbyGameStateController = (LobbyGameStateController)lobbyGameStateController;
             _mainSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().First();
             _mainSystemInit = Resources.FindObjectsOfTypeAll<MainSystemInit>().First();
         }
@@ -419,8 +550,23 @@ namespace Heck.SettingsSetter
             _cachedMainSettings = null;
             _modifiedMainSettings = null;
             _settableSettingsToSet = null;
+            if (_cachedOverrideEnvironmentSettings != null)
+            {
+                _playerDataModel.playerData.SetProperty("overrideEnvironmentSettings", _cachedOverrideEnvironmentSettings);
+                _cachedOverrideEnvironmentSettings = null;
+            }
+
             Dismiss();
-            StartWithParameters(_defaultParameters);
+
+            if (!_isMultiplayer)
+            {
+                StartWithParameters(_defaultParameters);
+            }
+            else
+            {
+                _multiplayerDeclined = true;
+                _isMultiplayer = false;
+            }
         }
 
         [UsedImplicitly]
@@ -428,7 +574,15 @@ namespace Heck.SettingsSetter
         private void OnAcceptClick()
         {
             Dismiss();
-            StartWithParameters(_modifiedParameters);
+            if (!_isMultiplayer)
+            {
+                StartWithParameters(_modifiedParameters);
+            }
+            else
+            {
+                _multiplayerDeclined = false;
+                _isMultiplayer = false;
+            }
         }
 
         private void Dismiss()
