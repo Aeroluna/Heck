@@ -68,29 +68,18 @@ namespace Heck.Animation.Transform
                 ScaleUpdated?.Invoke();
             }
 
-            if (rotation.HasValue)
-            {
-                transform.rotation = rotation.Value;
-                RotationUpdated?.Invoke();
-            }
-            else if (localRotation.HasValue)
+            if (localRotation.HasValue)
             {
                 transform.localRotation = localRotation.Value;
                 RotationUpdated?.Invoke();
             }
-
-            if (position.HasValue)
+            else if (rotation.HasValue)
             {
-                Vector3 positionValue = position.Value;
-                if (_v2)
-                {
-                    positionValue *= StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
-                }
-
-                transform.position = positionValue;
-                PositionUpdated?.Invoke();
+                transform.rotation = rotation.Value;
+                RotationUpdated?.Invoke();
             }
-            else if (localPosition.HasValue)
+
+            if (localPosition.HasValue)
             {
                 Vector3 localPositionValue = localPosition.Value;
                 if (_v2)
@@ -99,6 +88,17 @@ namespace Heck.Animation.Transform
                 }
 
                 transform.localPosition = localPositionValue;
+                PositionUpdated?.Invoke();
+            }
+            else if (position.HasValue)
+            {
+                Vector3 positionValue = position.Value;
+                if (_v2)
+                {
+                    positionValue *= StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
+                }
+
+                transform.position = positionValue;
                 PositionUpdated?.Invoke();
             }
         }

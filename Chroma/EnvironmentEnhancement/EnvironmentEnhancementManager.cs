@@ -76,7 +76,7 @@ namespace Chroma.EnvironmentEnhancement
             __instance.StartCoroutine(DelayedStart());
         }
 
-        internal IEnumerator DelayedStart()
+        private IEnumerator DelayedStart()
         {
             yield return new WaitForEndOfFrame();
 
