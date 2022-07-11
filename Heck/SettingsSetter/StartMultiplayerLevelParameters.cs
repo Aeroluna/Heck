@@ -1,9 +1,9 @@
-﻿using JetBrains.Annotations;
-using System;
+﻿using System;
+using JetBrains.Annotations;
 
 namespace Heck.SettingsSetter
 {
-    internal struct StartMultiplayerLevelParameters
+    internal class StartMultiplayerLevelParameters : StartStandardLevelParameters
     {
         [UsedImplicitly]
         internal StartMultiplayerLevelParameters(
@@ -21,49 +21,47 @@ namespace Heck.SettingsSetter
             Action beforeSceneSwitchCallback,
             Action<MultiplayerLevelScenesTransitionSetupDataSO, MultiplayerResultsData> levelFinishedCallback,
             Action<DisconnectedReason> didDisconnectCallback)
+            : base(
+                gameMode,
+                difficultyBeatmap,
+                previewBeatmapLevel,
+                null,
+                overrideColorScheme,
+                gameplayModifiers,
+                playerSpecificSettings,
+                practiceSettings,
+                backButtonText,
+                useTestNoteCutSoundEffects,
+                false,
+                beforeSceneSwitchCallback,
+                null)
         {
-            GameMode = gameMode;
-            PreviewBeatmapLevel = previewBeatmapLevel;
             BeatmapDifficulty = beatmapDifficulty;
             BeatmapCharacteristic = beatmapCharacteristic;
-            DifficultyBeatmap = difficultyBeatmap;
-            OverrideColorScheme = overrideColorScheme;
-            GameplayModifiers = gameplayModifiers;
-            PlayerSpecificSettings = playerSpecificSettings;
-            PracticeSettings = practiceSettings;
-            BackButtonText = backButtonText;
-            UseTestNoteCutSoundEffects = useTestNoteCutSoundEffects;
-            BeforeSceneSwitchCallback = beforeSceneSwitchCallback;
-            LevelFinishedCallback = levelFinishedCallback;
+            MultiplayerLevelFinishedCallback = levelFinishedCallback;
             DidDisconnectCallback = didDisconnectCallback;
         }
 
-        internal string GameMode { get; }
-
-        internal IPreviewBeatmapLevel PreviewBeatmapLevel { get; }
+        internal StartMultiplayerLevelParameters(StartMultiplayerLevelParameters original)
+            : base(original)
+        {
+            BeatmapDifficulty = original.BeatmapDifficulty;
+            BeatmapCharacteristic = original.BeatmapCharacteristic;
+            MultiplayerLevelFinishedCallback = original.MultiplayerLevelFinishedCallback;
+            DidDisconnectCallback = original.DidDisconnectCallback;
+        }
 
         internal BeatmapDifficulty BeatmapDifficulty { get; }
 
         internal BeatmapCharacteristicSO BeatmapCharacteristic { get; }
 
-        internal IDifficultyBeatmap DifficultyBeatmap { get; }
-
-        internal ColorScheme? OverrideColorScheme { get; set; }
-
-        internal GameplayModifiers GameplayModifiers { get; set; }
-
-        internal PlayerSpecificSettings PlayerSpecificSettings { get; set; }
-
-        internal PracticeSettings PracticeSettings { get; }
-
-        internal string BackButtonText { get; }
-
-        internal bool UseTestNoteCutSoundEffects { get; }
-
-        internal Action? BeforeSceneSwitchCallback { get; }
-
-        internal Action<MultiplayerLevelScenesTransitionSetupDataSO, MultiplayerResultsData>? LevelFinishedCallback { get; }
+        internal Action<MultiplayerLevelScenesTransitionSetupDataSO, MultiplayerResultsData>? MultiplayerLevelFinishedCallback { get; }
 
         internal Action<DisconnectedReason>? DidDisconnectCallback { get; }
+
+        internal override StartStandardLevelParameters Copy()
+        {
+            return new StartMultiplayerLevelParameters(this);
+        }
     }
 }

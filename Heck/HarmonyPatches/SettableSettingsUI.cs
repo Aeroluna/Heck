@@ -8,7 +8,6 @@ using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using SiraUtil.Affinity;
-using Zenject;
 
 namespace Heck.HarmonyPatches
 {
@@ -49,10 +48,10 @@ namespace Heck.HarmonyPatches
                 typeof(Action<MultiplayerLevelScenesTransitionSetupDataSO, MultiplayerResultsData>), typeof(Action<DisconnectedReason>)
             });
 
-        private bool _settableSettingsWasShown;
-
         private readonly SettingsSetterViewController _setterViewController;
         private readonly LobbyGameStateController _lobbyGameStateController;
+
+        private bool _settableSettingsWasShown;
 
         private SettableSettingsUI(SettingsSetterViewController setterViewController, ILobbyGameStateController lobbyGameStateController)
         {
@@ -106,7 +105,7 @@ namespace Heck.HarmonyPatches
         private bool StartLevelPrefix(SinglePlayerLevelSelectionFlowCoordinator __instance, Action beforeSceneSwitchCallback, bool practice)
         {
             StartStandardLevelParameters parameters = GetParameters(__instance, beforeSceneSwitchCallback, practice);
-            _setterViewController.Init(__instance, parameters);
+            _setterViewController.Init(parameters);
             return !_setterViewController.DoPresent;
         }
 
@@ -114,12 +113,15 @@ namespace Heck.HarmonyPatches
         [AffinityPatch(typeof(MultiplayerLevelLoader), nameof(MultiplayerLevelLoader.Tick))]
         private void WaitingForCountdownPostfix(MultiplayerLevelLoader.MultiplayerBeatmapLoaderState ____loaderState, ILevelGameplaySetupData ____gameplaySetupData, IDifficultyBeatmap ____difficultyBeatmap)
         {
-            if (____loaderState == MultiplayerLevelLoader.MultiplayerBeatmapLoaderState.WaitingForCountdown && !_settableSettingsWasShown)
+            if (____loaderState != MultiplayerLevelLoader.MultiplayerBeatmapLoaderState.WaitingForCountdown ||
+                _settableSettingsWasShown)
             {
-                StartMultiplayerLevelParameters parameters = GetMultiplayerParameters(_lobbyGameStateController, ____gameplaySetupData, ____difficultyBeatmap, null!);
-                _setterViewController.MultiplayerInit(parameters);
-                _settableSettingsWasShown = true;
+                return;
             }
+
+            StartMultiplayerLevelParameters parameters = GetMultiplayerParameters(_lobbyGameStateController, ____gameplaySetupData, ____difficultyBeatmap, null!);
+            _setterViewController.Init(parameters);
+            _settableSettingsWasShown = true;
         }
 
         [AffinityPrefix]
@@ -131,6 +133,7 @@ namespace Heck.HarmonyPatches
             {
                 _setterViewController.AcceptAndStartMultiplayerLevel();
             }
+
             return !_setterViewController.DoPresent;
         }
 
