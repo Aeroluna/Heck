@@ -33,6 +33,7 @@ namespace Heck
             IPALogger.Log(level, HeckController.DebugMode ? $"{member}({line}): {message}" : message);
         }
 
+#if DEBUG
         [PublicAPI]
         public void PrintHarmonyInfo(MethodBase method)
         {
@@ -57,5 +58,6 @@ namespace Heck
                 Log("=============================");
             }
         }
+#endif
     }
 }

@@ -30,6 +30,10 @@ namespace Heck.HarmonyPatches
         private IEnumerable<CodeInstruction> ReplaceConditionTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * BeatmapObjectSpawnMovementData.NoteSpawnData noteSpawnData = new BeatmapObjectSpawnMovementData.NoteSpawnData(new Vector3(headMoveStartPos.x + vector3.x, headMoveStartPos.y, headMoveStartPos.z), new Vector3(headJumpStartPos.x + vector3.x, headJumpStartPos.y, headJumpStartPos.z), new Vector3(headJumpEndPos.x + vector3.x, headJumpEndPos.y, headJumpEndPos.z), 2f * (vector.y + vector3.y - headJumpStartPos.y) / (num * num), sliderSpawnData.moveDuration, sliderSpawnData.jumpDuration);
+                 * ++ RegisterBurstSliderNoteData(sliderData, noteData);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Call, _noteSpawnDataCtor))
                 .Advance(1)
                 .Insert(

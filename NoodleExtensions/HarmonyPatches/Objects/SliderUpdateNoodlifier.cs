@@ -72,6 +72,17 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- float songTime = this._audioTimeSyncController.songTime;
+                 * -- this._timeSinceHeadNoteJump = songTime - (this._headNoteTime - this._jumpDuration * 0.5f);
+                 * -- float num = songTime - (this._tailNoteTime - this._jumpDuration * 0.5f);
+                 * -- float num2 = this._timeSinceHeadNoteJump / this._jumpDuration;
+                 * -- float num3 = num / this._jumpDuration;
+                 * -- this._localPosition.z = this._playerTransforms.MoveTowardsHead(this._headNoteJumpStartPos.z, this._headNoteJumpEndPos.z, this._inverseWorldRotation, num2);
+                 * -- Vector3 localPosition = this._worldRotation * this._localPosition;
+                 * -- this._transform.localPosition = localPosition;
+                 * ++ SliderUpdate(this, this._headNoteTime, this._tailNoteTime, this._jumpDuration, ref this._timeSinceHeadNoteJump, ref num2, ref num3, ref this._headNoteJumpStartPos, ref this._headNoteJumpEndPos, ref this._worldRotation, ref this._inverseWorldRotation);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Ldarg_0))
                 .RemoveInstructions(59)
                 .InsertAndAdvance(

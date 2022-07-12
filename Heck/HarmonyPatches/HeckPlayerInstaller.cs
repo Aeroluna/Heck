@@ -4,6 +4,7 @@ using System.Reflection.Emit;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
+using IPA.Utilities;
 using Zenject;
 
 namespace Heck.HarmonyPatches
@@ -11,29 +12,17 @@ namespace Heck.HarmonyPatches
     [HeckPatch(PatchType.Features)]
     internal static class HeckPlayerInstaller
     {
-        private static readonly FieldInfo _sceneSetupData = AccessTools.Field(typeof(GameplayCoreInstaller), "_sceneSetupData");
-        private static readonly MethodInfo _transformedBeatmapData = AccessTools.PropertyGetter(typeof(GameplayCoreSceneSetupData), nameof(GameplayCoreSceneSetupData.transformedBeatmapData));
         private static readonly MethodInfo _getContainer = AccessTools.PropertyGetter(typeof(MonoInstallerBase), "Container");
-        private static readonly MethodInfo _bindHeckSinglePlayer = AccessTools.Method(typeof(HeckPlayerInstaller), nameof(BindHeckSinglePlayer));
         private static readonly MethodInfo _bindHeckMultiPlayer = AccessTools.Method(typeof(HeckPlayerInstaller), nameof(BindHeckMultiPlayer));
 
-        [HarmonyTranspiler]
+        private static readonly PropertyAccessor<MonoInstallerBase, DiContainer>.Getter _containerGetAccessor =
+            PropertyAccessor<MonoInstallerBase, DiContainer>.GetGetter("Container");
+
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
-        private static IEnumerable<CodeInstruction> GameplayCoreTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static void GameplayCoreBinder(MonoInstallerBase __instance, GameplayCoreSceneSetupData ____sceneSetupData)
         {
-            // Loads all the fields necessary to call BindHeckPlayer
-            return new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _transformedBeatmapData))
-                .ThrowLastError()
-                .Advance(2)
-                .Insert(
-                    new CodeInstruction(OpCodes.Ldarg_0),
-                    new CodeInstruction(OpCodes.Ldfld, _sceneSetupData),
-                    new CodeInstruction(OpCodes.Ldloc_3),
-                    new CodeInstruction(OpCodes.Ldarg_0),
-                    new CodeInstruction(OpCodes.Call, _getContainer),
-                    new CodeInstruction(OpCodes.Call, _bindHeckSinglePlayer))
-                .InstructionEnumeration();
+            BindHeckSinglePlayer(____sceneSetupData, _containerGetAccessor(ref __instance));
         }
 
         [HarmonyTranspiler]
@@ -41,6 +30,10 @@ namespace Heck.HarmonyPatches
         private static IEnumerable<CodeInstruction> MultiplayerConnectedTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * PlayerSpecificSettingsNetSerializable playerSpecificSettingsForUserId = this._playersSpecificSettingsAtGameStartModel.GetPlayerSpecificSettingsForUserId(this._connectedPlayer.userId);
+                 * ++ BindHeckMultiPlayer(playerSpecificSettingsForUserId, base.Container);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Stloc_0))
                 .Advance(1)
                 .Insert(
@@ -53,7 +46,6 @@ namespace Heck.HarmonyPatches
 
         private static void BindHeckSinglePlayer(
             GameplayCoreSceneSetupData sceneSetupData,
-            PlayerSpecificSettings playerSpecificSettings,
             DiContainer container)
         {
             IReadonlyBeatmapData untransformedBeatmapData;
@@ -67,7 +59,7 @@ namespace Heck.HarmonyPatches
                 untransformedBeatmapData = sceneSetupData.transformedBeatmapData;
             }
 
-            bool leftHanded = playerSpecificSettings.leftHanded;
+            bool leftHanded = sceneSetupData.playerSpecificSettings.leftHanded;
             DeserializerManager.DeserializeBeatmapData(
                 (CustomBeatmapData)sceneSetupData.transformedBeatmapData,
                 untransformedBeatmapData,

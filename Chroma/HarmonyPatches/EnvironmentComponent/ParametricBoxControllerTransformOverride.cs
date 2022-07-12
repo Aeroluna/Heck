@@ -61,6 +61,12 @@ namespace Chroma.HarmonyPatches.EnvironmentComponent
         private IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- base.transform.localScale = new Vector3(this.width * 0.5f, this.height * 0.5f, this.length * 0.5f);
+                 * ++ base.transform.localScale = GetTransformScale(new Vector3(this.width * 0.5f, this.height * 0.5f, this.length * 0.5f), this);
+                 * -- base.transform.localPosition = new Vector3(0f, (0.5f - this.heightCenter) * this.height, 0f);
+                 * ++ base.transform.localPosition = GetTransformPosition(new Vector3(0f, (0.5f - this.heightCenter) * this.height, 0f), this);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _localScaleSetter))
                 .InsertAndAdvance(
                     new CodeInstruction(OpCodes.Ldarg_0),

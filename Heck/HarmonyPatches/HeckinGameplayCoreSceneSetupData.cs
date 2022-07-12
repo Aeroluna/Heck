@@ -75,6 +75,10 @@ namespace Heck.HarmonyPatches
         private static IEnumerable<CodeInstruction> Replace(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- base.gameplayCoreSceneSetupData = new GameplayCoreSceneSetupData(difficultyBeatmap, previewBeatmapLevel, gameplayModifiers, playerSpecificSettings, practiceSettings, useTestNoteCutSoundEffects, this.environmentInfo, this.colorScheme, this._mainSettingsModel);
+                 * ++ base.gameplayCoreSceneSetupData = new HeckinGameplayCoreSceneSetupData(difficultyBeatmap, previewBeatmapLevel, gameplayModifiers, playerSpecificSettings, practiceSettings, useTestNoteCutSoundEffects, this.environmentInfo, this.colorScheme, this._mainSettingsModel);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Newobj, _original))
                 .SetOperandAndAdvance(_hecked)
                 .InstructionEnumeration();
@@ -86,6 +90,10 @@ namespace Heck.HarmonyPatches
         private static IEnumerable<CodeInstruction> HeckOff(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- Type type = sceneSetupData.GetType();
+                 * ++ Type type = HeckGetType(sceneSetupData.GetType());
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Stloc_3))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Call, _heckType))
                 .InstructionEnumeration();

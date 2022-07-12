@@ -8,6 +8,7 @@ namespace Heck
 {
     public static class CodeMatcherExtensions
     {
+#if DEBUG
         [PublicAPI]
         public static CodeMatcher PrintInstructions(this CodeMatcher codeMatcher, HeckLogger logger, string seperator = "\t")
         {
@@ -27,5 +28,6 @@ namespace Heck
 
             return codeMatcher;
         }
+#endif
     }
 }
