@@ -34,6 +34,8 @@ namespace NoodleExtensions.Animation
         private TransformController? _transformController;
         private TransformControllerFactory _transformFactory = null!;
 
+        private GameObject _multiplayerPositioner = null!;
+
         internal void AssignTrack(
             Track track)
         {
@@ -133,6 +135,15 @@ namespace NoodleExtensions.Animation
             }
         }
 
+        private void Start()
+        {
+            if (_multiPlayersManager != null)
+            {
+                _multiplayerPositioner = new GameObject();
+                _multiplayerPositioner.transform.SetParent(transform);
+            }
+        }
+
         private void Update()
         {
             Quaternion? rotation = _track.GetQuaternionProperty(OFFSET_ROTATION)?.Mirror(_leftHanded);
@@ -165,9 +176,10 @@ namespace NoodleExtensions.Animation
                 {
                     if (_multiPlayersManager.TryGetConnectedPlayerController(player.userId, out MultiplayerConnectedPlayerFacade connectedPlayerController))
                     {
+                        _multiplayerPositioner.transform.localPosition = connectedPlayerController.transform.position;
                         Transform avatar = connectedPlayerController.transform.Find("MultiplayerGameAvatar");
-                        avatar.localRotation = worldRotationQuatnerion;
-                        avatar.localPosition = positionVector;
+                        avatar.position = _multiplayerPositioner.transform.position;
+                        avatar.rotation = _multiplayerPositioner.transform.rotation;
                     }
                 }
             }
