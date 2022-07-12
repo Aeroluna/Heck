@@ -30,6 +30,7 @@ namespace NoodleExtensions.Animation
         private Track _track = null!;
         private PauseController? _pauseController;
         private MultiplayerPlayersManager? _multiPlayersManager;
+        private MultiplayerOutroAnimationController? _multiOutroController;
 
         private TransformController? _transformController;
         private TransformControllerFactory _transformFactory = null!;
@@ -55,13 +56,15 @@ namespace NoodleExtensions.Animation
             IReadonlyBeatmapData beatmapData,
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
             TransformControllerFactory transformControllerFactory,
-            [InjectOptional]PauseController? pauseController,
-            [InjectOptional]PauseMenuManager? pauseMenuManager,
-            [InjectOptional]MultiplayerLocalActivePlayerInGameMenuController? multiMenuController,
-            [InjectOptional]MultiplayerPlayersManager? multiPlayersManager)
+            [InjectOptional] PauseController? pauseController,
+            [InjectOptional] PauseMenuManager? pauseMenuManager,
+            [InjectOptional] MultiplayerLocalActivePlayerInGameMenuController? multiMenuController,
+            [InjectOptional] MultiplayerPlayersManager? multiPlayersManager,
+            [InjectOptional] MultiplayerOutroAnimationController? multiOutroController)
         {
             _pauseController = pauseController;
             _multiPlayersManager = multiPlayersManager;
+            _multiOutroController = multiOutroController;
 
             if (pauseController != null)
             {
@@ -182,6 +185,12 @@ namespace NoodleExtensions.Animation
                         avatar.rotation = _multiplayerPositioner.transform.rotation;
                     }
                 }
+            }
+
+            if (_multiOutroController != null)
+            {
+                _multiOutroController.transform.position = transform.position;
+                _multiOutroController.transform.rotation = transform.rotation;
             }
         }
 
