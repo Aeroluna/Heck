@@ -77,22 +77,22 @@ namespace Heck.Animation.Transform
                 transform.localScale = scale.Value;
             }
 
-            if (position.HasValue)
-            {
-                transform.position = position.Value;
-            }
-            else if (localPosition.HasValue)
+            if (localPosition.HasValue)
             {
                 transform.localPosition = localPosition.Value;
             }
-
-            if (rotation.HasValue)
+            else if (position.HasValue)
             {
-                transform.rotation = rotation.Value;
+                transform.position = position.Value;
             }
-            else if (localRotation.HasValue)
+
+            if (localRotation.HasValue)
             {
                 transform.localRotation = localRotation.Value;
+            }
+            else if (rotation.HasValue)
+            {
+                transform.rotation = rotation.Value;
             }
         }
     }
