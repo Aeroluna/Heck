@@ -16,7 +16,7 @@ using Logger = IPA.Logging.Logger;
 
 namespace Heck
 {
-    public class Reloader : ITickable
+    public class ReLoader : ITickable
     {
         private static readonly FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.Accessor _beatmapSaveDataAccessor
             = FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.GetAccessor("<beatmapSaveData>k__BackingField");
@@ -74,13 +74,13 @@ namespace Heck
         private readonly StandardLevelInfoSaveData.DifficultyBeatmap _standardLevelInfoSaveDataDifficultyBeatmap;
         private readonly StandardLevelInfoSaveData _standardLevelInfoSaveData;
         private readonly CustomPreviewBeatmapLevel _customPreviewBeatmapLevel;
-        private readonly bool _active;
+        private readonly bool _reloadable;
 
         private float _songStartTime;
 
         [UsedImplicitly]
 #pragma warning disable 8618
-        private Reloader(
+        private ReLoader(
             AudioTimeSyncController audioTimeSyncController,
             IDifficultyBeatmap difficultyBeatmap,
             CustomLevelLoader customLevelLoader,
@@ -116,12 +116,12 @@ namespace Heck
                 _difficultyBeatmap = customDifficultyBeatmap;
                 _customPreviewBeatmapLevel = customPreviewBeatmapLevel;
                 _standardLevelInfoSaveData = standardLevelInfoSaveData;
-                _active = true;
+                _reloadable = true;
             }
             else
             {
                 Log.Logger.Log("Cannot reload a non-custom map!", Logger.Level.Error);
-                _active = false;
+                _reloadable = false;
             }
         }
 
@@ -131,7 +131,7 @@ namespace Heck
 
         public void Tick()
         {
-            HeckConfig.ReloaderSettings config = HeckConfig.Instance.Reloader;
+            HeckConfig.ReLoaderSettings config = HeckConfig.Instance.ReLoader;
             float increment = config.ScrubIncrement;
             if (Input.GetKeyDown(config.SaveTime))
             {
@@ -139,7 +139,7 @@ namespace Heck
                 _songStartTime = _audioTimeSyncController.songTime;
                 Log.Logger.Log($"Saved: [{_songStartTime}].");
             }
-            else if (_active && Input.GetKeyDown(config.Reload))
+            else if (_reloadable && Input.GetKeyDown(config.Reload))
             {
                 Reload();
                 Log.Logger.Log("Reloaded beatmap.");
@@ -153,12 +153,10 @@ namespace Heck
             else if (Input.GetKeyDown(config.ScrubBackwards))
             {
                 Rewind(Math.Max(_audioTimeSyncController.songTime - increment, 0));
-                Log.Logger.Log($"Jumped back {increment} seconds.");
             }
             else if (Input.GetKeyDown(config.ScrubForwards))
             {
                 SetSongTime(_audioTimeSyncController.songTime + increment);
-                Log.Logger.Log($"Jumped forward {increment} seconds.");
             }
         }
 

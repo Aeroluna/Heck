@@ -10,10 +10,10 @@ using Zenject;
 namespace Heck.HarmonyPatches
 {
     [HeckPatch(PatchType.Features)]
-    internal static class HeckPlayerInstaller
+    internal static class PatchedPlayerInstaller
     {
         private static readonly MethodInfo _getContainer = AccessTools.PropertyGetter(typeof(MonoInstallerBase), "Container");
-        private static readonly MethodInfo _bindHeckMultiPlayer = AccessTools.Method(typeof(HeckPlayerInstaller), nameof(BindHeckMultiPlayer));
+        private static readonly MethodInfo _bindHeckMultiPlayer = AccessTools.Method(typeof(PatchedPlayerInstaller), nameof(BindHeckMultiPlayer));
 
         private static readonly PropertyAccessor<MonoInstallerBase, DiContainer>.Getter _containerGetAccessor =
             PropertyAccessor<MonoInstallerBase, DiContainer>.GetGetter("Container");
@@ -75,6 +75,11 @@ namespace Heck.HarmonyPatches
             container.Bind<ObjectInitializerManager>().AsSingle();
 
             container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(leftHanded);
+
+            if (HeckController.DebugMode && sceneSetupData.practiceSettings != null)
+            {
+                container.BindInterfacesAndSelfTo<ReLoader>().AsSingle().NonLazy();
+            }
         }
 
         private static void BindHeckMultiPlayer(

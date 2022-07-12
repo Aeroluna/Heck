@@ -30,11 +30,6 @@ namespace Heck.Installers
 
             // BurstSliders
             Container.BindInterfacesTo<BurstSliderDataRegisterer>().AsSingle();
-
-            if (HeckController.DebugMode)
-            {
-                Container.BindInterfacesAndSelfTo<Reloader>().AsSingle().NonLazy();
-            }
         }
     }
 }
