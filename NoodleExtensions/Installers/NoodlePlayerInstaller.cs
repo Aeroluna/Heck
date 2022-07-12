@@ -11,7 +11,7 @@ using Zenject;
 namespace NoodleExtensions.Installers
 {
     [UsedImplicitly]
-    internal class NoodlePlayerInstaller : Installer
+    internal class NoodlePlayerInstaller : Installer 
     {
         public override void InstallBindings()
         {

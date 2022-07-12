@@ -29,6 +29,7 @@ namespace NoodleExtensions.Animation
 
         private Track _track = null!;
         private PauseController? _pauseController;
+        private MultiplayerPlayersManager? _multiPlayersManager;
 
         private TransformController? _transformController;
         private TransformControllerFactory _transformFactory = null!;
@@ -54,9 +55,12 @@ namespace NoodleExtensions.Animation
             TransformControllerFactory transformControllerFactory,
             [InjectOptional]PauseController? pauseController,
             [InjectOptional]PauseMenuManager? pauseMenuManager,
-            [InjectOptional]MultiplayerLocalActivePlayerInGameMenuController? multiMenuController)
+            [InjectOptional]MultiplayerLocalActivePlayerInGameMenuController? multiMenuController,
+            [InjectOptional]MultiplayerPlayersManager? multiPlayersManager)
         {
             _pauseController = pauseController;
+            _multiPlayersManager = multiPlayersManager;
+
             if (pauseController != null)
             {
                 pauseController.didPauseEvent += OnDidPauseEvent;
@@ -154,6 +158,19 @@ namespace NoodleExtensions.Animation
             Transform transform1 = transform;
             transform1.localRotation = worldRotationQuatnerion;
             transform1.localPosition = positionVector;
+
+            if (_multiPlayersManager != null)
+            {
+                foreach (IConnectedPlayer player in _multiPlayersManager.allActiveAtGameStartPlayers)
+                {
+                    if (_multiPlayersManager.TryGetConnectedPlayerController(player.userId, out MultiplayerConnectedPlayerFacade connectedPlayerController))
+                    {
+                        Transform avatar = connectedPlayerController.transform.Find("MultiplayerGameAvatar");
+                        avatar.localRotation = worldRotationQuatnerion;
+                        avatar.localPosition = positionVector;
+                    }
+                }
+            }
         }
 
         [UsedImplicitly]
