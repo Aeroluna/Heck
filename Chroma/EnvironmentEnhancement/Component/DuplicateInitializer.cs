@@ -52,12 +52,8 @@ namespace Chroma.EnvironmentEnhancement.Component
             _trackLaneRingsManagers = Resources.FindObjectsOfTypeAll<TrackLaneRingsManager>().ToHashSet();
         }
 
-        internal bool SkipAwake { get; private set; }
-
-        internal void PrefillComponentsData(Transform root, List<IComponentData> componentDatas)
+        internal static void PrefillComponentsData(Transform root, List<IComponentData> componentDatas)
         {
-            SkipAwake = true;
-
             TrackLaneRingsManager trackLaneRingsManager = root.GetComponent<TrackLaneRingsManager>();
             if (trackLaneRingsManager != null)
             {
@@ -75,8 +71,6 @@ namespace Chroma.EnvironmentEnhancement.Component
 
         internal void PostfillComponentsData(Transform root, Transform original, List<IComponentData> componentDatas)
         {
-            SkipAwake = false;
-
             TrackLaneRingsManager trackLaneRingsManager = root.GetComponent<TrackLaneRingsManager>();
             if (trackLaneRingsManager != null)
             {
