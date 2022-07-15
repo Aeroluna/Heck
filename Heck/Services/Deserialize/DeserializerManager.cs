@@ -181,6 +181,7 @@ namespace Heck
             IReadOnlyList<BeatmapObjectData> objectDatas = customBeatmapData.GetBeatmapDataItems<NoteData>()
                 .Cast<BeatmapObjectData>()
                 .Concat(customBeatmapData.GetBeatmapDataItems<ObstacleData>())
+                .Concat(customBeatmapData.GetBeatmapDataItems<SliderData>())
                 .ToArray();
 
             object[] inputs =

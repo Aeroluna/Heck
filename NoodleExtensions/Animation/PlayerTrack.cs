@@ -5,7 +5,6 @@ using Heck.Animation;
 using Heck.Animation.Transform;
 using IPA.Utilities;
 using JetBrains.Annotations;
-using NoodleExtensions.HarmonyPatches.SmallFixes;
 using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
@@ -23,8 +22,6 @@ namespace NoodleExtensions.Animation
 
     internal class PlayerTrack : MonoBehaviour
     {
-        private static readonly FieldAccessor<PauseController, bool>.Accessor _pausedAccessor = FieldAccessor<PauseController, bool>.GetAccessor("_paused");
-
         // because camera2 is cringe
         // stop using reflection you jerk
         [UsedImplicitly]
@@ -41,7 +38,6 @@ namespace NoodleExtensions.Animation
 
         private Track _track = null!;
         private PauseController? _pauseController;
-        private BeatmapObjectSpawnMovementData _movementData = null!;
 
         private TransformController? _transformController;
         private TransformControllerFactory _transformFactory = null!;
@@ -63,10 +59,11 @@ namespace NoodleExtensions.Animation
         [Inject]
         private void Construct(
             IReadonlyBeatmapData beatmapData,
-            [InjectOptional]PauseController pauseController,
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
-            InitializedSpawnMovementData movementData,
-            TransformControllerFactory transformControllerFactory)
+            TransformControllerFactory transformControllerFactory,
+            [InjectOptional]PauseController? pauseController,
+            [InjectOptional]PauseMenuManager? pauseMenuManager,
+            [InjectOptional]MultiplayerLocalActivePlayerInGameMenuController? multiMenuController)
         {
             _pauseController = pauseController;
             if (pauseController != null)
@@ -79,8 +76,17 @@ namespace NoodleExtensions.Animation
             _startLocalRot = origin.localRotation;
             _startPos = origin.localPosition;
             _leftHanded = leftHanded;
-            _movementData = movementData.MovementData;
             _transformFactory = transformControllerFactory;
+
+            if (pauseMenuManager != null)
+            {
+                pauseMenuManager.transform.SetParent(origin, false);
+            }
+
+            if (multiMenuController != null)
+            {
+                multiMenuController.transform.SetParent(origin, false);
+            }
 
             _v2 = ((CustomBeatmapData)beatmapData).version2_6_0AndEarlier;
             if (!_v2)
@@ -95,9 +101,11 @@ namespace NoodleExtensions.Animation
 
         private void OnDidPauseEvent()
         {
-            Transform transform1 = transform;
-            transform1.localRotation = _startLocalRot;
-            transform1.localPosition = _startPos;
+            if (_v2)
+            {
+                enabled = false;
+            }
+
             if (_transformController != null)
             {
                 _transformController.enabled = false;
@@ -106,6 +114,11 @@ namespace NoodleExtensions.Animation
 
         private void OnDidResumeEvent()
         {
+            if (_v2)
+            {
+                enabled = true;
+            }
+
             if (_transformController != null)
             {
                 _transformController.enabled = true;
@@ -127,11 +140,6 @@ namespace NoodleExtensions.Animation
 
         private void Update()
         {
-            if (_pauseController != null && _pausedAccessor(ref _pauseController))
-            {
-                return;
-            }
-
             Quaternion? rotation = _track.GetQuaternionProperty(OFFSET_ROTATION)?.Mirror(_leftHanded);
             Vector3? position = _track.GetVector3Property(OFFSET_POSITION)?.Mirror(_leftHanded);
 
@@ -142,7 +150,7 @@ namespace NoodleExtensions.Animation
                 Quaternion finalRot = rotation ?? Quaternion.identity;
                 worldRotationQuatnerion *= finalRot;
                 Vector3 finalPos = position ?? Vector3.zero;
-                positionVector = worldRotationQuatnerion * ((finalPos * _movementData.noteLinesDistance) + _startPos);
+                positionVector = worldRotationQuatnerion * ((finalPos * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance) + _startPos);
             }
 
             worldRotationQuatnerion *= _startLocalRot;

@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
-using Heck.Animation;
 using IPA.Utilities;
 using NoodleExtensions.Animation;
 using SiraUtil.Affinity;
@@ -58,8 +57,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
         internal float NoteJumpTimeAdjust(float original, float jumpDuration)
         {
-            NoodleObjectData? noodleData = _noteUpdateNoodlifier.NoodleData;
-            float? time = noodleData?.Track?.Select(n => n.GetLinearProperty(NoodleController.TIME)).FirstOrDefault(n => n.HasValue);
+            float? time = _noteUpdateNoodlifier.NoodleData?.GetTimeProperty();
             if (time.HasValue)
             {
                 return time.Value * jumpDuration;
@@ -76,6 +74,37 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
             // CodeMatcher needs some better label manipulating methods
             // replace rotation stuff
+            /*
+             *
+             * if (num2 < 0.5f)
+             * {
+             * --     Quaternion quaternion;
+             * --     if (num2 < 0.125f)
+             * --     {
+             * --       quaternion = Quaternion.Slerp(this._startRotation, this._middleRotation, Mathf.Sin(num2 * 3.1415927f * 4f));
+             * --     }
+             * --     else
+             * --     {
+             * --       quaternion = Quaternion.Slerp(this._middleRotation, this._endRotation, Mathf.Sin((num2 - 0.125f) * 3.1415927f * 2f));
+             * --     }
+             * --     if (this._rotateTowardsPlayer)
+             * --     {
+             * --       Vector3 vector = this._playerTransforms.headPseudoLocalPos;
+             * --       vector.y = Mathf.Lerp(vector.y, this._localPosition.y, 0.8f);
+             * --       vector = this._inverseWorldRotation * vector;
+             * --       Vector3 normalized = (this._localPosition - vector).normalized;
+             * --       Quaternion b = default(Quaternion);
+             * --       Vector3 point = this._playerSpaceConvertor.worldToPlayerSpaceRotation * this._rotatedObject.up;
+             * --       b.SetLookRotation(normalized, this._inverseWorldRotation * point);
+             * --       this._rotatedObject.localRotation = Quaternion.Lerp(quaternion, b, num2 * 2f);
+             * --     }
+             * --     else
+             * --     {
+             * --       this._rotatedObject.localRotation = quaternion;
+             * --     }
+             * ++ DoNoteLook(num2, this._startRotation, this._middleRotation, this._endRotation, this._playerTransforms, this._rotatedObject, base.transform, this._inverseWorldRotation);
+             * }
+             */
             codeMatcher
                 .MatchForward(
                     false,
@@ -112,6 +141,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                     _doNoteLook)
 
             // Add addition check to our quirky little variable to skip end position offset when we are using definitePosition
+            /*
+             * -- if (this._threeQuartersMarkReported)
+             * ++ if (this._threeQuartersMarkReported && !_definitePosition)
+             */
                 .MatchForward(
                     true,
                     new CodeMatch(OpCodes.Ldfld, _threeQuartersMarkReportedField),
@@ -127,6 +160,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             return codeMatcher
 
                 // time adjust
+                /*
+                 * -- float num = songTime - (this._beatTime - this._jumpDuration * 0.5f);
+                 * ++ float num = NoteJumpTimeAdjust(songTime - (this._beatTime - this._jumpDuration * 0.5f), this._jumpDuration);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Stloc_0))
                 .InsertAndAdvance(
                     new CodeInstruction(OpCodes.Ldarg_0),
@@ -134,6 +171,11 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                     _noteJumpTimeAdjust)
 
                 // final position
+                /*
+                 *      this._localPosition.y = this._localPosition.y + num3 * this._yAvoidance;
+                 * }
+                 * ++ this._localPosition = DefiniteNoteJump(this._localPosition, num2);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Stind_R4))
                 .Advance(2)
                 .InsertAndAdvance(
@@ -155,9 +197,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 _animationHelper.GetDefinitePositionOffset(noodleData.AnimationObject, noodleData.Track, time, out Vector3? position);
                 if (position.HasValue)
                 {
-                    Vector3 noteOffset = noodleData.InternalNoteOffset;
                     _definitePosition = true;
-                    return position.Value + noteOffset;
+                    return position.Value + noodleData.InternalNoteOffset;
                 }
             }
 
@@ -177,7 +218,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             Transform baseTransform,
             Quaternion inverseWorldRotation)
         {
-            NoodleNoteData? noodleData = _noteUpdateNoodlifier.NoodleData;
+            NoodleBaseNoteData? noodleData = _noteUpdateNoodlifier.NoodleData;
             if (noodleData is { DisableLook: true })
             {
                 rotatedObject.localRotation = endRotation;

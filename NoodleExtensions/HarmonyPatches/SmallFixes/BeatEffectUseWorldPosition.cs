@@ -26,6 +26,10 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
             return new CodeMatcher(instructions)
 
                 // position
+                /*
+                 * -- beatEffect.transform.SetPositionAndRotation(noteController.worldRotation * noteController.jumpStartPos - new Vector3(0f, 0.15f, 0f), Quaternion.identity);
+                 * ++ beatEffect.transform.SetPositionAndRotation(noteController.transform.position - new Vector3(0f, 0.15f, 0f), Quaternion.identity);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _jumpStartPosGetter))
                 .Advance(-2)
                 .InsertAndAdvance(
@@ -34,6 +38,10 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
                 .RemoveInstructions(4)
 
                 // rotation
+                /*
+                 * -- beatEffect.Init(color, this._effectDuration, noteController.worldRotation);
+                 * ++ beatEffect.Init(color, this._effectDuration, noteController.transform.rotation);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _beatEffectInit))
                 .Advance(-1)
                 .RemoveInstruction()

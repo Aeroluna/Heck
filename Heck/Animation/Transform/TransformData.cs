@@ -26,7 +26,7 @@ namespace Heck.Animation.Transform
 
         public Quaternion? LocalRotation { get; }
 
-        public void Apply(UnityEngine.Transform transform, bool leftHanded, bool v2, float noteLinesDistance)
+        public void Apply(UnityEngine.Transform transform, bool leftHanded, bool v2)
         {
             Vector3? position = Position;
             Vector3? localPosition = LocalPosition;
@@ -35,13 +35,13 @@ namespace Heck.Animation.Transform
                 // ReSharper disable once UseNullPropagation
                 if (position.HasValue)
                 {
-                    position = position.Value * noteLinesDistance;
+                    position = position.Value * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
                 }
 
                 // ReSharper disable once UseNullPropagation
                 if (localPosition.HasValue)
                 {
-                    localPosition = localPosition.Value * noteLinesDistance;
+                    localPosition = localPosition.Value * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
                 }
             }
 
@@ -77,22 +77,22 @@ namespace Heck.Animation.Transform
                 transform.localScale = scale.Value;
             }
 
-            if (position.HasValue)
-            {
-                transform.position = position.Value;
-            }
-            else if (localPosition.HasValue)
+            if (localPosition.HasValue)
             {
                 transform.localPosition = localPosition.Value;
             }
-
-            if (rotation.HasValue)
+            else if (position.HasValue)
             {
-                transform.rotation = rotation.Value;
+                transform.position = position.Value;
             }
-            else if (localRotation.HasValue)
+
+            if (localRotation.HasValue)
             {
                 transform.localRotation = localRotation.Value;
+            }
+            else if (rotation.HasValue)
+            {
+                transform.rotation = rotation.Value;
             }
         }
     }

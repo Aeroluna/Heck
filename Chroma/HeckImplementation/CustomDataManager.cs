@@ -151,6 +151,7 @@ namespace Chroma
                     switch (beatmapObjectData)
                     {
                         case CustomNoteData:
+                        case CustomSliderData:
                             dictionary.Add(beatmapObjectData, new ChromaNoteData(customData, beatmapTracks, pointDefinitions, v2));
                             break;
 

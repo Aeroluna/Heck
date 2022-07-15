@@ -26,17 +26,14 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private readonly CodeInstruction _getCustomLength;
 
         private readonly DeserializedData _deserializedData;
-        private readonly BeatmapObjectSpawnMovementData _movementData;
         private readonly ManagedActiveObstacleTracker _obstacleTracker;
 
         private ObstacleInitNoodlifier(
             [Inject(Id = NoodleController.ID)] DeserializedData deserializedData,
-            IBeatmapObjectSpawnController spawnController,
             ManagedActiveObstacleTracker obstacleTracker)
         {
             _deserializedData = deserializedData;
             _obstacleTracker = obstacleTracker;
-            _movementData = spawnController.beatmapObjectSpawnMovementData;
 
             _getWorldRotation = InstanceTranspilers.EmitInstanceDelegate<Func<ObstacleData, float, Quaternion>>(GetWorldRotation);
             _getCustomWidth = InstanceTranspilers.EmitInstanceDelegate<Func<float, ObstacleData, float>>(GetCustomWidth);
@@ -57,6 +54,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             return new CodeMatcher(instructions)
 
                 // world rotation
+                /*
+                 * -- this._worldRotation = Quaternion.Euler(0f, worldRotation, 0f);
+                 * ++ this._worldRotation = GetWorldRotation(obstacleData, worldRotation);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Stfld, _worldRotationField))
                 .Insert(
                     new CodeInstruction(OpCodes.Ldarg_1),
@@ -65,6 +66,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 .RemoveInstructionsWithOffsets(-4, -1)
 
                 // inverse world rotation
+                /*
+                 * -- this._inverseWorldRotation = Quaternion.Euler(0f, -worldRotation, 0f);
+                 * ++ this._inverseWorldRotation = Quaternion.Inverse(this._worldRotation);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Stfld, _inverseWorldRotationField))
                 .Insert(
                     new CodeInstruction(OpCodes.Ldarg_0),
@@ -73,6 +78,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 .RemoveInstructionsWithOffsets(-5, -1)
 
                 // width
+                /*
+                 * -- this._width = (float)obstacleData.width * singleLineWidth;
+                 * ++ this._width = GetCustomWidth((float)obstacleData.width * singleLineWidth, obstacleData);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _widthGetter))
                 .Advance(2)
                 .InsertAndAdvance(
@@ -80,6 +89,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                     _getCustomWidth)
 
                 // length
+                /*
+                 * this._length = num * obstacleData.duration;
+                 * ++ this._length = GetCustomLength(num * obstacleData.duration, obstacleData);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Stfld, _lengthField))
                 .Insert(
                     new CodeInstruction(OpCodes.Ldarg_1),
@@ -134,6 +147,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             noodleData.InternalEndPos = ____endPos;
             noodleData.InternalLocalRotation = localRotation;
             noodleData.InternalBoundsSize = ____bounds.size;
+
+            Vector3 noteOffset = ____endPos;
+            noteOffset.z = 0;
+            noodleData.InternalNoteOffset = noteOffset;
         }
 
         private Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
@@ -165,7 +182,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private float GetCustomLength(float @default, ObstacleData obstacleData)
         {
             _deserializedData.Resolve(obstacleData, out NoodleObstacleData? noodleData);
-            return noodleData?.Length * _movementData.noteLinesDistance ?? @default;
+            return noodleData?.Length * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance ?? @default;
         }
     }
 }

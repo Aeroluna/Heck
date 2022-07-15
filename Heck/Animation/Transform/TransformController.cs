@@ -16,7 +16,6 @@ namespace Heck.Animation.Transform
     {
         private bool _v2;
         private bool _leftHanded;
-        private float _noteLinesDistance;
         private Track _track = null!;
 
         public event Action? RotationUpdated;
@@ -29,12 +28,10 @@ namespace Heck.Animation.Transform
         [UsedImplicitly]
         private void Construct(
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
-            BeatmapObjectSpawnController spawnController,
             IReadonlyBeatmapData beatmapData,
             Track track)
         {
             _leftHanded = leftHanded;
-            _noteLinesDistance = spawnController.noteLinesDistance;
             _v2 = beatmapData is CustomBeatmapData { version2_6_0AndEarlier: true };
             _track = track;
         }
@@ -71,37 +68,37 @@ namespace Heck.Animation.Transform
                 ScaleUpdated?.Invoke();
             }
 
-            if (rotation.HasValue)
-            {
-                transform.rotation = rotation.Value;
-                RotationUpdated?.Invoke();
-            }
-            else if (localRotation.HasValue)
+            if (localRotation.HasValue)
             {
                 transform.localRotation = localRotation.Value;
                 RotationUpdated?.Invoke();
             }
-
-            if (position.HasValue)
+            else if (rotation.HasValue)
             {
-                Vector3 positionValue = position.Value;
-                if (_v2)
-                {
-                    positionValue *= _noteLinesDistance;
-                }
-
-                transform.position = positionValue;
-                PositionUpdated?.Invoke();
+                transform.rotation = rotation.Value;
+                RotationUpdated?.Invoke();
             }
-            else if (localPosition.HasValue)
+
+            if (localPosition.HasValue)
             {
                 Vector3 localPositionValue = localPosition.Value;
                 if (_v2)
                 {
-                    localPositionValue *= _noteLinesDistance;
+                    localPositionValue *= StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
                 }
 
                 transform.localPosition = localPositionValue;
+                PositionUpdated?.Invoke();
+            }
+            else if (position.HasValue)
+            {
+                Vector3 positionValue = position.Value;
+                if (_v2)
+                {
+                    positionValue *= StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
+                }
+
+                transform.position = positionValue;
                 PositionUpdated?.Invoke();
             }
         }

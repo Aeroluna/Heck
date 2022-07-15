@@ -23,8 +23,6 @@ namespace Chroma.Colorizer
 
         public SliderColorizer GetColorizer(SliderController sliderController) => Colorizers[sliderController];
 
-        // TODO: _color tag for sliders
-        // ReSharper disable once UnusedMember.Global
         public void Colorize(SliderController sliderController, Color? color) => GetColorizer(sliderController).Colorize(color);
 
         // Global coloring handled by NoteColorizerManager

@@ -20,6 +20,10 @@ namespace Heck.HarmonyPatches
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * this.RemoveListeners();
+                 * ++ _followedObstacle = obstacleController;
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Call, _removeListeners))
                 .Advance(1)
                 .InsertAndAdvance(

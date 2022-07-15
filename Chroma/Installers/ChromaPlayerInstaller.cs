@@ -67,12 +67,12 @@ namespace Chroma.Installers
 
                 // Colorizer Patch
                 Container.BindInterfacesTo<ObjectColorize>().AsSingle();
+                Container.BindInterfacesTo<NoteObjectColorize>().AsSingle();
 
                 // EnvironmentComponent
                 Container.BindInterfacesAndSelfTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();
                 Container.BindInterfacesAndSelfTo<ParametricBoxControllerTransformOverride>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackLaneRingOffset>().AsSingle();
-                Container.BindInterfacesAndSelfTo<TrackLaneRingsManagerTracker>().AsSingle();
 
                 // Events
                 Container.BindInterfacesTo<LightPairRotationChromafier>().AsSingle();

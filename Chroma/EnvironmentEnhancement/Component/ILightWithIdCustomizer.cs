@@ -3,6 +3,7 @@ using System.Linq;
 using Chroma.Colorizer;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
 using CustomJSONData.CustomBeatmap;
+using IPA.Logging;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
@@ -40,7 +41,7 @@ namespace Chroma.EnvironmentEnhancement.Component
                 .ToArray();
             if (lightWithIds.Length == 0)
             {
-                Log.Logger.Log($"No [{LIGHT_WITH_ID}] component found.");
+                Log.Logger.Log($"No [{LIGHT_WITH_ID}] component found.", Logger.Level.Error);
                 return;
             }
 

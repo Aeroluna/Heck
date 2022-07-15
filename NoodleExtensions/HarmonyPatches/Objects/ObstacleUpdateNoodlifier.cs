@@ -47,6 +47,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- float num = this._audioTimeSyncController.songTime - this._startTimeOffset;
+                 * ++ float num = ObstacletimeAdjust(this._audioTimeSyncController.songTime - this._startTimeOffset, this._obstacleData, this._move1Duration, this._finishMovementTime);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Stloc_0))
                 .Insert(
                     new CodeInstruction(OpCodes.Ldarg_0),
@@ -109,9 +113,17 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 return;
             }
 
-            // idk i just copied base game time
-            float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
-            float normalTime = (elapsedTime - ____move1Duration) / (____move2Duration + ____obstacleDuration);
+            float? time = noodleData.GetTimeProperty();
+            float normalTime;
+            if (time.HasValue)
+            {
+                normalTime = time.Value;
+            }
+            else
+            {
+                float elapsedTime = ____audioTimeSyncController.songTime - ____startTimeOffset;
+                normalTime = (elapsedTime - ____move1Duration) / (____move2Duration + ____obstacleDuration);
+            }
 
             _animationHelper.GetObjectOffset(
                 animationObject,
@@ -148,9 +160,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 if (rotationOffset.HasValue)
                 {
                     worldRotationQuatnerion *= rotationOffset.Value;
-                    Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
                     ____worldRotation = worldRotationQuatnerion;
-                    ____inverseWorldRotation = inverseWorldRotation;
+                    ____inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
                 }
 
                 worldRotationQuatnerion *= localRotation;
@@ -214,7 +225,6 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
             Vector3 noteOffset = noodleData.InternalNoteOffset;
             Vector3 definitePosition = position.Value + noteOffset;
-            definitePosition.x += noodleData.InternalXOffset;
             if (time < ____move1Duration)
             {
                 __result = Vector3.LerpUnclamped(____startPos, ____midPos, time / ____move1Duration);

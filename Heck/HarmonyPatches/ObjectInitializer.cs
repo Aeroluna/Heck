@@ -38,6 +38,11 @@ namespace Heck.HarmonyPatches
         private static IEnumerable<CodeInstruction> FromInitializerTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- base.Container.BindMemoryPool<BombNoteController, BombNoteController.Pool>().WithInitialSize(35).FromComponentInNewPrefab(this._bombNotePrefab);
+                 * ++ FromInitializer(base.Container.BindMemoryPool<BombNoteController, BombNoteController.Pool>().WithInitialSize(35), this._bombNotePrefab);
+                 * repeating. im not gonna list every single one changed
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _fromComponentInNewPrefab))
                 .Repeat(matcher => matcher
                     .SetAndAdvance(OpCodes.Call, _fromInitializer)

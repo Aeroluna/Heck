@@ -19,9 +19,9 @@ namespace Heck.Settings
         }
 
         [UsedImplicitly]
-        public ReloaderSettings Reloader { get; set; } = new();
+        public ReLoaderSettings ReLoader { get; set; } = new();
 
-        public class ReloaderSettings
+        public class ReLoaderSettings
         {
             [UsedImplicitly]
             [UseConverter(typeof(EnumConverter<KeyCode>))]

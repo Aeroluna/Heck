@@ -33,6 +33,10 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- obstacleController.Hide(this.spawnHidden);
+                 * ++ obstacleController.Hide(GetHiddenForType(this));
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Call, _spawnhiddenGetter))
                 .SetOperandAndAdvance(_getHiddenForType)
                 .InstructionEnumeration();

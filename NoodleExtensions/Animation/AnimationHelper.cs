@@ -3,7 +3,6 @@ using System.Linq;
 using Heck;
 using Heck.Animation;
 using JetBrains.Annotations;
-using NoodleExtensions.HarmonyPatches.SmallFixes;
 using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
@@ -15,13 +14,11 @@ namespace NoodleExtensions.Animation
     [UsedImplicitly]
     internal class AnimationHelper
     {
-        private readonly BeatmapObjectSpawnMovementData _movementData;
         private readonly bool _leftHanded;
 
-        private AnimationHelper([Inject(Id = LEFT_HANDED_ID)] bool leftHanded, InitializedSpawnMovementData movementData)
+        private AnimationHelper([Inject(Id = LEFT_HANDED_ID)] bool leftHanded)
         {
             _leftHanded = leftHanded;
-            _movementData = movementData.MovementData;
         }
 
         internal static void OnTrackCreated(Track track)
@@ -83,7 +80,7 @@ namespace NoodleExtensions.Animation
                     positionOffset = pathPosition;
                 }
 
-                definitePosition = (SumVectorNullables(positionOffset, pathDefinitePosition) * _movementData.noteLinesDistance)?.Mirror(_leftHanded);
+                definitePosition = (SumVectorNullables(positionOffset, pathDefinitePosition) * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance)?.Mirror(_leftHanded);
             }
             else
             {
@@ -179,7 +176,7 @@ namespace NoodleExtensions.Animation
                     trackCuttable = track.GetLinearProperty(INTERACTABLE);
                 }
 
-                positionOffset = SumVectorNullables(trackPosition, pathPosition) * _movementData.noteLinesDistance;
+                positionOffset = SumVectorNullables(trackPosition, pathPosition) * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
                 rotationOffset = MultQuaternionNullables(trackRotation, pathRotation);
                 scaleOffset = MultVectorNullables(trackScale, pathScale);
                 localRotationOffset = MultQuaternionNullables(trackLocalRotation, pathLocalRotation);
@@ -189,7 +186,7 @@ namespace NoodleExtensions.Animation
             }
             else
             {
-                positionOffset = pathPosition * _movementData.noteLinesDistance;
+                positionOffset = pathPosition * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
                 rotationOffset = pathRotation;
                 scaleOffset = pathScale;
                 localRotationOffset = pathLocalRotation;

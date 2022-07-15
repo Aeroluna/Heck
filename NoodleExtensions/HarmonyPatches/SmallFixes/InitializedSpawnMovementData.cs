@@ -35,6 +35,9 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         private static IEnumerable<CodeInstruction> RemoveInitTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- this._beatmapObjectSpawnMovementData.Init(this._initData.noteLinesCount, this._initData.noteJumpMovementSpeed, this._initData.beatsPerMinute, this._initData.noteJumpValueType, this._initData.noteJumpValue, this._jumpOffsetYProvider, Vector3.right, Vector3.forward);
+                 */
                 .Start()
                 .RemoveInstructions(22)
                 .InstructionEnumeration();

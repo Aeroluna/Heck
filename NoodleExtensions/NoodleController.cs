@@ -28,6 +28,7 @@ namespace NoodleExtensions
         internal const string V2_PLAYER_TRACK_OBJECT = "_playerTrackObject";
 
         internal const string NOTE_OFFSET = "coordinates";
+        internal const string TAIL_NOTE_OFFSET = "tailCoordinates";
         internal const string OBSTACLE_SIZE = "size";
         internal const string WORLD_ROTATION = "worldRotation";
         internal const string INTERACTABLE = "interactable";
@@ -49,6 +50,7 @@ namespace NoodleExtensions
         internal const string PLAYER_TRACK_OBJECT = "playerTrackObject";
 
         internal const string INTERNAL_STARTNOTELINELAYER = "NE_startNoteLineLayer";
+        internal const string INTERNAL_TAILSTARTNOTELINELAYER = "NE_tailStartNoteLineLayer";
         internal const string INTERNAL_FLIPYSIDE = "NE_flipYSide";
         internal const string INTERNAL_FLIPLINEINDEX = "NE_flipLineIndex";
         internal const string INTERNAL_FAKE_NOTE = "NE_fake";

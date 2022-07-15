@@ -12,12 +12,13 @@ using UnityEngine;
 namespace NoodleExtensions
 {
     [UsedImplicitly]
-    internal class ObjectInitializer : IGameNoteInitializer, IBombNoteInitializer, IObstacleInitializer
+    internal class ObjectInitializer : IGameNoteInitializer, IBombNoteInitializer, IObstacleInitializer, ISliderInitializer
     {
         private static readonly Dictionary<Type, MethodInfo> _setArrowTransparencyMethods = new();
         private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
         private static readonly FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.Accessor _obstacleCutoutAnimateEffectAccessor = FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
         private static readonly FieldAccessor<CutoutAnimateEffect, CutoutEffect[]>.Accessor _cutoutEffectAccessor = FieldAccessor<CutoutAnimateEffect, CutoutEffect[]>.GetAccessor("_cuttoutEffects");
+        private static readonly FieldAccessor<SliderControllerBase, CutoutAnimateEffect>.Accessor _sliderCutoutAnimateEffectAccessor = FieldAccessor<SliderControllerBase, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
 
         private readonly CutoutManager _cutoutManager;
 
@@ -49,6 +50,14 @@ namespace NoodleExtensions
             _cutoutManager.ObstacleCutoutEffects.Add(
                 obstacleController,
                 new CutoutAnimateEffectWrapper(_obstacleCutoutAnimateEffectAccessor(ref cutout)));
+        }
+
+        public void InitializeSlider(SliderControllerBase sliderController)
+        {
+            SliderMovement sliderMovement = sliderController.GetComponent<SliderMovement>();
+            _cutoutManager.SliderCutoutEffects.Add(
+                sliderMovement,
+                new CutoutAnimateEffectWrapper(_sliderCutoutAnimateEffectAccessor(ref sliderController)));
         }
 
         private static MethodInfo GetSetArrowTransparency(Type type)

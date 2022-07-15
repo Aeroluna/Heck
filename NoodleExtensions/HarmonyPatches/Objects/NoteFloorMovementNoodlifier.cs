@@ -36,6 +36,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- this._localPosition = Vector3.Lerp(this._startPos, this._endPos, num / this._moveDuration);
+                 * ++ this._localPosition = DefiniteNoteFloorMovement(Vector3.Lerp(this._startPos, this._endPos, num / this._moveDuration), this);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Stfld, _localPosition))
                 .Insert(
                     new CodeInstruction(OpCodes.Ldarg_0),
@@ -57,16 +61,15 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 return original;
             }
 
-            Vector3 noteOffset = noodleData.InternalNoteOffset;
             Vector3 endPos = FloorEndPosAccessor(ref noteFloorMovement);
-            return original + (position.Value + noteOffset - endPos);
+            return original + (position.Value + noodleData.InternalNoteOffset - endPos);
         }
 
         [AffinityPrefix]
         [AffinityPatch(typeof(NoteFloorMovement), nameof(NoteFloorMovement.SetToStart))]
         private void NoteFloorMovementSetToStart(Transform ____rotatedObject)
         {
-            NoodleNoteData? noodleData = _noteUpdateNoodlifier.NoodleData;
+            NoodleBaseNoteData? noodleData = _noteUpdateNoodlifier.NoodleData;
             if (noodleData is { DisableLook: true })
             {
                 ____rotatedObject.localRotation = Quaternion.Euler(0, 0, noodleData.InternalEndRotation);

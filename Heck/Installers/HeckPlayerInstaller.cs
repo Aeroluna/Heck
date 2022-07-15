@@ -1,6 +1,7 @@
 ﻿using Heck.Animation;
 using Heck.Animation.Events;
 using Heck.Animation.Transform;
+using Heck.HarmonyPatches;
 using JetBrains.Annotations;
 using Zenject;
 
@@ -27,10 +28,8 @@ namespace Heck.Installers
             // Track updater
             Container.BindInterfacesTo<TrackUpdateManager>().AsSingle().NonLazy();
 
-            if (HeckController.DebugMode)
-            {
-                Container.BindInterfacesAndSelfTo<Reloader>().AsSingle().NonLazy();
-            }
+            // BurstSliders
+            Container.BindInterfacesTo<BurstSliderDataRegisterer>().AsSingle();
         }
     }
 }

@@ -25,5 +25,12 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
         {
             return _spawnDataManager.GetJumpingNoteSpawnData(noteData, ref __result);
         }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(BeatmapObjectSpawnMovementData), nameof(BeatmapObjectSpawnMovementData.GetSliderSpawnData))]
+        private bool SliderNoodlePatch(BeatmapObjectSpawnMovementData __instance, SliderData sliderData, ref BeatmapObjectSpawnMovementData.SliderSpawnData __result)
+        {
+            return _spawnDataManager.GetSliderSpawnData(sliderData, ref __result);
+        }
     }
 }

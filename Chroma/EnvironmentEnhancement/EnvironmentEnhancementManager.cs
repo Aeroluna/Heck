@@ -6,10 +6,10 @@ using Chroma.EnvironmentEnhancement.Component;
 using Chroma.HarmonyPatches.EnvironmentComponent;
 using Chroma.Settings;
 using CustomJSONData.CustomBeatmap;
-using Heck;
 using Heck.Animation;
 using Heck.Animation.Transform;
 using JetBrains.Annotations;
+using SiraUtil.Affinity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -31,10 +31,9 @@ namespace Chroma.EnvironmentEnhancement
     }
 
     [UsedImplicitly]
-    internal class EnvironmentEnhancementManager
+    internal class EnvironmentEnhancementManager : IAffinity
     {
         private readonly CustomBeatmapData _beatmapData;
-        private readonly float _noteLinesDistance;
         private readonly Dictionary<string, Track> _tracks;
         private readonly bool _leftHanded;
         private readonly GeometryFactory _geometryFactory;
@@ -56,11 +55,9 @@ namespace Chroma.EnvironmentEnhancement
             BeatmapObjectsAvoidanceTransformOverride beatmapObjectsAvoidanceTransformOverride,
             DuplicateInitializer duplicateInitializer,
             ComponentCustomizer componentCustomizer,
-            TransformControllerFactory controllerFactory,
-            CoroutineDummy coroutineDummy)
+            TransformControllerFactory controllerFactory)
         {
             _beatmapData = (CustomBeatmapData)beatmapData;
-            _noteLinesDistance = spawnController.noteLinesDistance;
             _tracks = tracks;
             _leftHanded = leftHanded;
             _geometryFactory = geometryFactory;
@@ -70,10 +67,16 @@ namespace Chroma.EnvironmentEnhancement
             _duplicateInitializer = duplicateInitializer;
             _componentCustomizer = componentCustomizer;
             _controllerFactory = controllerFactory;
-            coroutineDummy.StartCoroutine(DelayedStart());
         }
 
-        internal IEnumerator DelayedStart()
+        [AffinityPrefix]
+        [AffinityPatch(typeof(BeatmapObjectSpawnController), nameof(BeatmapObjectSpawnController.Start))]
+        private void Start(BeatmapObjectSpawnController __instance)
+        {
+            __instance.StartCoroutine(DelayedStart());
+        }
+
+        private IEnumerator DelayedStart()
         {
             yield return new WaitForEndOfFrame();
 
@@ -195,7 +198,7 @@ namespace Chroma.EnvironmentEnhancement
                         for (int i = 0; i < dupeAmount.Value; i++)
                         {
                             List<IComponentData> componentDatas = new();
-                            _duplicateInitializer.PrefillComponentsData(gameObject.transform, componentDatas);
+                            DuplicateInitializer.PrefillComponentsData(gameObject.transform, componentDatas);
                             GameObject newGameObject = Object.Instantiate(gameObject);
                             _duplicateInitializer.PostfillComponentsData(
                                 newGameObject.transform,
@@ -245,7 +248,7 @@ namespace Chroma.EnvironmentEnhancement
 
                     Transform transform = gameObject.transform;
 
-                    spawnData.Apply(transform, _leftHanded, v2, _noteLinesDistance);
+                    spawnData.Apply(transform, _leftHanded, v2);
 
                     // Handle TrackLaneRing
                     TrackLaneRing? trackLaneRing = gameObject.GetComponentInChildren<TrackLaneRing>();

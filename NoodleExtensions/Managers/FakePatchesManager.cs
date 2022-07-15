@@ -43,11 +43,16 @@ namespace NoodleExtensions.Managers
         internal IEnumerable<CodeInstruction> BoundsNullCheckTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             CodeMatcher codeMatcher = new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Brtrue));
+                .MatchForward(false, new CodeMatch(OpCodes.Brfalse));
 
             object label = codeMatcher.Operand;
 
             return codeMatcher
+                /*
+                 * foreach (ObstacleController obstacleController in this._beatmapObjectManager.activeObstacleControllers)
+                 * {
+                 * ++ if (BoundsNullCheck(obstacleController)) continue;
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Call, _currentGetter))
                 .Advance(2)
                 .Insert(
@@ -59,13 +64,13 @@ namespace NoodleExtensions.Managers
 
         internal bool GetFakeNote(NoteController noteController)
         {
-            _deserializedData.Resolve(noteController.noteData, out NoodleNoteData? noodleData);
+            _deserializedData.Resolve(noteController.noteData, out NoodleBaseNoteData? noodleData);
             return noodleData?.Fake is not true;
         }
 
         internal bool GetCuttable(NoteData noteData)
         {
-            _deserializedData.Resolve(noteData, out NoodleNoteData? noodleData);
+            _deserializedData.Resolve(noteData, out NoodleBaseNoteData? noodleData);
             return noodleData?.Uninteractable is not true;
         }
     }

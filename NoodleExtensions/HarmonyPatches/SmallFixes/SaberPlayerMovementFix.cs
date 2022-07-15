@@ -26,6 +26,10 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         private static IEnumerable<CodeInstruction> SaberTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- this._movementData.AddNewData(this._saberBladeTopPos, this._saberBladeBottomPos, TimeHelper.time);
+                 * ++ AddNewDataBetter(this._movementData, this._saberBladeTopPos, this._sableBladeBottomPos, TimeHelper.time, this);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _addNewData))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                 .Set(OpCodes.Call, _addNewDataBetter)
@@ -37,6 +41,11 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         private static IEnumerable<CodeInstruction> NoteCutterTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * Vector3 topPos = prevAddedData.topPos;
+                 * Vector3 bottomPos = prevAddedData.bottomPos;
+                 * ++ ConvertToWorld(saber, ref topPos, ref bottomPos);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Stloc_3))
                 .Advance(1)
                 .Insert(
@@ -52,6 +61,10 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         private static IEnumerable<CodeInstruction> SaberWorldMovementTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- this._saberTrail.Setup((color * this._initData.trailTintColor).linear, saber.movementData);
+                 * ++ this._saberTrail.Setup((color * this._initData.trailTintColor).linear, CreateSaberMovementData(saber));
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _movementDataGetter))
                 .SetOperandAndAdvance(_createSaberMovementData)
                 .InstructionEnumeration();

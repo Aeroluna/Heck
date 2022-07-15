@@ -1,5 +1,4 @@
-﻿using System;
-using HarmonyLib;
+﻿using HarmonyLib;
 using Heck;
 using UnityEngine;
 
@@ -22,7 +21,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         [HarmonyPatch(typeof(CutoutEffect), nameof(CutoutEffect.SetCutout), typeof(float), typeof(Vector3))]
         private static bool CheckDifference(CutoutEffect __instance, float cutout, float ____cutout)
         {
-            return Math.Abs(cutout - ____cutout) > 0.01;
+            return !Mathf.Approximately(cutout, ____cutout);
         }
     }
 }

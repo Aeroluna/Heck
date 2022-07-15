@@ -2,6 +2,7 @@
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
+using IPA.Logging;
 using IPA.Utilities;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 
@@ -18,7 +19,7 @@ namespace Chroma.EnvironmentEnhancement.Component
                 .ToArray();
             if (bloomFogEnvironments.Length == 0)
             {
-                Log.Logger.Log($"No [{BLOOM_FOG_ENVIRONMENT}] component found.");
+                Log.Logger.Log($"No [{BLOOM_FOG_ENVIRONMENT}] component found.", Logger.Level.Error);
                 return;
             }
 
