@@ -156,10 +156,10 @@ namespace NoodleExtensions.Managers
             float offset = _movementData.noteLinesCount / 2f;
             float headLineIndex = noodleData.StartX + offset ?? sliderData.headLineIndex;
             float headLineLayer = noodleData.StartY ?? (float)sliderData.headLineLayer;
-            float headStartlinelayer = noodleData.InternalStartNoteLineLayer + offset ?? (float)sliderData.headBeforeJumpLineLayer;
+            float headStartlinelayer = noodleData.InternalStartNoteLineLayer ?? (float)sliderData.headBeforeJumpLineLayer;
             float tailLineIndex = noodleData.TailStartX + offset ?? sliderData.tailLineIndex;
             float tailLineLayer = noodleData.TailStartY ?? (float)sliderData.tailLineLayer;
-            float tailStartlinelayer = noodleData.InternalTailStartNoteLineLayer + offset ?? (float)sliderData.tailBeforeJumpLineLayer;
+            float tailStartlinelayer = noodleData.InternalTailStartNoteLineLayer ?? (float)sliderData.tailBeforeJumpLineLayer;
 
             Vector3 headOffset = GetNoteOffset(headLineIndex, headStartlinelayer);
             Vector3 tailOffset = GetNoteOffset(tailLineIndex, tailStartlinelayer);
