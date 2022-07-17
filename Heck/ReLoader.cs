@@ -67,6 +67,7 @@ namespace Heck
         private readonly BeatmapObjectManager _beatmapObjectManager;
         private readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
         private readonly BeatmapCallbacksController _beatmapCallbacksController;
+        private readonly IGamePause _gamePause;
         private readonly bool _leftHanded;
         private readonly Dictionary<string, Track> _beatmapTracks;
         private readonly DiContainer _container;
@@ -89,6 +90,7 @@ namespace Heck
             BeatmapObjectManager beatmapObjectManager,
             NoteCutSoundEffectManager noteCutSoundEffectManager,
             BeatmapCallbacksController beatmapCallbacksController,
+            IGamePause gamePause,
             [Inject(Id = HeckController.LEFT_HANDED_ID)] bool leftHanded,
             Dictionary<string, Track> beatmapTracks,
             DiContainer container)
@@ -101,6 +103,7 @@ namespace Heck
             _beatmapObjectManager = beatmapObjectManager;
             _noteCutSoundEffectManager = noteCutSoundEffectManager;
             _beatmapCallbacksController = beatmapCallbacksController;
+            _gamePause = gamePause;
             _leftHanded = leftHanded;
             _beatmapTracks = beatmapTracks;
             _container = container;
@@ -143,6 +146,10 @@ namespace Heck
             {
                 Reload();
                 Log.Logger.Log("Reloaded beatmap.");
+                if (!Input.GetKeyDown(config.JumpToSavedTime))
+                {
+                    Rewind();
+                }
             }
 
             if (Input.GetKeyDown(config.JumpToSavedTime))
@@ -178,6 +185,7 @@ namespace Heck
 
         private void Reload()
         {
+            _gamePause.Pause();
             Tuple<BeatmapSaveData, BeatmapDataBasicInfo> tuple = _customLevelLoader.LoadBeatmapDataBasicInfo(
                 _customPreviewBeatmapLevel.customLevelPath,
                 _standardLevelInfoSaveDataDifficultyBeatmap.beatmapFilename,
@@ -204,12 +212,17 @@ namespace Heck
             deserializedDatas.Do(n => _container.ResolveId<DeserializedData>(n.Id).Remap(n.DeserializedData));
 
             Reloaded?.Invoke();
+            _gamePause.Resume();
         }
 
         private void Rewind(float songTime)
         {
             SetSongTime(songTime);
+            Rewind();
+        }
 
+        private void Rewind()
+        {
             BeatmapObjectManager beatmapObjectManager = _beatmapObjectManager;
             _allBeatmapObjectsAccessor(ref beatmapObjectManager).ForEach(n =>
             {
