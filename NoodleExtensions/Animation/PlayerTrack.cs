@@ -42,7 +42,7 @@ namespace NoodleExtensions.Animation
         {
             _track = track;
 
-            if (!_v2)
+            if (_v2)
             {
                 return;
             }

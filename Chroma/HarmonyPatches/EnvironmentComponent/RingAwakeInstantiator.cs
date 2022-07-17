@@ -64,6 +64,10 @@ namespace Chroma.HarmonyPatches.EnvironmentComponent
         [HarmonyPatch(typeof(TrackLaneRingsManager), nameof(TrackLaneRingsManager.Start))]
         private static IEnumerable<CodeInstruction> QueueInjectTranspiler(IEnumerable<CodeInstruction> instructions)
         {
+            /*
+             * -- this._rings[i] = this._container.InstantiatePrefabForComponent<TrackLaneRing>(this._trackLaneRingPrefab);
+             * ++ this._rings[i] = QueueInject(this._container, this._trackLaneRingPrefab);
+             */
             return new CodeMatcher(instructions)
                 .MatchForward(false, new CodeMatch(OpCodes.Ldfld, _trackLaneRingPrefab))
                 .Repeat(n => n
