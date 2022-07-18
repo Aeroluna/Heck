@@ -31,7 +31,7 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
             return _fakePatchesManager.BoundsNullCheckTranspiler(instructions);
         }
 
-        [AffinityPrefix]
+        [AffinityPostfix]
         [AffinityPatch(typeof(BombNoteController), nameof(BombNoteController.Init))]
         private void BombNoteCuttable(NoteData noteData, CuttableBySaber ____cuttableBySaber)
         {
