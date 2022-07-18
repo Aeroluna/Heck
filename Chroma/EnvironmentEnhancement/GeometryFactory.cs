@@ -100,6 +100,7 @@ namespace Chroma.EnvironmentEnhancement
             GameObject gameObject = GameObject.CreatePrimitive(primitiveType);
             gameObject.name = $"{geometryType}{shaderType}";
             MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
+            gameObject.layer = 14;
 
             // Disable expensive shadows
             meshRenderer.shadowCastingMode = ShadowCastingMode.Off;

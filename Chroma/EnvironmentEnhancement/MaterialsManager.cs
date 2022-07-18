@@ -96,12 +96,12 @@ namespace Chroma.EnvironmentEnhancement
                 enableInstancing = true,
                 shaderKeywords = shaderType switch
                 {
-                    // Keywords found in RUE PC in BS 1.23
+                    // Keywords found in RUE PC in BS 1.24
                     ShaderType.Standard => new[]
                     {
                         "DIFFUSE", "ENABLE_DIFFUSE", "ENABLE_FOG", "ENABLE_HEIGHT_FOG", "ENABLE_SPECULAR", "FOG",
                         "HEIGHT_FOG", "REFLECTION_PROBE_BOX_PROJECTION", "SPECULAR", "_EMISSION",
-                        "_ENABLE_FOG_TINT", "_RIMLIGHT_NONE", "_ZWRITE_ON", "REFLECTION_PROBE", "LIGHT_FALLOFF"
+                        "_ENABLE_FOG_TINT", "_RIMLIGHT_NONE"
                     },
                     ShaderType.OpaqueLight => new[]
                     {
