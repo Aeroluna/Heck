@@ -139,7 +139,7 @@ namespace Heck.SettingsSetter
                 {
                     _contents.Clear();
                     _modifiedParameters = startParameters.Copy();
-                    bool isMultiplayer = _modifiedParameters is StartMultiplayerLevelParameters;
+                    _isMultiplayer = _modifiedParameters is StartMultiplayerLevelParameters;
 
                     CustomData? jsonPlayerOptions = settings.Get<CustomData>("_playerOptions");
                     if (jsonPlayerOptions != null)
@@ -234,7 +234,7 @@ namespace Heck.SettingsSetter
                     if (jsonEnvironments != null)
                     {
                         OverrideEnvironmentSettings environmentOverrideSettings;
-                        if (isMultiplayer)
+                        if (_isMultiplayer)
                         {
                             _cachedOverrideEnvironmentSettings = _playerDataModel.playerData.overrideEnvironmentSettings;
                             environmentOverrideSettings = _cachedOverrideEnvironmentSettings;
@@ -260,7 +260,7 @@ namespace Heck.SettingsSetter
 
                             modifiedOverrideEnvironmentSettings.overrideEnvironments = json.Value;
 
-                            if (isMultiplayer)
+                            if (_isMultiplayer)
                             {
                                 // must be set directly for multiplayer
                                 _playerDataModel.playerData.SetProperty("overrideEnvironmentSettings", modifiedOverrideEnvironmentSettings);
@@ -376,9 +376,8 @@ namespace Heck.SettingsSetter
 
                         DoPresent = true;
                         _defaultParameters = startParameters;
-                        if (isMultiplayer)
+                        if (_isMultiplayer)
                         {
-                            _isMultiplayer = true;
                             _multiplayerDeclined = false;
                             _activeFlowCoordinator = _gameServerLobbyFlowCoordinator;
                             _presentViewController(_activeFlowCoordinator, this, MultiplayerViewControllerPresented, AnimationDirection.Horizontal, false);
@@ -565,7 +564,6 @@ namespace Heck.SettingsSetter
             else
             {
                 _multiplayerDeclined = true;
-                _isMultiplayer = false;
             }
         }
 
@@ -577,11 +575,6 @@ namespace Heck.SettingsSetter
             if (!_isMultiplayer)
             {
                 StartWithParameters(_modifiedParameters);
-            }
-            else
-            {
-                _multiplayerDeclined = false;
-                _isMultiplayer = false;
             }
         }
 

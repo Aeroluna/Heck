@@ -73,7 +73,6 @@ namespace Chroma.Installers
                 Container.BindInterfacesAndSelfTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();
                 Container.BindInterfacesAndSelfTo<ParametricBoxControllerTransformOverride>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackLaneRingOffset>().AsSingle();
-                Container.BindInterfacesAndSelfTo<TrackLaneRingsManagerTracker>().AsSingle();
 
                 // Events
                 Container.BindInterfacesTo<LightPairRotationChromafier>().AsSingle();

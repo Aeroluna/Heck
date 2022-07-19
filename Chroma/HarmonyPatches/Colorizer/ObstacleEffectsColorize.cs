@@ -35,6 +35,10 @@ namespace Chroma.HarmonyPatches.Colorizer
         private IEnumerable<CodeInstruction> SetObstacleSparksColorTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * this._effects[i].SetPositionAndRotation(vector, this.GetEffectRotation(vector, obstacleController.transform, bounds));
+                 * ++ SetObstacleSaberSparkleColor(this._effects[i], obstacleController);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _setPositionAndRotation))
                 .Advance(1)
                 .Insert(

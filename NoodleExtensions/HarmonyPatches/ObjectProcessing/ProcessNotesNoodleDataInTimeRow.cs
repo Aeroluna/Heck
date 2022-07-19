@@ -37,6 +37,10 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
             return new CodeMatcher(instructions)
 
                 // clamp
+                /*
+                 * -- List<NoteData> list = this._notesInColumnsReusableProcessingListOfLists[noteData.lineIndex];
+                 * ++ List<NoteData> list = this._notesInColumnsReusableProcessingListOfLists[Mathf.Clamp(noteData.lineIndex, 0, 3)];
+                 */
                 .MatchForward(
                     true,
                     new CodeMatch(OpCodes.Ldloc_S),
@@ -48,6 +52,10 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                     new CodeInstruction(OpCodes.Call, SymbolExtensions.GetMethodInfo(() => Mathf.Clamp(0, 0, 0))))
 
                 // yeet slider processing
+                /*
+                 * ++ return;
+                 * foreach (SliderData sliderData in enumerable2)
+                 */
                 .MatchForward(
                     false,
                     new CodeMatch(OpCodes.Ldloc_1),

@@ -85,6 +85,10 @@ namespace Chroma.HarmonyPatches.Colorizer
         private IEnumerable<CodeInstruction> NoteJumpColorize(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * float num2 = num / this._jumpDuration;
+                 * ++ NoteUpdateColorize(num2);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Stloc_1))
                 .Advance(1)
                 .Insert(

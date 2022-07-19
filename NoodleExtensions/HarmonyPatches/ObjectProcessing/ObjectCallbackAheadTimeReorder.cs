@@ -46,6 +46,11 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
         private IEnumerable<CodeInstruction> UseNoodleCallback(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- this._obstacleDataCallbackWrapper = this._beatmapCallbacksController.AddBeatmapCallback<ObstacleData>(this._beatmapObjectSpawnMovementData.spawnAheadTime, new BeatmapDataCallback<ObstacleData>(this.HandleObstacleDataCallback));
+                 * ++ this._obstacleDataCallbackWrapper = _noodleObjectsCallbacksManager.AddBeatmapCallback<ObstacleData>(this._beatmapObjectSpawnMovementData.spawnAheadTime, new BeatmapDataCallback<ObstacleData>(this.HandleObstacleDataCallback));
+                 * repeat for other matches
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Newobj, _obstacleDataCtor))
                 .Advance(1)
                 .RemoveInstruction()

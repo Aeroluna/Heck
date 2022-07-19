@@ -35,11 +35,20 @@ namespace Chroma.HarmonyPatches.Events
         private IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- float num = (basicBeatmapEventData.sameTypeIndex % 2 == 0) ? this._maxPositionStep : this._minPositionStep;
+                 * ++ float num = GetPrecisionStep((basicBeatmapEventData.sameTypeIndex % 2 == 0) ? this._maxPositionStep : this._minPositionStep, basicBeatmapEventData);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Stloc_0))
                 .SetOpcodeAndAdvance(OpCodes.Ldarg_1)
                 .InsertAndAdvance(
                     _getPrecisionStep,
                     new CodeInstruction(OpCodes.Stloc_0))
+
+                /*
+                 * -- rings[i].SetPosition(destPosZ, this._moveSpeed);
+                 * ++ rings[i].SetPosition(destPosZ, GetPrecisionSpeed(this._moveSpeed, basicBeatmapEventData));
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Ldfld, _moveSpeedField))
                 .Advance(1)
                 .InsertAndAdvance(

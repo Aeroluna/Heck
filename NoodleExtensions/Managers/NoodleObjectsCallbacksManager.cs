@@ -14,7 +14,7 @@ namespace NoodleExtensions.Managers
         private readonly SpawnDataManager _spawnDataManager;
         private readonly DeserializedData _deserializedData;
         private readonly float _startFilterTime;
-        private readonly Reloader? _reloader;
+        private readonly ReLoader? _reloader;
 
         private readonly CallbacksInTime _callbacksInTime = new(0);
 
@@ -25,7 +25,7 @@ namespace NoodleExtensions.Managers
             BeatmapCallbacksController.InitData initData,
             SpawnDataManager spawnDataManager,
             [Inject(Id = NoodleController.ID)] DeserializedData deserializedData,
-            [InjectOptional] Reloader? reloader)
+            [InjectOptional] ReLoader? reloader)
         {
             _spawnDataManager = spawnDataManager;
             _deserializedData = deserializedData;

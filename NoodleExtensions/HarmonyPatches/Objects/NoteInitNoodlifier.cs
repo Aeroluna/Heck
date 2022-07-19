@@ -124,6 +124,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- this._noteMovement.Init(noteData.time, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, noteData.flipYSide, endRotation, rotateTowardsPlayer, useRandomRotation);
+                 * ++ this._noteMovement.Init(noteData.time, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, GetFlipYSide(noteData, noteData.flipYSide), endRotation, rotateTowardsPlayer, useRandomRotation);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _flipYSideGetter))
                 .InsertAndAdvance(
                     new CodeInstruction(OpCodes.Ldarg_0),

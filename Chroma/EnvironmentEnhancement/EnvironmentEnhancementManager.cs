@@ -198,7 +198,7 @@ namespace Chroma.EnvironmentEnhancement
                         for (int i = 0; i < dupeAmount.Value; i++)
                         {
                             List<IComponentData> componentDatas = new();
-                            _duplicateInitializer.PrefillComponentsData(gameObject.transform, componentDatas);
+                            DuplicateInitializer.PrefillComponentsData(gameObject.transform, componentDatas);
                             GameObject newGameObject = Object.Instantiate(gameObject);
                             _duplicateInitializer.PostfillComponentsData(
                                 newGameObject.transform,

@@ -7,11 +7,11 @@ namespace Heck
     // Dummy monobehaviour because coroutines need a monobehaviour
     public class CoroutineDummy : MonoBehaviour
     {
-        private Reloader? _reloader;
+        private ReLoader? _reloader;
 
         [Inject]
         [UsedImplicitly]
-        private void Construct([InjectOptional] Reloader? reloader)
+        private void Construct([InjectOptional] ReLoader? reloader)
         {
             _reloader = reloader;
             if (reloader != null)

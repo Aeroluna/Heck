@@ -47,6 +47,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- float num = this._audioTimeSyncController.songTime - this._startTimeOffset;
+                 * ++ float num = ObstacletimeAdjust(this._audioTimeSyncController.songTime - this._startTimeOffset, this._obstacleData, this._move1Duration, this._finishMovementTime);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Stloc_0))
                 .Insert(
                     new CodeInstruction(OpCodes.Ldarg_0),

@@ -49,6 +49,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- float noteJumpMovementSpeed = this._beatmapObjectSpawnController.noteJumpMovementSpeed;
+                 * ++ float noteJumpMovementSpeed = GetCustomNJS(this._beatmapObjectSpawnController.noteJumpMovementSpeed, sliderData);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _noteJumpMovementSpeedGetter))
                 .Advance(1)
                 .Insert(

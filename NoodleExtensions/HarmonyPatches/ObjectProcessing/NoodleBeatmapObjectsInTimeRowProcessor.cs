@@ -31,6 +31,10 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
         private static IEnumerable<CodeInstruction> Replace(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- this._beatmapObjectsInTimeRowProcessor = new BeatmapObjectsInTimeRowProcessor(numberOfLines);
+                 * -- this._beatmapObjectsInTimeRowProcessor = new NoodleBeatmapObjectsInTimeRowProcessor(numberOfLines, this);
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Newobj, _original))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                 .SetOperandAndAdvance(_noodle)

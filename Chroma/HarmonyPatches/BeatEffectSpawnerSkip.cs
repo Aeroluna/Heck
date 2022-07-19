@@ -34,6 +34,10 @@ namespace Chroma.HarmonyPatches
         private IEnumerable<CodeInstruction> ReplaceConditionTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- if (this._initData.hideNoteSpawnEffect)
+                 * ++ if (BeatEffectForce(this._initData.hideNoteSpawnEffect, noteController))
+                 */
                 .MatchForward(false, new CodeMatch(OpCodes.Ldfld, _hideNoteSpawnEffect))
                 .Advance(1)
                 .Insert(
