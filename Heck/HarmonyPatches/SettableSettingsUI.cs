@@ -50,13 +50,15 @@ namespace Heck.HarmonyPatches
 
         private readonly SettingsSetterViewController _setterViewController;
         private readonly LobbyGameStateController _lobbyGameStateController;
+        private readonly LobbyGameStateModel _lobbyGameStateModel;
 
         private bool _settableSettingsWasShown;
 
-        private SettableSettingsUI(SettingsSetterViewController setterViewController, ILobbyGameStateController lobbyGameStateController)
+        private SettableSettingsUI(SettingsSetterViewController setterViewController, ILobbyGameStateController lobbyGameStateController, LobbyGameStateModel lobbyGameStateModel)
         {
             _setterViewController = setterViewController;
             _lobbyGameStateController = (lobbyGameStateController as LobbyGameStateController)!;
+            _lobbyGameStateModel = lobbyGameStateModel;
         }
 
         // Get all the parameters used to make a StartStandardLevelParameters
@@ -116,6 +118,12 @@ namespace Heck.HarmonyPatches
             if (____loaderState != MultiplayerLevelLoader.MultiplayerBeatmapLoaderState.WaitingForCountdown ||
                 _settableSettingsWasShown)
             {
+                return;
+            }
+
+            if (_lobbyGameStateModel.gameState == MultiplayerGameState.Game)
+            {
+                _settableSettingsWasShown = false;
                 return;
             }
 
