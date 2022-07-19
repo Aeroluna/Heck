@@ -29,9 +29,13 @@ namespace NoodleExtensions.Animation
 
         private Track _track = null!;
         private PauseController? _pauseController;
+        private MultiplayerPlayersManager? _multiPlayersManager;
+        private MultiplayerOutroAnimationController? _multiOutroController;
 
         private TransformController? _transformController;
         private TransformControllerFactory _transformFactory = null!;
+
+        private GameObject _multiplayerPositioner = null!;
 
         internal void AssignTrack(
             Track track)
@@ -52,11 +56,16 @@ namespace NoodleExtensions.Animation
             IReadonlyBeatmapData beatmapData,
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
             TransformControllerFactory transformControllerFactory,
-            [InjectOptional]PauseController? pauseController,
-            [InjectOptional]PauseMenuManager? pauseMenuManager,
-            [InjectOptional]MultiplayerLocalActivePlayerInGameMenuController? multiMenuController)
+            [InjectOptional] PauseController? pauseController,
+            [InjectOptional] PauseMenuManager? pauseMenuManager,
+            [InjectOptional] MultiplayerLocalActivePlayerInGameMenuController? multiMenuController,
+            [InjectOptional] MultiplayerPlayersManager? multiPlayersManager,
+            [InjectOptional] MultiplayerOutroAnimationController? multiOutroController)
         {
             _pauseController = pauseController;
+            _multiPlayersManager = multiPlayersManager;
+            _multiOutroController = multiOutroController;
+
             if (pauseController != null)
             {
                 pauseController.didPauseEvent += OnDidPauseEvent;
@@ -129,6 +138,15 @@ namespace NoodleExtensions.Animation
             }
         }
 
+        private void Start()
+        {
+            if (_multiPlayersManager != null)
+            {
+                _multiplayerPositioner = new GameObject();
+                _multiplayerPositioner.transform.SetParent(transform);
+            }
+        }
+
         private void Update()
         {
             Quaternion? rotation = _track.GetQuaternionProperty(OFFSET_ROTATION)?.Mirror(_leftHanded);
@@ -154,6 +172,26 @@ namespace NoodleExtensions.Animation
             Transform transform1 = transform;
             transform1.localRotation = worldRotationQuatnerion;
             transform1.localPosition = positionVector;
+
+            if (_multiPlayersManager != null)
+            {
+                foreach (IConnectedPlayer player in _multiPlayersManager.allActiveAtGameStartPlayers)
+                {
+                    if (_multiPlayersManager.TryGetConnectedPlayerController(player.userId, out MultiplayerConnectedPlayerFacade connectedPlayerController))
+                    {
+                        _multiplayerPositioner.transform.localPosition = connectedPlayerController.transform.position;
+                        Transform avatar = connectedPlayerController.transform.Find("MultiplayerGameAvatar");
+                        avatar.position = _multiplayerPositioner.transform.position;
+                        avatar.rotation = _multiplayerPositioner.transform.rotation;
+                    }
+                }
+            }
+
+            if (_multiOutroController != null)
+            {
+                _multiOutroController.transform.position = transform.position;
+                _multiOutroController.transform.rotation = transform.rotation;
+            }
         }
 
         [UsedImplicitly]
