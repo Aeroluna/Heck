@@ -5,7 +5,7 @@
   "gameVersion": "1.24.0",
   "id": "NoodleExtensions",
   "name": "NoodleExtensions",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "dependsOn": {
     "_Heck": "^1.4.0",
     "SongCore": "^3.9.5",
