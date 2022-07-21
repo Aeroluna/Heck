@@ -185,7 +185,12 @@ namespace Heck
 
         private void Reload()
         {
-            _gamePause.Pause();
+            bool paused = _gamePause.isPaused;
+            if (!paused)
+            {
+                _gamePause.Pause();
+            }
+
             Tuple<BeatmapSaveData, BeatmapDataBasicInfo> tuple = _customLevelLoader.LoadBeatmapDataBasicInfo(
                 _customPreviewBeatmapLevel.customLevelPath,
                 _standardLevelInfoSaveDataDifficultyBeatmap.beatmapFilename,
@@ -212,7 +217,10 @@ namespace Heck
             deserializedDatas.Do(n => _container.ResolveId<DeserializedData>(n.Id).Remap(n.DeserializedData));
 
             Reloaded?.Invoke();
-            _gamePause.Resume();
+            if (!paused)
+            {
+                _gamePause.Resume();
+            }
         }
 
         private void Rewind(float songTime)

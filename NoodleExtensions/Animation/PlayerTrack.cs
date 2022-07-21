@@ -2,7 +2,6 @@
 using Heck;
 using Heck.Animation;
 using Heck.Animation.Transform;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -140,11 +139,13 @@ namespace NoodleExtensions.Animation
 
         private void Start()
         {
-            if (_multiPlayersManager != null)
+            if (_multiPlayersManager == null)
             {
-                _multiplayerPositioner = new GameObject();
-                _multiplayerPositioner.transform.SetParent(transform);
+                return;
             }
+
+            _multiplayerPositioner = new GameObject();
+            _multiplayerPositioner.transform.SetParent(transform);
         }
 
         private void Update()
@@ -177,21 +178,26 @@ namespace NoodleExtensions.Animation
             {
                 foreach (IConnectedPlayer player in _multiPlayersManager.allActiveAtGameStartPlayers)
                 {
-                    if (_multiPlayersManager.TryGetConnectedPlayerController(player.userId, out MultiplayerConnectedPlayerFacade connectedPlayerController))
+                    if (!_multiPlayersManager.TryGetConnectedPlayerController(player.userId, out MultiplayerConnectedPlayerFacade connectedPlayerController))
                     {
-                        _multiplayerPositioner.transform.localPosition = connectedPlayerController.transform.position;
-                        Transform avatar = connectedPlayerController.transform.Find("MultiplayerGameAvatar");
-                        avatar.position = _multiplayerPositioner.transform.position;
-                        avatar.rotation = _multiplayerPositioner.transform.rotation;
+                        continue;
                     }
+
+                    _multiplayerPositioner.transform.localPosition = connectedPlayerController.transform.position;
+                    Transform avatar = connectedPlayerController.transform.Find("MultiplayerGameAvatar");
+                    avatar.position = _multiplayerPositioner.transform.position;
+                    avatar.rotation = _multiplayerPositioner.transform.rotation;
                 }
             }
 
-            if (_multiOutroController != null)
+            if (_multiOutroController == null)
             {
-                _multiOutroController.transform.position = transform.position;
-                _multiOutroController.transform.rotation = transform.rotation;
+                return;
             }
+
+            Transform transform2 = _multiOutroController.transform;
+            transform2.position = transform1.position;
+            transform2.rotation = transform1.rotation;
         }
 
         [UsedImplicitly]
