@@ -40,23 +40,11 @@ namespace Heck
             IReadOnlyList<BeatmapObjectData> untransformedObjectDatas = untransformedBeatmapData.GetBeatmapDataItems<NoteData>()
                 .Cast<BeatmapObjectData>()
                 .Concat(untransformedBeatmapData.GetBeatmapDataItems<ObstacleData>())
+                .Concat(untransformedBeatmapData.GetBeatmapDataItems<SliderData>())
                 .ToArray();
             foreach (BeatmapObjectData beatmapObjectData in untransformedObjectDatas)
             {
                 CustomData customData = ((ICustomData)beatmapObjectData).customData;
-                switch (beatmapObjectData)
-                {
-                    case CustomObstacleData obstacleData:
-                        customData = obstacleData.customData;
-                        break;
-
-                    case CustomNoteData noteData:
-                        customData = noteData.customData;
-                        break;
-
-                    default:
-                        continue;
-                }
 
                 // for epic tracks thing
                 object? trackNameRaw = customData.Get<object>(v2 ? V2_TRACK : TRACK);

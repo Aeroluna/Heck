@@ -24,13 +24,13 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private static readonly FieldInfo _headNoteJumpEndPos = AccessTools.Field(typeof(SliderMovement), "_headNoteJumpEndPos");
         private static readonly FieldInfo _worldRotation = AccessTools.Field(typeof(SliderMovement), "_worldRotation");
         private static readonly FieldInfo _inverseWorldRotation = AccessTools.Field(typeof(SliderMovement), "_inverseWorldRotation");
+        private static readonly FieldInfo _localPosition = AccessTools.Field(typeof(SliderMovement), "_localPosition");
 
         private readonly CodeInstruction _sliderTimeAdjust;
         private readonly DeserializedData _deserializedData;
         private readonly AnimationHelper _animationHelper;
         private readonly CutoutManager _cutoutManager;
         private readonly AudioTimeSyncController _audioTimeSyncController;
-        private readonly PlayerTransforms _playerTransforms;
 
         private NoodleSliderData? _noodleData;
 
@@ -38,14 +38,12 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             [Inject(Id = ID)] DeserializedData deserializedData,
             AnimationHelper animationHelper,
             CutoutManager cutoutManager,
-            AudioTimeSyncController audioTimeSyncController,
-            PlayerTransforms playerTransforms)
+            AudioTimeSyncController audioTimeSyncController)
         {
             _deserializedData = deserializedData;
             _animationHelper = animationHelper;
             _cutoutManager = cutoutManager;
             _audioTimeSyncController = audioTimeSyncController;
-            _playerTransforms = playerTransforms;
             _sliderTimeAdjust = InstanceTranspilers.EmitInstanceDelegate<SliderTimeAdjustDelegate>(SliderUpdate);
         }
 
@@ -60,7 +58,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             ref Vector3 headNoteJumpStartPos,
             ref Vector3 headNoteJumpEndPos,
             ref Quaternion worldRotation,
-            ref Quaternion inverseWorldRotation);
+            ref Quaternion inverseWorldRotation,
+            ref Vector3 localPosition);
 
         public void Dispose()
         {
@@ -83,8 +82,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                  * -- this._transform.localPosition = localPosition;
                  * ++ SliderUpdate(this, this._headNoteTime, this._tailNoteTime, this._jumpDuration, ref this._timeSinceHeadNoteJump, ref num2, ref num3, ref this._headNoteJumpStartPos, ref this._headNoteJumpEndPos, ref this._worldRotation, ref this._inverseWorldRotation);
                  */
-                .MatchForward(false, new CodeMatch(OpCodes.Ldarg_0))
-                .RemoveInstructions(59)
+                .Start()
+                .RemoveInstructions(34)
                 .InsertAndAdvance(
                     new CodeInstruction(OpCodes.Ldarg_0),
                     new CodeInstruction(OpCodes.Ldarg_0),
@@ -105,6 +104,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                     new CodeInstruction(OpCodes.Ldflda, _worldRotation),
                     new CodeInstruction(OpCodes.Ldarg_0),
                     new CodeInstruction(OpCodes.Ldflda, _inverseWorldRotation),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldflda, _localPosition),
                     _sliderTimeAdjust)
                 .InstructionEnumeration();
         }
@@ -120,7 +121,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             ref Vector3 headNoteJumpStartPos,
             ref Vector3 headNoteJumpEndPos,
             ref Quaternion worldRotation,
-            ref Quaternion inverseWorldRotation)
+            ref Quaternion inverseWorldRotation,
+            ref Vector3 localPosition)
         {
             float duration = (jumpDuration * 0.75f) + (tailNoteTime - headNoteTime);
             float normalizedTime;
@@ -149,14 +151,14 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
             if (_noodleData == null)
             {
-                goto moveNormal;
+                return;
             }
 
             List<Track>? tracks = _noodleData?.Track;
             NoodleObjectData.AnimationObjectData? animationObject = _noodleData?.AnimationObject;
             if (tracks == null && animationObject == null)
             {
-                goto moveNormal;
+                return;
             }
 
             normalizedTime = Math.Max(normalizedTime, 0);
@@ -213,6 +215,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 return;
             }
 
+            // ReSharper disable once InvertIf
             if (positionOffset.HasValue)
             {
                 Vector3 startPos = _noodleData!.InternalStartPos;
@@ -221,15 +224,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 Vector3 offset = positionOffset.Value;
                 headNoteJumpStartPos = startPos + offset;
                 headNoteJumpEndPos = endPos + offset;
-                Vector3 localPosition = Vector3.LerpUnclamped(headNoteJumpStartPos, headNoteJumpEndPos, normalizedTime);
-                localPosition.z = _playerTransforms.MoveTowardsHead(headNoteJumpStartPos.z, headNoteJumpEndPos.z, inverseWorldRotation, normalizedHeadTime);
-                transform.localPosition = localPosition;
-
-                return;
+                localPosition = offset;
             }
-
-            moveNormal:
-            transform.localPosition = new Vector3(0, 0, _playerTransforms.MoveTowardsHead(headNoteJumpStartPos.z, headNoteJumpEndPos.z, inverseWorldRotation, normalizedHeadTime));
         }
 
         [AffinityPrefix]
