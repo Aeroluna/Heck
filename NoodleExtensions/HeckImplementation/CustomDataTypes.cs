@@ -75,7 +75,7 @@ namespace NoodleExtensions
             {
                 InternalFlipYSide = customData.Get<float?>(INTERNAL_FLIPYSIDE);
                 InternalFlipLineIndex = customData.Get<float?>(INTERNAL_FLIPLINEINDEX)?.Mirror(leftHanded);
-                InternalStartNoteLineLayer = customData.Get<float?>(INTERNAL_STARTNOTELINELAYER);
+                InternalStartNoteLineLayer = customData.Get<float?>(INTERNAL_STARTNOTELINELAYER) ?? 0;
 
                 DisableGravity = customData.Get<bool?>(v2 ? V2_NOTE_GRAVITY_DISABLE : NOTE_GRAVITY_DISABLE) ?? false;
                 DisableLook = customData.Get<bool?>(v2 ? V2_NOTE_LOOK_DISABLE : NOTE_LOOK_DISABLE) ?? false;
@@ -92,7 +92,7 @@ namespace NoodleExtensions
 
         internal float? InternalFlipLineIndex { get; }
 
-        internal float? InternalStartNoteLineLayer { get; }
+        internal float InternalStartNoteLineLayer { get; }
 
         internal bool DisableGravity { get; }
 
@@ -165,7 +165,7 @@ namespace NoodleExtensions
         {
             try
             {
-                InternalTailStartNoteLineLayer = customData.Get<float?>(INTERNAL_TAILSTARTNOTELINELAYER);
+                InternalTailStartNoteLineLayer = customData.Get<float?>(INTERNAL_TAILSTARTNOTELINELAYER) ?? 0;
 
                 IEnumerable<float?>? position = customData.GetNullableFloats(TAIL_NOTE_OFFSET)?.ToList();
                 TailStartX = position?.ElementAtOrDefault(0)?.Mirror(leftHanded);
@@ -181,7 +181,7 @@ namespace NoodleExtensions
 
         internal float? TailStartY { get; }
 
-        internal float? InternalTailStartNoteLineLayer { get; }
+        internal float InternalTailStartNoteLineLayer { get; }
 
         public IObjectCustomData Copy()
         {

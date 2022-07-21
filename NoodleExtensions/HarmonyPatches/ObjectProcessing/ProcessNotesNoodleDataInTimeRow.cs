@@ -189,11 +189,6 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                         noteData.ChangeToSliderHead();
                     }
                 }
-
-                if (!sliderData.customData.ContainsKey(INTERNAL_STARTNOTELINELAYER))
-                {
-                    sliderData.customData[INTERNAL_STARTNOTELINELAYER] = headY;
-                }
             }
 
             foreach (object sliderTailData in _getSliderTailDatas(containerItems))
@@ -217,11 +212,6 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                     sliderData.customData[INTERNAL_TAILSTARTNOTELINELAYER] = noteData.customData[INTERNAL_STARTNOTELINELAYER];
                     sliderData.SetTailBeforeJumpLineLayer(noteData.beforeJumpNoteLineLayer);
                     noteData.ChangeToSliderTail();
-                }
-
-                if (!sliderData.customData.ContainsKey(INTERNAL_TAILSTARTNOTELINELAYER))
-                {
-                    sliderData.customData[INTERNAL_TAILSTARTNOTELINELAYER] = tailY;
                 }
             }
         }
