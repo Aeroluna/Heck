@@ -12,11 +12,13 @@ using Object = UnityEngine.Object;
 
 namespace Chroma.EnvironmentEnhancement
 {
-    internal class MaterialsManager
+    internal class MaterialsManager : IDisposable
     {
         private static readonly Material _standardMaterial = InstantiateSharedMaterial(ShaderType.Standard);
         private static readonly Material _opaqueLightMaterial = InstantiateSharedMaterial(ShaderType.OpaqueLight);
         private static readonly Material _transparentLightMaterial = InstantiateSharedMaterial(ShaderType.TransparentLight);
+
+        private readonly HashSet<Material> _createdMaterials = new();
 
         private readonly Dictionary<string, Track> _beatmapTracks;
         private readonly LazyInject<MaterialColorAnimator> _materialColorAnimator;
@@ -52,6 +54,14 @@ namespace Chroma.EnvironmentEnhancement
 
         internal Dictionary<string, MaterialInfo> MaterialInfos { get; } = new();
 
+        public void Dispose()
+        {
+            foreach (Material createdMaterial in _createdMaterials)
+            {
+                Object.Destroy(createdMaterial);
+            }
+        }
+
         internal MaterialInfo CreateMaterialInfo(CustomData customData)
         {
             Color color = CustomDataManager.GetColorFromData(customData, _v2) ?? new Color(0, 0, 0, 0);
@@ -66,6 +76,7 @@ namespace Chroma.EnvironmentEnhancement
                 _ => _standardMaterial
             };
             Material material = Object.Instantiate(originalMaterial);
+            _createdMaterials.Add(material);
             material.color = color;
             if (shaderKeywords != null)
             {
