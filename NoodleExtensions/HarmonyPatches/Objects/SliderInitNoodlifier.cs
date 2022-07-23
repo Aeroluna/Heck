@@ -54,16 +54,17 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                  * ++ float noteJumpMovementSpeed = GetCustomNJS(this._beatmapObjectSpawnController.noteJumpMovementSpeed, sliderData);
                  */
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _noteJumpMovementSpeedGetter))
-                .Advance(1)
-                .Insert(
-                    new CodeInstruction(OpCodes.Ldarg_0),
-                    _getNJS)
+                .Repeat(n => n
+                    .Advance(1)
+                    .Insert(
+                        new CodeInstruction(OpCodes.Ldarg_2),
+                        _getNJS))
                 .InstructionEnumeration();
         }
 
         private float GetCustomNJS(float @default, SliderData sliderData)
         {
-            _deserializedData.Resolve(sliderData, out NoodleObstacleData? noodleData);
+            _deserializedData.Resolve(sliderData, out NoodleSliderData? noodleData);
             return noodleData?.NJS ?? @default;
         }
 
