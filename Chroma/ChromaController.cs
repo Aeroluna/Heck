@@ -41,6 +41,7 @@ namespace Chroma
         internal const string V2_GEOMETRY_TYPE = "_type";
         internal const string V2_SHADER_PRESET = "_shader";
         internal const string V2_SHADER_KEYWORDS = "_shaderKeywords";
+        internal const string V2_ENVIRONMENT_MATERIAL = "_environmentMaterial";
         internal const string V2_COLLISION = "_collision";
         internal const string V2_MATERIALS = "_materials";
         internal const string V2_MATERIAL = "_material";
@@ -71,6 +72,7 @@ namespace Chroma
         internal const string GEOMETRY_TYPE = "type";
         internal const string SHADER_PRESET = "shader";
         internal const string SHADER_KEYWORDS = "shaderKeywords";
+        internal const string ENVIRONMENT_MATERIAL = "environmentMaterial";
         internal const string COLLISION = "collision";
         internal const string MATERIALS = "materials";
         internal const string MATERIAL = "material";
