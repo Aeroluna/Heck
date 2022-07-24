@@ -26,6 +26,12 @@ namespace Chroma.HarmonyPatches.Events
         [AffinityPatch(typeof(TrackLaneRingsRotationEffectSpawner), nameof(TrackLaneRingsRotationEffectSpawner.Start))]
         private void CreateChromaRing(TrackLaneRingsRotationEffect ____trackLaneRingsRotationEffect)
         {
+            // custom platforms (terrible acronym) causes this to run twice for some reason, so stop the second
+            if (_chromaRings.ContainsKey(____trackLaneRingsRotationEffect))
+            {
+                return;
+            }
+
             _chromaRings.Add(____trackLaneRingsRotationEffect, _factory.Create(____trackLaneRingsRotationEffect));
             ____trackLaneRingsRotationEffect.enabled = false;
         }
