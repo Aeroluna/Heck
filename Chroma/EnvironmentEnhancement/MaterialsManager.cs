@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
-using Heck;
 using Heck.Animation;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using static Chroma.ChromaController;
+using Logger = IPA.Logging.Logger;
 using Object = UnityEngine.Object;
 
 namespace Chroma.EnvironmentEnhancement
@@ -81,16 +81,19 @@ namespace Chroma.EnvironmentEnhancement
                 if (material != null)
                 {
                     EnvironmentMaterialInfos[key] = material;
+                    Log.Logger.Log($"Found {name} material in current environment", Logger.Level.Info);
                 }
                 else
                 {
-                    Log.Logger.Log($"Could not find {name} material in current environment");
+                    Log.Logger.Log($"Could not find {name} material in current environment", Logger.Level.Info);
                 }
             }
 
 
             GetEnvironmentMaterial("BTSPillar", "BTSDarkEnvironmentWithHeightFog");
             GetEnvironmentMaterial("BillieWater", "WaterfallFalling");
+            GetEnvironmentMaterial("InterscopeConcrete", "Concrete2");
+            GetEnvironmentMaterial("InterscopeCar", "Car");
         }
 
         internal MaterialInfo GetMaterial(object o)
@@ -120,7 +123,7 @@ namespace Chroma.EnvironmentEnhancement
             {
                 if (!EnvironmentMaterialInfos.TryGetValue(environmentMaterial, out originalMaterial))
                 {
-                    Log.Logger.Log($"Could not find {environmentMaterial} in environment materials");
+                    Log.Logger.Log($"Could not find {environmentMaterial} in environment materials, falling back to {shaderType}", Logger.Level.Warning);
                 }
             }
 
