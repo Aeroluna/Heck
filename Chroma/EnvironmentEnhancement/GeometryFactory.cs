@@ -31,7 +31,8 @@ namespace Chroma.EnvironmentEnhancement
     {
         Standard,
         OpaqueLight,
-        TransparentLight
+        TransparentLight,
+        BillieWater
     }
 
     internal class GeometryFactory
@@ -68,7 +69,7 @@ namespace Chroma.EnvironmentEnhancement
 
         internal static bool IsLightType(ShaderType shaderType)
         {
-            return shaderType is ShaderType.OpaqueLight or ShaderType.TransparentLight;
+            return shaderType is ShaderType.OpaqueLight or ShaderType.TransparentLight or ShaderType.BillieWater;
         }
 
         internal GameObject Create(CustomData customData)
@@ -77,12 +78,7 @@ namespace Chroma.EnvironmentEnhancement
             bool collision = customData.Get<bool?>(_v2 ? V2_COLLISION : COLLISION) ?? false;
 
             object materialData = customData.GetRequired<object>(_v2 ? V2_MATERIAL : MATERIAL);
-            MaterialsManager.MaterialInfo materialInfo = materialData switch
-            {
-                string name => _materialsManager.MaterialInfos[name],
-                CustomData data => _materialsManager.CreateMaterialInfo(data),
-                _ => throw new InvalidOperationException($"Could not read [{MATERIAL}].")
-            };
+            MaterialsManager.MaterialInfo materialInfo = _materialsManager.GetMaterial(materialData);
             ShaderType shaderType = materialInfo.ShaderType;
 
             PrimitiveType primitiveType = geometryType switch
