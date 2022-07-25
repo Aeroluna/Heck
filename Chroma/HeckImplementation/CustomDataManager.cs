@@ -29,12 +29,7 @@ namespace Chroma
                     trackBuilder.AddFromCustomData(gameObjectData, v2, false);
 
                     CustomData? geometryData = gameObjectData.Get<CustomData?>(v2 ? V2_GEOMETRY : GEOMETRY);
-                    if (geometryData == null)
-                    {
-                        continue;
-                    }
-
-                    CustomData? materialData = gameObjectData.Get<CustomData?>(v2 ? V2_MATERIAL : MATERIAL);
+                    CustomData? materialData = geometryData?.Get<CustomData?>(v2 ? V2_MATERIAL : MATERIAL);
                     if (materialData != null)
                     {
                         trackBuilder.AddFromCustomData(materialData, v2, false);
