@@ -1,4 +1,4 @@
-﻿using CustomJSONData.CustomBeatmap;
+using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
 using Heck.Animation.Transform;
@@ -6,6 +6,7 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
+using System;
 using static Heck.HeckController;
 using static NoodleExtensions.NoodleController;
 
