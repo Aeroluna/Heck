@@ -85,7 +85,7 @@ namespace Heck.Animation
                     default:
                     {
                         Vector5 vector = new(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]), Convert.ToSingle(copiedList[2]), Convert.ToSingle(copiedList[3]), Convert.ToSingle(copiedList[4]));
-                        pointData.Add(new PointData(hsv ? vector.ToHSV() : vector, hsv, easing));
+                        pointData.Add(new PointData(vector, hsv, easing));
                         break;
                     }
                 }
@@ -291,24 +291,23 @@ namespace Heck.Animation
 
             normalTime = Easings.Interpolate(normalTime, pointDataR.Easing);
 
-            pointL = pointDataR.HSV switch
+            // If next point is HSV, convert both values to HSV
+            bool hsv = pointDataR.HSV;
+            if (hsv)
             {
-                // Convert to HSV if the next point is HSV lerp
-                // So the lerp is proper
-                true when !pointDataL.HSV => pointL.ToHSV(),
-                false when pointDataL.HSV => pointL.ToRGB(),
-                _ => pointL
-            };
+                pointL = pointL.ToHSV();
+                pointR = pointR.ToHSV();
+            }
 
             Vector4 result = Vector4.LerpUnclamped(pointL, pointR, normalTime);
 
             // RGB lerp
-            if (!pointDataR.HSV)
+            if (!hsv)
             {
                 return result;
             }
 
-            // HSV lerp
+            // HSV lerp, convert to RGB
             float alpha = result.w;
             result = Color.HSVToRGB(result.x, result.y, result.y, true);
             result.w = alpha;
@@ -405,13 +404,6 @@ namespace Heck.Animation
             public static implicit operator Quaternion(Vector5 vector)
             {
                 return new Quaternion(vector.x, vector.y, vector.z, vector.w);
-            }
-
-            public Vector5 ToRGB()
-            {
-                Vector4 result = Color.HSVToRGB(x, y, z, true);
-                result.w = w;
-                return new Vector5(result.x, result.y, result.z, result.w, v);
             }
 
             public Vector5 ToHSV()
