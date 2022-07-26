@@ -18,7 +18,7 @@ namespace Chroma.EnvironmentEnhancement
         private static readonly Material _standardMaterial = InstantiateSharedMaterial(ShaderType.Standard);
         private static readonly Material _opaqueLightMaterial = InstantiateSharedMaterial(ShaderType.OpaqueLight);
         private static readonly Material _transparentLightMaterial = InstantiateSharedMaterial(ShaderType.TransparentLight);
-        private static readonly Material _billieWaterMaterial = InstantiateSharedMaterial(ShaderType.BillieWater);
+        private static readonly Material _baseWaterMaterial = InstantiateSharedMaterial(ShaderType.BillieWater);
 
         private readonly HashSet<Material> _createdMaterials = new();
 
@@ -28,7 +28,7 @@ namespace Chroma.EnvironmentEnhancement
 
         private Dictionary<string, MaterialInfo> MaterialInfos { get; } = new();
 
-        private Dictionary<string, Material> EnvironmentMaterialInfos { get; } = new();
+        private Dictionary<ShaderType, Material> EnvironmentMaterialInfos { get; } = new();
 
         [UsedImplicitly]
         private MaterialsManager(
@@ -70,18 +70,24 @@ namespace Chroma.EnvironmentEnhancement
 
         private void SetupEnvironmentMaterials()
         {
+            EnvironmentMaterialInfos[ShaderType.Standard] = _standardMaterial;
+            EnvironmentMaterialInfos[ShaderType.OpaqueLight] = _opaqueLightMaterial;
+            EnvironmentMaterialInfos[ShaderType.TransparentLight] = _transparentLightMaterial;
+            EnvironmentMaterialInfos[ShaderType.BaseWater] = _baseWaterMaterial;
+
+
             // TODO: Load environemnt scenes so we can get all possible materials. A necessary evil :)
             // This is the only way I could think of for getting materials by name
             Material[] environmentMaterials = Resources.FindObjectsOfTypeAll<Material>();
 
-            void GetEnvironmentMaterial(string key, string name)
+            void GetEnvironmentMaterial(ShaderType key, string name)
             {
                 // I use contains here because I can't be bothered to care about identical names
                 Material? material = environmentMaterials.FirstOrDefault(e => e.name.Contains(name));
                 if (material != null)
                 {
                     EnvironmentMaterialInfos[key] = material;
-                    Log.Logger.Log($"Found {name} material in current environment", Logger.Level.Info);
+                    Log.Logger.Log($"Found {key} (realname {name}) material in current environment", Logger.Level.Info);
                 }
                 else
                 {
@@ -90,11 +96,12 @@ namespace Chroma.EnvironmentEnhancement
             }
 
 
-            GetEnvironmentMaterial("BTSPillar", "BTSDarkEnvironmentWithHeightFog");
-            GetEnvironmentMaterial("BillieWater", "WaterfallFalling");
-            GetEnvironmentMaterial("InterscopeConcrete", "Concrete2");
-            GetEnvironmentMaterial("InterscopeCar", "Car");
-            GetEnvironmentMaterial("Obstacle", "ObstacleCoreHD");
+            GetEnvironmentMaterial(ShaderType.BTSPillar, "BTSDarkEnvironmentWithHeightFog");
+            GetEnvironmentMaterial(ShaderType.BillieWater, "WaterfallFalling");
+            GetEnvironmentMaterial(ShaderType.InterscopeConcrete, "Concrete2");
+            GetEnvironmentMaterial(ShaderType.InterscopeCar, "Car");
+            GetEnvironmentMaterial(ShaderType.Obstacle, "ObstacleCoreHD");
+            GetEnvironmentMaterial(ShaderType.WaterfallMirror, "WaterfallMirror");
         }
 
         internal MaterialInfo GetMaterial(object o)
@@ -113,30 +120,15 @@ namespace Chroma.EnvironmentEnhancement
             ShaderType shaderType = customData.GetStringToEnumRequired<ShaderType>(_v2 ? V2_SHADER_PRESET : SHADER_PRESET);
             string[]? shaderKeywords = customData.Get<List<object>?>(_v2 ? V2_SHADER_KEYWORDS : SHADER_KEYWORDS)?.Cast<string>().ToArray();
             List<Track>? track = customData.GetNullableTrackArray(_beatmapTracks, _v2)?.ToList();
-            string? environmentMaterial = customData.Get<string?>(_v2 ? V2_ENVIRONMENT_MATERIAL : ENVIRONMENT_MATERIAL);
 
             // if the environment material does not exist
-            // it fallbacks to shaderType
+            // it fallbacks to ShaderType.Standard
             // this is because I have no idea if all materials will be available
             // on all environments
-            Material originalMaterial = null!;
-            if (environmentMaterial != null)
+            if (!EnvironmentMaterialInfos.TryGetValue(shaderType, out Material originalMaterial))
             {
-                if (!EnvironmentMaterialInfos.TryGetValue(environmentMaterial, out originalMaterial))
-                {
-                    Log.Logger.Log($"Could not find {environmentMaterial} in environment materials, falling back to {shaderType}", Logger.Level.Warning);
-                }
-            }
-
-            if (originalMaterial == null)
-            {
-                originalMaterial = shaderType switch
-                {
-                    ShaderType.OpaqueLight => _opaqueLightMaterial,
-                    ShaderType.TransparentLight => _transparentLightMaterial,
-                    ShaderType.BillieWater => _billieWaterMaterial,
-                    _ => _standardMaterial
-                };
+                Log.Logger.Log($"Could not find {shaderType} in environment materials, falling back to {nameof(ShaderType.Standard)}", Logger.Level.Warning);
+                originalMaterial = EnvironmentMaterialInfos[ShaderType.Standard];
             }
 
             Material material = Object.Instantiate(originalMaterial);
@@ -147,7 +139,7 @@ namespace Chroma.EnvironmentEnhancement
                 material.shaderKeywords = shaderKeywords;
             }
 
-            MaterialInfo materialInfo = new(shaderType, material, track);
+            MaterialInfo materialInfo = new(shaderType, material, track, originalMaterial);
             if (track != null)
             {
                 _materialColorAnimator.Value.Add(materialInfo);
@@ -162,7 +154,7 @@ namespace Chroma.EnvironmentEnhancement
             {
                 ShaderType.OpaqueLight => "Custom/OpaqueNeonLight",
                 ShaderType.TransparentLight => "Custom/TransparentNeonLight",
-                ShaderType.BillieWater => "Custom/WaterLit",
+                ShaderType.BaseWater => "Custom/WaterLit",
                 _ => "Custom/SimpleLit"
             }))
             {
@@ -205,16 +197,19 @@ namespace Chroma.EnvironmentEnhancement
             internal MaterialInfo(
                 ShaderType shaderType,
                 Material material,
-                List<Track>? track)
+                List<Track>? track, Material originalMaterial)
             {
                 ShaderType = shaderType;
                 Material = material;
                 Track = track;
+                OriginalMaterial = originalMaterial;
             }
 
             internal ShaderType ShaderType { get; }
 
             internal Material Material { get; }
+
+            internal Material OriginalMaterial { get; }
 
             internal List<Track>? Track { get; }
         }
