@@ -291,12 +291,14 @@ namespace Heck.Animation
 
             normalTime = Easings.Interpolate(normalTime, pointDataR.Easing);
 
-            // Convert to HSV if the next point is HSV lerp
-            // So the lerp is proper
-            if (pointDataR.HSV && !pointDataL.HSV)
+            pointL = pointDataR.HSV switch
             {
-                pointL = pointL.ToHSV();
-            }
+                // Convert to HSV if the next point is HSV lerp
+                // So the lerp is proper
+                true when !pointDataL.HSV => pointL.ToHSV(),
+                false when pointDataL.HSV => pointL.ToRGB(),
+                _ => pointL
+            };
 
             Vector4 result = Vector4.LerpUnclamped(pointL, pointR, normalTime);
 
