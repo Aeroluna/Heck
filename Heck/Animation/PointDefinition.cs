@@ -64,7 +64,7 @@ namespace Heck.Animation
                     }
                 }
 
-                bool hsv = flags.Any(n => n == "hsv");
+                bool hsv = flags.Any(n => n == "hsvLerp");
 
                 switch (copiedList.Count)
                 {
