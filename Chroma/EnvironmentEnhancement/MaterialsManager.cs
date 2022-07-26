@@ -67,7 +67,7 @@ namespace Chroma.EnvironmentEnhancement
             Color color = CustomDataManager.GetColorFromData(customData, _v2) ?? new Color(0, 0, 0, 0);
             ShaderType shaderType = customData.GetStringToEnumRequired<ShaderType>(_v2 ? V2_SHADER_PRESET : SHADER_PRESET);
             string[]? shaderKeywords = customData.Get<List<object>?>(_v2 ? V2_SHADER_KEYWORDS : SHADER_KEYWORDS)?.Cast<string>().ToArray();
-            List<Track>? track = customData.GetNullableTrackArray(_beatmapTracks, false)?.ToList();
+            List<Track>? track = customData.GetNullableTrackArray(_beatmapTracks, _v2)?.ToList();
 
             Material originalMaterial = shaderType switch
             {
