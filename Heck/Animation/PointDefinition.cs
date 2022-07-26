@@ -289,13 +289,20 @@ namespace Heck.Animation
 
             normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
 
+            // TODO: Figure out a much simpler way to do this
+            // I'm 99% sure I'm overcomplicating this when it's likely a simple solution
             if (!_points[r].HSV)
             {
-                return Vector4.LerpUnclamped(pointL, pointR, normalTime);
+                // Convert previous point from HSV to RGB if it's HSV
+                // RGB Lerp
+                return Vector4.LerpUnclamped(_points[l].HSV ? pointL.ToRGB() : pointL, pointR, normalTime);
             }
 
-            // HSV convert
-            Vector4 preResult = Vector4.LerpUnclamped(pointL, pointR, normalTime);
+            // Convert previous point to RGB if needed
+            // HSV lerp
+            Vector4 preResult = Vector4.LerpUnclamped(_points[l].HSV ? pointL : pointL.ToHSV(), pointR, normalTime);
+
+            // HSV convert to RGB
             Vector4 result = Color.HSVToRGB(preResult.x, preResult.y, preResult.z, true);
             result.w = preResult.w;
             return result;
@@ -390,6 +397,20 @@ namespace Heck.Animation
             public static implicit operator Quaternion(Vector5 vector)
             {
                 return new Quaternion(vector.x, vector.y, vector.z, vector.w);
+            }
+
+            public Vector5 ToRGB()
+            {
+                Vector4 result = Color.HSVToRGB(x, y, z, true);
+                result.w = w;
+                return new Vector5(result.x, result.y, result.z, result.w, v);
+            }
+
+            public Vector5 ToHSV()
+            {
+                Color c = new(x, y, z, v);
+                Color.RGBToHSV(c, out float h, out float s, out float b);
+                return new Vector5(h, s, b, w, v);
             }
         }
 
