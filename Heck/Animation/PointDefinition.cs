@@ -85,7 +85,7 @@ namespace Heck.Animation
                     default:
                     {
                         Vector5 vector = new(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]), Convert.ToSingle(copiedList[2]), Convert.ToSingle(copiedList[3]), Convert.ToSingle(copiedList[4]));
-                        pointData.Add(new PointData(vector, hsv, easing));
+                        pointData.Add(new PointData(hsv ? vector.ToHSV() : vector, hsv, easing));
                         break;
                     }
                 }
@@ -273,8 +273,10 @@ namespace Heck.Animation
             }
 
             SearchIndex(time, PropertyType.Vector4, out int l, out int r);
-            Vector5 pointL = _points[l].Vector4Point;
-            Vector5 pointR = _points[r].Vector4Point;
+            PointData pointDataL = _points[l];
+            PointData pointDataR = _points[r];
+            Vector5 pointL = pointDataL.Vector4Point;
+            Vector5 pointR = pointDataR.Vector4Point;
 
             float normalTime;
             float divisor = pointR.v - pointL.v;
@@ -287,24 +289,26 @@ namespace Heck.Animation
                 normalTime = 0;
             }
 
-            normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
+            normalTime = Easings.Interpolate(normalTime, pointDataR.Easing);
 
-            // TODO: Figure out a much simpler way to do this
-            // I'm 99% sure I'm overcomplicating this when it's likely a simple solution
-            if (!_points[r].HSV)
+            // Convert to HSV if the next point is HSV lerp
+            // So the lerp is proper
+            if (pointDataR.HSV && !pointDataL.HSV)
             {
-                // Convert previous point from HSV to RGB if it's HSV
-                // RGB Lerp
-                return Vector4.LerpUnclamped(_points[l].HSV ? pointL.ToRGB() : pointL, pointR, normalTime);
+                pointL = pointL.ToHSV();
             }
 
-            // Convert previous point to RGB if needed
-            // HSV lerp
-            Vector4 preResult = Vector4.LerpUnclamped(_points[l].HSV ? pointL : pointL.ToHSV(), pointR, normalTime);
+            Vector4 result = Vector4.LerpUnclamped(pointL, pointR, normalTime);
 
-            // HSV convert to RGB
-            Vector4 result = Color.HSVToRGB(preResult.x, preResult.y, preResult.z, true);
-            result.w = preResult.w;
+            if (!pointDataR.HSV)
+            {
+                return result;
+            }
+
+            float alpha = result.w;
+            result = Color.HSVToRGB(result.x, result.y, result.y, true);
+            result.w = alpha;
+
             return result;
         }
 
