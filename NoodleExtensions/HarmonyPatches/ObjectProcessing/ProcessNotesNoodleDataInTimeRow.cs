@@ -69,7 +69,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
 
         [HarmonyPostfix]
         [HarmonyPatch("HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice")]
-        private static void ProcessAllNotesInTimeRowPatch(BeatmapObjectsInTimeRowProcessor __instance, int ____numberOfLines, object allObjectsTimeSlice)
+        private static void ProcessAllNotesInTimeRowPatch(NoodleBeatmapObjectsInTimeRowProcessor __instance, int ____numberOfLines, object allObjectsTimeSlice)
         {
             float offset = ____numberOfLines / 2f;
             bool v2 = NoodleBeatmapObjectsInTimeRowProcessor.GetV2(__instance);
@@ -112,7 +112,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
 
                 // Flippy stuff
                 IEnumerable<float?>? flip = customData.GetNullableFloats(v2 ? V2_FLIP : FLIP)?.ToList();
-                float? flipX = flip?.ElementAtOrDefault(0) + offset;
+                float? flipX = flip?.ElementAtOrDefault(0);
                 float? flipY = flip?.ElementAtOrDefault(1);
                 if (flipX.HasValue || flipY.HasValue)
                 {
@@ -128,7 +128,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 }
                 else if (!customData.ContainsKey(INTERNAL_FLIPYSIDE))
                 {
-                    customData[INTERNAL_FLIPLINEINDEX] = lineIndex;
+                    customData[INTERNAL_FLIPLINEINDEX] = lineIndex - offset;
                     customData[INTERNAL_FLIPYSIDE] = 0;
                 }
             }
@@ -218,7 +218,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
 
         [HarmonyPrefix]
         [HarmonyPatch("HandleCurrentTimeSliceColorNotesDidFinishTimeSlice")]
-        private static void ProcessColorNotesInTimeRowPatch(BeatmapObjectsInTimeRowProcessor __instance, int ____numberOfLines, object currentTimeSlice)
+        private static void ProcessColorNotesInTimeRowPatch(NoodleBeatmapObjectsInTimeRowProcessor __instance, int ____numberOfLines, object currentTimeSlice)
         {
             float offset = ____numberOfLines / 2f;
             IReadOnlyList<NoteData> colorNotesData = AccessContainerItems<NoteData>(currentTimeSlice);

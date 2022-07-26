@@ -19,6 +19,11 @@ namespace Heck
             return mirror ? vector.Mirror() : vector;
         }
 
+        public static float MirrorLineIndex(this float index)
+        {
+            return -index - 1;
+        }
+
         public static Quaternion Mirror(this Quaternion quaternion)
         {
             return new Quaternion(quaternion.x, quaternion.y * -1, quaternion.z * -1, quaternion.w);

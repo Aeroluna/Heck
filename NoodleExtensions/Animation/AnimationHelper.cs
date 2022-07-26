@@ -200,10 +200,10 @@ namespace NoodleExtensions.Animation
                 return;
             }
 
-            positionOffset?.Mirror();
-            rotationOffset?.Mirror();
-            scaleOffset?.Mirror();
-            localRotationOffset?.Mirror();
+            positionOffset = positionOffset?.Mirror();
+            rotationOffset = rotationOffset?.Mirror();
+            scaleOffset = scaleOffset?.Mirror();
+            localRotationOffset = localRotationOffset?.Mirror();
         }
     }
 }
