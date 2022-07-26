@@ -300,11 +300,13 @@ namespace Heck.Animation
 
             Vector4 result = Vector4.LerpUnclamped(pointL, pointR, normalTime);
 
+            // RGB lerp
             if (!pointDataR.HSV)
             {
                 return result;
             }
 
+            // HSV lerp
             float alpha = result.w;
             result = Color.HSVToRGB(result.x, result.y, result.y, true);
             result.w = alpha;
