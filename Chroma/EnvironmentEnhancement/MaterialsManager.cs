@@ -94,6 +94,7 @@ namespace Chroma.EnvironmentEnhancement
             GetEnvironmentMaterial("BillieWater", "WaterfallFalling");
             GetEnvironmentMaterial("InterscopeConcrete", "Concrete2");
             GetEnvironmentMaterial("InterscopeCar", "Car");
+            GetEnvironmentMaterial("Obstacle", "ObstacleCoreHD");
         }
 
         internal MaterialInfo GetMaterial(object o)
