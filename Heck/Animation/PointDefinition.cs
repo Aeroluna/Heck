@@ -408,7 +408,7 @@ namespace Heck.Animation
 
             public Vector5 ToHSV()
             {
-                Color c = new(x, y, z, v);
+                Color c = new(x, y, z, w);
                 Color.RGBToHSV(c, out float h, out float s, out float b);
                 return new Vector5(h, s, b, w, v);
             }
