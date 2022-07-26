@@ -43,10 +43,11 @@ namespace Heck.Animation
 
                 Functions easing = Functions.easeLinear;
                 bool spline = false;
+                HashSet<string> flags = new();
                 List<object> copiedList = rawPoint.ToList();
                 if (flagIndex != -1)
                 {
-                    List<string> flags = rawPoint.GetRange(flagIndex, cachedCount - flagIndex).Cast<string>().ToList();
+                    flags = rawPoint.GetRange(flagIndex, cachedCount - flagIndex).Cast<string>().ToHashSet();
                     copiedList.RemoveRange(flagIndex, cachedCount - flagIndex);
 
                     string? easingString = flags.FirstOrDefault(n => n.StartsWith("ease"));
@@ -63,26 +64,28 @@ namespace Heck.Animation
                     }
                 }
 
+                bool hsv = flags.Any(n => n == "hsv");
+
                 switch (copiedList.Count)
                 {
                     case 2:
                     {
                         Vector2 vector = new(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]));
-                        pointData.Add(new PointData(vector, easing));
+                        pointData.Add(new PointData(vector, hsv, easing));
                         break;
                     }
 
                     case 4:
                     {
                         Vector4 vector = new(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]), Convert.ToSingle(copiedList[2]), Convert.ToSingle(copiedList[3]));
-                        pointData.Add(new PointData(vector, easing, spline));
+                        pointData.Add(new PointData(vector, hsv, easing, spline));
                         break;
                     }
 
                     default:
                     {
                         Vector5 vector = new(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]), Convert.ToSingle(copiedList[2]), Convert.ToSingle(copiedList[3]), Convert.ToSingle(copiedList[4]));
-                        pointData.Add(new PointData(vector, easing));
+                        pointData.Add(new PointData(vector, hsv, easing));
                         break;
                     }
                 }
@@ -285,7 +288,17 @@ namespace Heck.Animation
             }
 
             normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
-            return Vector4.LerpUnclamped(pointL, pointR, normalTime);
+
+            if (!_points[r].HSV)
+            {
+                return Vector4.LerpUnclamped(pointL, pointR, normalTime);
+            }
+
+            // HSV convert
+            Vector4 preResult = Vector4.LerpUnclamped(pointL, pointR, normalTime);
+            Vector4 result = Color.HSVToRGB(preResult.x, preResult.y, preResult.z, true);
+            result.w = preResult.w;
+            return result;
         }
 
         private static Vector3 SmoothVectorLerp(List<PointData> points, int a, int b, float time)
@@ -382,24 +395,27 @@ namespace Heck.Animation
 
         private class PointData
         {
-            internal PointData(Vector4 point, Functions easing = Functions.easeLinear, bool smooth = false)
+            internal PointData(Vector4 point, bool hsv, Functions easing = Functions.easeLinear, bool smooth = false)
             {
                 Point = point;
+                HSV = hsv;
                 Easing = easing;
                 Smooth = smooth;
                 Quaternion quaternion = Quaternion.Euler(point);
                 Vector4Point = new Vector5(quaternion.x, quaternion.y, quaternion.z, quaternion.w, point.w);
             }
 
-            internal PointData(Vector2 point, Functions easing = Functions.easeLinear)
+            internal PointData(Vector2 point, bool hsv, Functions easing = Functions.easeLinear)
             {
                 LinearPoint = point;
+                HSV = hsv;
                 Easing = easing;
             }
 
-            internal PointData(Vector5 point, Functions easing = Functions.easeLinear)
+            internal PointData(Vector5 point, bool hsv, Functions easing = Functions.easeLinear)
             {
                 Vector4Point = point;
+                HSV = hsv;
                 Easing = easing;
             }
 
@@ -412,6 +428,8 @@ namespace Heck.Animation
             internal Functions Easing { get; }
 
             internal bool Smooth { get; }
+
+            internal bool HSV { get; }
         }
     }
 }
