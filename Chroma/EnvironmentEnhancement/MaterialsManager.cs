@@ -171,7 +171,7 @@ namespace Chroma.EnvironmentEnhancement
                         "HEIGHT_FOG", "REFLECTION_PROBE_BOX_PROJECTION", "SPECULAR", "_EMISSION",
                         "_ENABLE_FOG_TINT", "_RIMLIGHT_NONE"
                     },
-                    ShaderType.BillieWater => new[]
+                    ShaderType.BaseWater => new[]
                     {
                         "FOG", "HEIGHT_FOG", "INVERT_RIMLIGHT", "MASK_RED_IS_ALPHA", "NOISE_DITHERING",
                         "NORMAL_MAP", "REFLECTION_PROBE", "REFLECTION_PROBE_BOX_PROJECTION", "_DECALBLEND_ALPHABLEND",
