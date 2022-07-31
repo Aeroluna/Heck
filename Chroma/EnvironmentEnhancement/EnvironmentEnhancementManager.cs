@@ -73,7 +73,10 @@ namespace Chroma.EnvironmentEnhancement
         [AffinityPatch(typeof(BeatmapObjectSpawnController), nameof(BeatmapObjectSpawnController.Start))]
         private void Start(BeatmapObjectSpawnController __instance)
         {
-            __instance.StartCoroutine(DelayedStart());
+            if (!ChromaConfig.Instance.EnvironmentEnhancementsDisabled)
+            {
+                __instance.StartCoroutine(DelayedStart());
+            }
         }
 
         private IEnumerator DelayedStart()
