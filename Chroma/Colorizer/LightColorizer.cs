@@ -151,6 +151,8 @@ namespace Chroma.Colorizer
         private readonly Color?[] _colors = new Color?[COLOR_FIELDS];
         private readonly SimpleColorSO[] _originalColors = new SimpleColorSO[COLOR_FIELDS];
 
+        private ILightWithId[][]? _lightsPropagationGrouped;
+
         private LightColorizer(
             ChromaLightSwitchEventEffect chromaLightSwitchEventEffect,
             LightColorizerManager colorizerManager,
@@ -195,59 +197,70 @@ namespace Chroma.Colorizer
             }
 
             Lights = lights;
-
-            // AAAAAA PROPAGATION STUFFF
-            IDictionary<int, List<ILightWithId>> lightsPreGroup = new Dictionary<int, List<ILightWithId>>();
-            TrackLaneRingsManager[] managers = Object.FindObjectsOfType<TrackLaneRingsManager>();
-            foreach (ILightWithId light in lights)
-            {
-                if (light is not MonoBehaviour monoBehaviour)
-                {
-                    continue;
-                }
-
-                int z = Mathf.RoundToInt(monoBehaviour.transform.position.z);
-
-                TrackLaneRing? ring = monoBehaviour.GetComponentInParent<TrackLaneRing>();
-                if (ring != null)
-                {
-                    TrackLaneRingsManager? mngr = managers.FirstOrDefault(it => it.Rings.IndexOf(ring) >= 0);
-                    if (mngr != null)
-                    {
-                        z = 1000 + mngr.Rings.IndexOf(ring);
-                    }
-                }
-
-                if (lightsPreGroup.TryGetValue(z, out List<ILightWithId> list))
-                {
-                    list.Add(light);
-                }
-                else
-                {
-                    list = new List<ILightWithId> { light };
-                    lightsPreGroup.Add(z, list);
-                }
-            }
-
-            LightsPropagationGrouped = new ILightWithId[lightsPreGroup.Count][];
-            int i = 0;
-            foreach (List<ILightWithId> lightList in lightsPreGroup.Values)
-            {
-                if (lightList is null)
-                {
-                    continue;
-                }
-
-                LightsPropagationGrouped[i] = lightList.ToArray();
-                i++;
-            }
         }
 
         public ChromaLightSwitchEventEffect ChromaLightSwitchEventEffect { get; }
 
         public IReadOnlyList<ILightWithId> Lights { get; }
 
-        public ILightWithId[][] LightsPropagationGrouped { get; }
+        public ILightWithId[][] LightsPropagationGrouped
+        {
+            get
+            {
+                if (_lightsPropagationGrouped != null)
+                {
+                    return _lightsPropagationGrouped;
+                }
+
+                // AAAAAA PROPAGATION STUFFF
+                IDictionary<int, List<ILightWithId>> lightsPreGroup = new Dictionary<int, List<ILightWithId>>();
+                TrackLaneRingsManager[] managers = Object.FindObjectsOfType<TrackLaneRingsManager>();
+                foreach (ILightWithId light in Lights)
+                {
+                    if (light is not MonoBehaviour monoBehaviour)
+                    {
+                        continue;
+                    }
+
+                    int z = Mathf.RoundToInt(monoBehaviour.transform.position.z);
+
+                    TrackLaneRing? ring = monoBehaviour.GetComponentInParent<TrackLaneRing>();
+                    if (ring != null)
+                    {
+                        TrackLaneRingsManager? mngr = managers.FirstOrDefault(it => it.Rings.IndexOf(ring) >= 0);
+                        if (mngr != null)
+                        {
+                            z = 1000 + mngr.Rings.IndexOf(ring);
+                        }
+                    }
+
+                    if (lightsPreGroup.TryGetValue(z, out List<ILightWithId> list))
+                    {
+                        list.Add(light);
+                    }
+                    else
+                    {
+                        list = new List<ILightWithId> { light };
+                        lightsPreGroup.Add(z, list);
+                    }
+                }
+
+                _lightsPropagationGrouped = new ILightWithId[lightsPreGroup.Count][];
+                int i = 0;
+                foreach (List<ILightWithId> lightList in lightsPreGroup.Values)
+                {
+                    if (lightList is null)
+                    {
+                        continue;
+                    }
+
+                    _lightsPropagationGrouped[i] = lightList.ToArray();
+                    i++;
+                }
+
+                return _lightsPropagationGrouped;
+            }
+        }
 
         public Color[] Color
         {
