@@ -1,128 +1,125 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
+using IPA.Utilities;
+using SiraUtil.Affinity;
 using UnityEngine;
 
 namespace NoodleExtensions.HarmonyPatches.SmallFixes
 {
     [HeckPatch(PatchType.Features)]
-    internal static class SaberPlayerMovementFix
+    internal class SaberPlayerMovementFix : IAffinity, IDisposable
     {
-        private static readonly MethodInfo _addNewData = AccessTools.Method(typeof(SaberMovementData), nameof(SaberMovementData.AddNewData));
-        private static readonly MethodInfo _addNewDataBetter = AccessTools.Method(typeof(SaberPlayerMovementFix), nameof(AddNewDataBetter));
+        private static readonly FieldAccessor<PlayerTransforms, Transform>.Accessor _originAccessor =
+            FieldAccessor<PlayerTransforms, Transform>.GetAccessor("_originTransform");
 
-        private static readonly MethodInfo _convertToWorld = AccessTools.Method(typeof(SaberPlayerMovementFix), nameof(ConvertToWorld));
+        private static readonly FieldInfo _topPos = AccessTools.Field(typeof(BladeMovementDataElement), nameof(BladeMovementDataElement.topPos));
+        private static readonly FieldInfo _bottomPos = AccessTools.Field(typeof(BladeMovementDataElement), nameof(BladeMovementDataElement.bottomPos));
 
-        private static readonly MethodInfo _movementDataGetter = AccessTools.PropertyGetter(typeof(Saber), nameof(Saber.movementData));
-        private static readonly MethodInfo _createSaberMovementData = AccessTools.Method(typeof(SaberPlayerMovementFix), nameof(CreateSaberMovementData));
+        private static readonly Dictionary<IBladeMovementData, SaberMovementData> _worldMovementData = new();
 
-        private static readonly Dictionary<Saber, SaberMovementData> _worldMovementData = new();
+        private readonly Transform _origin;
 
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(Saber), nameof(Saber.ManualUpdate))]
-        private static IEnumerable<CodeInstruction> SaberTranspiler(IEnumerable<CodeInstruction> instructions)
+        private readonly CodeInstruction _computeWorld;
+
+        private SaberPlayerMovementFix(PlayerTransforms playerTransforms)
         {
-            return new CodeMatcher(instructions)
-                /*
-                 * -- this._movementData.AddNewData(this._saberBladeTopPos, this._saberBladeBottomPos, TimeHelper.time);
-                 * ++ AddNewDataBetter(this._movementData, this._saberBladeTopPos, this._sableBladeBottomPos, TimeHelper.time, this);
-                 */
-                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _addNewData))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                .Set(OpCodes.Call, _addNewDataBetter)
-                .InstructionEnumeration();
+            _origin = _originAccessor(ref playerTransforms);
+            _computeWorld = InstanceTranspilers.EmitInstanceDelegate<Func<Vector3, Vector3>>(ComputeWorld);
         }
 
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(NoteCutter), nameof(NoteCutter.Cut))]
-        private static IEnumerable<CodeInstruction> NoteCutterTranspiler(IEnumerable<CodeInstruction> instructions)
+        public void Dispose()
         {
-            return new CodeMatcher(instructions)
-                /*
-                 * Vector3 topPos = prevAddedData.topPos;
-                 * Vector3 bottomPos = prevAddedData.bottomPos;
-                 * ++ ConvertToWorld(saber, ref topPos, ref bottomPos);
-                 */
-                .MatchForward(false, new CodeMatch(OpCodes.Stloc_3))
-                .Advance(1)
-                .Insert(
-                    new CodeInstruction(OpCodes.Ldarg_1),
-                    new CodeInstruction(OpCodes.Ldloca_S, 2),
-                    new CodeInstruction(OpCodes.Ldloca_S, 3),
-                    new CodeInstruction(OpCodes.Call, _convertToWorld))
-                .InstructionEnumeration();
+            InstanceTranspilers.DisposeDelegate(_computeWorld);
         }
 
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(SaberModelController), nameof(SaberModelController.Init))]
-        private static IEnumerable<CodeInstruction> SaberWorldMovementTranspiler(IEnumerable<CodeInstruction> instructions)
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(SaberTrail), nameof(SaberTrail.Setup))]
+        private static void CreateSaberMovementData(ref IBladeMovementData movementData)
         {
-            return new CodeMatcher(instructions)
-                /*
-                 * -- this._saberTrail.Setup((color * this._initData.trailTintColor).linear, saber.movementData);
-                 * ++ this._saberTrail.Setup((color * this._initData.trailTintColor).linear, CreateSaberMovementData(saber));
-                 */
-                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _movementDataGetter))
-                .SetOperandAndAdvance(_createSaberMovementData)
-                .InstructionEnumeration();
+            // use world movement data for saber trail
+            SaberMovementData world = new();
+            _worldMovementData.Add(movementData, world);
+            movementData = world;
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(SaberTrail), nameof(SaberTrail.OnDestroy))]
         private static void CleanupWorldMovement(IBladeMovementData ____movementData)
         {
-            Saber? saber = _worldMovementData.FirstOrDefault(n => n.Value == ____movementData).Key;
-            if (saber != null)
-            {
-                _worldMovementData.Remove(saber);
-            }
+            _worldMovementData
+                .Where(n => n.Value == ____movementData)
+                .Select(n => n.Key)
+                .ToArray()
+                .Do(n => _worldMovementData.Remove(n));
         }
 
         // We store all positions as localpositions so that abrupt changes in world position do not affect this
         // it gets converted back to world position to calculate cut
-        private static void AddNewDataBetter(SaberMovementData movementData, Vector3 saberBladeTopPos, Vector3 saberBladeBottomPos, float time, Saber saber)
+        [AffinityPrefix]
+        [AffinityPatch(typeof(SaberMovementData), nameof(SaberMovementData.AddNewData))]
+        private void ConvertToWorld(SaberMovementData __instance, ref Vector3 topPos, ref Vector3 bottomPos, float time)
         {
-            if (_worldMovementData.TryGetValue(saber, out SaberMovementData worldMovementData))
-            {
-                worldMovementData.AddNewData(saberBladeTopPos, saberBladeBottomPos, time);
-            }
-
-            // Convert world pos to local
-            Transform? playerTransform = saber.transform.parent.parent;
-
-            // For some reason, SiraUtil's FPFCToggle unparents the left and right hand from VRGameCore
-            // This only affects fpfc so w/e, just null check and go home
-            if (playerTransform != null)
-            {
-                saberBladeTopPos = playerTransform.InverseTransformPoint(saberBladeTopPos);
-                saberBladeBottomPos = playerTransform.InverseTransformPoint(saberBladeBottomPos);
-            }
-
-            movementData.AddNewData(saberBladeTopPos, saberBladeBottomPos, time);
-        }
-
-        private static void ConvertToWorld(Saber saber, ref Vector3 topPos, ref Vector3 bottomPos)
-        {
-            Transform playerTransform = saber.transform.parent.parent;
-
-            if (playerTransform == null)
+            if (_worldMovementData.ContainsValue(__instance))
             {
                 return;
             }
 
-            topPos = playerTransform.TransformPoint(topPos);
-            bottomPos = playerTransform.TransformPoint(bottomPos);
+            // fill world movement data with world position for saber
+            if (_worldMovementData.TryGetValue(__instance, out SaberMovementData world))
+            {
+                world.AddNewData(topPos, bottomPos, time);
+            }
+
+            topPos = _origin.InverseTransformPoint(topPos);
+            bottomPos = _origin.InverseTransformPoint(bottomPos);
         }
 
-        private static IBladeMovementData CreateSaberMovementData(Saber saber)
+        [AffinityPostfix]
+        [AffinityPatch(typeof(SaberMovementData), nameof(SaberMovementData.prevAddedData), AffinityMethodType.Getter)]
+        [AffinityPatch(typeof(SaberMovementData), nameof(SaberMovementData.lastAddedData), AffinityMethodType.Getter)]
+        private void ConvertToLocal(SaberMovementData __instance, ref BladeMovementDataElement __result)
         {
-            // use world movement data for saber trail
-            SaberMovementData movementData = new();
-            _worldMovementData.Add(saber, movementData);
-            return movementData;
+            if (_worldMovementData.ContainsValue(__instance))
+            {
+                return;
+            }
+
+            __result.topPos = _origin.TransformPoint(__result.topPos);
+            __result.bottomPos = _origin.TransformPoint(__result.bottomPos);
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(SaberSwingRatingCounter), nameof(SaberSwingRatingCounter.ProcessNewData))]
+        private void ConvertProcessorToLocal(ref BladeMovementDataElement newData, ref BladeMovementDataElement prevData)
+        {
+            newData.topPos = _origin.TransformPoint(newData.topPos);
+            newData.bottomPos = _origin.TransformPoint(newData.bottomPos);
+            prevData.topPos = _origin.TransformPoint(prevData.topPos);
+            prevData.bottomPos = _origin.TransformPoint(prevData.bottomPos);
+        }
+
+        [AffinityTranspiler]
+        [AffinityPatch(typeof(SaberMovementData), nameof(SaberMovementData.ComputeAdditionalData))]
+        private IEnumerable<CodeInstruction> ComputeWorldTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            return new CodeMatcher(instructions)
+                .MatchForward(
+                    false,
+                    new CodeMatch(n => n.opcode == OpCodes.Ldfld && (ReferenceEquals(n.operand, _topPos) || ReferenceEquals(n.operand, _bottomPos))))
+                .Repeat(n => n
+                    .Advance(1)
+                    .Insert(_computeWorld))
+                .InstructionEnumeration();
+        }
+
+        private Vector3 ComputeWorld(Vector3 original)
+        {
+            return _origin.TransformPoint(original);
         }
     }
 }
