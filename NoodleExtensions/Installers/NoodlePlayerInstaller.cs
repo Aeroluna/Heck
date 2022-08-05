@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using NoodleExtensions.Animation;
+using NoodleExtensions.HarmonyPatches;
 using NoodleExtensions.HarmonyPatches.FakeNotes;
 using NoodleExtensions.HarmonyPatches.Mirror;
 using NoodleExtensions.HarmonyPatches.ObjectProcessing;
@@ -57,6 +58,7 @@ namespace NoodleExtensions.Installers
             Container.BindInterfacesTo<ObstacleUpdateNoodlifier>().AsSingle();
             Container.BindInterfacesTo<SliderInitNoodlifier>().AsSingle();
             Container.BindInterfacesTo<SliderUpdateNoodlifier>().AsSingle();
+            Container.BindInterfacesTo<NoteLinker>().AsSingle();
 
             // SmallFixes
             Container.BindInterfacesTo<NoteCutSoundLimiter>().AsSingle();

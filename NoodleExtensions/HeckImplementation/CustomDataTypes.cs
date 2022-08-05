@@ -40,6 +40,10 @@ namespace NoodleExtensions
                         }
                     }
                 }
+                else
+                {
+                    Link = customData.Get<string?>(LINK);
+                }
 
                 if (Fake.GetValueOrDefault())
                 {
@@ -51,6 +55,8 @@ namespace NoodleExtensions
                 Log.Logger.LogFailure(e, noteData);
             }
         }
+
+        internal string? Link { get; }
     }
 
     internal class NoodleBaseNoteData : NoodleObjectData

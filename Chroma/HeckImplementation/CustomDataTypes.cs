@@ -69,6 +69,7 @@ namespace Chroma
             : base(customData, beatmapTracks, pointDefinitions, v2)
         {
             SpawnEffect = customData.Get<bool?>(NOTE_SPAWN_EFFECT) ?? !customData.Get<bool?>(V2_DISABLE_SPAWN_EFFECT);
+            DisableDebris = customData.Get<bool?>(NOTE_DEBRIS);
         }
 
         private ChromaNoteData(ChromaNoteData original)
@@ -78,6 +79,8 @@ namespace Chroma
         }
 
         internal bool? SpawnEffect { get; }
+
+        internal bool? DisableDebris { get; }
 
         public IObjectCustomData Copy()
         {

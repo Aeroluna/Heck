@@ -53,6 +53,7 @@ namespace Chroma
         internal const string COLOR = "color";
         internal const string DIRECTION = "direction";
         internal const string NOTE_SPAWN_EFFECT = "spawnEffect";
+        internal const string NOTE_DEBRIS = "disableDebris";
         internal const string LERP_TYPE = "lerpType";
         internal const string LIGHT_ID = "lightID";
         internal const string LOCK_POSITION = "lockRotation";

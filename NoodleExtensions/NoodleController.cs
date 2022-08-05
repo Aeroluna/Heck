@@ -43,6 +43,7 @@ namespace NoodleExtensions
         internal const string NOTE_LOOK_DISABLE = "disableNoteLook";
         internal const string NOTE_SPAWN_OFFSET = "noteJumpStartBeatOffset";
         internal const string TIME = "time";
+        internal const string LINK = "link";
         internal const string WORLD_POSITION_STAYS = "worldPositionStays";
         internal const string PARENT_TRACK = "parentTrack";
         internal const string CHILDREN_TRACKS = "childrenTracks";
