@@ -239,7 +239,7 @@ namespace Chroma.EnvironmentEnhancement.Component
                     Log.Logger.Log("SaberBurnMarkArea yeeted. Complain to me if you would rather it not.");
                 }
 
-                Object.Destroy(saberBurnMarkArea);
+                Object.DestroyImmediate(saberBurnMarkArea);
             }
 
             SaberBurnMarkSparkles? saberBurnMarkSparkles = root.GetComponent<SaberBurnMarkSparkles>();
@@ -250,7 +250,7 @@ namespace Chroma.EnvironmentEnhancement.Component
                     Log.Logger.Log("SaberBurnMarkSparkles yeeted. Complain to me if you would rather it not.");
                 }
 
-                Object.Destroy(saberBurnMarkSparkles);
+                Object.DestroyImmediate(saberBurnMarkSparkles);
             }
 
             GameObjectInfo newGameObjectInfo = new(root.gameObject);

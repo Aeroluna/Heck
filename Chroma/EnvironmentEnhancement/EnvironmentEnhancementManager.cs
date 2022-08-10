@@ -187,6 +187,12 @@ namespace Chroma.EnvironmentEnhancement
                 if (dupeAmount.HasValue)
                 {
                     gameObjects = new List<GameObject>();
+                    if (foundObjects.Count > 100)
+                    {
+                        Log.Logger.Log("Extreme value reached. You are attempting to duplicate over 100 objects! Environment enhancements stopped.", Logger.Level.Error);
+                        break;
+                    }
+
                     foreach (GameObjectInfo gameObjectInfo in foundObjects)
                     {
                         if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
