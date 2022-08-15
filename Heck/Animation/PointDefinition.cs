@@ -99,12 +99,13 @@ namespace Heck.Animation
 
         internal class PointData
         {
-            internal PointData(T point, float time, Functions easing, bool smooth = false)
+            internal PointData(T point, float time, Functions easing, bool smooth = false, bool hsvLerp = false)
             {
                 Point = point;
                 Time = time;
                 Easing = easing;
                 Smooth = smooth;
+                HsvLerp = hsvLerp;
             }
 
             internal T Point { get; }
@@ -114,6 +115,8 @@ namespace Heck.Animation
             internal Functions Easing { get; }
 
             internal bool Smooth { get; }
+
+            internal bool HsvLerp { get; }
         }
     }
 }

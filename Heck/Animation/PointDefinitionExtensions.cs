@@ -98,7 +98,18 @@ namespace Heck.Animation
 
         private static Vector4 HandleInterpolateVector4(List<PointDefinition<Vector4>.PointData> points, int l, int r, float time)
         {
-            return Vector4.LerpUnclamped(points[l].Point, points[r].Point, time);
+            PointDefinition<Vector4>.PointData pointRData = points[r];
+            Vector4 pointL = points[l].Point;
+            Vector4 pointR = pointRData.Point;
+            if (!pointRData.HsvLerp)
+            {
+                return Vector4.LerpUnclamped(pointL, pointR, time);
+            }
+
+            Color.RGBToHSV(pointL, out float hl, out float sl, out float vl);
+            Color.RGBToHSV(pointR, out float hr, out float sr, out float vr);
+            Color lerped = Color.HSVToRGB(Mathf.LerpUnclamped(hl, hr, time), Mathf.LerpUnclamped(sl, sr, time), Mathf.LerpUnclamped(vl, vr, time));
+            return new Vector4(lerped.r, lerped.g, lerped.b, Mathf.LerpUnclamped(pointL.w, pointR.w, time));
         }
 
         private static Quaternion HandleInterpolateQuaternion(List<PointDefinition<Quaternion>.PointData> points, int l, int r, float time)
@@ -154,6 +165,7 @@ namespace Heck.Animation
 
                 Functions easing = Functions.easeLinear;
                 bool spline = false;
+                bool lerpHSV = false;
                 List<object> copiedList = rawPoint.ToList();
                 if (flagIndex != -1)
                 {
@@ -172,10 +184,16 @@ namespace Heck.Animation
                     {
                         spline = true;
                     }
+
+                    string? lerpString = flags.FirstOrDefault(n => n.StartsWith("lerp"));
+                    if (lerpString == "lerpHSV")
+                    {
+                        lerpHSV = true;
+                    }
                 }
 
                 func(copiedList, out T value, out float time);
-                pointData.Add(new PointDefinition<T>.PointData(value, time, easing, spline));
+                pointData.Add(new PointDefinition<T>.PointData(value, time, easing, spline, lerpHSV));
             }
 
             return new PointDefinition<T>(pointData);
