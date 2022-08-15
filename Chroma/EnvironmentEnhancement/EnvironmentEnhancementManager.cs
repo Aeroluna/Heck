@@ -287,7 +287,7 @@ namespace Chroma.EnvironmentEnhancement
                         _componentCustomizer.Customize(transform, componentData);
                     }
 
-                    Track? track = gameObjectData.GetNullableTrack(_tracks, v2);
+                    List<Track>? track = gameObjectData.GetNullableTrackArray(_tracks, v2)?.ToList();
                     if (track == null)
                     {
                         continue;
@@ -310,7 +310,7 @@ namespace Chroma.EnvironmentEnhancement
                         controller.PositionUpdated += () => _beatmapObjectsAvoidanceTransformOverride.UpdatePosition(beatmapObjectsAvoidance);
                     }
 
-                    track.AddGameObject(gameObject);
+                    track.ForEach(n => n.AddGameObject(gameObject));
                 }
 
                 if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)

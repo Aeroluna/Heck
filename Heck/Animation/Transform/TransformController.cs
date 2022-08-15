@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
+using static Heck.NullableExtensions;
 using Logger = IPA.Logging.Logger;
 using Object = UnityEngine.Object;
 
@@ -16,7 +18,7 @@ namespace Heck.Animation.Transform
     {
         private bool _v2;
         private bool _leftHanded;
-        private Track _track = null!;
+        private List<Track> _track = null!;
 
         public event Action? RotationUpdated;
 
@@ -29,7 +31,7 @@ namespace Heck.Animation.Transform
         private void Construct(
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
             IReadonlyBeatmapData beatmapData,
-            Track track)
+            List<Track> track)
         {
             _leftHanded = leftHanded;
             _v2 = beatmapData is CustomBeatmapData { version2_6_0AndEarlier: true };
@@ -48,7 +50,7 @@ namespace Heck.Animation.Transform
 
         private void Update()
         {
-            if (_track.UpdatedThisFrame)
+            if (_track.Any(n => n.UpdatedThisFrame))
             {
                 UpdatePos();
             }
@@ -56,11 +58,37 @@ namespace Heck.Animation.Transform
 
         private void UpdatePos()
         {
-            Vector3? scale = GetVectorNullable(SCALE);
-            Quaternion? rotation = GetQuaternionNullable(ROTATION);
-            Quaternion? localRotation = GetQuaternionNullable(LOCAL_ROTATION);
-            Vector3? position = GetVectorNullable(POSITION);
-            Vector3? localPosition = GetVectorNullable(LOCAL_POSITION);
+            Vector3? scale;
+            Quaternion? rotation;
+            Quaternion? localRotation;
+            Vector3? position;
+            Vector3? localPosition;
+
+            if (_track.Count > 1)
+            {
+                scale = MultVectorNullables(_track.Select(n => n.GetProperty<Vector3>(SCALE)));
+                rotation = MultQuaternionNullables(_track.Select(n => n.GetProperty<Quaternion>(ROTATION)));
+                localRotation = MultQuaternionNullables(_track.Select(n => n.GetProperty<Quaternion>(LOCAL_ROTATION)));
+                position = SumVectorNullables(_track.Select(n => n.GetProperty<Vector3>(POSITION)));
+                localPosition = SumVectorNullables(_track.Select(n => n.GetProperty<Vector3>(LOCAL_POSITION)));
+            }
+            else
+            {
+                Track track = _track.First();
+                scale = track.GetProperty<Vector3>(SCALE);
+                rotation = track.GetProperty<Quaternion>(ROTATION);
+                localRotation = track.GetProperty<Quaternion>(LOCAL_ROTATION);
+                position = track.GetProperty<Vector3>(POSITION);
+                localPosition = track.GetProperty<Vector3>(LOCAL_POSITION);
+            }
+
+            if (_leftHanded)
+            {
+                rotation = rotation?.Mirror();
+                localRotation = localRotation?.Mirror();
+                position = position?.Mirror();
+                localPosition = localPosition?.Mirror();
+            }
 
             if (scale.HasValue)
             {
@@ -102,10 +130,6 @@ namespace Heck.Animation.Transform
                 PositionUpdated?.Invoke();
             }
         }
-
-        private Vector3? GetVectorNullable(string property) => _track.GetProperty<Vector3>(property)?.Mirror(_leftHanded);
-
-        private Quaternion? GetQuaternionNullable(string property) => _track.GetProperty<Quaternion>(property)?.Mirror(_leftHanded);
     }
 
     public sealed class TransformControllerFactory : IDisposable
@@ -126,6 +150,11 @@ namespace Heck.Animation.Transform
         }
 
         public TransformController Create(GameObject gameObject, Track track, bool overwrite = false)
+        {
+            return Create(gameObject, new List<Track> { track }, overwrite);
+        }
+
+        public TransformController Create(GameObject gameObject, List<Track> track, bool overwrite = false)
         {
             TransformController existing = gameObject.GetComponent<TransformController>();
             if (existing != null)
