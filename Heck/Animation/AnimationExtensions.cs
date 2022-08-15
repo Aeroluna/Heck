@@ -11,55 +11,34 @@ namespace Heck.Animation
 {
     public static class AnimationExtensions
     {
-        public static float? GetLinearPathProperty(this Track? track, string propertyName, float time)
+        public static T? GetProperty<T>(this Track? track, string propertyName)
+            where T : struct
         {
-            PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
-
-            return pointDataInterpolation?.InterpolateLinear(time);
+            return track?.FindProperty<T>(propertyName)?.Value;
         }
 
-        public static Quaternion? GetQuaternionPathProperty(this Track? track, string propertyName, float time)
+        public static float? GetLinearPathProperty(this Track? track, string propertyName, float time)
         {
-            PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
-
-            return pointDataInterpolation?.InterpolateQuaternion(time);
+            return GetPathInterpolation<float>(track, propertyName)?.Interpolate(time);
         }
 
         public static Vector3? GetVector3PathProperty(this Track? track, string propertyName, float time)
         {
-            PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
-
-            return pointDataInterpolation?.Interpolate(time);
+            return GetPathInterpolation<Vector3>(track, propertyName)?.Interpolate(time);
         }
 
         public static Vector4? GetVector4PathProperty(this Track? track, string propertyName, float time)
         {
-            PointDefinitionInterpolation? pointDataInterpolation = GetPathInterpolation(track, propertyName);
-
-            return pointDataInterpolation?.InterpolateVector4(time);
+            return GetPathInterpolation<Vector4>(track, propertyName)?.Interpolate(time);
         }
 
-        public static float? GetLinearProperty(this Track? track, string propertyName)
+        public static Quaternion? GetQuaternionPathProperty(this Track? track, string propertyName, float time)
         {
-            return GetTrackProperty(track, propertyName)?.LinearValue;
+            return GetPathInterpolation<Quaternion>(track, propertyName)?.Interpolate(time);
         }
 
-        public static Quaternion? GetQuaternionProperty(this Track? track, string propertyName)
-        {
-            return GetTrackProperty(track, propertyName)?.QuaternionValue;
-        }
-
-        public static Vector3? GetVector3Property(this Track? track, string propertyName)
-        {
-            return GetTrackProperty(track, propertyName)?.Vector3Value;
-        }
-
-        public static Vector4? GetVector4Property(this Track? track, string propertyName)
-        {
-            return GetTrackProperty(track, propertyName)?.Vector4Value;
-        }
-
-        public static PointDefinition? GetPointData(this CustomData customData, string pointName, Dictionary<string, PointDefinition> pointDefinitions)
+        public static PointDefinition<T>? GetPointData<T>(this CustomData customData, string pointName, Dictionary<string, List<object>> pointDefinitions)
+            where T : struct
         {
             object? pointString = customData.Get<object>(pointName);
             switch (pointString)
@@ -68,16 +47,16 @@ namespace Heck.Animation
                     return null;
 
                 case string castedString:
-                    if (pointDefinitions.TryGetValue(castedString, out PointDefinition pointData))
+                    if (pointDefinitions.TryGetValue(castedString, out List<object> pointData))
                     {
-                        return pointData;
+                        return pointData.ToPointDefinition<T>();
                     }
 
                     Log.Logger.Log($"Could not find point definition [{castedString}].", Logger.Level.Error);
                     return null;
 
                 case List<object> list:
-                    return PointDefinition.ListToPointDefinition(list);
+                    return list.ToPointDefinition<T>();
 
                 default:
                     throw new InvalidOperationException($"Point was not a valid type. Got [{pointString.GetType().FullName}].");
@@ -164,21 +143,10 @@ namespace Heck.Animation
             return result;
         }
 
-        private static PointDefinitionInterpolation? GetPathInterpolation(Track? track, string propertyName)
+        private static PointDefinitionInterpolation<T>? GetPathInterpolation<T>(Track? track, string propertyName)
+            where T : struct
         {
-            Property? pathProperty = null;
-            track?.PathProperties.TryGetValue(propertyName, out pathProperty);
-            return ((PathProperty?)pathProperty)?.Interpolation;
-        }
-
-        private static Property? GetTrackProperty(Track? track, string propertyName)
-        {
-            if (track != null && track.Properties.TryGetValue(propertyName, out Property? property))
-            {
-                return property;
-            }
-
-            return null;
+            return track?.FindPathProperty<T>(propertyName)?.Interpolation;
         }
     }
 }

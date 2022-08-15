@@ -103,9 +103,9 @@ namespace Heck.Animation.Transform
             }
         }
 
-        private Vector3? GetVectorNullable(string property) => _track.GetVector3Property(property)?.Mirror(_leftHanded);
+        private Vector3? GetVectorNullable(string property) => _track.GetProperty<Vector3>(property)?.Mirror(_leftHanded);
 
-        private Quaternion? GetQuaternionNullable(string property) => _track.GetQuaternionProperty(property)?.Mirror(_leftHanded);
+        private Quaternion? GetQuaternionNullable(string property) => _track.GetProperty<Quaternion>(property)?.Mirror(_leftHanded);
     }
 
     public sealed class TransformControllerFactory : IDisposable

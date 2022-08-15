@@ -28,7 +28,7 @@ namespace Chroma
         internal ChromaAnimateComponentData(
             CustomData customData,
             Dictionary<string, Track> beatmapTracks,
-            Dictionary<string, PointDefinition> pointDefinitions)
+            Dictionary<string, List<object>> pointDefinitions)
         {
             Track = customData.GetTrackArray(beatmapTracks, false).ToList();
             Duration = customData.Get<float?>(DURATION) ?? 0f;
@@ -44,8 +44,8 @@ namespace Chroma
                 }
 
                 CustomData component = (CustomData)value;
-                Dictionary<string, PointDefinition?> componentPoints = component.Keys
-                    .ToDictionary(propertyKey => propertyKey, propertyKey => component.GetPointData(propertyKey, pointDefinitions));
+                Dictionary<string, PointDefinition<float>?> componentPoints = component.Keys
+                    .ToDictionary(propertyKey => propertyKey, propertyKey => component.GetPointData<float>(propertyKey, pointDefinitions));
                 CoroutineInfos.Add((key, componentPoints));
             }
         }
@@ -56,7 +56,7 @@ namespace Chroma
 
         internal Functions Easing { get; }
 
-        internal List<(string ComponentName, Dictionary<string, PointDefinition?> PointDefinition)> CoroutineInfos { get; } = new();
+        internal List<(string ComponentName, Dictionary<string, PointDefinition<float>?> PointDefinition)> CoroutineInfos { get; } = new();
     }
 
     internal class ChromaNoteData : ChromaObjectData, ICopyable<IObjectCustomData>
@@ -64,7 +64,7 @@ namespace Chroma
         internal ChromaNoteData(
             CustomData customData,
             Dictionary<string, Track> beatmapTracks,
-            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, List<object>> pointDefinitions,
             bool v2)
             : base(customData, beatmapTracks, pointDefinitions, v2)
         {
@@ -100,14 +100,14 @@ namespace Chroma
         internal ChromaObjectData(
             CustomData customData,
             Dictionary<string, Track> beatmapTracks,
-            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, List<object>> pointDefinitions,
             bool v2)
         {
             Color = CustomDataManager.GetColorFromData(customData, v2);
             CustomData? animationData = customData.Get<CustomData>(v2 ? V2_ANIMATION : ANIMATION);
             if (animationData != null)
             {
-                LocalPathColor = animationData.GetPointData(v2 ? V2_COLOR : COLOR, pointDefinitions);
+                LocalPathColor = animationData.GetPointData<Vector4>(v2 ? V2_COLOR : COLOR, pointDefinitions);
             }
 
             Track = customData.GetNullableTrackArray(beatmapTracks, v2)?.ToList();
@@ -117,7 +117,7 @@ namespace Chroma
 
         internal List<Track>? Track { get; }
 
-        internal PointDefinition? LocalPathColor { get; }
+        internal PointDefinition<Vector4>? LocalPathColor { get; }
     }
 
     internal class ChromaEventData : IEventCustomData

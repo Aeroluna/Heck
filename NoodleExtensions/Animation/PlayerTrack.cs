@@ -150,8 +150,8 @@ namespace NoodleExtensions.Animation
 
         private void Update()
         {
-            Quaternion? rotation = _track.GetQuaternionProperty(OFFSET_ROTATION)?.Mirror(_leftHanded);
-            Vector3? position = _track.GetVector3Property(OFFSET_POSITION)?.Mirror(_leftHanded);
+            Quaternion? rotation = _track.GetProperty<Quaternion>(OFFSET_ROTATION)?.Mirror(_leftHanded);
+            Vector3? position = _track.GetProperty<Vector3>(OFFSET_POSITION)?.Mirror(_leftHanded);
 
             Quaternion worldRotationQuatnerion = Quaternion.identity;
             Vector3 positionVector = _startPos;
@@ -164,7 +164,7 @@ namespace NoodleExtensions.Animation
             }
 
             worldRotationQuatnerion *= _startLocalRot;
-            Quaternion? localRotation = _track.GetQuaternionProperty(LOCAL_ROTATION)?.Mirror(_leftHanded);
+            Quaternion? localRotation = _track.GetProperty<Quaternion>(LOCAL_ROTATION)?.Mirror(_leftHanded);
             if (localRotation.HasValue)
             {
                 worldRotationQuatnerion *= localRotation.Value;

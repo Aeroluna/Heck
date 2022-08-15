@@ -20,7 +20,7 @@ namespace NoodleExtensions
         internal NoodleNoteData(
             NoteData noteData,
             CustomData customData,
-            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
@@ -71,7 +71,7 @@ namespace NoodleExtensions
         internal NoodleBaseNoteData(
             BeatmapObjectData noteData,
             CustomData customData,
-            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
@@ -110,7 +110,7 @@ namespace NoodleExtensions
         internal NoodleObstacleData(
             ObstacleData obstacleData,
             CustomData customData,
-            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
@@ -161,7 +161,7 @@ namespace NoodleExtensions
         internal NoodleSliderData(
             BeatmapObjectData sliderData,
             CustomData customData,
-            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
@@ -208,7 +208,7 @@ namespace NoodleExtensions
         internal NoodleObjectData(
             BeatmapObjectData beatmapObjectData,
             CustomData customData,
-            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
@@ -239,14 +239,14 @@ namespace NoodleExtensions
                 if (animationData != null)
                 {
                     AnimationObject = new AnimationObjectData(
-                        animationData.GetPointData(v2 ? V2_POSITION : OFFSET_POSITION, pointDefinitions),
-                        animationData.GetPointData(v2 ? V2_ROTATION : OFFSET_ROTATION, pointDefinitions),
-                        animationData.GetPointData(v2 ? V2_SCALE : SCALE, pointDefinitions),
-                        animationData.GetPointData(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION, pointDefinitions),
-                        animationData.GetPointData(v2 ? V2_DISSOLVE : DISSOLVE, pointDefinitions),
-                        animationData.GetPointData(v2 ? V2_DISSOLVE_ARROW : DISSOLVE_ARROW, pointDefinitions),
-                        animationData.GetPointData(v2 ? V2_CUTTABLE : INTERACTABLE, pointDefinitions),
-                        animationData.GetPointData(v2 ? V2_DEFINITE_POSITION : DEFINITE_POSITION, pointDefinitions));
+                        animationData.GetPointData<Vector3>(v2 ? V2_POSITION : OFFSET_POSITION, pointDefinitions),
+                        animationData.GetPointData<Quaternion>(v2 ? V2_ROTATION : OFFSET_ROTATION, pointDefinitions),
+                        animationData.GetPointData<Vector3>(v2 ? V2_SCALE : SCALE, pointDefinitions),
+                        animationData.GetPointData<Quaternion>(v2 ? V2_LOCAL_ROTATION : LOCAL_ROTATION, pointDefinitions),
+                        animationData.GetPointData<float>(v2 ? V2_DISSOLVE : DISSOLVE, pointDefinitions),
+                        animationData.GetPointData<float>(v2 ? V2_DISSOLVE_ARROW : DISSOLVE_ARROW, pointDefinitions),
+                        animationData.GetPointData<float>(v2 ? V2_CUTTABLE : INTERACTABLE, pointDefinitions),
+                        animationData.GetPointData<Vector3>(v2 ? V2_DEFINITE_POSITION : DEFINITE_POSITION, pointDefinitions));
                 }
 
                 Uninteractable = v2 ? !customData.Get<bool?>(V2_CUTTABLE) : customData.Get<bool?>(UNINTERACTABLE);
@@ -300,20 +300,20 @@ namespace NoodleExtensions
 
         internal float? GetTimeProperty()
         {
-            return Track?.Select(n => n.GetLinearProperty(TIME)).FirstOrDefault(n => n.HasValue);
+            return Track?.Select(n => n.GetProperty<float>(TIME)).FirstOrDefault(n => n.HasValue);
         }
 
         internal class AnimationObjectData
         {
             public AnimationObjectData(
-                PointDefinition? localPosition,
-                PointDefinition? localRotation,
-                PointDefinition? localScale,
-                PointDefinition? localLocalRotation,
-                PointDefinition? localDissolve,
-                PointDefinition? localDissolveArrow,
-                PointDefinition? localCuttable,
-                PointDefinition? localDefinitePosition)
+                PointDefinition<Vector3>? localPosition,
+                PointDefinition<Quaternion>? localRotation,
+                PointDefinition<Vector3>? localScale,
+                PointDefinition<Quaternion>? localLocalRotation,
+                PointDefinition<float>? localDissolve,
+                PointDefinition<float>? localDissolveArrow,
+                PointDefinition<float>? localCuttable,
+                PointDefinition<Vector3>? localDefinitePosition)
             {
                 LocalPosition = localPosition;
                 LocalRotation = localRotation;
@@ -325,21 +325,21 @@ namespace NoodleExtensions
                 LocalDefinitePosition = localDefinitePosition;
             }
 
-            internal PointDefinition? LocalPosition { get; }
+            internal PointDefinition<Vector3>? LocalPosition { get; }
 
-            internal PointDefinition? LocalRotation { get; }
+            internal PointDefinition<Quaternion>? LocalRotation { get; }
 
-            internal PointDefinition? LocalScale { get; }
+            internal PointDefinition<Vector3>? LocalScale { get; }
 
-            internal PointDefinition? LocalLocalRotation { get; }
+            internal PointDefinition<Quaternion>? LocalLocalRotation { get; }
 
-            internal PointDefinition? LocalDissolve { get; }
+            internal PointDefinition<float>? LocalDissolve { get; }
 
-            internal PointDefinition? LocalDissolveArrow { get; }
+            internal PointDefinition<float>? LocalDissolveArrow { get; }
 
-            internal PointDefinition? LocalCuttable { get; }
+            internal PointDefinition<float>? LocalCuttable { get; }
 
-            internal PointDefinition? LocalDefinitePosition { get; }
+            internal PointDefinition<Vector3>? LocalDefinitePosition { get; }
         }
     }
 

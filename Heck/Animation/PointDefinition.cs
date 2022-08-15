@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
-using UnityEngine;
 
 namespace Heck.Animation
 {
-    public class PointDefinition
+    public interface IPointDefinition
+    {
+    }
+
+    public class PointDefinition<T> : IPointDefinition
+        where T : struct
     {
         private readonly List<PointData> _points;
 
@@ -15,81 +17,12 @@ namespace Heck.Animation
         {
         }
 
-        private PointDefinition(List<PointData> points)
+        internal PointDefinition(List<PointData> points)
         {
             _points = points;
         }
 
-        public static PointDefinition ListToPointDefinition(List<object> list)
-        {
-            IEnumerable<List<object>> points = list.FirstOrDefault() is List<object> ? list.Cast<List<object>>() : new[] { list.Append(0).ToList() };
-
-            List<PointData> pointData = new();
-            foreach (List<object> rawPoint in points)
-            {
-                int flagIndex = -1;
-                int cachedCount = rawPoint.Count;
-                for (int i = cachedCount - 1; i > 0; i--)
-                {
-                    if (rawPoint[i] is string)
-                    {
-                        flagIndex = i;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-                Functions easing = Functions.easeLinear;
-                bool spline = false;
-                List<object> copiedList = rawPoint.ToList();
-                if (flagIndex != -1)
-                {
-                    List<string> flags = rawPoint.GetRange(flagIndex, cachedCount - flagIndex).Cast<string>().ToList();
-                    copiedList.RemoveRange(flagIndex, cachedCount - flagIndex);
-
-                    string? easingString = flags.FirstOrDefault(n => n.StartsWith("ease"));
-                    if (easingString != null)
-                    {
-                        easing = (Functions)Enum.Parse(typeof(Functions), easingString);
-                    }
-
-                    // TODO: add more spicy splines
-                    string? splineString = flags.FirstOrDefault(n => n.StartsWith("spline"));
-                    if (splineString == "splineCatmullRom")
-                    {
-                        spline = true;
-                    }
-                }
-
-                switch (copiedList.Count)
-                {
-                    case 2:
-                    {
-                        Vector2 vector = new(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]));
-                        pointData.Add(new PointData(vector, easing));
-                        break;
-                    }
-
-                    case 4:
-                    {
-                        Vector4 vector = new(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]), Convert.ToSingle(copiedList[2]), Convert.ToSingle(copiedList[3]));
-                        pointData.Add(new PointData(vector, easing, spline));
-                        break;
-                    }
-
-                    default:
-                    {
-                        Vector5 vector = new(Convert.ToSingle(copiedList[0]), Convert.ToSingle(copiedList[1]), Convert.ToSingle(copiedList[2]), Convert.ToSingle(copiedList[3]), Convert.ToSingle(copiedList[4]));
-                        pointData.Add(new PointData(vector, easing));
-                        break;
-                    }
-                }
-            }
-
-            return new PointDefinition(pointData);
-        }
+        internal delegate T InterpolationHandler(List<PointData> points, int l, int r, float time);
 
         public override string ToString()
         {
@@ -100,217 +33,50 @@ namespace Heck.Animation
             return stringBuilder.ToString();
         }
 
-        public Vector3 Interpolate(float time)
-        {
-            return Interpolate(time, out _);
-        }
-
-        public Vector3 Interpolate(float time, out bool last)
+        internal T Interpolate(float time, InterpolationHandler func, out bool last)
         {
             last = false;
             int count = _points.Count;
             if (count == 0)
             {
-                return Vector3.zero;
+                return default;
             }
 
-            Vector4 firstPoint = _points[0].Point;
-            if (firstPoint.w >= time)
+            PointData firstPoint = _points[0];
+            if (firstPoint.Time >= time)
             {
-                return firstPoint;
+                return firstPoint.Point;
             }
 
-            Vector4 lastPoint = _points[count - 1].Point;
-            if (lastPoint.w <= time)
+            PointData lastPoint = _points[count - 1];
+            if (lastPoint.Time <= time)
             {
                 last = true;
-                return lastPoint;
+                return lastPoint.Point;
             }
 
-            SearchIndex(time, PropertyType.Vector3, out int l, out int r);
-            Vector4 pointL = _points[l].Point;
-            Vector4 pointR = _points[r].Point;
+            SearchIndex(time, out int l, out int r);
+            PointData pointL = _points[l];
+            PointData pointR = _points[r];
 
             float normalTime;
-            float divisor = pointR.w - pointL.w;
+            float divisor = pointR.Time - pointL.Time;
             if (divisor != 0)
             {
-                normalTime = (time - pointL.w) / divisor;
+                normalTime = (time - pointL.Time) / divisor;
             }
             else
             {
                 normalTime = 0;
             }
 
-            normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
-            return _points[r].Smooth ? SmoothVectorLerp(_points, l, r, normalTime)
-                : Vector3.LerpUnclamped(pointL, pointR, normalTime);
-        }
+            normalTime = Easings.Interpolate(normalTime, pointR.Easing);
 
-        public Quaternion InterpolateQuaternion(float time)
-        {
-            return InterpolateQuaternion(time, out _);
-        }
-
-        public Quaternion InterpolateQuaternion(float time, out bool last)
-        {
-            last = false;
-            int count = _points.Count;
-            if (count == 0)
-            {
-                return Quaternion.identity;
-            }
-
-            Vector5 firstPoint = _points[0].Vector4Point;
-            if (firstPoint.v >= time)
-            {
-                return firstPoint;
-            }
-
-            Vector5 lastPoint = _points[count - 1].Vector4Point;
-            if (lastPoint.v <= time)
-            {
-                last = true;
-                return lastPoint;
-            }
-
-            SearchIndex(time, PropertyType.Quaternion, out int l, out int r);
-            Vector5 pointL = _points[l].Vector4Point;
-            Vector5 pointR = _points[r].Vector4Point;
-            Quaternion quaternionOne = pointL;
-            Quaternion quaternionTwo = pointR;
-
-            float normalTime;
-            float divisor = pointR.v - pointL.v;
-            if (divisor != 0)
-            {
-                normalTime = (time - pointL.v) / divisor;
-            }
-            else
-            {
-                normalTime = 0;
-            }
-
-            normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
-            return Quaternion.SlerpUnclamped(quaternionOne, quaternionTwo, normalTime);
-        }
-
-        public float InterpolateLinear(float time)
-        {
-            return InterpolateLinear(time, out _);
-        }
-
-        // Kind of a sloppy way of implementing this, but hell if it works
-        public float InterpolateLinear(float time, out bool last)
-        {
-            last = false;
-            int count = _points.Count;
-            if (count == 0)
-            {
-                return 0;
-            }
-
-            Vector2 firstPoint = _points[0].LinearPoint;
-            if (firstPoint.y >= time)
-            {
-                return firstPoint.x;
-            }
-
-            Vector2 lastPoint = _points[count - 1].LinearPoint;
-            if (lastPoint.y <= time)
-            {
-                last = true;
-                return lastPoint.x;
-            }
-
-            SearchIndex(time, PropertyType.Linear, out int l, out int r);
-            Vector4 pointL = _points[l].LinearPoint;
-            Vector4 pointR = _points[r].LinearPoint;
-
-            float normalTime;
-            float divisor = pointR.y - pointL.y;
-            if (divisor != 0)
-            {
-                normalTime = (time - pointL.y) / divisor;
-            }
-            else
-            {
-                normalTime = 0;
-            }
-
-            normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
-            return Mathf.LerpUnclamped(pointL.x, pointR.x, normalTime);
-        }
-
-        public Vector4 InterpolateVector4(float time)
-        {
-            return InterpolateVector4(time, out _);
-        }
-
-        public Vector4 InterpolateVector4(float time, out bool last)
-        {
-            last = false;
-            int count = _points.Count;
-            if (count == 0)
-            {
-                return Vector4.zero;
-            }
-
-            Vector5 firstPoint = _points[0].Vector4Point;
-            if (firstPoint.v >= time)
-            {
-                return firstPoint;
-            }
-
-            Vector5 lastPoint = _points[count - 1].Vector4Point;
-            if (lastPoint.v <= time)
-            {
-                last = true;
-                return lastPoint;
-            }
-
-            SearchIndex(time, PropertyType.Vector4, out int l, out int r);
-            Vector5 pointL = _points[l].Vector4Point;
-            Vector5 pointR = _points[r].Vector4Point;
-
-            float normalTime;
-            float divisor = pointR.v - pointL.v;
-            if (divisor != 0)
-            {
-                normalTime = (time - pointL.v) / divisor;
-            }
-            else
-            {
-                normalTime = 0;
-            }
-
-            normalTime = Easings.Interpolate(normalTime, _points[r].Easing);
-            return Vector4.LerpUnclamped(pointL, pointR, normalTime);
-        }
-
-        private static Vector3 SmoothVectorLerp(List<PointData> points, int a, int b, float time)
-        {
-            // Catmull-Rom Spline
-            Vector3 p0 = a - 1 < 0 ? points[a].Point : points[a - 1].Point;
-            Vector3 p1 = points[a].Point;
-            Vector3 p2 = points[b].Point;
-            Vector3 p3 = b + 1 > points.Count - 1 ? points[b].Point : points[b + 1].Point;
-
-            float tt = time * time;
-            float ttt = tt * time;
-
-            float q0 = -ttt + (2.0f * tt) - time;
-            float q1 = (3.0f * ttt) - (5.0f * tt) + 2.0f;
-            float q2 = (-3.0f * ttt) + (4.0f * tt) + time;
-            float q3 = ttt - tt;
-
-            Vector3 c = 0.5f * ((p0 * q0) + (p1 * q1) + (p2 * q2) + (p3 * q3));
-
-            return c;
+            return func(_points, l, r, normalTime);
         }
 
         // Use binary search instead of linear search.
-        private void SearchIndex(float time, PropertyType propertyType, out int l, out int r)
+        private void SearchIndex(float time, out int l, out int r)
         {
             l = 0;
             r = _points.Count;
@@ -318,22 +84,7 @@ namespace Heck.Animation
             while (l < r - 1)
             {
                 int m = (l + r) / 2;
-                float pointTime = 0;
-                switch (propertyType)
-                {
-                    case PropertyType.Linear:
-                        pointTime = _points[m].LinearPoint.y;
-                        break;
-
-                    case PropertyType.Quaternion:
-                    case PropertyType.Vector3:
-                        pointTime = _points[m].Point.w;
-                        break;
-
-                    case PropertyType.Vector4:
-                        pointTime = _points[m].Vector4Point.v;
-                        break;
-                }
+                float pointTime = _points[m].Time;
 
                 if (pointTime < time)
                 {
@@ -346,68 +97,19 @@ namespace Heck.Animation
             }
         }
 
-        private readonly struct Vector5
+        internal class PointData
         {
-            private readonly float x;
-
-            private readonly float y;
-
-            private readonly float z;
-
-            private readonly float w;
-
-            internal Vector5(float x, float y, float z, float w, float v)
-            {
-                this.x = x;
-                this.y = y;
-                this.z = z;
-                this.w = w;
-                this.v = v;
-            }
-
-#pragma warning disable SA1300 // Element should begin with upper-case letter
-            internal float v { get; }
-#pragma warning restore SA1300 // Element should begin with upper-case letter
-
-            public static implicit operator Vector4(Vector5 vector)
-            {
-                return new Vector4(vector.x, vector.y, vector.z, vector.w);
-            }
-
-            public static implicit operator Quaternion(Vector5 vector)
-            {
-                return new Quaternion(vector.x, vector.y, vector.z, vector.w);
-            }
-        }
-
-        private class PointData
-        {
-            internal PointData(Vector4 point, Functions easing = Functions.easeLinear, bool smooth = false)
+            internal PointData(T point, float time, Functions easing, bool smooth = false)
             {
                 Point = point;
+                Time = time;
                 Easing = easing;
                 Smooth = smooth;
-                Quaternion quaternion = Quaternion.Euler(point);
-                Vector4Point = new Vector5(quaternion.x, quaternion.y, quaternion.z, quaternion.w, point.w);
             }
 
-            internal PointData(Vector2 point, Functions easing = Functions.easeLinear)
-            {
-                LinearPoint = point;
-                Easing = easing;
-            }
+            internal T Point { get; }
 
-            internal PointData(Vector5 point, Functions easing = Functions.easeLinear)
-            {
-                Vector4Point = point;
-                Easing = easing;
-            }
-
-            internal Vector4 Point { get; }
-
-            internal Vector5 Vector4Point { get; }
-
-            internal Vector2 LinearPoint { get; }
+            internal float Time { get; }
 
             internal Functions Easing { get; }
 

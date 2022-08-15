@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Linq;
+using Heck.Animation;
 using Heck.Installers;
 using Heck.Settings;
 using Heck.SettingsSetter;
 using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
-using IPA.Logging;
 using JetBrains.Annotations;
 using SiraUtil.Zenject;
+using UnityEngine;
 using static Heck.HeckController;
+using Logger = IPA.Logging.Logger;
 
 namespace Heck
 {
@@ -38,6 +40,12 @@ namespace Heck
             zenjector.Expose<NoteCutSoundEffectManager>("Gameplay");
 
             ModuleManager.Register<ModuleCallbacks>("Heck", 0, RequirementType.None);
+
+            Track.RegisterProperty<Vector3>(POSITION, V2_POSITION);
+            Track.RegisterProperty<Vector3>(LOCAL_POSITION, V2_LOCAL_POSITION);
+            Track.RegisterProperty<Quaternion>(ROTATION, V2_ROTATION);
+            Track.RegisterProperty<Quaternion>(LOCAL_ROTATION, V2_LOCAL_ROTATION);
+            Track.RegisterProperty<Vector3>(SCALE, V2_SCALE);
         }
 
 #pragma warning disable CA1822

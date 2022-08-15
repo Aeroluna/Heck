@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -70,7 +69,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 return original;
             }
 
-            float? time = noodleData.Track?.Select(n => n.GetLinearProperty(TIME)).FirstOrDefault(n => n.HasValue);
+            float? time = noodleData.GetTimeProperty();
             if (time.HasValue)
             {
                 return (time.Value * (finishMovementTime - move1Duration)) + move1Duration;

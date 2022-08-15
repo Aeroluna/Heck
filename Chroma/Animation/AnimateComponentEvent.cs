@@ -49,14 +49,14 @@ namespace Chroma.Animation
             Functions easing = chromaData.Easing;
             List<Track> tracks = chromaData.Track;
 
-            foreach ((string componentName, Dictionary<string, PointDefinition?> properties) in chromaData.CoroutineInfos)
+            foreach ((string componentName, Dictionary<string, PointDefinition<float>?> properties) in chromaData.CoroutineInfos)
             {
                 foreach (Track track in tracks)
                 {
                     object[] components;
                     void HandleProperty<T>(string key, Action<T[], float> action)
                     {
-                        if (!properties.TryGetValue(key, out PointDefinition? points))
+                        if (!properties.TryGetValue(key, out PointDefinition<float>? points))
                         {
                             return;
                         }
@@ -123,7 +123,7 @@ namespace Chroma.Animation
 
         private IEnumerator AnimateCoroutine<T>(
             T[] component,
-            PointDefinition points,
+            PointDefinition<float> points,
             float duration,
             float startTime,
             Functions easing,
@@ -133,7 +133,7 @@ namespace Chroma.Animation
             {
                 float elapsedTime = _audioTimeSource.songTime - startTime;
                 float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
-                action(component, points.InterpolateLinear(time));
+                action(component, points.Interpolate(time));
 
                 if (elapsedTime < duration)
                 {

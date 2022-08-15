@@ -11,7 +11,7 @@ namespace Heck
         [CustomEventsDeserializer]
         private static Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents(
             CustomBeatmapData beatmapData,
-            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> tracks,
             List<CustomEventData> customEventDatas)
         {

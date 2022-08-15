@@ -10,15 +10,6 @@ namespace Heck.Animation
 {
     public class TrackBuilder
     {
-        private readonly bool _v2;
-
-        public TrackBuilder(bool v2)
-        {
-            _v2 = v2;
-        }
-
-        public static event Action<Track>? TrackCreated;
-
         public Dictionary<string, Track> Tracks { get; } = new();
 
         public void AddTrack(string trackName)
@@ -28,8 +19,7 @@ namespace Heck.Animation
                 return;
             }
 
-            Track track = new(_v2);
-            TrackCreated?.Invoke(track);
+            Track track = new();
             Tracks.Add(trackName, track);
         }
 
@@ -55,18 +45,17 @@ namespace Heck.Animation
 
     public class Track
     {
-        private readonly bool _v2;
+        private static readonly Dictionary<string, IPropertyBuilder> _registeredProperties = new();
 
-        public Track(bool v2)
-        {
-            _v2 = v2;
+        private static readonly Dictionary<string, IPropertyBuilder> _registeredPathProperties = new();
 
-            AddProperty(POSITION, PropertyType.Vector3, V2_POSITION);
-            AddProperty(LOCAL_POSITION, PropertyType.Vector3, V2_LOCAL_POSITION);
-            AddProperty(ROTATION, PropertyType.Quaternion, V2_ROTATION);
-            AddProperty(LOCAL_ROTATION, PropertyType.Quaternion, V2_LOCAL_ROTATION);
-            AddProperty(SCALE, PropertyType.Vector3, V2_SCALE);
-        }
+        private static readonly Dictionary<string, List<string>> _aliases = new();
+
+        private static readonly Dictionary<string, List<string>> _pathAliases = new();
+
+        private readonly Dictionary<string, BaseProperty> _properties = new();
+
+        private readonly Dictionary<string, BaseProperty> _pathProperties = new();
 
         public event Action<GameObject>? GameObjectAdded;
 
@@ -77,13 +66,17 @@ namespace Heck.Animation
 
         public HashSet<GameObject> GameObjects { get; } = new();
 
-        internal IDictionary<string, Property> Properties { get; } = new Dictionary<string, Property>();
+        public static void RegisterProperty<T>(string name, string? v2Alias = null)
+            where T : struct
+        {
+            RegisterPropertyInternal<T>(_registeredProperties, _aliases, name, v2Alias);
+        }
 
-        internal IDictionary<string, Property> PathProperties { get; } = new Dictionary<string, Property>();
-
-        internal IDictionary<string, List<Property>> PropertyAliases { get; } = new Dictionary<string, List<Property>>();
-
-        internal IDictionary<string, List<Property>> PathPropertyAliases { get; } = new Dictionary<string, List<Property>>();
+        public static void RegisterPathProperty<T>(string name, string? v2Alias = null)
+            where T : struct
+        {
+            RegisterPropertyInternal<T>(_registeredPathProperties, _pathAliases, name, v2Alias);
+        }
 
         public void AddGameObject(GameObject gameObject)
         {
@@ -107,45 +100,107 @@ namespace Heck.Animation
             GameObjectRemoved?.Invoke(gameObject);
         }
 
-        public void AddProperty(string name, PropertyType propertyType, string? v2Alias = null)
+        internal static IEnumerable<string>? GetAliases(string name)
         {
-            Property property = new(propertyType);
-            AddProperty(name, property, v2Alias, Properties, PropertyAliases);
+            return _aliases.TryGetValue(name, out List<string> aliases) ? aliases
+                : throw new InvalidOperationException($"Could not find alias for [{name}].");
         }
 
-        public void AddPathProperty(string name, PropertyType propertyType, string? v2Alias = null)
+        internal static IEnumerable<string>? GetPathAliases(string name)
         {
-            PathProperty property = new(propertyType);
-            AddProperty(name, property, v2Alias, PathProperties, PathPropertyAliases);
+            return _pathAliases.TryGetValue(name, out List<string> aliases) ? aliases
+                : throw new InvalidOperationException($"Could not find path alias for [{name}].");
         }
 
-        private void AddProperty(
+        internal static IPropertyBuilder? GetBuilder(string name)
+        {
+            return _registeredProperties.TryGetValue(name, out IPropertyBuilder propertyBuilder) ? propertyBuilder : null;
+        }
+
+        internal static IPropertyBuilder? GetPathBuilder(string name)
+        {
+            return _registeredPathProperties.TryGetValue(name, out IPropertyBuilder propertyBuilder) ? propertyBuilder : null;
+        }
+
+        internal Property<T>? FindProperty<T>(string name)
+            where T : struct
+        {
+            if (!_properties.TryGetValue(name, out BaseProperty property))
+            {
+                return null;
+            }
+
+            if (property is Property<T> result)
+            {
+                return result;
+            }
+
+            throw new InvalidOperationException(
+                $"Path property [{name}] was wrong type. Expected: [{typeof(Property<T>).Name}], was: [{property.GetType().Name}]");
+        }
+
+        internal PathProperty<T>? FindPathProperty<T>(string name)
+            where T : struct
+        {
+            if (!_pathProperties.TryGetValue(name, out BaseProperty property))
+            {
+                return null;
+            }
+
+            if (property is PathProperty<T> result)
+            {
+                return result;
+            }
+
+            throw new InvalidOperationException(
+                $"Path property [{name}] was wrong type. Expected: [{typeof(PathProperty<T>).Name}], was: [{property.GetType().Name}]");
+        }
+
+        internal BaseProperty GetOrCreateProperty(string name, IPropertyBuilder propertyBuilder)
+        {
+            if (_properties.TryGetValue(name, out BaseProperty property))
+            {
+                return property;
+            }
+
+            property = propertyBuilder.Property;
+            _properties[name] = property;
+            return property;
+        }
+
+        internal BaseProperty GetOrCreatePathProperty(string name, IPropertyBuilder propertyBuilder)
+        {
+            if (_pathProperties.TryGetValue(name, out BaseProperty property))
+            {
+                return property;
+            }
+
+            property = propertyBuilder.PathProperty;
+            _pathProperties[name] = property;
+            return property;
+        }
+
+        private static void RegisterPropertyInternal<T>(
+            Dictionary<string, IPropertyBuilder> registered,
+            Dictionary<string, List<string>> registeredAliases,
             string name,
-            Property property,
-            string? v2Alias,
-            IDictionary<string, Property> properties,
-            IDictionary<string, List<Property>> aliases)
+            string? v2Alias)
+            where T : struct
         {
-            if (properties.ContainsKey(name))
+            registered.Add(name, new PropertyBuilder<T>());
+
+            if (v2Alias == null)
             {
                 return;
             }
 
-            properties[name] = property;
-
-            // handle v2 aliasing
-            if (!_v2 || v2Alias == null)
+            if (!registeredAliases.TryGetValue(v2Alias, out List<string> aliases))
             {
-                return;
+                aliases = new List<string>();
+                registeredAliases[v2Alias] = aliases;
             }
 
-            if (!aliases.TryGetValue(v2Alias, out List<Property> aliasedProperties))
-            {
-                aliasedProperties = new List<Property>();
-                aliases[v2Alias] = aliasedProperties;
-            }
-
-            aliasedProperties.Add(property);
+            aliases.Add(name);
         }
     }
 }

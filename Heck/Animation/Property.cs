@@ -1,43 +1,58 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using CustomJSONData.CustomBeatmap;
+using UnityEngine;
 
 namespace Heck.Animation
 {
-    public enum PropertyType
+    internal interface IPropertyBuilder
     {
-        Vector3,
-        Vector4,
-        Quaternion,
-        Linear
+        public BaseProperty Property { get; }
+
+        public BaseProperty PathProperty { get; }
+
+        public IPointDefinition? GetPointData(CustomData customData, string pointName, Dictionary<string, List<object>> pointDefinitions);
     }
 
-    internal class PathProperty : Property
+    internal abstract class BaseProperty
     {
-        internal PathProperty(PropertyType propertyType)
-            : base(propertyType)
-        {
-        }
-
-        internal PointDefinitionInterpolation Interpolation { get; } = new();
-    }
-
-    internal class Property
-    {
-        internal Property(PropertyType propertyType)
-        {
-            PropertyType = propertyType;
-        }
-
-        internal PropertyType PropertyType { get; }
-
         internal Coroutine? Coroutine { get; set; }
 
-        // avoid boxing
-        internal float? LinearValue { get; set; }
+        internal abstract void Null();
+    }
 
-        internal Vector3? Vector3Value { get; set; }
+    internal abstract class BasePathProperty : BaseProperty
+    {
+        internal abstract IPointDefinitionInterpolation IInterpolation { get; }
+    }
 
-        internal Vector4? Vector4Value { get; set; }
+    internal class PathProperty<T> : BasePathProperty
+        where T : struct
+    {
+        internal override IPointDefinitionInterpolation IInterpolation => Interpolation;
 
-        internal Quaternion? QuaternionValue { get; set; }
+        internal PointDefinitionInterpolation<T> Interpolation { get; } = new();
+
+        internal override void Null() => Interpolation.Init(null);
+    }
+
+    internal class Property<T> : BaseProperty
+        where T : struct
+    {
+        internal T? Value { get; set; }
+
+        internal override void Null() => Value = null;
+    }
+
+    internal class PropertyBuilder<T> : IPropertyBuilder
+        where T : struct
+    {
+        public BaseProperty Property => new Property<T>();
+
+        public BaseProperty PathProperty => new PathProperty<T>();
+
+        public IPointDefinition? GetPointData(CustomData customData, string pointName, Dictionary<string, List<object>> pointDefinitions)
+        {
+            return customData.GetPointData<T>(pointName, pointDefinitions);
+        }
     }
 }

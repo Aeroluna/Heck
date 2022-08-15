@@ -36,7 +36,7 @@ namespace Heck
             }
 
             // tracks are built based off the untransformed beatmapdata so modifiers like "no walls" do not prevent track creation
-            TrackBuilder trackManager = new(v2);
+            TrackBuilder trackManager = new();
             IReadOnlyList<BeatmapObjectData> untransformedObjectDatas = untransformedBeatmapData.GetBeatmapDataItems<NoteData>()
                 .Cast<BeatmapObjectData>()
                 .Concat(untransformedBeatmapData.GetBeatmapDataItems<ObstacleData>())
@@ -70,9 +70,9 @@ namespace Heck
             }
 
             // Point definitions
-            Dictionary<string, PointDefinition> pointDefinitions = new();
+            Dictionary<string, List<object>> pointDefinitions = new();
 
-            void AddPoint(string pointDataName, PointDefinition pointData)
+            void AddPoint(string pointDataName, List<object> pointData)
             {
                 if (!pointDefinitions.ContainsKey(pointDataName))
                 {
@@ -93,9 +93,7 @@ namespace Heck
                     foreach (CustomData pointDefintionRaw in pointDefinitionsRaw)
                     {
                         string pointName = pointDefintionRaw.GetRequired<string>(V2_NAME);
-                        PointDefinition pointData = PointDefinition.ListToPointDefinition(
-                            pointDefintionRaw.GetRequired<List<object>>(V2_POINTS));
-                        AddPoint(pointName, pointData);
+                        AddPoint(pointName, pointDefintionRaw.GetRequired<List<object>>(V2_POINTS));
                     }
                 }
             }
@@ -111,8 +109,7 @@ namespace Heck
                             throw new InvalidOperationException($"[{key}] was null.");
                         }
 
-                        PointDefinition pointData = PointDefinition.ListToPointDefinition((List<object>)value);
-                        AddPoint(key, pointData);
+                        AddPoint(key, (List<object>)value);
                     }
                 }
             }

@@ -44,7 +44,7 @@ namespace NoodleExtensions
         [ObjectsDeserializer]
         private static Dictionary<BeatmapObjectData, IObjectCustomData> DeserializeObjects(
             CustomBeatmapData beatmapData,
-            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             IReadOnlyList<BeatmapObjectData> beatmapObjectsDatas,
             bool leftHanded)
@@ -80,7 +80,7 @@ namespace NoodleExtensions
         [CustomEventsDeserializer]
         private static Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents(
             CustomBeatmapData beatmapData,
-            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> tracks,
             IReadOnlyList<CustomEventData> customEventDatas)
         {

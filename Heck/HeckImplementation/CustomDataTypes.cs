@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
+using HarmonyLib;
 using Heck.Animation;
 using IPA.Logging;
 using static Heck.HeckController;
@@ -12,7 +13,7 @@ namespace Heck
     {
         internal HeckCoroutineEventData(
             CustomEventData customEventData,
-            Dictionary<string, PointDefinition> pointDefinitions,
+            Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2)
         {
@@ -25,54 +26,67 @@ namespace Heck
             List<CoroutineInfo> coroutineInfos = new();
             foreach (Track track in tracks)
             {
-                IDictionary<string, Property> properties;
-                IDictionary<string, List<Property>> propertyAliases;
-                switch (customEventData.eventType)
+                bool path = customEventData.eventType switch
                 {
-                    case ANIMATE_TRACK:
-                        properties = track.Properties;
-                        propertyAliases = track.PropertyAliases;
-                        break;
-
-                    case ASSIGN_PATH_ANIMATION:
-                        properties = track.PathProperties;
-                        propertyAliases = track.PathPropertyAliases;
-                        break;
-
-                    default:
-                        throw new InvalidOperationException("Custom event was not of correct type.");
-                }
+                    ANIMATE_TRACK => false,
+                    ASSIGN_PATH_ANIMATION => true,
+                    _ => throw new InvalidOperationException("Custom event was not of correct type.")
+                };
 
                 foreach (string propertyKey in propertyKeys)
                 {
-                    void CreateInfo(Property prop)
+                    void HandleProperty(string name, string? alias = null)
                     {
-                        CoroutineInfo coroutineInfo = new(data.GetPointData(propertyKey, pointDefinitions), prop, track);
+                        IPropertyBuilder? builder = Track.GetBuilder(name);
+                        if (builder == null)
+                        {
+                            Log.Logger.Log($"Could not find property [{name}].", Logger.Level.Error);
+                            return;
+                        }
+
+                        CreateInfo(track.GetOrCreateProperty(name, builder), builder, name, alias);
+                    }
+
+                    void HandlePathProperty(string name, string? alias = null)
+                    {
+                        IPropertyBuilder? builder = Track.GetPathBuilder(name);
+                        if (builder == null)
+                        {
+                            Log.Logger.Log($"Could not find path property [{name}].", Logger.Level.Error);
+                            return;
+                        }
+
+                        CreateInfo(track.GetOrCreatePathProperty(name, builder), builder, name, alias);
+                    }
+
+                    void CreateInfo(BaseProperty property, IPropertyBuilder builder, string name, string? alias)
+                    {
+                        CoroutineInfo coroutineInfo = new(builder.GetPointData(data, alias ?? name, pointDefinitions), property, track);
                         coroutineInfos.Add(coroutineInfo);
                     }
 
                     if (!v2)
                     {
-                        if (properties.TryGetValue(propertyKey, out Property property))
+                        if (path)
                         {
-                            CreateInfo(property);
-                            continue;
+                            HandlePathProperty(propertyKey);
+                        }
+                        else
+                        {
+                            HandleProperty(propertyKey);
                         }
                     }
                     else
                     {
-                        if (propertyAliases.TryGetValue(propertyKey, out List<Property> aliasedProperties))
+                        if (path)
                         {
-                            aliasedProperties.ForEach(CreateInfo);
-                            continue;
+                            Track.GetPathAliases(propertyKey).Do(n => HandlePathProperty(n, propertyKey));
+                        }
+                        else
+                        {
+                            Track.GetAliases(propertyKey).Do(n => HandleProperty(n, propertyKey));
                         }
                     }
-
-                    Log.Logger.Log(
-                        customEventData.eventType == ASSIGN_PATH_ANIMATION
-                            ? $"Could not find path property [{propertyKey}]."
-                            : $"Could not find property [{propertyKey}].",
-                        Logger.Level.Error);
                 }
             }
 
@@ -96,16 +110,16 @@ namespace Heck
 
         internal readonly struct CoroutineInfo
         {
-            internal CoroutineInfo(PointDefinition? pointDefinition, Property property, Track track)
+            internal CoroutineInfo(IPointDefinition? pointDefinition, BaseProperty property, Track track)
             {
                 PointDefinition = pointDefinition;
                 Property = property;
                 Track = track;
             }
 
-            internal PointDefinition? PointDefinition { get; }
+            internal IPointDefinition? PointDefinition { get; }
 
-            internal Property Property { get; }
+            internal BaseProperty Property { get; }
 
             internal Track Track { get; }
         }

@@ -65,7 +65,7 @@ namespace Chroma.HarmonyPatches.Colorizer
             }
 
             List<Track>? tracks = chromaData.Track;
-            PointDefinition? pathPointDefinition = chromaData.LocalPathColor;
+            PointDefinition<Vector4>? pathPointDefinition = chromaData.LocalPathColor;
             if (tracks == null && pathPointDefinition == null)
             {
                 return;
@@ -94,7 +94,7 @@ namespace Chroma.HarmonyPatches.Colorizer
             }
 
             List<Track>? tracks = chromaData.Track;
-            PointDefinition? pathPointDefinition = chromaData.LocalPathColor;
+            PointDefinition<Vector4>? pathPointDefinition = chromaData.LocalPathColor;
             if (tracks == null && pathPointDefinition == null)
             {
                 return;
