@@ -18,7 +18,7 @@ namespace Heck.Animation.Transform
     {
         private bool _v2;
         private bool _leftHanded;
-        private List<Track> _track = null!;
+        private List<Track>? _track;
 
         public event Action? RotationUpdated;
 
@@ -50,7 +50,7 @@ namespace Heck.Animation.Transform
 
         private void Update()
         {
-            if (_track.Any(n => n.UpdatedThisFrame))
+            if (_track != null && _track.Any(n => n.UpdatedThisFrame))
             {
                 UpdatePos();
             }
@@ -58,6 +58,11 @@ namespace Heck.Animation.Transform
 
         private void UpdatePos()
         {
+            if (_track == null)
+            {
+                return;
+            }
+
             Vector3? scale;
             Quaternion? rotation;
             Quaternion? localRotation;
