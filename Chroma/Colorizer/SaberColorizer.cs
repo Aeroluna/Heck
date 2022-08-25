@@ -22,12 +22,16 @@ namespace Chroma.Colorizer
 
         public List<SaberColorizer> GetColorizers(SaberType saber) => Colorizers[saber];
 
-        public void Colorize(SaberType saber, Color? color) => GetColorizers(saber).ForEach(n => n.Colorize(color));
+        public void Colorize(SaberType saber, Color? color)
+        {
+            color = color?.ColorWithAlpha(1);
+            GetColorizers(saber).ForEach(n => n.Colorize(color));
+        }
 
         [PublicAPI]
         public void GlobalColorize(Color? color, SaberType saberType)
         {
-            GlobalColor[(int)saberType] = color;
+            GlobalColor[(int)saberType] = color?.ColorWithAlpha(1);
             GetColorizers(saberType).ForEach(n => n.Refresh());
         }
 
