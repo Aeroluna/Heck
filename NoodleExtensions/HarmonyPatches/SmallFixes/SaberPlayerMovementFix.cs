@@ -108,6 +108,16 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         private IEnumerable<CodeInstruction> ComputeWorldTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
+                /*
+                 * -- Vector3 topPos2 = this._data[num2].topPos;
+                 * -- Vector3 bottomPos2 = this._data[num2].bottomPos;
+                 * -- Vector3 topPos3 = this._data[num3].topPos;
+                 * -- Vector3 bottomPos3 = this._data[num3].bottomPos;
+                 * ++ Vector3 topPos2 = ComputeWorld(this._data[num2].topPos);
+                 * ++ Vector3 bottomPos2 = ComputeWorld(this._data[num2].bottomPos);
+                 * ++ Vector3 topPos3 = ComputeWorld(this._data[num3].topPos);
+                 * ++ Vector3 bottomPos3 = ComputeWorld(this._data[num3].bottomPos);
+                 */
                 .MatchForward(
                     false,
                     new CodeMatch(n => n.opcode == OpCodes.Ldfld && (ReferenceEquals(n.operand, _topPos) || ReferenceEquals(n.operand, _bottomPos))))
