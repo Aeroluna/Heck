@@ -125,6 +125,7 @@ namespace Heck.SettingsSetter
             _mainSettings.burnMarkTrailsEnabled.value = _cachedMainSettings.BurnMarkTrailsEnabled;
             _mainSettings.screenDisplacementEffectsEnabled.value = _cachedMainSettings.ScreenDisplacementEffectsEnabled;
             _mainSettings.maxShockwaveParticles.value = _cachedMainSettings.MaxShockwaveParticles;
+            _mainSettings.depthTextureEnabled.value = _mainSettings.smokeGraphicsSettings;
             _cachedMainSettings = null;
             _mainSystemInit.Init();
         }
@@ -495,6 +496,7 @@ namespace Heck.SettingsSetter
                 _mainSettings.burnMarkTrailsEnabled.value = _modifiedMainSettings.BurnMarkTrailsEnabled;
                 _mainSettings.screenDisplacementEffectsEnabled.value = _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
                 _mainSettings.maxShockwaveParticles.value = _modifiedMainSettings.MaxShockwaveParticles;
+                _mainSettings.depthTextureEnabled.value = _mainSettings.smokeGraphicsSettings;
                 _modifiedMainSettings = null;
                 _mainSystemInit.Init();
             }
