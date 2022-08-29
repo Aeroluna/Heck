@@ -103,7 +103,7 @@ namespace NoodleExtensions.Managers
             bool gravityOverride = noodleData.DisableGravity;
 
             float offset = _movementData.noteLinesCount / 2f;
-            float? flipLineIndex = noodleData.InternalFlipLineIndex + offset;
+            float? flipLineIndex = noodleData.InternalFlipLineIndex;
             float lineIndex = noodleData.StartX + offset ?? noteData.lineIndex;
             float lineLayer = noodleData.StartY ?? (float)noteData.noteLineLayer;
             float startlinelayer = noodleData.InternalStartNoteLineLayer;

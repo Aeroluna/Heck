@@ -128,7 +128,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 }
                 else if (!customData.ContainsKey(INTERNAL_FLIPYSIDE))
                 {
-                    customData[INTERNAL_FLIPLINEINDEX] = lineIndex - offset;
+                    customData[INTERNAL_FLIPLINEINDEX] = lineIndex;
                     customData[INTERNAL_FLIPYSIDE] = 0;
                 }
             }
