@@ -1,8 +1,16 @@
-﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-  <modifier-container pref-width='65'>
-    <modifier src='#FeetIcon' text='Disable Environment Enhancements' value='platform' apply-on-change='true' hover-hint='Disable Chroma&apos;s ability to manage the environment.'></modifier>
-    <modifier src='#DisappearingArrows' text='Disable Note Coloring' value='notecolors' apply-on-change='true' hover-hint='Blame Mawntee.'></modifier>
-    <modifier src='#LightIcon' text='Disable Chroma Events' value='rgbevents' apply-on-change='true' hover-hint='Disable everything Chroma, but you&apos;ll break my heart.'></modifier>
-    <modifier src='#ZenIcon' text='Force Zen Mode Walls' value='zenwalls' apply-on-change='true' hover-hint='Forces walls to be enabled in the Zen Mode modifier.'></modifier>
-  </modifier-container>
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+    <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' preferred-width='90' spacing='0' anchor-max-y='1.35'>
+        <bool-setting text='Use Custom Environment' value='environmentenabled' apply-on-change='true'
+                      hover-hint='Yay custom environments!!!'/>
+        <dropdown-list-setting text='Custom Environment' value='environment' apply-on-change='true' options='environmentoptions'
+                               formatter='environmentformat'/>
+        <bool-setting text='Disable Environment Enhancements' value='platform' apply-on-change='true'
+                  hover-hint='Disable Chroma&apos;s ability to manage the environment.'/>
+        <bool-setting text='Disable Note Coloring' value='notecolors' apply-on-change='true' hover-hint='Blame Mawntee.'/>
+        <bool-setting text='Disable Chroma Events' value='rgbevents' apply-on-change='true'
+                  hover-hint='Disable everything Chroma, but you&apos;ll break my heart.'/>
+        <bool-setting text='Force Zen Mode Walls' value='zenwalls' apply-on-change='true'
+                  hover-hint='Forces walls to be enabled in the Zen Mode modifier.'/>
+    </vertical>
 </bg>

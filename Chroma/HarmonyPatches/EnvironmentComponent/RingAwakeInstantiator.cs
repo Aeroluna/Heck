@@ -11,7 +11,7 @@ using Object = UnityEngine.Object;
 
 namespace Chroma.HarmonyPatches.EnvironmentComponent
 {
-    [HeckPatch(PatchType.Features)]
+    [HeckPatch(PatchType.Environment)]
     internal static class RingAwakeInstantiator
     {
         private static readonly FieldInfo _trackLaneRingPrefab = AccessTools.Field(typeof(TrackLaneRingsManager), "_trackLaneRingPrefab");

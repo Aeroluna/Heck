@@ -69,11 +69,6 @@ namespace Chroma.Installers
                 Container.BindInterfacesTo<ObjectColorize>().AsSingle();
                 Container.BindInterfacesTo<NoteObjectColorize>().AsSingle();
 
-                // EnvironmentComponent
-                Container.BindInterfacesAndSelfTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();
-                Container.BindInterfacesAndSelfTo<ParametricBoxControllerTransformOverride>().AsSingle();
-                Container.BindInterfacesAndSelfTo<TrackLaneRingOffset>().AsSingle();
-
                 // Events
                 Container.BindInterfacesTo<LightPairRotationChromafier>().AsSingle();
                 Container.BindInterfacesTo<LightRotationChromafier>().AsSingle();
@@ -86,6 +81,14 @@ namespace Chroma.Installers
 
                 // Lighting
                 Container.BindInterfacesAndSelfTo<ChromaGradientController>().AsSingle();
+            }
+
+            if (ChromaController.EnvironmentPatcher.Enabled)
+            {
+                // EnvironmentComponent
+                Container.BindInterfacesAndSelfTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();
+                Container.BindInterfacesAndSelfTo<ParametricBoxControllerTransformOverride>().AsSingle();
+                Container.BindInterfacesAndSelfTo<TrackLaneRingOffset>().AsSingle();
 
                 // EnvironmentEnhancement
                 Container.Bind<DuplicateInitializer>().AsSingle();

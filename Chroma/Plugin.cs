@@ -1,5 +1,4 @@
-﻿using BeatSaberMarkupLanguage.GameplaySetup;
-using Chroma.Extras;
+﻿using Chroma.Extras;
 using Chroma.Installers;
 using Chroma.Lighting;
 using Chroma.Settings;
@@ -28,24 +27,7 @@ namespace Chroma
             ChromaConfig.Instance = conf.Generated<ChromaConfig>();
             LightIDTableManager.InitTable();
             zenjector.Install<ChromaPlayerInstaller>(Location.Player);
-        }
-
-#pragma warning disable CA1822
-        [UsedImplicitly]
-        [OnEnable]
-        public void OnEnable()
-        {
-            CorePatcher.Enabled = true;
-            FeaturesModule.Enabled = true;
-            ColorizerModule.Enabled = true;
-
-            GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", ChromaSettingsUI.instance);
-
-            // ChromaConfig wont set if there is no config!
-            ChromaUtils.SetSongCoreCapability(CAPABILITY, !ChromaConfig.Instance.ChromaEventsDisabled);
-
-            // Legacy support
-            ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");
+            zenjector.Install<ChromaAppInstaller>(Location.App);
 
             Track.RegisterProperty<Vector4>(COLOR, V2_COLOR);
             Track.RegisterPathProperty<Vector4>(COLOR, V2_COLOR);
@@ -57,17 +39,34 @@ namespace Chroma
             Track.RegisterProperty<float>(V2_HEIGHT_FOG_HEIGHT, V2_HEIGHT_FOG_HEIGHT);
         }
 
+#pragma warning disable CA1822
+        [UsedImplicitly]
+        [OnEnable]
+        public void OnEnable()
+        {
+            CorePatcher.Enabled = true;
+            FeaturesModule.Enabled = true;
+            ColorizerModule.Enabled = true;
+            EnvironmentModule.Enabled = true;
+
+            // ChromaConfig wont set if there is no config!
+            ChromaUtils.SetSongCoreCapability(CAPABILITY, !ChromaConfig.Instance.ChromaEventsDisabled);
+
+            // Legacy support
+            ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");
+        }
+
         [UsedImplicitly]
         [OnDisable]
         public void OnDisable()
         {
             CorePatcher.Enabled = false;
             FeaturesPatcher.Enabled = false;
+            EnvironmentPatcher.Enabled = false;
             FeaturesModule.Enabled = false;
             ColorizerModule.Enabled = false;
             Deserializer.Enabled = false;
 
-            GameplaySetup.instance.RemoveTab("Chroma");
             ChromaUtils.SetSongCoreCapability(CAPABILITY, false);
 
             // Legacy support

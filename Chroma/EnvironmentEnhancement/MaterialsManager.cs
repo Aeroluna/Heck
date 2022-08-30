@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Chroma.Settings;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Utilities;
@@ -36,6 +37,7 @@ namespace Chroma.EnvironmentEnhancement
             _materialColorAnimator = materialColorAnimator;
 
             CustomData? materialsData = beatmapData.customData.Get<CustomData>(_v2 ? V2_MATERIALS : MATERIALS);
+            materialsData ??= ChromaConfig.Instance.CustomEnvironment?.Materials;
             if (materialsData == null)
             {
                 return;

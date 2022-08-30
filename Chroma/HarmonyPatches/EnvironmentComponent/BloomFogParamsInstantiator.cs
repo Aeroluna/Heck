@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Chroma.HarmonyPatches.EnvironmentComponent
 {
-    [HeckPatch(PatchType.Features)]
+    [HeckPatch(PatchType.Environment)]
     [HarmonyPatch(typeof(BloomFogEnvironment))]
     internal static class BloomFogParamsInstantiator
     {

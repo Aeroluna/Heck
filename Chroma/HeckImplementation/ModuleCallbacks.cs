@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.Lighting;
 using Chroma.Settings;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using IPA.Logging;
+using JetBrains.Annotations;
 using static Chroma.ChromaController;
 
 namespace Chroma
@@ -23,23 +25,24 @@ namespace Chroma
         [ModuleCondition(PatchType.Features)]
         private static bool ConditionFeatures(
             Capabilities capabilities,
-            IDifficultyBeatmap difficultyBeatmap,
-            ModuleManager.ModuleArgs moduleArgs)
+            IDifficultyBeatmap difficultyBeatmap)
         {
             bool chromaRequirement = capabilities.Requirements.Contains(CAPABILITY) || capabilities.Suggestions.Contains(CAPABILITY);
 
             // please let me remove this shit
             bool legacyOverride = difficultyBeatmap is CustomDifficultyBeatmap { beatmapSaveData: CustomBeatmapSaveData customBeatmapSaveData }
                                   && customBeatmapSaveData.basicBeatmapEvents.Any(n => n.value >= LegacyLightHelper.RGB_INT_OFFSET);
+
+            bool customEnvironment = ChromaConfig.Instance.CustomEnvironmentEnabled && (ChromaConfig.Instance.CustomEnvironment?.Features.UseChromaEvents ?? false);
+
+            // ReSharper disable once InvertIf
             if (legacyOverride)
             {
                 Log.Logger.Log("Legacy Chroma Detected...", Logger.Level.Warning);
                 Log.Logger.Log("Please do not use Legacy Chroma Lights for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", Logger.Level.Warning);
             }
 
-            LightIDTableManager.SetEnvironment(difficultyBeatmap.GetEnvironmentInfo().serializedName);
-
-            return (chromaRequirement || legacyOverride) && !ChromaConfig.Instance.ChromaEventsDisabled;
+            return (chromaRequirement || legacyOverride || customEnvironment) && !ChromaConfig.Instance.ChromaEventsDisabled;
         }
 
         [ModuleCallback(PatchType.Features)]
@@ -49,25 +52,80 @@ namespace Chroma
             ModuleManager.ModuleArgs moduleArgs)
         {
             FeaturesPatcher.Enabled = value;
+        }
 
-            try
+        [ModuleCondition(PatchType.Environment)]
+        private static bool ConditionEnvironment(
+            IDifficultyBeatmap difficultyBeatmap,
+            ModuleManager.ModuleArgs moduleArgs,
+            bool dependency)
+        {
+            EnvironmentInfoSO environmentInfo = difficultyBeatmap.GetEnvironmentInfo();
+            EnvironmentTypeSO type = environmentInfo.environmentType;
+            if (!ChromaConfig.Instance.EnvironmentEnhancementsDisabled)
             {
-                CustomBeatmapSaveData? customBeatmapSaveData = difficultyBeatmap.GetBeatmapSaveData();
-                if (value &&
-                    customBeatmapSaveData != null &&
-                    !ChromaConfig.Instance.EnvironmentEnhancementsDisabled &&
-                    ((customBeatmapSaveData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
-                     (customBeatmapSaveData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false) ||
-                     (customBeatmapSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false)))
+                // TODO: this logic should probably not be in the condition
+                if (dependency)
                 {
-                    moduleArgs.OverrideEnvironmentSettings = null;
+                    try
+                    {
+                        CustomBeatmapSaveData? customBeatmapSaveData = difficultyBeatmap.GetBeatmapSaveData();
+                        if (customBeatmapSaveData != null &&
+                        ((customBeatmapSaveData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
+                         (customBeatmapSaveData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false) ||
+                         (customBeatmapSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false)))
+                        {
+                            LightIDTableManager.SetEnvironment(environmentInfo.serializedName);
+                            moduleArgs.OverrideEnvironmentSettings = null;
+
+                            return true;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Logger.Log(e, Logger.Level.Error);
+                    }
+                }
+
+                SavedEnvironment? savedEnvironment = ChromaConfig.Instance.CustomEnvironment;
+                if (ChromaConfig.Instance.CustomEnvironmentEnabled && savedEnvironment != null)
+                {
+                    EnvironmentInfoSO overrideEnv = CustomLevelLoaderExposer.CustomLevelLoader.LoadEnvironmentInfo(savedEnvironment.EnvironmentName, type);
+                    LightIDTableManager.SetEnvironment(overrideEnv.serializedName);
+                    OverrideEnvironmentSettings newSettings = new()
+                    {
+                        overrideEnvironments = true
+                    };
+                    newSettings.SetEnvironmentInfoForType(type, overrideEnv);
+                    moduleArgs.OverrideEnvironmentSettings = newSettings;
+                    return true;
                 }
             }
-            catch (Exception e)
-            {
-                // for all you sussy bakas that use _environment to just force the environment: FUCK YOU!!!!!!!!!!!!!
-                Log.Logger.Log(e, Logger.Level.Error);
-            }
+
+            OverrideEnvironmentSettings? environmentSettings = moduleArgs.OverrideEnvironmentSettings;
+            LightIDTableManager.SetEnvironment(environmentSettings is { overrideEnvironments: true }
+                ? environmentSettings.GetOverrideEnvironmentInfoForType(type).serializedName
+                : environmentInfo.serializedName);
+
+            return false;
         }
+
+        [ModuleCallback(PatchType.Environment)]
+        private static void ToggleEnvironment(bool value)
+        {
+            EnvironmentPatcher.Enabled = value;
+        }
+    }
+
+    internal class CustomLevelLoaderExposer
+    {
+        [UsedImplicitly]
+        private CustomLevelLoaderExposer(CustomLevelLoader customLevelLoader)
+        {
+            CustomLevelLoader = customLevelLoader;
+        }
+
+        // im lazy
+        internal static CustomLevelLoader CustomLevelLoader { get; private set; } = null!;
     }
 }

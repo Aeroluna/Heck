@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Chroma.HarmonyPatches.EnvironmentComponent
 {
     // This whole file effectively changes _rotZ and _posZ from directly affecting the coordinate to being an offset
-    [HeckPatch(PatchType.Features)]
+    [HeckPatch(PatchType.Environment)]
     internal class TrackLaneRingOffset : IAffinity
     {
         private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");

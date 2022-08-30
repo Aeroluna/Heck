@@ -84,10 +84,17 @@ namespace Chroma.EnvironmentEnhancement
             yield return new WaitForEndOfFrame();
 
             bool v2 = _beatmapData.version2_6_0AndEarlier;
-
             IEnumerable<CustomData>? environmentData = _beatmapData.customData
                 .Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)?
                 .Cast<CustomData>();
+
+            if (environmentData == null)
+            {
+                // custom environment
+                v2 = false;
+                environmentData = ChromaConfig.Instance.CustomEnvironment?.Environment;
+            }
+
             List<GameObjectInfo> allGameObjectInfos = GetAllGameObjects.Get();
 
             if (v2)

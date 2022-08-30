@@ -1,10 +1,11 @@
 ﻿using System;
+using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.Extras;
 using Heck.SettingsSetter;
 using JetBrains.Annotations;
-using SongCore;
 using static Chroma.ChromaController;
 using static Chroma.Settings.ChromaSettableSettings;
+using Loader = SongCore.Loader;
 
 // ReSharper disable MemberCanBeMadeStatic.Global
 namespace Chroma.Settings
@@ -51,6 +52,14 @@ namespace Chroma.Settings
             get => ForceZenWallsEnabledSetting.Value;
             set => ForceZenWallsEnabledSetting.Value = value;
         }
+
+        public bool CustomEnvironmentEnabled
+        {
+            get => CustomEnvironmentEnabledSetting.Value;
+            set => CustomEnvironmentEnabledSetting.Value = value;
+        }
+
+        public SavedEnvironment? CustomEnvironment { get; set; }
 #pragma warning restore CA1822
 
         [UsedImplicitly]
@@ -67,12 +76,15 @@ namespace Chroma.Settings
 
         internal static SettableSetting<bool> ForceZenWallsEnabledSetting { get; } = new("Chroma", "Force Zen Mode Walls");
 
+        internal static SettableSetting<bool> CustomEnvironmentEnabledSetting { get; } = new("Chroma", "Use Custom Environment");
+
         internal static void SetupSettableSettings()
         {
             SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_disableChromaEvents", ChromaEventsDisabledSetting);
             SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_disableEnvironmentEnhancements", EnvironmentEnhancementsDisabledSetting);
             SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_disableNoteColoring", NoteColoringDisabledSetting);
             SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_forceZenModeWalls", ForceZenWallsEnabledSetting);
+            SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_useCustomEnvironment", CustomEnvironmentEnabledSetting);
         }
     }
 }

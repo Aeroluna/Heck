@@ -159,7 +159,7 @@ namespace Heck
                         break;
                     case RequirementType.Condition:
                         MethodInfo condition = module.ConditionCallback!;
-                        if (!(bool)condition.Invoke(null, condition.ActualParameters(inputs)))
+                        if (!(bool)condition.Invoke(null, condition.ActualParameters(inputs.AddToArray(depended))))
                         {
                             Log.Logger.Log($"[{module.Id}] did not pass condition, skipping.", Logger.Level.Trace);
                             goto fail;

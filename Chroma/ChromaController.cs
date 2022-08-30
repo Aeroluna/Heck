@@ -5,7 +5,8 @@ namespace Chroma
     internal enum PatchType
     {
         Colorizer,
-        Features
+        Features,
+        Environment
     }
 
     internal static class ChromaController
@@ -89,6 +90,8 @@ namespace Chroma
 
         internal static HeckPatcher FeaturesPatcher { get; } = new(HARMONY_ID + "Features", PatchType.Features);
 
+        internal static HeckPatcher EnvironmentPatcher { get; } = new(HARMONY_ID + "Environment", PatchType.Environment);
+
         internal static DataDeserializer Deserializer { get; } = DeserializerManager.Register<CustomDataManager>(ID);
 
         internal static Module ColorizerModule { get; } = ModuleManager.Register<ModuleCallbacks>(
@@ -100,9 +103,16 @@ namespace Chroma
 
         internal static Module FeaturesModule { get; } = ModuleManager.Register<ModuleCallbacks>(
             "Chroma",
-            2,
+            3,
             RequirementType.Condition,
             PatchType.Features,
+            new[] { "ChromaColorizer", "ChromaEnvironment" });
+
+        internal static Module EnvironmentModule { get; } = ModuleManager.Register<ModuleCallbacks>(
+            "ChromaEnvironment",
+            2,
+            RequirementType.Condition,
+            PatchType.Environment,
             new[] { "ChromaColorizer" });
     }
 }
