@@ -107,7 +107,7 @@ namespace Chroma
                 ? environmentSettings.GetOverrideEnvironmentInfoForType(type).serializedName
                 : environmentInfo.serializedName);
 
-            return false;
+            return dependency;
         }
 
         [ModuleCallback(PatchType.Environment)]
