@@ -182,7 +182,7 @@ namespace Chroma.EnvironmentEnhancement
                 material.shaderKeywords = shaderKeywords;
             }
 
-            MaterialInfo materialInfo = new(shaderType, material, track, originalMaterial);
+            MaterialInfo materialInfo = new(shaderType, material, track);
             if (track != null)
             {
                 _materialColorAnimator.Value.Add(materialInfo);
@@ -240,19 +240,16 @@ namespace Chroma.EnvironmentEnhancement
             internal MaterialInfo(
                 ShaderType shaderType,
                 Material material,
-                List<Track>? track, Material originalMaterial)
+                List<Track>? track)
             {
                 ShaderType = shaderType;
                 Material = material;
                 Track = track;
-                OriginalMaterial = originalMaterial;
             }
 
             internal ShaderType ShaderType { get; }
 
             internal Material Material { get; }
-
-            internal Material OriginalMaterial { get; }
 
             internal List<Track>? Track { get; }
         }

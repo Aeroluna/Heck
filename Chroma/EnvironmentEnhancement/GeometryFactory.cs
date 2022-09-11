@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Chroma.Colorizer;
 using Chroma.Extras;
@@ -57,7 +56,6 @@ namespace Chroma.EnvironmentEnhancement
         private readonly MaterialsManager _materialsManager;
         private readonly LightWithIdRegisterer _lightWithIdRegisterer;
         private readonly ParametricBoxControllerTransformOverride _parametricBoxControllerTransformOverride;
-        private readonly IDictionary<Mirror, MeshRenderer> mirrors;
         private TubeBloomPrePassLight? _originalTubeBloomPrePassLight = Resources.FindObjectsOfTypeAll<TubeBloomPrePassLight>().FirstOrDefault();
 
         [UsedImplicitly]
@@ -74,17 +72,11 @@ namespace Chroma.EnvironmentEnhancement
             _materialsManager = materialsManager;
             _lightWithIdRegisterer = lightWithIdRegisterer;
             _parametricBoxControllerTransformOverride = parametricBoxControllerTransformOverride;
-            mirrors = Resources.FindObjectsOfTypeAll<Mirror>().ToDictionary(m => m, m => m.GetComponent<MeshRenderer>());
         }
 
         internal static bool IsLightType(ShaderType shaderType)
         {
             return shaderType is ShaderType.OpaqueLight or ShaderType.TransparentLight or ShaderType.BillieWater;
-        }
-
-        internal static bool IsMirrorType(ShaderType shaderType)
-        {
-            return shaderType is ShaderType.BaseWater or ShaderType.WaterfallMirror;
         }
 
         internal GameObject Create(CustomData customData)
@@ -140,11 +132,6 @@ namespace Chroma.EnvironmentEnhancement
                 Object.Destroy(gameObject.GetComponent<Collider>());
             }
 
-            if (IsMirrorType(shaderType))
-            {
-                AddMirror(materialInfo.OriginalMaterial, gameObject);
-            }
-
             // Handle light preset
             if (!IsLightType(shaderType))
             {
@@ -185,27 +172,6 @@ namespace Chroma.EnvironmentEnhancement
             gameObject.SetActive(true);
 
             return gameObject;
-        }
-
-        internal void AddMirror(Material originalMaterial, GameObject gameObject)
-        {
-            (Mirror? oldMirror, MeshRenderer? mesh) = mirrors.FirstOrDefault(mirrorMeshPair =>
-                mirrorMeshPair.Value.sharedMaterial == originalMaterial);
-
-            if (oldMirror == null || mesh == null)
-            {
-                Log.Logger.Log($"Unable to place mirror onto {gameObject.name}", Logger.Level.Warning);
-                return;
-            }
-
-            gameObject.SetActive(false);
-            Mirror newMirror = oldMirror.CopyComponent<Mirror>(gameObject);
-
-            newMirror.SetField("_mirrorRenderer",  oldMirror.GetField<MirrorRendererSO, Mirror>("_mirrorRenderer"));
-            newMirror.SetField("_mirrorMaterial",  oldMirror.GetField<Material, Mirror>("_mirrorMaterial"));
-            newMirror.SetField("_noMirrorMaterial",  oldMirror.GetField<Material, Mirror>("_noMirrorMaterial"));
-            newMirror.SetField("_renderer", gameObject.GetComponent<MeshRenderer>());
-            gameObject.SetActive(true);
         }
     }
 }
