@@ -104,18 +104,6 @@ namespace Chroma.EnvironmentEnhancement
                 }
 
                 loadedScenes.Add(sceneInfoSceneName);
-                //
-                // EnvironmentSceneSetupData environmentSceneSetupData = new(environmentInfoSO, null, false);
-                // SingleFixedSceneScenesTransitionSetupDataSO? setupData = ScriptableObject.CreateInstance<SingleFixedSceneScenesTransitionSetupDataSO>();
-                // setupData.Init(environmentSceneSetupData);
-                // gameScenesManager.PushScenes(setupData);
-                //
-                //
-                //
-                // return () =>
-                // {
-                //     gameScenesManager.PopScenes();
-                // }
             }
 
             LoadEnvironmentScene("BTS");
