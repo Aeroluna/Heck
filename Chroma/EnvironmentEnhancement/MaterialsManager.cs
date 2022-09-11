@@ -5,6 +5,7 @@ using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Utilities;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using UnityEngine;
 using Zenject;
 using static Chroma.ChromaController;
@@ -54,6 +55,8 @@ namespace Chroma.EnvironmentEnhancement
 
         internal Dictionary<string, MaterialInfo> MaterialInfos { get; } = new();
 
+        internal Dictionary<string, MaterialInfo> ReuseMaterials { get; } = new(); // grrr mappers
+
         public void Dispose()
         {
             foreach (Material createdMaterial in _createdMaterials)
@@ -89,6 +92,30 @@ namespace Chroma.EnvironmentEnhancement
                 _materialColorAnimator.Value.Add(materialInfo);
             }
 
+            return materialInfo;
+        }
+
+
+        internal MaterialInfo GetMaterial(object materialData)
+        {
+            if (materialData is string name)
+            {
+                return MaterialInfos[name];
+            }
+
+            if (materialData is not CustomData data)
+            {
+                throw new InvalidOperationException($"Could not read [{MATERIAL}].");
+            }
+
+            string json = JsonConvert.SerializeObject(data);
+            if (ReuseMaterials.TryGetValue(json, out MaterialInfo m))
+            {
+                return m;
+            }
+
+            MaterialInfo materialInfo = CreateMaterialInfo(data);
+            ReuseMaterials[json] = materialInfo;
             return materialInfo;
         }
 
