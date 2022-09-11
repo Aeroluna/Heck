@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
@@ -6,6 +7,7 @@ using Heck.Animation;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Zenject;
 using static Chroma.ChromaController;
 using Logger = IPA.Logging.Logger;
@@ -19,6 +21,8 @@ namespace Chroma.EnvironmentEnhancement
         private static readonly Material _opaqueLightMaterial = InstantiateSharedMaterial(ShaderType.OpaqueLight);
         private static readonly Material _transparentLightMaterial = InstantiateSharedMaterial(ShaderType.TransparentLight);
         private static readonly Material _baseWaterMaterial = InstantiateSharedMaterial(ShaderType.BillieWater);
+
+        internal static EnvironmentInfoSO? CurrentEnvironmentSO { get; set; }
 
         private readonly HashSet<Material> _createdMaterials = new();
 
@@ -41,7 +45,8 @@ namespace Chroma.EnvironmentEnhancement
             _beatmapTracks = beatmapTracks;
             _materialColorAnimator = materialColorAnimator;
 
-            SetupEnvironmentMaterials();
+            SharedCoroutineStarter.instance.StartCoroutine(SetupEnvironmentMaterials(CurrentEnvironmentSO));
+            CurrentEnvironmentSO = null;
 
             CustomData? materialsData = beatmapData.customData.Get<CustomData>(_v2 ? V2_MATERIALS : MATERIALS);
             if (materialsData == null)
@@ -68,15 +73,58 @@ namespace Chroma.EnvironmentEnhancement
             }
         }
 
-        private void SetupEnvironmentMaterials()
+        private IEnumerator SetupEnvironmentMaterials(EnvironmentInfoSO? currentEnvironment)
         {
             EnvironmentMaterialInfos[ShaderType.Standard] = _standardMaterial;
             EnvironmentMaterialInfos[ShaderType.OpaqueLight] = _opaqueLightMaterial;
             EnvironmentMaterialInfos[ShaderType.TransparentLight] = _transparentLightMaterial;
             EnvironmentMaterialInfos[ShaderType.BaseWater] = _baseWaterMaterial;
 
+            EnvironmentsListSO environmentsListSO = Resources.FindObjectsOfTypeAll<EnvironmentsListSO>().First();
 
-            // TODO: Load environemnt scenes so we can get all possible materials. A necessary evil :)
+            List<string> loadedScenes = new();
+
+            void LoadEnvironmentScene(string environmentName)
+            {
+                EnvironmentInfoSO environmentInfoSO =
+                    environmentsListSO.GetEnvironmentInfoBySerializedName(environmentName + "Environment");
+                if (currentEnvironment != null && (environmentInfoSO == currentEnvironment ||
+                                                   currentEnvironment.sceneInfo.sceneName == environmentInfoSO.sceneInfo.sceneName))
+                {
+                    return;
+                }
+
+                string sceneInfoSceneName = environmentInfoSO.sceneInfo.sceneName;
+                Log.Logger.Log($"Loading environment {sceneInfoSceneName}");
+                SceneManager.LoadScene(sceneInfoSceneName, LoadSceneMode.Additive);
+                foreach (GameObject rootGameObject in SceneManager.GetSceneByName(sceneInfoSceneName)
+                             .GetRootGameObjects())
+                {
+                    Object.Destroy(rootGameObject);
+                }
+
+                loadedScenes.Add(sceneInfoSceneName);
+                //
+                // EnvironmentSceneSetupData environmentSceneSetupData = new(environmentInfoSO, null, false);
+                // SingleFixedSceneScenesTransitionSetupDataSO? setupData = ScriptableObject.CreateInstance<SingleFixedSceneScenesTransitionSetupDataSO>();
+                // setupData.Init(environmentSceneSetupData);
+                // gameScenesManager.PushScenes(setupData);
+                //
+                //
+                //
+                // return () =>
+                // {
+                //     gameScenesManager.PopScenes();
+                // }
+            }
+
+            LoadEnvironmentScene("BTS");
+            LoadEnvironmentScene("Billie");
+            LoadEnvironmentScene("Interscope");
+
+            // Wait a frame because LoadScene only loads the scene the next frame
+            yield return null;
+
             // This is the only way I could think of for getting materials by name
             Material[] environmentMaterials = Resources.FindObjectsOfTypeAll<Material>();
 
@@ -98,10 +146,17 @@ namespace Chroma.EnvironmentEnhancement
 
             GetEnvironmentMaterial(ShaderType.BTSPillar, "BTSDarkEnvironmentWithHeightFog");
             GetEnvironmentMaterial(ShaderType.BillieWater, "WaterfallFalling");
+            GetEnvironmentMaterial(ShaderType.WaterfallMirror, "WaterfallMirror");
             GetEnvironmentMaterial(ShaderType.InterscopeConcrete, "Concrete2");
             GetEnvironmentMaterial(ShaderType.InterscopeCar, "Car");
             GetEnvironmentMaterial(ShaderType.Obstacle, "ObstacleCoreHD");
-            GetEnvironmentMaterial(ShaderType.WaterfallMirror, "WaterfallMirror");
+
+            // Cleanup
+            foreach (string loadedScene in loadedScenes)
+            {
+                Log.Logger.Log($"Unloading scene {loadedScene}");
+                SceneManager.UnloadSceneAsync(loadedScene);
+            }
         }
 
         internal MaterialInfo GetMaterial(object o)

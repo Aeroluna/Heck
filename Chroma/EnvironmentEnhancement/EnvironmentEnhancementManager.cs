@@ -78,6 +78,7 @@ namespace Chroma.EnvironmentEnhancement
 
         private IEnumerator DelayedStart()
         {
+            yield return null; // Wait for material
             yield return new WaitForEndOfFrame();
 
             bool v2 = _beatmapData.version2_6_0AndEarlier;
