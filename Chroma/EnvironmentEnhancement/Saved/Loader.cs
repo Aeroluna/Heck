@@ -20,7 +20,7 @@ namespace Chroma.EnvironmentEnhancement.Saved
             Environments = environments;
             if (!Directory.Exists(_directory))
             {
-                return;
+                Directory.CreateDirectory(_directory);
             }
 
             JsonSerializerSettings serializerSettings = new()

@@ -14,6 +14,7 @@ namespace Chroma.EnvironmentEnhancement.Saved
             string name,
             Version version,
             string author,
+            string description,
             Features features,
             Version environmentVersion,
             string environmentName,
@@ -23,6 +24,7 @@ namespace Chroma.EnvironmentEnhancement.Saved
             Name = name;
             Version = version;
             Author = author;
+            Description = description;
             Features = features;
             EnvironmentVersion = environmentVersion;
             EnvironmentName = environmentName;
@@ -39,6 +41,9 @@ namespace Chroma.EnvironmentEnhancement.Saved
 
         [JsonProperty("author", Required = Required.Always)]
         internal string Author { get; }
+
+        [JsonProperty("description", Required = Required.Always)]
+        internal string Description { get; }
 
         [JsonProperty("features", Required = Required.Always)]
         internal Features Features { get; }
