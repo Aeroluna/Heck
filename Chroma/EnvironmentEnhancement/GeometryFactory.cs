@@ -31,7 +31,14 @@ namespace Chroma.EnvironmentEnhancement
     {
         Standard,
         OpaqueLight,
-        TransparentLight
+        TransparentLight,
+        BaseWater,
+        BillieWater,
+        BTSPillar,
+        InterscopeConcrete,
+        InterscopeCar,
+        Obstacle,
+        WaterfallMirror
     }
 
     internal class GeometryFactory
@@ -68,7 +75,7 @@ namespace Chroma.EnvironmentEnhancement
 
         internal static bool IsLightType(ShaderType shaderType)
         {
-            return shaderType is ShaderType.OpaqueLight or ShaderType.TransparentLight;
+            return shaderType is ShaderType.OpaqueLight or ShaderType.TransparentLight or ShaderType.BillieWater;
         }
 
         internal GameObject Create(CustomData customData)

@@ -18,21 +18,25 @@ namespace Chroma.EnvironmentEnhancement
         private static readonly Material _standardMaterial = InstantiateSharedMaterial(ShaderType.Standard);
         private static readonly Material _opaqueLightMaterial = InstantiateSharedMaterial(ShaderType.OpaqueLight);
         private static readonly Material _transparentLightMaterial = InstantiateSharedMaterial(ShaderType.TransparentLight);
+        private static readonly Material _baseWaterMaterial = InstantiateSharedMaterial(ShaderType.BaseWater);
 
         private readonly HashSet<Material> _createdMaterials = new();
 
+        private readonly EnvironmentMaterialsManager _environmentMaterialsManager;
         private readonly Dictionary<string, Track> _beatmapTracks;
         private readonly LazyInject<MaterialColorAnimator> _materialColorAnimator;
         private readonly bool _v2;
 
         [UsedImplicitly]
         private MaterialsManager(
+            EnvironmentMaterialsManager environmentMaterialsManager,
             IReadonlyBeatmapData readonlyBeatmap,
             Dictionary<string, Track> beatmapTracks,
             LazyInject<MaterialColorAnimator> materialColorAnimator)
         {
             CustomBeatmapData beatmapData = (CustomBeatmapData)readonlyBeatmap;
             _v2 = beatmapData.version2_6_0AndEarlier;
+            _environmentMaterialsManager = environmentMaterialsManager;
             _beatmapTracks = beatmapTracks;
             _materialColorAnimator = materialColorAnimator;
 
@@ -66,20 +70,26 @@ namespace Chroma.EnvironmentEnhancement
 
         internal MaterialInfo CreateMaterialInfo(CustomData customData)
         {
-            Color color = CustomDataManager.GetColorFromData(customData, _v2) ?? new Color(0, 0, 0, 0);
+            Color? color = CustomDataManager.GetColorFromData(customData, _v2);
             ShaderType shaderType = customData.GetStringToEnumRequired<ShaderType>(_v2 ? V2_SHADER_PRESET : SHADER_PRESET);
             string[]? shaderKeywords = customData.Get<List<object>?>(_v2 ? V2_SHADER_KEYWORDS : SHADER_KEYWORDS)?.Cast<string>().ToArray();
             List<Track>? track = customData.GetNullableTrackArray(_beatmapTracks, _v2)?.ToList();
 
             Material originalMaterial = shaderType switch
             {
+                ShaderType.Standard => _standardMaterial,
                 ShaderType.OpaqueLight => _opaqueLightMaterial,
                 ShaderType.TransparentLight => _transparentLightMaterial,
-                _ => _standardMaterial
+                ShaderType.BaseWater => _baseWaterMaterial,
+                _ => _environmentMaterialsManager.EnvironmentMaterials.TryGetValue(shaderType, out Material foundMat) ? foundMat : throw new InvalidOperationException()
             };
             Material material = Object.Instantiate(originalMaterial);
             _createdMaterials.Add(material);
-            material.color = color;
+            if (color != null)
+            {
+                material.color = color.Value;
+            }
+
             if (shaderKeywords != null)
             {
                 material.shaderKeywords = shaderKeywords;
@@ -100,6 +110,7 @@ namespace Chroma.EnvironmentEnhancement
             {
                 ShaderType.OpaqueLight => "Custom/OpaqueNeonLight",
                 ShaderType.TransparentLight => "Custom/TransparentNeonLight",
+                ShaderType.BaseWater => "Custom/WaterLit",
                 _ => "Custom/SimpleLit"
             }))
             {
@@ -124,8 +135,17 @@ namespace Chroma.EnvironmentEnhancement
                     {
                         "ENABLE_HEIGHT_FOG", "MULTIPLY_COLOR_WITH_ALPHA", "_ENABLE_MAIN_EFFECT_WHITE_BOOST"
                     },
+                    ShaderType.BaseWater => new[]
+                    {
+                        "FOG", "HEIGHT_FOG", "INVERT_RIMLIGHT", "MASK_RED_IS_ALPHA", "NOISE_DITHERING",
+                        "NORMAL_MAP", "REFLECTION_PROBE", "REFLECTION_PROBE_BOX_PROJECTION", "_DECALBLEND_ALPHABLEND",
+                        "_DISSOLVEAXIS_LOCALX", "_EMISSIONCOLORTYPE_FLAT", "_EMISSIONTEXTURE_NONE",
+                        "_RIMLIGHT_NONE", "_ROTATE_UV_NONE", "_VERTEXMODE_NONE", "_WHITEBOOSTTYPE_NONE",
+                        "_ZWRITE_ON"
+                    },
                     _ => Array.Empty<string>()
-                }
+                },
+                color = new Color(0, 0, 0, 0)
             };
         }
 

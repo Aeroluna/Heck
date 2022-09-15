@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using BeatmapSaveDataVersion3;
 using CustomJSONData.CustomBeatmap;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
