@@ -43,6 +43,8 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                         CustomData customData = noteData.customData;
                         Flip(customData, V2_POSITION);
                         Flip(customData, NOTE_OFFSET);
+                        Flip(customData, V2_FLIP);
+                        Flip(customData, FLIP);
                         Wipe(customData);
                     }
 

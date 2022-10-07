@@ -118,7 +118,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 {
                     if (flipX.HasValue)
                     {
-                        customData[INTERNAL_FLIPLINEINDEX] = flipX.Value;
+                        customData[INTERNAL_FLIPLINEINDEX] = flipX.Value + offset;
                     }
 
                     if (flipY.HasValue)
@@ -232,7 +232,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
 
             float[] lineIndexes = new float[2];
             float[] lineLayers = new float[2];
-            for (int i = 0; i < customNoteCount; i++)
+            for (int i = 0; i < 2; i++)
             {
                 if (colorNotesData[i] is not CustomNoteData noteData)
                 {
@@ -252,30 +252,28 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 return;
             }
 
+            for (int i = 0; i < 2; i++)
             {
-                for (int i = 0; i < customNoteCount; i++)
+                if (colorNotesData[i] is not CustomNoteData noteData)
                 {
-                    if (colorNotesData[i] is not CustomNoteData noteData)
-                    {
-                        continue;
-                    }
-
-                    // apparently I can use customData to store my own variables in noteData, neat
-                    // ^ comment from a very young and naive aero
-                    CustomData customData = noteData.customData;
-                    customData[INTERNAL_FLIPLINEINDEX] = lineIndexes[1 - i];
-
-                    float flipYSide = (lineIndexes[i] > lineIndexes[1 - i]) ? 1 : -1;
-                    if ((lineIndexes[i] > lineIndexes[1 - i] &&
-                         lineLayers[i] < lineLayers[1 - i]) ||
-                        (lineIndexes[i] < lineIndexes[1 - i] &&
-                         lineLayers[i] > lineLayers[1 - i]))
-                    {
-                        flipYSide *= -1f;
-                    }
-
-                    customData[INTERNAL_FLIPYSIDE] = flipYSide;
+                    continue;
                 }
+
+                // apparently I can use customData to store my own variables in noteData, neat
+                // ^ comment from a very young and naive aero
+                CustomData customData = noteData.customData;
+                customData[INTERNAL_FLIPLINEINDEX] = lineIndexes[1 - i];
+
+                float flipYSide = (lineIndexes[i] > lineIndexes[1 - i]) ? 1 : -1;
+                if ((lineIndexes[i] > lineIndexes[1 - i] &&
+                     lineLayers[i] < lineLayers[1 - i]) ||
+                    (lineIndexes[i] < lineIndexes[1 - i] &&
+                     lineLayers[i] > lineLayers[1 - i]))
+                {
+                    flipYSide *= -1f;
+                }
+
+                customData[INTERNAL_FLIPYSIDE] = flipYSide;
             }
         }
 
