@@ -453,7 +453,8 @@ namespace Heck.SettingsSetter
                 startParameters.StartPaused,
                 startParameters.BeforeSceneSwitchCallback,
                 null,
-                startParameters.LevelFinishedCallback);
+                startParameters.LevelFinishedCallback,
+                startParameters.LevelRestartedCallback);
         }
 
         internal void StartMultiplayerWithParameters(StartStandardLevelParameters? startStandardParameters)

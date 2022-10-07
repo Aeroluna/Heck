@@ -19,7 +19,8 @@ namespace Heck.SettingsSetter
             bool useTestNoteCutSoundEffects,
             bool startPaused,
             Action beforeSceneSwitchCallback,
-            Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>? levelFinishedCallback)
+            Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>? levelFinishedCallback,
+            Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>? levelRestartedCallback)
         {
             GameMode = gameMode;
             DifficultyBeatmap = difficultyBeatmap;
@@ -34,6 +35,7 @@ namespace Heck.SettingsSetter
             StartPaused = startPaused;
             BeforeSceneSwitchCallback = beforeSceneSwitchCallback;
             LevelFinishedCallback = levelFinishedCallback;
+            LevelRestartedCallback = levelRestartedCallback;
         }
 
         internal StartStandardLevelParameters(StartStandardLevelParameters original)
@@ -51,6 +53,7 @@ namespace Heck.SettingsSetter
             StartPaused = original.StartPaused;
             BeforeSceneSwitchCallback = original.BeforeSceneSwitchCallback;
             LevelFinishedCallback = original.LevelFinishedCallback;
+            LevelRestartedCallback = original.LevelRestartedCallback;
         }
 
         internal string GameMode { get; }
@@ -78,6 +81,8 @@ namespace Heck.SettingsSetter
         internal Action? BeforeSceneSwitchCallback { get; }
 
         internal Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>? LevelFinishedCallback { get; }
+
+        internal Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>? LevelRestartedCallback { get; }
 
         internal virtual StartStandardLevelParameters Copy()
         {

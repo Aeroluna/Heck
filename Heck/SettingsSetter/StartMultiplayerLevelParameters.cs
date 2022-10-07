@@ -34,6 +34,7 @@ namespace Heck.SettingsSetter
                 useTestNoteCutSoundEffects,
                 false,
                 beforeSceneSwitchCallback,
+                null,
                 null)
         {
             BeatmapDifficulty = beatmapDifficulty;
