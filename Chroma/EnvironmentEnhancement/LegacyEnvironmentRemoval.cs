@@ -9,13 +9,13 @@ namespace Chroma.EnvironmentEnhancement
 {
     internal static class LegacyEnvironmentRemoval
     {
-        internal static void Init(CustomBeatmapData customBeatmap)
+        internal static bool Init(CustomBeatmapData customBeatmap)
         {
             IEnumerable<string>? objectsToKill = customBeatmap.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Cast<string>();
 
             if (objectsToKill == null)
             {
-                return;
+                return false;
             }
 
             Log.Logger.Log("Legacy Environment Removal Detected...", Logger.Level.Warning);
@@ -45,6 +45,8 @@ namespace Chroma.EnvironmentEnhancement
                     }
                 }
             }
+
+            return true;
         }
     }
 }

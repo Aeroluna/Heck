@@ -88,6 +88,22 @@ namespace Chroma.EnvironmentEnhancement
                 .Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)?
                 .Cast<CustomData>();
 
+            if (v2)
+            {
+                try
+                {
+                    if (LegacyEnvironmentRemoval.Init(_beatmapData))
+                    {
+                        yield break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Logger.Log("Could not run Legacy Enviroment Removal", Logger.Level.Error);
+                    Log.Logger.Log(e, Logger.Level.Error);
+                }
+            }
+
             if (environmentData == null)
             {
                 // custom environment
@@ -96,19 +112,6 @@ namespace Chroma.EnvironmentEnhancement
             }
 
             List<GameObjectInfo> allGameObjectInfos = GetAllGameObjects.Get();
-
-            if (v2)
-            {
-                try
-                {
-                    LegacyEnvironmentRemoval.Init(_beatmapData);
-                }
-                catch (Exception e)
-                {
-                    Log.Logger.Log("Could not run Legacy Enviroment Removal", Logger.Level.Error);
-                    Log.Logger.Log(e, Logger.Level.Error);
-                }
-            }
 
             if (environmentData == null)
             {
