@@ -136,7 +136,7 @@ namespace NoodleExtensions
                 else if (Width.HasValue)
                 {
                     float lineIndex = obstacleData.lineIndex - 2;
-                    Width = (lineIndex + width) * -1;
+                    StartX = lineIndex - width;
                 }
             }
             catch (Exception e)
