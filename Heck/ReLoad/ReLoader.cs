@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using BeatmapSaveDataVersion3;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
 using Heck.HarmonyPatches;
+using Heck.ReLoad;
 using Heck.Settings;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -14,13 +13,12 @@ using UnityEngine;
 using Zenject;
 using Logger = IPA.Logging.Logger;
 
+// TODO: Fix namespaces
+// ReSharper disable once CheckNamespace
 namespace Heck
 {
     public class ReLoader : ITickable
     {
-        private static readonly FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.Accessor _beatmapSaveDataAccessor
-            = FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.GetAccessor("<beatmapSaveData>k__BackingField");
-
         private static readonly FieldAccessor<BeatmapData, ISortedList<BeatmapDataItem>>.Accessor _allBeatmapDataAccessor
             = FieldAccessor<BeatmapData, ISortedList<BeatmapDataItem>>.GetAccessor("_allBeatmapData");
 
@@ -48,6 +46,9 @@ namespace Heck
         private static readonly FieldAccessor<BeatmapObjectManager, List<IBeatmapObjectController>>.Accessor _allBeatmapObjectsAccessor
             = FieldAccessor<BeatmapObjectManager, List<IBeatmapObjectController>>.GetAccessor("_allBeatmapObjects");
 
+        private static readonly FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.Accessor _noteCutSoundEffectPoolContainerAccessor
+            = FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.GetAccessor("_noteCutSoundEffectPoolContainer");
+
         private static readonly FieldAccessor<NoteCutSoundEffectManager, float>.Accessor _prevNoteATimeAccessor
             = FieldAccessor<NoteCutSoundEffectManager, float>.GetAccessor("_prevNoteATime");
 
@@ -61,7 +62,8 @@ namespace Heck
             = FieldAccessor<BeatmapCallbacksController, float>.GetAccessor("_prevSongTime");
 
         private readonly AudioTimeSyncController _audioTimeSyncController;
-        private readonly CustomLevelLoader _customLevelLoader;
+        private readonly ReLoaderLoader _reLoaderLoader;
+        private readonly IDifficultyBeatmap _difficultyBeatmap;
         private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData;
         private readonly IReadonlyBeatmapData _beatmapData;
         private readonly BeatmapObjectManager _beatmapObjectManager;
@@ -71,20 +73,16 @@ namespace Heck
         private readonly bool _leftHanded;
         private readonly Dictionary<string, Track> _beatmapTracks;
         private readonly DiContainer _container;
-        private readonly CustomDifficultyBeatmap _difficultyBeatmap;
-        private readonly StandardLevelInfoSaveData.DifficultyBeatmap _standardLevelInfoSaveDataDifficultyBeatmap;
-        private readonly StandardLevelInfoSaveData _standardLevelInfoSaveData;
-        private readonly CustomPreviewBeatmapLevel _customPreviewBeatmapLevel;
         private readonly bool _reloadable;
 
         private float _songStartTime;
 
         [UsedImplicitly]
-#pragma warning disable 8618
         private ReLoader(
             AudioTimeSyncController audioTimeSyncController,
             IDifficultyBeatmap difficultyBeatmap,
-            CustomLevelLoader customLevelLoader,
+            ReLoaderLoader reLoaderLoader,
+            StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupDataSO,
             GameplayCoreSceneSetupData gameplayCoreSceneSetupData,
             IReadonlyBeatmapData beatmapData,
             BeatmapObjectManager beatmapObjectManager,
@@ -94,10 +92,9 @@ namespace Heck
             [Inject(Id = HeckController.LEFT_HANDED_ID)] bool leftHanded,
             Dictionary<string, Track> beatmapTracks,
             DiContainer container)
-#pragma warning restore 8618
         {
             _audioTimeSyncController = audioTimeSyncController;
-            _customLevelLoader = customLevelLoader;
+            _reLoaderLoader = reLoaderLoader;
             _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
             _beatmapData = beatmapData;
             _beatmapObjectManager = beatmapObjectManager;
@@ -107,18 +104,10 @@ namespace Heck
             _leftHanded = leftHanded;
             _beatmapTracks = beatmapTracks;
             _container = container;
+            _difficultyBeatmap = difficultyBeatmap;
 
-            if (difficultyBeatmap is CustomDifficultyBeatmap { level: CustomPreviewBeatmapLevel customPreviewBeatmapLevel } customDifficultyBeatmap)
+            if (difficultyBeatmap is CustomDifficultyBeatmap)
             {
-                BeatmapDifficulty levelDiff = difficultyBeatmap.difficulty;
-                StandardLevelInfoSaveData standardLevelInfoSaveData = customPreviewBeatmapLevel.standardLevelInfoSaveData;
-                BeatmapCharacteristicSO levelCharacteristic = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic;
-                _standardLevelInfoSaveDataDifficultyBeatmap = standardLevelInfoSaveData.difficultyBeatmapSets.First(
-                    x => x.beatmapCharacteristicName == levelCharacteristic.serializedName).difficultyBeatmaps.First(
-                    x => x.difficulty == levelDiff.ToString());
-                _difficultyBeatmap = customDifficultyBeatmap;
-                _customPreviewBeatmapLevel = customPreviewBeatmapLevel;
-                _standardLevelInfoSaveData = standardLevelInfoSaveData;
                 _reloadable = true;
             }
             else
@@ -140,12 +129,11 @@ namespace Heck
             {
                 // Set new start time
                 _songStartTime = _audioTimeSyncController.songTime;
-                Log.Logger.Log($"Saved: [{_songStartTime}].");
+                Log.Logger.Log($"Saved: [{_songStartTime}].", Logger.Level.Trace);
             }
             else if (_reloadable && Input.GetKeyDown(config.Reload))
             {
                 Reload();
-                Log.Logger.Log("Reloaded beatmap.");
                 if (!Input.GetKeyDown(config.JumpToSavedTime))
                 {
                     Rewind();
@@ -155,7 +143,7 @@ namespace Heck
             if (Input.GetKeyDown(config.JumpToSavedTime))
             {
                 Rewind(_songStartTime);
-                Log.Logger.Log($"Loaded to: [{_songStartTime}].");
+                Log.Logger.Log($"Loaded to: [{_songStartTime}].", Logger.Level.Trace);
             }
             else if (Input.GetKeyDown(config.ScrubBackwards))
             {
@@ -191,13 +179,7 @@ namespace Heck
                 _gamePause.Pause();
             }
 
-            Tuple<BeatmapSaveData, BeatmapDataBasicInfo> tuple = _customLevelLoader.LoadBeatmapDataBasicInfo(
-                _customPreviewBeatmapLevel.customLevelPath,
-                _standardLevelInfoSaveDataDifficultyBeatmap.beatmapFilename,
-                _standardLevelInfoSaveData);
-
-            CustomDifficultyBeatmap customDifficultyBeatmap = _difficultyBeatmap;
-            _beatmapSaveDataAccessor(ref customDifficultyBeatmap) = tuple.Item1;
+            _reLoaderLoader.Reload(_difficultyBeatmap);
             IReadonlyBeatmapData beatmapData = Task.Run<IReadonlyBeatmapData>(async () => await _gameplayCoreSceneSetupData.GetTransformedBeatmapDataAsync()).Result;
             FillBeatmapData(beatmapData, _beatmapData);
 
@@ -240,6 +222,7 @@ namespace Heck
             });
 
             NoteCutSoundEffectManager noteCutSoundEffectManager = _noteCutSoundEffectManager;
+            _noteCutSoundEffectPoolContainerAccessor(ref noteCutSoundEffectManager).activeItems.ForEach(n => n.StopPlayingAndFinish());
             _prevNoteATimeAccessor(ref noteCutSoundEffectManager) = 0;
             _prevNoteBTimeAccessor(ref noteCutSoundEffectManager) = 0;
 

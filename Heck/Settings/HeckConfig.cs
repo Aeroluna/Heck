@@ -45,6 +45,9 @@ namespace Heck.Settings
 
             [UsedImplicitly]
             public float ScrubIncrement { get; set; } = 5;
+
+            [UsedImplicitly]
+            public bool ReloadOnRestart { get; set; }
         }
     }
 }

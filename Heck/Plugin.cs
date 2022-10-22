@@ -35,8 +35,9 @@ namespace Heck
 
             SettingSetterSettableSettingsManager.SetupSettingsTable();
 
+            zenjector.Install<HeckAppInstaller>(Location.App);
             zenjector.Install<HeckPlayerInstaller>(Location.Player);
-            zenjector.Install<HeckSettingsSetterInstaller>(Location.Menu);
+            zenjector.Install<HeckMenuInstaller>(Location.Menu);
             zenjector.Expose<NoteCutSoundEffectManager>("Gameplay");
 
             ModuleManager.Register<ModuleCallbacks>("Heck", 0, RequirementType.None);

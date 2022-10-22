@@ -4,21 +4,26 @@ using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;
 
-namespace NoodleExtensions.HarmonyPatches.SmallFixes
+namespace Heck.HarmonyPatches
 {
     // Weird cut sound shenanigans to prevent unity from crashing.
     internal class NoteCutSoundLimiter : ITickable, IAffinity
     {
+        private const int MAX_SOUNDS_PER_FRAME = 30;
+
         private readonly List<NoteController> _hitsoundQueue = new();
 
         private readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
+        private readonly AudioTimeSyncController _audioTimeSyncController;
         private int _lastFrame = -1;
         private int _cutCount = -1;
 
         internal NoteCutSoundLimiter(
-            NoteCutSoundEffectManager noteCutSoundEffectManager)
+            NoteCutSoundEffectManager noteCutSoundEffectManager,
+            AudioTimeSyncController audioTimeSyncController)
         {
             _noteCutSoundEffectManager = noteCutSoundEffectManager;
+            _audioTimeSyncController = audioTimeSyncController;
         }
 
         public void Tick()
@@ -31,14 +36,21 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
             List<NoteController> noteControllers = new(_hitsoundQueue);
             _hitsoundQueue.Clear();
             noteControllers.ForEach(_noteCutSoundEffectManager.HandleNoteWasSpawned);
-            Log.Logger.Log($"{noteControllers.Count} cut sounds moved to next frame!");
+            Log.Logger.Log($"[{noteControllers.Count}] cut sounds moved to next frame!");
         }
 
         [AffinityPriority(Priority.Low)]
         [AffinityPrefix]
-        [AffinityPatch(typeof(NoteCutSoundEffectManager), "HandleNoteWasSpawned")]
+        [AffinityPatch(typeof(NoteCutSoundEffectManager), nameof(NoteCutSoundEffectManager.HandleNoteWasSpawned))]
         private void ProcessHitSound(NoteController noteController, ref bool __runOriginal)
         {
+            // skip notes already passed, useful for reLoader
+            if (noteController.noteData.time < _audioTimeSyncController.songTime)
+            {
+                __runOriginal = false;
+                return;
+            }
+
             if (!__runOriginal)
             {
                 return;
@@ -55,7 +67,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
             }
 
             // We do not allow more than 30 NoteCutSoundEffects to be created in a single frame to prevent unity from dying
-            if (_cutCount < 30)
+            if (_cutCount < MAX_SOUNDS_PER_FRAME)
             {
                 return;
             }

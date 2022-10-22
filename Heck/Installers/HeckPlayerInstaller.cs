@@ -17,6 +17,9 @@ namespace Heck.Installers
                 return;
             }
 
+            // Note Cut Sound Fix
+            Container.BindInterfacesTo<NoteCutSoundLimiter>().AsSingle();
+
             // Events
             Container.Bind<CoroutineDummy>().FromNewComponentOnRoot().AsSingle();
             Container.BindInterfacesTo<EventController>().AsSingle();

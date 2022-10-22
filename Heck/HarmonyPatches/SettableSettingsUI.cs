@@ -12,7 +12,6 @@ using SiraUtil.Affinity;
 namespace Heck.HarmonyPatches
 {
     [HeckPatch]
-    [HarmonyPatch]
     internal class SettableSettingsUI : IAffinity
     {
         private static readonly Action<FlowCoordinator, ViewController?, ViewController.AnimationType> _setLeftScreenViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController?, ViewController.AnimationType>>.GetDelegate("SetLeftScreenViewController");
@@ -214,14 +213,8 @@ namespace Heck.HarmonyPatches
 
         [AffinityPrefix]
         [AffinityPatch(typeof(MenuTransitionsHelper), "HandleMultiplayerLevelDidFinish")]
-        private void HandleMultiplayerLevelDidFinishPrefix()
-        {
-            _setterViewController.RestoreCached();
-        }
-
-        [AffinityPrefix]
         [AffinityPatch(typeof(MenuTransitionsHelper), "HandleMultiplayerLevelDidDisconnect")]
-        private void HandleMultiplayerLevelDidDisconnectPrefix()
+        private void HandleMultiplayerLevelDidFinishPrefix()
         {
             _setterViewController.RestoreCached();
         }

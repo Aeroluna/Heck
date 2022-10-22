@@ -60,7 +60,6 @@ namespace NoodleExtensions.Installers
             Container.BindInterfacesTo<NoteLinker>().AsSingle();
 
             // SmallFixes
-            Container.BindInterfacesTo<NoteCutSoundLimiter>().AsSingle();
             Container.BindInterfacesTo<PreventObstacleFlickerOnSpawn>().AsSingle();
             Container.Bind<InitializedSpawnMovementData>().AsSingle().NonLazy();
             Container.BindInterfacesTo<SaberPlayerMovementFix>().AsSingle();
