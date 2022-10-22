@@ -51,6 +51,7 @@ namespace Chroma.HarmonyPatches.Colorizer
 
         [AffinityPostfix]
         [AffinityPatch(typeof(GameNoteController), nameof(GameNoteController.Init))]
+        [AffinityPatch(typeof(BurstSliderGameNoteController), nameof(BurstSliderGameNoteController.Init))]
         private void NoteColorize(GameNoteController __instance, NoteData noteData)
         {
             if (ChromaConfig.Instance.NoteColoringDisabled)
