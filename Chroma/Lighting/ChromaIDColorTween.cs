@@ -15,7 +15,7 @@ namespace Chroma.Lighting
 
         internal ChromaIDColorTween(Color fromValue, Color toValue, ILightWithId lightWithId, LightWithIdManager lightWithIdManager, int id)
         {
-            Reinit(fromValue, toValue, SetColor, 0, EaseType.Linear);
+            Init(fromValue, toValue, SetColor, 0, EaseType.Linear);
             _lightWithId = lightWithId;
             _lightWithIdManager = lightWithIdManager;
             Id = id;
