@@ -27,7 +27,8 @@ namespace Heck.HarmonyPatches
             bool useTestNoteCutSoundEffects,
             EnvironmentInfoSO environmentInfo,
             ColorScheme colorScheme,
-            MainSettingsModelSO mainSettingsModel)
+            MainSettingsModelSO mainSettingsModel,
+            BeatmapDataCache? beatmapDataCache = null)
             : base(
                 difficultyBeatmap,
                 previewBeatmapLevel,
@@ -37,7 +38,8 @@ namespace Heck.HarmonyPatches
                 useTestNoteCutSoundEffects,
                 environmentInfo,
                 colorScheme,
-                mainSettingsModel)
+                mainSettingsModel,
+                beatmapDataCache)
         {
         }
 
@@ -51,9 +53,23 @@ namespace Heck.HarmonyPatches
         }
 
         // override to store the untransformed beatmapdata
-        public override async Task<IReadonlyBeatmapData> GetTransformedBeatmapDataAsync()
+        public override async Task<IReadonlyBeatmapData?> GetTransformedBeatmapDataAsync()
         {
-            IReadonlyBeatmapData beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(environmentInfo, playerSpecificSettings);
+            if (difficultyBeatmap == null)
+            {
+                return null;
+            }
+
+            IReadonlyBeatmapData beatmapData;
+            if (beatmapDataCache != null)
+            {
+                beatmapData = await beatmapDataCache.GetBeatmapData(difficultyBeatmap, environmentInfo, playerSpecificSettings);
+            }
+            else
+            {
+                beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(environmentInfo, playerSpecificSettings);
+            }
+
             _untransformedBeatmapData = beatmapData;
             EnvironmentEffectsFilterPreset environmentEffectsFilterPreset =
                 (difficultyBeatmap.difficulty == BeatmapDifficulty.ExpertPlus)
@@ -72,6 +88,7 @@ namespace Heck.HarmonyPatches
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO), "Init")]
         [HarmonyPatch(typeof(MultiplayerLevelScenesTransitionSetupDataSO), "Init")]
+        [HarmonyPatch(typeof(MissionLevelScenesTransitionSetupDataSO), "Init")]
         private static IEnumerable<CodeInstruction> Replace(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)

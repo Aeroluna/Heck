@@ -22,8 +22,8 @@ namespace Heck
         private static readonly FieldAccessor<BeatmapData, ISortedList<BeatmapDataItem>>.Accessor _allBeatmapDataAccessor
             = FieldAccessor<BeatmapData, ISortedList<BeatmapDataItem>>.GetAccessor("_allBeatmapData");
 
-        private static readonly FieldAccessor<BeatmapData, BeatmapDataSortedListForTypes<BeatmapDataItem>>.Accessor _beatmapDataItemsPerTypeAccessor
-            = FieldAccessor<BeatmapData, BeatmapDataSortedListForTypes<BeatmapDataItem>>.GetAccessor("_beatmapDataItemsPerType");
+        private static readonly FieldAccessor<BeatmapData, BeatmapDataSortedListForTypeAndIds<BeatmapDataItem>>.Accessor _beatmapDataItemsPerTypeAccessor
+            = FieldAccessor<BeatmapData, BeatmapDataSortedListForTypeAndIds<BeatmapDataItem>>.GetAccessor("_beatmapDataItemsPerTypeAndId");
 
         private static readonly FieldAccessor<BeatmapData, BeatmapObjectsInTimeRowProcessor>.Accessor _beatmapObjectsInTimeRowProcessorAccessor
             = FieldAccessor<BeatmapData, BeatmapObjectsInTimeRowProcessor>.GetAccessor("_beatmapObjectsInTimeRowProcessor");

@@ -37,12 +37,7 @@ namespace Heck
 
             // tracks are built based off the untransformed beatmapdata so modifiers like "no walls" do not prevent track creation
             TrackBuilder trackManager = new();
-            IReadOnlyList<BeatmapObjectData> untransformedObjectDatas = untransformedBeatmapData.GetBeatmapDataItems<NoteData>()
-                .Cast<BeatmapObjectData>()
-                .Concat(untransformedBeatmapData.GetBeatmapDataItems<ObstacleData>())
-                .Concat(untransformedBeatmapData.GetBeatmapDataItems<SliderData>())
-                .ToArray();
-            foreach (BeatmapObjectData beatmapObjectData in untransformedObjectDatas)
+            foreach (BeatmapObjectData beatmapObjectData in ((CustomBeatmapData)untransformedBeatmapData).beatmapObjectDatas)
             {
                 CustomData customData = ((ICustomData)beatmapObjectData).customData;
 
@@ -149,35 +144,15 @@ namespace Heck
             // Currently used by Chroma.GameObjectTrackController
             beatmapTracks = trackManager.Tracks;
 
-            IReadOnlyList<CustomEventData> customEventsData = customBeatmapData
-                .GetBeatmapDataItems<CustomEventData>()
-                .Concat(eventDefinitions.Values)
-                .ToArray();
-
-            IReadOnlyList<BeatmapEventData> beatmapEventDatas = customBeatmapData.GetBeatmapDataItems<BasicBeatmapEventData>()
-                .Cast<BeatmapEventData>()
-                .Concat(customBeatmapData.GetBeatmapDataItems<SpawnRotationBeatmapEventData>())
-                .Concat(customBeatmapData.GetBeatmapDataItems<BPMChangeBeatmapEventData>())
-                .Concat(customBeatmapData.GetBeatmapDataItems<LightColorBeatmapEventData>())
-                .Concat(customBeatmapData.GetBeatmapDataItems<LightRotationBeatmapEventData>())
-                .Concat(customBeatmapData.GetBeatmapDataItems<ColorBoostBeatmapEventData>())
-                .ToArray();
-
-            IReadOnlyList<BeatmapObjectData> objectDatas = customBeatmapData.GetBeatmapDataItems<NoteData>()
-                .Cast<BeatmapObjectData>()
-                .Concat(customBeatmapData.GetBeatmapDataItems<ObstacleData>())
-                .Concat(customBeatmapData.GetBeatmapDataItems<SliderData>())
-                .ToArray();
-
             object[] inputs =
             {
                 customBeatmapData,
                 trackManager,
                 pointDefinitions,
                 trackManager.Tracks,
-                customEventsData.ToList(),
-                beatmapEventDatas,
-                objectDatas,
+                customBeatmapData.customEventDatas, // TODO: lists are now provided by CustomBeatmapData, remove these from deserializers
+                customBeatmapData.beatmapEventDatas,
+                customBeatmapData.beatmapObjectDatas,
                 leftHanded
             };
 

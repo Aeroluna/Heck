@@ -62,12 +62,12 @@ namespace Heck.HarmonyPatches
         }
 
         // Get all the parameters used to make a StartStandardLevelParameters
+#pragma warning disable CS8321
         [HarmonyReversePatch]
         [HarmonyPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), nameof(SinglePlayerLevelSelectionFlowCoordinator.StartLevel))]
         private static StartStandardLevelParameters GetParameters(
             SinglePlayerLevelSelectionFlowCoordinator instance, Action beforeSceneSwitchCallback, bool practice)
         {
-            _ = Transpiler(null!);
             throw new NotImplementedException("Reverse patch has not been executed.");
 
             [UsedImplicitly]
@@ -87,7 +87,6 @@ namespace Heck.HarmonyPatches
         private static StartMultiplayerLevelParameters GetMultiplayerParameters(
             LobbyGameStateController instance, ILevelGameplaySetupData gameplaySetupData, IDifficultyBeatmap difficultyBeatmap, Action beforeSceneSwitchCallback)
         {
-            _ = Transpiler(null!);
             throw new NotImplementedException("Reverse patch has not been executed.");
 
             [UsedImplicitly]
@@ -101,6 +100,7 @@ namespace Heck.HarmonyPatches
                     .InstructionEnumeration();
             }
         }
+#pragma warning restore CS8321
 
         [AffinityPrefix]
         [AffinityPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), nameof(SinglePlayerLevelSelectionFlowCoordinator.StartLevel))]

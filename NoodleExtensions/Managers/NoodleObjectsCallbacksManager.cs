@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomJSONData.CustomBeatmap;
 using Heck;
 using JetBrains.Annotations;
 using Zenject;
@@ -10,7 +11,7 @@ namespace NoodleExtensions.Managers
     [UsedImplicitly]
     internal class NoodleObjectsCallbacksManager : IDisposable
     {
-        private readonly IReadonlyBeatmapData _beatmapData;
+        private readonly CustomBeatmapData _beatmapData;
         private readonly SpawnDataManager _spawnDataManager;
         private readonly DeserializedData _deserializedData;
         private readonly float _startFilterTime;
@@ -30,7 +31,7 @@ namespace NoodleExtensions.Managers
             _spawnDataManager = spawnDataManager;
             _deserializedData = deserializedData;
             _reloader = reloader;
-            _beatmapData = initData.beatmapData;
+            _beatmapData = (CustomBeatmapData)initData.beatmapData;
             _startFilterTime = initData.startFilterTime;
             Init();
 
@@ -107,10 +108,8 @@ namespace NoodleExtensions.Managers
 
         private void Init()
         {
-            IEnumerable<BeatmapDataItem> objectDatas = _beatmapData.GetBeatmapDataItems<NoteData>()
-                .Cast<BeatmapObjectData>()
-                .Concat(_beatmapData.GetBeatmapDataItems<ObstacleData>())
-                .Concat(_beatmapData.GetBeatmapDataItems<SliderData>())
+            IEnumerable<BeatmapDataItem> objectDatas = _beatmapData
+                .beatmapObjectDatas
                 .OrderBy(beatmapObjectData =>
                 {
                     if (!_deserializedData.Resolve(beatmapObjectData, out NoodleObjectData? noodleData))
