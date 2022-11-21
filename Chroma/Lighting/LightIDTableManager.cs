@@ -140,19 +140,21 @@ namespace Chroma.Lighting
                 {
                     foreach ((int key, int value) in dictioanry)
                     {
-                        if (value == index)
+                        if (value != index)
                         {
-                            dictioanry.Remove(key);
-                            if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
-                            {
-                                Log.Logger.Log($"Unregistered key [{key}] from light ID [{lightID}].");
-                            }
-
-                            return;
+                            continue;
                         }
 
-                        Log.Logger.Log("Could not find key to unregister.", Logger.Level.Warning);
+                        dictioanry.Remove(key);
+                        if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                        {
+                            Log.Logger.Log($"Unregistered key [{key}] from light ID [{lightID}].");
+                        }
+
+                        return;
                     }
+
+                    Log.Logger.Log("Could not find key to unregister.", Logger.Level.Warning);
                 }
                 else
                 {
