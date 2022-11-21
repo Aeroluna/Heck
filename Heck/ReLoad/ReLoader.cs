@@ -80,6 +80,7 @@ namespace Heck
         [UsedImplicitly]
         private ReLoader(
             AudioTimeSyncController audioTimeSyncController,
+            AudioTimeSyncController.InitData audioTimeSyncControllerInitData,
             IDifficultyBeatmap difficultyBeatmap,
             ReLoaderLoader reLoaderLoader,
             StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupDataSO,
@@ -94,6 +95,7 @@ namespace Heck
             DiContainer container)
         {
             _audioTimeSyncController = audioTimeSyncController;
+            _songStartTime = audioTimeSyncControllerInitData.startSongTime;
             _reLoaderLoader = reLoaderLoader;
             _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
             _beatmapData = beatmapData;
