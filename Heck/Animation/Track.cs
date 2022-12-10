@@ -12,6 +12,13 @@ namespace Heck.Animation
     {
         public Dictionary<string, Track> Tracks { get; } = new();
 
+        public void AddTracks(IEnumerable<string> trackNames)
+        {
+            foreach (string str in trackNames) {
+                AddTrack(str);
+            }
+        }
+
         public void AddTrack(string trackName)
         {
             if (Tracks.ContainsKey(trackName))
@@ -31,10 +38,16 @@ namespace Heck.Animation
         [AssertionMethod]
         public void AddFromCustomData(CustomData customData, string name, bool required = true)
         {
-            string? trackName = customData.Get<string>(name);
+            object? trackName = customData.Get<object>(name);
             if (trackName != null)
             {
-                AddTrack(trackName);
+                if (trackName is string trackNameStr) {
+                    AddTrack(trackNameStr);
+                }
+
+                if (trackName is IEnumerable<string> trackNames) {
+                    AddTracks(trackNames);
+                }
             }
             else if (required)
             {
