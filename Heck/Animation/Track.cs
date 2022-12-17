@@ -23,6 +23,34 @@ namespace Heck.Animation
             Tracks.Add(trackName, track);
         }
 
+        public void AddManyFromCustomData(CustomData customData, bool v2, bool required = true)
+        {
+            AddManyFromCustomData(customData, v2 ? V2_TRACK : TRACK, required);
+        }
+
+        [AssertionMethod]
+        public void AddManyFromCustomData(CustomData customData, string name, bool required = true)
+        {
+            object? trackName = customData.Get<object>(name);
+            if (trackName != null)
+            {
+                switch (trackName)
+                {
+                    case string trackNameStr:
+                        AddTrack(trackNameStr);
+                        break;
+
+                    case List<string> names:
+                        names.ForEach(AddTrack);
+                        break;
+                }
+            }
+            else if (required)
+            {
+                throw new JsonNotDefinedException(name);
+            }
+        }
+
         public void AddFromCustomData(CustomData customData, bool v2, bool required = true)
         {
             AddFromCustomData(customData, v2 ? V2_TRACK : TRACK, required);

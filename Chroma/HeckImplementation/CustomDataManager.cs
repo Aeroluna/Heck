@@ -26,7 +26,7 @@ namespace Chroma
             {
                 foreach (CustomData gameObjectData in environmentData)
                 {
-                    trackBuilder.AddFromCustomData(gameObjectData, v2, false);
+                    trackBuilder.AddManyFromCustomData(gameObjectData, v2, false);
 
                     CustomData? geometryData = gameObjectData.Get<CustomData?>(v2 ? V2_GEOMETRY : GEOMETRY);
                     object? materialData = geometryData?.Get<object?>(v2 ? V2_MATERIAL : MATERIAL);
