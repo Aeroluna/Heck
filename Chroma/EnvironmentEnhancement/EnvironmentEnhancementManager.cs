@@ -73,10 +73,7 @@ namespace Chroma.EnvironmentEnhancement
         [AffinityPatch(typeof(BeatmapObjectSpawnController), nameof(BeatmapObjectSpawnController.Start))]
         private void Start(BeatmapObjectSpawnController __instance)
         {
-            if (!ChromaConfig.Instance.EnvironmentEnhancementsDisabled)
-            {
-                __instance.StartCoroutine(DelayedStart());
-            }
+            __instance.StartCoroutine(DelayedStart());
         }
 
         private IEnumerator DelayedStart()
@@ -84,23 +81,28 @@ namespace Chroma.EnvironmentEnhancement
             yield return new WaitForEndOfFrame();
 
             bool v2 = _beatmapData.version2_6_0AndEarlier;
-            IEnumerable<CustomData>? environmentData = _beatmapData.customData
-                .Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)?
-                .Cast<CustomData>();
+            IEnumerable<CustomData>? environmentData = null;
 
-            if (v2)
+            if (!ChromaConfig.Instance.EnvironmentEnhancementsDisabled)
             {
-                try
+                environmentData = _beatmapData.customData
+                    .Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)?
+                    .Cast<CustomData>();
+
+                if (v2)
                 {
-                    if (LegacyEnvironmentRemoval.Init(_beatmapData))
+                    try
                     {
-                        yield break;
+                        if (LegacyEnvironmentRemoval.Init(_beatmapData))
+                        {
+                            yield break;
+                        }
                     }
-                }
-                catch (Exception e)
-                {
-                    Log.Logger.Log("Could not run Legacy Enviroment Removal", Logger.Level.Error);
-                    Log.Logger.Log(e, Logger.Level.Error);
+                    catch (Exception e)
+                    {
+                        Log.Logger.Log("Could not run Legacy Enviroment Removal", Logger.Level.Error);
+                        Log.Logger.Log(e, Logger.Level.Error);
+                    }
                 }
             }
 
