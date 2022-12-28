@@ -12,15 +12,21 @@ namespace Heck.ReLoad
         private static readonly FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.Accessor _beatmapSaveDataAccessor
             = FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.GetAccessor("<beatmapSaveData>k__BackingField");
 
+        private static readonly FieldAccessor<BeatmapDataCache, IDifficultyBeatmap?>.Accessor _difficultyBeatmapAccessor
+            = FieldAccessor<BeatmapDataCache, IDifficultyBeatmap?>.GetAccessor("difficultyBeatmap");
+
         private readonly CustomLevelLoader _customLevelLoader;
+        private BeatmapDataCache _beatmapDataCache;
 
         [UsedImplicitly]
 #pragma warning disable 8618
         private ReLoaderLoader(
-            CustomLevelLoader customLevelLoader)
+            CustomLevelLoader customLevelLoader,
+            BeatmapDataCache beatmapDataCache)
 #pragma warning restore 8618
         {
             _customLevelLoader = customLevelLoader;
+            _beatmapDataCache = beatmapDataCache;
         }
 
         public void Reload(IDifficultyBeatmap difficultyBeatmap)
@@ -28,11 +34,13 @@ namespace Heck.ReLoad
             if (difficultyBeatmap is not
                     CustomDifficultyBeatmap { level: CustomPreviewBeatmapLevel customPreviewBeatmapLevel } customDifficultyBeatmap)
             {
-                Log.Logger.Log("Cannot reload non-custom map.", Logger.Level.Error);
+                Log.Logger.Log("Cannot ReLoad non-custom map.", Logger.Level.Error);
                 return;
             }
 
-            Log.Logger.Log("Reloaded beatmap.", Logger.Level.Trace);
+            Log.Logger.Log("ReLoaded beatmap.", Logger.Level.Trace);
+
+            _difficultyBeatmapAccessor(ref _beatmapDataCache) = null;
 
             BeatmapDifficulty levelDiff = customDifficultyBeatmap.difficulty;
             StandardLevelInfoSaveData standardLevelInfoSaveData = customPreviewBeatmapLevel.standardLevelInfoSaveData;

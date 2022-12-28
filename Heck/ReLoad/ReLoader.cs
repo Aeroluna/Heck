@@ -5,7 +5,6 @@ using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
 using Heck.HarmonyPatches;
-using Heck.ReLoad;
 using Heck.Settings;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -13,9 +12,7 @@ using UnityEngine;
 using Zenject;
 using Logger = IPA.Logging.Logger;
 
-// TODO: Fix namespaces
-// ReSharper disable once CheckNamespace
-namespace Heck
+namespace Heck.ReLoad
 {
     public class ReLoader : ITickable
     {
@@ -39,6 +36,15 @@ namespace Heck
 
         private static readonly FieldAccessor<CustomBeatmapData, CustomData>.Accessor _levelCustomDataAccessor
             = FieldAccessor<CustomBeatmapData, CustomData>.GetAccessor("<levelCustomData>k__BackingField");
+
+        private static readonly FieldAccessor<CustomBeatmapData, List<BeatmapObjectData>>.Accessor _beatmapObjectDatasAccessor
+            = FieldAccessor<CustomBeatmapData, List<BeatmapObjectData>>.GetAccessor("_beatmapObjectDatas");
+
+        private static readonly FieldAccessor<CustomBeatmapData, List<BeatmapEventData>>.Accessor _beatmapEventDatasAccessor
+            = FieldAccessor<CustomBeatmapData, List<BeatmapEventData>>.GetAccessor("_beatmapEventDatas");
+
+        private static readonly FieldAccessor<CustomBeatmapData, List<CustomEventData>>.Accessor _customEventDatasAccessor
+            = FieldAccessor<CustomBeatmapData, List<CustomEventData>>.GetAccessor("_customEventDatas");
 
         private static readonly FieldAccessor<AudioTimeSyncController, float>.Accessor _startSongTimeAccessor
             = FieldAccessor<AudioTimeSyncController, float>.GetAccessor("_startSongTime");
@@ -70,6 +76,7 @@ namespace Heck
         private readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
         private readonly BeatmapCallbacksController _beatmapCallbacksController;
         private readonly IGamePause _gamePause;
+        private readonly PauseMenuManager _pauseMenuManager;
         private readonly bool _leftHanded;
         private readonly Dictionary<string, Track> _beatmapTracks;
         private readonly DiContainer _container;
@@ -90,6 +97,7 @@ namespace Heck
             NoteCutSoundEffectManager noteCutSoundEffectManager,
             BeatmapCallbacksController beatmapCallbacksController,
             IGamePause gamePause,
+            PauseMenuManager pauseMenuManager,
             [Inject(Id = HeckController.LEFT_HANDED_ID)] bool leftHanded,
             Dictionary<string, Track> beatmapTracks,
             DiContainer container)
@@ -103,6 +111,7 @@ namespace Heck
             _noteCutSoundEffectManager = noteCutSoundEffectManager;
             _beatmapCallbacksController = beatmapCallbacksController;
             _gamePause = gamePause;
+            _pauseMenuManager = pauseMenuManager;
             _leftHanded = leftHanded;
             _beatmapTracks = beatmapTracks;
             _container = container;
@@ -171,6 +180,9 @@ namespace Heck
             _customDataAccessor(ref destCustomData) = _customDataAccessor(ref sourceCustomData);
             _beatmapCustomDataAccessor(ref destCustomData) = _beatmapCustomDataAccessor(ref sourceCustomData);
             _levelCustomDataAccessor(ref destCustomData) = _levelCustomDataAccessor(ref sourceCustomData);
+            _beatmapObjectDatasAccessor(ref destCustomData) = _beatmapObjectDatasAccessor(ref sourceCustomData);
+            _beatmapEventDatasAccessor(ref destCustomData) = _beatmapEventDatasAccessor(ref sourceCustomData);
+            _customEventDatasAccessor(ref destCustomData) = _customEventDatasAccessor(ref sourceCustomData);
         }
 
         private void Reload()
@@ -201,7 +213,11 @@ namespace Heck
             deserializedDatas.Do(n => _container.ResolveId<DeserializedData>(n.Id).Remap(n.DeserializedData));
 
             Reloaded?.Invoke();
-            if (!paused)
+            if (_pauseMenuManager.enabled)
+            {
+                _pauseMenuManager.ContinueButtonPressed();
+            }
+            else
             {
                 _gamePause.Resume();
             }

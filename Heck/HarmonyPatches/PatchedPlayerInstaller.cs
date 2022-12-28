@@ -4,6 +4,7 @@ using System.Reflection.Emit;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
+using Heck.ReLoad;
 using IPA.Utilities;
 using Zenject;
 
