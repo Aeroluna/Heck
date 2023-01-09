@@ -13,9 +13,9 @@ namespace Chroma.Settings
         [UIValue("environmentoptions")]
         private readonly List<object?> _environmentOptions;
 
-        private ChromaSettingsUI(Loader loader)
+        private ChromaSettingsUI()
         {
-            _environmentOptions = loader.Environments.Cast<object?>().ToList();
+            _environmentOptions = SavedEnvironmentLoader.Environments.Cast<object?>().ToList();
 
             // TODO: find some way to disable this for DynamicInit
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", this);

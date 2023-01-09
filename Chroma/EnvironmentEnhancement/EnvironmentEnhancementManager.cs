@@ -113,12 +113,12 @@ namespace Chroma.EnvironmentEnhancement
                 environmentData = ChromaConfig.Instance.CustomEnvironment?.Environment;
             }
 
-            List<GameObjectInfo> allGameObjectInfos = GetAllGameObjects.Get();
-
             if (environmentData == null)
             {
                 yield break;
             }
+
+            List<GameObjectInfo> allGameObjectInfos = GetAllGameObjects.Get();
 
             if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
             {

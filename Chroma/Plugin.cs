@@ -1,4 +1,5 @@
-﻿using Chroma.Extras;
+﻿using Chroma.EnvironmentEnhancement.Saved;
+using Chroma.Extras;
 using Chroma.Installers;
 using Chroma.Lighting;
 using Chroma.Settings;
@@ -24,6 +25,7 @@ namespace Chroma
         {
             Log.Logger = new HeckLogger(pluginLogger);
             ChromaSettableSettings.SetupSettableSettings();
+            SavedEnvironmentLoader.Init();
             ChromaConfig.Instance = conf.Generated<ChromaConfig>();
             LightIDTableManager.InitTable();
             zenjector.Install<ChromaPlayerInstaller>(Location.Player);

@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using System.IO;
 using IPA.Logging;
 using IPA.Utilities;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace Chroma.EnvironmentEnhancement.Saved
 {
-    internal class Loader
+    // TODO: make config not static
+    internal static class SavedEnvironmentLoader
     {
         private static readonly string _directory = Path.Combine(UnityGame.UserDataPath, ChromaController.ID, "Environments");
         private static readonly Version _currVer = new(1, 0, 0);
+        private static readonly List<SavedEnvironment?> _environments = new() { null };
 
-        [UsedImplicitly]
-        private Loader()
+        public static IEnumerable<SavedEnvironment?> Environments => _environments;
+
+        internal static void Init()
         {
-            List<SavedEnvironment?> environments = new() { null };
-            Environments = environments;
             if (!Directory.Exists(_directory))
             {
                 Directory.CreateDirectory(_directory);
@@ -42,8 +42,10 @@ namespace Chroma.EnvironmentEnhancement.Saved
                         throw new InvalidOperationException($"Unhandled version: [{savedEnvironment.Version}], must be [{_currVer}].");
                     }
 
+                    savedEnvironment.FileName = Path.GetFileName(file);
                     Log.Logger.Log($"Loaded [{file}].", Logger.Level.Trace);
-                    environments.Add(savedEnvironment);
+
+                    _environments.Add(savedEnvironment);
                 }
                 catch (Exception e)
                 {
@@ -52,7 +54,5 @@ namespace Chroma.EnvironmentEnhancement.Saved
                 }
             }
         }
-
-        public List<SavedEnvironment?> Environments { get; }
     }
 }
