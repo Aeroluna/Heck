@@ -5,6 +5,7 @@ namespace Heck.Animation
 {
     public interface IPointDefinition
     {
+        public int Count { get; }
     }
 
     public class PointDefinition<T> : IPointDefinition
@@ -20,9 +21,12 @@ namespace Heck.Animation
         internal PointDefinition(List<PointData> points)
         {
             _points = points;
+            Count = points.Count;
         }
 
         internal delegate T InterpolationHandler(List<PointData> points, int l, int r, float time);
+
+        public int Count { get; }
 
         public override string ToString()
         {
@@ -36,23 +40,22 @@ namespace Heck.Animation
         internal T Interpolate(float time, InterpolationHandler func, out bool last)
         {
             last = false;
-            int count = _points.Count;
-            if (count == 0)
+            if (Count == 0)
             {
                 return default;
+            }
+
+            PointData lastPoint = _points[Count - 1];
+            if (lastPoint.Time <= time)
+            {
+                last = true;
+                return lastPoint.Point;
             }
 
             PointData firstPoint = _points[0];
             if (firstPoint.Time >= time)
             {
                 return firstPoint.Point;
-            }
-
-            PointData lastPoint = _points[count - 1];
-            if (lastPoint.Time <= time)
-            {
-                last = true;
-                return lastPoint.Point;
             }
 
             SearchIndex(time, out int l, out int r);
@@ -79,7 +82,7 @@ namespace Heck.Animation
         private void SearchIndex(float time, out int l, out int r)
         {
             l = 0;
-            r = _points.Count;
+            r = Count;
 
             while (l < r - 1)
             {

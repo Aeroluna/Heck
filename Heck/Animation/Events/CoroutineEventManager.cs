@@ -65,7 +65,7 @@ namespace Heck.Animation.Events
                     switch (eventType)
                     {
                         case EventType.AnimateTrack:
-                            if (noDuration)
+                            if (noDuration || pointData.Count <= 1)
                             {
                                 SetPropertyValue(pointData, property, coroutineInfo.Track, 1, out _);
                             }
@@ -149,7 +149,7 @@ namespace Heck.Animation.Events
             out bool onLast)
         {
             float value = points.Interpolate(time, out onLast);
-            if (property.Value.HasValue && Mathf.Approximately(property.Value.Value, value))
+            if (property.Value.HasValue && property.Value.Value.EqualsTo(value))
             {
                 return;
             }
@@ -166,7 +166,7 @@ namespace Heck.Animation.Events
             out bool onLast)
         {
             Vector3 value = points.Interpolate(time, out onLast);
-            if (property.Value.HasValue && property.Value == value)
+            if (property.Value.HasValue && property.Value.Value.EqualsTo(value))
             {
                 return;
             }
@@ -183,7 +183,7 @@ namespace Heck.Animation.Events
             out bool onLast)
         {
             Vector4 value = points.Interpolate(time, out onLast);
-            if (property.Value.HasValue && property.Value == value)
+            if (property.Value.HasValue && property.Value.Value.EqualsTo(value))
             {
                 return;
             }
@@ -201,7 +201,7 @@ namespace Heck.Animation.Events
         {
             Quaternion value = points.Interpolate(time, out onLast);
             if (property.Value.HasValue &&
-                Quaternion.Dot(property.Value.Value, value) >= 1)
+                property.Value.Value.EqualsTo(value))
             {
                 return;
             }

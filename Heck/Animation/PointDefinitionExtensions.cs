@@ -9,6 +9,8 @@ namespace Heck.Animation
     {
         private delegate void PointDefinitionHandler<T>(List<object> list, out T value, out float time);
 
+        private delegate bool PointDefinitionComparer<in T>(T val1, T val2);
+
         public static float Interpolate(this PointDefinition<float> pointDefinition, float time)
         {
             return pointDefinition.Interpolate(time, out _);
@@ -66,22 +68,43 @@ namespace Heck.Animation
 
         public static PointDefinition<float> ToPointDefinitionFloat(this List<object> list)
         {
-            return list.ToPointDefinition<float>(HandleFloat);
+            return list.ToPointDefinition<float>(HandleFloat, EqualsTo);
         }
 
         public static PointDefinition<Vector3> ToPointDefinitionVector3(this List<object> list)
         {
-            return list.ToPointDefinition<Vector3>(HandleVector3);
+            return list.ToPointDefinition<Vector3>(HandleVector3, EqualsTo);
         }
 
         public static PointDefinition<Vector4> ToPointDefinitionVector4(this List<object> list)
         {
-            return list.ToPointDefinition<Vector4>(HandleVector4);
+            return list.ToPointDefinition<Vector4>(HandleVector4, EqualsTo);
         }
 
         public static PointDefinition<Quaternion> ToPointDefinitionQuaternion(this List<object> list)
         {
-            return list.ToPointDefinition<Quaternion>(HandleQuaternion);
+            return list.ToPointDefinition<Quaternion>(HandleQuaternion, EqualsTo);
+        }
+
+        // Equals was taken
+        public static bool EqualsTo(this float val1, float val2)
+        {
+            return Mathf.Approximately(val1, val2);
+        }
+
+        public static bool EqualsTo(this Vector3 val1, Vector3 val2)
+        {
+            return val1 == val2;
+        }
+
+        public static bool EqualsTo(this Vector4 val1, Vector4 val2)
+        {
+            return val1 == val2;
+        }
+
+        public static bool EqualsTo(this Quaternion val1, Quaternion val2)
+        {
+            return Quaternion.Dot(val1, val2) >= 1;
         }
 
         private static float HandleInterpolateFloat(List<PointDefinition<float>.PointData> points, int l, int r, float time)
@@ -141,7 +164,7 @@ namespace Heck.Animation
             time = Convert.ToSingle(copiedList[3]);
         }
 
-        private static PointDefinition<T> ToPointDefinition<T>(this List<object> list, PointDefinitionHandler<T> func)
+        private static PointDefinition<T> ToPointDefinition<T>(this List<object> list, PointDefinitionHandler<T> func, PointDefinitionComparer<T> comparer)
             where T : struct
         {
             IEnumerable<List<object>> points = list.FirstOrDefault() is List<object> ? list.Cast<List<object>>() : new[] { list.Append(0).ToList() };
@@ -196,7 +219,22 @@ namespace Heck.Animation
                 pointData.Add(new PointDefinition<T>.PointData(value, time, easing, spline, lerpHSV));
             }
 
-            return new PointDefinition<T>(pointData);
+            int count = pointData.Count;
+            if (count <= 1)
+            {
+                return new PointDefinition<T>(pointData);
+            }
+
+            T firstVal = pointData[0].Point;
+            for (int i = 1; i < count; i++)
+            {
+                if (!comparer(pointData[i].Point, firstVal))
+                {
+                    return new PointDefinition<T>(pointData);
+                }
+            }
+
+            return new PointDefinition<T>(new List<PointDefinition<T>.PointData> { pointData[0] });
         }
 
         private static Vector3 SmoothVectorLerp(List<PointDefinition<Vector3>.PointData> points, int a, int b, float time)
