@@ -79,6 +79,13 @@ namespace NoodleExtensions
         {
             try
             {
+                if (!v2)
+                {
+                    DisableBadCutDirection = customData.Get<bool?>(NOTE_BADCUT_DIRECTION_DISABLE) ?? false;
+                    DisableBadCutSpeed = customData.Get<bool?>(NOTE_BADCUT_SPEED_DISABLE) ?? false;
+                    DisableBadCutSaberType = customData.Get<bool?>(NOTE_BADCUT_SABERTYPE_DISABLE) ?? false;
+                }
+
                 InternalFlipYSide = customData.Get<float?>(INTERNAL_FLIPYSIDE);
                 InternalFlipLineIndex = customData.Get<float?>(INTERNAL_FLIPLINEINDEX);
                 InternalStartNoteLineLayer = customData.Get<float?>(INTERNAL_STARTNOTELINELAYER) ?? 0;
@@ -101,6 +108,12 @@ namespace NoodleExtensions
         internal bool DisableGravity { get; }
 
         internal bool DisableLook { get; }
+
+        internal bool DisableBadCutDirection { get; }
+
+        internal bool DisableBadCutSpeed { get; }
+
+        internal bool DisableBadCutSaberType { get; }
 
         internal float InternalEndRotation { get; set; }
     }

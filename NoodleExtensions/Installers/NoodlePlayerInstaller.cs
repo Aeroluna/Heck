@@ -49,6 +49,7 @@ namespace NoodleExtensions.Installers
             Container.BindInterfacesTo<RemoveFromTrackObjects>().AsSingle();
 
             // Objects
+            Container.BindInterfacesTo<GameNoteCutNoodlifier>().AsSingle();
             Container.BindInterfacesTo<NoteFloorMovementNoodlifier>().AsSingle();
             Container.BindInterfacesTo<NoteInitNoodlifier>().AsSingle();
             Container.BindInterfacesAndSelfTo<NoteJumpNoodlifier>().AsSingle();

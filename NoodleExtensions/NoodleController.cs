@@ -38,6 +38,9 @@ namespace NoodleExtensions
         internal const string DISSOLVE = "dissolve";
         internal const string DISSOLVE_ARROW = "dissolveArrow";
         internal const string FLIP = "flip";
+        internal const string NOTE_BADCUT_DIRECTION_DISABLE = "disableBadCutDirection";
+        internal const string NOTE_BADCUT_SPEED_DISABLE = "disableBadCutSpeed";
+        internal const string NOTE_BADCUT_SABERTYPE_DISABLE = "disableBadCutSaberType";
         internal const string NOTE_GRAVITY_DISABLE = "disableNoteGravity";
         internal const string NOTE_JUMP_SPEED = "noteJumpMovementSpeed";
         internal const string NOTE_LOOK_DISABLE = "disableNoteLook";
