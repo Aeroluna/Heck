@@ -25,6 +25,7 @@ namespace NoodleExtensions
         internal const string V2_WORLD_POSITION_STAYS = "_worldPositionStays";
         internal const string V2_PARENT_TRACK = "_parentTrack";
         internal const string V2_CHILDREN_TRACKS = "_childrenTracks";
+        internal const string V2_PLAYER_TRACK_OBJECT = "_playerTrackObject";
 
         internal const string NOTE_OFFSET = "coordinates";
         internal const string TAIL_NOTE_OFFSET = "tailCoordinates";
@@ -50,6 +51,7 @@ namespace NoodleExtensions
         internal const string WORLD_POSITION_STAYS = "worldPositionStays";
         internal const string PARENT_TRACK = "parentTrack";
         internal const string CHILDREN_TRACKS = "childrenTracks";
+        internal const string PLAYER_TRACK_OBJECT = "playerTrackObject";
 
         internal const string INTERNAL_STARTNOTELINELAYER = "NE_startNoteLineLayer";
         internal const string INTERNAL_TAILSTARTNOTELINELAYER = "NE_tailStartNoteLineLayer";
