@@ -368,7 +368,7 @@ namespace NoodleExtensions
             Track = track;
 
             // DEFAULT TO PLAYER IF NOT SPECIFIED
-            PlayerTrackObject = customData.GetStringToEnum<PlayerTrackObject?>(v2 ? V2_PLAYER_TRACK_OBJECT : PLAYER_TRACK_OBJECT) ?? PlayerTrackObject.ENTIRE_PLAYER;
+            PlayerTrackObject = customData.GetStringToEnum<PlayerTrackObject?>(v2 ? V2_PLAYER_TRACK_OBJECT : PLAYER_TRACK_OBJECT) ?? PlayerTrackObject.Root;
         }
 
         internal Track Track { get; }
