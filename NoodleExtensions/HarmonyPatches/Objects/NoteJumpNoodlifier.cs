@@ -17,6 +17,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private static readonly FieldInfo _threeQuartersMarkReportedField = AccessTools.Field(typeof(NoteJump), "_threeQuartersMarkReported");
         private static readonly MethodInfo _localRotationSetter = AccessTools.PropertySetter(typeof(Transform), nameof(Transform.localRotation));
 
+        private static readonly FieldInfo _missedTimeField = AccessTools.Field(typeof(NoteJump), "_missedTime");
+        private static readonly FieldInfo _beatTimeField = AccessTools.Field(typeof(NoteJump), "_beatTime");
         private static readonly FieldInfo _jumpDurationField = AccessTools.Field(typeof(NoteJump), "_jumpDuration");
         private static readonly FieldInfo _localPositionField = AccessTools.Field(typeof(NoteJump), "_localPosition");
         private static readonly MethodInfo _getTransform = AccessTools.PropertyGetter(typeof(Component), nameof(Component.transform));
@@ -27,6 +29,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private static readonly FieldInfo _rotatedObjectField = AccessTools.Field(typeof(NoteJump), "_rotatedObject");
         private static readonly FieldInfo _inverseWorldRotationField = AccessTools.Field(typeof(NoteJump), "_inverseWorldRotation");
         private static readonly FieldAccessor<PlayerTransforms, Transform>.Accessor _headTransformAccessor = FieldAccessor<PlayerTransforms, Transform>.GetAccessor("_headTransform");
+
+        private static readonly MethodInfo _noteMissedTimeAdjust = AccessTools.Method(typeof(NoteJumpNoodlifier), nameof(NoteMissedTimeAdjust));
 
         private readonly CodeInstruction _doNoteLook;
         private readonly CodeInstruction _noteJumpTimeAdjust;
@@ -55,7 +59,12 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             InstanceTranspilers.DisposeDelegate(_getDefinitePosition);
         }
 
-        internal float NoteJumpTimeAdjust(float original, float jumpDuration)
+        private static float NoteMissedTimeAdjust(float beatTime, float jumpDuration, float num)
+        {
+            return num - (beatTime - (jumpDuration * 0.5f));
+        }
+
+        private float NoteJumpTimeAdjust(float original, float jumpDuration)
         {
             float? time = _noteUpdateNoodlifier.NoodleData?.GetTimeProperty();
             if (time.HasValue)
@@ -169,6 +178,23 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                     new CodeInstruction(OpCodes.Ldarg_0),
                     new CodeInstruction(OpCodes.Ldfld, _jumpDurationField),
                     _noteJumpTimeAdjust)
+
+                // time adjust miss time
+                /*
+                 * -- if (songTime >= this._missedTime && !this._missedMarkReported)
+                 * ++ if (NoteMissedTimeAdjust(_beatTime, _jumpDuration, num) >= this._missedTime && !this._missedMarkReported)
+                 */
+                .MatchForward(false, new CodeMatch(OpCodes.Ldfld, _missedTimeField))
+                .Advance(-1)
+                .SetOpcodeAndAdvance(OpCodes.Pop)
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _beatTimeField),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _jumpDurationField),
+                    new CodeInstruction(OpCodes.Ldloc_0),
+                    new CodeInstruction(OpCodes.Call, _noteMissedTimeAdjust),
+                    new CodeInstruction(OpCodes.Ldarg_0))
 
                 // final position
                 /*
