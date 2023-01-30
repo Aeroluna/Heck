@@ -84,12 +84,7 @@ namespace Chroma.EnvironmentEnhancement
             bool collision = customData.Get<bool?>(_v2 ? V2_COLLISION : COLLISION) ?? false;
 
             object materialData = customData.GetRequired<object>(_v2 ? V2_MATERIAL : MATERIAL);
-            MaterialsManager.MaterialInfo materialInfo = materialData switch
-            {
-                string name => _materialsManager.MaterialInfos[name],
-                CustomData data => _materialsManager.CreateMaterialInfo(data),
-                _ => throw new InvalidOperationException($"Could not read [{MATERIAL}].")
-            };
+            MaterialsManager.MaterialInfo materialInfo = _materialsManager.GetMaterial(materialData);
             ShaderType shaderType = materialInfo.ShaderType;
 
             PrimitiveType primitiveType = geometryType switch
