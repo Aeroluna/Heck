@@ -76,6 +76,7 @@ namespace Chroma
             : base(original)
         {
             SpawnEffect = original.SpawnEffect;
+            DisableDebris = original.DisableDebris;
         }
 
         internal bool? SpawnEffect { get; }
