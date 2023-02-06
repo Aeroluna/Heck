@@ -74,6 +74,7 @@ namespace Chroma.Installers
                 Container.BindInterfacesTo<LightRotationChromafier>().AsSingle();
                 Container.BindInterfacesTo<RingRotationChromafier>().AsSingle();
                 Container.BindInterfacesTo<RingStepChromafier>().AsSingle();
+                Container.BindInterfacesTo<MovementBeatmapChromafier>().AsSingle();
                 Container.Bind<ChromaRingsRotationEffect.Factory>().AsSingle();
 
                 // Disable Spawn Effect
