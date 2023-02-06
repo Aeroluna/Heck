@@ -44,7 +44,7 @@ namespace Heck.Animation.Events
             float duration = 60f * heckData.Duration / _bpmController.currentBpm; // Convert to real time;
             Functions easing = heckData.Easing;
             int repeat = heckData.Repeat;
-            bool noDuration = duration == 0 || customEventData.time + duration < _audioTimeSource.songTime;
+            bool noDuration = duration == 0 || customEventData.time + (duration * (repeat + 1)) < _audioTimeSource.songTime;
             foreach (HeckCoroutineEventData.CoroutineInfo coroutineInfo in heckData.CoroutineInfos)
             {
                 BaseProperty property = coroutineInfo.Property;
