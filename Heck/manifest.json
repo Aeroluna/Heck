@@ -3,7 +3,7 @@
   "id": "_Heck",
   "name": "Heck",
   "author": "Aeroluna",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "Library for Aeroluna's mods.",
   "gameVersion": "1.26.1",
   "dependsOn": {
