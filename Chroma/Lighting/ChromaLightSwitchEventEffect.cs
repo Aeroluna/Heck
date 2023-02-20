@@ -38,6 +38,7 @@ namespace Chroma.Lighting
         private static readonly FieldAccessor<MultipliedColorSO, Color>.Accessor _multiplierColorAccessor = FieldAccessor<MultipliedColorSO, Color>.GetAccessor("_multiplierColor");
 
         private readonly LightWithIdManager _lightManager;
+        private readonly LightIDTableManager _tableManager;
         private readonly SongTimeTweeningManager _tweeningManager;
         private readonly BeatmapCallbacksController _callbacksController;
         private readonly ColorManager _colorManager;
@@ -65,6 +66,7 @@ namespace Chroma.Lighting
         private ChromaLightSwitchEventEffect(
             LightSwitchEventEffect lightSwitchEventEffect,
             LightWithIdManager lightManager,
+            LightIDTableManager tableManager,
             SongTimeTweeningManager tweeningManager,
             LightColorizerManager lightColorizerManager,
             BeatmapCallbacksController callbacksController,
@@ -74,6 +76,7 @@ namespace Chroma.Lighting
         {
             LightSwitchEventEffect = lightSwitchEventEffect;
             _lightManager = lightManager;
+            _tableManager = tableManager;
             _tweeningManager = tweeningManager;
             _callbacksController = callbacksController;
             _colorManager = colorManager;
@@ -398,7 +401,7 @@ namespace Chroma.Lighting
                     color,
                     lightWithId,
                     _lightManager,
-                    LightIDTableManager.GetActiveTableValueReverse(LightsID, id) ?? 0);
+                    _tableManager.GetActiveTableValueReverse(LightsID, id) ?? 0);
 
                 ColorTweens[lightWithId] = tween;
                 tween.ForceOnUpdate();

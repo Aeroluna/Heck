@@ -15,12 +15,17 @@ namespace Chroma.HarmonyPatches.Colorizer.Initialize
         private readonly Dictionary<ILightWithId, int> _requestedIds = new();
         private readonly HashSet<ILightWithId> _needToRegister = new();
         private readonly LightColorizerManager _colorizerManager;
+        private readonly LightIDTableManager _tableManager;
         private LightWithIdManager _lightWithIdManager;
 
-        private LightWithIdRegisterer(LightColorizerManager colorizerManager, LightWithIdManager lightWithIdManager)
+        private LightWithIdRegisterer(
+            LightColorizerManager colorizerManager,
+            LightWithIdManager lightWithIdManager,
+            LightIDTableManager tableManager)
         {
             _colorizerManager = colorizerManager;
             _lightWithIdManager = lightWithIdManager;
+            _tableManager = tableManager;
         }
 
         internal void SetRequestedId(ILightWithId lightWithId, int id)
@@ -39,7 +44,7 @@ namespace Chroma.HarmonyPatches.Colorizer.Initialize
             List<ILightWithId> lights = _lightsAccessor(ref _lightWithIdManager)[lightId];
             int index = lights.FindIndex(n => n == lightWithId);
             lights[index] = null!; // TODO: handle null
-            LightIDTableManager.UnregisterIndex(lightId, index);
+            _tableManager.UnregisterIndex(lightId, index);
             _colorizerManager.CreateLightColorizerContractByLightID(lightId, n => n.ChromaLightSwitchEventEffect.UnregisterLight(lightWithId));
             lightWithId.__SetIsUnRegistered();
         }
@@ -90,7 +95,7 @@ namespace Chroma.HarmonyPatches.Colorizer.Initialize
             if (_needToRegister.Remove(lightWithId))
             {
                 int? tableId = _requestedIds.TryGetValue(lightWithId, out int value) ? value : null;
-                LightIDTableManager.RegisterIndex(lightId, index, tableId);
+                _tableManager.RegisterIndex(lightId, index, tableId);
             }
 
             // this also colors the light

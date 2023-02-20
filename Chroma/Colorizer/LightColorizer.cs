@@ -145,6 +145,7 @@ namespace Chroma.Colorizer
         private static readonly FieldAccessor<LightWithIdManager, List<ILightWithId>?[]>.Accessor _lightsAccessor = FieldAccessor<LightWithIdManager, List<ILightWithId>?[]>.GetAccessor("_lights");
 
         private readonly LightColorizerManager _colorizerManager;
+        private readonly LightIDTableManager _tableManager;
 
         private readonly int _lightId;
 
@@ -156,10 +157,12 @@ namespace Chroma.Colorizer
         private LightColorizer(
             ChromaLightSwitchEventEffect chromaLightSwitchEventEffect,
             LightColorizerManager colorizerManager,
-            LightWithIdManager lightManager)
+            LightWithIdManager lightManager,
+            LightIDTableManager tableManager)
         {
             ChromaLightSwitchEventEffect = chromaLightSwitchEventEffect;
             _colorizerManager = colorizerManager;
+            _tableManager = tableManager;
 
             _lightId = chromaLightSwitchEventEffect.LightsID;
 
@@ -309,7 +312,7 @@ namespace Chroma.Colorizer
 
         public IEnumerable<ILightWithId> GetLightWithIds(IEnumerable<int> ids)
         {
-            IEnumerable<int> newIds = ids.Select(n => LightIDTableManager.GetActiveTableValue(_lightId, n) ?? n);
+            IEnumerable<int> newIds = ids.Select(n => _tableManager.GetActiveTableValue(_lightId, n) ?? n);
 
             return newIds.Select(id => Lights.ElementAtOrDefault(id)).Where(lightWithId => lightWithId != null).ToList();
         }

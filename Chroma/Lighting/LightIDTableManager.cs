@@ -4,22 +4,91 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Chroma.Settings;
-using HarmonyLib;
 using IPA.Logging;
 using IPA.Utilities;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Zenject;
 
 namespace Chroma.Lighting
 {
-    internal static class LightIDTableManager
+    [UsedImplicitly]
+    internal class LightIDTableManager : IInitializable
     {
         private static readonly Dictionary<string, Dictionary<int, Dictionary<int, int>>> _lightIDTable = new();
 
-        private static Dictionary<int, Dictionary<int, int>>? _activeTable;
+        private static readonly Dictionary<int, Dictionary<int, int>> _defaultTable = new()
+        {
+            { 0, new Dictionary<int, int>() },
+            { 1, new Dictionary<int, int>() },
+            { 2, new Dictionary<int, int>() },
+            { 3, new Dictionary<int, int>() },
+            { 4, new Dictionary<int, int>() },
+            { 5, new Dictionary<int, int>() },
+            { 6, new Dictionary<int, int>() },
+            { 7, new Dictionary<int, int>() },
+            { 8, new Dictionary<int, int>() },
+            { 9, new Dictionary<int, int>() }
+        };
 
-        private static HashSet<Tuple<int, int>> _failureLog = new();
+        private static Dictionary<int, Dictionary<int, int>>? _loadedTable;
 
-        internal static int? GetActiveTableValue(int lightID, int id)
+        private readonly HashSet<Tuple<int, int>> _failureLog = new();
+
+        private Dictionary<int, Dictionary<int, int>>? _activeTable;
+
+        public void Initialize()
+        {
+            _activeTable = _loadedTable?.ToDictionary(n => n.Key, n => n.Value.ToDictionary(m => m.Key, m => m.Value));
+        }
+
+        internal static void InitTable()
+        {
+            const string tableNamespace = "Chroma.LightIDTables.";
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            IEnumerable<string> tableNames = assembly.GetManifestResourceNames().Where(n => n.StartsWith(tableNamespace));
+            foreach (string tableName in tableNames)
+            {
+                using JsonReader reader = new JsonTextReader(new StreamReader(
+                    assembly.GetManifestResourceStream(tableName)
+                    ?? throw new InvalidOperationException($"Failed to retrieve {tableName}.")));
+                Dictionary<int, Dictionary<int, int>> typeTable = new();
+
+                JsonSerializer serializer = new();
+                Dictionary<string, Dictionary<string, int>> rawDict =
+                    serializer.Deserialize<Dictionary<string, Dictionary<string, int>>>(reader)
+                    ?? throw new InvalidOperationException($"Failed to deserialize ID table [{tableName}].");
+
+                foreach ((string key, Dictionary<string, int> value) in rawDict)
+                {
+                    typeTable[int.Parse(key)] = value.ToDictionary(n => int.Parse(n.Key), n => n.Value);
+                }
+
+                string tableNameWithoutExtension = Path.GetFileNameWithoutExtension(
+                    tableName.Remove(
+                        tableName.IndexOf(tableNamespace, StringComparison.Ordinal),
+                        tableNamespace.Length));
+                _lightIDTable.Add(tableNameWithoutExtension, typeTable);
+            }
+        }
+
+        internal static void SetEnvironment(string environmentName)
+        {
+            if (_lightIDTable.TryGetValue(environmentName, out Dictionary<int, Dictionary<int, int>> selectedTable))
+            {
+                ////_activeTable = activeTable.ToDictionary(n => n.Key, n => n.Value.ToDictionary(m => m.Key, m => m.Value));
+                _loadedTable = selectedTable;
+            }
+            else
+            {
+                ////_activeTable = new Dictionary<int, Dictionary<int, int>>();
+                ////Enumerable.Range(0, 10).Do(n => _activeTable[n] = new Dictionary<int, int>());
+                _loadedTable = _defaultTable;
+                Log.Logger.Log($"Table not found for: {environmentName}", Logger.Level.Warning);
+            }
+        }
+
+        internal int? GetActiveTableValue(int lightID, int id)
         {
             if (_activeTable != null)
             {
@@ -45,7 +114,7 @@ namespace Chroma.Lighting
             return null;
         }
 
-        internal static int? GetActiveTableValueReverse(int lightID, int id)
+        internal int? GetActiveTableValueReverse(int lightID, int id)
         {
             if (_activeTable != null)
             {
@@ -71,23 +140,7 @@ namespace Chroma.Lighting
             return null;
         }
 
-        internal static void SetEnvironment(string environmentName)
-        {
-            if (_lightIDTable.TryGetValue(environmentName, out Dictionary<int, Dictionary<int, int>> activeTable))
-            {
-                _activeTable = activeTable.ToDictionary(n => n.Key, n => n.Value.ToDictionary(m => m.Key, m => m.Value));
-            }
-            else
-            {
-                _activeTable = new Dictionary<int, Dictionary<int, int>>();
-                Enumerable.Range(0, 10).Do(n => _activeTable[n] = new Dictionary<int, int>());
-                Log.Logger.Log($"Table not found for: {environmentName}", Logger.Level.Warning);
-            }
-
-            _failureLog = new HashSet<Tuple<int, int>>();
-        }
-
-        internal static void RegisterIndex(int lightID, int index, int? requestedKey)
+        internal void RegisterIndex(int lightID, int index, int? requestedKey)
         {
             if (_activeTable != null)
             {
@@ -132,7 +185,7 @@ namespace Chroma.Lighting
             }
         }
 
-        internal static void UnregisterIndex(int lightID, int index)
+        internal void UnregisterIndex(int lightID, int index)
         {
             if (_activeTable != null)
             {
@@ -164,36 +217,6 @@ namespace Chroma.Lighting
             else
             {
                 Log.Logger.Log("No active table, could not unregister index.", Logger.Level.Warning);
-            }
-        }
-
-        internal static void InitTable()
-        {
-            const string tableNamespace = "Chroma.LightIDTables.";
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            IEnumerable<string> tableNames = assembly.GetManifestResourceNames().Where(n => n.StartsWith(tableNamespace));
-            foreach (string tableName in tableNames)
-            {
-                using JsonReader reader = new JsonTextReader(new StreamReader(
-                    assembly.GetManifestResourceStream(tableName)
-                    ?? throw new InvalidOperationException($"Failed to retrieve {tableName}.")));
-                Dictionary<int, Dictionary<int, int>> typeTable = new();
-
-                JsonSerializer serializer = new();
-                Dictionary<string, Dictionary<string, int>> rawDict =
-                    serializer.Deserialize<Dictionary<string, Dictionary<string, int>>>(reader)
-                    ?? throw new InvalidOperationException($"Failed to deserialize ID table [{tableName}].");
-
-                foreach ((string key, Dictionary<string, int> value) in rawDict)
-                {
-                    typeTable[int.Parse(key)] = value.ToDictionary(n => int.Parse(n.Key), n => n.Value);
-                }
-
-                string tableNameWithoutExtension = Path.GetFileNameWithoutExtension(
-                    tableName.Remove(
-                        tableName.IndexOf(tableNamespace, StringComparison.Ordinal),
-                        tableNamespace.Length));
-                _lightIDTable.Add(tableNameWithoutExtension, typeTable);
             }
         }
     }

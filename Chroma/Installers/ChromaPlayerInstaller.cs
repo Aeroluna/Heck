@@ -45,6 +45,7 @@ namespace Chroma.Installers
                 Container.BindInterfacesTo<ObjectInitializer>().AsSingle();
 
                 // Colorizer Initialize
+                Container.BindInterfacesAndSelfTo<LightIDTableManager>().AsSingle();
                 Container.BindInterfacesAndSelfTo<LightWithIdRegisterer>().AsSingle();
                 Container.BindInterfacesTo<LightColorizerInitialize>().AsSingle();
                 Container.BindInterfacesTo<ParticleColorizerInitialize>().AsSingle();
