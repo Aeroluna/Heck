@@ -58,6 +58,7 @@ namespace Chroma.HarmonyPatches
                     n.value,
                     n.floatValue,
                     n.customData)));
+                nonreadonlyBeatmapData.ProcessAndSortBeatmapData();
             }
         }
     }
