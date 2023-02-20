@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
 using IPA.Utilities;
@@ -11,7 +12,6 @@ using UnityEngine;
 
 namespace NoodleExtensions.HarmonyPatches.SmallFixes
 {
-    [HeckPatch(PatchType.Features)]
     internal class SaberPlayerMovementFix : IAffinity, IDisposable
     {
         private static readonly FieldAccessor<PlayerTransforms, Transform>.Accessor _originAccessor =
@@ -23,13 +23,14 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         private static readonly Dictionary<IBladeMovementData, SaberMovementData> _worldMovementData = new();
 
         private readonly Transform _origin;
-
         private readonly CodeInstruction _computeWorld;
+        private readonly bool _local;
 
-        private SaberPlayerMovementFix(PlayerTransforms playerTransforms)
+        private SaberPlayerMovementFix(PlayerTransforms playerTransforms, IReadonlyBeatmapData beatmapData)
         {
             _origin = _originAccessor(ref playerTransforms);
             _computeWorld = InstanceTranspilers.EmitInstanceDelegate<Func<Vector3, Vector3>>(ComputeWorld);
+            _local = ((CustomBeatmapData)beatmapData).beatmapCustomData.Get<bool?>(NoodleController.TRAIL_LOCAL_SPACE) ?? false;
         }
 
         public void Dispose()
@@ -37,20 +38,32 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
             InstanceTranspilers.DisposeDelegate(_computeWorld);
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(SaberTrail), nameof(SaberTrail.Setup))]
-        private static void CreateSaberMovementData(ref IBladeMovementData movementData)
+        [AffinityPrefix]
+        [AffinityPatch(typeof(SaberTrail), nameof(SaberTrail.Setup))]
+        private void CreateSaberMovementData(ref IBladeMovementData movementData, SaberTrail __instance, TrailRenderer ____trailRenderer)
         {
+            if (_local)
+            {
+                Log.Logger.Log("Parented saber trail to local space.");
+                ____trailRenderer.transform.SetParent(__instance.transform.parent.parent.parent, false);
+                return;
+            }
+
             // use world movement data for saber trail
             SaberMovementData world = new();
             _worldMovementData.Add(movementData, world);
             movementData = world;
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(SaberTrail), nameof(SaberTrail.OnDestroy))]
-        private static void CleanupWorldMovement(IBladeMovementData ____movementData)
+        [AffinityPostfix]
+        [AffinityPatch(typeof(SaberTrail), nameof(SaberTrail.OnDestroy))]
+        private void CleanupWorldMovement(IBladeMovementData ____movementData)
         {
+            if (_local)
+            {
+                return;
+            }
+
             _worldMovementData
                 .Where(n => n.Value == ____movementData)
                 .Select(n => n.Key)
@@ -64,6 +77,11 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         [AffinityPatch(typeof(SaberMovementData), nameof(SaberMovementData.AddNewData))]
         private void ConvertToWorld(SaberMovementData __instance, ref Vector3 topPos, ref Vector3 bottomPos, float time)
         {
+            if (_local)
+            {
+                return;
+            }
+
             if (_worldMovementData.ContainsValue(__instance))
             {
                 return;
@@ -84,6 +102,11 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         [AffinityPatch(typeof(SaberMovementData), nameof(SaberMovementData.lastAddedData), AffinityMethodType.Getter)]
         private void ConvertToLocal(SaberMovementData __instance, ref BladeMovementDataElement __result)
         {
+            if (_local)
+            {
+                return;
+            }
+
             if (_worldMovementData.ContainsValue(__instance))
             {
                 return;
@@ -97,6 +120,11 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         [AffinityPatch(typeof(SaberSwingRatingCounter), nameof(SaberSwingRatingCounter.ProcessNewData))]
         private void ConvertProcessorToLocal(ref BladeMovementDataElement newData, ref BladeMovementDataElement prevData)
         {
+            if (_local)
+            {
+                return;
+            }
+
             newData.topPos = _origin.TransformPoint(newData.topPos);
             newData.bottomPos = _origin.TransformPoint(newData.bottomPos);
             prevData.topPos = _origin.TransformPoint(prevData.topPos);
@@ -107,6 +135,11 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         [AffinityPatch(typeof(SaberMovementData), nameof(SaberMovementData.ComputeAdditionalData))]
         private IEnumerable<CodeInstruction> ComputeWorldTranspiler(IEnumerable<CodeInstruction> instructions)
         {
+            if (_local)
+            {
+                return instructions;
+            }
+
             return new CodeMatcher(instructions)
                 /*
                  * -- Vector3 topPos2 = this._data[num2].topPos;

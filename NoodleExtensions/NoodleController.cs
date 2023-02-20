@@ -53,6 +53,8 @@ namespace NoodleExtensions
         internal const string CHILDREN_TRACKS = "childrenTracks";
         internal const string PLAYER_TRACK_OBJECT = "target";
 
+        internal const string TRAIL_LOCAL_SPACE = "_localSpaceSaberTrail";
+
         internal const string INTERNAL_STARTNOTELINELAYER = "NE_startNoteLineLayer";
         internal const string INTERNAL_TAILSTARTNOTELINELAYER = "NE_tailStartNoteLineLayer";
         internal const string INTERNAL_FLIPYSIDE = "NE_flipYSide";
