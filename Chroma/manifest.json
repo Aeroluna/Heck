@@ -5,7 +5,7 @@
   "gameVersion": "1.26.0",
   "id": "Chroma",
   "name": "Chroma",
-  "version": "2.7.3",
+  "version": "2.7.4",
   "dependsOn": {
     "_Heck": "^1.4.7",
     "BeatSaberMarkupLanguage": "^1.6.3",
