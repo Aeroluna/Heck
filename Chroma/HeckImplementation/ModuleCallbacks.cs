@@ -63,43 +63,43 @@ namespace Chroma
             EnvironmentInfoSO environmentInfo = difficultyBeatmap.GetEnvironmentInfo();
             EnvironmentTypeSO type = environmentInfo.environmentType;
 
-            SavedEnvironment? savedEnvironment = ChromaConfig.Instance.CustomEnvironment;
-            if (ChromaConfig.Instance.CustomEnvironmentEnabled && savedEnvironment != null)
-            {
-                EnvironmentInfoSO overrideEnv = CustomLevelLoaderExposer.CustomLevelLoader.LoadEnvironmentInfo(savedEnvironment.EnvironmentName, type);
-                LightIDTableManager.SetEnvironment(overrideEnv.serializedName);
-                OverrideEnvironmentSettings newSettings = new()
-                {
-                    overrideEnvironments = true
-                };
-                newSettings.SetEnvironmentInfoForType(type, overrideEnv);
-                moduleArgs.OverrideEnvironmentSettings = newSettings;
-                return true;
-            }
-
-            if (!ChromaConfig.Instance.EnvironmentEnhancementsDisabled)
+            CustomBeatmapSaveData? customBeatmapSaveData = difficultyBeatmap.GetBeatmapSaveData();
+            if (!ChromaConfig.Instance.EnvironmentEnhancementsDisabled &&
+                customBeatmapSaveData != null &&
+                ((customBeatmapSaveData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
+                 (customBeatmapSaveData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false) ||
+                 (customBeatmapSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false)))
             {
                 // TODO: this logic should probably not be in the condition
                 if (dependency)
                 {
                     try
                     {
-                        CustomBeatmapSaveData? customBeatmapSaveData = difficultyBeatmap.GetBeatmapSaveData();
-                        if (customBeatmapSaveData != null &&
-                            ((customBeatmapSaveData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
-                             (customBeatmapSaveData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false) ||
-                             (customBeatmapSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false)))
-                        {
-                            LightIDTableManager.SetEnvironment(environmentInfo.serializedName);
-                            moduleArgs.OverrideEnvironmentSettings = null;
+                        LightIDTableManager.SetEnvironment(environmentInfo.serializedName);
+                        moduleArgs.OverrideEnvironmentSettings = null;
 
-                            return true;
-                        }
+                        return true;
                     }
                     catch (Exception e)
                     {
                         Log.Logger.Log(e, Logger.Level.Error);
                     }
+                }
+            }
+            else
+            {
+                SavedEnvironment? savedEnvironment = ChromaConfig.Instance.CustomEnvironment;
+                if (ChromaConfig.Instance.CustomEnvironmentEnabled && savedEnvironment != null)
+                {
+                    EnvironmentInfoSO overrideEnv = CustomLevelLoaderExposer.CustomLevelLoader.LoadEnvironmentInfo(savedEnvironment.EnvironmentName, type);
+                    LightIDTableManager.SetEnvironment(overrideEnv.serializedName);
+                    OverrideEnvironmentSettings newSettings = new()
+                    {
+                        overrideEnvironments = true
+                    };
+                    newSettings.SetEnvironmentInfoForType(type, overrideEnv);
+                    moduleArgs.OverrideEnvironmentSettings = newSettings;
+                    return true;
                 }
             }
 

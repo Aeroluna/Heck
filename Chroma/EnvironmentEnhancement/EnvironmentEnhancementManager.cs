@@ -106,7 +106,7 @@ namespace Chroma.EnvironmentEnhancement
                 }
             }
 
-            if (environmentData == null)
+            if (environmentData == null && ChromaConfig.Instance.CustomEnvironmentEnabled)
             {
                 // custom environment
                 v2 = false;
@@ -138,7 +138,7 @@ namespace Chroma.EnvironmentEnhancement
                 CustomData? geometryData = gameObjectData.Get<CustomData?>(v2 ? V2_GEOMETRY : GEOMETRY);
                 if (geometryData != null)
                 {
-                    GameObjectInfo newObjectInfo = new(_geometryFactory.Create(geometryData));
+                    GameObjectInfo newObjectInfo = new(_geometryFactory.Create(geometryData, v2));
                     allGameObjectInfos.Add(newObjectInfo);
                     foundObjects = new List<GameObjectInfo> { newObjectInfo };
                     if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
