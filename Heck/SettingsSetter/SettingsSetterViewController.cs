@@ -38,8 +38,9 @@ namespace Heck.SettingsSetter
         private MainSystemInit _mainSystemInit = null!;
         private MainSettingsModelSO _mainSettings = null!;
         private ColorSchemesSettings _colorSchemesSettings = null!;
+        private SoloFreePlayFlowCoordinator _soloFreePlayFlowCoordinator = null!;
+        private PartyFreePlayFlowCoordinator _partyFreePlayFlowCoordinator = null!;
         private GameServerLobbyFlowCoordinator _gameServerLobbyFlowCoordinator = null!;
-        private SinglePlayerLevelSelectionFlowCoordinator _singlePlayerLevelSelectionFlowCoordinator = null!;
         private PlayerDataModel _playerDataModel = null!;
         private LobbyGameStateController _lobbyGameStateController = null!;
 
@@ -389,7 +390,7 @@ namespace Heck.SettingsSetter
                         }
                         else
                         {
-                            _activeFlowCoordinator = _singlePlayerLevelSelectionFlowCoordinator;
+                            _activeFlowCoordinator = _soloFreePlayFlowCoordinator.isActivated ? _soloFreePlayFlowCoordinator : _partyFreePlayFlowCoordinator;
                             _presentViewController(_activeFlowCoordinator, this, null, AnimationDirection.Horizontal, false);
                         }
 
@@ -532,6 +533,8 @@ namespace Heck.SettingsSetter
             GameplaySetupViewController gameplaySetupViewController,
             MenuTransitionsHelper menuTransitionsHelper,
             PlayerDataModel playerDataModel,
+            SoloFreePlayFlowCoordinator soloFreePlayFlowCoordinator,
+            PartyFreePlayFlowCoordinator partyFreePlayFlowCoordinator,
             GameServerLobbyFlowCoordinator gameServerLobbyFlowCoordinator,
             ILobbyGameStateController lobbyGameStateController)
         {
@@ -539,7 +542,8 @@ namespace Heck.SettingsSetter
             _menuTransitionsHelper = menuTransitionsHelper;
             _playerDataModel = playerDataModel;
             _gameServerLobbyFlowCoordinator = gameServerLobbyFlowCoordinator;
-            _singlePlayerLevelSelectionFlowCoordinator = Resources.FindObjectsOfTypeAll<SinglePlayerLevelSelectionFlowCoordinator>().First();
+            _soloFreePlayFlowCoordinator = soloFreePlayFlowCoordinator;
+            _partyFreePlayFlowCoordinator = partyFreePlayFlowCoordinator;
             _lobbyGameStateController = (LobbyGameStateController)lobbyGameStateController;
             _mainSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().First();
             _mainSystemInit = Resources.FindObjectsOfTypeAll<MainSystemInit>().First();
