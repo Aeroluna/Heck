@@ -61,7 +61,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
         private static float NoteMissedTimeAdjust(float beatTime, float jumpDuration, float num)
         {
-            return num - (beatTime - (jumpDuration * 0.5f));
+            return num + (beatTime - (jumpDuration * 0.5f));
         }
 
         private float NoteJumpTimeAdjust(float original, float jumpDuration)
