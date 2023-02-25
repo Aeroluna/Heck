@@ -1,4 +1,5 @@
 ﻿using Chroma.EnvironmentEnhancement;
+using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.Settings;
 using JetBrains.Annotations;
 using Zenject;
@@ -20,6 +21,7 @@ namespace Chroma.Installers
             Container.BindInstance(_config);
             Container.Bind<ChromaSettingsUI>().AsSingle().NonLazy();
 
+            Container.Bind<SavedEnvironmentLoader>().AsSingle();
             Container.Bind<EnvironmentMaterialsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Container.Bind<CustomLevelLoaderExposer>().AsSingle().NonLazy();

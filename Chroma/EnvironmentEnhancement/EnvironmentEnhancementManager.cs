@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Chroma.EnvironmentEnhancement.Component;
+using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.HarmonyPatches.EnvironmentComponent;
 using Chroma.Settings;
 using CustomJSONData.CustomBeatmap;
@@ -42,6 +43,7 @@ namespace Chroma.EnvironmentEnhancement
         private readonly ComponentCustomizer _componentCustomizer;
         private readonly TransformControllerFactory _controllerFactory;
         private readonly Config _config;
+        private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 
         private EnvironmentEnhancementManager(
             IReadonlyBeatmapData beatmapData,
@@ -54,7 +56,8 @@ namespace Chroma.EnvironmentEnhancement
             DuplicateInitializer duplicateInitializer,
             ComponentCustomizer componentCustomizer,
             TransformControllerFactory controllerFactory,
-            Config config)
+            Config config,
+            SavedEnvironmentLoader savedEnvironmentLoader)
         {
             _beatmapData = (CustomBeatmapData)beatmapData;
             _tracks = tracks;
@@ -67,6 +70,7 @@ namespace Chroma.EnvironmentEnhancement
             _componentCustomizer = componentCustomizer;
             _controllerFactory = controllerFactory;
             _config = config;
+            _savedEnvironmentLoader = savedEnvironmentLoader;
         }
 
         private static void GetChildRecursive(Transform gameObject, ref List<Transform> children)
@@ -119,7 +123,7 @@ namespace Chroma.EnvironmentEnhancement
             {
                 // custom environment
                 v2 = false;
-                environmentData = _config.CustomEnvironment?.Environment;
+                environmentData = _savedEnvironmentLoader.SavedEnvironment?.Environment;
             }
 
             if (environmentData == null)

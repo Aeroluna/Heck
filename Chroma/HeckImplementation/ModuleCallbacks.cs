@@ -33,7 +33,7 @@ namespace Chroma
             bool legacyOverride = difficultyBeatmap is CustomDifficultyBeatmap { beatmapSaveData: CustomBeatmapSaveData customBeatmapSaveData }
                                   && customBeatmapSaveData.basicBeatmapEvents.Any(n => n.value >= LegacyLightHelper.RGB_INT_OFFSET);
 
-            bool customEnvironment = Config.Instance.CustomEnvironmentEnabled && (Config.Instance.CustomEnvironment?.Features.UseChromaEvents ?? false);
+            bool customEnvironment = Config.Instance.CustomEnvironmentEnabled && (SavedEnvironmentLoader.Instance.SavedEnvironment?.Features.UseChromaEvents ?? false);
 
             // ReSharper disable once InvertIf
             if (legacyOverride)
@@ -88,7 +88,7 @@ namespace Chroma
             }
             else
             {
-                SavedEnvironment? savedEnvironment = Config.Instance.CustomEnvironment;
+                SavedEnvironment? savedEnvironment = SavedEnvironmentLoader.Instance.SavedEnvironment;
                 if (Config.Instance.CustomEnvironmentEnabled && savedEnvironment != null)
                 {
                     EnvironmentInfoSO overrideEnv = CustomLevelLoaderExposer.CustomLevelLoader.LoadEnvironmentInfo(savedEnvironment.EnvironmentName, type);

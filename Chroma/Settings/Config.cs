@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.Extras;
 using Heck.SettingsSetter;
-using IPA.Config.Data;
 using IPA.Config.Stores;
-using IPA.Config.Stores.Attributes;
 using JetBrains.Annotations;
 using static Chroma.ChromaController;
 using static Chroma.Settings.ChromaSettableSettings;
@@ -48,7 +44,7 @@ namespace Chroma.Settings
             _instance = this;
         }
 
-        public static Config Instance => _instance ?? throw new InvalidOperationException("ChromaConfig instance not yet created.");
+        public static Config Instance => _instance ?? throw new InvalidOperationException("Chroma Config instance not yet created.");
 
 #pragma warning disable CA1822
         public bool ChromaEventsDisabled
@@ -89,24 +85,10 @@ namespace Chroma.Settings
             set => CustomEnvironmentEnabledSetting.Value = value;
         }
 
-        [UseConverter(typeof(SavedEnvironmentConverter))]
-        public SavedEnvironment? CustomEnvironment { get; set; }
+        public string? CustomEnvironment { get; set; }
 #pragma warning restore CA1822
 
         [UsedImplicitly]
         public bool PrintEnvironmentEnhancementDebug { get; set; }
-
-        public class SavedEnvironmentConverter : ValueConverter<SavedEnvironment>
-        {
-            public override Value ToValue(SavedEnvironment? obj, object parent)
-            {
-                return new Text(obj?.FileName ?? "null");
-            }
-
-            public override SavedEnvironment? FromValue(Value? value, object parent)
-            {
-                return SavedEnvironmentLoader.Environments.FirstOrDefault(n => n?.FileName == ((Text?)value)?.Value);
-            }
-        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.Settings;
 using CustomJSONData.CustomBeatmap;
 using SiraUtil.Affinity;
@@ -10,10 +11,12 @@ namespace Chroma.HarmonyPatches
     internal class CustomEnvironmentLoading : IAffinity
     {
         private readonly Config _config;
+        private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 
-        private CustomEnvironmentLoading(Config config)
+        private CustomEnvironmentLoading(Config config, SavedEnvironmentLoader savedEnvironmentLoader)
         {
             _config = config;
+            _savedEnvironmentLoader = savedEnvironmentLoader;
         }
 
         [AffinityPrefix]
@@ -33,7 +36,7 @@ namespace Chroma.HarmonyPatches
                 return;
             }
 
-            EnvironmentEffectsFilterPreset? forcedPreset = _config.CustomEnvironment?.Features.ForcedPreset;
+            EnvironmentEffectsFilterPreset? forcedPreset = _savedEnvironmentLoader.SavedEnvironment?.Features.ForcedPreset;
             if (forcedPreset.HasValue)
             {
                 environmentEffectsFilterPreset = forcedPreset.Value;
@@ -44,7 +47,7 @@ namespace Chroma.HarmonyPatches
                 }
             }
 
-            List<CustomBeatmapSaveData.BasicEventData>? basicEventDatas = _config.CustomEnvironment?.Features.BasicEventDatas;
+            List<CustomBeatmapSaveData.BasicEventData>? basicEventDatas = _savedEnvironmentLoader.SavedEnvironment?.Features.BasicEventDatas;
 
             // ReSharper disable once InvertIf
             if (basicEventDatas != null)

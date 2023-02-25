@@ -1,5 +1,4 @@
-﻿using Chroma.EnvironmentEnhancement.Saved;
-using Chroma.Extras;
+﻿using Chroma.Extras;
 using Chroma.Installers;
 using Chroma.Lighting;
 using Chroma.Settings;
@@ -25,10 +24,10 @@ namespace Chroma
         {
             Log.Logger = new HeckLogger(pluginLogger);
             ChromaSettableSettings.SetupSettableSettings();
-            SavedEnvironmentLoader.Init();
             LightIDTableManager.InitTable();
             zenjector.Install<ChromaPlayerInstaller>(Location.Player);
             zenjector.Install<ChromaAppInstaller>(Location.App, conf.Generated<Config>());
+            zenjector.Install<ChromaMenuInstaller>(Location.Menu);
 
             Track.RegisterProperty<Vector4>(COLOR, V2_COLOR);
             Track.RegisterPathProperty<Vector4>(COLOR, V2_COLOR);

@@ -1,23 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Chroma.Settings;
 using IPA.Logging;
 using IPA.Utilities;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace Chroma.EnvironmentEnhancement.Saved
 {
-    // TODO: make config not static
-    internal static class SavedEnvironmentLoader
+    internal class SavedEnvironmentLoader
     {
         private static readonly string _directory = Path.Combine(UnityGame.UserDataPath, ChromaController.ID, "Environments");
         private static readonly Version _currVer = new(1, 0, 0);
-        private static readonly List<SavedEnvironment?> _environments = new() { null };
 
-        public static IEnumerable<SavedEnvironment?> Environments => _environments;
+        // TODO: change modules to use instanced
+        private static SavedEnvironmentLoader? _instance;
 
-        internal static void Init()
+        private readonly Config _config;
+
+        [UsedImplicitly]
+        private SavedEnvironmentLoader(Config config)
         {
+            _instance = this;
+            _config = config;
+            Init();
+        }
+
+        public static SavedEnvironmentLoader Instance => _instance ?? throw new InvalidOperationException("SavedEnvironmentLoader instance not yet created.");
+
+        public Dictionary<string?, SavedEnvironment?> Environments { get; private set; } = new();
+
+        public SavedEnvironment? SavedEnvironment
+        {
+            get
+            {
+                Environments.TryGetValue(_config.CustomEnvironment, out SavedEnvironment? result);
+                return result;
+            }
+        }
+
+        internal void Init()
+        {
+            Environments = new Dictionary<string?, SavedEnvironment?> { { ChromaSettingsUI.NO_ENVIRONMENT, null } };
+
             if (!Directory.Exists(_directory))
             {
                 Directory.CreateDirectory(_directory);
@@ -42,10 +68,10 @@ namespace Chroma.EnvironmentEnhancement.Saved
                         throw new InvalidOperationException($"Unhandled version: [{savedEnvironment.Version}], must be [{_currVer}].");
                     }
 
-                    savedEnvironment.FileName = Path.GetFileName(file);
+                    string fileName = Path.GetFileName(file);
                     Log.Logger.Log($"Loaded [{file}].", Logger.Level.Trace);
 
-                    _environments.Add(savedEnvironment);
+                    Environments.Add(fileName, savedEnvironment);
                 }
                 catch (Exception e)
                 {

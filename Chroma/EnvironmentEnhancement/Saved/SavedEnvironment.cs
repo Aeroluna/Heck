@@ -31,8 +31,6 @@ namespace Chroma.EnvironmentEnhancement.Saved
             Materials = materials;
         }
 
-        internal string? FileName { get; set; }
-
         [JsonProperty("version", Required = Required.Always)]
         [JsonConverter(typeof(VersionConverter))]
         internal Version Version { get; }

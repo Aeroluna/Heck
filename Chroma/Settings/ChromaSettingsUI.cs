@@ -9,16 +9,20 @@ namespace Chroma.Settings
 {
     internal class ChromaSettingsUI
     {
+        internal const string NO_ENVIRONMENT = "None";
+
         private readonly Config _config;
+        private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 
         [UsedImplicitly]
         [UIValue("environmentoptions")]
-        private readonly List<object?> _environmentOptions;
+        private List<object?> _environmentOptions;
 
-        private ChromaSettingsUI(Config config)
+        private ChromaSettingsUI(Config config, SavedEnvironmentLoader savedEnvironmentLoader)
         {
             _config = config;
-            _environmentOptions = SavedEnvironmentLoader.Environments.Cast<object?>().ToList();
+            _savedEnvironmentLoader = savedEnvironmentLoader;
+            _environmentOptions = _savedEnvironmentLoader.Environments.Keys.Cast<object?>().ToList();
 
             // TODO: find some way to disable this for DynamicInit
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", this);
@@ -67,7 +71,7 @@ namespace Chroma.Settings
 
         [UsedImplicitly]
         [UIValue("environment")]
-        public SavedEnvironment? CustomEnvironment
+        public string? CustomEnvironment
         {
             get => _config.CustomEnvironment;
             set => _config.CustomEnvironment = value;
@@ -75,9 +79,15 @@ namespace Chroma.Settings
 
         [UsedImplicitly]
         [UIAction("environmentformat")]
-        private string FormatCustomEnvironment(SavedEnvironment? environment)
+        private string FormatCustomEnvironment(string name)
         {
-            return environment == null ? "None" : $"{environment.Name} v{environment.EnvironmentVersion}";
+            if (name == NO_ENVIRONMENT)
+            {
+                return NO_ENVIRONMENT;
+            }
+
+            SavedEnvironment environment = _savedEnvironmentLoader.Environments[name]!;
+            return $"{environment.Name} v{environment.EnvironmentVersion}";
         }
 #pragma warning restore CA1822
     }

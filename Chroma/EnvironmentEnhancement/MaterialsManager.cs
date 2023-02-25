@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Chroma.Settings;
+using Chroma.EnvironmentEnhancement.Saved;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Utilities;
@@ -33,7 +33,7 @@ namespace Chroma.EnvironmentEnhancement
             IReadonlyBeatmapData readonlyBeatmap,
             Dictionary<string, Track> beatmapTracks,
             LazyInject<MaterialColorAnimator> materialColorAnimator,
-            Config config)
+            SavedEnvironmentLoader savedEnvironmentLoader)
         {
             CustomBeatmapData beatmapData = (CustomBeatmapData)readonlyBeatmap;
             _v2 = beatmapData.version2_6_0AndEarlier;
@@ -42,7 +42,7 @@ namespace Chroma.EnvironmentEnhancement
             _materialColorAnimator = materialColorAnimator;
 
             CustomData? materialsData = beatmapData.customData.Get<CustomData>(_v2 ? V2_MATERIALS : MATERIALS);
-            materialsData ??= config.CustomEnvironment?.Materials;
+            materialsData ??= savedEnvironmentLoader.SavedEnvironment?.Materials;
             if (materialsData == null)
             {
                 return;
