@@ -48,7 +48,11 @@ namespace NoodleExtensions.Animation
         internal void AssignTrack(
             Track track)
         {
+            _track?.RemoveGameObject(gameObject);
+
             _track = track;
+
+            track.AddGameObject(gameObject);
 
             if (_v2)
             {
