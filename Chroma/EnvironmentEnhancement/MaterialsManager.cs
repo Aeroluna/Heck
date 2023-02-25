@@ -32,7 +32,8 @@ namespace Chroma.EnvironmentEnhancement
             EnvironmentMaterialsManager environmentMaterialsManager,
             IReadonlyBeatmapData readonlyBeatmap,
             Dictionary<string, Track> beatmapTracks,
-            LazyInject<MaterialColorAnimator> materialColorAnimator)
+            LazyInject<MaterialColorAnimator> materialColorAnimator,
+            Config config)
         {
             CustomBeatmapData beatmapData = (CustomBeatmapData)readonlyBeatmap;
             _v2 = beatmapData.version2_6_0AndEarlier;
@@ -41,7 +42,7 @@ namespace Chroma.EnvironmentEnhancement
             _materialColorAnimator = materialColorAnimator;
 
             CustomData? materialsData = beatmapData.customData.Get<CustomData>(_v2 ? V2_MATERIALS : MATERIALS);
-            materialsData ??= ChromaConfig.Instance.CustomEnvironment?.Materials;
+            materialsData ??= config.CustomEnvironment?.Materials;
             if (materialsData == null)
             {
                 return;

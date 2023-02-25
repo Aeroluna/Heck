@@ -40,15 +40,18 @@ namespace Chroma.EnvironmentEnhancement.Component
 
         private readonly TrackLaneRingOffset _trackLaneRingOffset;
         private readonly LightWithIdRegisterer _lightWithIdRegisterer;
+        private readonly Config _config;
 
         private readonly HashSet<TrackLaneRingsManager> _trackLaneRingsManagers;
 
         private DuplicateInitializer(
             TrackLaneRingOffset trackLaneRingOffset,
-            LightWithIdRegisterer lightWithIdRegisterer)
+            LightWithIdRegisterer lightWithIdRegisterer,
+            Config config)
         {
             _trackLaneRingOffset = trackLaneRingOffset;
             _lightWithIdRegisterer = lightWithIdRegisterer;
+            _config = config;
             _trackLaneRingsManagers = Resources.FindObjectsOfTypeAll<TrackLaneRingsManager>().ToHashSet();
         }
 
@@ -107,7 +110,7 @@ namespace Chroma.EnvironmentEnhancement.Component
                 {
                     initializeDelegate(rootComponents[i], originalComponents[i]);
 
-                    if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                    if (_config.PrintEnvironmentEnhancementDebug)
                     {
                         Log.Logger.Log($"Initialized {typeof(T).Name}");
                     }
@@ -234,7 +237,7 @@ namespace Chroma.EnvironmentEnhancement.Component
             SaberBurnMarkArea? saberBurnMarkArea = root.GetComponent<SaberBurnMarkArea>();
             if (saberBurnMarkArea != null)
             {
-                if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                if (_config.PrintEnvironmentEnhancementDebug)
                 {
                     Log.Logger.Log("SaberBurnMarkArea yeeted. Complain to me if you would rather it not.");
                 }
@@ -245,7 +248,7 @@ namespace Chroma.EnvironmentEnhancement.Component
             SaberBurnMarkSparkles? saberBurnMarkSparkles = root.GetComponent<SaberBurnMarkSparkles>();
             if (saberBurnMarkSparkles != null)
             {
-                if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                if (_config.PrintEnvironmentEnhancementDebug)
                 {
                     Log.Logger.Log("SaberBurnMarkSparkles yeeted. Complain to me if you would rather it not.");
                 }

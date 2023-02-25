@@ -33,7 +33,7 @@ namespace Chroma
             bool legacyOverride = difficultyBeatmap is CustomDifficultyBeatmap { beatmapSaveData: CustomBeatmapSaveData customBeatmapSaveData }
                                   && customBeatmapSaveData.basicBeatmapEvents.Any(n => n.value >= LegacyLightHelper.RGB_INT_OFFSET);
 
-            bool customEnvironment = ChromaConfig.Instance.CustomEnvironmentEnabled && (ChromaConfig.Instance.CustomEnvironment?.Features.UseChromaEvents ?? false);
+            bool customEnvironment = Config.Instance.CustomEnvironmentEnabled && (Config.Instance.CustomEnvironment?.Features.UseChromaEvents ?? false);
 
             // ReSharper disable once InvertIf
             if (legacyOverride)
@@ -42,7 +42,7 @@ namespace Chroma
                 Log.Logger.Log("Please do not use Legacy Chroma Lights for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", Logger.Level.Warning);
             }
 
-            return (chromaRequirement || legacyOverride || customEnvironment) && !ChromaConfig.Instance.ChromaEventsDisabled;
+            return (chromaRequirement || legacyOverride || customEnvironment) && !Config.Instance.ChromaEventsDisabled;
         }
 
         [ModuleCallback(PatchType.Features)]
@@ -64,7 +64,7 @@ namespace Chroma
             EnvironmentTypeSO type = environmentInfo.environmentType;
 
             CustomBeatmapSaveData? customBeatmapSaveData = difficultyBeatmap.GetBeatmapSaveData();
-            if (!ChromaConfig.Instance.EnvironmentEnhancementsDisabled &&
+            if (!Config.Instance.EnvironmentEnhancementsDisabled &&
                 customBeatmapSaveData != null &&
                 ((customBeatmapSaveData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
                  (customBeatmapSaveData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false) ||
@@ -88,8 +88,8 @@ namespace Chroma
             }
             else
             {
-                SavedEnvironment? savedEnvironment = ChromaConfig.Instance.CustomEnvironment;
-                if (ChromaConfig.Instance.CustomEnvironmentEnabled && savedEnvironment != null)
+                SavedEnvironment? savedEnvironment = Config.Instance.CustomEnvironment;
+                if (Config.Instance.CustomEnvironmentEnabled && savedEnvironment != null)
                 {
                     EnvironmentInfoSO overrideEnv = CustomLevelLoaderExposer.CustomLevelLoader.LoadEnvironmentInfo(savedEnvironment.EnvironmentName, type);
                     LightIDTableManager.SetEnvironment(overrideEnv.serializedName);

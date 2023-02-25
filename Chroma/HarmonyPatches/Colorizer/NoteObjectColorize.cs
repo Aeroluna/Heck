@@ -18,6 +18,7 @@ namespace Chroma.HarmonyPatches.Colorizer
         private readonly BombColorizerManager _bombManager;
         private readonly NoteColorizerManager _noteManager;
         private readonly DeserializedData _deserializedData;
+        private readonly Config _config;
         private readonly CodeInstruction _noteUpdateColorize;
 
         private NoteController? _noteController;
@@ -25,11 +26,13 @@ namespace Chroma.HarmonyPatches.Colorizer
         private NoteObjectColorize(
             BombColorizerManager bombManager,
             NoteColorizerManager noteManager,
-            [Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
+            [Inject(Id = ChromaController.ID)] DeserializedData deserializedData,
+            Config config)
         {
             _bombManager = bombManager;
             _noteManager = noteManager;
             _deserializedData = deserializedData;
+            _config = config;
             _noteUpdateColorize = InstanceTranspilers.EmitInstanceDelegate<Action<float>>(NoteUpdateColorize);
         }
 
@@ -54,7 +57,7 @@ namespace Chroma.HarmonyPatches.Colorizer
         [AffinityPatch(typeof(BurstSliderGameNoteController), nameof(BurstSliderGameNoteController.Init))]
         private void NoteColorize(GameNoteController __instance, NoteData noteData)
         {
-            if (ChromaConfig.Instance.NoteColoringDisabled)
+            if (_config.NoteColoringDisabled)
             {
                 return;
             }
@@ -69,7 +72,7 @@ namespace Chroma.HarmonyPatches.Colorizer
         [AffinityPatch(typeof(NoteController), nameof(NoteController.ManualUpdate))]
         private void NoteUpdateSetData(NoteController __instance)
         {
-            if (ChromaConfig.Instance.NoteColoringDisabled)
+            if (_config.NoteColoringDisabled)
             {
                 return;
             }

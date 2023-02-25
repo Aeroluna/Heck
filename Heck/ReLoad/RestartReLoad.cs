@@ -7,12 +7,15 @@ namespace Heck.ReLoad
     internal class ReLoadRestart : IAffinity
     {
         private readonly ReLoaderLoader _reLoaderLoader;
+        private readonly Config.ReLoaderSettings _config;
 
         [UsedImplicitly]
         private ReLoadRestart(
-            ReLoaderLoader reLoaderLoader)
+            ReLoaderLoader reLoaderLoader,
+            Config.ReLoaderSettings config)
         {
             _reLoaderLoader = reLoaderLoader;
+            _config = config;
         }
 
         [AffinityPrefix]
@@ -24,9 +27,7 @@ namespace Heck.ReLoad
                 return;
             }
 
-            HeckConfig.ReLoaderSettings config = HeckConfig.Instance.ReLoader;
-
-            if (config.ReloadOnRestart &&
+            if (_config.ReloadOnRestart &&
                 ____standardLevelScenesTransitionSetupData.practiceSettings != null)
             {
                 _reLoaderLoader.Reload(____standardLevelScenesTransitionSetupData.difficultyBeatmap);

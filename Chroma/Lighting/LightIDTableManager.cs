@@ -35,7 +35,14 @@ namespace Chroma.Lighting
 
         private readonly HashSet<Tuple<int, int>> _failureLog = new();
 
+        private readonly Config _config;
+
         private Dictionary<int, Dictionary<int, int>>? _activeTable;
+
+        private LightIDTableManager(Config config)
+        {
+            _config = config;
+        }
 
         public void Initialize()
         {
@@ -169,7 +176,7 @@ namespace Chroma.Lighting
                     }
 
                     dictioanry.Add(key, index);
-                    if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                    if (_config.PrintEnvironmentEnhancementDebug)
                     {
                         Log.Logger.Log($"Registered key [{key}] to light ID [{lightID}].");
                     }
@@ -199,7 +206,7 @@ namespace Chroma.Lighting
                         }
 
                         dictioanry.Remove(key);
-                        if (ChromaConfig.Instance.PrintEnvironmentEnhancementDebug)
+                        if (_config.PrintEnvironmentEnhancementDebug)
                         {
                             Log.Logger.Log($"Unregistered key [{key}] from light ID [{lightID}].");
                         }

@@ -2,20 +2,23 @@
 using System.Linq;
 using Chroma.Settings;
 using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
-using Heck;
-using JetBrains.Annotations;
+using SiraUtil.Affinity;
 using static Chroma.ChromaController;
 
 namespace Chroma.HarmonyPatches
 {
-    [HeckPatch(PatchType.Environment)]
-    [HarmonyPatch(typeof(BeatmapDataTransformHelper), nameof(BeatmapDataTransformHelper.CreateTransformedBeatmapData))]
-    internal static class CustomEnvironmentLoading
+    internal class CustomEnvironmentLoading : IAffinity
     {
-        [UsedImplicitly]
-        [HarmonyPrefix]
-        private static void Prefix(ref IReadonlyBeatmapData beatmapData, ref EnvironmentEffectsFilterPreset environmentEffectsFilterPreset)
+        private readonly Config _config;
+
+        private CustomEnvironmentLoading(Config config)
+        {
+            _config = config;
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(BeatmapDataTransformHelper), nameof(BeatmapDataTransformHelper.CreateTransformedBeatmapData))]
+        private void Prefix(ref IReadonlyBeatmapData beatmapData, ref EnvironmentEffectsFilterPreset environmentEffectsFilterPreset)
         {
             CustomBeatmapData customBeatmapData = (CustomBeatmapData)beatmapData;
             if ((customBeatmapData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
@@ -25,12 +28,12 @@ namespace Chroma.HarmonyPatches
                 return;
             }
 
-            if (!ChromaConfig.Instance.CustomEnvironmentEnabled)
+            if (!_config.CustomEnvironmentEnabled)
             {
                 return;
             }
 
-            EnvironmentEffectsFilterPreset? forcedPreset = ChromaConfig.Instance.CustomEnvironment?.Features.ForcedPreset;
+            EnvironmentEffectsFilterPreset? forcedPreset = _config.CustomEnvironment?.Features.ForcedPreset;
             if (forcedPreset.HasValue)
             {
                 environmentEffectsFilterPreset = forcedPreset.Value;
@@ -41,7 +44,7 @@ namespace Chroma.HarmonyPatches
                 }
             }
 
-            List<CustomBeatmapSaveData.BasicEventData>? basicEventDatas = ChromaConfig.Instance.CustomEnvironment?.Features.BasicEventDatas;
+            List<CustomBeatmapSaveData.BasicEventData>? basicEventDatas = _config.CustomEnvironment?.Features.BasicEventDatas;
 
             // ReSharper disable once InvertIf
             if (basicEventDatas != null)

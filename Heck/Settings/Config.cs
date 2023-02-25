@@ -1,23 +1,17 @@
-﻿using System;
+﻿using System.Runtime.CompilerServices;
+using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using IPA.Config.Stores.Converters;
 using JetBrains.Annotations;
 using UnityEngine;
 
+[assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
+
 // ReSharper disable MemberCanBeMadeStatic.Global
 namespace Heck.Settings
 {
-    // TODO: zenjectify
-    public class HeckConfig
+    internal class Config
     {
-        private static HeckConfig? _instance;
-
-        public static HeckConfig Instance
-        {
-            get => _instance ?? throw new InvalidOperationException("HeckConfigConfig instance not yet created.");
-            set => _instance = value;
-        }
-
         [UsedImplicitly]
         public ReLoaderSettings ReLoader { get; set; } = new();
 

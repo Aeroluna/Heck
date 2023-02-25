@@ -93,8 +93,9 @@ namespace Chroma.Installers
                 Container.BindInterfacesAndSelfTo<TrackLaneRingOffset>().AsSingle();
 
                 // EnvironmentEnhancement
+                Container.BindInterfacesTo<CustomEnvironmentLoading>().AsSingle();
                 Container.Bind<DuplicateInitializer>().AsSingle();
-                Container.BindInterfacesAndSelfTo<EnvironmentEnhancementManager>().AsSingle().NonLazy();
+                Container.BindInterfacesAndSelfTo<EnvironmentEnhancementManager>().AsSingle();
                 Container.Bind<ComponentCustomizer>().AsSingle();
                 Container.Bind<GeometryFactory>().AsSingle();
                 Container.BindInterfacesAndSelfTo<MaterialsManager>().AsSingle();
@@ -103,7 +104,9 @@ namespace Chroma.Installers
             }
 
             // Zen mode
+            Container.BindInterfacesTo<ForceZenModeObstacleBeatmapData>().AsSingle();
             Container.BindInterfacesTo<ObstacleHeadCollisionDisable>().AsSingle();
+            Container.BindInterfacesTo<ZenModeBinder>().AsSingle();
         }
     }
 }

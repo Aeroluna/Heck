@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using SiraUtil.Zenject;
 using UnityEngine;
 using static Heck.HeckController;
+using Config = Heck.Settings.Config;
 using Logger = IPA.Logging.Logger;
 
 namespace Heck
@@ -21,7 +22,7 @@ namespace Heck
     {
         [UsedImplicitly]
         [Init]
-        public Plugin(Logger pluginLogger, Config conf, Zenjector zenjector)
+        public Plugin(Logger pluginLogger, IPA.Config.Config conf, Zenjector zenjector)
         {
             Log.Logger = new HeckLogger(pluginLogger);
 
@@ -30,12 +31,11 @@ namespace Heck
             {
                 DebugMode = true;
                 Log.Logger.Log("[-aerolunaisthebestmodder] launch argument detected, running in Debug mode.");
-                HeckConfig.Instance = conf.Generated<HeckConfig>();
+                zenjector.Install<HeckAppInstaller>(Location.App, conf.Generated<Config>());
             }
 
             SettingSetterSettableSettingsManager.SetupSettingsTable();
 
-            zenjector.Install<HeckAppInstaller>(Location.App);
             zenjector.Install<HeckPlayerInstaller>(Location.Player);
             zenjector.Install<HeckMenuInstaller>(Location.Menu);
             zenjector.Expose<NoteCutSoundEffectManager>("Gameplay");

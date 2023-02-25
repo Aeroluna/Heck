@@ -80,6 +80,7 @@ namespace Heck.ReLoad
         private readonly bool _leftHanded;
         private readonly Dictionary<string, Track> _beatmapTracks;
         private readonly DiContainer _container;
+        private readonly Config.ReLoaderSettings _config;
         private readonly bool _reloadable;
 
         private float _songStartTime;
@@ -100,7 +101,8 @@ namespace Heck.ReLoad
             PauseMenuManager pauseMenuManager,
             [Inject(Id = HeckController.LEFT_HANDED_ID)] bool leftHanded,
             Dictionary<string, Track> beatmapTracks,
-            DiContainer container)
+            DiContainer container,
+            Config.ReLoaderSettings config)
         {
             _audioTimeSyncController = audioTimeSyncController;
             _songStartTime = audioTimeSyncControllerInitData.startSongTime;
@@ -115,6 +117,7 @@ namespace Heck.ReLoad
             _leftHanded = leftHanded;
             _beatmapTracks = beatmapTracks;
             _container = container;
+            _config = config;
             _difficultyBeatmap = difficultyBeatmap;
 
             if (difficultyBeatmap is CustomDifficultyBeatmap)
@@ -134,33 +137,32 @@ namespace Heck.ReLoad
 
         public void Tick()
         {
-            HeckConfig.ReLoaderSettings config = HeckConfig.Instance.ReLoader;
-            float increment = config.ScrubIncrement;
-            if (Input.GetKeyDown(config.SaveTime))
+            float increment = _config.ScrubIncrement;
+            if (Input.GetKeyDown(_config.SaveTime))
             {
                 // Set new start time
                 _songStartTime = _audioTimeSyncController.songTime;
                 Log.Logger.Log($"Saved: [{_songStartTime}].", Logger.Level.Trace);
             }
-            else if (_reloadable && Input.GetKeyDown(config.Reload))
+            else if (_reloadable && Input.GetKeyDown(_config.Reload))
             {
                 Reload();
-                if (!Input.GetKeyDown(config.JumpToSavedTime))
+                if (!Input.GetKeyDown(_config.JumpToSavedTime))
                 {
                     Rewind();
                 }
             }
 
-            if (Input.GetKeyDown(config.JumpToSavedTime))
+            if (Input.GetKeyDown(_config.JumpToSavedTime))
             {
                 Rewind(_songStartTime);
                 Log.Logger.Log($"Loaded to: [{_songStartTime}].", Logger.Level.Trace);
             }
-            else if (Input.GetKeyDown(config.ScrubBackwards))
+            else if (Input.GetKeyDown(_config.ScrubBackwards))
             {
                 Rewind(Math.Max(_audioTimeSyncController.songTime - increment, 0));
             }
-            else if (Input.GetKeyDown(config.ScrubForwards))
+            else if (Input.GetKeyDown(_config.ScrubForwards))
             {
                 SetSongTime(_audioTimeSyncController.songTime + increment);
             }

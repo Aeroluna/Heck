@@ -9,12 +9,15 @@ namespace Chroma.Settings
 {
     internal class ChromaSettingsUI
     {
+        private readonly Config _config;
+
         [UsedImplicitly]
         [UIValue("environmentoptions")]
         private readonly List<object?> _environmentOptions;
 
-        private ChromaSettingsUI()
+        private ChromaSettingsUI(Config config)
         {
+            _config = config;
             _environmentOptions = SavedEnvironmentLoader.Environments.Cast<object?>().ToList();
 
             // TODO: find some way to disable this for DynamicInit
@@ -26,48 +29,48 @@ namespace Chroma.Settings
         [UIValue("rgbevents")]
         public bool ChromaEventsDisabled
         {
-            get => ChromaConfig.Instance.ChromaEventsDisabled;
-            set => ChromaConfig.Instance.ChromaEventsDisabled = value;
+            get => _config.ChromaEventsDisabled;
+            set => _config.ChromaEventsDisabled = value;
         }
 
         [UsedImplicitly]
         [UIValue("platform")]
         public bool EnvironmentEnhancementsDisabled
         {
-            get => ChromaConfig.Instance.EnvironmentEnhancementsDisabled;
-            set => ChromaConfig.Instance.EnvironmentEnhancementsDisabled = value;
+            get => _config.EnvironmentEnhancementsDisabled;
+            set => _config.EnvironmentEnhancementsDisabled = value;
         }
 
         [UsedImplicitly]
         [UIValue("notecolors")]
         public bool NoteColoringDisabled
         {
-            get => ChromaConfig.Instance.NoteColoringDisabled;
-            set => ChromaConfig.Instance.NoteColoringDisabled = value;
+            get => _config.NoteColoringDisabled;
+            set => _config.NoteColoringDisabled = value;
         }
 
         [UsedImplicitly]
         [UIValue("zenwalls")]
         public bool ForceZenWallsEnabled
         {
-            get => ChromaConfig.Instance.ForceZenWallsEnabled;
-            set => ChromaConfig.Instance.ForceZenWallsEnabled = value;
+            get => _config.ForceZenWallsEnabled;
+            set => _config.ForceZenWallsEnabled = value;
         }
 
         [UsedImplicitly]
         [UIValue("environmentenabled")]
         public bool CustomEnvironmentEnabled
         {
-            get => ChromaConfig.Instance.CustomEnvironmentEnabled;
-            set => ChromaConfig.Instance.CustomEnvironmentEnabled = value;
+            get => _config.CustomEnvironmentEnabled;
+            set => _config.CustomEnvironmentEnabled = value;
         }
 
         [UsedImplicitly]
         [UIValue("environment")]
         public SavedEnvironment? CustomEnvironment
         {
-            get => ChromaConfig.Instance.CustomEnvironment;
-            set => ChromaConfig.Instance.CustomEnvironment = value;
+            get => _config.CustomEnvironment;
+            set => _config.CustomEnvironment = value;
         }
 
         [UsedImplicitly]

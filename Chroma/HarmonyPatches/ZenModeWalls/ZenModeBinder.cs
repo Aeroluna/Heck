@@ -2,22 +2,28 @@
 using HarmonyLib;
 using Heck;
 using IPA.Utilities;
+using SiraUtil.Affinity;
 using Zenject;
 
 namespace Chroma.HarmonyPatches.ZenModeWalls
 {
-    [HeckPatch]
-    [HarmonyPatch(typeof(GameplayCoreInstaller))]
-    internal static class ZenModeBinder
+    internal class ZenModeBinder : IAffinity
     {
         private static readonly PropertyAccessor<MonoInstallerBase, DiContainer>.Getter _containerAccessor =
             PropertyAccessor<MonoInstallerBase, DiContainer>.GetGetter("Container");
 
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(GameplayCoreInstaller.InstallBindings))]
-        private static void Postfix(GameplayCoreInstaller __instance, GameplayCoreSceneSetupData ____sceneSetupData)
+        private readonly Config _config;
+
+        private ZenModeBinder(Config config)
         {
-            if (!ChromaConfig.Instance.ForceZenWallsEnabled)
+            _config = config;
+        }
+
+        [AffinityPostfix]
+        [AffinityPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
+        private void Postfix(GameplayCoreInstaller __instance, GameplayCoreSceneSetupData ____sceneSetupData)
+        {
+            if (!_config.ForceZenWallsEnabled)
             {
                 return;
             }

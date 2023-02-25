@@ -1,18 +1,22 @@
 ﻿using Chroma.Settings;
-using HarmonyLib;
-using Heck;
+using SiraUtil.Affinity;
 
 namespace Chroma.HarmonyPatches.ZenModeWalls
 {
-    [HeckPatch]
-    [HarmonyPatch(typeof(BeatmapDataZenModeTransform))]
-    internal static class ForceZenModeObstacleBeatmapData
+    internal class ForceZenModeObstacleBeatmapData : IAffinity
     {
-        [HarmonyPrefix]
-        [HarmonyPatch("CreateTransformedData")]
-        private static bool Prefix(IReadonlyBeatmapData beatmapData, ref IReadonlyBeatmapData __result)
+        private readonly Config _config;
+
+        private ForceZenModeObstacleBeatmapData(Config config)
         {
-            if (!ChromaConfig.Instance.ForceZenWallsEnabled)
+            _config = config;
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(BeatmapDataZenModeTransform), "CreateTransformedData")]
+        private bool Prefix(IReadonlyBeatmapData beatmapData, ref IReadonlyBeatmapData __result)
+        {
+            if (!_config.ForceZenWallsEnabled)
             {
                 return true;
             }

@@ -6,12 +6,12 @@ using Chroma.Settings;
 using Heck;
 using Heck.Animation;
 using IPA;
-using IPA.Config;
 using IPA.Config.Stores;
 using JetBrains.Annotations;
 using SiraUtil.Zenject;
 using UnityEngine;
 using static Chroma.ChromaController;
+using Config = Chroma.Settings.Config;
 using Logger = IPA.Logging.Logger;
 
 namespace Chroma
@@ -21,15 +21,14 @@ namespace Chroma
     {
         [UsedImplicitly]
         [Init]
-        public Plugin(Logger pluginLogger, Config conf, Zenjector zenjector)
+        public Plugin(Logger pluginLogger, IPA.Config.Config conf, Zenjector zenjector)
         {
             Log.Logger = new HeckLogger(pluginLogger);
             ChromaSettableSettings.SetupSettableSettings();
             SavedEnvironmentLoader.Init();
-            ChromaConfig.Instance = conf.Generated<ChromaConfig>();
             LightIDTableManager.InitTable();
             zenjector.Install<ChromaPlayerInstaller>(Location.Player);
-            zenjector.Install<ChromaAppInstaller>(Location.App);
+            zenjector.Install<ChromaAppInstaller>(Location.App, conf.Generated<Config>());
 
             Track.RegisterProperty<Vector4>(COLOR, V2_COLOR);
             Track.RegisterPathProperty<Vector4>(COLOR, V2_COLOR);
@@ -52,7 +51,7 @@ namespace Chroma
             EnvironmentModule.Enabled = true;
 
             // ChromaConfig wont set if there is no config!
-            ChromaUtils.SetSongCoreCapability(CAPABILITY, !ChromaConfig.Instance.ChromaEventsDisabled);
+            ChromaUtils.SetSongCoreCapability(CAPABILITY, !Config.Instance.ChromaEventsDisabled);
 
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");

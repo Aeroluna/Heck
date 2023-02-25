@@ -9,20 +9,22 @@ namespace Heck.ReLoad
     {
         private readonly ReLoaderLoader _reLoaderLoader;
         private readonly LevelSelectionNavigationController _levelSelectionNavigationController;
+        private readonly Config.ReLoaderSettings _config;
 
         [UsedImplicitly]
         private MenuReLoad(
             ReLoaderLoader reLoaderLoader,
-            LevelSelectionNavigationController levelSelectionNavigationController)
+            LevelSelectionNavigationController levelSelectionNavigationController,
+            Config.ReLoaderSettings config)
         {
             _reLoaderLoader = reLoaderLoader;
             _levelSelectionNavigationController = levelSelectionNavigationController;
+            _config = config;
         }
 
         public void Tick()
         {
-            HeckConfig.ReLoaderSettings config = HeckConfig.Instance.ReLoader;
-            if (!Input.GetKeyDown(config.Reload))
+            if (!Input.GetKeyDown(_config.Reload))
             {
                 return;
             }
