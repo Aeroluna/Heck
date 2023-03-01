@@ -1,23 +1,44 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Zenject;
 using Logger = IPA.Logging.Logger;
 
 namespace Chroma.EnvironmentEnhancement
 {
     internal class EnvironmentMaterialsManager : MonoBehaviour
     {
-        internal Dictionary<ShaderType, Material> EnvironmentMaterials { get; } = new();
+        private Dictionary<ShaderType, Material>? _environmentMaterials;
 
-        private void Start()
+        internal Dictionary<ShaderType, Material> EnvironmentMaterials
+        {
+            get
+            {
+                if (_environmentMaterials == null)
+                {
+                    throw new InvalidOperationException("Environment materials not yet fetched!");
+                }
+
+                return _environmentMaterials;
+            }
+        }
+
+        public void Initialize()
         {
             StartCoroutine(Activate());
         }
 
         private IEnumerator Activate()
         {
+            if (_environmentMaterials != null)
+            {
+                yield break;
+            }
+
             AsyncOperation Load(string environmentName)
             {
                 Log.Logger.Log($"Loading environment [{environmentName}].", Logger.Level.Trace);
@@ -39,7 +60,7 @@ namespace Chroma.EnvironmentEnhancement
                 Material? material = environmentMaterials.FirstOrDefault(e => e.name == matName);
                 if (material != null)
                 {
-                    EnvironmentMaterials[key] = material;
+                    _environmentMaterials[key] = material;
                     Log.Logger.Log($"Saving [{matName}] to [{key}].", Logger.Level.Trace);
                 }
                 else
@@ -48,6 +69,7 @@ namespace Chroma.EnvironmentEnhancement
                 }
             }
 
+            _environmentMaterials = new Dictionary<ShaderType, Material>();
             Save(ShaderType.BTSPillar, "BTSDarkEnvironmentWithHeightFog");
             Save(ShaderType.BillieWater, "WaterfallFalling");
             Save(ShaderType.WaterfallMirror, "WaterfallMirror");
@@ -58,6 +80,24 @@ namespace Chroma.EnvironmentEnhancement
             {
                 SceneManager.UnloadSceneAsync(environment);
             }
+        }
+    }
+
+    // Exists because AppInit.GetAppStartType check scenecount for some reason and we cannot load extra scenes during appinit
+    // credit to meivyn for figuring out this bug
+    internal class EnvironmentMaterialsManagerInitializer : IInitializable
+    {
+        private readonly EnvironmentMaterialsManager _environmentMaterialsManager;
+
+        [UsedImplicitly]
+        private EnvironmentMaterialsManagerInitializer(EnvironmentMaterialsManager environmentMaterialsManager)
+        {
+            _environmentMaterialsManager = environmentMaterialsManager;
+        }
+
+        public void Initialize()
+        {
+            _environmentMaterialsManager.Initialize();
         }
     }
 }

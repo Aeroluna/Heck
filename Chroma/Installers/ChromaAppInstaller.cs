@@ -22,7 +22,7 @@ namespace Chroma.Installers
             Container.Bind<ChromaSettingsUI>().AsSingle().NonLazy();
 
             Container.Bind<SavedEnvironmentLoader>().AsSingle();
-            Container.Bind<EnvironmentMaterialsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<EnvironmentMaterialsManager>().FromNewComponentOnNewGameObject().AsSingle();
 
             Container.Bind<CustomLevelLoaderExposer>().AsSingle().NonLazy();
         }

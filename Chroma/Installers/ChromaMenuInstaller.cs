@@ -1,4 +1,5 @@
-﻿using Chroma.EnvironmentEnhancement.Saved;
+﻿using Chroma.EnvironmentEnhancement;
+using Chroma.EnvironmentEnhancement.Saved;
 using Heck;
 using JetBrains.Annotations;
 using Zenject;
@@ -10,6 +11,8 @@ namespace Chroma.Installers
     {
         public override void InstallBindings()
         {
+            Container.BindInterfacesTo<EnvironmentMaterialsManagerInitializer>().AsSingle(); // what even is this
+
             if (HeckController.DebugMode)
             {
                 Container.BindInterfacesTo<ReloadListener>().AsSingle();
