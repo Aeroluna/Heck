@@ -42,7 +42,7 @@ namespace Chroma.EnvironmentEnhancement.Saved
 
         internal void Init()
         {
-            Environments = new Dictionary<string?, SavedEnvironment?> { { ChromaSettingsUI.NO_ENVIRONMENT, null } };
+            Environments = new Dictionary<string?, SavedEnvironment?> { { Config.NO_ENVIRONMENT, null } };
 
             if (!Directory.Exists(_directory))
             {

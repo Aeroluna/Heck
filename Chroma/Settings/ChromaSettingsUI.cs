@@ -9,8 +9,6 @@ namespace Chroma.Settings
 {
     internal class ChromaSettingsUI
     {
-        internal const string NO_ENVIRONMENT = "None";
-
         private readonly Config _config;
         private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 
@@ -71,7 +69,7 @@ namespace Chroma.Settings
 
         [UsedImplicitly]
         [UIValue("environment")]
-        public string? CustomEnvironment
+        public string CustomEnvironment
         {
             get => _config.CustomEnvironment;
             set => _config.CustomEnvironment = value;
@@ -81,9 +79,9 @@ namespace Chroma.Settings
         [UIAction("environmentformat")]
         private string FormatCustomEnvironment(string name)
         {
-            if (name == NO_ENVIRONMENT)
+            if (name == Config.NO_ENVIRONMENT)
             {
-                return NO_ENVIRONMENT;
+                return Config.NO_ENVIRONMENT;
             }
 
             SavedEnvironment environment = _savedEnvironmentLoader.Environments[name]!;
