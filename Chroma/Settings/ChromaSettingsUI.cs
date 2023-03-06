@@ -9,6 +9,8 @@ namespace Chroma.Settings
 {
     internal class ChromaSettingsUI
     {
+        private const string NO_ENVIRONMENT = "None";
+
         private readonly Config _config;
         private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 
@@ -20,7 +22,7 @@ namespace Chroma.Settings
         {
             _config = config;
             _savedEnvironmentLoader = savedEnvironmentLoader;
-            _environmentOptions = _savedEnvironmentLoader.Environments.Keys.Cast<object?>().ToList();
+            _environmentOptions = _savedEnvironmentLoader.Environments.Keys.Cast<object?>().Prepend(null).ToList();
 
             // TODO: find some way to disable this for DynamicInit
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", this);
@@ -69,19 +71,23 @@ namespace Chroma.Settings
 
         [UsedImplicitly]
         [UIValue("environment")]
-        public string CustomEnvironment
+        public string? CustomEnvironment
         {
-            get => _config.CustomEnvironment;
+            get
+            {
+                string? name = _config.CustomEnvironment;
+                return name != null && _savedEnvironmentLoader.Environments.ContainsKey(name) ? name : null;
+            }
             set => _config.CustomEnvironment = value;
         }
 
         [UsedImplicitly]
         [UIAction("environmentformat")]
-        private string FormatCustomEnvironment(string name)
+        private string FormatCustomEnvironment(string? name)
         {
-            if (name == Config.NO_ENVIRONMENT)
+            if (name == null)
             {
-                return Config.NO_ENVIRONMENT;
+                return NO_ENVIRONMENT;
             }
 
             SavedEnvironment environment = _savedEnvironmentLoader.Environments[name]!;

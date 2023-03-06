@@ -37,8 +37,6 @@ namespace Chroma.Settings
 
     internal class Config
     {
-        internal const string NO_ENVIRONMENT = "None";
-
         private static Config? _instance;
 
         public Config()
@@ -87,7 +85,7 @@ namespace Chroma.Settings
             set => CustomEnvironmentEnabledSetting.Value = value;
         }
 
-        public string CustomEnvironment { get; set; } = NO_ENVIRONMENT;
+        public string? CustomEnvironment { get; set; }
 #pragma warning restore CA1822
 
         [UsedImplicitly]

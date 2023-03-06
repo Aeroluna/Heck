@@ -35,14 +35,20 @@ namespace Chroma.EnvironmentEnhancement.Saved
         {
             get
             {
-                Environments.TryGetValue(_config.CustomEnvironment, out SavedEnvironment? result);
+                string? name = _config.CustomEnvironment;
+                if (name == null)
+                {
+                    return null;
+                }
+
+                Environments.TryGetValue(name, out SavedEnvironment? result);
                 return result;
             }
         }
 
         internal void Init()
         {
-            Environments = new Dictionary<string?, SavedEnvironment?> { { Config.NO_ENVIRONMENT, null } };
+            Environments = new Dictionary<string?, SavedEnvironment?>();
 
             if (!Directory.Exists(_directory))
             {
