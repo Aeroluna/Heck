@@ -250,6 +250,8 @@ namespace Heck.ReLoad
             _callbacksInTimesAccessor(ref beatmapCallbacksController).Values.Do(n => n.lastProcessedNode = null);
             _prevSongTimeAccessor(ref beatmapCallbacksController) = 0;
 
+            _beatmapTracks.Values.Do(n => n.NullProperties());
+
             Rewinded?.Invoke();
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
+using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
 using static Heck.HeckController;
@@ -206,6 +207,12 @@ namespace Heck.Animation
             property = propertyBuilder.PathProperty;
             _pathProperties[name] = property;
             return property;
+        }
+
+        internal void NullProperties()
+        {
+            _properties.Values.Do(n => n.Null());
+            _pathProperties.Values.Do(n => n.Null());
         }
 
         private static void RegisterPropertyInternal<T>(
