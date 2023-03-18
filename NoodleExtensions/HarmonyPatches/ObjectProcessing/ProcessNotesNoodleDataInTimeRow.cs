@@ -203,7 +203,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                     float noteX = notePosition?.ElementAtOrDefault(0) + offset ?? noteData.lineIndex;
                     float noteY = notePosition?.ElementAtOrDefault(1) ?? (float)noteData.noteLineLayer;
 
-                    if (Mathf.Approximately(tailX, noteX) && Mathf.Approximately(tailY, noteY))
+                    if (!Mathf.Approximately(tailX, noteX) || !Mathf.Approximately(tailY, noteY))
                     {
                         continue;
                     }
