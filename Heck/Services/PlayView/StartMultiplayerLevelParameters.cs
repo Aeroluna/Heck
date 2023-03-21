@@ -1,12 +1,12 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Heck.SettingsSetter
+namespace Heck.PlayView
 {
-    internal class StartMultiplayerLevelParameters : StartStandardLevelParameters
+    public class StartMultiplayerLevelParameters : StartStandardLevelParameters
     {
         [UsedImplicitly]
-        internal StartMultiplayerLevelParameters(
+        public StartMultiplayerLevelParameters(
             string gameMode,
             IPreviewBeatmapLevel previewBeatmapLevel,
             BeatmapDifficulty beatmapDifficulty,
@@ -43,7 +43,7 @@ namespace Heck.SettingsSetter
             DidDisconnectCallback = didDisconnectCallback;
         }
 
-        internal StartMultiplayerLevelParameters(StartMultiplayerLevelParameters original)
+        public StartMultiplayerLevelParameters(StartMultiplayerLevelParameters original)
             : base(original)
         {
             BeatmapDifficulty = original.BeatmapDifficulty;
@@ -52,15 +52,15 @@ namespace Heck.SettingsSetter
             DidDisconnectCallback = original.DidDisconnectCallback;
         }
 
-        internal BeatmapDifficulty BeatmapDifficulty { get; }
+        public BeatmapDifficulty BeatmapDifficulty { get; }
 
-        internal BeatmapCharacteristicSO BeatmapCharacteristic { get; }
+        public BeatmapCharacteristicSO BeatmapCharacteristic { get; }
 
-        internal Action<MultiplayerLevelScenesTransitionSetupDataSO, MultiplayerResultsData>? MultiplayerLevelFinishedCallback { get; }
+        public Action<MultiplayerLevelScenesTransitionSetupDataSO, MultiplayerResultsData>? MultiplayerLevelFinishedCallback { get; }
 
-        internal Action<DisconnectedReason>? DidDisconnectCallback { get; }
+        public Action<DisconnectedReason>? DidDisconnectCallback { get; }
 
-        internal override StartStandardLevelParameters Copy()
+        public override StartStandardLevelParameters Copy()
         {
             return new StartMultiplayerLevelParameters(this);
         }

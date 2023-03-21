@@ -1,4 +1,5 @@
 ﻿using Heck.HarmonyPatches;
+using Heck.PlayView;
 using Heck.ReLoad;
 using Heck.SettingsSetter;
 using JetBrains.Annotations;
@@ -17,8 +18,9 @@ namespace Heck.Installers
             }
 
             // Settings Setter
-            Container.Bind<SettingsSetterViewController>().FromNewComponentAsViewController().AsSingle();
-            Container.BindInterfacesTo<SettableSettingsUI>().AsSingle();
+            Container.BindInterfacesAndSelfTo<PlayViewManager>().AsSingle();
+            Container.BindInterfacesTo<SettingsSetterViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesTo<PlayViewInterrupter>().AsSingle();
         }
     }
 }

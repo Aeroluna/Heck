@@ -2,10 +2,8 @@
 using System.Linq;
 using Heck.Animation;
 using Heck.Installers;
-using Heck.Settings;
 using Heck.SettingsSetter;
 using IPA;
-using IPA.Config;
 using IPA.Config.Stores;
 using JetBrains.Annotations;
 using SiraUtil.Zenject;

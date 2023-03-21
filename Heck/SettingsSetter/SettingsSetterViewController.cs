@@ -9,7 +9,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
-using HMUI;
+using Heck.PlayView;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -18,11 +18,9 @@ using Logger = IPA.Logging.Logger;
 
 namespace Heck.SettingsSetter
 {
-    internal class SettingsSetterViewController : BSMLResourceViewController
+    [PlayViewControllerSettings(0, "settings")]
+    internal class SettingsSetterViewController : BSMLResourceViewController, IPlayViewController, IParameterModifier
     {
-        private static readonly Action<FlowCoordinator, ViewController, AnimationDirection, Action?, bool> _dismissViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, AnimationDirection, Action?, bool>>.GetDelegate("DismissViewController");
-        private static readonly Action<FlowCoordinator, ViewController, Action?, AnimationDirection, bool> _presentViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, Action?, AnimationDirection, bool>>.GetDelegate("PresentViewController");
-
         private static string? _contentBSML;
 
         [UIValue("contents")]
@@ -38,35 +36,26 @@ namespace Heck.SettingsSetter
         private MainSystemInit _mainSystemInit = null!;
         private MainSettingsModelSO _mainSettings = null!;
         private ColorSchemesSettings _colorSchemesSettings = null!;
-        private SoloFreePlayFlowCoordinator _soloFreePlayFlowCoordinator = null!;
-        private PartyFreePlayFlowCoordinator _partyFreePlayFlowCoordinator = null!;
-        private GameServerLobbyFlowCoordinator _gameServerLobbyFlowCoordinator = null!;
         private PlayerDataModel _playerDataModel = null!;
-        private LobbyGameStateController _lobbyGameStateController = null!;
-
-        private FlowCoordinator? _activeFlowCoordinator;
-
-        private MenuTransitionsHelper? _menuTransitionsHelper;
 
         private StartStandardLevelParameters? _defaultParameters;
         private StartStandardLevelParameters? _modifiedParameters;
-        private StartStandardLevelParameters? _cachedParameters;
 
         private SettableMainSettings? _cachedMainSettings;
         private SettableMainSettings? _modifiedMainSettings;
 
         private bool _isMultiplayer;
-        private bool _acceptImmediately;
-        private bool _viewControllerPresented;
-        private bool _multiplayerDeclined;
+        private bool _declined;
 
         private OverrideEnvironmentSettings? _cachedOverrideEnvironmentSettings;
 
         private List<Tuple<ISettableSetting, object>>? _settableSettingsToSet;
 
-        public override string ResourceName => "Heck.SettingsSetter.SettingsSetter.bsml";
+        public event Action? Finished;
 
-        internal bool DoPresent { get; private set; }
+        public event Action<StartStandardLevelParameters>? ParametersModified;
+
+        public override string ResourceName => "Heck.SettingsSetter.SettingsSetter.bsml";
 
         private static string ContentBSML
         {
@@ -85,54 +74,10 @@ namespace Heck.SettingsSetter
             }
         }
 
-        private MenuTransitionsHelper MenuTransitionHelper => _menuTransitionsHelper != null ? _menuTransitionsHelper
-            : throw new InvalidOperationException($"[{nameof(_menuTransitionsHelper)}] was not created.");
-
-        internal void ForceStartLevel()
+        public bool Init(StartStandardLevelParameters startParameters)
         {
-            StartWithParameters(_cachedParameters, true);
-        }
+            _declined = true;
 
-        internal void RestoreCached()
-        {
-            if (_settableSettingsToSet != null)
-            {
-                foreach (Tuple<ISettableSetting, object> tuple in _settableSettingsToSet)
-                {
-                    ISettableSetting settableSetting = tuple.Item1;
-                    Heck.Log.Logger.Log($"Restored settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}].", Logger.Level.Trace);
-                    settableSetting.SetTemporary(null);
-                }
-
-                _settableSettingsToSet = null;
-            }
-
-            // Needed for multiplayer
-            if (_cachedOverrideEnvironmentSettings != null)
-            {
-                _playerDataModel.playerData.SetProperty("overrideEnvironmentSettings", _cachedOverrideEnvironmentSettings);
-                _cachedOverrideEnvironmentSettings = null;
-            }
-
-            if (_cachedMainSettings == null)
-            {
-                return;
-            }
-
-            Heck.Log.Logger.Log("Main settings restored.", Logger.Level.Trace);
-            _mainSettings.mirrorGraphicsSettings.value = _cachedMainSettings.MirrorGraphicsSettings;
-            _mainSettings.mainEffectGraphicsSettings.value = _cachedMainSettings.MainEffectGraphicsSettings;
-            _mainSettings.smokeGraphicsSettings.value = _cachedMainSettings.SmokeGraphicsSettings;
-            _mainSettings.burnMarkTrailsEnabled.value = _cachedMainSettings.BurnMarkTrailsEnabled;
-            _mainSettings.screenDisplacementEffectsEnabled.value = _cachedMainSettings.ScreenDisplacementEffectsEnabled;
-            _mainSettings.maxShockwaveParticles.value = _cachedMainSettings.MaxShockwaveParticles;
-            _mainSettings.depthTextureEnabled.value = _mainSettings.smokeGraphicsSettings;
-            _cachedMainSettings = null;
-            _mainSystemInit.Init();
-        }
-
-        internal void Init(StartStandardLevelParameters startParameters)
-        {
             // When in doubt, wrap everything in one big try catch statement!
             try
             {
@@ -376,26 +321,19 @@ namespace Heck.SettingsSetter
                             Destroy(_contentObject);
                         }
 
-                        DoPresent = true;
-                        _defaultParameters = startParameters;
                         if (_isMultiplayer)
                         {
-                            _multiplayerDeclined = false;
-                            _activeFlowCoordinator = _gameServerLobbyFlowCoordinator;
-                            _presentViewController(_activeFlowCoordinator, this, MultiplayerViewControllerPresented, AnimationDirection.Horizontal, false);
                             if (_declineButton != null)
                             {
                                 _declineButton.SetActive(true);
                             }
                         }
-                        else
-                        {
-                            _activeFlowCoordinator = _soloFreePlayFlowCoordinator.isActivated ? _soloFreePlayFlowCoordinator : _partyFreePlayFlowCoordinator;
-                            _presentViewController(_activeFlowCoordinator, this, null, AnimationDirection.Horizontal, false);
-                        }
 
+                        ParametersModified?.Invoke(_modifiedParameters);
+                        _declined = false;
+                        _defaultParameters = startParameters;
                         BSMLParser.instance.Parse(ContentBSML, gameObject, this);
-                        return;
+                        return true;
                     }
                 }
             }
@@ -405,90 +343,17 @@ namespace Heck.SettingsSetter
                 Heck.Log.Logger.Log(e, Logger.Level.Error);
             }
 
-            DoPresent = false;
+            return false;
         }
 
-        internal void AcceptAndStartMultiplayerLevel()
+        [UsedImplicitly]
+        private void OnPlay()
         {
-            if (isActivated)
+            if (_declined)
             {
-                if (_viewControllerPresented)
-                {
-                    OnAcceptClick();
-                    _viewControllerPresented = false;
-                }
-                else
-                {
-                    _acceptImmediately = true;
-                }
+                return;
             }
 
-            StartMultiplayerWithParameters(!_multiplayerDeclined ? _modifiedParameters : _defaultParameters);
-        }
-
-        internal void StartWithParameters(StartStandardLevelParameters? startParameters, bool force = false)
-        {
-            if (startParameters == null)
-            {
-                throw new ArgumentNullException(nameof(startParameters));
-            }
-
-            if (!force)
-            {
-                _cachedParameters = startParameters;
-
-                ApplySettings();
-            }
-
-            MenuTransitionHelper.StartStandardLevel(
-                startParameters.GameMode,
-                startParameters.DifficultyBeatmap,
-                startParameters.PreviewBeatmapLevel,
-                startParameters.OverrideEnvironmentSettings,
-                startParameters.OverrideColorScheme,
-                startParameters.GameplayModifiers,
-                startParameters.PlayerSpecificSettings,
-                startParameters.PracticeSettings,
-                startParameters.BackButtonText,
-                startParameters.UseTestNoteCutSoundEffects,
-                startParameters.StartPaused,
-                startParameters.BeforeSceneSwitchCallback,
-                null,
-                startParameters.LevelFinishedCallback,
-                startParameters.LevelRestartedCallback);
-        }
-
-        internal void StartMultiplayerWithParameters(StartStandardLevelParameters? startStandardParameters)
-        {
-            if (startStandardParameters is not StartMultiplayerLevelParameters startParameters)
-            {
-                throw new ArgumentException($"Was not of type [{nameof(StartMultiplayerLevelParameters)}]", nameof(startStandardParameters));
-            }
-
-            _lobbyGameStateController.SetProperty("countdownStarted", false);
-            _lobbyGameStateController.StopListeningToGameStart();
-
-            ApplySettings();
-
-            MenuTransitionHelper.StartMultiplayerLevel(
-                startParameters.GameMode,
-                startParameters.PreviewBeatmapLevel,
-                startParameters.BeatmapDifficulty,
-                startParameters.BeatmapCharacteristic,
-                startParameters.DifficultyBeatmap,
-                startParameters.OverrideColorScheme,
-                startParameters.GameplayModifiers,
-                startParameters.PlayerSpecificSettings,
-                startParameters.PracticeSettings,
-                startParameters.BackButtonText,
-                startParameters.UseTestNoteCutSoundEffects,
-                startParameters.BeforeSceneSwitchCallback,
-                startParameters.MultiplayerLevelFinishedCallback,
-                startParameters.DidDisconnectCallback);
-        }
-
-        private void ApplySettings()
-        {
             if (_modifiedMainSettings != null)
             {
                 Heck.Log.Logger.Log("Main settings modified.", Logger.Level.Trace);
@@ -514,37 +379,53 @@ namespace Heck.SettingsSetter
             }
         }
 
-        private void MultiplayerViewControllerPresented()
+        [UsedImplicitly]
+        private void OnFinish()
         {
-            if (_acceptImmediately)
+            if (_settableSettingsToSet != null)
             {
-                OnAcceptClick();
-                _acceptImmediately = false;
+                foreach (Tuple<ISettableSetting, object> tuple in _settableSettingsToSet)
+                {
+                    ISettableSetting settableSetting = tuple.Item1;
+                    Heck.Log.Logger.Log($"Restored settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}].", Logger.Level.Trace);
+                    settableSetting.SetTemporary(null);
+                }
+
+                _settableSettingsToSet = null;
             }
-            else
+
+            // Needed for multiplayer
+            if (_cachedOverrideEnvironmentSettings != null)
             {
-                _viewControllerPresented = true;
+                _playerDataModel.playerData.SetProperty("overrideEnvironmentSettings", _cachedOverrideEnvironmentSettings);
+                _cachedOverrideEnvironmentSettings = null;
             }
+
+            if (_cachedMainSettings == null)
+            {
+                return;
+            }
+
+            Heck.Log.Logger.Log("Main settings restored.", Logger.Level.Trace);
+            _mainSettings.mirrorGraphicsSettings.value = _cachedMainSettings.MirrorGraphicsSettings;
+            _mainSettings.mainEffectGraphicsSettings.value = _cachedMainSettings.MainEffectGraphicsSettings;
+            _mainSettings.smokeGraphicsSettings.value = _cachedMainSettings.SmokeGraphicsSettings;
+            _mainSettings.burnMarkTrailsEnabled.value = _cachedMainSettings.BurnMarkTrailsEnabled;
+            _mainSettings.screenDisplacementEffectsEnabled.value = _cachedMainSettings.ScreenDisplacementEffectsEnabled;
+            _mainSettings.maxShockwaveParticles.value = _cachedMainSettings.MaxShockwaveParticles;
+            _mainSettings.depthTextureEnabled.value = _mainSettings.smokeGraphicsSettings;
+            _cachedMainSettings = null;
+            _mainSystemInit.Init();
         }
 
         [UsedImplicitly]
         [Inject]
         private void Construct(
             GameplaySetupViewController gameplaySetupViewController,
-            MenuTransitionsHelper menuTransitionsHelper,
-            PlayerDataModel playerDataModel,
-            SoloFreePlayFlowCoordinator soloFreePlayFlowCoordinator,
-            PartyFreePlayFlowCoordinator partyFreePlayFlowCoordinator,
-            GameServerLobbyFlowCoordinator gameServerLobbyFlowCoordinator,
-            ILobbyGameStateController lobbyGameStateController)
+            PlayerDataModel playerDataModel)
         {
             _colorSchemesSettings = gameplaySetupViewController.colorSchemesSettings;
-            _menuTransitionsHelper = menuTransitionsHelper;
             _playerDataModel = playerDataModel;
-            _gameServerLobbyFlowCoordinator = gameServerLobbyFlowCoordinator;
-            _soloFreePlayFlowCoordinator = soloFreePlayFlowCoordinator;
-            _partyFreePlayFlowCoordinator = partyFreePlayFlowCoordinator;
-            _lobbyGameStateController = (LobbyGameStateController)lobbyGameStateController;
             _mainSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().First();
             _mainSystemInit = Resources.FindObjectsOfTypeAll<MainSystemInit>().First();
         }
@@ -553,6 +434,11 @@ namespace Heck.SettingsSetter
         [UIAction("decline-click")]
         private void OnDeclineClick()
         {
+            if (_defaultParameters == null)
+            {
+                throw new InvalidOperationException($"[{nameof(_defaultParameters)}] was null.");
+            }
+
             _cachedMainSettings = null;
             _modifiedMainSettings = null;
             _settableSettingsToSet = null;
@@ -562,37 +448,21 @@ namespace Heck.SettingsSetter
                 _cachedOverrideEnvironmentSettings = null;
             }
 
-            Dismiss();
-
-            if (!_isMultiplayer)
-            {
-                StartWithParameters(_defaultParameters);
-            }
-            else
-            {
-                _multiplayerDeclined = true;
-            }
+            _declined = true;
+            ParametersModified?.Invoke(_defaultParameters);
+            Finished?.Invoke();
         }
 
         [UsedImplicitly]
         [UIAction("accept-click")]
         private void OnAcceptClick()
         {
-            Dismiss();
-            if (!_isMultiplayer)
+            if (_modifiedParameters == null)
             {
-                StartWithParameters(_modifiedParameters);
-            }
-        }
-
-        private void Dismiss()
-        {
-            if (_activeFlowCoordinator == null)
-            {
-                throw new InvalidOperationException($"[{nameof(_activeFlowCoordinator)}] was null.");
+                throw new InvalidOperationException($"[{nameof(_modifiedParameters)}] was null.");
             }
 
-            _dismissViewController(_activeFlowCoordinator, this, AnimationDirection.Horizontal, null, true);
+            Finished?.Invoke();
         }
 
         private readonly struct ListObject

@@ -1,12 +1,12 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Heck.SettingsSetter
+namespace Heck.PlayView
 {
-    internal class StartStandardLevelParameters
+    public class StartStandardLevelParameters
     {
         [UsedImplicitly]
-        internal StartStandardLevelParameters(
+        public StartStandardLevelParameters(
             string gameMode,
             IDifficultyBeatmap difficultyBeatmap,
             IPreviewBeatmapLevel previewBeatmapLevel,
@@ -38,7 +38,7 @@ namespace Heck.SettingsSetter
             LevelRestartedCallback = levelRestartedCallback;
         }
 
-        internal StartStandardLevelParameters(StartStandardLevelParameters original)
+        public StartStandardLevelParameters(StartStandardLevelParameters original)
         {
             GameMode = original.GameMode;
             DifficultyBeatmap = original.DifficultyBeatmap;
@@ -56,35 +56,35 @@ namespace Heck.SettingsSetter
             LevelRestartedCallback = original.LevelRestartedCallback;
         }
 
-        internal string GameMode { get; }
+        public string GameMode { get; }
 
-        internal IDifficultyBeatmap DifficultyBeatmap { get; }
+        public IDifficultyBeatmap DifficultyBeatmap { get; }
 
-        internal IPreviewBeatmapLevel PreviewBeatmapLevel { get; }
+        public IPreviewBeatmapLevel PreviewBeatmapLevel { get; }
 
-        internal OverrideEnvironmentSettings? OverrideEnvironmentSettings { get; set; }
+        public OverrideEnvironmentSettings? OverrideEnvironmentSettings { get; set; }
 
-        internal ColorScheme? OverrideColorScheme { get; set; }
+        public ColorScheme? OverrideColorScheme { get; set; }
 
-        internal GameplayModifiers GameplayModifiers { get; set; }
+        public GameplayModifiers GameplayModifiers { get; set; }
 
-        internal PlayerSpecificSettings PlayerSpecificSettings { get; set; }
+        public PlayerSpecificSettings PlayerSpecificSettings { get; set; }
 
-        internal PracticeSettings PracticeSettings { get; }
+        public PracticeSettings PracticeSettings { get; }
 
-        internal string BackButtonText { get; }
+        public string BackButtonText { get; }
 
-        internal bool UseTestNoteCutSoundEffects { get; }
+        public bool UseTestNoteCutSoundEffects { get; }
 
-        internal bool StartPaused { get; }
+        public bool StartPaused { get; }
 
-        internal Action? BeforeSceneSwitchCallback { get; }
+        public Action? BeforeSceneSwitchCallback { get; }
 
-        internal Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>? LevelFinishedCallback { get; }
+        public Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>? LevelFinishedCallback { get; }
 
-        internal Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>? LevelRestartedCallback { get; }
+        public Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>? LevelRestartedCallback { get; }
 
-        internal virtual StartStandardLevelParameters Copy()
+        public virtual StartStandardLevelParameters Copy()
         {
             return new StartStandardLevelParameters(this);
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
-using Heck.SettingsSetter;
+using Heck.PlayView;
 using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -12,15 +12,13 @@ using SiraUtil.Affinity;
 namespace Heck.HarmonyPatches
 {
     [HeckPatch]
-    internal class SettableSettingsUI : IAffinity
+    internal class PlayViewInterrupter : IAffinity
     {
         private static readonly Action<FlowCoordinator, ViewController?, ViewController.AnimationType> _setLeftScreenViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController?, ViewController.AnimationType>>.GetDelegate("SetLeftScreenViewController");
         private static readonly Action<FlowCoordinator, ViewController?, ViewController.AnimationType> _setRightScreenViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController?, ViewController.AnimationType>>.GetDelegate("SetRightScreenViewController");
         private static readonly Action<FlowCoordinator, ViewController?, ViewController.AnimationType> _setBottomScreenViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController?, ViewController.AnimationType>>.GetDelegate("SetBottomScreenViewController");
         private static readonly Action<FlowCoordinator, string?, ViewController.AnimationType> _setTitle = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, string?, ViewController.AnimationType>>.GetDelegate("SetTitle");
         private static readonly PropertyAccessor<FlowCoordinator, bool>.Setter _showBackButtonSetter = PropertyAccessor<FlowCoordinator, bool>.GetSetter("showBackButton");
-
-        private static readonly Action<FlowCoordinator, ViewController, ViewController.AnimationDirection, Action?, bool> _dismissViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, ViewController.AnimationDirection, Action?, bool>>.GetDelegate("DismissViewController");
 
         private static readonly ConstructorInfo _standardLevelParametersCtor = AccessTools.FirstConstructor(typeof(StartStandardLevelParameters), _ => true);
         private static readonly ConstructorInfo _multiplayerLevelParametersCtor = AccessTools.FirstConstructor(typeof(StartMultiplayerLevelParameters), _ => true);
@@ -48,15 +46,18 @@ namespace Heck.HarmonyPatches
                 typeof(Action<MultiplayerLevelScenesTransitionSetupDataSO, MultiplayerResultsData>), typeof(Action<DisconnectedReason>)
             });
 
-        private readonly SettingsSetterViewController _setterViewController;
+        private readonly PlayViewManager _playViewManager;
         private readonly LobbyGameStateController _lobbyGameStateController;
         private readonly LobbyGameStateModel _lobbyGameStateModel;
 
-        private bool _settableSettingsWasShown;
+        private bool _playViewManagerHasRun;
 
-        private SettableSettingsUI(SettingsSetterViewController setterViewController, ILobbyGameStateController lobbyGameStateController, LobbyGameStateModel lobbyGameStateModel)
+        private PlayViewInterrupter(
+            PlayViewManager playViewManager,
+            ILobbyGameStateController lobbyGameStateController,
+            LobbyGameStateModel lobbyGameStateModel)
         {
-            _setterViewController = setterViewController;
+            _playViewManager = playViewManager;
             _lobbyGameStateController = (lobbyGameStateController as LobbyGameStateController)!;
             _lobbyGameStateModel = lobbyGameStateModel;
         }
@@ -107,8 +108,8 @@ namespace Heck.HarmonyPatches
         private bool StartLevelPrefix(SinglePlayerLevelSelectionFlowCoordinator __instance, Action beforeSceneSwitchCallback, bool practice)
         {
             StartStandardLevelParameters parameters = GetParameters(__instance, beforeSceneSwitchCallback, practice);
-            _setterViewController.Init(parameters);
-            return !_setterViewController.DoPresent;
+            _playViewManager.Init(parameters);
+            return false;
         }
 
         [AffinityPostfix]
@@ -116,55 +117,35 @@ namespace Heck.HarmonyPatches
         private void WaitingForCountdownPostfix(MultiplayerLevelLoader.MultiplayerBeatmapLoaderState ____loaderState, ILevelGameplaySetupData ____gameplaySetupData, IDifficultyBeatmap ____difficultyBeatmap)
         {
             if (____loaderState != MultiplayerLevelLoader.MultiplayerBeatmapLoaderState.WaitingForCountdown ||
-                _settableSettingsWasShown)
+                _playViewManagerHasRun)
             {
                 return;
             }
 
             if (_lobbyGameStateModel.gameState == MultiplayerGameState.Game)
             {
-                _settableSettingsWasShown = false;
+                _playViewManagerHasRun = false;
                 return;
             }
 
             StartMultiplayerLevelParameters parameters = GetMultiplayerParameters(_lobbyGameStateController, ____gameplaySetupData, ____difficultyBeatmap, null!);
-            _setterViewController.Init(parameters);
-            _settableSettingsWasShown = true;
+            _playViewManager.Init(parameters);
+            _playViewManagerHasRun = true;
         }
 
         [AffinityPrefix]
         [AffinityPatch(typeof(LobbyGameStateController), nameof(LobbyGameStateController.StartMultiplayerLevel))]
-        private bool ForceAcceptOptions()
+        private bool StartMultiplayer()
         {
-            _settableSettingsWasShown = false;
-            if (_setterViewController.DoPresent)
-            {
-                _setterViewController.AcceptAndStartMultiplayerLevel();
-            }
-
-            return !_setterViewController.DoPresent;
+            _playViewManagerHasRun = false;
+            return _playViewManager.StartMultiplayer();
         }
 
         [AffinityPrefix]
         [AffinityPatch(typeof(LobbyGameStateController), nameof(LobbyGameStateController.HandleMenuRpcManagerCancelledLevelStart))]
         private void CancelMultiplayerLevelStart()
         {
-            _settableSettingsWasShown = false;
-        }
-
-        [AffinityPrefix]
-        [AffinityPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), "HandleBasicLevelCompletionResults")]
-        private bool HandleBasicLevelCompletionResultsPrefix(LevelCompletionResults levelCompletionResults, ref bool __result)
-        {
-            if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.Restart ||
-                !_setterViewController.DoPresent)
-            {
-                return true;
-            }
-
-            __result = true;
-            _setterViewController.ForceStartLevel();
-            return false;
+            _playViewManagerHasRun = false;
         }
 
         [AffinityPrefix]
@@ -174,7 +155,8 @@ namespace Heck.HarmonyPatches
             ViewController newViewController,
             ViewController.AnimationType animationType)
         {
-            if (newViewController != _setterViewController)
+            PlayViewManager.PlayViewControllerData? controllerData = _playViewManager.ActiveView;
+            if (newViewController != ((ViewController?)controllerData?.ViewController))
             {
                 return true;
             }
@@ -182,7 +164,7 @@ namespace Heck.HarmonyPatches
             _setLeftScreenViewController(__instance, null, animationType);
             _setRightScreenViewController(__instance, null, animationType);
             _setBottomScreenViewController(__instance, null, animationType);
-            _setTitle(__instance, "information", animationType);
+            _setTitle(__instance, controllerData.Title, animationType);
             FlowCoordinator flowCoordinator = __instance;
             _showBackButtonSetter(ref flowCoordinator, true);
             return false;
@@ -192,13 +174,7 @@ namespace Heck.HarmonyPatches
         [AffinityPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), "BackButtonWasPressed")]
         private bool BackButtonWasPressedPrefix(SinglePlayerLevelSelectionFlowCoordinator __instance)
         {
-            if (__instance.topViewController != _setterViewController)
-            {
-                return true;
-            }
-
-            _dismissViewController(__instance, _setterViewController, ViewController.AnimationDirection.Horizontal, null, false);
-            return false;
+            return _playViewManager.DismissAll();
         }
 
         [AffinityPrefix]
@@ -207,7 +183,7 @@ namespace Heck.HarmonyPatches
         {
             if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.Restart)
             {
-                _setterViewController.RestoreCached();
+                _playViewManager.FinishAll();
             }
         }
 
@@ -216,7 +192,7 @@ namespace Heck.HarmonyPatches
         [AffinityPatch(typeof(MenuTransitionsHelper), "HandleMultiplayerLevelDidDisconnect")]
         private void HandleMultiplayerLevelDidFinishPrefix()
         {
-            _setterViewController.RestoreCached();
+            _playViewManager.FinishAll();
         }
     }
 }

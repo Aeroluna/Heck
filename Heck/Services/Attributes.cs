@@ -67,4 +67,18 @@ namespace Heck
     public class ObjectsDeserializer : Attribute
     {
     }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class PlayViewControllerSettings : Attribute
+    {
+        public PlayViewControllerSettings(int priority, string title)
+        {
+            Priority = priority;
+            Title = title;
+        }
+
+        internal int Priority { get; }
+
+        internal string Title { get; }
+    }
 }
