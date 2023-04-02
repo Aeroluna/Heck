@@ -38,7 +38,7 @@ namespace Heck.HarmonyPatches
                 .Advance(1)
                 .Insert(
                     new CodeInstruction(OpCodes.Ldarg_0),
-                    new CodeInstruction(OpCodes.Ldloc_S, 20),
+                    new CodeInstruction(OpCodes.Ldloc_S, 22),
                     _registerBurstSliderNoteData)
                 .InstructionEnumeration();
         }
