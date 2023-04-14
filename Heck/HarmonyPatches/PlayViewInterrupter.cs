@@ -174,7 +174,7 @@ namespace Heck.HarmonyPatches
         [AffinityPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), "BackButtonWasPressed")]
         private bool BackButtonWasPressedPrefix(SinglePlayerLevelSelectionFlowCoordinator __instance)
         {
-            return _playViewManager.DismissAll();
+            return _playViewManager.EarlyDismiss();
         }
 
         [AffinityPrefix]

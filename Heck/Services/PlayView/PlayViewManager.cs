@@ -106,7 +106,7 @@ namespace Heck.PlayView
             }
         }
 
-        internal bool DismissAll()
+        internal bool EarlyDismiss()
         {
             if (ActiveView == null)
             {
@@ -117,25 +117,11 @@ namespace Heck.PlayView
             _dismissViewController(_flowCoordinator, (ViewController)ActiveView.ViewController, ViewController.AnimationDirection.Horizontal, null, false);
             ActiveView = null;
             return false;
-            /*
-            if (_activeViewStack.Count == 0)
-            {
-                return true;
-            }
-
-            FlowCoordinator flowCoordinator = _soloFreePlayFlowCoordinator.isActivated ? _soloFreePlayFlowCoordinator : _partyFreePlayFlowCoordinator;
-            foreach (PlayViewControllerData viewController in _activeViewStack)
-            {
-                _dismissViewController(flowCoordinator, viewController.ViewController.@this, ViewController.AnimationDirection.Horizontal, null, true);
-            }
-
-            _activeViewStack.Clear();
-            return false;*/
         }
 
         internal bool StartMultiplayer()
         {
-            DismissAll();
+            Dismiss();
 
             foreach (PlayViewControllerData playViewControllerData in _viewControllers)
             {
@@ -166,6 +152,17 @@ namespace Heck.PlayView
                 multiplayerStartParameters.MultiplayerLevelFinishedCallback,
                 multiplayerStartParameters.DidDisconnectCallback);
             return false;
+        }
+
+        private void Dismiss()
+        {
+            if (ActiveView == null)
+            {
+                return;
+            }
+
+            _dismissViewController(_flowCoordinator, (ViewController)ActiveView.ViewController, ViewController.AnimationDirection.Horizontal, null, true);
+            ActiveView = null;
         }
 
         private void HandleParametersModified(StartStandardLevelParameters startParameters)
@@ -218,7 +215,7 @@ namespace Heck.PlayView
                 return;
             }
 
-            DismissAll();
+            Dismiss();
 
             if (_currentParameters is not StartMultiplayerLevelParameters)
             {
