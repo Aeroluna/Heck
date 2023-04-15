@@ -21,6 +21,7 @@
     <Reference Include="HMRendering" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll" />
     <Reference Include="IPA.Loader" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll" />
     <Reference Include="Main" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll" />
+    <Reference Include="MathUtils" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\MathUtils.dll" />
     <Reference Include="Newtonsoft.Json" HintPath="$(BeatSaberDir)\Libs\Newtonsoft.Json.dll" />
     <Reference Include="SiraUtil" HintPath="$(BeatSaberDir)\Plugins\SiraUtil.dll" />
     <Reference Include="SongCore" HintPath="$(BeatSaberDir)\Plugins\SongCore.dll" />
