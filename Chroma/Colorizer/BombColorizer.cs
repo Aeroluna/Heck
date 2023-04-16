@@ -42,14 +42,20 @@ namespace Chroma.Colorizer
     [UsedImplicitly]
     public class BombColorizer : ObjectColorizer
     {
+        // we set "_Color" too becaause if any custom model replaces the bomb, it'll allow using "_Color"
         private static readonly int _simpleColor = Shader.PropertyToID("_SimpleColor");
-        private readonly Renderer _bombRenderer;
+        private static readonly int _color = Shader.PropertyToID("_Color");
+
+        private readonly MaterialPropertyBlockController _materialPropertyBlockController;
         private readonly BombColorizerManager _manager;
 
         internal BombColorizer(NoteControllerBase noteController, BombColorizerManager manager)
         {
-            _bombRenderer = noteController.gameObject.GetComponentInChildren<Renderer>();
-            OriginalColor = _bombRenderer.material.GetColor(_simpleColor);
+            _materialPropertyBlockController = noteController.GetComponent<MaterialPropertyBlockController>();
+            OriginalColor = noteController.GetComponentInChildren<Renderer>().material.GetColor(_simpleColor);
+            MaterialPropertyBlock materialPropertyBlock = _materialPropertyBlockController.materialPropertyBlock;
+            materialPropertyBlock.SetColor(_simpleColor, OriginalColor);
+            materialPropertyBlock.SetColor(_color, OriginalColor);
 
             _manager = manager;
         }
@@ -58,7 +64,7 @@ namespace Chroma.Colorizer
 
         internal override void Refresh()
         {
-            Material bombMaterial = _bombRenderer.material;
+            MaterialPropertyBlock bombMaterial = _materialPropertyBlockController.materialPropertyBlock;
             Color color = Color;
             if (color == bombMaterial.GetColor(_simpleColor))
             {
@@ -66,6 +72,8 @@ namespace Chroma.Colorizer
             }
 
             bombMaterial.SetColor(_simpleColor, color);
+            bombMaterial.SetColor(_color, color);
+            _materialPropertyBlockController.ApplyChanges();
         }
 
         [UsedImplicitly]
