@@ -21,6 +21,7 @@ namespace NoodleExtensions
         {
             Log.Logger = new HeckLogger(pluginLogger);
 
+            zenjector.Install<NoodleAppInstaller>(Location.App);
             zenjector.Install<NoodlePlayerInstaller>(Location.Player);
             zenjector.Expose<NoteCutCoreEffectsSpawner>("Gameplay");
 

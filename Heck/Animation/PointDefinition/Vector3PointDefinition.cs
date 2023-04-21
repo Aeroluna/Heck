@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Heck.BaseProvider;
+using ModestTree;
 using UnityEngine;
 
 namespace Heck.Animation
 {
     public class Vector3PointDefinition : PointDefinition<Vector3>
     {
+        private const int ARRAY_COUNT = 3;
+
         internal Vector3PointDefinition(IReadOnlyCollection<object> points)
             : base(points)
         {
@@ -31,16 +35,41 @@ namespace Heck.Animation
                 : Vector3.LerpUnclamped(points[l].Point, pointR.Point, time);
         }
 
-        private protected override Modifier<Vector3> CreateModifier(float[] floats, Modifier<Vector3>[] modifiers, Operation operation)
+        private protected override Modifier<Vector3> CreateModifier(float[]? floats, BaseProviderData? baseProvider, Modifier<Vector3>[] modifiers, Operation operation)
         {
-            Vector3 result = new(floats[0], floats[1], floats[2]);
-            return new Modifier(result, modifiers, operation);
+            Vector3? value;
+            if (baseProvider != null)
+            {
+                Assert.That(floats == null);
+                value = null;
+            }
+            else
+            {
+                Assert.That(floats is { Length: ARRAY_COUNT });
+                value = new Vector3(floats![0], floats[1], floats[2]);
+            }
+
+            return new Modifier(value, baseProvider, modifiers, operation);
         }
 
-        private protected override IPointData CreatePointData(float[] floats, string[] flags, Modifier<Vector3>[] modifiers, Functions easing)
+        private protected override IPointData CreatePointData(float[] floats, BaseProviderData? baseProvider, string[] flags, Modifier<Vector3>[] modifiers, Functions easing)
         {
-            Vector3 result = new(floats[0], floats[1], floats[2]);
-            return new PointData(result, flags.Any(n => n == "splineCatmullRom"), floats[3], modifiers, easing); // TODO: add more spicy splines
+            Vector3? value;
+            float time;
+            if (baseProvider != null)
+            {
+                Assert.That(floats.Length == 1);
+                value = null;
+                time = floats[0];
+            }
+            else
+            {
+                Assert.That(floats.Length == ARRAY_COUNT + 1);
+                value = new Vector3(floats[0], floats[1], floats[2]);
+                time = floats[ARRAY_COUNT];
+            }
+
+            return new PointData(value, baseProvider, flags.Any(n => n == "splineCatmullRom"), time, modifiers, easing); // TODO: add more spicy splines
         }
 
         private static Vector3 SmoothVectorLerp(List<IPointData> points, int a, int b, float time)
@@ -69,8 +98,8 @@ namespace Heck.Animation
 
         private class PointData : Modifier, IPointData
         {
-            internal PointData(Vector3 point, bool smooth, float time, Modifier<Vector3>[] modifiers, Functions easing)
-                : base(point, modifiers, default)
+            internal PointData(Vector3? point, BaseProviderData? baseProvider, bool smooth, float time, Modifier<Vector3>[] modifiers, Functions easing)
+                : base(point, baseProvider, modifiers, default)
             {
                 Smooth = smooth;
                 Time = time;
@@ -86,8 +115,8 @@ namespace Heck.Animation
 
         private class Modifier : Modifier<Vector3>
         {
-            internal Modifier(Vector3 point, Modifier<Vector3>[] modifiers, Operation operation)
-                : base(point, modifiers, operation)
+            internal Modifier(Vector3? point, BaseProviderData? baseProvider, Modifier<Vector3>[] modifiers, Operation operation)
+                : base(point, baseProvider, modifiers, operation)
             {
             }
 

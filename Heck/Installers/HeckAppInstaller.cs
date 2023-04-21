@@ -1,4 +1,5 @@
-﻿using Heck.ReLoad;
+﻿using Heck.BaseProvider;
+using Heck.ReLoad;
 using Heck.Settings;
 using JetBrains.Annotations;
 using Zenject;
@@ -17,6 +18,8 @@ namespace Heck.Installers
 
         public override void InstallBindings()
         {
+            Container.Bind<BaseProviderManager>().AsSingle().NonLazy();
+
             if (!HeckController.DebugMode)
             {
                 return;

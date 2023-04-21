@@ -25,6 +25,8 @@ namespace Chroma.Installers
             Container.Bind<EnvironmentMaterialsManager>().FromNewComponentOnNewGameObject().AsSingle();
 
             Container.Bind<CustomLevelLoaderExposer>().AsSingle().NonLazy();
+
+            Container.BindInterfacesAndSelfTo<ColorBaseProvider>().AsSingle();
         }
     }
 }

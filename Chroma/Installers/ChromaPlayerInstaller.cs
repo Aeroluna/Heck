@@ -57,6 +57,9 @@ namespace Chroma.Installers
                 // Mirror
                 Container.BindInterfacesTo<MirroredNoteChromaTracker>().AsSingle();
                 Container.BindInterfacesTo<MirroredObstacleChromaTracker>().AsSingle();
+
+                // Base Provider
+                Container.BindInterfacesTo<ColorSchemeGetter>().AsSingle();
             }
 
             if (ChromaController.FeaturesPatcher.Enabled)

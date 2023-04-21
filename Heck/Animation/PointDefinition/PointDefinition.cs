@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Heck.BaseProvider;
 
 namespace Heck.Animation
 {
@@ -18,16 +19,18 @@ namespace Heck.Animation
         [SuppressMessage("ReSharper", "VirtualMemberCallInConstructor", Justification = "No instance variables used.")]
         protected PointDefinition(IReadOnlyCollection<object> list)
         {
-            IEnumerable<List<object>> points = list.FirstOrDefault() is List<object> ? list.Cast<List<object>>() : new[] { list.Append(0L).ToList() };
+            IEnumerable<List<object>> points = list.FirstOrDefault() is List<object> ? list.Cast<List<object>>() : new[] { list.Append(0).ToList() };
 
             List<IPointData> pointData = new();
 
+            bool usesProvider = false;
             foreach (List<object> rawPoint in points)
             {
                 Functions easing = Functions.easeLinear;
                 Modifier<T>[]? modifiers = null;
                 string[]? flags = null;
                 float[]? floatList = null;
+                BaseProviderData? baseProvider = null;
                 foreach (IGrouping<GroupType, object> grouping in Group(rawPoint))
                 {
                     List<object> groupList = grouping.ToList();
@@ -35,6 +38,11 @@ namespace Heck.Animation
                     {
                         case GroupType.Value:
                             floatList = groupList.Select(Convert.ToSingle).ToArray();
+                            break;
+
+                        case GroupType.BaseValue:
+                            usesProvider = true;
+                            baseProvider = BaseProviderManager.Instance.GetProviderData((string)groupList.First());
                             break;
 
                         case GroupType.Flag:
@@ -58,34 +66,33 @@ namespace Heck.Animation
                     throw new InvalidOperationException("No points found.");
                 }
 
-                pointData.Add(CreatePointData(floatList, flags ?? Array.Empty<string>(), modifiers ?? Array.Empty<Modifier<T>>(), easing));
+                pointData.Add(CreatePointData(floatList, baseProvider, flags ?? Array.Empty<string>(), modifiers ?? Array.Empty<Modifier<T>>(), easing));
             }
 
             int count = pointData.Count;
-            if (count <= 1)
+            if (count > 1 && !usesProvider)
             {
-                _points.AddRange(pointData);
-                return;
-            }
-
-            T firstVal = pointData[0].Point;
-            for (int i = 1; i < count; i++)
-            {
-                if (Compare(pointData[i].Point, firstVal))
+                T firstVal = pointData[0].Point;
+                for (int i = 1; i < count; i++)
                 {
-                    continue;
+                    if (Compare(pointData[i].Point, firstVal))
+                    {
+                        continue;
+                    }
+
+                    break;
                 }
 
-                _points.AddRange(pointData);
-                return;
+                _points.Add(pointData[0]);
             }
 
-            _points.Add(pointData[0]);
+            _points.AddRange(pointData);
         }
 
         private enum GroupType
         {
             Value,
+            BaseValue,
             Flag,
             Modifier
         }
@@ -158,9 +165,9 @@ namespace Heck.Animation
 
         protected abstract T InterpolatePoints(List<IPointData> points, int l, int r, float time);
 
-        private protected abstract Modifier<T> CreateModifier(float[] floats, Modifier<T>[] modifiers, Operation operation);
+        private protected abstract Modifier<T> CreateModifier(float[]? floats, BaseProviderData? baseProvider, Modifier<T>[] modifiers, Operation operation);
 
-        private protected abstract IPointData CreatePointData(float[] floats, string[] flags, Modifier<T>[] modifiers, Functions easing);
+        private protected abstract IPointData CreatePointData(float[] floats, BaseProviderData? baseProvider, string[] flags, Modifier<T>[] modifiers, Functions easing);
 
         private static IEnumerable<IGrouping<GroupType, object>> Group(IEnumerable<object> list)
         {
@@ -168,7 +175,7 @@ namespace Heck.Animation
             {
                 return n switch
                 {
-                    string => GroupType.Flag,
+                    string s => s.StartsWith("base") ? GroupType.BaseValue : GroupType.Flag,
                     List<object> => GroupType.Modifier,
                     _ => GroupType.Value
                 };
@@ -180,6 +187,7 @@ namespace Heck.Animation
             Modifier<T>[]? modifiers = null;
             Operation? operation = null;
             float[]? floatList = null;
+            BaseProviderData? baseProvider = null;
             foreach (IGrouping<GroupType, object> grouping in Group(list))
             {
                 List<object> groupList = grouping.ToList();
@@ -187,6 +195,10 @@ namespace Heck.Animation
                 {
                     case GroupType.Value:
                         floatList = groupList.Select(Convert.ToSingle).ToArray();
+                        break;
+
+                    case GroupType.BaseValue:
+                        baseProvider = BaseProviderManager.Instance.GetProviderData((string)groupList.First());
                         break;
 
                     case GroupType.Flag:
@@ -199,7 +211,7 @@ namespace Heck.Animation
                 }
             }
 
-            if (floatList == null)
+            if (floatList == null && baseProvider == null)
             {
                 throw new InvalidOperationException("No points found.");
             }
@@ -209,7 +221,7 @@ namespace Heck.Animation
                 throw new InvalidOperationException("No operation found.");
             }
 
-            return CreateModifier(floatList, modifiers ?? Array.Empty<Modifier<T>>(), operation.Value);
+            return CreateModifier(floatList, baseProvider, modifiers ?? Array.Empty<Modifier<T>>(), operation.Value);
         }
 
         // Use binary search instead of linear search.

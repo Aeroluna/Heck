@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Heck.BaseProvider;
+using ModestTree;
 using UnityEngine;
 
 namespace Heck.Animation
 {
     public class Vector4PointDefinition : PointDefinition<Vector4>
     {
+        private const int ARRAY_COUNT = 4;
+
         internal Vector4PointDefinition(IReadOnlyCollection<object> points)
             : base(points)
         {
@@ -35,22 +39,47 @@ namespace Heck.Animation
             return new Vector4(lerped.r, lerped.g, lerped.b, Mathf.LerpUnclamped(pointL.w, pointR.w, time));
         }
 
-        private protected override Modifier<Vector4> CreateModifier(float[] floats, Modifier<Vector4>[] modifiers, Operation operation)
+        private protected override Modifier<Vector4> CreateModifier(float[]? floats, BaseProviderData? baseProvider, Modifier<Vector4>[] modifiers, Operation operation)
         {
-            Vector4 result = new(floats[0], floats[1], floats[2], floats[3]);
-            return new Modifier(result, modifiers, operation);
+            Vector4? value;
+            if (baseProvider != null)
+            {
+                Assert.That(floats == null);
+                value = null;
+            }
+            else
+            {
+                Assert.That(floats is { Length: ARRAY_COUNT });
+                value = new Vector4(floats![0], floats[1], floats[2], floats[3]);
+            }
+
+            return new Modifier(value, baseProvider, modifiers, operation);
         }
 
-        private protected override IPointData CreatePointData(float[] floats, string[] flags, Modifier<Vector4>[] modifiers, Functions easing)
+        private protected override IPointData CreatePointData(float[] floats, BaseProviderData? baseProvider, string[] flags, Modifier<Vector4>[] modifiers, Functions easing)
         {
-            Vector4 result = new(floats[0], floats[1], floats[2], floats[3]);
-            return new PointData(result, flags.Any(n => n == "lerpHSV"), floats[4], modifiers, easing);
+            Vector4? value;
+            float time;
+            if (baseProvider != null)
+            {
+                Assert.That(floats.Length == 1);
+                value = null;
+                time = floats[0];
+            }
+            else
+            {
+                Assert.That(floats.Length == ARRAY_COUNT + 1);
+                value = new Vector4(floats[0], floats[1], floats[2], floats[3]);
+                time = floats[ARRAY_COUNT];
+            }
+
+            return new PointData(value, baseProvider, flags.Any(n => n == "lerpHSV"), time, modifiers, easing);
         }
 
         private class PointData : Modifier, IPointData
         {
-            internal PointData(Vector4 point, bool hsvLerp, float time, Modifier<Vector4>[] modifiers, Functions easing)
-                : base(point, modifiers, default)
+            internal PointData(Vector4? point, BaseProviderData? baseProvider, bool hsvLerp, float time, Modifier<Vector4>[] modifiers, Functions easing)
+                : base(point, baseProvider, modifiers, default)
             {
                 HsvLerp = hsvLerp;
                 Time = time;
@@ -66,8 +95,8 @@ namespace Heck.Animation
 
         private class Modifier : Modifier<Vector4>
         {
-            internal Modifier(Vector4 point, Modifier<Vector4>[] modifiers, Operation operation)
-                : base(point, modifiers, operation)
+            internal Modifier(Vector4? point, BaseProviderData? baseProvider, Modifier<Vector4>[] modifiers, Operation operation)
+                : base(point, baseProvider, modifiers, operation)
             {
             }
 

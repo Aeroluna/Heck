@@ -25,6 +25,9 @@ namespace NoodleExtensions.Installers
             Container.Bind<AnimationHelper>().AsSingle();
             Container.BindInterfacesAndSelfTo<NoodleObjectsCallbacksManager>().AsSingle();
 
+            // Base Provider
+            Container.BindInterfacesTo<PlayerTransformGetter>().AsSingle();
+
             // Events
             Container.BindInterfacesTo<EventController>().AsSingle();
             Container.Bind<ParentController>().AsSingle();

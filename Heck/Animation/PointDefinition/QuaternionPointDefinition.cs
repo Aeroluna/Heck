@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Heck.BaseProvider;
+using ModestTree;
 using UnityEngine;
 
 namespace Heck.Animation
 {
     public class QuaternionPointDefinition : PointDefinition<Quaternion>
     {
+        private const int ARRAY_COUNT = 3;
+
         internal QuaternionPointDefinition(IReadOnlyCollection<object> list)
             : base(list)
         {
@@ -19,22 +23,47 @@ namespace Heck.Animation
             return Quaternion.SlerpUnclamped(points[l].Point, points[r].Point, time);
         }
 
-        private protected override Modifier<Quaternion> CreateModifier(float[] floats, Modifier<Quaternion>[] modifiers, Operation operation)
+        private protected override Modifier<Quaternion> CreateModifier(float[]? floats, BaseProviderData? baseProvider, Modifier<Quaternion>[] modifiers, Operation operation)
         {
-            Quaternion value = Quaternion.Euler(new Vector3(floats[0], floats[1], floats[2]));
-            return new Modifier(value, modifiers, operation);
+            Quaternion? value;
+            if (baseProvider != null)
+            {
+                Assert.That(floats == null);
+                value = null;
+            }
+            else
+            {
+                Assert.That(floats is { Length: ARRAY_COUNT });
+                value = Quaternion.Euler(new Vector3(floats![0], floats[1], floats[2]));
+            }
+
+            return new Modifier(value, baseProvider, modifiers, operation);
         }
 
-        private protected override IPointData CreatePointData(float[] floats, string[] flags, Modifier<Quaternion>[] modifiers, Functions easing)
+        private protected override IPointData CreatePointData(float[] floats, BaseProviderData? baseProvider, string[] flags, Modifier<Quaternion>[] modifiers, Functions easing)
         {
-            Quaternion value = Quaternion.Euler(new Vector3(floats[0], floats[1], floats[2]));
-            return new PointData(value, floats[3], modifiers, easing);
+            Quaternion? value;
+            float time;
+            if (baseProvider != null)
+            {
+                Assert.That(floats.Length == 1);
+                value = null;
+                time = floats[0];
+            }
+            else
+            {
+                Assert.That(floats.Length == ARRAY_COUNT + 1);
+                value = Quaternion.Euler(new Vector3(floats[0], floats[1], floats[2]));
+                time = floats[ARRAY_COUNT];
+            }
+
+            return new PointData(value, baseProvider, time, modifiers, easing);
         }
 
         private class PointData : Modifier, IPointData
         {
-            internal PointData(Quaternion point, float time, Modifier<Quaternion>[] modifiers, Functions easing)
-                : base(point, modifiers, default)
+            internal PointData(Quaternion? point, BaseProviderData? baseProvider, float time, Modifier<Quaternion>[] modifiers, Functions easing)
+                : base(point, baseProvider, modifiers, default)
             {
                 Time = time;
                 Easing = easing;
@@ -47,8 +76,8 @@ namespace Heck.Animation
 
         private class Modifier : Modifier<Quaternion>
         {
-            internal Modifier(Quaternion point, Modifier<Quaternion>[] modifiers, Operation operation)
-                : base(point, modifiers, operation)
+            internal Modifier(Quaternion? point, BaseProviderData? baseProvider, Modifier<Quaternion>[] modifiers, Operation operation)
+                : base(point, baseProvider, modifiers, operation)
             {
             }
 

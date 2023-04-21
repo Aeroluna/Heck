@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
+using Heck.BaseProvider;
 
 namespace Heck.Animation
 {
@@ -19,10 +21,15 @@ namespace Heck.Animation
 #pragma warning restore SA1300 // Element should begin with upper-case letter
 
     internal abstract class Modifier<T>
+        where T : struct
     {
-        internal Modifier(T point, Modifier<T>[] modifiers, Operation operation)
+        private readonly T? _rawPoint;
+        private readonly BaseProviderData? _baseProvider;
+
+        internal Modifier(T? point, BaseProviderData? baseProvider, Modifier<T>[] modifiers, Operation operation)
         {
-            OriginalPoint = point;
+            _rawPoint = point;
+            _baseProvider = baseProvider;
             Modifiers = modifiers;
             Operation = operation;
         }
@@ -31,7 +38,7 @@ namespace Heck.Animation
 
         public Operation Operation { get; }
 
-        protected T OriginalPoint { get; }
+        protected T OriginalPoint => _rawPoint ?? (T?)_baseProvider?.GetValue() ?? throw new InvalidOperationException();
 
         protected Modifier<T>[] Modifiers { get; }
 

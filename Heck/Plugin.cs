@@ -29,11 +29,11 @@ namespace Heck
             {
                 DebugMode = true;
                 Log.Logger.Log("[-aerolunaisthebestmodder] launch argument detected, running in Debug mode.");
-                zenjector.Install<HeckAppInstaller>(Location.App, conf.Generated<Config>());
             }
 
             SettingSetterSettableSettingsManager.SetupSettingsTable();
 
+            zenjector.Install<HeckAppInstaller>(Location.App, conf.Generated<Config>());
             zenjector.Install<HeckPlayerInstaller>(Location.Player);
             zenjector.Install<HeckMenuInstaller>(Location.Menu);
             zenjector.Expose<NoteCutSoundEffectManager>("Gameplay");
