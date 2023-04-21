@@ -161,8 +161,8 @@ namespace NoodleExtensions.Managers
             float tailLineLayer = noodleData.TailStartY ?? (float)sliderData.tailLineLayer;
             float tailStartlinelayer = noodleData.InternalTailStartNoteLineLayer;
 
-            Vector3 headOffset = GetNoteOffset(headLineIndex, headStartlinelayer);
-            Vector3 tailOffset = GetNoteOffset(tailLineIndex, tailStartlinelayer);
+            Vector3 headOffset = GetNoteOffset(headLineIndex, gravityOverride ? headLineLayer : headStartlinelayer);
+            Vector3 tailOffset = GetNoteOffset(tailLineIndex, gravityOverride ? tailLineLayer : tailStartlinelayer);
             GetNoteJumpValues(
                 njs,
                 spawnoffset,
