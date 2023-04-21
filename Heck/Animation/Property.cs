@@ -30,7 +30,7 @@ namespace Heck.Animation
     {
         internal override IPointDefinitionInterpolation IInterpolation => Interpolation;
 
-        internal PointDefinitionInterpolation<T> Interpolation { get; } = new();
+        internal PointDefinitionInterpolation<T> Interpolation { get; } = PointDefinitionInterpolation<T>.CreateDerived();
 
         internal override void Null() => Interpolation.Init(null);
     }
