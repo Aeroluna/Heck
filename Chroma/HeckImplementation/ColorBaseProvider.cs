@@ -1,4 +1,5 @@
-﻿using Heck.BaseProvider;
+﻿using Heck;
+using Heck.BaseProvider;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -7,6 +8,12 @@ namespace Chroma
 {
     internal class ColorBaseProvider : IBaseProvider
     {
+        [BaseProvider("baseNote0Color")]
+        internal Vector4 Note0Color { get; set; }
+
+        [BaseProvider("baseNote1Color")]
+        internal Vector4 Note1Color { get; set; }
+
         [BaseProvider("baseSaberAColor")]
         internal Vector4 SaberAColor { get; set; }
 
@@ -39,16 +46,23 @@ namespace Chroma
     {
         private readonly ColorBaseProvider _colorBaseProvider;
         private readonly ColorScheme _colorScheme;
+        private readonly bool _leftHanded;
 
         [UsedImplicitly]
-        private ColorSchemeGetter(ColorBaseProvider colorBaseProvider, ColorScheme colorScheme)
+        private ColorSchemeGetter(
+            ColorBaseProvider colorBaseProvider,
+            ColorScheme colorScheme,
+            [Inject(Id = HeckController.LEFT_HANDED_ID)] bool leftHanded)
         {
             _colorBaseProvider = colorBaseProvider;
             _colorScheme = colorScheme;
+            _leftHanded = leftHanded;
         }
 
         public void Initialize()
         {
+            _colorBaseProvider.Note0Color = _leftHanded ? _colorScheme.saberBColor : _colorScheme.saberAColor;
+            _colorBaseProvider.Note1Color = _leftHanded ? _colorScheme.saberAColor : _colorScheme.saberBColor;
             _colorBaseProvider.SaberAColor = _colorScheme.saberAColor;
             _colorBaseProvider.SaberBColor = _colorScheme.saberBColor;
             _colorBaseProvider.EnvironmentColor0 = _colorScheme.environmentColor0;
