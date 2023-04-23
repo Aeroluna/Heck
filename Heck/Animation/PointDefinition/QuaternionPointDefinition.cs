@@ -94,8 +94,8 @@ namespace Heck.Animation
                         {
                             Operation.opAdd => curVec + curVec,
                             Operation.opSub => modVec - modVec,
-                            Operation.opMult => Vector3.Scale(curVec, modVec),
-                            Operation.opDivide => Vector3PointDefinition.DivideByComponent(curVec, modVec),
+                            Operation.opMul => Vector3.Scale(curVec, modVec),
+                            Operation.opDiv => Vector3PointDefinition.DivideByComponent(curVec, modVec),
                             _ => throw new InvalidOperationException($"[{modifier.Operation}] cannot be performed on type float.")
                         };
 

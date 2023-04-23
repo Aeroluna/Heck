@@ -87,8 +87,8 @@ namespace Heck.Animation
                     {
                         Operation.opAdd => current + modifier.Point,
                         Operation.opSub => current - modifier.Point,
-                        Operation.opMult => current * modifier.Point,
-                        Operation.opDivide => current / modifier.Point,
+                        Operation.opMul => current * modifier.Point,
+                        Operation.opDiv => current / modifier.Point,
                         _ => throw new InvalidOperationException($"[{modifier.Operation}] cannot be performed on type float.")
                     });
                 }

@@ -14,8 +14,8 @@ namespace Heck.Animation
         opNone = 0,
         opAdd,
         opSub,
-        opMult,
-        opDivide
+        opMul,
+        opDiv
     }
 
 #pragma warning restore SA1300 // Element should begin with upper-case letter

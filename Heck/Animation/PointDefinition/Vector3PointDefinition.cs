@@ -128,8 +128,8 @@ namespace Heck.Animation
                     {
                         Operation.opAdd => current + modifier.Point,
                         Operation.opSub => current - modifier.Point,
-                        Operation.opMult => Vector3.Scale(current, modifier.Point),
-                        Operation.opDivide => DivideByComponent(current, modifier.Point),
+                        Operation.opMul => Vector3.Scale(current, modifier.Point),
+                        Operation.opDiv => DivideByComponent(current, modifier.Point),
                         _ => throw new InvalidOperationException($"[{modifier.Operation}] cannot be performed on type Vector3.")
                     });
                 }
