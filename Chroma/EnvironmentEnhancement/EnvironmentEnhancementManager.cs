@@ -96,6 +96,17 @@ namespace Chroma.EnvironmentEnhancement
             bool v2 = _beatmapData.version2_6_0AndEarlier;
             IEnumerable<CustomData>? environmentData = null;
 
+            if (!_config.EnvironmentEnhancementsDisabled || _config.CustomEnvironmentEnabled)
+            {
+                // seriously what the fuck beat games
+                // GradientBackground permanently yeeted because it looks awful and can ruin multi-colored chroma maps
+                GameObject? gradientBackground = GameObject.Find("/Environment/GradientBackground");
+                if (gradientBackground != null)
+                {
+                    gradientBackground.SetActive(false);
+                }
+            }
+
             if (!_config.EnvironmentEnhancementsDisabled)
             {
                 environmentData = _beatmapData.customData
@@ -389,13 +400,6 @@ namespace Chroma.EnvironmentEnhancement
                 GameObjectInfo gameObjectInfo = new(gameObject);
                 result.Add(new GameObjectInfo(gameObject));
                 objectsToPrint.Add(gameObjectInfo.FullID);
-
-                // seriously what the fuck beat games
-                // GradientBackground permanently yeeted because it looks awful and can ruin multi-colored chroma maps
-                if (gameObject.name == "GradientBackground")
-                {
-                    gameObject.SetActive(false);
-                }
             }
 
             // ReSharper disable once InvertIf
