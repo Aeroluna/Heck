@@ -196,29 +196,38 @@ namespace Chroma
 
             bool TryGetEventData(BeatmapEventData beatmapEventData, [NotNullWhen(true)] out ChromaEventData? chromaEventData)
             {
-                if (!dictionary.TryGetValue(beatmapEventData, out IEventCustomData? eventCustomData))
+                if (dictionary.TryGetValue(beatmapEventData, out IEventCustomData? eventCustomData))
                 {
-                    chromaEventData = null;
-                    return false;
+                    chromaEventData = (ChromaEventData)eventCustomData;
+                    return true;
                 }
 
-                chromaEventData = (ChromaEventData)eventCustomData;
-                return true;
+                chromaEventData = null;
+                return false;
             }
+
+            int[] allUsedIds = beatmapEventDatas.SelectMany(n =>
+            {
+                if (!TryGetEventData(n, out ChromaEventData? filteredEventData) || filteredEventData.LightID == null)
+                {
+                    return Enumerable.Empty<int>();
+                }
+
+                return filteredEventData.LightID;
+            }).Distinct().ToArray();
 
             // Horrible stupid logic to get next same type event per light id
             for (int i = 0; i < beatmapEventDatas.Count; i++)
             {
-                if (!TryGetEventData(beatmapEventDatas[i], out ChromaEventData? currentEventData) || currentEventData.LightID == null)
+                if (!TryGetEventData(beatmapEventDatas[i], out ChromaEventData? currentEventData))
                 {
                     continue;
                 }
 
-                BasicBeatmapEventType type = beatmapEventDatas[i].basicBeatmapEventType;
-
                 currentEventData.NextSameTypeEvent ??= new Dictionary<int, BasicBeatmapEventData>();
-
-                foreach (int id in currentEventData.LightID)
+                IEnumerable<int> ids = currentEventData.LightID ?? allUsedIds;
+                BasicBeatmapEventType type = beatmapEventDatas[i].basicBeatmapEventType;
+                foreach (int id in ids)
                 {
                     if (i >= beatmapEventDatas.Count - 1)
                     {
@@ -233,31 +242,13 @@ namespace Chroma
                         }
 
                         return TryGetEventData(n, out ChromaEventData? nextEventData)
-                               && nextEventData.LightID != null
-                               && nextEventData.LightID.Contains(id);
+                               && (nextEventData.LightID == null
+                               || nextEventData.LightID.Contains(id));
                     });
 
                     if (nextIndex != -1)
                     {
                         currentEventData.NextSameTypeEvent[id] = beatmapEventDatas[nextIndex];
-                    }
-                    else
-                    {
-                        nextIndex = beatmapEventDatas.FindIndex(i + 1, n =>
-                        {
-                            if (n.basicBeatmapEventType != type)
-                            {
-                                return false;
-                            }
-
-                            return !(TryGetEventData(n, out ChromaEventData? nextEventData)
-                                    && nextEventData.LightID != null);
-                        });
-
-                        if (nextIndex != -1)
-                        {
-                            currentEventData.NextSameTypeEvent[id] = beatmapEventDatas[nextIndex];
-                        }
                     }
                 }
             }

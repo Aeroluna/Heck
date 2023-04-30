@@ -218,14 +218,14 @@ namespace Chroma.Lighting
                 {
                     _deserializedData.Resolve(previousEvent, out ChromaEventData? eventData);
                     Dictionary<int, BasicBeatmapEventData>? nextSameTypesDict = eventData?.NextSameTypeEvent;
-                    BasicBeatmapEventData? nextSameTypeEvent;
-                    if (ChromaController.FeaturesPatcher.Enabled && (nextSameTypesDict?.ContainsKey(tween.Id) ?? false))
-                    {
-                        nextSameTypeEvent = nextSameTypesDict[tween.Id];
-                    }
-                    else
+                    BasicBeatmapEventData? nextSameTypeEvent = null;
+                    if (!ChromaController.FeaturesPatcher.Enabled || nextSameTypesDict == null)
                     {
                         nextSameTypeEvent = previousEvent.nextSameTypeEventData;
+                    }
+                    else if (nextSameTypesDict.ContainsKey(tween.Id))
+                    {
+                        nextSameTypeEvent = nextSameTypesDict[tween.Id];
                     }
 
                     if (nextSameTypeEvent == null || !nextSameTypeEvent.HasLightFadeEventDataValue())
