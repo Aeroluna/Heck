@@ -106,7 +106,14 @@ namespace Chroma.Colorizer
 
         public ColorType ColorType => _noteController.noteData?.colorType ?? ColorType.ColorA;
 
-        protected override Color? GlobalColorGetter => _manager.GlobalColor[(int)ColorType];
+        protected override Color? GlobalColorGetter
+        {
+            get
+            {
+                ColorType colorType = ColorType;
+                return colorType == ColorType.None ? null : _manager.GlobalColor[(int)colorType];
+            }
+        }
 
         protected override Color OriginalColorGetter => _colorManager.ColorForType(ColorType);
 

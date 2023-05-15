@@ -17,11 +17,6 @@ namespace Chroma.HarmonyPatches.Colorizer
             _noteManager = noteManager;
         }
 
-        internal void EnableColorOverride(NoteControllerBase noteController)
-        {
-            _noteColorOverride = _noteManager.GetColorizer(noteController).Color;
-        }
-
         [AffinityPrefix]
         [AffinityPatch(typeof(ColorManager), nameof(ColorManager.ColorForType), AffinityMethodType.Normal, null, typeof(ColorType))]
         private bool UseChromaColor(ref Color __result)
@@ -40,7 +35,7 @@ namespace Chroma.HarmonyPatches.Colorizer
         [AffinityPatch(typeof(NoteCutCoreEffectsSpawner), nameof(NoteCutCoreEffectsSpawner.SpawnNoteCutEffect))]
         private void NoteCutCoreEffectsSetColor(NoteController noteController)
         {
-            EnableColorOverride(noteController);
+            _noteColorOverride = _noteManager.GetColorizer(noteController).Color;
         }
 
         [AffinityPostfix]
@@ -54,9 +49,9 @@ namespace Chroma.HarmonyPatches.Colorizer
         [AffinityPatch(typeof(BeatEffectSpawner), nameof(BeatEffectSpawner.HandleNoteDidStartJump))]
         private void BeatEffectSetColor(NoteController noteController, Color? __state, ref Color ____bombColorEffect)
         {
-            if (noteController.noteData.colorType != ColorType.None)
+            if (_noteManager.Colorizers.TryGetValue(noteController, out NoteColorizer noteColorizer))
             {
-                EnableColorOverride(noteController);
+                _noteColorOverride = noteColorizer.Color;
                 return;
             }
 
