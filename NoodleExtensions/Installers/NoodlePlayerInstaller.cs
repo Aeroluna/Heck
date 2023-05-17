@@ -34,7 +34,7 @@ namespace NoodleExtensions.Installers
             Container.BindFactory<PlayerTrackObject, PlayerTrack, PlayerTrack.PlayerTrackFactory>().AsSingle();
 
             // Cutout
-            Container.BindInterfacesTo<ObjectInitializer>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ObjectInitializer>().AsSingle();
 
             // FakeNotes
             Container.BindInterfacesTo<FakeNotePatches>().AsSingle();

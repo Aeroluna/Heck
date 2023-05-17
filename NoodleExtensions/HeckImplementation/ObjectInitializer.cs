@@ -12,7 +12,7 @@ using UnityEngine;
 namespace NoodleExtensions
 {
     [UsedImplicitly]
-    internal class ObjectInitializer : IGameNoteInitializer, IBombNoteInitializer, IObstacleInitializer, ISliderInitializer
+    public class ObjectInitializer : IGameNoteInitializer, IBombNoteInitializer, IObstacleInitializer, ISliderInitializer
     {
         private static readonly Dictionary<Type, MethodInfo> _setArrowTransparencyMethods = new();
         private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
@@ -46,10 +46,10 @@ namespace NoodleExtensions
 
         public void InitializeObstacle(ObstacleControllerBase obstacleController)
         {
-            ObstacleDissolve cutout = obstacleController.GetComponent<ObstacleDissolve>();
+            ObstacleDissolve obstacleDissolve = obstacleController.GetComponent<ObstacleDissolve>();
             _cutoutManager.ObstacleCutoutEffects.Add(
                 obstacleController,
-                new CutoutAnimateEffectWrapper(_obstacleCutoutAnimateEffectAccessor(ref cutout)));
+                new CutoutAnimateEffectWrapper(_obstacleCutoutAnimateEffectAccessor(ref obstacleDissolve)));
         }
 
         public void InitializeSlider(SliderControllerBase sliderController)
