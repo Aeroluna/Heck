@@ -64,7 +64,6 @@ namespace NoodleExtensions.HarmonyPatches.Mirror
         {
             UpdateMirror(
                 ____noteTransform,
-                ____followedNoteTransform,
                 __instance,
                 (NoteControllerBase)___followedNote);
         }
@@ -79,17 +78,13 @@ namespace NoodleExtensions.HarmonyPatches.Mirror
         {
             UpdateMirror(
                 ____noteTransform,
-                ____followedNoteTransform,
                 __instance,
                 (NoteControllerBase)___followedNote);
         }
 
-        private void UpdateMirror(Transform noteTransform, Transform followedNoteTransform, NoteControllerBase noteController, NoteControllerBase followedNote)
+        private void UpdateMirror(Transform noteTransform, NoteControllerBase noteController, NoteControllerBase followedNote)
         {
-            if (noteTransform.localScale != followedNoteTransform.localScale)
-            {
-                noteTransform.localScale = followedNoteTransform.localScale;
-            }
+            noteTransform.localScale = followedNote.transform.localScale;
 
             _cutoutManager.NoteCutoutEffects[noteController].SetCutout(_cutoutManager.NoteCutoutEffects[followedNote].Cutout);
             if (followedNote is IGameNoteMirrorable)

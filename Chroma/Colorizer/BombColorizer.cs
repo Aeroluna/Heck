@@ -51,7 +51,7 @@ namespace Chroma.Colorizer
 
         internal BombColorizer(NoteControllerBase noteController, BombColorizerManager manager)
         {
-            _materialPropertyBlockController = noteController.GetComponent<MaterialPropertyBlockController>();
+            _materialPropertyBlockController = noteController.GetComponentInChildren<MaterialPropertyBlockController>();
             OriginalColor = noteController.GetComponentInChildren<Renderer>().material.GetColor(_simpleColor);
             MaterialPropertyBlock materialPropertyBlock = _materialPropertyBlockController.materialPropertyBlock;
             materialPropertyBlock.SetColor(_simpleColor, OriginalColor);

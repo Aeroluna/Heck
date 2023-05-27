@@ -238,7 +238,7 @@ namespace Heck.ReLoad
             {
                 ((MonoBehaviour)n).gameObject.SetActive(true);
                 n.Dissolve(1f);
-                ((MonoBehaviour)n).gameObject.SetActive(false);
+                ////((MonoBehaviour)n).gameObject.SetActive(false);
             });
 
             NoteCutSoundEffectManager noteCutSoundEffectManager = _noteCutSoundEffectManager;
