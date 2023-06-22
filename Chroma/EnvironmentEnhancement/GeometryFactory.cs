@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Chroma.Colorizer;
 using Chroma.Extras;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
 using Chroma.HarmonyPatches.EnvironmentComponent;
 using CustomJSONData.CustomBeatmap;
+using Heck;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -24,7 +26,8 @@ namespace Chroma.EnvironmentEnhancement
         Cube,
         Plane,
         Quad,
-        Triangle
+        Triangle,
+        Custom
     }
 
     internal enum ShaderType
@@ -39,6 +42,44 @@ namespace Chroma.EnvironmentEnhancement
         InterscopeCar,
         Obstacle,
         WaterfallMirror
+    }
+
+    internal struct MeshData
+    {
+        public Vector3[] Vertices; // vertex positions
+        public Vector2[]? Uv; // texture coordinates UV0. must be in 0-1 range
+        public int[]? Triangles; // must be in order of vertices and multiple of 3
+
+        public MeshData(CustomData customData, bool v2)
+        {
+            Vertices = customData.GetRequiredFromArrayOfFloatArray(v2 ? V2_VERTICES : VERTICES, v => new Vector3(v[0], v[1], v[2])).ToArray();
+            Uv = customData.GetFromArrayOfFloatArray(v2 ? V2_UV : UV, v => new Vector2(v[0], v[1]))?.ToArray();
+            Triangles = customData.Get<IEnumerable<object>>(v2 ? V2_TRIANGLES : TRIANGLES)?.Select(Convert.ToInt32).ToArray();
+        }
+
+        public Mesh ToMesh()
+        {
+            Mesh mesh = new()
+            {
+                vertices = Vertices,
+            };
+
+            if (Uv != null)
+            {
+                mesh.uv = Uv;
+            }
+
+            if (Triangles != null)
+            {
+                mesh.triangles = Triangles;
+            }
+
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+            mesh.RecalculateTangents();
+
+            return mesh;
+        }
     }
 
     internal class GeometryFactory
@@ -98,6 +139,7 @@ namespace Chroma.EnvironmentEnhancement
                 GeometryType.Plane => PrimitiveType.Plane,
                 GeometryType.Quad => PrimitiveType.Quad,
                 GeometryType.Triangle => PrimitiveType.Quad,
+                GeometryType.Custom => PrimitiveType.Quad,
                 _ => throw new ArgumentOutOfRangeException($"Geometry type {geometryType} does not match a primitive!", nameof(geometryType))
             };
 
@@ -113,16 +155,23 @@ namespace Chroma.EnvironmentEnhancement
             // Shared material is usually better performance as far as I know
             meshRenderer.sharedMaterial = materialInfo.Material;
 
-            if (geometryType == GeometryType.Triangle)
+            Mesh? customMesh = geometryType switch
             {
-                Mesh mesh = ChromaUtils.CreateTriangleMesh();
-                gameObject.GetComponent<MeshFilter>().sharedMesh = mesh;
+                GeometryType.Custom => new MeshData(customData.GetRequired<CustomData>(_v2 ? V2_MESH : MESH), _v2).ToMesh(),
+                GeometryType.Triangle => ChromaUtils.CreateTriangleMesh(),
+                _ => null
+            };
+
+            if (customMesh != null)
+            {
+                gameObject.GetComponent<MeshFilter>().sharedMesh = customMesh;
+
                 if (collision)
                 {
                     MeshCollider meshCollider = gameObject.GetComponent<MeshCollider>();
                     if (meshCollider != null)
                     {
-                        meshCollider.sharedMesh = mesh;
+                        meshCollider.sharedMesh = customMesh;
                     }
                 }
             }

@@ -45,6 +45,10 @@ namespace Chroma
         internal const string V2_COLLISION = "_collision";
         internal const string V2_MATERIALS = "_materials";
         internal const string V2_MATERIAL = "_material";
+        internal const string V2_MESH = "_mesh";
+        internal const string V2_VERTICES = "_vertices";
+        internal const string V2_UV = "_uv";
+        internal const string V2_TRIANGLES = "_triangles";
 
         internal const string V2_ATTENUATION = "_attenuation";
         internal const string V2_OFFSET = "_offset";
@@ -76,6 +80,10 @@ namespace Chroma
         internal const string COLLISION = "collision";
         internal const string MATERIALS = "materials";
         internal const string MATERIAL = "material";
+        internal const string MESH = "mesh";
+        internal const string VERTICES = "vertices";
+        internal const string UV = "uv";
+        internal const string TRIANGLES = "triangles";
 
         internal const string ASSIGN_FOG_TRACK = "AssignFogTrack";
         internal const string ANIMATE_COMPONENT = "AnimateComponent";
