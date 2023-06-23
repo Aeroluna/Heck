@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BSIPA_Utilities;
 using Chroma.Lighting;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
-using IPA.Utilities;
 using UnityEngine;
 using static Chroma.ChromaController;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;

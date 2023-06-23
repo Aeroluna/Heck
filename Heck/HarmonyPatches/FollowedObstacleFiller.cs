@@ -16,7 +16,7 @@ namespace Heck.HarmonyPatches
         // Looks like you forgot to fill _followedObstacle beat games, i got you covered!
         // This is a transpiler so that the field gets filled before UpdatePositionAndRotation and InvokeDidInitEvent
         [HarmonyTranspiler]
-        [HarmonyPatch("Mirror")]
+        [HarmonyPatch(nameof(MirroredObstacleController.Mirror))]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)

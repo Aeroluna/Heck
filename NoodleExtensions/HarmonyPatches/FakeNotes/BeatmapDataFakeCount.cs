@@ -43,8 +43,8 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
             }
             catch (Exception e)
             {
-                Log.Logger.Log($"Could not parse fake for object [{dataItem.GetType().Name}] at [{dataItem.beat}].", IPA.Logging.Logger.Level.Error);
-                Log.Logger.Log(e, IPA.Logging.Logger.Level.Error);
+                Plugin.Log.LogError($"Could not parse fake for object [{dataItem.GetType().Name}] at [{dataItem.beat}].");
+                Plugin.Log.LogError(e);
                 return true;
             }
         }

@@ -5,7 +5,6 @@ using System.Reflection;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
-using IPA.Logging;
 using JetBrains.Annotations;
 
 namespace Heck
@@ -120,7 +119,7 @@ namespace Heck
             if (!_sorted)
             {
                 _modules = _modules.OrderByDescending(n => n.Priority).ToList();
-                Log.Logger.Log($"Modules registered: {string.Join(", ", _modules.Select(n => $"[{n}]"))}", Logger.Level.Trace);
+                Plugin.Log.LogDebug($"Modules registered: {string.Join(", ", _modules.Select(n => $"[{n}]"))}");
                 _sorted = true;
             }
 
@@ -152,7 +151,7 @@ namespace Heck
                     case RequirementType.None:
                         if (!depended)
                         {
-                            Log.Logger.Log($"[{module.Id}] not requested by any other module, skipping.", Logger.Level.Trace);
+                            Plugin.Log.LogDebug($"[{module.Id}] not requested by any other module, skipping.");
                             goto fail;
                         }
 
@@ -161,7 +160,7 @@ namespace Heck
                         MethodInfo condition = module.ConditionCallback!;
                         if (!(bool)condition.Invoke(null, condition.ActualParameters(inputs.AddToArray(depended))))
                         {
-                            Log.Logger.Log($"[{module.Id}] did not pass condition, skipping.", Logger.Level.Trace);
+                            Plugin.Log.LogDebug($"[{module.Id}] did not pass condition, skipping.");
                             goto fail;
                         }
 
@@ -181,7 +180,7 @@ namespace Heck
                         continue;
                     }
 
-                    Log.Logger.Log($"[{module.Id}] conflicts with [{conflictId}], skipping.", Logger.Level.Trace);
+                    Plugin.Log.LogDebug($"[{module.Id}] conflicts with [{conflictId}], skipping.");
                     goto fail;
                 }
 
@@ -208,11 +207,11 @@ namespace Heck
                 try
                 {
                     callBack.Invoke(null, callBack.ActualParameters(inputs.AddToArray(true)));
-                    Log.Logger.Log($"[{module.Id}] loaded.", Logger.Level.Trace);
+                    Plugin.Log.LogDebug($"[{module.Id}] loaded.");
                 }
                 catch
                 {
-                    Log.Logger.Log($"Exception while loading [{module.Id}].", Logger.Level.Critical);
+                    Plugin.Log.LogError($"Exception while loading [{module.Id}].");
                     throw;
                 }
 

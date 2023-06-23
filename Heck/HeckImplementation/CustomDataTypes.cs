@@ -4,7 +4,6 @@ using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
-using IPA.Logging;
 using static Heck.HeckController;
 
 namespace Heck
@@ -40,7 +39,7 @@ namespace Heck
                         IPropertyBuilder? builder = Track.GetBuilder(name);
                         if (builder == null)
                         {
-                            Log.Logger.Log($"Could not find property [{name}].", Logger.Level.Error);
+                            Plugin.Log.LogError($"Could not find property [{name}].");
                             return;
                         }
 
@@ -52,7 +51,7 @@ namespace Heck
                         IPropertyBuilder? builder = Track.GetPathBuilder(name);
                         if (builder == null)
                         {
-                            Log.Logger.Log($"Could not find path property [{name}].", Logger.Level.Error);
+                            Plugin.Log.LogError($"Could not find path property [{name}].");
                             return;
                         }
 

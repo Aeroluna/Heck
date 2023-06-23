@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using BepInEx.Configuration;
 using Newtonsoft.Json;
+using UnityEngine.UIElements;
 
 namespace Heck.SettingsSetter
 {
@@ -13,6 +15,16 @@ namespace Heck.SettingsSetter
         internal static Dictionary<string, List<Dictionary<string, object>>> SettingsTable => _settingsTable ?? throw new InvalidOperationException($"[{nameof(_settingsTable)}] was not created.");
 
         internal static Dictionary<string, Dictionary<string, ISettableSetting>> SettableSettings { get; } = new();
+
+        public static SettableConfigEntry<T> CreateSettableConfigEntry<T>(ConfigEntry<T> configEntry)
+        {
+            ConfigDefinition definition = configEntry.Definition;
+            string group = definition.Section;
+            string field = definition.Key;
+            SettableConfigEntry<T> settableConfigEntry = new(configEntry, group, field);
+            RegisterSettableSetting('_' + group.ToCamelCase(), '_' + field.ToCamelCase(), settableConfigEntry);
+            return settableConfigEntry;
+        }
 
         public static void RegisterSettableSetting(string group, string fieldName, ISettableSetting settableSetting)
         {

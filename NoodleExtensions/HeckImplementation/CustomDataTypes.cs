@@ -5,7 +5,6 @@ using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
 using Heck.Animation.Transform;
-using IPA.Utilities;
 using NoodleExtensions.Animation;
 using UnityEngine;
 using static Heck.HeckController;
@@ -15,9 +14,6 @@ namespace NoodleExtensions
 {
     internal class NoodleNoteData : NoodleBaseNoteData
     {
-        private static readonly PropertyAccessor<NoteData, NoteData.ScoringType>.Setter _scoringTypeAccessor =
-            PropertyAccessor<NoteData, NoteData.ScoringType>.GetSetter("scoringType");
-
         internal NoodleNoteData(
             NoteData noteData,
             CustomData customData,
@@ -48,12 +44,12 @@ namespace NoodleExtensions
 
                 if (Fake.GetValueOrDefault())
                 {
-                    _scoringTypeAccessor(ref noteData, NoteData.ScoringType.Ignore);
+                    noteData.scoringType = NoteData.ScoringType.Ignore;
                 }
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, noteData);
+                Plugin.Log.LogFailure(e, noteData);
             }
         }
 
@@ -96,7 +92,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, noteData);
+                Plugin.Log.LogFailure(e, noteData);
             }
         }
 
@@ -155,7 +151,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, obstacleData);
+                Plugin.Log.LogFailure(e, obstacleData);
             }
         }
 
@@ -191,7 +187,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, sliderData);
+                Plugin.Log.LogFailure(e, sliderData);
             }
         }
 
@@ -274,7 +270,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, beatmapObjectData);
+                Plugin.Log.LogFailure(e, beatmapObjectData);
             }
         }
 

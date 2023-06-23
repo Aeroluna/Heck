@@ -43,7 +43,7 @@ namespace Heck
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, customEventData);
+                    Plugin.Log.LogFailure(e, customEventData);
                 }
             }
 

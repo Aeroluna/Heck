@@ -6,7 +6,6 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
-using Logger = IPA.Logging.Logger;
 
 namespace Chroma.EnvironmentEnhancement
 {
@@ -41,7 +40,7 @@ namespace Chroma.EnvironmentEnhancement
 
             AsyncOperation Load(string environmentName)
             {
-                Log.Logger.Log($"Loading environment [{environmentName}].", Logger.Level.Trace);
+                Plugin.Log.LogDebug($"Loading environment [{environmentName}].");
                 return SceneManager.LoadSceneAsync(environmentName, LoadSceneMode.Additive);
             }
 
@@ -61,11 +60,11 @@ namespace Chroma.EnvironmentEnhancement
                 if (material != null)
                 {
                     _environmentMaterials[key] = material;
-                    Log.Logger.Log($"Saving [{matName}] to [{key}].", Logger.Level.Trace);
+                    Plugin.Log.LogDebug($"Saving [{matName}] to [{key}].");
                 }
                 else
                 {
-                    Log.Logger.Log($"Could not find [{matName}].", Logger.Level.Error);
+                    Plugin.Log.LogDebug($"Could not find [{matName}].");
                 }
             }
 

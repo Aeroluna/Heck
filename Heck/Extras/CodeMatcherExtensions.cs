@@ -1,20 +1,19 @@
 ﻿using System;
+using BepInEx.Logging;
+using BSIPA_Utilities;
 using HarmonyLib;
-using IPA.Logging;
-using IPA.Utilities;
 using JetBrains.Annotations;
 
 namespace Heck
 {
+#if DEBUG
     public static class CodeMatcherExtensions
     {
-#if DEBUG
         [PublicAPI]
-        public static CodeMatcher PrintInstructions(this CodeMatcher codeMatcher, HeckLogger logger, string seperator = "\t")
+        public static CodeMatcher PrintInstructions(this CodeMatcher codeMatcher, ManualLogSource logger, string seperator = "\t")
         {
-            logger.Log("Printing instructions:");
-            Logger ipaLogger = logger.IPALogger;
-            codeMatcher.Instructions().ForEach(n => ipaLogger.Log(Logger.Level.Info, seperator + n));
+            logger.LogInfo("Printing instructions:");
+            codeMatcher.Instructions().ForEach(n => logger.LogInfo(seperator + n));
             return codeMatcher;
         }
 
@@ -28,6 +27,6 @@ namespace Heck
 
             return codeMatcher;
         }
-#endif
     }
+#endif
 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -45,9 +44,6 @@ namespace Chroma.Colorizer
     [UsedImplicitly]
     public class SliderColorizer : ObjectColorizer
     {
-        private static readonly FieldAccessor<SliderController, Color>.Accessor _initColorAccessor =
-            FieldAccessor<SliderController, Color>.GetAccessor("_initColor");
-
         private readonly SliderController _sliderController;
         private readonly NoteColorizerManager _manager;
         private readonly ColorManager _colorManager;
@@ -71,8 +67,7 @@ namespace Chroma.Colorizer
 
         internal override void Refresh()
         {
-            SliderController sliderController = _sliderController;
-            _initColorAccessor(ref sliderController) = Color;
+            _sliderController._initColor = Color;
         }
 
         [UsedImplicitly]

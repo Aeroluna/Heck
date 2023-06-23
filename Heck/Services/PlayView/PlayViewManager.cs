@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using HMUI;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using ModestTree;
 using Zenject;
@@ -13,10 +12,6 @@ namespace Heck.PlayView
 {
     internal sealed class PlayViewManager : IDisposable
     {
-        private static readonly Action<FlowCoordinator, ViewController, ViewController.AnimationDirection, Action?, bool> _dismissViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, ViewController.AnimationDirection, Action?, bool>>.GetDelegate("DismissViewController");
-        private static readonly Action<FlowCoordinator, ViewController, Action?, ViewController.AnimationDirection, bool> _presentViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, Action?, ViewController.AnimationDirection, bool>>.GetDelegate("PresentViewController");
-        private static readonly Action<FlowCoordinator, ViewController, Action?, ViewController.AnimationType, ViewController.AnimationDirection> _replaceTopViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, Action?, ViewController.AnimationType, ViewController.AnimationDirection>>.GetDelegate("ReplaceTopViewController");
-
         private readonly PlayViewControllerData[] _viewControllers;
         private readonly SoloFreePlayFlowCoordinator _soloFreePlayFlowCoordinator;
         private readonly PartyFreePlayFlowCoordinator _partyFreePlayFlowCoordinator;
@@ -114,7 +109,7 @@ namespace Heck.PlayView
             }
 
             ActiveView.InvokeOnEarlyDismiss();
-            _dismissViewController(_flowCoordinator, (ViewController)ActiveView.ViewController, ViewController.AnimationDirection.Horizontal, null, false);
+            _flowCoordinator.DismissViewController((ViewController)ActiveView.ViewController);
             ActiveView = null;
             return false;
         }
@@ -133,7 +128,7 @@ namespace Heck.PlayView
                 return true;
             }
 
-            _lobbyGameStateController.SetProperty("countdownStarted", false);
+            _lobbyGameStateController.countdownStarted = false;
             _lobbyGameStateController.StopListeningToGameStart();
 
             _menuTransitionsHelper.StartMultiplayerLevel(
@@ -161,7 +156,7 @@ namespace Heck.PlayView
                 return;
             }
 
-            _dismissViewController(_flowCoordinator, (ViewController)ActiveView.ViewController, ViewController.AnimationDirection.Horizontal, null, true);
+            _flowCoordinator.DismissViewController((ViewController)ActiveView.ViewController, ViewController.AnimationDirection.Horizontal, null, true);
             ActiveView = null;
         }
 
@@ -193,21 +188,11 @@ namespace Heck.PlayView
 
                 if (newView)
                 {
-                    _presentViewController(
-                        _flowCoordinator,
-                        (ViewController)viewController,
-                        null,
-                        ViewController.AnimationDirection.Horizontal,
-                        false);
+                    _flowCoordinator.PresentViewController((ViewController)viewController);
                 }
                 else
                 {
-                    _replaceTopViewController(
-                        _flowCoordinator,
-                        (ViewController)viewController,
-                        null,
-                        ViewController.AnimationType.In,
-                        ViewController.AnimationDirection.Horizontal);
+                    _flowCoordinator.ReplaceTopViewController((ViewController)viewController);
                 }
 
                 viewControllerData.InvokeOnShow();

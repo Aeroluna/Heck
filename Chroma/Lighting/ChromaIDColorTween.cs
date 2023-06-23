@@ -1,6 +1,5 @@
 ﻿using System;
 using Heck.Animation;
-using IPA.Utilities;
 using Tweening;
 using UnityEngine;
 
@@ -8,10 +7,8 @@ namespace Chroma.Lighting
 {
     public sealed class ChromaIDColorTween : ColorTween
     {
-        private static readonly FieldAccessor<LightWithIdManager, bool>.Accessor _didChangeAccessor = FieldAccessor<LightWithIdManager, bool>.GetAccessor("_didChangeSomeColorsThisFrame");
-
         private readonly ILightWithId _lightWithId;
-        private LightWithIdManager _lightWithIdManager;
+        private readonly LightWithIdManager _lightWithIdManager;
 
         internal ChromaIDColorTween(Color fromValue, Color toValue, ILightWithId lightWithId, LightWithIdManager lightWithIdManager, int id)
         {
@@ -54,7 +51,7 @@ namespace Chroma.Lighting
                 return;
             }
 
-            _didChangeAccessor(ref _lightWithIdManager) = true;
+            _lightWithIdManager._didChangeSomeColorsThisFrame = true;
             _lightWithId.ColorWasSet(color);
         }
     }

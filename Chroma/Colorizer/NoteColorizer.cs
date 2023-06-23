@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -80,9 +79,6 @@ namespace Chroma.Colorizer
     [UsedImplicitly]
     public class NoteColorizer : ObjectColorizer
     {
-        private static readonly FieldAccessor<ColorNoteVisuals, Color>.Accessor _noteColorAccessor = FieldAccessor<ColorNoteVisuals, Color>.GetAccessor("_noteColor");
-
-        private static readonly FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.Accessor _materialPropertyBlockControllersAccessor = FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.GetAccessor("_materialPropertyBlockControllers");
         private static readonly int _colorID = Shader.PropertyToID("_Color");
 
         private readonly NoteControllerBase _noteController;
@@ -90,7 +86,7 @@ namespace Chroma.Colorizer
         private readonly ColorManager _colorManager;
 
         private readonly MaterialPropertyBlockController[] _materialPropertyBlockControllers;
-        private ColorNoteVisuals _colorNoteVisuals;
+        private readonly ColorNoteVisuals _colorNoteVisuals;
 
         internal NoteColorizer(
             NoteControllerBase noteController,
@@ -99,7 +95,7 @@ namespace Chroma.Colorizer
         {
             _noteController = noteController;
             _colorNoteVisuals = _noteController.GetComponent<ColorNoteVisuals>();
-            _materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref _colorNoteVisuals);
+            _materialPropertyBlockControllers = _colorNoteVisuals._materialPropertyBlockControllers;
             _manager = manager;
             _colorManager = colorManager;
         }
@@ -125,12 +121,12 @@ namespace Chroma.Colorizer
             }
 
             Color color = Color;
-            if (color == _noteColorAccessor(ref _colorNoteVisuals))
+            if (color == _colorNoteVisuals._noteColor)
             {
                 return;
             }
 
-            _noteColorAccessor(ref _colorNoteVisuals) = color;
+            _colorNoteVisuals._noteColor = color;
 
             foreach (MaterialPropertyBlockController materialPropertyBlockController in _materialPropertyBlockControllers)
             {

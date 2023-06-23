@@ -1,39 +1,41 @@
 ﻿using System;
 using System.Linq;
+using BepInEx;
+using BepInEx.Logging;
 using Heck.Animation;
 using Heck.Installers;
 using Heck.SettingsSetter;
-using IPA;
-using IPA.Config.Stores;
-using JetBrains.Annotations;
 using SiraUtil.Zenject;
 using UnityEngine;
 using static Heck.HeckController;
 using Config = Heck.Settings.Config;
-using Logger = IPA.Logging.Logger;
 
 namespace Heck
 {
-    // unsure why this stuff cant be static or private
-    [Plugin(RuntimeOptions.DynamicInit)]
-    internal class Plugin
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInDependency("BSIPA_Utilities")]
+    [BepInDependency("BeatSaberMarkupLanguage")]
+    [BepInDependency("CustomJSONData")]
+    [BepInDependency("SiraUtil")]
+    [BepInProcess("Beat Saber.exe")]
+    internal class Plugin : BaseUnityPlugin
     {
-        [UsedImplicitly]
-        [Init]
-        public Plugin(Logger pluginLogger, IPA.Config.Config conf, Zenjector zenjector)
-        {
-            Log.Logger = new HeckLogger(pluginLogger);
+        internal static ManualLogSource Log { get; private set; } = null!;
 
+        private void Awake()
+        {
+            Log = Logger;
             string[] arguments = Environment.GetCommandLineArgs();
             if (arguments.Any(arg => arg.ToLower() == "-aerolunaisthebestmodder"))
             {
                 DebugMode = true;
-                Log.Logger.Log("[-aerolunaisthebestmodder] launch argument detected, running in Debug mode.");
+                Log.LogDebug("[-aerolunaisthebestmodder] launch argument detected, running in Debug mode.");
             }
 
             SettingSetterSettableSettingsManager.SetupSettingsTable();
 
-            zenjector.Install<HeckAppInstaller>(Location.App, conf.Generated<Config>());
+            Zenjector zenjector = Zenjector.ConstructZenjector(Info);
+            zenjector.Install<HeckAppInstaller>(Location.App, new Config(Config));
             zenjector.Install<HeckPlayerInstaller>(Location.Player);
             zenjector.Install<HeckMenuInstaller>(Location.Menu);
             zenjector.Expose<NoteCutSoundEffectManager>("Gameplay");
@@ -48,16 +50,12 @@ namespace Heck
         }
 
 #pragma warning disable CA1822
-        [UsedImplicitly]
-        [OnEnable]
-        public void OnEnable()
+        private void OnEnable()
         {
             CorePatcher.Enabled = true;
         }
 
-        [UsedImplicitly]
-        [OnDisable]
-        public void OnDisable()
+        private void OnDisable()
         {
             CorePatcher.Enabled = false;
             FeaturesPatcher.Enabled = false;

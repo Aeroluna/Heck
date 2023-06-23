@@ -5,7 +5,6 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using Heck.PlayView;
 using HMUI;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using SiraUtil.Affinity;
 
@@ -14,12 +13,6 @@ namespace Heck.HarmonyPatches
     [HeckPatch]
     internal class PlayViewInterrupter : IAffinity
     {
-        private static readonly Action<FlowCoordinator, ViewController?, ViewController.AnimationType> _setLeftScreenViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController?, ViewController.AnimationType>>.GetDelegate("SetLeftScreenViewController");
-        private static readonly Action<FlowCoordinator, ViewController?, ViewController.AnimationType> _setRightScreenViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController?, ViewController.AnimationType>>.GetDelegate("SetRightScreenViewController");
-        private static readonly Action<FlowCoordinator, ViewController?, ViewController.AnimationType> _setBottomScreenViewController = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController?, ViewController.AnimationType>>.GetDelegate("SetBottomScreenViewController");
-        private static readonly Action<FlowCoordinator, string?, ViewController.AnimationType> _setTitle = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, string?, ViewController.AnimationType>>.GetDelegate("SetTitle");
-        private static readonly PropertyAccessor<FlowCoordinator, bool>.Setter _showBackButtonSetter = PropertyAccessor<FlowCoordinator, bool>.GetSetter("showBackButton");
-
         private static readonly ConstructorInfo _standardLevelParametersCtor = AccessTools.FirstConstructor(typeof(StartStandardLevelParameters), _ => true);
         private static readonly ConstructorInfo _multiplayerLevelParametersCtor = AccessTools.FirstConstructor(typeof(StartMultiplayerLevelParameters), _ => true);
 
@@ -161,12 +154,12 @@ namespace Heck.HarmonyPatches
                 return true;
             }
 
-            _setLeftScreenViewController(__instance, null, animationType);
-            _setRightScreenViewController(__instance, null, animationType);
-            _setBottomScreenViewController(__instance, null, animationType);
-            _setTitle(__instance, controllerData.Title, animationType);
+            __instance.SetLeftScreenViewController(null, animationType);
+            __instance.SetRightScreenViewController(null, animationType);
+            __instance.SetBottomScreenViewController(null, animationType);
+            __instance.SetTitle(null, animationType);
             FlowCoordinator flowCoordinator = __instance;
-            _showBackButtonSetter(ref flowCoordinator, true);
+            flowCoordinator.showBackButton = true;
             return false;
         }
 

@@ -15,7 +15,6 @@ using UnityEngine.SceneManagement;
 using Zenject;
 using static Chroma.ChromaController;
 using static Heck.HeckController;
-using Logger = IPA.Logging.Logger;
 using Object = UnityEngine.Object;
 
 namespace Chroma.EnvironmentEnhancement
@@ -124,8 +123,8 @@ namespace Chroma.EnvironmentEnhancement
                     }
                     catch (Exception e)
                     {
-                        Log.Logger.Log("Could not run Legacy Enviroment Removal", Logger.Level.Error);
-                        Log.Logger.Log(e, Logger.Level.Error);
+                        Plugin.Log.LogError("Could not run Legacy Enviroment Removal");
+                        Plugin.Log.LogError(e);
                     }
                 }
             }
@@ -144,9 +143,9 @@ namespace Chroma.EnvironmentEnhancement
 
             List<GameObjectInfo> allGameObjectInfos = GetAllGameObjects();
 
-            if (_config.PrintEnvironmentEnhancementDebug)
+            if (_config.PrintEnvironmentEnhancementDebug.Value)
             {
-                Log.Logger.Log("=====================================");
+                Plugin.Log.LogMessage("=====================================");
             }
 
             string[] gameObjectInfoIds = allGameObjectInfos.Select(n => n.FullID).ToArray();
@@ -165,10 +164,10 @@ namespace Chroma.EnvironmentEnhancement
                     GameObjectInfo newObjectInfo = new(_geometryFactory.Create(geometryData, v2));
                     allGameObjectInfos.Add(newObjectInfo);
                     foundObjects = new List<GameObjectInfo> { newObjectInfo };
-                    if (_config.PrintEnvironmentEnhancementDebug)
+                    if (_config.PrintEnvironmentEnhancementDebug.Value)
                     {
-                        Log.Logger.Log("Created new geometry object:");
-                        Log.Logger.Log(newObjectInfo.FullID);
+                        Plugin.Log.LogMessage("Created new geometry object:");
+                        Plugin.Log.LogMessage(newObjectInfo.FullID);
                     }
 
                     // cause i know ppl are gonna fck it up
@@ -187,15 +186,15 @@ namespace Chroma.EnvironmentEnhancement
 
                     if (foundObjects.Count > 0)
                     {
-                        if (_config.PrintEnvironmentEnhancementDebug)
+                        if (_config.PrintEnvironmentEnhancementDebug.Value)
                         {
-                            Log.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
-                            foundObjects.ForEach(n => Log.Logger.Log(n.FullID));
+                            Plugin.Log.LogMessage($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
+                            foundObjects.ForEach(n => Plugin.Log.LogMessage(n.FullID));
                         }
                     }
                     else
                     {
-                        Log.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.", Logger.Level.Error);
+                        Plugin.Log.LogWarning($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.");
                     }
                 }
 
@@ -225,15 +224,15 @@ namespace Chroma.EnvironmentEnhancement
                     gameObjects = new List<GameObject>();
                     if (foundObjects.Count > 100)
                     {
-                        Log.Logger.Log("Extreme value reached. You are attempting to duplicate over 100 objects! Environment enhancements stopped.", Logger.Level.Error);
+                        Plugin.Log.LogFatal("Extreme value reached. You are attempting to duplicate over 100 objects! Environment enhancements stopped.");
                         break;
                     }
 
                     foreach (GameObjectInfo gameObjectInfo in foundObjects)
                     {
-                        if (_config.PrintEnvironmentEnhancementDebug)
+                        if (_config.PrintEnvironmentEnhancementDebug.Value)
                         {
-                            Log.Logger.Log($"Duplicating [{gameObjectInfo.FullID}]:");
+                            Plugin.Log.LogMessage($"Duplicating [{gameObjectInfo.FullID}]:");
                         }
 
                         GameObject gameObject = gameObjectInfo.GameObject;
@@ -264,9 +263,9 @@ namespace Chroma.EnvironmentEnhancement
                                 allGameObjectInfos.Where(n => n.GameObject == newGameObject).ToList();
                             gameObjects.AddRange(gameObjectInfos.Select(n => n.GameObject));
 
-                            if (_config.PrintEnvironmentEnhancementDebug)
+                            if (_config.PrintEnvironmentEnhancementDebug.Value)
                             {
-                                gameObjectInfos.ForEach(n => Log.Logger.Log(n.FullID));
+                                gameObjectInfos.ForEach(n => Plugin.Log.LogMessage(n.FullID));
                             }
                         }
                     }
@@ -278,7 +277,7 @@ namespace Chroma.EnvironmentEnhancement
                 {
                     if (lightID.HasValue)
                     {
-                        Log.Logger.Log("LightID requested but no duplicated object to apply to.", Logger.Level.Error);
+                        Plugin.Log.LogWarning("LightID requested but no duplicated object to apply to.");
                     }
 
                     gameObjects = foundObjects.Select(n => n.GameObject).ToList();
@@ -349,9 +348,9 @@ namespace Chroma.EnvironmentEnhancement
                     track.ForEach(n => n.AddGameObject(gameObject));
                 }
 
-                if (_config.PrintEnvironmentEnhancementDebug)
+                if (_config.PrintEnvironmentEnhancementDebug.Value)
                 {
-                    Log.Logger.Log("=====================================");
+                    Plugin.Log.LogMessage("=====================================");
                 }
             }
         }
@@ -403,10 +402,10 @@ namespace Chroma.EnvironmentEnhancement
             }
 
             // ReSharper disable once InvertIf
-            if (_config.PrintEnvironmentEnhancementDebug)
+            if (_config.PrintEnvironmentEnhancementDebug.Value)
             {
                 objectsToPrint.Sort();
-                objectsToPrint.ForEach(n => Log.Logger.Log(n));
+                objectsToPrint.ForEach(n => Plugin.Log.LogMessage(n));
             }
 
             return result;

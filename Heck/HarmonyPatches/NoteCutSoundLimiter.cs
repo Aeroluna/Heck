@@ -36,7 +36,7 @@ namespace Heck.HarmonyPatches
             List<NoteController> noteControllers = new(_hitsoundQueue);
             _hitsoundQueue.Clear();
             noteControllers.ForEach(_noteCutSoundEffectManager.HandleNoteWasSpawned);
-            Log.Logger.Log($"[{noteControllers.Count}] cut sounds moved to next frame!");
+            Plugin.Log.LogDebug($"[{noteControllers.Count}] cut sounds moved to next frame!");
         }
 
         [AffinityPriority(Priority.Low)]

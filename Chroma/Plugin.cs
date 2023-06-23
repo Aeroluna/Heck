@@ -1,32 +1,41 @@
-﻿using Chroma.Extras;
+﻿using System.IO;
+using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Logging;
+using Chroma.Extras;
 using Chroma.Installers;
 using Chroma.Lighting;
 using Chroma.Settings;
-using Heck;
 using Heck.Animation;
-using IPA;
-using IPA.Config.Stores;
-using JetBrains.Annotations;
 using SiraUtil.Zenject;
 using UnityEngine;
 using static Chroma.ChromaController;
-using Config = Chroma.Settings.Config;
-using Logger = IPA.Logging.Logger;
 
 namespace Chroma
 {
-    [Plugin(RuntimeOptions.DynamicInit)]
-    internal class Plugin
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInDependency("SongCore")]
+    [BepInDependency("BSIPA_Utilities")]
+    [BepInDependency("BeatSaberMarkupLanguage")]
+    [BepInDependency("CustomJSONData")]
+    [BepInDependency("SiraUtil")]
+    [BepInDependency("Heck")]
+    [BepInProcess("Beat Saber.exe")]
+    internal class Plugin : BaseUnityPlugin
     {
-        [UsedImplicitly]
-        [Init]
-        public Plugin(Logger pluginLogger, IPA.Config.Config conf, Zenjector zenjector)
+        internal static ManualLogSource Log { get; private set; } = null!;
+
+        private void Awake()
         {
-            Log.Logger = new HeckLogger(pluginLogger);
-            ChromaSettableSettings.SetupSettableSettings();
+            Log = Logger;
+
+            BepInPlugin metadata = Info.Metadata;
+            Config config = new(new ConfigFile(Path.Combine(Paths.ConfigPath, ID, metadata.GUID + ".cfg"), true, metadata));
             LightIDTableManager.InitTable();
+
+            Zenjector zenjector = Zenjector.ConstructZenjector(Info);
             zenjector.Install<ChromaPlayerInstaller>(Location.Player);
-            zenjector.Install<ChromaAppInstaller>(Location.App, conf.Generated<Config>());
+            zenjector.Install<ChromaAppInstaller>(Location.App, config);
             zenjector.Install<ChromaMenuInstaller>(Location.Menu);
 
             Track.RegisterProperty<Vector4>(COLOR, V2_COLOR);
@@ -40,9 +49,7 @@ namespace Chroma
         }
 
 #pragma warning disable CA1822
-        [UsedImplicitly]
-        [OnEnable]
-        public void OnEnable()
+        private void OnEnable()
         {
             CorePatcher.Enabled = true;
             FeaturesModule.Enabled = true;
@@ -50,15 +57,13 @@ namespace Chroma
             EnvironmentModule.Enabled = true;
 
             // ChromaConfig wont set if there is no config!
-            ChromaUtils.SetSongCoreCapability(CAPABILITY, !Config.Instance.ChromaEventsDisabled);
+            ChromaUtils.SetSongCoreCapability(CAPABILITY, !Chroma.Settings.Config.Instance.ChromaEventsDisabled);
 
             // Legacy support
             ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");
         }
 
-        [UsedImplicitly]
-        [OnDisable]
-        public void OnDisable()
+        private void OnDisable()
         {
             CorePatcher.Enabled = false;
             FeaturesPatcher.Enabled = false;

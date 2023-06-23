@@ -5,7 +5,6 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
 using Heck.Animation;
-using IPA.Utilities;
 using NoodleExtensions.HarmonyPatches.SmallFixes;
 using SiraUtil.Affinity;
 using UnityEngine;
@@ -15,12 +14,6 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 {
     internal class SliderInitNoodlifier : IAffinity, IDisposable
     {
-        private static readonly FieldAccessor<SliderMovement, Quaternion>.Accessor _worldRotationAccessor =
-            FieldAccessor<SliderMovement, Quaternion>.GetAccessor("_worldRotation");
-
-        private static readonly FieldAccessor<SliderMovement, Quaternion>.Accessor _inverseWorldRotationAccessor =
-            FieldAccessor<SliderMovement, Quaternion>.GetAccessor("_inverseWorldRotation");
-
         private static readonly MethodInfo _noteJumpMovementSpeedGetter =
             AccessTools.PropertyGetter(typeof(IBeatmapObjectSpawnController), nameof(IBeatmapObjectSpawnController.noteJumpMovementSpeed));
 
@@ -102,8 +95,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 {
                     Quaternion quatVal = worldRotationQuaternion.Value;
                     Quaternion inverseWorldRotation = Quaternion.Inverse(quatVal);
-                    _worldRotationAccessor(ref ____sliderMovement) = quatVal;
-                    _inverseWorldRotationAccessor(ref ____sliderMovement) = inverseWorldRotation;
+                    ____sliderMovement._worldRotation = quatVal;
+                    ____sliderMovement._inverseWorldRotation = inverseWorldRotation;
 
                     quatVal *= localRotation;
 
@@ -129,7 +122,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
             noodleData.InternalStartPos = headNoteJumpStartPos;
             noodleData.InternalEndPos = headNoteJumpEndPos;
-            noodleData.InternalWorldRotation = _worldRotationAccessor(ref ____sliderMovement);
+            noodleData.InternalWorldRotation = ____sliderMovement._worldRotation;
             noodleData.InternalLocalRotation = localRotation;
         }
 

@@ -7,14 +7,13 @@ using System.Reflection;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
+using BSIPA_Utilities;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck.PlayView;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
-using Logger = IPA.Logging.Logger;
 
 namespace Heck.SettingsSetter
 {
@@ -203,7 +202,7 @@ namespace Heck.SettingsSetter
 
                             // copy fields from original overrideenvironmentsettings to our new copy
                             OverrideEnvironmentSettings modifiedOverrideEnvironmentSettings = new();
-                            modifiedOverrideEnvironmentSettings.SetField("_data", environmentOverrideSettings.GetField<Dictionary<EnvironmentTypeSO, EnvironmentInfoSO>, OverrideEnvironmentSettings>("_data"));
+                            modifiedOverrideEnvironmentSettings.SetField("_data", environmentOverrideSettings._data);
 
                             modifiedOverrideEnvironmentSettings.overrideEnvironments = json.Value;
 
@@ -303,7 +302,7 @@ namespace Heck.SettingsSetter
                         foreach ((string key, ISettableSetting settableSetting) in value)
                         {
                             object? json = jsonGroup.Get<object>(key);
-                            object activeValue = settableSetting.TrueValue;
+                            object? activeValue = settableSetting.TrueValue;
                             if (json == null || json.Equals(activeValue))
                             {
                                 continue;
@@ -339,8 +338,8 @@ namespace Heck.SettingsSetter
             }
             catch (Exception e)
             {
-                Heck.Log.Logger.Log("Could not setup settable settings!", Logger.Level.Error);
-                Heck.Log.Logger.Log(e, Logger.Level.Error);
+                Plugin.Log.LogError("Could not setup settable settings!");
+                Plugin.Log.LogError(e);
             }
 
             return false;
@@ -356,7 +355,7 @@ namespace Heck.SettingsSetter
 
             if (_modifiedMainSettings != null)
             {
-                Heck.Log.Logger.Log("Main settings modified.", Logger.Level.Trace);
+                Plugin.Log.LogDebug("Main settings modified.");
                 _mainSettings.mirrorGraphicsSettings.value = _modifiedMainSettings.MirrorGraphicsSettings;
                 _mainSettings.mainEffectGraphicsSettings.value = _modifiedMainSettings.MainEffectGraphicsSettings;
                 _mainSettings.smokeGraphicsSettings.value = _modifiedMainSettings.SmokeGraphicsSettings;
@@ -373,7 +372,7 @@ namespace Heck.SettingsSetter
             {
                 foreach ((ISettableSetting settableSetting, object item2) in _settableSettingsToSet)
                 {
-                    Heck.Log.Logger.Log($"Set settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}] to [{item2}].", Logger.Level.Trace);
+                    Plugin.Log.LogDebug($"Set settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}] to [{item2}].");
                     settableSetting.SetTemporary(item2);
                 }
             }
@@ -387,7 +386,7 @@ namespace Heck.SettingsSetter
                 foreach (Tuple<ISettableSetting, object> tuple in _settableSettingsToSet)
                 {
                     ISettableSetting settableSetting = tuple.Item1;
-                    Heck.Log.Logger.Log($"Restored settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}].", Logger.Level.Trace);
+                    Plugin.Log.LogDebug($"Restored settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}].");
                     settableSetting.SetTemporary(null);
                 }
 
@@ -406,7 +405,7 @@ namespace Heck.SettingsSetter
                 return;
             }
 
-            Heck.Log.Logger.Log("Main settings restored.", Logger.Level.Trace);
+            Plugin.Log.LogDebug("Main settings restored.");
             _mainSettings.mirrorGraphicsSettings.value = _cachedMainSettings.MirrorGraphicsSettings;
             _mainSettings.mainEffectGraphicsSettings.value = _cachedMainSettings.MainEffectGraphicsSettings;
             _mainSettings.smokeGraphicsSettings.value = _cachedMainSettings.SmokeGraphicsSettings;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using HarmonyLib;
-using IPA.Logging;
 using JetBrains.Annotations;
 
 namespace Heck
@@ -18,7 +17,7 @@ namespace Heck
         {
             Assembly assembly = new StackTrace().GetFrame(1).GetMethod().ReflectedType.Assembly;
 
-            Log.Logger.Log($"Initializing patches for Harmony instance [{harmonyId}] in [{assembly.GetName()}].", Logger.Level.Trace);
+            Plugin.Log.LogDebug($"Initializing patches for Harmony instance [{harmonyId}] in [{assembly.GetName()}].");
 
             _harmony = new Harmony(harmonyId);
 
@@ -58,7 +57,7 @@ namespace Heck
                     return;
                 }
 
-                Log.Logger.Log($"Toggling [{_harmony.Id}] to [{value}].", Logger.Level.Trace);
+                Plugin.Log.LogDebug($"Toggling [{_harmony.Id}] to [{value}].");
                 _enabled = value;
                 if (value)
                 {

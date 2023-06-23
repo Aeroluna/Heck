@@ -27,7 +27,7 @@ namespace Heck.ReLoad
                 return;
             }
 
-            if (_config.ReloadOnRestart &&
+            if (_config.ReloadOnRestart.Value &&
                 ____standardLevelScenesTransitionSetupData.practiceSettings != null)
             {
                 _reLoaderLoader.Reload(____standardLevelScenesTransitionSetupData.difficultyBeatmap);

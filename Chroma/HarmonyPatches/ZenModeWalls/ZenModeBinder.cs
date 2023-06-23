@@ -1,5 +1,4 @@
 ﻿using Chroma.Settings;
-using IPA.Utilities;
 using SiraUtil.Affinity;
 using Zenject;
 
@@ -7,9 +6,6 @@ namespace Chroma.HarmonyPatches.ZenModeWalls
 {
     internal class ZenModeBinder : IAffinity
     {
-        private static readonly PropertyAccessor<MonoInstallerBase, DiContainer>.Getter _containerAccessor =
-            PropertyAccessor<MonoInstallerBase, DiContainer>.GetGetter("Container");
-
         private readonly Config _config;
 
         private ZenModeBinder(Config config)
@@ -27,7 +23,7 @@ namespace Chroma.HarmonyPatches.ZenModeWalls
             }
 
             MonoInstallerBase installerBase = __instance;
-            DiContainer container = _containerAccessor(ref installerBase);
+            DiContainer container = installerBase.Container;
             container.Bind<bool>().WithId("zenMode").FromInstance(____sceneSetupData.gameplayModifiers.zenMode);
         }
     }

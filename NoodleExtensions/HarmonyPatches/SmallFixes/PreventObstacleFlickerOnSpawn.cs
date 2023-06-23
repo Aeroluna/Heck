@@ -29,7 +29,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         }
 
         [HarmonyTranspiler]
-        [HarmonyPatch("AddSpawnedObstacleController")]
+        [HarmonyPatch(nameof(BeatmapObjectManager.AddSpawnedObstacleController))]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)

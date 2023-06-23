@@ -6,7 +6,6 @@ using System.Reflection.Emit;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
-using IPA.Utilities;
 using SiraUtil.Affinity;
 using UnityEngine;
 
@@ -14,9 +13,6 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
 {
     internal class SaberPlayerMovementFix : IAffinity, IDisposable
     {
-        private static readonly FieldAccessor<PlayerTransforms, Transform>.Accessor _originAccessor =
-            FieldAccessor<PlayerTransforms, Transform>.GetAccessor("_originTransform");
-
         private static readonly FieldInfo _topPos = AccessTools.Field(typeof(BladeMovementDataElement), nameof(BladeMovementDataElement.topPos));
         private static readonly FieldInfo _bottomPos = AccessTools.Field(typeof(BladeMovementDataElement), nameof(BladeMovementDataElement.bottomPos));
 
@@ -28,7 +24,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
 
         private SaberPlayerMovementFix(PlayerTransforms playerTransforms, IReadonlyBeatmapData beatmapData)
         {
-            _origin = _originAccessor(ref playerTransforms);
+            _origin = playerTransforms._originTransform;
             _computeWorld = InstanceTranspilers.EmitInstanceDelegate<Func<Vector3, Vector3>>(ComputeWorld);
             _local = ((CustomBeatmapData)beatmapData).beatmapCustomData.Get<bool?>(NoodleController.TRAIL_LOCAL_SPACE) ?? false;
         }
@@ -44,7 +40,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         {
             if (_local)
             {
-                Log.Logger.Log("Parented saber trail to local space.");
+                Plugin.Log.LogDebug("Parented saber trail to local space.");
                 ____trailRenderer.transform.SetParent(__instance.transform.parent.parent.parent, false);
                 return;
             }

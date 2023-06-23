@@ -1,94 +1,87 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
+using BepInEx.Configuration;
 using Chroma.Extras;
 using Heck.SettingsSetter;
-using IPA.Config.Stores;
-using JetBrains.Annotations;
 using static Chroma.ChromaController;
-using static Chroma.Settings.ChromaSettableSettings;
 using Loader = SongCore.Loader;
-
-[assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 
 // ReSharper disable MemberCanBeMadeStatic.Global
 namespace Chroma.Settings
 {
-    internal static class ChromaSettableSettings
-    {
-        internal static SettableSetting<bool> ChromaEventsDisabledSetting { get; } = new("Chroma", "Disable Chroma Events");
-
-        internal static SettableSetting<bool> EnvironmentEnhancementsDisabledSetting { get; } = new("Chroma", "Disable Environment Enhancements");
-
-        internal static SettableSetting<bool> NoteColoringDisabledSetting { get; } = new("Chroma", "Disable Note Coloring");
-
-        internal static SettableSetting<bool> ForceZenWallsEnabledSetting { get; } = new("Chroma", "Force Zen Mode Walls");
-
-        internal static SettableSetting<bool> CustomEnvironmentEnabledSetting { get; } = new("Chroma", "Use Custom Environment");
-
-        internal static void SetupSettableSettings()
-        {
-            SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_disableChromaEvents", ChromaEventsDisabledSetting);
-            SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_disableEnvironmentEnhancements", EnvironmentEnhancementsDisabledSetting);
-            SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_disableNoteColoring", NoteColoringDisabledSetting);
-            SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_forceZenModeWalls", ForceZenWallsEnabledSetting);
-            SettingSetterSettableSettingsManager.RegisterSettableSetting("_chroma", "_useCustomEnvironment", CustomEnvironmentEnabledSetting);
-        }
-    }
-
     internal class Config
     {
         private static Config? _instance;
 
-        public Config()
+        internal Config(ConfigFile configFile)
         {
             _instance = this;
-        }
 
-        public static Config Instance => _instance ?? throw new InvalidOperationException("Chroma Config instance not yet created.");
+            ChromaEventsDisabled = SettingSetterSettableSettingsManager.CreateSettableConfigEntry(configFile.Bind(
+                ID,
+                "Disable Chroma Events",
+                false,
+                "Disable everything Chroma, but you'll break my heart."));
 
-#pragma warning disable CA1822
-        public bool ChromaEventsDisabled
-        {
-            get => ChromaEventsDisabledSetting.Value;
-            set
+            EnvironmentEnhancementsDisabled = SettingSetterSettableSettingsManager.CreateSettableConfigEntry(configFile.Bind(
+                ID,
+                "Disable Environment Enhancements",
+                false,
+                "Disable Chroma's ability to manage the environment."));
+
+            NoteColoringDisabled = SettingSetterSettableSettingsManager.CreateSettableConfigEntry(configFile.Bind(
+                ID,
+                "Disable Note Coloring",
+                false,
+                "Blame Mawntee."));
+
+            ForceZenWallsEnabled = SettingSetterSettableSettingsManager.CreateSettableConfigEntry(configFile.Bind(
+                ID,
+                "Force Zen Mode Walls",
+                false,
+                "Forces walls to be enabled in the Zen Mode modifier."));
+
+            CustomEnvironmentEnabled = SettingSetterSettableSettingsManager.CreateSettableConfigEntry(configFile.Bind(
+                ID,
+                "Use Custom Environment",
+                false,
+                "Yay custom environments!!!"));
+
+            CustomEnvironment = configFile.Bind<string?>(
+                ID,
+                "Custom Environment",
+                null,
+                "The name of the custom environment to use.");
+
+            PrintEnvironmentEnhancementDebug = configFile.Bind(
+                "Debug",
+                "Print Environment Enhancement",
+                false,
+                "Print environment enhancement information to the log.");
+
+            ChromaEventsDisabled.ConfigEntry.SettingChanged += (_, _) =>
             {
-                ChromaEventsDisabledSetting.Value = value;
-                ChromaUtils.SetSongCoreCapability(CAPABILITY, !ChromaEventsDisabledSetting.Value);
+                ChromaUtils.SetSongCoreCapability(CAPABILITY, !ChromaEventsDisabled.Value);
                 if (Loader.Instance != null)
                 {
                     Loader.Instance.RefreshSongs();
                 }
-            }
+            };
         }
 
-        public bool EnvironmentEnhancementsDisabled
-        {
-            get => EnvironmentEnhancementsDisabledSetting.Value;
-            set => EnvironmentEnhancementsDisabledSetting.Value = value;
-        }
+        internal static Config Instance => _instance ?? throw new InvalidOperationException("Chroma Config instance not yet created.");
 
-        public bool NoteColoringDisabled
-        {
-            get => NoteColoringDisabledSetting.Value;
-            set => NoteColoringDisabledSetting.Value = value;
-        }
+        internal SettableConfigEntry<bool> ChromaEventsDisabled { get; }
 
-        public bool ForceZenWallsEnabled
-        {
-            get => ForceZenWallsEnabledSetting.Value;
-            set => ForceZenWallsEnabledSetting.Value = value;
-        }
+        internal SettableConfigEntry<bool> EnvironmentEnhancementsDisabled { get; }
 
-        public bool CustomEnvironmentEnabled
-        {
-            get => CustomEnvironmentEnabledSetting.Value;
-            set => CustomEnvironmentEnabledSetting.Value = value;
-        }
+        internal SettableConfigEntry<bool> NoteColoringDisabled { get; }
 
-        public string? CustomEnvironment { get; set; }
-#pragma warning restore CA1822
+        internal SettableConfigEntry<bool> ForceZenWallsEnabled { get; }
 
-        [UsedImplicitly]
-        public bool PrintEnvironmentEnhancementDebug { get; set; }
+        internal SettableConfigEntry<bool> CustomEnvironmentEnabled { get; }
+
+        internal ConfigEntry<string?> CustomEnvironment { get; }
+
+        internal ConfigEntry<bool> PrintEnvironmentEnhancementDebug { get; }
     }
 }

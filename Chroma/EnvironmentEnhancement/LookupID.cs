@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using Logger = IPA.Logging.Logger;
 
 namespace Chroma.EnvironmentEnhancement
 {
@@ -36,9 +35,9 @@ namespace Chroma.EnvironmentEnhancement
             }
             catch (Exception e)
             {
-                Log.Logger.Log("Error running LookupID, falling back to managed code.", Logger.Level.Error);
-                Log.Logger.Log("Expect long load times...", Logger.Level.Error);
-                Log.Logger.Log(e.ToString(), Logger.Level.Error);
+                Plugin.Log.LogWarning("Error running LookupID, falling back to managed code.");
+                Plugin.Log.LogWarning("Expect long load times...");
+                Plugin.Log.LogWarning(e.ToString());
 
                 _useFallback = true;
                 return LookupID_Legacy(source, id, lookupMethod);

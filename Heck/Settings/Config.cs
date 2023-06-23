@@ -1,47 +1,73 @@
-﻿using System.Runtime.CompilerServices;
-using IPA.Config.Stores;
-using IPA.Config.Stores.Attributes;
-using IPA.Config.Stores.Converters;
-using JetBrains.Annotations;
+﻿using BepInEx.Configuration;
 using UnityEngine;
 
-[assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
-
-// ReSharper disable MemberCanBeMadeStatic.Global
 namespace Heck.Settings
 {
     internal class Config
     {
-        [UsedImplicitly]
-        public ReLoaderSettings ReLoader { get; set; } = new();
-
-        public class ReLoaderSettings
+        internal Config(ConfigFile configFile)
         {
-            [UsedImplicitly]
-            [UseConverter(typeof(EnumConverter<KeyCode>))]
-            public KeyCode Reload { get; set; } = KeyCode.Space;
+            ReLoader = new ReLoaderSettings(configFile);
+        }
 
-            [UsedImplicitly]
-            [UseConverter(typeof(EnumConverter<KeyCode>))]
-            public KeyCode SaveTime { get; set; } = KeyCode.LeftControl;
+        internal ReLoaderSettings ReLoader { get; }
 
-            [UsedImplicitly]
-            [UseConverter(typeof(EnumConverter<KeyCode>))]
-            public KeyCode JumpToSavedTime { get; set; } = KeyCode.Space;
+        internal class ReLoaderSettings
+        {
+            private const string SECTION_NAME = "ReLoader";
 
-            [UsedImplicitly]
-            [UseConverter(typeof(EnumConverter<KeyCode>))]
-            public KeyCode ScrubBackwards { get; set; } = KeyCode.LeftArrow;
+            internal ReLoaderSettings(ConfigFile configFile)
+            {
+                Reload = configFile.Bind(
+                    SECTION_NAME,
+                    "Reload",
+                    KeyCode.Space,
+                    "KeyCode used to hot reload. In the menu, this will reload the currently selected difficulty and in-game this will reload the current playing song.");
+                SaveTime = configFile.Bind(
+                    SECTION_NAME,
+                    "Save Time",
+                    KeyCode.LeftControl,
+                    "KeyCode used to save the current time in the song.");
+                JumpToSavedTime = configFile.Bind(
+                    SECTION_NAME,
+                    "Jump To Saved Time",
+                    KeyCode.Space,
+                    "KeyCode used to jump to the saved time.");
+                ScrubBackwards = configFile.Bind(
+                    SECTION_NAME,
+                    "Scrub Backwards",
+                    KeyCode.LeftArrow,
+                    "KeyCode used to scrub backwards in time.");
+                ScrubForwards = configFile.Bind(
+                    SECTION_NAME,
+                    "Scrub Forwards",
+                    KeyCode.RightArrow,
+                    "KeyCode used to scrub forwards in time.");
+                ScrubIncrement = configFile.Bind(
+                    SECTION_NAME,
+                    "Scrub Increment",
+                    5f,
+                    "How long in seconds to skip when scrubbing.");
+                ReloadOnRestart = configFile.Bind(
+                    SECTION_NAME,
+                    "Reload On Restart",
+                    false,
+                    "Whether or not to hot reload the difficulty file when restarting.");
+            }
 
-            [UsedImplicitly]
-            [UseConverter(typeof(EnumConverter<KeyCode>))]
-            public KeyCode ScrubForwards { get; set; } = KeyCode.RightArrow;
+            internal ConfigEntry<KeyCode> Reload { get; }
 
-            [UsedImplicitly]
-            public float ScrubIncrement { get; set; } = 5;
+            internal ConfigEntry<KeyCode> SaveTime { get; }
 
-            [UsedImplicitly]
-            public bool ReloadOnRestart { get; set; }
+            internal ConfigEntry<KeyCode> JumpToSavedTime { get; }
+
+            internal ConfigEntry<KeyCode> ScrubBackwards { get; }
+
+            internal ConfigEntry<KeyCode> ScrubForwards { get; }
+
+            internal ConfigEntry<float> ScrubIncrement { get; }
+
+            internal ConfigEntry<bool> ReloadOnRestart { get; }
         }
     }
 }

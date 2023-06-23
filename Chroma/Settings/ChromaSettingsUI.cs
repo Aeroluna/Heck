@@ -34,7 +34,7 @@ namespace Chroma.Settings
         public bool ChromaEventsDisabled
         {
             get => _config.ChromaEventsDisabled;
-            set => _config.ChromaEventsDisabled = value;
+            set => _config.ChromaEventsDisabled.Value = value;
         }
 
         [UsedImplicitly]
@@ -42,7 +42,7 @@ namespace Chroma.Settings
         public bool EnvironmentEnhancementsDisabled
         {
             get => _config.EnvironmentEnhancementsDisabled;
-            set => _config.EnvironmentEnhancementsDisabled = value;
+            set => _config.EnvironmentEnhancementsDisabled.Value = value;
         }
 
         [UsedImplicitly]
@@ -50,7 +50,7 @@ namespace Chroma.Settings
         public bool NoteColoringDisabled
         {
             get => _config.NoteColoringDisabled;
-            set => _config.NoteColoringDisabled = value;
+            set => _config.NoteColoringDisabled.Value = value;
         }
 
         [UsedImplicitly]
@@ -58,7 +58,7 @@ namespace Chroma.Settings
         public bool ForceZenWallsEnabled
         {
             get => _config.ForceZenWallsEnabled;
-            set => _config.ForceZenWallsEnabled = value;
+            set => _config.ForceZenWallsEnabled.Value = value;
         }
 
         [UsedImplicitly]
@@ -66,7 +66,7 @@ namespace Chroma.Settings
         public bool CustomEnvironmentEnabled
         {
             get => _config.CustomEnvironmentEnabled;
-            set => _config.CustomEnvironmentEnabled = value;
+            set => _config.CustomEnvironmentEnabled.Value = value;
         }
 
         [UsedImplicitly]
@@ -75,10 +75,10 @@ namespace Chroma.Settings
         {
             get
             {
-                string? name = _config.CustomEnvironment;
+                string? name = _config.CustomEnvironment.Value;
                 return name != null && _savedEnvironmentLoader.Environments.ContainsKey(name) ? name : null;
             }
-            set => _config.CustomEnvironment = value;
+            set => _config.CustomEnvironment.Value = value;
         }
 
         [UsedImplicitly]

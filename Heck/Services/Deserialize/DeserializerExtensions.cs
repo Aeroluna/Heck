@@ -1,27 +1,27 @@
 ﻿using System;
+using BepInEx.Logging;
 using CustomJSONData.CustomBeatmap;
-using IPA.Logging;
 
 namespace Heck
 {
     public static class DeserializerExtensions
     {
-        public static void LogFailure(this HeckLogger logger, Exception e, CustomEventData customEventData)
+        public static void LogFailure(this ManualLogSource logger, Exception e, CustomEventData customEventData)
         {
-            logger.Log($"Could not parse custom data for custom event [{customEventData.eventType}] at [{customEventData.time}].", Logger.Level.Error);
-            logger.Log(e, Logger.Level.Error);
+            logger.LogError($"Could not parse custom data for custom event [{customEventData.eventType}] at [{customEventData.time}].");
+            logger.LogError(e);
         }
 
-        public static void LogFailure(this HeckLogger logger, Exception e, BeatmapEventData beatmapEventData)
+        public static void LogFailure(this ManualLogSource logger, Exception e, BeatmapEventData beatmapEventData)
         {
-            logger.Log($"Could not parse custom data for event [{beatmapEventData.GetType().Name}] at [{beatmapEventData.time}].", Logger.Level.Error);
-            logger.Log(e, Logger.Level.Error);
+            logger.LogError($"Could not parse custom data for event [{beatmapEventData.GetType().Name}] at [{beatmapEventData.time}].");
+            logger.LogError(e);
         }
 
-        public static void LogFailure(this HeckLogger logger, Exception e, BeatmapObjectData beatmapObjectData)
+        public static void LogFailure(this ManualLogSource logger, Exception e, BeatmapObjectData beatmapObjectData)
         {
-            logger.Log($"Could not parse custom data for object [{beatmapObjectData.GetType().Name}] at [{beatmapObjectData.time}].", Logger.Level.Error);
-            logger.Log(e, Logger.Level.Error);
+            logger.LogError($"Could not parse custom data for object [{beatmapObjectData.GetType().Name}] at [{beatmapObjectData.time}].");
+            logger.LogError(e);
         }
     }
 }

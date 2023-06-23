@@ -3,8 +3,6 @@ using System.Linq;
 using Chroma.Colorizer;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
 using CustomJSONData.CustomBeatmap;
-using IPA.Logging;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 
@@ -12,10 +10,6 @@ namespace Chroma.EnvironmentEnhancement.Component
 {
     internal class ILightWithIdCustomizer
     {
-        private static readonly FieldAccessor<LightWithIds, IEnumerable<LightWithIds.LightWithId>>.Accessor _lightWithIdsAccessor = FieldAccessor<LightWithIds, IEnumerable<LightWithIds.LightWithId>>.GetAccessor("_lightWithIds");
-        private static readonly FieldAccessor<LightWithIds.LightWithId, int>.Accessor _lightIdAccessor = FieldAccessor<LightWithIds.LightWithId, int>.GetAccessor("_lightId");
-        private static readonly FieldAccessor<LightWithIdMonoBehaviour, int>.Accessor _IDAccessor = FieldAccessor<LightWithIdMonoBehaviour, int>.GetAccessor("_ID");
-
         private readonly LightColorizerManager _lightColorizerManager;
         private readonly LightWithIdRegisterer _lightWithIdRegisterer;
         private readonly LightWithIdManager _lightWithIdManager;
@@ -35,13 +29,13 @@ namespace Chroma.EnvironmentEnhancement.Component
         {
             ILightWithId[] lightWithIds = allComponents
                 .OfType<LightWithIds>()
-                .SelectMany(n => _lightWithIdsAccessor(ref n))
+                .SelectMany(n => n._lightWithIds)
                 .Cast<ILightWithId>()
                 .Concat(allComponents.OfType<LightWithIdMonoBehaviour>())
                 .ToArray();
             if (lightWithIds.Length == 0)
             {
-                Log.Logger.Log($"No [{LIGHT_WITH_ID}] component found.", Logger.Level.Error);
+                Plugin.Log.LogWarning($"No [{LIGHT_WITH_ID}] component found.");
                 return;
             }
 
@@ -66,11 +60,11 @@ namespace Chroma.EnvironmentEnhancement.Component
                     switch (lightWithId)
                     {
                         case LightWithIds.LightWithId lightWithIdsLightWithId:
-                            _lightIdAccessor(ref lightWithIdsLightWithId) = lightId;
+                            lightWithIdsLightWithId._lightId = lightId;
                             break;
 
                         case LightWithIdMonoBehaviour lightWithIdMonoBehaviour:
-                            _IDAccessor(ref lightWithIdMonoBehaviour) = lightId;
+                            lightWithIdMonoBehaviour._ID = lightId;
                             break;
                     }
                 }

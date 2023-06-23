@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using BepInEx;
 using Chroma.Settings;
-using IPA.Logging;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
@@ -11,7 +10,7 @@ namespace Chroma.EnvironmentEnhancement.Saved
 {
     internal class SavedEnvironmentLoader
     {
-        private static readonly string _directory = Path.Combine(UnityGame.UserDataPath, ChromaController.ID, "Environments");
+        private static readonly string _directory = Path.Combine(Paths.ConfigPath, ChromaController.ID, "Environments");
         private static readonly Version _currVer = new(1, 0, 0);
 
         // TODO: change modules to use instanced
@@ -35,7 +34,7 @@ namespace Chroma.EnvironmentEnhancement.Saved
         {
             get
             {
-                string? name = _config.CustomEnvironment;
+                string? name = _config.CustomEnvironment.Value;
                 if (name == null)
                 {
                     return null;
@@ -75,14 +74,14 @@ namespace Chroma.EnvironmentEnhancement.Saved
                     }
 
                     string fileName = Path.GetFileName(file);
-                    Log.Logger.Log($"Loaded [{file}].", Logger.Level.Trace);
+                    Plugin.Log.LogDebug($"Loaded [{file}].");
 
                     Environments.Add(fileName, savedEnvironment);
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.Log($"Encountered error deserializing [{file}].", Logger.Level.Error);
-                    Log.Logger.Log(e, Logger.Level.Error);
+                    Plugin.Log.LogError($"Encountered error deserializing [{file}].");
+                    Plugin.Log.LogError(e);
                 }
             }
         }

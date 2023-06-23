@@ -2,16 +2,12 @@
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
-using IPA.Logging;
-using IPA.Utilities;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 
 namespace Chroma.EnvironmentEnhancement.Component
 {
     internal static class TubeBloomLightCustomizer
     {
-        private static readonly FieldAccessor<TubeBloomPrePassLight, float>.Accessor _colorAlphaMultiplierAccessor = FieldAccessor<TubeBloomPrePassLight, float>.GetAccessor("_colorAlphaMultiplier");
-
         internal static void TubeBloomPrePassLightInit(List<UnityEngine.Component> allComponents, CustomData customData)
         {
             TubeBloomPrePassLight[] tubeBloomPrePassLights = allComponents
@@ -19,7 +15,7 @@ namespace Chroma.EnvironmentEnhancement.Component
                 .ToArray();
             if (tubeBloomPrePassLights.Length == 0)
             {
-                Log.Logger.Log($"No [{TUBE_BLOOM_PRE_PASS_LIGHT}] component found.", Logger.Level.Error);
+                Plugin.Log.LogWarning($"No [{TUBE_BLOOM_PRE_PASS_LIGHT}] component found.");
                 return;
             }
 
@@ -50,7 +46,7 @@ namespace Chroma.EnvironmentEnhancement.Component
 
         internal static void SetColorAlphaMultiplier(TubeBloomPrePassLight tubeBloomPrePassLight, float value)
         {
-            _colorAlphaMultiplierAccessor(ref tubeBloomPrePassLight) = value;
+            tubeBloomPrePassLight._colorAlphaMultiplier = value;
             tubeBloomPrePassLight.MarkDirty();
         }
     }

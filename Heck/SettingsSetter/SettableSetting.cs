@@ -1,4 +1,5 @@
 ﻿using System;
+using BepInEx.Configuration;
 using JetBrains.Annotations;
 
 namespace Heck.SettingsSetter
@@ -9,7 +10,7 @@ namespace Heck.SettingsSetter
 
         string FieldName { get; }
 
-        object TrueValue { get; }
+        object? TrueValue { get; }
 
         void SetTemporary(object? tempValue);
     }
@@ -34,7 +35,7 @@ namespace Heck.SettingsSetter
 
         public string FieldName { get; }
 
-        public object TrueValue => _value;
+        public object? TrueValue => _value;
 
         public T Value
         {
@@ -46,10 +47,45 @@ namespace Heck.SettingsSetter
             }
         }
 
+        public static implicit operator T(SettableSetting<T> settableSetting) => settableSetting.Value;
+
         public void SetTemporary(object? tempValue)
         {
             _tempValue = (T?)tempValue;
             ValueChanged?.Invoke();
+        }
+    }
+
+    public class SettableConfigEntry<T> : ISettableSetting
+    {
+        private T? _tempValue;
+
+        public SettableConfigEntry(ConfigEntry<T> configEntry, string groupName, string fieldName)
+        {
+            ConfigEntry = configEntry;
+            GroupName = groupName;
+            FieldName = fieldName;
+        }
+
+        public string GroupName { get; }
+
+        public string FieldName { get; }
+
+        public object? TrueValue => ConfigEntry.Value;
+
+        public ConfigEntry<T> ConfigEntry { get; }
+
+        public T Value
+        {
+            get => _tempValue ?? ConfigEntry.Value;
+            set => ConfigEntry.Value = value;
+        }
+
+        public static implicit operator T(SettableConfigEntry<T> settableConfigEntry) => settableConfigEntry.Value;
+
+        public void SetTemporary(object? tempValue)
+        {
+            _tempValue = (T?)tempValue;
         }
     }
 }

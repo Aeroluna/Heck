@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BSIPA_Utilities;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
-using IPA.Logging;
-using IPA.Utilities;
 using static Heck.HeckController;
 
 namespace Heck
@@ -27,12 +26,12 @@ namespace Heck
             out Dictionary<string, Track> beatmapTracks,
             out HashSet<(object? Id, DeserializedData DeserializedData)> deserializedDatas)
         {
-            Log.Logger.Log("Deserializing BeatmapData.", Logger.Level.Trace);
+            Plugin.Log.LogDebug("Deserializing BeatmapData.");
 
             bool v2 = customBeatmapData.version2_6_0AndEarlier;
             if (v2)
             {
-                Log.Logger.Log("BeatmapData is v2, converting...", Logger.Level.Trace);
+                Plugin.Log.LogDebug("BeatmapData is v2, converting...");
             }
 
             // tracks are built based off the untransformed beatmapdata so modifiers like "no walls" do not prevent track creation
@@ -75,7 +74,7 @@ namespace Heck
                 }
                 else
                 {
-                    Log.Logger.Log($"Duplicate point defintion name, {pointDataName} could not be registered!", Logger.Level.Error);
+                    Plugin.Log.LogError($"Duplicate point defintion name, {pointDataName} could not be registered!");
                 }
             }
 
@@ -130,7 +129,7 @@ namespace Heck
                         }
                         else
                         {
-                            Log.Logger.Log($"Duplicate event defintion name, {eventName} could not be registered!", Logger.Level.Error);
+                            Plugin.Log.LogError($"Duplicate event definition name, {eventName} could not be registered!");
                         }
                     }
                 }
@@ -170,7 +169,7 @@ namespace Heck
                 Dictionary<BeatmapEventData, IEventCustomData> eventCustomDatas = deserializer.InjectedInvokeEvent(inputs);
                 Dictionary<BeatmapObjectData, IObjectCustomData> objectCustomDatas = deserializer.InjectedInvokeObject(inputs);
 
-                Log.Logger.Log($"Binding [{deserializer.Id}].", Logger.Level.Trace);
+                Plugin.Log.LogDebug($"Binding [{deserializer.Id}].");
 
                 deserializedDatas.Add((deserializer.Id, new DeserializedData(customEventCustomDatas, eventCustomDatas, objectCustomDatas)));
             }

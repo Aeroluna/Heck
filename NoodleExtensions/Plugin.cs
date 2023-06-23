@@ -1,26 +1,30 @@
-﻿using Heck;
+﻿using BepInEx;
+using BepInEx.Logging;
 using Heck.Animation;
-using IPA;
-using JetBrains.Annotations;
 using NoodleExtensions.Installers;
 using SiraUtil.Zenject;
 using SongCore;
 using UnityEngine;
 using static Heck.HeckController;
 using static NoodleExtensions.NoodleController;
-using Logger = IPA.Logging.Logger;
 
 namespace NoodleExtensions
 {
-    [Plugin(RuntimeOptions.DynamicInit)]
-    internal class Plugin
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInDependency("SongCore")]
+    [BepInDependency("CustomJSONData")]
+    [BepInDependency("Heck")]
+    [BepInDependency("SiraUtil")]
+    [BepInProcess("Beat Saber.exe")]
+    internal class Plugin : BaseUnityPlugin
     {
-        [UsedImplicitly]
-        [Init]
-        public Plugin(Logger pluginLogger, Zenjector zenjector)
-        {
-            Log.Logger = new HeckLogger(pluginLogger);
+        internal static ManualLogSource Log { get; private set; } = null!;
 
+        private void Awake()
+        {
+            Log = Logger;
+
+            Zenjector zenjector = Zenjector.ConstructZenjector(Info);
             zenjector.Install<NoodleAppInstaller>(Location.App);
             zenjector.Install<NoodlePlayerInstaller>(Location.Player);
             zenjector.Expose<NoteCutCoreEffectsSpawner>("Gameplay");
@@ -43,9 +47,7 @@ namespace NoodleExtensions
         }
 
 #pragma warning disable CA1822
-        [UsedImplicitly]
-        [OnEnable]
-        public void OnEnable()
+        private void OnEnable()
         {
             Collections.RegisterCapability(CAPABILITY);
             CorePatcher.Enabled = true;
@@ -53,9 +55,7 @@ namespace NoodleExtensions
             JSONDeserializer.Enabled = true;
         }
 
-        [UsedImplicitly]
-        [OnDisable]
-        public void OnDisable()
+        private void OnDisable()
         {
             Collections.DeregisterizeCapability(CAPABILITY);
             CorePatcher.Enabled = false;

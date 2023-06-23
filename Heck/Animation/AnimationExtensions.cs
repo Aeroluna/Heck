@@ -5,7 +5,6 @@ using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using UnityEngine;
 using static Heck.HeckController;
-using Logger = IPA.Logging.Logger;
 
 namespace Heck.Animation
 {
@@ -52,7 +51,7 @@ namespace Heck.Animation
                         return pointData.ToPointDefinition<T>();
                     }
 
-                    Log.Logger.Log($"Could not find point definition [{castedString}].", Logger.Level.Error);
+                    Plugin.Log.LogError($"Could not find point definition [{castedString}].");
                     return null;
 
                 case List<object> list:

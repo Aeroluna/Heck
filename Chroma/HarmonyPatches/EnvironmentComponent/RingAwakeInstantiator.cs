@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using BSIPA_Utilities;
 using HarmonyLib;
 using Heck;
-using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 using Zenject.Internal;

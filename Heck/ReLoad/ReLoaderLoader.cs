@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BeatmapSaveDataVersion3;
-using IPA.Logging;
-using IPA.Utilities;
+using BSIPA_Utilities;
 using JetBrains.Annotations;
 
 namespace Heck.ReLoad
@@ -12,11 +11,8 @@ namespace Heck.ReLoad
         private static readonly FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.Accessor _beatmapSaveDataAccessor
             = FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.GetAccessor("<beatmapSaveData>k__BackingField");
 
-        private static readonly FieldAccessor<BeatmapDataCache, IDifficultyBeatmap?>.Accessor _difficultyBeatmapAccessor
-            = FieldAccessor<BeatmapDataCache, IDifficultyBeatmap?>.GetAccessor("difficultyBeatmap");
-
         private readonly CustomLevelLoader _customLevelLoader;
-        private BeatmapDataCache _beatmapDataCache;
+        private readonly BeatmapDataCache _beatmapDataCache;
 
         [UsedImplicitly]
 #pragma warning disable 8618
@@ -34,13 +30,13 @@ namespace Heck.ReLoad
             if (difficultyBeatmap is not
                     CustomDifficultyBeatmap { level: CustomPreviewBeatmapLevel customPreviewBeatmapLevel } customDifficultyBeatmap)
             {
-                Log.Logger.Log("Cannot ReLoad non-custom map.", Logger.Level.Error);
+                Plugin.Log.LogError("Cannot ReLoad non-custom map.");
                 return;
             }
 
-            Log.Logger.Log("ReLoaded beatmap.", Logger.Level.Trace);
+            Plugin.Log.LogDebug("ReLoaded beatmap.");
 
-            _difficultyBeatmapAccessor(ref _beatmapDataCache) = null;
+            _beatmapDataCache.difficultyBeatmap = null;
 
             BeatmapDifficulty levelDiff = customDifficultyBeatmap.difficulty;
             StandardLevelInfoSaveData standardLevelInfoSaveData = customPreviewBeatmapLevel.standardLevelInfoSaveData;

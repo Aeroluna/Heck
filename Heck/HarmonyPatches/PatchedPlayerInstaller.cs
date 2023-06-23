@@ -5,7 +5,6 @@ using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
 using Heck.ReLoad;
-using IPA.Utilities;
 using Zenject;
 
 namespace Heck.HarmonyPatches
@@ -16,14 +15,11 @@ namespace Heck.HarmonyPatches
         private static readonly MethodInfo _getContainer = AccessTools.PropertyGetter(typeof(MonoInstallerBase), "Container");
         private static readonly MethodInfo _bindHeckMultiPlayer = AccessTools.Method(typeof(PatchedPlayerInstaller), nameof(BindHeckMultiPlayer));
 
-        private static readonly PropertyAccessor<MonoInstallerBase, DiContainer>.Getter _containerGetAccessor =
-            PropertyAccessor<MonoInstallerBase, DiContainer>.GetGetter("Container");
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
         private static void GameplayCoreBinder(MonoInstallerBase __instance, GameplayCoreSceneSetupData ____sceneSetupData)
         {
-            BindHeckSinglePlayer(____sceneSetupData, _containerGetAccessor(ref __instance));
+            BindHeckSinglePlayer(____sceneSetupData, __instance.Container);
         }
 
         [HarmonyTranspiler]
@@ -56,7 +52,7 @@ namespace Heck.HarmonyPatches
             }
             else
             {
-                Log.Logger.Log("Failed to get untransformedBeatmapData, falling back.");
+                Plugin.Log.LogError("Failed to get untransformedBeatmapData, falling back.");
                 untransformedBeatmapData = sceneSetupData.transformedBeatmapData;
             }
 

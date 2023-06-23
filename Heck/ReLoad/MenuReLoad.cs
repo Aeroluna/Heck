@@ -24,7 +24,7 @@ namespace Heck.ReLoad
 
         public void Tick()
         {
-            if (!Input.GetKeyDown(_config.Reload))
+            if (!Input.GetKeyDown(_config.Reload.Value))
             {
                 return;
             }

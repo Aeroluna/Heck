@@ -8,7 +8,6 @@ using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
 using static Heck.NullableExtensions;
-using Logger = IPA.Logging.Logger;
 using Object = UnityEngine.Object;
 
 namespace Heck.Animation.Transform
@@ -166,12 +165,12 @@ namespace Heck.Animation.Transform
             {
                 if (overwrite)
                 {
-                    Log.Logger.Log($"Overwriting existing [{nameof(TransformController)}] on [{gameObject.name}]...", Logger.Level.Error);
+                    Plugin.Log.LogWarning($"Overwriting existing [{nameof(TransformController)}] on [{gameObject.name}]...");
                     Object.Destroy(existing);
                 }
                 else
                 {
-                    Log.Logger.Log($"Could not create [{nameof(TransformController)}], [{gameObject.name}] already has one.", Logger.Level.Error);
+                    Plugin.Log.LogWarning($"Could not create [{nameof(TransformController)}], [{gameObject.name}] already has one.");
                     return existing;
                 }
             }

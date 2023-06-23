@@ -36,7 +36,7 @@ namespace NoodleExtensions
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, customEventData);
+                    Plugin.Log.LogFailure(e, customEventData);
                 }
             }
         }
@@ -107,7 +107,7 @@ namespace NoodleExtensions
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, customEventData);
+                    Plugin.Log.LogFailure(e, customEventData);
                 }
             }
 

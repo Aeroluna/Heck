@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using Zenject;
 
@@ -9,12 +8,6 @@ namespace Chroma.Lighting
     [UsedImplicitly]
     public class ChromaRingsRotationEffect : IFixedTickable
     {
-        private static readonly FieldAccessor<TrackLaneRingsRotationEffect, TrackLaneRingsManager>.Accessor _trackLaneRingsManagerAccessor = FieldAccessor<TrackLaneRingsRotationEffect, TrackLaneRingsManager>.GetAccessor("_trackLaneRingsManager");
-        private static readonly FieldAccessor<TrackLaneRingsRotationEffect, float>.Accessor _startupRotationAngleAccessor = FieldAccessor<TrackLaneRingsRotationEffect, float>.GetAccessor("_startupRotationAngle");
-        private static readonly FieldAccessor<TrackLaneRingsRotationEffect, float>.Accessor _startupRotationStepAccessor = FieldAccessor<TrackLaneRingsRotationEffect, float>.GetAccessor("_startupRotationStep");
-        private static readonly FieldAccessor<TrackLaneRingsRotationEffect, int>.Accessor _startupRotationPropagationSpeedAccessor = FieldAccessor<TrackLaneRingsRotationEffect, int>.GetAccessor("_startupRotationPropagationSpeed");
-        private static readonly FieldAccessor<TrackLaneRingsRotationEffect, float>.Accessor _startupRotationFlexySpeedAccessor = FieldAccessor<TrackLaneRingsRotationEffect, float>.GetAccessor("_startupRotationFlexySpeed");
-
         private readonly List<ChromaRotationEffect> _activeChromaRotationEffects = new(20);
         private readonly List<ChromaRotationEffect> _chromaRotationEffectsPool = new(20);
 
@@ -22,17 +15,17 @@ namespace Chroma.Lighting
 
         private ChromaRingsRotationEffect(TrackLaneRingsRotationEffect trackLaneRingsRotationEffect)
         {
-            _trackLaneRingsManager = _trackLaneRingsManagerAccessor(ref trackLaneRingsRotationEffect);
+            _trackLaneRingsManager = trackLaneRingsRotationEffect._trackLaneRingsManager;
 
             for (int i = 0; i < _chromaRotationEffectsPool.Capacity; i++)
             {
                 _chromaRotationEffectsPool.Add(new ChromaRotationEffect());
             }
 
-            float startupRotationAngle = _startupRotationAngleAccessor(ref trackLaneRingsRotationEffect);
-            float startupRotationStep = _startupRotationStepAccessor(ref trackLaneRingsRotationEffect);
-            int startupRotationPropagationSpeed = _startupRotationPropagationSpeedAccessor(ref trackLaneRingsRotationEffect);
-            float startupRotationFlexySpeed = _startupRotationFlexySpeedAccessor(ref trackLaneRingsRotationEffect);
+            float startupRotationAngle = trackLaneRingsRotationEffect._startupRotationAngle;
+            float startupRotationStep = trackLaneRingsRotationEffect._startupRotationStep;
+            int startupRotationPropagationSpeed = trackLaneRingsRotationEffect._startupRotationPropagationSpeed;
+            float startupRotationFlexySpeed = trackLaneRingsRotationEffect._startupRotationFlexySpeed;
             AddRingRotationEffect(startupRotationAngle, startupRotationStep, startupRotationPropagationSpeed, startupRotationFlexySpeed);
         }
 

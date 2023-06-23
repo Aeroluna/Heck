@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using BSIPA_Utilities;
 using Chroma.Lighting;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
-using IPA.Utilities;
 using UnityEngine;
 using static Chroma.ChromaController;
 
@@ -72,7 +72,7 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, customEventData);
+                    Plugin.Log.LogFailure(e, customEventData);
                 }
             }
         }
@@ -121,7 +121,7 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, customEventData);
+                    Plugin.Log.LogFailure(e, customEventData);
                 }
             }
 
@@ -160,7 +160,7 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, beatmapObjectData);
+                    Plugin.Log.LogFailure(e, beatmapObjectData);
                 }
             }
 
@@ -190,7 +190,7 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, beatmapEventData);
+                    Plugin.Log.LogFailure(e, beatmapEventData);
                 }
             }
 
