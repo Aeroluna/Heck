@@ -28,7 +28,6 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private static readonly FieldInfo _playerTransformsField = AccessTools.Field(typeof(NoteJump), "_playerTransforms");
         private static readonly FieldInfo _rotatedObjectField = AccessTools.Field(typeof(NoteJump), "_rotatedObject");
         private static readonly FieldInfo _inverseWorldRotationField = AccessTools.Field(typeof(NoteJump), "_inverseWorldRotation");
-        private static readonly FieldAccessor<PlayerTransforms, Transform>.Accessor _headTransformAccessor = FieldAccessor<PlayerTransforms, Transform>.GetAccessor("_headTransform");
 
         private static readonly MethodInfo _noteMissedTimeAdjust = AccessTools.Method(typeof(NoteJumpNoodlifier), nameof(NoteMissedTimeAdjust));
 
@@ -268,7 +267,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
             // This line but super complicated so that "y" = "originTransform.up"
             // vector.y = Mathf.Lerp(vector.y, this._localPosition.y, 0.8f);
-            Transform headTransform = _headTransformAccessor(ref playerTransforms);
+            Transform headTransform = playerTransforms._headTransform;
             Quaternion inverse = Quaternion.Inverse(worldRot);
             Vector3 upVector = inverse * Vector3.up;
             Vector3 position = baseTransform.position;

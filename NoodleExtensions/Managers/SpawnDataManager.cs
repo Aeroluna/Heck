@@ -9,18 +9,9 @@ namespace NoodleExtensions.Managers
 {
     internal class SpawnDataManager
     {
-        // these are the fields that dont have a property
-        private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _startHalfJumpDurationInBeatsAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_startHalfJumpDurationInBeats");
-        private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _maxHalfJumpDistanceAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_maxHalfJumpDistance");
-        private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _noteJumpStartBeatOffsetAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_noteJumpStartBeatOffset");
-        private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.Accessor _forwardVecAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.GetAccessor("_forwardVec");
-        private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.Accessor _rightVecAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, Vector3>.GetAccessor("_rightVec");
-        private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _moveDistanceAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_moveDistance");
-        private static readonly FieldAccessor<BeatmapObjectSpawnMovementData, float>.Accessor _obstacleTopPosYAccessor = FieldAccessor<BeatmapObjectSpawnMovementData, float>.GetAccessor("_obstacleTopPosY");
-
         private readonly BeatmapObjectSpawnController.InitData _initData;
         private readonly DeserializedData _deserializedData;
-        private BeatmapObjectSpawnMovementData _movementData;
+        private readonly BeatmapObjectSpawnMovementData _movementData;
 
         [UsedImplicitly]
         private SpawnDataManager(
@@ -66,7 +57,7 @@ namespace NoodleExtensions.Managers
                 // _topObstaclePosY =/= _obstacleTopPosY
                 obstacleHeight = Mathf.Min(
                     obstacleData.height * StaticBeatmapObjectSpawnMovementData.layerHeight,
-                    _obstacleTopPosYAccessor(ref _movementData) - obstacleOffset.y);
+                    _movementData._obstacleTopPosY - obstacleOffset.y);
             }
 
             GetNoteJumpValues(
@@ -217,7 +208,7 @@ namespace NoodleExtensions.Managers
         private Vector3 GetNoteOffset(float lineIndex, float lineLayer)
         {
             Vector2 coords = Get2DNoteOffset(lineIndex, _movementData.noteLinesCount, lineLayer);
-            return (_rightVecAccessor(ref _movementData) * coords.x)
+            return (_movementData._rightVec * coords.x)
                    + new Vector3(0, coords.y, 0);
         }
 
@@ -262,11 +253,11 @@ namespace NoodleExtensions.Managers
 
             float oneBeatDuration = _initData.beatsPerMinute.OneBeatDuration();
             float halfJumpDurationInBeats = CoreMathUtils.CalculateHalfJumpDurationInBeats(
-                _startHalfJumpDurationInBeatsAccessor(ref _movementData),
-                _maxHalfJumpDistanceAccessor(ref _movementData),
+                _movementData._startHalfJumpDurationInBeats,
+                _movementData._maxHalfJumpDistance,
                 inputNjs ?? _movementData.noteJumpMovementSpeed,
                 oneBeatDuration,
-                inputOffset ?? _noteJumpStartBeatOffsetAccessor(ref _movementData));
+                inputOffset ?? _movementData._noteJumpStartBeatOffset);
             return oneBeatDuration * halfJumpDurationInBeats * 2f;
         }
 
@@ -282,12 +273,12 @@ namespace NoodleExtensions.Managers
             jumpDuration = GetJumpDuration(inputNjs, inputOffset);
 
             Vector3 centerPos = _movementData.centerPos;
-            Vector3 forwardVec = _forwardVecAccessor(ref _movementData);
+            Vector3 forwardVec = _movementData._forwardVec;
 
             jumpDistance = (inputNjs ?? _movementData.noteJumpMovementSpeed) * jumpDuration;
             moveEndPos = centerPos + (forwardVec * (jumpDistance * 0.5f));
             jumpEndPos = centerPos - (forwardVec * (jumpDistance * 0.5f));
-            moveStartPos = centerPos + (forwardVec * (_moveDistanceAccessor(ref _movementData) + (jumpDistance * 0.5f)));
+            moveStartPos = centerPos + (forwardVec * (_movementData._moveDistance + (jumpDistance * 0.5f)));
         }
     }
 }

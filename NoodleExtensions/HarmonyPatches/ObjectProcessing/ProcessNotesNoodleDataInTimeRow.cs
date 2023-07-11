@@ -31,7 +31,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
         private static readonly FieldInfo _sliderField = AccessTools.Field(_sliderTailDataType, "slider");
 
         [HarmonyTranspiler]
-        [HarmonyPatch("HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice")]
+        [HarmonyPatch(nameof(BeatmapObjectsInTimeRowProcessor.HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice))]
         private static IEnumerable<CodeInstruction> ProcessColorNotesInTimeRowTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
@@ -68,7 +68,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice")]
+        [HarmonyPatch(nameof(BeatmapObjectsInTimeRowProcessor.HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice))]
         private static void ProcessAllNotesInTimeRowPatch(NoodleBeatmapObjectsInTimeRowProcessor __instance, int ____numberOfLines, object allObjectsTimeSlice)
         {
             float offset = ____numberOfLines / 2f;
@@ -217,7 +217,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("HandleCurrentTimeSliceColorNotesDidFinishTimeSlice")]
+        [HarmonyPatch(nameof(BeatmapObjectsInTimeRowProcessor.HandleCurrentTimeSliceColorNotesDidFinishTimeSlice))]
         private static void ProcessColorNotesInTimeRowPatch(NoodleBeatmapObjectsInTimeRowProcessor __instance, int ____numberOfLines, object currentTimeSlice)
         {
             float offset = ____numberOfLines / 2f;

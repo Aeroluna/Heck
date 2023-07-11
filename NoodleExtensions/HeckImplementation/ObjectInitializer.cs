@@ -15,10 +15,6 @@ namespace NoodleExtensions
     public class ObjectInitializer : IGameNoteInitializer, IBombNoteInitializer, IObstacleInitializer, ISliderInitializer
     {
         private static readonly Dictionary<Type, MethodInfo> _setArrowTransparencyMethods = new();
-        private static readonly FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.Accessor _noteCutoutAnimateEffectAccessor = FieldAccessor<BaseNoteVisuals, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
-        private static readonly FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.Accessor _obstacleCutoutAnimateEffectAccessor = FieldAccessor<ObstacleDissolve, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
-        private static readonly FieldAccessor<CutoutAnimateEffect, CutoutEffect[]>.Accessor _cutoutEffectAccessor = FieldAccessor<CutoutAnimateEffect, CutoutEffect[]>.GetAccessor("_cuttoutEffects");
-        private static readonly FieldAccessor<SliderControllerBase, CutoutAnimateEffect>.Accessor _sliderCutoutAnimateEffectAccessor = FieldAccessor<SliderControllerBase, CutoutAnimateEffect>.GetAccessor("_cutoutAnimateEffect");
 
         private readonly CutoutManager _cutoutManager;
 
@@ -49,7 +45,7 @@ namespace NoodleExtensions
             ObstacleDissolve obstacleDissolve = obstacleController.GetComponent<ObstacleDissolve>();
             _cutoutManager.ObstacleCutoutEffects.Add(
                 obstacleController,
-                new CutoutAnimateEffectWrapper(_obstacleCutoutAnimateEffectAccessor(ref obstacleDissolve)));
+                new CutoutAnimateEffectWrapper(obstacleDissolve._cutoutAnimateEffect));
         }
 
         public void InitializeSlider(SliderControllerBase sliderController)
@@ -57,7 +53,7 @@ namespace NoodleExtensions
             SliderMovement sliderMovement = sliderController.GetComponent<SliderMovement>();
             _cutoutManager.SliderCutoutEffects.Add(
                 sliderMovement,
-                new CutoutAnimateEffectWrapper(_sliderCutoutAnimateEffectAccessor(ref sliderController)));
+                new CutoutAnimateEffectWrapper(sliderController._cutoutAnimateEffect));
         }
 
         private static MethodInfo GetSetArrowTransparency(Type type)
@@ -76,8 +72,8 @@ namespace NoodleExtensions
         private void CreateBasicNoteCutout(NoteControllerBase noteController)
         {
             BaseNoteVisuals baseNoteVisuals = noteController.GetComponent<BaseNoteVisuals>();
-            CutoutAnimateEffect cutoutAnimateEffect = _noteCutoutAnimateEffectAccessor(ref baseNoteVisuals);
-            CutoutEffect[] cutoutEffects = _cutoutEffectAccessor(ref cutoutAnimateEffect);
+            CutoutAnimateEffect cutoutAnimateEffect = baseNoteVisuals._cutoutAnimateEffect;
+            CutoutEffect[] cutoutEffects = cutoutAnimateEffect._cuttoutEffects;
             CutoutEffect cutoutEffect = cutoutEffects.First(n => n.name != "NoteArrow"); // 1.11 NoteArrow has been added to the CutoutAnimateEffect and we don't want that
             _cutoutManager.NoteCutoutEffects.Add(noteController, new CutoutEffectWrapper(cutoutEffect));
         }

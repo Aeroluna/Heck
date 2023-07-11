@@ -1,28 +1,16 @@
 ﻿using System.Collections.Generic;
 using Heck;
 using Heck.Animation;
-using IPA.Utilities;
 using NoodleExtensions.Animation;
 using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;
-using static NoodleExtensions.Extras.NoteAccessors;
 
 namespace NoodleExtensions.HarmonyPatches.Objects
 {
     internal class NoteUpdateNoodlifier : IAffinity
     {
-        private static readonly FieldAccessor<NoteFloorMovement, Vector3>.Accessor _floorStartPosAccessor = FieldAccessor<NoteFloorMovement, Vector3>.GetAccessor("_startPos");
-        private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpStartPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_startPos");
-        private static readonly FieldAccessor<NoteJump, Vector3>.Accessor _jumpEndPosAccessor = FieldAccessor<NoteJump, Vector3>.GetAccessor("_endPos");
-
-        private static readonly FieldAccessor<NoteJump, float>.Accessor _jumpDurationAccessor = FieldAccessor<NoteJump, float>.GetAccessor("_jumpDuration");
-
-        private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.Accessor _gameNoteBigCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.GetAccessor("_bigCuttableBySaberList");
-        private static readonly FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.Accessor _gameNoteSmallCuttableAccessor = FieldAccessor<GameNoteController, BoxCuttableBySaber[]>.GetAccessor("_smallCuttableBySaberList");
-        private static readonly FieldAccessor<BombNoteController, CuttableBySaber>.Accessor _bombNoteCuttableAccessor = FieldAccessor<BombNoteController, CuttableBySaber>.GetAccessor("_cuttableBySaber");
-
         private readonly DeserializedData _deserializedData;
         private readonly AnimationHelper _animationHelper;
         private readonly CutoutManager _cutoutManager;
@@ -61,8 +49,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 return;
             }
 
-            NoteJump noteJump = NoteJumpAccessor(ref ____noteMovement);
-            NoteFloorMovement floorMovement = NoteFloorMovementAccessor(ref ____noteMovement);
+            NoteJump noteJump = ____noteMovement._jump;
+            NoteFloorMovement floorMovement = ____noteMovement._floorMovement;
 
             float? time = noodleData.GetTimeProperty();
             float normalTime;
@@ -72,7 +60,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             }
             else
             {
-                float jumpDuration = _jumpDurationAccessor(ref noteJump);
+                float jumpDuration = noteJump._jumpDuration;
                 float elapsedTime = _audioTimeSyncController.songTime - (____noteData.time - (jumpDuration * 0.5f));
                 normalTime = elapsedTime / jumpDuration;
             }
@@ -96,10 +84,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 Vector3 jumpEndPos = noodleData.InternalEndPos;
 
                 Vector3 offset = positionOffset.Value;
-                _floorStartPosAccessor(ref floorMovement) = moveStartPos + offset;
-                FloorEndPosAccessor(ref floorMovement) = moveEndPos + offset;
-                _jumpStartPosAccessor(ref noteJump) = moveEndPos + offset;
-                _jumpEndPosAccessor(ref noteJump) = jumpEndPos + offset;
+                floorMovement._startPos = moveStartPos + offset;
+                floorMovement._endPos = moveEndPos + offset;
+                noteJump._startPos = moveEndPos + offset;
+                noteJump._endPos = jumpEndPos + offset;
             }
 
             Transform transform = __instance.transform;
@@ -114,10 +102,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 {
                     worldRotationQuatnerion *= rotationOffset.Value;
                     Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
-                    WorldRotationJumpAccessor(ref noteJump) = worldRotationQuatnerion;
-                    InverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
-                    WorldRotationFloorAccessor(ref floorMovement) = worldRotationQuatnerion;
-                    InverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
+                    noteJump._worldRotation = worldRotationQuatnerion;
+                    noteJump._inverseWorldRotation = inverseWorldRotation;
+                    floorMovement._worldRotation = worldRotationQuatnerion;
+                    floorMovement._inverseWorldRotation = inverseWorldRotation;
                 }
 
                 worldRotationQuatnerion *= localRotation;
@@ -155,14 +143,12 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             switch (__instance)
             {
                 case GameNoteController gameNoteController:
-                    BoxCuttableBySaber[] bigCuttableBySaberList = _gameNoteBigCuttableAccessor(ref gameNoteController);
-                    foreach (BoxCuttableBySaber bigCuttableBySaber in bigCuttableBySaberList)
+                    foreach (BoxCuttableBySaber bigCuttableBySaber in gameNoteController._bigCuttableBySaberList)
                     {
                         bigCuttableBySaber.canBeCut = enabled;
                     }
 
-                    BoxCuttableBySaber[] smallCuttableBySaberList = _gameNoteSmallCuttableAccessor(ref gameNoteController);
-                    foreach (BoxCuttableBySaber smallCuttableBySaber in smallCuttableBySaberList)
+                    foreach (BoxCuttableBySaber smallCuttableBySaber in gameNoteController._smallCuttableBySaberList)
                     {
                         smallCuttableBySaber.canBeCut = enabled;
                     }
@@ -170,8 +156,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                     break;
 
                 case BombNoteController bombNoteController:
-                    CuttableBySaber boxCuttableBySaber = _bombNoteCuttableAccessor(ref bombNoteController);
-                    boxCuttableBySaber.canBeCut = enabled;
+                    bombNoteController._cuttableBySaber.canBeCut = enabled;
 
                     break;
             }

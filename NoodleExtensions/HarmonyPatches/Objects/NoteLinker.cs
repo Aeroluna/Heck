@@ -9,9 +9,6 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 {
     internal class NoteLinker : IAffinity
     {
-        private readonly SendNoteWasCutEventDelegate _sendNoteWasCutEvent =
-            MethodAccessor<NoteController, SendNoteWasCutEventDelegate>.GetDelegate("SendNoteWasCutEvent");
-
         private readonly DeserializedData _deserializedData;
         private readonly Dictionary<string, HashSet<NoteController>> _linkedNotes = new();
         private readonly Dictionary<NoteController, HashSet<NoteController>> _linkedLinkedNotes = new();
@@ -83,7 +80,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                     noteCutInfo.cutAngle, noteCutInfo.worldRotation, noteCutInfo.inverseWorldRotation, noteCutInfo.noteRotation, noteCutInfo.notePosition,
                     noteCutInfo.saberMovementData);
 #pragma warning restore SA1117
-                _sendNoteWasCutEvent(noteController, newInfo);
+                noteController.SendNoteWasCutEvent(newInfo);
             }
         }
 

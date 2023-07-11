@@ -10,8 +10,6 @@ namespace Chroma.EnvironmentEnhancement.Component
 {
     internal static class BloomFogCustomizer
     {
-        private static readonly FieldAccessor<BloomFogEnvironment, BloomFogEnvironmentParams>.Accessor _fogParamsAccessor = FieldAccessor<BloomFogEnvironment, BloomFogEnvironmentParams>.GetAccessor("_fogParams");
-
         internal static void BloomFogEnvironmentInit(List<UnityEngine.Component> allComponents, CustomData customData)
         {
             BloomFogEnvironment[] bloomFogEnvironments = allComponents
@@ -30,8 +28,7 @@ namespace Chroma.EnvironmentEnhancement.Component
 
             foreach (BloomFogEnvironment bloomFogEnvironment in bloomFogEnvironments)
             {
-                BloomFogEnvironment fuckref = bloomFogEnvironment;
-                BloomFogEnvironmentParams fogParams = _fogParamsAccessor(ref fuckref);
+                BloomFogEnvironmentParams fogParams = bloomFogEnvironment._fogParams;
 
                 if (attenuation.HasValue)
                 {
@@ -59,7 +56,7 @@ namespace Chroma.EnvironmentEnhancement.Component
         {
             return track.GameObjects
                 .SelectMany(n => n.GetComponentsInChildren<BloomFogEnvironment>())
-                .Select(n => _fogParamsAccessor(ref n))
+                .Select(n => n._fogParams)
                 .Cast<object>()
                 .ToArray();
         }

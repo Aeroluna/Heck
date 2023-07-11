@@ -9,8 +9,6 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
 {
     internal class FakeNotePatches : IAffinity
     {
-        private static readonly Action<BeatmapObjectManager, NoteController> _despawnMethod = MethodAccessor<BeatmapObjectManager, Action<BeatmapObjectManager, NoteController>>.GetDelegate("Despawn");
-
         private readonly FakePatchesManager _fakePatchesManager;
         private readonly NoteCutCoreEffectsSpawner? _noteCutCoreEffectsSpawner;
 
@@ -42,7 +40,7 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
                 _noteCutCoreEffectsSpawner.HandleNoteWasCut(noteController, noteCutInfo);
             }
 
-            _despawnMethod(__instance, noteController);
+            __instance.Despawn(noteController);
 
             return false;
         }

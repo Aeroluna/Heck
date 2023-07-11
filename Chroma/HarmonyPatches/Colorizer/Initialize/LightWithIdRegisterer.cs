@@ -9,9 +9,6 @@ namespace Chroma.HarmonyPatches.Colorizer.Initialize
 {
     internal class LightWithIdRegisterer : IAffinity
     {
-        private static readonly FieldAccessor<LightWithIdManager, List<ILightWithId>[]>.Accessor _lightsAccessor =
-            FieldAccessor<LightWithIdManager, List<ILightWithId>[]>.GetAccessor("_lights");
-
         private readonly Dictionary<ILightWithId, int> _requestedIds = new();
         private readonly HashSet<ILightWithId> _needToRegister = new();
         private readonly LightColorizerManager _colorizerManager;
@@ -41,7 +38,7 @@ namespace Chroma.HarmonyPatches.Colorizer.Initialize
         internal void ForceUnregister(ILightWithId lightWithId)
         {
             int lightId = lightWithId.lightId;
-            List<ILightWithId> lights = _lightsAccessor(ref _lightWithIdManager)[lightId];
+            List<ILightWithId> lights = _lightWithIdManager._lights[lightId];
             int index = lights.FindIndex(n => n == lightWithId);
             lights[index] = null!; // TODO: handle null
             _tableManager.UnregisterIndex(lightId, index);

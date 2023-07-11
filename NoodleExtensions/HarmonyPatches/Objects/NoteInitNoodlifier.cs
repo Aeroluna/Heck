@@ -8,7 +8,6 @@ using Heck.Animation;
 using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;
-using static NoodleExtensions.Extras.NoteAccessors;
 
 namespace NoodleExtensions.HarmonyPatches.Objects
 {
@@ -51,13 +50,13 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             }
 
             // how fucking long has _zOffset existed???!??
-            float zOffset = ZOffsetAccessor(ref ____noteMovement);
+            float zOffset = ____noteMovement._zOffset;
             moveStartPos.z += zOffset;
             moveEndPos.z += zOffset;
             jumpEndPos.z += zOffset;
 
-            NoteJump noteJump = NoteJumpAccessor(ref ____noteMovement);
-            NoteFloorMovement floorMovement = NoteFloorMovementAccessor(ref ____noteMovement);
+            NoteJump noteJump = ____noteMovement._jump;
+            NoteFloorMovement floorMovement = ____noteMovement._floorMovement;
 
             Quaternion? worldRotationQuaternion = noodleData.WorldRotationQuaternion;
             Quaternion? localRotationQuaternion = noodleData.LocalRotationQuaternion;
@@ -76,10 +75,10 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 {
                     Quaternion quatVal = worldRotationQuaternion.Value;
                     Quaternion inverseWorldRotation = Quaternion.Inverse(quatVal);
-                    WorldRotationJumpAccessor(ref noteJump) = quatVal;
-                    InverseWorldRotationJumpAccessor(ref noteJump) = inverseWorldRotation;
-                    WorldRotationFloorAccessor(ref floorMovement) = quatVal;
-                    InverseWorldRotationFloorAccessor(ref floorMovement) = inverseWorldRotation;
+                    noteJump._worldRotation = quatVal;
+                    noteJump._inverseWorldRotation = inverseWorldRotation;
+                    floorMovement._worldRotation = quatVal;
+                    floorMovement._inverseWorldRotation = inverseWorldRotation;
 
                     quatVal *= localRotation;
 

@@ -1,10 +1,4 @@
-﻿using System;
-using HarmonyLib;
-using IPA.Logging;
-using IPA.Utilities;
-using JetBrains.Annotations;
-
-namespace Heck
+﻿namespace Heck
 {
     public static class CodeMatcherExtensions
     {

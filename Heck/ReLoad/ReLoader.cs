@@ -46,27 +46,6 @@ namespace Heck.ReLoad
         private static readonly FieldAccessor<CustomBeatmapData, List<CustomEventData>>.Accessor _customEventDatasAccessor
             = FieldAccessor<CustomBeatmapData, List<CustomEventData>>.GetAccessor("_customEventDatas");
 
-        private static readonly FieldAccessor<AudioTimeSyncController, float>.Accessor _startSongTimeAccessor
-            = FieldAccessor<AudioTimeSyncController, float>.GetAccessor("_startSongTime");
-
-        private static readonly FieldAccessor<BeatmapObjectManager, List<IBeatmapObjectController>>.Accessor _allBeatmapObjectsAccessor
-            = FieldAccessor<BeatmapObjectManager, List<IBeatmapObjectController>>.GetAccessor("_allBeatmapObjects");
-
-        private static readonly FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.Accessor _noteCutSoundEffectPoolContainerAccessor
-            = FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.GetAccessor("_noteCutSoundEffectPoolContainer");
-
-        private static readonly FieldAccessor<NoteCutSoundEffectManager, float>.Accessor _prevNoteATimeAccessor
-            = FieldAccessor<NoteCutSoundEffectManager, float>.GetAccessor("_prevNoteATime");
-
-        private static readonly FieldAccessor<NoteCutSoundEffectManager, float>.Accessor _prevNoteBTimeAccessor
-            = FieldAccessor<NoteCutSoundEffectManager, float>.GetAccessor("_prevNoteBTime");
-
-        private static readonly FieldAccessor<BeatmapCallbacksController, Dictionary<float, CallbacksInTime>>.Accessor _callbacksInTimesAccessor
-            = FieldAccessor<BeatmapCallbacksController, Dictionary<float, CallbacksInTime>>.GetAccessor("_callbacksInTimes");
-
-        private static readonly FieldAccessor<BeatmapCallbacksController, float>.Accessor _prevSongTimeAccessor
-            = FieldAccessor<BeatmapCallbacksController, float>.GetAccessor("_prevSongTime");
-
         private readonly AudioTimeSyncController _audioTimeSyncController;
         private readonly ReLoaderLoader _reLoaderLoader;
         private readonly IDifficultyBeatmap _difficultyBeatmap;
@@ -175,9 +154,9 @@ namespace Heck.ReLoad
             BeatmapData destData = (BeatmapData)dest;
             CustomBeatmapData sourceCustomData = (CustomBeatmapData)source;
             CustomBeatmapData destCustomData = (CustomBeatmapData)dest;
-            _allBeatmapDataAccessor(ref destData) = _allBeatmapDataAccessor(ref sourceData);
-            _beatmapDataItemsPerTypeAccessor(ref destData) = _beatmapDataItemsPerTypeAccessor(ref sourceData);
-            _beatmapObjectsInTimeRowProcessorAccessor(ref destData) = _beatmapObjectsInTimeRowProcessorAccessor(ref sourceData);
+            _allBeatmapDataAccessor(ref destData) = sourceData._allBeatmapData;
+            _beatmapDataItemsPerTypeAccessor(ref destData) = sourceData._beatmapDataItemsPerTypeAndId;
+            _beatmapObjectsInTimeRowProcessorAccessor(ref destData) = sourceData._beatmapObjectsInTimeRowProcessor;
             _version2_6_0AndEarlierAccessor(ref destCustomData) = _version2_6_0AndEarlierAccessor(ref sourceCustomData);
             _customDataAccessor(ref destCustomData) = _customDataAccessor(ref sourceCustomData);
             _beatmapCustomDataAccessor(ref destCustomData) = _beatmapCustomDataAccessor(ref sourceCustomData);
@@ -233,22 +212,19 @@ namespace Heck.ReLoad
 
         private void Rewind()
         {
-            BeatmapObjectManager beatmapObjectManager = _beatmapObjectManager;
-            _allBeatmapObjectsAccessor(ref beatmapObjectManager).ForEach(n =>
+            _beatmapObjectManager._allBeatmapObjects.ForEach(n =>
             {
                 ((MonoBehaviour)n).gameObject.SetActive(true);
                 n.Dissolve(1f);
                 ////((MonoBehaviour)n).gameObject.SetActive(false);
             });
 
-            NoteCutSoundEffectManager noteCutSoundEffectManager = _noteCutSoundEffectManager;
-            _noteCutSoundEffectPoolContainerAccessor(ref noteCutSoundEffectManager).activeItems.ForEach(n => n.StopPlayingAndFinish());
-            _prevNoteATimeAccessor(ref noteCutSoundEffectManager) = 0;
-            _prevNoteBTimeAccessor(ref noteCutSoundEffectManager) = 0;
+            _noteCutSoundEffectManager._noteCutSoundEffectPoolContainer.activeItems.ForEach(n => n.StopPlayingAndFinish());
+            _noteCutSoundEffectManager._prevNoteATime = 0;
+            _noteCutSoundEffectManager._prevNoteBTime = 0;
 
-            BeatmapCallbacksController beatmapCallbacksController = _beatmapCallbacksController;
-            _callbacksInTimesAccessor(ref beatmapCallbacksController).Values.Do(n => n.lastProcessedNode = null);
-            _prevSongTimeAccessor(ref beatmapCallbacksController) = 0;
+            _beatmapCallbacksController._callbacksInTimes.Values.Do(n => n.lastProcessedNode = null);
+            _beatmapCallbacksController._prevSongTime = 0;
 
             _beatmapTracks.Values.Do(n => n.NullProperties());
 
@@ -257,8 +233,7 @@ namespace Heck.ReLoad
 
         private void SetSongTime(float songTime)
         {
-            AudioTimeSyncController audioTimeSyncController = _audioTimeSyncController;
-            _startSongTimeAccessor(ref audioTimeSyncController) = songTime;
+            _audioTimeSyncController._startSongTime = songTime;
             _audioTimeSyncController.SeekTo(0);
         }
     }

@@ -136,14 +136,6 @@ namespace Chroma.Colorizer
     {
         internal const int COLOR_FIELDS = 4;
 
-        private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor0Accessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor0");
-        private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor1Accessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor1");
-        private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor0BoostAccessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor0Boost");
-        private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor1BoostAccessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor1Boost");
-
-        private static readonly FieldAccessor<MultipliedColorSO, SimpleColorSO>.Accessor _baseColorAccessor = FieldAccessor<MultipliedColorSO, SimpleColorSO>.GetAccessor("_baseColor");
-        private static readonly FieldAccessor<LightWithIdManager, List<ILightWithId>?[]>.Accessor _lightsAccessor = FieldAccessor<LightWithIdManager, List<ILightWithId>?[]>.GetAccessor("_lights");
-
         private readonly LightColorizerManager _colorizerManager;
         private readonly LightIDTableManager _tableManager;
 
@@ -168,35 +160,27 @@ namespace Chroma.Colorizer
 
             void Initialize(ColorSO colorSO, int index)
             {
-                switch (colorSO)
+                _originalColors[index] = colorSO switch
                 {
-                    case MultipliedColorSO lightMultSO:
-                        SimpleColorSO lightSO = _baseColorAccessor(ref lightMultSO);
-                        _originalColors[index] = lightSO;
-                        break;
-
-                    case SimpleColorSO simpleColorSO:
-                        _originalColors[index] = simpleColorSO;
-                        break;
-
-                    default:
-                        throw new InvalidOperationException($"Unhandled ColorSO type: [{colorSO.GetType().Name}].");
-                }
+                    MultipliedColorSO lightMultSO => lightMultSO._baseColor,
+                    SimpleColorSO simpleColorSO => simpleColorSO,
+                    _ => throw new InvalidOperationException($"Unhandled ColorSO type: [{colorSO.GetType().Name}].")
+                };
             }
 
             LightSwitchEventEffect lightSwitchEventEffect = chromaLightSwitchEventEffect.LightSwitchEventEffect;
-            Initialize(_lightColor0Accessor(ref lightSwitchEventEffect), 0);
-            Initialize(_lightColor1Accessor(ref lightSwitchEventEffect), 1);
-            Initialize(_lightColor0BoostAccessor(ref lightSwitchEventEffect), 2);
-            Initialize(_lightColor1BoostAccessor(ref lightSwitchEventEffect), 3);
+            Initialize(lightSwitchEventEffect._lightColor0, 0);
+            Initialize(lightSwitchEventEffect._lightColor1, 1);
+            Initialize(lightSwitchEventEffect._lightColor0Boost, 2);
+            Initialize(lightSwitchEventEffect._lightColor1Boost, 3);
 
-            List<ILightWithId>? lights = _lightsAccessor(ref lightManager)[lightSwitchEventEffect.lightsId];
+            List<ILightWithId>? lights = lightManager._lights[lightSwitchEventEffect.lightsId];
 
             // possible uninitialized
             if (lights == null)
             {
                 lights = new List<ILightWithId>(10);
-                _lightsAccessor(ref lightManager)[lightSwitchEventEffect.lightsId] = lights;
+                lightManager._lights[lightSwitchEventEffect.lightsId] = lights;
             }
 
             Lights = lights;

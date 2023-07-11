@@ -11,8 +11,6 @@ namespace Chroma.Animation
 {
     internal class FogAnimatorV2 : ITickable, IDisposable
     {
-        private static readonly FieldAccessor<BloomFogSO, float>.Accessor _transitionAccessor = FieldAccessor<BloomFogSO, float>.GetAccessor("_transition");
-
         private readonly BloomFogSO _bloomFog;
 
         private readonly BloomFogEnvironmentParams _transitionFogParams;
@@ -69,8 +67,7 @@ namespace Chroma.Animation
                 _transitionFogParams.heightFogHeight = height.Value;
             }
 
-            BloomFogSO bloomFog = _bloomFog;
-            _transitionAccessor(ref bloomFog) = 1;
+            _bloomFog._transition = 1;
         }
 
         internal void AssignTrack(Track track)

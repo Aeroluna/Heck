@@ -15,9 +15,6 @@ namespace NoodleExtensions
 {
     internal class NoodleNoteData : NoodleBaseNoteData
     {
-        private static readonly PropertyAccessor<NoteData, NoteData.ScoringType>.Setter _scoringTypeAccessor =
-            PropertyAccessor<NoteData, NoteData.ScoringType>.GetSetter("scoringType");
-
         internal NoodleNoteData(
             NoteData noteData,
             CustomData customData,
@@ -48,7 +45,7 @@ namespace NoodleExtensions
 
                 if (Fake.GetValueOrDefault())
                 {
-                    _scoringTypeAccessor(ref noteData, NoteData.ScoringType.Ignore);
+                    noteData.scoringType = NoteData.ScoringType.Ignore;
                 }
             }
             catch (Exception e)

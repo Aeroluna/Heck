@@ -43,12 +43,6 @@ namespace Chroma.Colorizer
     [UsedImplicitly]
     public class ObstacleColorizer : ObjectColorizer
     {
-        private static readonly FieldAccessor<StretchableObstacle, ParametricBoxFrameController>.Accessor _obstacleFrameAccessor = FieldAccessor<StretchableObstacle, ParametricBoxFrameController>.GetAccessor("_obstacleFrame");
-        private static readonly FieldAccessor<StretchableObstacle, ParametricBoxFakeGlowController>.Accessor _obstacleFakeGlowAccessor = FieldAccessor<StretchableObstacle, ParametricBoxFakeGlowController>.GetAccessor("_obstacleFakeGlow");
-        private static readonly FieldAccessor<StretchableObstacle, float>.Accessor _addColorMultiplierAccessor = FieldAccessor<StretchableObstacle, float>.GetAccessor("_addColorMultiplier");
-        private static readonly FieldAccessor<StretchableObstacle, float>.Accessor _obstacleCoreLerpToWhiteFactorAccessor = FieldAccessor<StretchableObstacle, float>.GetAccessor("_obstacleCoreLerpToWhiteFactor");
-        private static readonly FieldAccessor<StretchableObstacle, MaterialPropertyBlockController[]>.Accessor _materialPropertyBlockControllersAccessor = FieldAccessor<StretchableObstacle, MaterialPropertyBlockController[]>.GetAccessor("_materialPropertyBlockControllers");
-
         private static readonly int _tintColorID = Shader.PropertyToID("_TintColor");
         private static readonly int _addColorID = Shader.PropertyToID("_AddColor");
 
@@ -66,11 +60,11 @@ namespace Chroma.Colorizer
             ColorManager colorManager)
         {
             StretchableObstacle stretchableObstacle = obstacleController.GetComponent<StretchableObstacle>();
-            _obstacleFrame = _obstacleFrameAccessor(ref stretchableObstacle);
-            _obstacleFakeGlow = _obstacleFakeGlowAccessor(ref stretchableObstacle);
-            _addColorMultiplier = _addColorMultiplierAccessor(ref stretchableObstacle);
-            _obstacleCoreLerpToWhiteFactor = _obstacleCoreLerpToWhiteFactorAccessor(ref stretchableObstacle);
-            _materialPropertyBlockControllers = _materialPropertyBlockControllersAccessor(ref stretchableObstacle);
+            _obstacleFrame = stretchableObstacle._obstacleFrame;
+            _obstacleFakeGlow = stretchableObstacle._obstacleFakeGlow;
+            _addColorMultiplier = stretchableObstacle._addColorMultiplier;
+            _obstacleCoreLerpToWhiteFactor = stretchableObstacle._obstacleCoreLerpToWhiteFactor;
+            _materialPropertyBlockControllers = stretchableObstacle._materialPropertyBlockControllers;
 
             _manager = manager;
             OriginalColor = colorManager.obstaclesColor;

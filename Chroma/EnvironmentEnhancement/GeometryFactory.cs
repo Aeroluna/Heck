@@ -43,13 +43,6 @@ namespace Chroma.EnvironmentEnhancement
 
     internal class GeometryFactory
     {
-        private static readonly FieldAccessor<TubeBloomPrePassLight, BoolSO>.Accessor _mainEffectPostProcessEnabledAccessor = FieldAccessor<TubeBloomPrePassLight, BoolSO>.GetAccessor("_mainEffectPostProcessEnabled");
-        private static readonly FieldAccessor<TubeBloomPrePassLight, ParametricBoxController>.Accessor _parametricBoxControllerAccessor = FieldAccessor<TubeBloomPrePassLight, ParametricBoxController>.GetAccessor("_parametricBoxController");
-        private static readonly FieldAccessor<BloomPrePassLight, BloomPrePassLightTypeSO>.Accessor _lightTypeAccessor = FieldAccessor<BloomPrePassLight, BloomPrePassLightTypeSO>.GetAccessor("_lightType");
-        private static readonly FieldAccessor<BloomPrePassLight, BloomPrePassLightTypeSO>.Accessor _registeredWithLightTypeAccessor = FieldAccessor<BloomPrePassLight, BloomPrePassLightTypeSO>.GetAccessor("_registeredWithLightType");
-        private static readonly FieldAccessor<TubeBloomPrePassLightWithId, TubeBloomPrePassLight>.Accessor _tubeBloomPrePassLightAccessor = FieldAccessor<TubeBloomPrePassLightWithId, TubeBloomPrePassLight>.GetAccessor("_tubeBloomPrePassLight");
-        private static readonly FieldAccessor<ParametricBoxController, MeshRenderer>.Accessor _meshRendererAccessor = FieldAccessor<ParametricBoxController, MeshRenderer>.GetAccessor("_meshRenderer");
-
         private readonly IInstantiator _instantiator;
         private readonly MaterialsManager _materialsManager;
         private readonly LightWithIdRegisterer _lightWithIdRegisterer;
@@ -146,28 +139,23 @@ namespace Chroma.EnvironmentEnhancement
             ParametricBoxController parametricBoxController = gameObject.AddComponent<ParametricBoxController>();
             _parametricBoxControllerTransformOverride.UpdatePosition(parametricBoxController);
             _parametricBoxControllerTransformOverride.UpdateScale(parametricBoxController);
-            _meshRendererAccessor(ref parametricBoxController) = meshRenderer;
+            parametricBoxController._meshRenderer = meshRenderer;
 
             if (_originalTubeBloomPrePassLight != null)
             {
-                _mainEffectPostProcessEnabledAccessor(ref tubeBloomPrePassLight) =
-                    _mainEffectPostProcessEnabledAccessor(ref _originalTubeBloomPrePassLight);
+                tubeBloomPrePassLight._mainEffectPostProcessEnabled = _originalTubeBloomPrePassLight._mainEffectPostProcessEnabled;
 
-                BloomPrePassLight bloomPrePassLight = tubeBloomPrePassLight;
-                BloomPrePassLight originalBloomPrePassLight = _originalTubeBloomPrePassLight;
-
-                _lightTypeAccessor(ref bloomPrePassLight) = _lightTypeAccessor(ref originalBloomPrePassLight);
-                _registeredWithLightTypeAccessor(ref bloomPrePassLight) =
-                    _registeredWithLightTypeAccessor(ref originalBloomPrePassLight);
+                tubeBloomPrePassLight._lightType = _originalTubeBloomPrePassLight._lightType;
+                tubeBloomPrePassLight._registeredWithLightType = _originalTubeBloomPrePassLight._registeredWithLightType;
             }
             else
             {
                 throw new InvalidOperationException($"[{nameof(_originalTubeBloomPrePassLight)}] was null.");
             }
 
-            _parametricBoxControllerAccessor(ref tubeBloomPrePassLight) = parametricBoxController;
+            tubeBloomPrePassLight._parametricBoxController = parametricBoxController;
             TubeBloomPrePassLightWithId lightWithId = _instantiator.InstantiateComponent<TubeBloomPrePassLightWithId>(gameObject);
-            _tubeBloomPrePassLightAccessor(ref lightWithId) = tubeBloomPrePassLight;
+            lightWithId._tubeBloomPrePassLight = tubeBloomPrePassLight;
             _lightWithIdRegisterer.MarkForTableRegister(lightWithId);
 
             gameObject.SetActive(true);

@@ -203,7 +203,7 @@ namespace Heck.SettingsSetter
 
                             // copy fields from original overrideenvironmentsettings to our new copy
                             OverrideEnvironmentSettings modifiedOverrideEnvironmentSettings = new();
-                            modifiedOverrideEnvironmentSettings.SetField("_data", environmentOverrideSettings.GetField<Dictionary<EnvironmentTypeSO, EnvironmentInfoSO>, OverrideEnvironmentSettings>("_data"));
+                            modifiedOverrideEnvironmentSettings.SetField("_data", environmentOverrideSettings._data);
 
                             modifiedOverrideEnvironmentSettings.overrideEnvironments = json.Value;
 

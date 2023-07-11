@@ -12,8 +12,6 @@ namespace Chroma.HarmonyPatches.Colorizer
 {
     internal class ObjectColorize : IAffinity
     {
-        private static readonly FieldAccessor<SliderMovement, float>.Accessor _sliderJumpDurationAccessor = FieldAccessor<SliderMovement, float>.GetAccessor("_jumpDuration");
-
         private readonly ObstacleColorizerManager _obstacleManager;
         private readonly SliderColorizerManager _sliderManager;
         private readonly DeserializedData _deserializedData;
@@ -100,7 +98,7 @@ namespace Chroma.HarmonyPatches.Colorizer
                 return;
             }
 
-            float jumpDuration = _sliderJumpDurationAccessor(ref ____sliderMovement);
+            float jumpDuration = ____sliderMovement.jumpDuration;
             float duration = (jumpDuration * 0.75f) + (____sliderData.tailTime - ____sliderData.time);
             float normalTime = ____sliderMovement.timeSinceHeadNoteJump / (jumpDuration + duration);
 

@@ -3,13 +3,13 @@
   "id": "_Heck",
   "name": "Heck",
   "author": "Aeroluna",
-  "version": "1.4.8",
+  "version": "1.4.9",
   "description": "Library for Aeroluna's mods.",
-  "gameVersion": "1.29.0",
+  "gameVersion": "1.31.0",
   "dependsOn": {
     "BeatSaberMarkupLanguage": "^1.5.9",
     "CustomJSONData": "^2.4.5",
-    "BSIPA": "^4.2.2",
+    "BSIPA": "^4.3.0",
     "SiraUtil": "^3.0.5"
   }
 }

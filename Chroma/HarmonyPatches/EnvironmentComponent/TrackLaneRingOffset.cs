@@ -12,15 +12,11 @@ namespace Chroma.HarmonyPatches.EnvironmentComponent
     [HeckPatch(PatchType.Environment)]
     internal class TrackLaneRingOffset : IAffinity
     {
-        private static readonly FieldAccessor<TrackLaneRing, Vector3>.Accessor _positionOffsetAccessor = FieldAccessor<TrackLaneRing, Vector3>.GetAccessor("_positionOffset");
-        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _rotZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_rotZ");
-        private static readonly FieldAccessor<TrackLaneRing, float>.Accessor _posZAccessor = FieldAccessor<TrackLaneRing, float>.GetAccessor("_posZ");
-
         private readonly Dictionary<TrackLaneRing, Quaternion> _rotationOffsets = new();
 
         internal static void UpdatePosition(TrackLaneRing trackLaneRing)
         {
-            _positionOffsetAccessor(ref trackLaneRing) = trackLaneRing.transform.localPosition;
+            trackLaneRing._positionOffset = trackLaneRing.transform.localPosition;
         }
 
         internal void SetTransform(TrackLaneRing trackLaneRing, TransformData transformData)
@@ -28,15 +24,15 @@ namespace Chroma.HarmonyPatches.EnvironmentComponent
             if (transformData.Position.HasValue || transformData.LocalPosition.HasValue)
             {
                 UpdatePosition(trackLaneRing);
-                _positionOffsetAccessor(ref trackLaneRing) = trackLaneRing.transform.localPosition;
-                _posZAccessor(ref trackLaneRing) = 0;
+                trackLaneRing._positionOffset = trackLaneRing.transform.localPosition;
+                trackLaneRing._posZ = 0;
             }
 
             // ReSharper disable once InvertIf
             if (transformData.Rotation.HasValue || transformData.LocalRotation.HasValue)
             {
                 UpdateRotation(trackLaneRing);
-                _rotZAccessor(ref trackLaneRing) = 0;
+                trackLaneRing._rotZ = 0;
             }
         }
 

@@ -10,8 +10,6 @@ namespace Chroma.EnvironmentEnhancement.Component
 {
     internal static class TubeBloomLightCustomizer
     {
-        private static readonly FieldAccessor<TubeBloomPrePassLight, float>.Accessor _colorAlphaMultiplierAccessor = FieldAccessor<TubeBloomPrePassLight, float>.GetAccessor("_colorAlphaMultiplier");
-
         internal static void TubeBloomPrePassLightInit(List<UnityEngine.Component> allComponents, CustomData customData)
         {
             TubeBloomPrePassLight[] tubeBloomPrePassLights = allComponents
@@ -50,7 +48,7 @@ namespace Chroma.EnvironmentEnhancement.Component
 
         internal static void SetColorAlphaMultiplier(TubeBloomPrePassLight tubeBloomPrePassLight, float value)
         {
-            _colorAlphaMultiplierAccessor(ref tubeBloomPrePassLight) = value;
+            tubeBloomPrePassLight._colorAlphaMultiplier = value;
             tubeBloomPrePassLight.MarkDirty();
         }
     }

@@ -1,9 +1,5 @@
-﻿using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using HarmonyLib;
+﻿using System.Runtime.CompilerServices;
 using IPA.Logging;
-using JetBrains.Annotations;
 
 // ReSharper disable ExplicitCallerInfoArgument
 namespace Heck

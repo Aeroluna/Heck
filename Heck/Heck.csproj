@@ -18,15 +18,15 @@
     <Reference Include="CustomJSONData" HintPath="$(BeatSaberDir)\Plugins\CustomJSONData.dll" />
     <Reference Include="GameplayCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll" />
     <Reference Include="HMLib" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll" />
-    <Reference Include="HMUI" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll" />
+    <Reference Include="HMUI" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll" Publicize="true" />
     <Reference Include="IPA.Loader" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll" />
-    <Reference Include="Main" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll" />
+    <Reference Include="Main" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll" Publicize="true" />
     <Reference Include="MonoMod.Utils" HintPath="$(BeatSaberDir)\Libs\MonoMod.Utils.dll" />
     <Reference Include="Newtonsoft.Json" HintPath="$(BeatSaberDir)\Libs\Newtonsoft.Json.dll" />
     <Reference Include="SiraUtil" HintPath="$(BeatSaberDir)\Plugins\SiraUtil.dll" />
     <Reference Include="UnityEngine.CoreModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll" />
     <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.InputLegacyModule.dll" />
-    <Reference Include="Zenject" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll" />
+    <Reference Include="Zenject" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll" Publicize="true" />
     <Reference Include="Zenject-usage" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll" />
   </ItemGroup>
 
@@ -40,5 +40,6 @@
   <ItemGroup>
     <PackageReference Include="BeatSaberModdingTools.Tasks" Version="1.4.3" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.354" />
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.*" />
   </ItemGroup>
 </Project>

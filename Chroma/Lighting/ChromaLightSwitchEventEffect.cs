@@ -22,21 +22,6 @@ namespace Chroma.Lighting
 
     public sealed class ChromaLightSwitchEventEffect : IDisposable
     {
-        private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor0Accessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor0");
-        private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor1Accessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor1");
-        private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _highlightColor0Accessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_highlightColor0");
-        private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _highlightColor1Accessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_highlightColor1");
-        private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor0BoostAccessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor0Boost");
-        private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _lightColor1BoostAccessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_lightColor1Boost");
-        private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _highlightColor0BoostAccessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_highlightColor0Boost");
-        private static readonly FieldAccessor<LightSwitchEventEffect, ColorSO>.Accessor _highlightColor1BoostAccessor = FieldAccessor<LightSwitchEventEffect, ColorSO>.GetAccessor("_highlightColor1Boost");
-        private static readonly FieldAccessor<LightSwitchEventEffect, float>.Accessor _offColorIntensityAccessor = FieldAccessor<LightSwitchEventEffect, float>.GetAccessor("_offColorIntensity");
-        private static readonly FieldAccessor<LightSwitchEventEffect, BasicBeatmapEventType>.Accessor _eventAccessor = FieldAccessor<LightSwitchEventEffect, BasicBeatmapEventType>.GetAccessor("_event");
-        private static readonly FieldAccessor<LightSwitchEventEffect, int>.Accessor _lightsIDAccessor = FieldAccessor<LightSwitchEventEffect, int>.GetAccessor("_lightsID");
-        private static readonly FieldAccessor<LightSwitchEventEffect, bool>.Accessor _lightOnStartAccessor = FieldAccessor<LightSwitchEventEffect, bool>.GetAccessor("_lightOnStart");
-
-        private static readonly FieldAccessor<MultipliedColorSO, Color>.Accessor _multiplierColorAccessor = FieldAccessor<MultipliedColorSO, Color>.GetAccessor("_multiplierColor");
-
         private readonly LightWithIdManager _lightManager;
         private readonly LightIDTableManager _tableManager;
         private readonly SongTimeTweeningManager _tweeningManager;
@@ -83,29 +68,29 @@ namespace Chroma.Lighting
             _deserializedData = deserializedData;
             _gradientController = gradientController;
 
-            EventType = _eventAccessor(ref lightSwitchEventEffect);
-            LightsID = _lightsIDAccessor(ref lightSwitchEventEffect);
-            _offColorIntensity = _offColorIntensityAccessor(ref lightSwitchEventEffect);
-            _lightOnStart = _lightOnStartAccessor(ref lightSwitchEventEffect);
+            EventType = lightSwitchEventEffect._event;
+            LightsID = lightSwitchEventEffect._lightsID;
+            _offColorIntensity = lightSwitchEventEffect._offColorIntensity;
+            _lightOnStart = lightSwitchEventEffect._lightOnStart;
 
             void Initialize(ColorSO colorSO, ref Color color)
             {
                 color = colorSO switch
                 {
-                    MultipliedColorSO lightMultSO => _multiplierColorAccessor(ref lightMultSO),
+                    MultipliedColorSO lightMultSO => lightMultSO._multiplierColor,
                     SimpleColorSO => Color.white,
                     _ => throw new InvalidOperationException($"Unhandled ColorSO type: [{colorSO.GetType().Name}].")
                 };
             }
 
-            Initialize(_lightColor0Accessor(ref lightSwitchEventEffect), ref _lightColor0Mult);
-            Initialize(_lightColor1Accessor(ref lightSwitchEventEffect), ref _lightColor1Mult);
-            Initialize(_highlightColor0Accessor(ref lightSwitchEventEffect), ref _highlightColor0Mult);
-            Initialize(_highlightColor1Accessor(ref lightSwitchEventEffect), ref _highlightColor1Mult);
-            Initialize(_lightColor0BoostAccessor(ref lightSwitchEventEffect), ref _lightColor0BoostMult);
-            Initialize(_lightColor1BoostAccessor(ref lightSwitchEventEffect), ref _lightColor1BoostMult);
-            Initialize(_highlightColor0BoostAccessor(ref lightSwitchEventEffect), ref _highlightColor0BoostMult);
-            Initialize(_highlightColor1BoostAccessor(ref lightSwitchEventEffect), ref _highlightColor1BoostMult);
+            Initialize(lightSwitchEventEffect._lightColor0, ref _lightColor0Mult);
+            Initialize(lightSwitchEventEffect._lightColor1, ref _lightColor1Mult);
+            Initialize(lightSwitchEventEffect._highlightColor0, ref _highlightColor0Mult);
+            Initialize(lightSwitchEventEffect._highlightColor1, ref _highlightColor1Mult);
+            Initialize(lightSwitchEventEffect._lightColor0Boost, ref _lightColor0BoostMult);
+            Initialize(lightSwitchEventEffect._lightColor1Boost, ref _lightColor1BoostMult);
+            Initialize(lightSwitchEventEffect._highlightColor0Boost, ref _highlightColor0BoostMult);
+            Initialize(lightSwitchEventEffect._highlightColor1Boost, ref _highlightColor1BoostMult);
 
             Colorizer = lightColorizerManager.Create(this);
             lightColorizerManager.CompleteContracts(this);

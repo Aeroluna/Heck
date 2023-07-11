@@ -7,7 +7,6 @@ using Heck;
 using NoodleExtensions.Animation;
 using SiraUtil.Affinity;
 using UnityEngine;
-using static NoodleExtensions.Extras.NoteAccessors;
 
 namespace NoodleExtensions.HarmonyPatches.Objects
 {
@@ -61,8 +60,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 return original;
             }
 
-            Vector3 endPos = FloorEndPosAccessor(ref noteFloorMovement);
-            return original + (position.Value + noodleData.InternalNoteOffset - endPos);
+            return original + (position.Value + noodleData.InternalNoteOffset - noteFloorMovement.endPos);
         }
 
         [AffinityPrefix]

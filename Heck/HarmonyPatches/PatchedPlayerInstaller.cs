@@ -23,7 +23,7 @@ namespace Heck.HarmonyPatches
         [HarmonyPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
         private static void GameplayCoreBinder(MonoInstallerBase __instance, GameplayCoreSceneSetupData ____sceneSetupData)
         {
-            BindHeckSinglePlayer(____sceneSetupData, _containerGetAccessor(ref __instance));
+            BindHeckSinglePlayer(____sceneSetupData, __instance.Container);
         }
 
         [HarmonyTranspiler]

@@ -47,42 +47,17 @@ namespace Heck.HarmonyPatches
             _untransformedBeatmapData
             ?? throw new InvalidOperationException($"[{nameof(_untransformedBeatmapData)}] was null.");
 
-        public override async Task LoadTransformedBeatmapDataAsync()
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(GameplayCoreSceneSetupData), nameof(GameplayCoreSceneSetupData.GetTransformedBeatmapDataAsync))]
+        private static bool OverrideGetTransformedBeatmapDataAsync(GameplayCoreSceneSetupData __instance, ref Task<IReadonlyBeatmapData?> __result)
         {
-            _transformedBeatmapData = await GetTransformedBeatmapDataAsync();
-        }
-
-        // override to store the untransformed beatmapdata
-        public override async Task<IReadonlyBeatmapData?> GetTransformedBeatmapDataAsync()
-        {
-            if (difficultyBeatmap == null)
+            if (__instance is not HeckinGameplayCoreSceneSetupData hecked)
             {
-                return null;
+                return true;
             }
 
-            IReadonlyBeatmapData beatmapData;
-            if (beatmapDataCache != null)
-            {
-                beatmapData = await beatmapDataCache.GetBeatmapData(difficultyBeatmap, environmentInfo, playerSpecificSettings);
-            }
-            else
-            {
-                beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(environmentInfo, playerSpecificSettings);
-            }
-
-            _untransformedBeatmapData = beatmapData;
-            EnvironmentEffectsFilterPreset environmentEffectsFilterPreset =
-                (difficultyBeatmap.difficulty == BeatmapDifficulty.ExpertPlus)
-                ? playerSpecificSettings.environmentEffectsFilterExpertPlusPreset
-                : playerSpecificSettings.environmentEffectsFilterDefaultPreset;
-            return BeatmapDataTransformHelper.CreateTransformedBeatmapData(
-                beatmapData,
-                previewBeatmapLevel,
-                gameplayModifiers,
-                playerSpecificSettings.leftHanded,
-                environmentEffectsFilterPreset,
-                environmentInfo.environmentIntensityReductionOptions,
-                mainSettingsModel);
+            __result = hecked.GetTransformedBeatmapDataAsync();
+            return false;
         }
 
         [HarmonyTranspiler]
@@ -119,6 +94,33 @@ namespace Heck.HarmonyPatches
         private static Type HeckGetType(Type original)
         {
             return original == typeof(HeckinGameplayCoreSceneSetupData) ? typeof(GameplayCoreSceneSetupData) : original;
+        }
+
+        // override to store the untransformed beatmapdata
+        private new async Task<IReadonlyBeatmapData?> GetTransformedBeatmapDataAsync()
+        {
+            if (difficultyBeatmap == null)
+            {
+                return null;
+            }
+
+            IReadonlyBeatmapData beatmapData = beatmapDataCache != null
+                ? await beatmapDataCache.GetBeatmapData(difficultyBeatmap, environmentInfo, playerSpecificSettings)
+                : await difficultyBeatmap.GetBeatmapDataAsync(environmentInfo, playerSpecificSettings);
+
+            _untransformedBeatmapData = beatmapData;
+            EnvironmentEffectsFilterPreset environmentEffectsFilterPreset =
+                (difficultyBeatmap.difficulty == BeatmapDifficulty.ExpertPlus)
+                    ? playerSpecificSettings.environmentEffectsFilterExpertPlusPreset
+                    : playerSpecificSettings.environmentEffectsFilterDefaultPreset;
+            return BeatmapDataTransformHelper.CreateTransformedBeatmapData(
+                beatmapData,
+                previewBeatmapLevel,
+                gameplayModifiers,
+                playerSpecificSettings.leftHanded,
+                environmentEffectsFilterPreset,
+                environmentInfo.environmentIntensityReductionOptions,
+                mainSettingsModel);
         }
     }
 }
