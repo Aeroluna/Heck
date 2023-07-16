@@ -5,7 +5,6 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
 using Heck.Animation;
-using IPA.Utilities;
 using NoodleExtensions.HarmonyPatches.SmallFixes;
 using SiraUtil.Affinity;
 using UnityEngine;

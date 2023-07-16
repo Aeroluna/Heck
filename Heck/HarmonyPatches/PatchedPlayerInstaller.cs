@@ -5,7 +5,6 @@ using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
 using Heck.ReLoad;
-using IPA.Utilities;
 using Zenject;
 
 namespace Heck.HarmonyPatches
@@ -15,9 +14,6 @@ namespace Heck.HarmonyPatches
     {
         private static readonly MethodInfo _getContainer = AccessTools.PropertyGetter(typeof(MonoInstallerBase), "Container");
         private static readonly MethodInfo _bindHeckMultiPlayer = AccessTools.Method(typeof(PatchedPlayerInstaller), nameof(BindHeckMultiPlayer));
-
-        private static readonly PropertyAccessor<MonoInstallerBase, DiContainer>.Getter _containerGetAccessor =
-            PropertyAccessor<MonoInstallerBase, DiContainer>.GetGetter("Container");
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]

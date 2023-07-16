@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using Heck;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using NoodleExtensions.Managers;
 using UnityEngine;

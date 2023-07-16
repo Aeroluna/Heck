@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using CustomJSONData;
+using System.Linq;
+using BeatmapSaveDataVersion3;
 using CustomJSONData.CustomBeatmap;
 using Newtonsoft.Json;
 
@@ -33,7 +34,7 @@ namespace Chroma.EnvironmentEnhancement.Saved
             {
                 bool useChromaEvents = false;
                 EnvironmentEffectsFilterPreset? forcedPreset = null;
-                List<CustomBeatmapSaveData.BasicEventData> basicBeatmapEvents = new();
+                List<BeatmapSaveData.BasicEventData> basicBeatmapEvents = new();
                 while (reader.Read() && reader.TokenType == JsonToken.PropertyName)
                 {
                     switch (reader.Value)
@@ -56,12 +57,12 @@ namespace Chroma.EnvironmentEnhancement.Saved
                             break;
 
                         case "basicBeatmapEvents":
-                            reader.ReadObjectArray(() => basicBeatmapEvents.Add(CustomBeatmapSaveData.DeserializeBasicEvent(reader)));
+                            CustomBeatmapSaveData.DeserializeBasicEventArray(reader, basicBeatmapEvents);
                             break;
                     }
                 }
 
-                return new Features(useChromaEvents, forcedPreset, basicBeatmapEvents.Count > 0 ? basicBeatmapEvents : null);
+                return new Features(useChromaEvents, forcedPreset, basicBeatmapEvents.Count > 0 ? basicBeatmapEvents.Cast<CustomBeatmapSaveData.BasicEventData>().ToList() : null);
             }
         }
     }

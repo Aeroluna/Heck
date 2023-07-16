@@ -6,7 +6,6 @@ using System.Reflection.Emit;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
-using IPA.Utilities;
 using SiraUtil.Affinity;
 using UnityEngine;
 

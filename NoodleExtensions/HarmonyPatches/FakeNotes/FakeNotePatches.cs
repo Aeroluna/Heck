@@ -1,6 +1,4 @@
-﻿using System;
-using IPA.Logging;
-using IPA.Utilities;
+﻿using IPA.Logging;
 using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
 using Zenject;

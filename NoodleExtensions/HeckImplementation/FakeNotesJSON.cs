@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using BeatmapSaveDataVersion3;
-using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Newtonsoft.Json;
 using static NoodleExtensions.NoodleController;
@@ -20,12 +19,10 @@ namespace NoodleExtensions
                 return true;
             }
 
-            reader.ReadObjectArray(() =>
-            {
-                CustomBeatmapSaveData.ColorNoteData data = CustomBeatmapSaveData.DeserializeColorNote(reader);
-                data.customData[INTERNAL_FAKE_NOTE] = true;
-                colorNotes.Add(data);
-            });
+            List<BeatmapSaveData.ColorNoteData> newNotes = new();
+            CustomBeatmapSaveData.DeserializeColorNoteArray(reader, newNotes);
+            newNotes.ForEach(n => ((CustomBeatmapSaveData.ColorNoteData)n).customData[INTERNAL_FAKE_NOTE] = true);
+            colorNotes.AddRange(newNotes);
             return false;
         }
 
@@ -40,12 +37,10 @@ namespace NoodleExtensions
                 return true;
             }
 
-            reader.ReadObjectArray(() =>
-            {
-                CustomBeatmapSaveData.BombNoteData data = CustomBeatmapSaveData.DeserializeBombNote(reader);
-                data.customData[INTERNAL_FAKE_NOTE] = true;
-                bombNotes.Add(data);
-            });
+            List<BeatmapSaveData.BombNoteData> newBombs = new();
+            CustomBeatmapSaveData.DeserializeBombNoteArray(reader, newBombs);
+            newBombs.ForEach(n => ((CustomBeatmapSaveData.BombNoteData)n).customData[INTERNAL_FAKE_NOTE] = true);
+            bombNotes.AddRange(newBombs);
             return false;
         }
 
@@ -60,12 +55,10 @@ namespace NoodleExtensions
                 return true;
             }
 
-            reader.ReadObjectArray(() =>
-            {
-                CustomBeatmapSaveData.ObstacleData data = CustomBeatmapSaveData.DeserializeObstacle(reader);
-                data.customData[INTERNAL_FAKE_NOTE] = true;
-                obstacles.Add(data);
-            });
+            List<BeatmapSaveData.ObstacleData> newObstacles = new();
+            CustomBeatmapSaveData.DeserializeObstacleArray(reader, newObstacles);
+            newObstacles.ForEach(n => ((CustomBeatmapSaveData.ObstacleData)n).customData[INTERNAL_FAKE_NOTE] = true);
+            obstacles.AddRange(newObstacles);
             return false;
         }
 
@@ -80,12 +73,10 @@ namespace NoodleExtensions
                 return true;
             }
 
-            reader.ReadObjectArray(() =>
-            {
-                CustomBeatmapSaveData.BurstSliderData data = CustomBeatmapSaveData.DeserializeBurstSlider(reader);
-                data.customData[INTERNAL_FAKE_NOTE] = true;
-                burstSliders.Add(data);
-            });
+            List<BeatmapSaveData.BurstSliderData> newBurstSliders = new();
+            CustomBeatmapSaveData.DeserializeBurstSliderArray(reader, newBurstSliders);
+            newBurstSliders.ForEach(n => ((CustomBeatmapSaveData.BurstSliderData)n).customData[INTERNAL_FAKE_NOTE] = true);
+            burstSliders.AddRange(newBurstSliders);
             return false;
         }
 

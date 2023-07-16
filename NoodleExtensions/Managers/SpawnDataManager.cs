@@ -1,5 +1,4 @@
 ﻿using Heck;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using NoodleExtensions.HarmonyPatches.SmallFixes;
 using UnityEngine;
