@@ -208,9 +208,9 @@ namespace Chroma.Lighting
                     {
                         nextSameTypeEvent = previousEvent.nextSameTypeEventData;
                     }
-                    else if (nextSameTypesDict.ContainsKey(tween.Id))
+                    else if (nextSameTypesDict.TryGetValue(tween.Id, out BasicBeatmapEventData? value))
                     {
-                        nextSameTypeEvent = nextSameTypesDict[tween.Id];
+                        nextSameTypeEvent = value;
                     }
 
                     if (nextSameTypeEvent == null || !nextSameTypeEvent.HasLightFadeEventDataValue())
@@ -234,19 +234,19 @@ namespace Chroma.Lighting
                         {
                             if (nextColorType == EnvironmentColorType.Color1)
                             {
-                                multiplierColor = _highlightColor1BoostMult;
+                                multiplierColor = _lightColor1BoostMult;
                             }
 
-                            multiplierColor = _highlightColor0BoostMult;
+                            multiplierColor = _lightColor0BoostMult;
                         }
                         else
                         {
                             if (nextColorType == EnvironmentColorType.Color1)
                             {
-                                multiplierColor = _highlightColor1Mult;
+                                multiplierColor = _lightColor1Mult;
                             }
 
-                            multiplierColor = _highlightColor0Mult;
+                            multiplierColor = _lightColor0Mult;
                         }
 
                         nextColor = nextColorData.Value * multiplierColor;
