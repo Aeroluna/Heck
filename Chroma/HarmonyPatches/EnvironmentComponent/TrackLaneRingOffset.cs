@@ -2,7 +2,6 @@
 using HarmonyLib;
 using Heck;
 using Heck.Animation.Transform;
-using IPA.Utilities;
 using SiraUtil.Affinity;
 using UnityEngine;
 

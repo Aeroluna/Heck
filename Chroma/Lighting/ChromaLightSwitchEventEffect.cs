@@ -5,7 +5,6 @@ using Chroma.Colorizer;
 using Chroma.Extras;
 using Heck;
 using Heck.Animation;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using Tweening;
 using UnityEngine;

@@ -1,5 +1,4 @@
 ﻿using Chroma.Settings;
-using IPA.Utilities;
 using SiraUtil.Affinity;
 using Zenject;
 

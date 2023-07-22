@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Chroma.Colorizer;
 using Chroma.Lighting;
-using IPA.Utilities;
 using SiraUtil.Affinity;
 using UnityEngine;
 

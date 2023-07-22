@@ -3,7 +3,6 @@ using Chroma.Animation;
 using Chroma.Colorizer;
 using Heck;
 using Heck.Animation;
-using IPA.Utilities;
 using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;

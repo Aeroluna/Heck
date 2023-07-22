@@ -3,7 +3,6 @@ using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Logging;
-using IPA.Utilities;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 
 namespace Chroma.EnvironmentEnhancement.Component

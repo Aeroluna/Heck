@@ -1,6 +1,5 @@
 ﻿using System;
 using Heck.Animation;
-using IPA.Utilities;
 using Tweening;
 using UnityEngine;
 

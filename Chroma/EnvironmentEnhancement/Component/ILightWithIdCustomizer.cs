@@ -4,7 +4,6 @@ using Chroma.Colorizer;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
 using CustomJSONData.CustomBeatmap;
 using IPA.Logging;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 

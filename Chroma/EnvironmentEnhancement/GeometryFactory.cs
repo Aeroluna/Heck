@@ -5,7 +5,6 @@ using Chroma.Extras;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
 using Chroma.HarmonyPatches.EnvironmentComponent;
 using CustomJSONData.CustomBeatmap;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Rendering;
