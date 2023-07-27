@@ -231,21 +231,11 @@ namespace Chroma.Lighting
                         Color multiplierColor;
                         if (_usingBoostColors)
                         {
-                            if (nextColorType == EnvironmentColorType.Color1)
-                            {
-                                multiplierColor = _lightColor1BoostMult;
-                            }
-
-                            multiplierColor = _lightColor0BoostMult;
+                            multiplierColor = nextColorType == EnvironmentColorType.Color1 ? _lightColor1BoostMult : _lightColor0BoostMult;
                         }
                         else
                         {
-                            if (nextColorType == EnvironmentColorType.Color1)
-                            {
-                                multiplierColor = _lightColor1Mult;
-                            }
-
-                            multiplierColor = _lightColor0Mult;
+                            multiplierColor = nextColorType == EnvironmentColorType.Color1 ? _lightColor1Mult : _lightColor0Mult;
                         }
 
                         nextColor = nextColorData.Value * multiplierColor;

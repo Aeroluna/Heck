@@ -13,20 +13,21 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 {
     internal class NoteJumpNoodlifier : IAffinity, IDisposable
     {
-        private static readonly FieldInfo _threeQuartersMarkReportedField = AccessTools.Field(typeof(NoteJump), "_threeQuartersMarkReported");
+        private static readonly FieldInfo _threeQuartersMarkReportedField = AccessTools.Field(typeof(NoteJump), nameof(NoteJump._threeQuartersMarkReported));
         private static readonly MethodInfo _localRotationSetter = AccessTools.PropertySetter(typeof(Transform), nameof(Transform.localRotation));
 
-        private static readonly FieldInfo _missedTimeField = AccessTools.Field(typeof(NoteJump), "_missedTime");
-        private static readonly FieldInfo _beatTimeField = AccessTools.Field(typeof(NoteJump), "_beatTime");
-        private static readonly FieldInfo _jumpDurationField = AccessTools.Field(typeof(NoteJump), "_jumpDuration");
-        private static readonly FieldInfo _localPositionField = AccessTools.Field(typeof(NoteJump), "_localPosition");
+        private static readonly FieldInfo _missedTimeField = AccessTools.Field(typeof(NoteJump), nameof(NoteJump._missedTime));
+        private static readonly FieldInfo _beatTimeField = AccessTools.Field(typeof(NoteJump), nameof(NoteJump._beatTime));
+        private static readonly FieldInfo _jumpDurationField = AccessTools.Field(typeof(NoteJump), nameof(NoteJump._jumpDuration));
+        private static readonly FieldInfo _localPositionField = AccessTools.Field(typeof(NoteJump), nameof(NoteJump._localPosition));
         private static readonly MethodInfo _getTransform = AccessTools.PropertyGetter(typeof(Component), nameof(Component.transform));
-        private static readonly FieldInfo _startRotationField = AccessTools.Field(typeof(NoteJump), "_startRotation");
-        private static readonly FieldInfo _middleRotationField = AccessTools.Field(typeof(NoteJump), "_middleRotation");
-        private static readonly FieldInfo _endRotationField = AccessTools.Field(typeof(NoteJump), "_endRotation");
-        private static readonly FieldInfo _playerTransformsField = AccessTools.Field(typeof(NoteJump), "_playerTransforms");
-        private static readonly FieldInfo _rotatedObjectField = AccessTools.Field(typeof(NoteJump), "_rotatedObject");
-        private static readonly FieldInfo _inverseWorldRotationField = AccessTools.Field(typeof(NoteJump), "_inverseWorldRotation");
+        private static readonly FieldInfo _startRotationField = AccessTools.Field(typeof(NoteJump), nameof(NoteJump._startRotation));
+        private static readonly FieldInfo _middleRotationField = AccessTools.Field(typeof(NoteJump), nameof(NoteJump._middleRotation));
+        private static readonly FieldInfo _endRotationField = AccessTools.Field(typeof(NoteJump), nameof(NoteJump._endRotation));
+        private static readonly FieldInfo _playerTransformsField = AccessTools.Field(typeof(NoteJump), nameof(NoteJump._playerTransforms));
+        private static readonly FieldInfo _rotatedObjectField = AccessTools.Field(typeof(NoteJump), nameof(NoteJump._rotatedObject));
+        private static readonly FieldInfo _inverseWorldRotationField = AccessTools.Field(typeof(NoteJump), nameof(NoteJump._inverseWorldRotation));
+        private static readonly FieldInfo _rotateTowardsPlayerField = AccessTools.Field(typeof(NoteJump), nameof(NoteJump._rotateTowardsPlayer));
 
         private static readonly MethodInfo _noteMissedTimeAdjust = AccessTools.Method(typeof(NoteJumpNoodlifier), nameof(NoteMissedTimeAdjust));
 
@@ -43,7 +44,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         {
             _noteUpdateNoodlifier = noteUpdateNoodlifier;
             _animationHelper = animationHelper;
-            _doNoteLook = InstanceTranspilers.EmitInstanceDelegate<Action<float, Quaternion, Quaternion, Quaternion, PlayerTransforms, Transform, Transform, Quaternion>>(DoNoteLook);
+            _doNoteLook = InstanceTranspilers.EmitInstanceDelegate<Action<float, Quaternion, Quaternion, Quaternion, PlayerTransforms, Transform, Transform, Quaternion, bool>>(DoNoteLook);
             _noteJumpTimeAdjust = InstanceTranspilers.EmitInstanceDelegate<Func<float, float, float>>(NoteJumpTimeAdjust);
             _definiteNoteJump = InstanceTranspilers.EmitInstanceDelegate<Func<Vector3, float, Vector3>>(DefiniteNoteJump);
             _getDefinitePosition = InstanceTranspilers.EmitInstanceDelegate<Func<bool>>(() => _definitePosition);
@@ -145,6 +146,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                     new CodeInstruction(OpCodes.Call, _getTransform),
                     new CodeInstruction(OpCodes.Ldarg_0),
                     new CodeInstruction(OpCodes.Ldfld, _inverseWorldRotationField),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, _rotateTowardsPlayerField),
                     _doNoteLook)
 
             // Add addition check to our quirky little variable to skip end position offset when we are using definitePosition
@@ -240,7 +243,8 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             PlayerTransforms playerTransforms,
             Transform rotatedObject,
             Transform baseTransform,
-            Quaternion inverseWorldRotation)
+            Quaternion inverseWorldRotation,
+            bool rotateTowardsPlayer)
         {
             NoodleBaseNoteData? noodleData = _noteUpdateNoodlifier.NoodleData;
             if (noodleData is { DisableLook: true })
@@ -264,22 +268,29 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 worldRot *= Quaternion.Inverse(baseTransform.parent.rotation);
             }
 
-            // This line but super complicated so that "y" = "originTransform.up"
-            // vector.y = Mathf.Lerp(vector.y, this._localPosition.y, 0.8f);
-            Transform headTransform = playerTransforms._headTransform;
-            Quaternion inverse = Quaternion.Inverse(worldRot);
-            Vector3 upVector = inverse * Vector3.up;
-            Vector3 position = baseTransform.position;
-            float baseUpMagnitude = Vector3.Dot(worldRot * position, Vector3.up);
-            float headUpMagnitude = Vector3.Dot(worldRot * headTransform.position, Vector3.up);
-            float mult = Mathf.Lerp(headUpMagnitude, baseUpMagnitude, 0.8f) - headUpMagnitude;
-            vector += upVector * mult;
+            if (rotateTowardsPlayer)
+            {
+                // This line but super complicated so that "y" = "originTransform.up"
+                // vector.y = Mathf.Lerp(vector.y, this._localPosition.y, 0.8f);
+                Transform headTransform = playerTransforms._headTransform;
+                Quaternion inverse = Quaternion.Inverse(worldRot);
+                Vector3 upVector = inverse * Vector3.up;
+                Vector3 position = baseTransform.position;
+                float baseUpMagnitude = Vector3.Dot(worldRot * position, Vector3.up);
+                float headUpMagnitude = Vector3.Dot(worldRot * headTransform.position, Vector3.up);
+                float mult = Mathf.Lerp(headUpMagnitude, baseUpMagnitude, 0.8f) - headUpMagnitude;
+                vector += upVector * mult;
 
-            // more wtf
-            Vector3 normalized = baseTransform.rotation * (worldRot * (position - vector).normalized);
+                // more wtf
+                Vector3 normalized = baseTransform.rotation * (worldRot * (position - vector).normalized);
 
-            Quaternion b = Quaternion.LookRotation(normalized, rotatedObject.up);
-            rotatedObject.rotation = Quaternion.Lerp(a, b, num2 * 2f);
+                Quaternion b = Quaternion.LookRotation(normalized, rotatedObject.up);
+                rotatedObject.rotation = Quaternion.Lerp(a, b, num2 * 2f);
+            }
+            else
+            {
+                rotatedObject.rotation = a;
+            }
         }
     }
 }
