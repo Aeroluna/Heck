@@ -14,10 +14,10 @@ namespace Chroma.HarmonyPatches.EnvironmentComponent
     [HeckPatch(PatchType.Environment)]
     internal static class RingAwakeInstantiator
     {
-        private static readonly FieldInfo _trackLaneRingPrefab = AccessTools.Field(typeof(TrackLaneRingsManager), "_trackLaneRingPrefab");
+        private static readonly FieldInfo _trackLaneRingPrefab = AccessTools.Field(typeof(TrackLaneRingsManager), nameof(TrackLaneRingsManager._trackLaneRingPrefab));
         private static readonly MethodInfo _queueInject = AccessTools.Method(typeof(RingAwakeInstantiator), nameof(QueueInject));
         private static readonly FieldAccessor<TrackLaneRingsManager, DiContainer>.Accessor _containerAccessor =
-            FieldAccessor<TrackLaneRingsManager, DiContainer>.GetAccessor("_container");
+            FieldAccessor<TrackLaneRingsManager, DiContainer>.GetAccessor(nameof(TrackLaneRingsManager._container));
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(SceneDecoratorContext), nameof(SceneDecoratorContext.Initialize))]

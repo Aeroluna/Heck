@@ -17,13 +17,13 @@ namespace Heck.ReLoad
     public class ReLoader : ITickable
     {
         private static readonly FieldAccessor<BeatmapData, ISortedList<BeatmapDataItem>>.Accessor _allBeatmapDataAccessor
-            = FieldAccessor<BeatmapData, ISortedList<BeatmapDataItem>>.GetAccessor("_allBeatmapData");
+            = FieldAccessor<BeatmapData, ISortedList<BeatmapDataItem>>.GetAccessor(nameof(BeatmapData._allBeatmapData));
 
         private static readonly FieldAccessor<BeatmapData, BeatmapDataSortedListForTypeAndIds<BeatmapDataItem>>.Accessor _beatmapDataItemsPerTypeAccessor
-            = FieldAccessor<BeatmapData, BeatmapDataSortedListForTypeAndIds<BeatmapDataItem>>.GetAccessor("_beatmapDataItemsPerTypeAndId");
+            = FieldAccessor<BeatmapData, BeatmapDataSortedListForTypeAndIds<BeatmapDataItem>>.GetAccessor(nameof(BeatmapData._beatmapDataItemsPerTypeAndId));
 
         private static readonly FieldAccessor<BeatmapData, BeatmapObjectsInTimeRowProcessor>.Accessor _beatmapObjectsInTimeRowProcessorAccessor
-            = FieldAccessor<BeatmapData, BeatmapObjectsInTimeRowProcessor>.GetAccessor("_beatmapObjectsInTimeRowProcessor");
+            = FieldAccessor<BeatmapData, BeatmapObjectsInTimeRowProcessor>.GetAccessor(nameof(BeatmapData._beatmapObjectsInTimeRowProcessor));
 
         private static readonly FieldAccessor<CustomBeatmapData, bool>.Accessor _version2_6_0AndEarlierAccessor
             = FieldAccessor<CustomBeatmapData, bool>.GetAccessor("<version2_6_0AndEarlier>k__BackingField");
