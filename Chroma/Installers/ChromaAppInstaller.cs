@@ -1,5 +1,6 @@
 ﻿using Chroma.EnvironmentEnhancement;
 using Chroma.EnvironmentEnhancement.Saved;
+using Chroma.HarmonyPatches;
 using Chroma.Settings;
 using JetBrains.Annotations;
 using Zenject;
@@ -23,6 +24,7 @@ namespace Chroma.Installers
 
             Container.Bind<SavedEnvironmentLoader>().AsSingle();
             Container.Bind<EnvironmentMaterialsManager>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.BindInterfacesTo<CustomEnvironmentLoading>().AsSingle();
 
             Container.Bind<CustomLevelLoaderExposer>().AsSingle().NonLazy();
 

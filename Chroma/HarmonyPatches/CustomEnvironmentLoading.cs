@@ -23,15 +23,15 @@ namespace Chroma.HarmonyPatches
         [AffinityPatch(typeof(BeatmapDataTransformHelper), nameof(BeatmapDataTransformHelper.CreateTransformedBeatmapData))]
         private void Prefix(ref IReadonlyBeatmapData beatmapData, ref EnvironmentEffectsFilterPreset environmentEffectsFilterPreset)
         {
-            CustomBeatmapData customBeatmapData = (CustomBeatmapData)beatmapData;
-            if ((customBeatmapData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
-                 (customBeatmapData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false) ||
-                 (customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false))
+            if (!_config.CustomEnvironmentEnabled)
             {
                 return;
             }
 
-            if (!_config.CustomEnvironmentEnabled)
+            CustomBeatmapData customBeatmapData = (CustomBeatmapData)beatmapData;
+            if (!_config.EnvironmentEnhancementsDisabled && ((customBeatmapData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
+                (customBeatmapData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false) ||
+                (customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false)))
             {
                 return;
             }
@@ -45,6 +45,8 @@ namespace Chroma.HarmonyPatches
                     beatmapData = beatmapData.GetFilteredCopy(n =>
                         n is BasicBeatmapEventData or LightColorBeatmapEventData or LightRotationBeatmapEventData ? null : n);
                 }
+
+                Log.Logger.Log(forcedPreset.Value);
             }
 
             List<CustomBeatmapSaveData.BasicEventData>? basicEventDatas = _savedEnvironmentLoader.SavedEnvironment?.Features.BasicEventDatas;

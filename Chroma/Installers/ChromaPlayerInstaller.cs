@@ -96,7 +96,7 @@ namespace Chroma.Installers
                 Container.BindInterfacesAndSelfTo<TrackLaneRingOffset>().AsSingle();
 
                 // EnvironmentEnhancement
-                Container.BindInterfacesTo<CustomEnvironmentLoading>().AsSingle();
+                ////Container.BindInterfacesTo<CustomEnvironmentLoading>().AsSingle();
                 Container.Bind<DuplicateInitializer>().AsSingle();
                 Container.BindInterfacesAndSelfTo<EnvironmentEnhancementManager>().AsSingle();
                 Container.Bind<ComponentCustomizer>().AsSingle();
