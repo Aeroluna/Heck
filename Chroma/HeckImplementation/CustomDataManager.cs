@@ -84,11 +84,10 @@ namespace Chroma
             Dictionary<string, List<object>> pointDefinitions,
             IReadOnlyList<CustomEventData> customEventDatas)
         {
-            bool v2 = beatmapData.version2_6_0AndEarlier;
-
             Dictionary<CustomEventData, ICustomEventCustomData> dictionary = new();
             foreach (CustomEventData customEventData in customEventDatas)
             {
+                bool v2 = customEventData.version2_6_0AndEarlier;
                 try
                 {
                     ICustomEventCustomData chromaCustomEventData;
@@ -135,7 +134,6 @@ namespace Chroma
             Dictionary<string, List<object>> pointDefinitions,
             IReadOnlyList<BeatmapObjectData> beatmapObjectDatas)
         {
-            bool v2 = beatmapData.version2_6_0AndEarlier;
             Dictionary<BeatmapObjectData, IObjectCustomData> dictionary = new();
 
             foreach (BeatmapObjectData beatmapObjectData in beatmapObjectDatas)
@@ -145,13 +143,16 @@ namespace Chroma
                     CustomData customData = ((ICustomData)beatmapObjectData).customData;
                     switch (beatmapObjectData)
                     {
-                        case CustomNoteData:
-                        case CustomSliderData:
-                            dictionary.Add(beatmapObjectData, new ChromaNoteData(customData, beatmapTracks, pointDefinitions, v2));
+                        case CustomNoteData noteData:
+                            dictionary.Add(beatmapObjectData, new ChromaNoteData(customData, beatmapTracks, pointDefinitions, noteData.version2_6_0AndEarlier));
                             break;
 
-                        case CustomObstacleData:
-                            dictionary.Add(beatmapObjectData, new ChromaObjectData(customData, beatmapTracks, pointDefinitions, v2));
+                        case CustomSliderData sliderData:
+                            dictionary.Add(beatmapObjectData, new ChromaNoteData(customData, beatmapTracks, pointDefinitions, sliderData.version2_6_0AndEarlier));
+                            break;
+
+                        case CustomObstacleData obstacleData:
+                            dictionary.Add(beatmapObjectData, new ChromaObjectData(customData, beatmapTracks, pointDefinitions, obstacleData.version2_6_0AndEarlier));
                             break;
 
                         default:
@@ -172,11 +173,11 @@ namespace Chroma
             CustomBeatmapData beatmapData,
             IReadOnlyList<BeatmapEventData> allBeatmapEventDatas)
         {
-            bool v2 = beatmapData.version2_6_0AndEarlier;
+            bool beatmapv2 = beatmapData.version2_6_0AndEarlier;
             List<BasicBeatmapEventData> beatmapEventDatas = allBeatmapEventDatas.OfType<BasicBeatmapEventData>().ToList();
 
             LegacyLightHelper? legacyLightHelper = null;
-            if (v2)
+            if (beatmapv2)
             {
                 legacyLightHelper = new LegacyLightHelper(beatmapEventDatas);
             }
@@ -184,6 +185,8 @@ namespace Chroma
             Dictionary<BeatmapEventData, IEventCustomData> dictionary = new();
             foreach (BasicBeatmapEventData beatmapEventData in beatmapEventDatas)
             {
+                bool v2 = beatmapEventData is IVersionable { version2_6_0AndEarlier: true };
+
                 try
                 {
                     dictionary.Add(beatmapEventData, new ChromaEventData(beatmapEventData, legacyLightHelper, v2));

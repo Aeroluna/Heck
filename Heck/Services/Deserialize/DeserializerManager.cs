@@ -126,7 +126,7 @@ namespace Heck
 
                         if (!eventDefinitions.ContainsKey(eventName))
                         {
-                            eventDefinitions.Add(eventName, new CustomEventData(-1, type, data));
+                            eventDefinitions.Add(eventName, new CustomEventData(-1, type, data, v2));
                         }
                         else
                         {

@@ -15,9 +15,9 @@ namespace NoodleExtensions
             TrackBuilder trackBuilder,
             List<CustomEventData> customEventDatas)
         {
-            bool v2 = beatmapData.version2_6_0AndEarlier;
             foreach (CustomEventData customEventData in customEventDatas)
             {
+                bool v2 = customEventData.version2_6_0AndEarlier;
                 try
                 {
                     switch (customEventData.eventType)
@@ -49,7 +49,6 @@ namespace NoodleExtensions
             IReadOnlyList<BeatmapObjectData> beatmapObjectsDatas,
             bool leftHanded)
         {
-            bool v2 = beatmapData.version2_6_0AndEarlier;
             Dictionary<BeatmapObjectData, IObjectCustomData> dictionary = new();
             foreach (BeatmapObjectData beatmapObjectData in beatmapObjectsDatas)
             {
@@ -57,18 +56,19 @@ namespace NoodleExtensions
                 switch (beatmapObjectData)
                 {
                     case CustomObstacleData customObstacleData:
-                        dictionary.Add(beatmapObjectData, new NoodleObstacleData(customObstacleData, customData, pointDefinitions, beatmapTracks, v2, leftHanded));
+                        dictionary.Add(beatmapObjectData, new NoodleObstacleData(customObstacleData, customData, pointDefinitions, beatmapTracks, customObstacleData.version2_6_0AndEarlier, leftHanded));
                         break;
 
                     case CustomNoteData customNoteData:
-                        dictionary.Add(beatmapObjectData, new NoodleNoteData(customNoteData, customData, pointDefinitions, beatmapTracks, v2, leftHanded));
+                        dictionary.Add(beatmapObjectData, new NoodleNoteData(customNoteData, customData, pointDefinitions, beatmapTracks, customNoteData.version2_6_0AndEarlier, leftHanded));
                         break;
 
                     case CustomSliderData customSliderData:
-                        dictionary.Add(beatmapObjectData, new NoodleSliderData(customSliderData, customData, pointDefinitions, beatmapTracks, v2, leftHanded));
+                        dictionary.Add(beatmapObjectData, new NoodleSliderData(customSliderData, customData, pointDefinitions, beatmapTracks, customSliderData.version2_6_0AndEarlier, leftHanded));
                         break;
 
                     default:
+                        bool v2 = beatmapObjectData is IVersionable { version2_6_0AndEarlier: true };
                         dictionary.Add(beatmapObjectData, new NoodleObjectData(beatmapObjectData, customData, pointDefinitions, beatmapTracks, v2, leftHanded));
                         break;
                 }
@@ -84,10 +84,10 @@ namespace NoodleExtensions
             Dictionary<string, Track> tracks,
             IReadOnlyList<CustomEventData> customEventDatas)
         {
-            bool v2 = beatmapData.version2_6_0AndEarlier;
             Dictionary<CustomEventData, ICustomEventCustomData> dictionary = new();
             foreach (CustomEventData customEventData in customEventDatas)
             {
+                bool v2 = customEventData.version2_6_0AndEarlier;
                 try
                 {
                     CustomData data = customEventData.customData;

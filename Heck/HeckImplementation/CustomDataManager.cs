@@ -15,10 +15,10 @@ namespace Heck
             Dictionary<string, Track> tracks,
             List<CustomEventData> customEventDatas)
         {
-            bool v2 = beatmapData.version2_6_0AndEarlier;
             Dictionary<CustomEventData, ICustomEventCustomData> dictionary = new();
             foreach (CustomEventData customEventData in customEventDatas)
             {
+                bool v2 = customEventData.version2_6_0AndEarlier;
                 try
                 {
                     switch (customEventData.eventType)

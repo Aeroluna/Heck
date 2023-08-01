@@ -94,7 +94,8 @@ namespace Chroma.HarmonyPatches
                 (BasicBeatmapEventType)n.eventType,
                 n.value,
                 n.floatValue,
-                n.customData)));
+                n.customData,
+                false)));
 
             return false;
         }
