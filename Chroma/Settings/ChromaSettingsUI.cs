@@ -14,14 +14,18 @@ namespace Chroma.Settings
         private readonly Config _config;
         private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 
+        // TODO: do a comparison instead of just always wiping the cache
+        private readonly BeatmapDataCache _beatmapDataCache;
+
         [UsedImplicitly]
         [UIValue("environmentoptions")]
         private List<object?> _environmentOptions;
 
-        private ChromaSettingsUI(Config config, SavedEnvironmentLoader savedEnvironmentLoader)
+        private ChromaSettingsUI(Config config, SavedEnvironmentLoader savedEnvironmentLoader, BeatmapDataCache beatmapDataCache)
         {
             _config = config;
             _savedEnvironmentLoader = savedEnvironmentLoader;
+            _beatmapDataCache = beatmapDataCache;
             _environmentOptions = _savedEnvironmentLoader.Environments.Keys.Cast<object?>().Prepend(null).ToList();
 
             // TODO: find some way to disable this for DynamicInit
@@ -42,7 +46,11 @@ namespace Chroma.Settings
         public bool EnvironmentEnhancementsDisabled
         {
             get => _config.EnvironmentEnhancementsDisabled;
-            set => _config.EnvironmentEnhancementsDisabled = value;
+            set
+            {
+                _beatmapDataCache.difficultyBeatmap = null;
+                _config.EnvironmentEnhancementsDisabled = value;
+            }
         }
 
         [UsedImplicitly]
@@ -58,7 +66,11 @@ namespace Chroma.Settings
         public bool ForceZenWallsEnabled
         {
             get => _config.ForceZenWallsEnabled;
-            set => _config.ForceZenWallsEnabled = value;
+            set
+            {
+                _beatmapDataCache.difficultyBeatmap = null;
+                _config.ForceZenWallsEnabled = value;
+            }
         }
 
         [UsedImplicitly]
@@ -66,7 +78,11 @@ namespace Chroma.Settings
         public bool CustomEnvironmentEnabled
         {
             get => _config.CustomEnvironmentEnabled;
-            set => _config.CustomEnvironmentEnabled = value;
+            set
+            {
+                _beatmapDataCache.difficultyBeatmap = null;
+                _config.CustomEnvironmentEnabled = value;
+            }
         }
 
         [UsedImplicitly]
@@ -78,7 +94,12 @@ namespace Chroma.Settings
                 string? name = _config.CustomEnvironment;
                 return name != null && _savedEnvironmentLoader.Environments.ContainsKey(name) ? name : null;
             }
-            set => _config.CustomEnvironment = value;
+
+            set
+            {
+                _beatmapDataCache.difficultyBeatmap = null;
+                _config.CustomEnvironment = value;
+            }
         }
 
         [UsedImplicitly]

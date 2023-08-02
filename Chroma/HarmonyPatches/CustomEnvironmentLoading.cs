@@ -20,7 +20,9 @@ namespace Chroma.HarmonyPatches
 
         private readonly CodeInstruction _changeFilterPreset;
 
-        private CustomEnvironmentLoading(Config config, SavedEnvironmentLoader savedEnvironmentLoader)
+        private CustomEnvironmentLoading(
+            Config config,
+            SavedEnvironmentLoader savedEnvironmentLoader)
         {
             _config = config;
             _savedEnvironmentLoader = savedEnvironmentLoader;
@@ -51,11 +53,11 @@ namespace Chroma.HarmonyPatches
         private bool ChangeFilterPreset(bool original, BeatmapSaveData saveData)
         {
             if (!_config.CustomEnvironmentEnabled ||
-                saveData is not CustomBeatmapSaveData customSaveData ||
+                (saveData is CustomBeatmapSaveData customSaveData &&
                 (!_config.EnvironmentEnhancementsDisabled &&
                     ((customSaveData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
                     (customSaveData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false) ||
-                    (customSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false))))
+                    (customSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false)))))
             {
                 return original;
             }
@@ -74,11 +76,11 @@ namespace Chroma.HarmonyPatches
         private bool Prefix(BeatmapData beatmapData)
         {
             if (!_config.CustomEnvironmentEnabled ||
-                beatmapData is not CustomBeatmapData customBeatmapData ||
+                (beatmapData is CustomBeatmapData customBeatmapData &&
                 (!_config.EnvironmentEnhancementsDisabled &&
                  ((customBeatmapData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
                   (customBeatmapData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false) ||
-                  (customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false))))
+                  (customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false)))))
             {
                 return true;
             }
