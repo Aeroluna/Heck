@@ -35,7 +35,7 @@ namespace NoodleExtensions.Animation
         private Vector3 _startPos = Vector3.zero;
         private Quaternion _startLocalRot = Quaternion.identity;
 
-        private Track _track = null!;
+        private Track? _track;
         private PauseController? _pauseController;
         private MultiplayerPlayersManager? _multiPlayersManager;
         private MultiplayerOutroAnimationController? _multiOutroController;
@@ -44,6 +44,8 @@ namespace NoodleExtensions.Animation
         private TransformControllerFactory _transformFactory = null!;
 
         private GameObject _multiplayerPositioner = null!;
+
+        private PlayerTrackObject _target;
 
         internal void AssignTrack(
             Track track)
@@ -72,12 +74,9 @@ namespace NoodleExtensions.Animation
             [InjectOptional] PauseMenuManager? pauseMenuManager,
             [InjectOptional] MultiplayerLocalActivePlayerInGameMenuController? multiMenuController,
             [InjectOptional] MultiplayerPlayersManager? multiPlayersManager,
-            [InjectOptional] MultiplayerOutroAnimationController? multiOutroController)
+            [InjectOptional] MultiplayerOutroAnimationController? multiOutroController,
+            PlayerTrackObject target)
         {
-            _pauseController = pauseController;
-            _multiPlayersManager = multiPlayersManager;
-            _multiOutroController = multiOutroController;
-
             if (pauseController != null)
             {
                 pauseController.didPauseEvent += OnDidPauseEvent;
@@ -89,17 +88,26 @@ namespace NoodleExtensions.Animation
             _startPos = origin.localPosition;
             _leftHanded = leftHanded;
             _transformFactory = transformControllerFactory;
+            _target = target;
 
-            if (pauseMenuManager != null)
+            if (target == PlayerTrackObject.Root)
             {
-                pauseMenuManager.transform.SetParent(origin, false);
+                _pauseController = pauseController;
+                _multiPlayersManager = multiPlayersManager;
+                _multiOutroController = multiOutroController;
+
+                if (pauseMenuManager != null)
+                {
+                    pauseMenuManager.transform.SetParent(origin, false);
+                }
+
+                if (multiMenuController != null)
+                {
+                    multiMenuController.transform.SetParent(origin, false);
+                }
             }
 
-            if (multiMenuController != null)
-            {
-                multiMenuController.transform.SetParent(origin, false);
-            }
-
+            // v3 uses an underlying TransformController
             _v2 = ((CustomBeatmapData)beatmapData).version2_6_0AndEarlier;
             if (!_v2)
             {
@@ -107,12 +115,23 @@ namespace NoodleExtensions.Animation
             }
 
             // cam2 is cringe cam2 is cringe cam2 is cringe
-            _instance = this;
-            _transform = origin;
+            // ReSharper disable once InvertIf
+            if (target == PlayerTrackObject.Head)
+            {
+                _instance = this;
+                _transform = origin;
+            }
         }
 
         private void OnDidPauseEvent()
         {
+            if (_target != PlayerTrackObject.Root)
+            {
+                Transform transform1 = transform;
+                transform1.localPosition = _startPos;
+                transform1.localRotation = _startLocalRot;
+            }
+
             if (_v2)
             {
                 enabled = false;
@@ -163,6 +182,11 @@ namespace NoodleExtensions.Animation
 
         private void Update()
         {
+            if (_track == null)
+            {
+                return;
+            }
+
             Quaternion? rotation = _track.GetProperty<Quaternion>(OFFSET_ROTATION)?.Mirror(_leftHanded);
             Vector3? position = _track.GetProperty<Vector3>(OFFSET_POSITION)?.Mirror(_leftHanded);
 
@@ -240,7 +264,7 @@ namespace NoodleExtensions.Animation
                 origin.SetParent(target.parent, true);
                 target.SetParent(origin, true);
 
-                return _container.InstantiateComponent<PlayerTrack>(noodleObject);
+                return _container.InstantiateComponent<PlayerTrack>(noodleObject, new object[] { playerTrackObject });
             }
         }
     }
