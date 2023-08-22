@@ -228,7 +228,6 @@ namespace Heck.PlayView
                 _currentParameters.PreviewBeatmapLevel,
                 _currentParameters.OverrideEnvironmentSettings,
                 _currentParameters.OverrideColorScheme,
-                _currentParameters.BeatmapOverrideColorScheme,
                 _currentParameters.GameplayModifiers,
                 _currentParameters.PlayerSpecificSettings,
                 _currentParameters.PracticeSettings,

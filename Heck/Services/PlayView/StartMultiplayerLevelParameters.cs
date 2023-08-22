@@ -27,7 +27,6 @@ namespace Heck.PlayView
                 previewBeatmapLevel,
                 null,
                 overrideColorScheme,
-                null,
                 gameplayModifiers,
                 playerSpecificSettings,
                 practiceSettings,
