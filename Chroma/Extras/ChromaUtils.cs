@@ -5,6 +5,8 @@ namespace Chroma.Extras
 {
     internal static class ChromaUtils
     {
+        internal static Mesh TriangleMesh { get; set; } = null!; // used for caching the triangle mesh, for performance reasons.
+
         internal static void SetSongCoreCapability(string capability, bool enabled = true)
         {
             if (enabled)
@@ -27,32 +29,35 @@ namespace Chroma.Extras
         /// </summary>
         internal static Mesh CreateTriangleMesh()
         {
-            Vector3[] vertices =
+            if (TriangleMesh == null)
             {
-                new(-0.5f, -0.5f, 0),
-                new(0.5f, -0.5f, 0),
-                new(0f, 0.5f, 0)
-            };
+                Vector3[] vertices =
+                {
+                    new(-0.5f, -0.5f, 0),
+                    new(0.5f, -0.5f, 0),
+                    new(0f, 0.5f, 0)
+                };
 
-            Vector2[] uv =
-            {
-                new(0, 0),
-                new(1, 0),
-                new(0.5f, 1)
-            };
+                Vector2[] uv =
+                {
+                    new(0, 0),
+                    new(1, 0),
+                    new(0.5f, 1)
+                };
 
-            int[] triangles = { 0, 1, 2 };
+                int[] triangles = { 0, 1, 2 };
 
-            Mesh mesh = new()
-            {
-                vertices = vertices,
-                uv = uv,
-                triangles = triangles
-            };
-            mesh.RecalculateBounds();
-            mesh.RecalculateNormals();
-            mesh.RecalculateTangents();
-            return mesh;
+                TriangleMesh = new()
+                {
+                    vertices = vertices,
+                    uv = uv,
+                    triangles = triangles
+                };
+                TriangleMesh.RecalculateBounds();
+                TriangleMesh.RecalculateNormals();
+                TriangleMesh.RecalculateTangents();
+            }
+            return TriangleMesh;
         }
     }
 }
