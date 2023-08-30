@@ -1,6 +1,7 @@
 ﻿using Chroma.EnvironmentEnhancement;
 using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.HarmonyPatches;
+using Chroma.HarmonyPatches.ZenModeWalls;
 using Chroma.Settings;
 using JetBrains.Annotations;
 using Zenject;
@@ -29,6 +30,8 @@ namespace Chroma.Installers
             Container.Bind<CustomLevelLoaderExposer>().AsSingle().NonLazy();
 
             Container.BindInterfacesAndSelfTo<ColorBaseProvider>().AsSingle();
+
+            Container.BindInterfacesTo<ForceZenModeObstacleBeatmapData>().AsSingle();
         }
     }
 }

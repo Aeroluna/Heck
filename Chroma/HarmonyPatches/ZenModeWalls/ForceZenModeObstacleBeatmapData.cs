@@ -21,15 +21,7 @@ namespace Chroma.HarmonyPatches.ZenModeWalls
                 return true;
             }
 
-            __result = beatmapData.GetFilteredCopy(item =>
-            {
-                return item switch
-                {
-                    WaypointData or ObstacleData => item,
-                    BeatmapObjectData => null,
-                    _ => item
-                };
-            });
+            __result = beatmapData.GetFilteredCopy(item => item is not BeatmapObjectData or WaypointData or ObstacleData ? item : null);
 
             return false;
         }

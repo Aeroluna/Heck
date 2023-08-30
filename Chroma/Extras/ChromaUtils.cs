@@ -29,34 +29,37 @@ namespace Chroma.Extras
         /// </summary>
         internal static Mesh CreateTriangleMesh()
         {
-            if (TriangleMesh == null)
+            if (TriangleMesh != null)
             {
-                Vector3[] vertices =
-                {
-                    new(-0.5f, -0.5f, 0),
-                    new(0.5f, -0.5f, 0),
-                    new(0f, 0.5f, 0)
-                };
-
-                Vector2[] uv =
-                {
-                    new(0, 0),
-                    new(1, 0),
-                    new(0.5f, 1)
-                };
-
-                int[] triangles = { 0, 1, 2 };
-
-                TriangleMesh = new()
-                {
-                    vertices = vertices,
-                    uv = uv,
-                    triangles = triangles
-                };
-                TriangleMesh.RecalculateBounds();
-                TriangleMesh.RecalculateNormals();
-                TriangleMesh.RecalculateTangents();
+                return TriangleMesh;
             }
+
+            Vector3[] vertices =
+            {
+                new(-0.5f, -0.5f, 0),
+                new(0.5f, -0.5f, 0),
+                new(0f, 0.5f, 0)
+            };
+
+            Vector2[] uv =
+            {
+                new(0, 0),
+                new(1, 0),
+                new(0.5f, 1)
+            };
+
+            int[] triangles = { 0, 1, 2 };
+
+            TriangleMesh = new Mesh
+            {
+                vertices = vertices,
+                uv = uv,
+                triangles = triangles
+            };
+            TriangleMesh.RecalculateBounds();
+            TriangleMesh.RecalculateNormals();
+            TriangleMesh.RecalculateTangents();
+
             return TriangleMesh;
         }
     }

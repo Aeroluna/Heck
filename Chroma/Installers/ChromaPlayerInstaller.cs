@@ -107,7 +107,6 @@ namespace Chroma.Installers
             }
 
             // Zen mode
-            Container.BindInterfacesTo<ForceZenModeObstacleBeatmapData>().AsSingle();
             Container.BindInterfacesTo<ObstacleHeadCollisionDisable>().AsSingle();
             Container.BindInterfacesTo<ZenModeBinder>().AsSingle();
         }
