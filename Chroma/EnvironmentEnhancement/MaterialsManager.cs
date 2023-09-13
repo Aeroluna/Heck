@@ -51,6 +51,7 @@ namespace Chroma.EnvironmentEnhancement
 
             if (materialsData == null && config.CustomEnvironmentEnabled)
             {
+                _v2 = false;
                 materialsData = savedEnvironmentLoader.SavedEnvironment?.Materials;
             }
 
