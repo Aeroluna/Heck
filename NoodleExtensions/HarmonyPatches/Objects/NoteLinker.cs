@@ -2,6 +2,7 @@
 using System.Linq;
 using Heck;
 using SiraUtil.Affinity;
+using UnityEngine;
 using Zenject;
 
 namespace NoodleExtensions.HarmonyPatches.Objects
@@ -17,8 +18,6 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         {
             _deserializedData = deserializedData;
         }
-
-        private delegate void SendNoteWasCutEventDelegate(NoteController noteController, in NoteCutInfo noteCutInfo);
 
         [AffinityPostfix]
         [AffinityPatch(typeof(NoteController), "Init")]
@@ -37,17 +36,11 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
             if (!_linkedNotes.TryGetValue(link, out HashSet<NoteController>? linkedNotes))
             {
-                linkedNotes = new HashSet<NoteController>
-                {
-                    __instance
-                };
+                linkedNotes = new HashSet<NoteController>();
                 _linkedNotes.Add(link, linkedNotes);
             }
-            else
-            {
-                linkedNotes.Add(__instance);
-            }
 
+            linkedNotes.Add(__instance);
             _linkedLinkedNotes.Add(__instance, linkedNotes);
         }
 
@@ -64,7 +57,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             noteControllers.Remove(__instance);
 
             NoteController[] linked = noteControllers.ToArray();
-            foreach (NoteController noteController in noteControllers)
+            foreach (NoteController noteController in linked)
             {
                 _linkedLinkedNotes.Remove(noteController);
                 noteControllers.Remove(noteController);
