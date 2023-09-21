@@ -12,6 +12,9 @@ namespace Heck.PlayView
             IPreviewBeatmapLevel previewBeatmapLevel,
             OverrideEnvironmentSettings? overrideEnvironmentSettings,
             ColorScheme overrideColorScheme,
+#if LATEST
+            ColorScheme? beatmapOverrideColorScheme,
+#endif
             GameplayModifiers gameplayModifiers,
             PlayerSpecificSettings playerSpecificSettings,
             PracticeSettings practiceSettings,
@@ -27,6 +30,9 @@ namespace Heck.PlayView
             PreviewBeatmapLevel = previewBeatmapLevel;
             OverrideEnvironmentSettings = overrideEnvironmentSettings;
             OverrideColorScheme = overrideColorScheme;
+#if LATEST
+            BeatmapOverrideColorScheme = beatmapOverrideColorScheme;
+#endif
             GameplayModifiers = gameplayModifiers;
             PlayerSpecificSettings = playerSpecificSettings;
             PracticeSettings = practiceSettings;
@@ -45,6 +51,9 @@ namespace Heck.PlayView
             PreviewBeatmapLevel = original.PreviewBeatmapLevel;
             OverrideEnvironmentSettings = original.OverrideEnvironmentSettings;
             OverrideColorScheme = original.OverrideColorScheme;
+#if LATEST
+            BeatmapOverrideColorScheme = original.BeatmapOverrideColorScheme;
+#endif
             GameplayModifiers = original.GameplayModifiers;
             PlayerSpecificSettings = original.PlayerSpecificSettings;
             PracticeSettings = original.PracticeSettings;
@@ -65,6 +74,10 @@ namespace Heck.PlayView
         public OverrideEnvironmentSettings? OverrideEnvironmentSettings { get; set; }
 
         public ColorScheme? OverrideColorScheme { get; set; }
+
+#if LATEST
+        public ColorScheme? BeatmapOverrideColorScheme { get; }
+#endif
 
         public GameplayModifiers GameplayModifiers { get; set; }
 

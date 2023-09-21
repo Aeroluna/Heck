@@ -2,7 +2,6 @@
 using System.Linq;
 using Heck;
 using SiraUtil.Affinity;
-using UnityEngine;
 using Zenject;
 
 namespace NoodleExtensions.HarmonyPatches.Objects

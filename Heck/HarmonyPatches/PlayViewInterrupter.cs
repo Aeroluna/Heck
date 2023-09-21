@@ -24,7 +24,11 @@ namespace Heck.HarmonyPatches
             new[]
             {
                 typeof(string), typeof(IDifficultyBeatmap), typeof(IPreviewBeatmapLevel),
-                typeof(OverrideEnvironmentSettings), typeof(ColorScheme), typeof(GameplayModifiers),
+                typeof(OverrideEnvironmentSettings), typeof(ColorScheme),
+#if LATEST
+                typeof(ColorScheme),
+#endif
+                typeof(GameplayModifiers),
                 typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(string), typeof(bool), typeof(bool),
                 typeof(Action), typeof(Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>),
                 typeof(Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>)

@@ -2,15 +2,15 @@
   "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "author": "Aeroluna",
   "description": "This mod lets you see cool things that mappers have put in their maps. Report all issues to Reaxt.",
-  "gameVersion": "1.29.1",
+  "gameVersion": "1.31.1",
   "id": "NoodleExtensions",
   "name": "NoodleExtensions",
-  "version": "1.5.14",
+  "version": "1.5.15",
   "dependsOn": {
     "_Heck": "^1.4.7",
     "SongCore": "^3.9.5",
     "CustomJSONData": "^2.5.1",
-    "BSIPA": "^4.2.2",
+    "BSIPA": "^4.3.0",
     "SiraUtil": "^3.0.5"
   }
 }

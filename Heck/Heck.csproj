@@ -8,8 +8,32 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <DebugType>portable</DebugType>
     <NoWarn>$(NoWarn);CS0436</NoWarn>
+    <Configurations>Debug;Release;Release Latest;Debug Latest</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <BSMTProjectType>BSIPA</BSMTProjectType>
+    <GenerateManifest>true</GenerateManifest>
+    <ManifestPath>manifest.json</ManifestPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug Latest' ">
+    <DefineConstants>LATEST;DEBUG</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release Latest' ">
+    <DefineConstants>LATEST;RELEASE</DefineConstants>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" !'$(DefineConstants.Contains(LATEST))' ">
+    <Version>1.4.12</Version>
+    <GameVersion>1.29.1</GameVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(DefineConstants.Contains(LATEST))' ">
+    <Version>1.4.13</Version>
+    <GameVersion>1.31.1</GameVersion>
   </PropertyGroup>
 
+  <ItemDefinitionGroup>
+    <Reference Private="False" />
+  </ItemDefinitionGroup>
   <ItemGroup>
     <Reference Include="0Harmony" HintPath="$(BeatSaberDir)\Libs\0Harmony.dll" />
     <Reference Include="BeatmapCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll" />
@@ -32,14 +56,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="SettingsSetter\SettableSettingsContent.bsml" />
     <EmbeddedResource Include="SettingsSetter\SettingsSetter.bsml" />
     <EmbeddedResource Include="SettingsSetter\SettingsSetterSettableSettings.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BeatSaberModdingTools.Tasks" Version="1.4.3" />
+    <PackageReference Include="BeatSaberModdingTools.Tasks" Version="2.0.0-beta7" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.354" />
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.*" />
   </ItemGroup>
