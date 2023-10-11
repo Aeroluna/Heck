@@ -26,8 +26,6 @@ namespace Heck.Animation
             return $"{input.x}, {input.y}, {input.z}";
         }
 
-        protected override bool Compare(Vector3 val1, Vector3 val2) => val1.EqualsTo(val2);
-
         protected override Vector3 InterpolatePoints(List<IPointData> points, int l, int r, float time)
         {
             PointData pointR = (PointData)points[r];

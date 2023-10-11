@@ -17,8 +17,6 @@ namespace Heck.Animation
         {
         }
 
-        protected override bool Compare(float val1, float val2) => val1.EqualsTo(val2);
-
         protected override float InterpolatePoints(List<IPointData> points, int l, int r, float time)
         {
             return Mathf.LerpUnclamped(points[l].Point, points[r].Point, time);

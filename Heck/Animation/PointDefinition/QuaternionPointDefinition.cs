@@ -16,8 +16,6 @@ namespace Heck.Animation
         {
         }
 
-        protected override bool Compare(Quaternion val1, Quaternion val2) => val1.EqualsTo(val2);
-
         protected override Quaternion InterpolatePoints(List<IPointData> points, int l, int r, float time)
         {
             return Quaternion.SlerpUnclamped(points[l].Point, points[r].Point, time);

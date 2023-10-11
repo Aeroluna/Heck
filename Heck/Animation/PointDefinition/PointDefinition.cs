@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Heck.BaseProvider;
+using Zenject;
 
 namespace Heck.Animation
 {
     public interface IPointDefinition
     {
         public int Count { get; }
+
+        public bool HasBaseProvider { get; }
     }
 
     public abstract class PointDefinition<T> : IPointDefinition
@@ -20,10 +23,6 @@ namespace Heck.Animation
         protected PointDefinition(IReadOnlyCollection<object> list)
         {
             IEnumerable<List<object>> points = list.FirstOrDefault() is List<object> ? list.Cast<List<object>>() : new[] { list.Append(0).ToList() };
-
-            List<IPointData> pointData = new();
-
-            bool usesProvider = false;
             foreach (List<object> rawPoint in points)
             {
                 Functions easing = Functions.easeLinear;
@@ -41,7 +40,6 @@ namespace Heck.Animation
                             break;
 
                         case GroupType.BaseValue:
-                            usesProvider = true;
                             baseProvider = BaseProviderManager.Instance.GetProviderData((string)groupList.First());
                             break;
 
@@ -66,27 +64,10 @@ namespace Heck.Animation
                     throw new InvalidOperationException("No points found.");
                 }
 
-                pointData.Add(CreatePointData(floatList, baseProvider, flags ?? Array.Empty<string>(), modifiers ?? Array.Empty<Modifier<T>>(), easing));
+                _points.Add(CreatePointData(floatList, baseProvider, flags ?? Array.Empty<string>(), modifiers ?? Array.Empty<Modifier<T>>(), easing));
             }
 
-            int count = pointData.Count;
-            if (count > 1 && !usesProvider)
-            {
-                T firstVal = pointData[0].Point;
-                for (int i = 1; i < count; i++)
-                {
-                    if (Compare(pointData[i].Point, firstVal))
-                    {
-                        continue;
-                    }
-
-                    break;
-                }
-
-                _points.Add(pointData[0]);
-            }
-
-            _points.AddRange(pointData);
+            HasBaseProvider = _points.Any(n => n.HasBaseProvider);
         }
 
         private enum GroupType
@@ -104,9 +85,13 @@ namespace Heck.Animation
             public float Time { get; }
 
             public Functions Easing { get; }
+
+            public bool HasBaseProvider { get; }
         }
 
         public int Count => _points.Count;
+
+        public bool HasBaseProvider { get; }
 
         public T Interpolate(float time) => Interpolate(time, out _);
 
@@ -160,8 +145,6 @@ namespace Heck.Animation
                 return result.Insert(result.Length - 1, added);
             })) + "}";
         }
-
-        protected abstract bool Compare(T valueOne, T valueTwo);
 
         protected abstract T InterpolatePoints(List<IPointData> points, int l, int r, float time);
 

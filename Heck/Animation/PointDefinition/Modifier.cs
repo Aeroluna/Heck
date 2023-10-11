@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Heck.BaseProvider;
 
@@ -32,11 +33,14 @@ namespace Heck.Animation
             _baseProvider = baseProvider;
             Modifiers = modifiers;
             Operation = operation;
+            HasBaseProvider = baseProvider != null || modifiers.Any(n => n.HasBaseProvider);
         }
 
         public abstract T Point { get; }
 
         public Operation Operation { get; }
+
+        public bool HasBaseProvider { get; }
 
         protected T OriginalPoint => _rawPoint ?? (T?)_baseProvider?.GetValue() ?? throw new InvalidOperationException();
 

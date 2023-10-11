@@ -62,10 +62,11 @@ namespace Heck.Animation.Events
                 }
                 else
                 {
+                    bool hasBase = pointData.HasBaseProvider;
                     switch (eventType)
                     {
                         case EventType.AnimateTrack:
-                            if (noDuration || pointData.Count <= 1)
+                            if (noDuration || (pointData.Count <= 1 && hasBase))
                             {
                                 SetPropertyValue(pointData, property, coroutineInfo.Track, 1, out _);
                             }
