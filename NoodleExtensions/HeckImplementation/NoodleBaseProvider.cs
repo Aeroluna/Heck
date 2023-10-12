@@ -25,12 +25,12 @@ namespace NoodleExtensions
         private readonly Transform _rightHand;
 
         [UsedImplicitly]
-        private PlayerTransformGetter(NoodleBaseProvider noodleBaseProvider)
+        private PlayerTransformGetter(NoodleBaseProvider noodleBaseProvider, PlayerTransforms playerTransforms)
         {
             _noodleBaseProvider = noodleBaseProvider;
-            _head = GameObject.Find("VRGameCore/MainCamera").transform;
-            _leftHand = GameObject.Find("VRGameCore/LeftHand").transform;
-            _rightHand = GameObject.Find("VRGameCore/RightHand").transform;
+            _head = playerTransforms._headTransform;
+            _leftHand = playerTransforms._leftHandTransform;
+            _rightHand = playerTransforms._rightHandTransform;
         }
 
         public void Tick()

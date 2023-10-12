@@ -241,10 +241,12 @@ namespace NoodleExtensions.Animation
         internal class PlayerTrackFactory : PlaceholderFactory<PlayerTrackObject, PlayerTrack>
         {
             private readonly IInstantiator _container;
+            private readonly PlayerTransforms _playerTransforms;
 
-            private PlayerTrackFactory(IInstantiator container)
+            private PlayerTrackFactory(IInstantiator container, PlayerTransforms playerTransforms)
             {
                 _container = container;
+                _playerTransforms = playerTransforms;
             }
 
             public override PlayerTrack Create(PlayerTrackObject playerTrackObject)
@@ -254,10 +256,10 @@ namespace NoodleExtensions.Animation
 
                 Transform target = playerTrackObject switch
                 {
-                    PlayerTrackObject.Root => GameObject.Find("LocalPlayerGameCore").transform,
-                    PlayerTrackObject.Head => GameObject.Find("VRGameCore/MainCamera").transform,
-                    PlayerTrackObject.LeftHand => GameObject.Find("VRGameCore/LeftHand").transform,
-                    PlayerTrackObject.RightHand => GameObject.Find("VRGameCore/RightHand").transform,
+                    PlayerTrackObject.Root => _playerTransforms._originTransform.parent,
+                    PlayerTrackObject.Head => _playerTransforms._headTransform,
+                    PlayerTrackObject.LeftHand => _playerTransforms._leftHandTransform,
+                    PlayerTrackObject.RightHand => _playerTransforms._rightHandTransform,
                     _ => throw new ArgumentOutOfRangeException(nameof(playerTrackObject), playerTrackObject, null)
                 };
 
