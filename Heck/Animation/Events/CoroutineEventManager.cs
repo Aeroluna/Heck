@@ -46,6 +46,11 @@ namespace Heck.Animation.Events
             IEnumerable<Trigger> triggers = heckData.Triggers;
             if (triggers != null && !triggers.Any(x => x.isTriggered))
             {
+                foreach (Trigger t in triggers)
+                {
+                    t.isTriggered = false;
+                }
+
                 return;
             }
 
