@@ -21,7 +21,7 @@ namespace Heck
 
             IEnumerable<Track> tracks = data.GetTrackArray(beatmapTracks, v2);
 
-            string[] excludedStrings = { V2_TRACK, V2_DURATION, V2_EASING, TRACK, DURATION, EASING, REPEAT };
+            string[] excludedStrings = { V2_TRACK, V2_DURATION, V2_EASING, TRACK, DURATION, EASING, REPEAT, TRIGGER };
             IEnumerable<string> propertyKeys = data.Keys.Where(n => excludedStrings.All(m => m != n)).ToList();
             List<CoroutineInfo> coroutineInfos = new();
             foreach (Track track in tracks)
@@ -97,6 +97,7 @@ namespace Heck
             if (!v2)
             {
                 Repeat = data.Get<int?>(REPEAT) ?? 0;
+                Triggers = Trigger.GetTriggers(data, TRIGGER);
             }
         }
 
@@ -105,6 +106,8 @@ namespace Heck
         internal Functions Easing { get; }
 
         internal int Repeat { get; }
+
+        internal IEnumerable<Trigger> Triggers { get; }
 
         internal List<CoroutineInfo> CoroutineInfos { get; }
 

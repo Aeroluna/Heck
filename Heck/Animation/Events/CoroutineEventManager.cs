@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -39,6 +41,24 @@ namespace Heck.Animation.Events
             if (!_deserializedData.Resolve(customEventData, out HeckCoroutineEventData? heckData))
             {
                 return;
+            }
+
+            IEnumerable<Trigger> triggers = heckData.Triggers;
+            if (triggers != null)
+            {
+                bool triggered = false;
+                foreach (Trigger trigger in triggers)
+                {
+                    if (trigger.isTriggered)
+                    {
+                        triggered = true;
+                        break;
+                    }
+                }
+                if (!triggered)
+                {
+                    return;
+                }
             }
 
             float duration = 60f * heckData.Duration / _bpmController.currentBpm; // Convert to real time;
