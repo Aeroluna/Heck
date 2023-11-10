@@ -44,21 +44,9 @@ namespace Heck.Animation.Events
             }
 
             IEnumerable<Trigger> triggers = heckData.Triggers;
-            if (triggers != null)
+            if (triggers != null && !triggers.Any(x => x.isTriggered))
             {
-                bool triggered = false;
-                foreach (Trigger trigger in triggers)
-                {
-                    if (trigger.isTriggered)
-                    {
-                        triggered = true;
-                        break;
-                    }
-                }
-                if (!triggered)
-                {
-                    return;
-                }
+                return;
             }
 
             float duration = 60f * heckData.Duration / _bpmController.currentBpm; // Convert to real time;
