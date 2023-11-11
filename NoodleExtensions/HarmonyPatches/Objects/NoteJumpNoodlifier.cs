@@ -258,8 +258,6 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 ? Quaternion.Slerp(rotation * startRotation, rotation * middleRotation, Mathf.Sin(num2 * Mathf.PI * 4f))
                 : Quaternion.Slerp(rotation * middleRotation, rotation * endRotation, Mathf.Sin((num2 - 0.125f) * Mathf.PI * 2f));
 
-            Vector3 vector = playerTransforms.headWorldPos;
-
             // idk whats happening anymore
             Quaternion worldRot = inverseWorldRotation;
             if (baseTransform.parent != null)
@@ -272,12 +270,13 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             {
                 // This line but super complicated so that "y" = "originTransform.up"
                 // vector.y = Mathf.Lerp(vector.y, this._localPosition.y, 0.8f);
-                Transform headTransform = playerTransforms._headTransform;
+                Transform parentTransform = playerTransforms._originParentTransform;
+                Vector3 vector = parentTransform.TransformPoint(playerTransforms._headPseudoLocalPos);
                 Quaternion inverse = Quaternion.Inverse(worldRot);
                 Vector3 upVector = inverse * Vector3.up;
                 Vector3 position = baseTransform.position;
                 float baseUpMagnitude = Vector3.Dot(worldRot * position, Vector3.up);
-                float headUpMagnitude = Vector3.Dot(worldRot * headTransform.position, Vector3.up);
+                float headUpMagnitude = Vector3.Dot(worldRot * vector, Vector3.up);
                 float mult = Mathf.Lerp(headUpMagnitude, baseUpMagnitude, 0.8f) - headUpMagnitude;
                 vector += upVector * mult;
 

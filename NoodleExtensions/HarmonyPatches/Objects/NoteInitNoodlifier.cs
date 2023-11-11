@@ -112,10 +112,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             float num2 = jumpDuration * 0.5f;
             float startVerticalVelocity = jumpGravity * num2;
             float yOffset = (startVerticalVelocity * num2) - (jumpGravity * num2 * num2 * 0.5f);
-            Vector3 noteOffset = moveEndPos;
-            noteOffset.z = 0;
-            noteOffset.y += yOffset;
-            noodleData.InternalNoteOffset = noteOffset;
+            noodleData.InternalNoteOffset = new Vector3(moveEndPos.x, moveEndPos.y + yOffset, 0);
         }
 
         [AffinityTranspiler]

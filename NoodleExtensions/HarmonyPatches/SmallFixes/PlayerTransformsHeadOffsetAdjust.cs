@@ -6,6 +6,19 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
 {
     [HeckPatch(PatchType.Features)]
     [HarmonyPatch(typeof(PlayerTransforms))]
+    internal static class PlayerTransformsUseParent
+    {
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlayerTransforms.Awake))]
+        private static void Postfix(
+            ref bool ____useOriginParentTransformForPseudoLocalCalculations)
+        {
+            ____useOriginParentTransformForPseudoLocalCalculations = false;
+        }
+    }
+
+    [HeckPatch(PatchType.Features)]
+    [HarmonyPatch(typeof(PlayerTransforms))]
     internal static class PlayerTransformsHeadOffsetAdjust
     {
         [HarmonyPrefix]
