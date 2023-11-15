@@ -211,6 +211,10 @@ namespace Chroma.Lighting
                     {
                         nextSameTypeEvent = value;
                     }
+                    else if (nextSameTypesDict.TryGetValue(-1, out BasicBeatmapEventData? nullVal))
+                    {
+                        nextSameTypeEvent = nullVal;
+                    }
 
                     if (nextSameTypeEvent == null || !nextSameTypeEvent.HasLightFadeEventDataValue())
                     {
