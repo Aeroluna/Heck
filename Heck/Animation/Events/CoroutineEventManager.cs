@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -38,6 +40,17 @@ namespace Heck.Animation.Events
         {
             if (!_deserializedData.Resolve(customEventData, out HeckCoroutineEventData? heckData))
             {
+                return;
+            }
+
+            IEnumerable<Trigger> triggers = heckData.Triggers;
+            if (triggers != null && !triggers.Any(x => x.isTriggered))
+            {
+                foreach (Trigger t in triggers)
+                {
+                    t.isTriggered = false;
+                }
+
                 return;
             }
 

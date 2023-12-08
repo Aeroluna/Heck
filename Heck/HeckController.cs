@@ -20,6 +20,7 @@
         public const string V2_LOCAL_POSITION = "_localPosition";
         public const string V2_SCALE = "_scale";
 
+        public const string TRIGGER = "trigger";
         public const string REPEAT = "repeat";
         public const string DURATION = "duration";
         public const string EASING = "easing";
