@@ -38,6 +38,9 @@ namespace Heck.PlayView
                 false,
                 beforeSceneSwitchCallback,
                 null,
+#if LATEST
+                null,
+#endif
                 null)
         {
             BeatmapDifficulty = beatmapDifficulty;
