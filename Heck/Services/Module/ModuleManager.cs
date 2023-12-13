@@ -16,16 +16,6 @@ namespace Heck
 
         private static bool _sorted;
 
-        [PublicAPI]
-        [Obsolete("Use [Register] instead.", true)]
-        public static Module RegisterModule<T>(
-            string id,
-            int priority,
-            RequirementType requirementType,
-            object? attributeId = null,
-            string[]? depends = null,
-            string[]? conflict = null) => Register<T>(id, priority, requirementType, attributeId, depends, conflict);
-
         public static Module Register<T>(
             string id,
             int priority,
