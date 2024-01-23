@@ -267,6 +267,8 @@ namespace NoodleExtensions
 
                 NJS = customData.Get<float?>(v2 ? V2_NOTE_JUMP_SPEED : NOTE_JUMP_SPEED);
                 SpawnOffset = customData.Get<float?>(v2 ? V2_NOTE_SPAWN_OFFSET : NOTE_SPAWN_OFFSET);
+
+                V2 = v2;
             }
             catch (Exception e)
             {
@@ -307,6 +309,8 @@ namespace NoodleExtensions
         internal float? SpawnOffset { get; }
 
         internal float? InternalAheadTime { get; set; }
+
+        internal bool? V2 { get; }
 
         internal float? GetTimeProperty()
         {

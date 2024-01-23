@@ -36,6 +36,7 @@ namespace NoodleExtensions.Managers
                 return true;
             }
 
+            bool? v2 = noodleData.V2;
             float? njs = noodleData.NJS;
             float? spawnoffset = noodleData.SpawnOffset;
 
@@ -60,6 +61,7 @@ namespace NoodleExtensions.Managers
             }
 
             GetNoteJumpValues(
+                v2,
                 njs,
                 spawnoffset,
                 out float jumpDuration,
@@ -87,6 +89,7 @@ namespace NoodleExtensions.Managers
                 return true;
             }
 
+            bool? v2 = noodleData.V2;
             float? njs = noodleData.NJS;
             float? spawnoffset = noodleData.SpawnOffset;
 
@@ -100,6 +103,7 @@ namespace NoodleExtensions.Managers
 
             Vector3 noteOffset = GetNoteOffset(lineIndex, startlinelayer);
             GetNoteJumpValues(
+                v2,
                 njs,
                 spawnoffset,
                 out float jumpDuration,
@@ -138,6 +142,7 @@ namespace NoodleExtensions.Managers
                 return true;
             }
 
+            bool? v2 = noodleData.V2;
             float? njs = noodleData.NJS;
             float? spawnoffset = noodleData.SpawnOffset;
 
@@ -154,6 +159,7 @@ namespace NoodleExtensions.Managers
             Vector3 headOffset = GetNoteOffset(headLineIndex, gravityOverride ? headLineLayer : headStartlinelayer);
             Vector3 tailOffset = GetNoteOffset(tailLineIndex, gravityOverride ? tailLineLayer : tailStartlinelayer);
             GetNoteJumpValues(
+                v2,
                 njs,
                 spawnoffset,
                 out float jumpDuration,
@@ -193,9 +199,9 @@ namespace NoodleExtensions.Managers
             return false;
         }
 
-        internal float GetSpawnAheadTime(float? inputNjs, float? inputOffset)
+        internal float GetSpawnAheadTime(bool? v2, float? inputNjs, float? inputOffset)
         {
-            return _movementData.moveDuration + (GetJumpDuration(inputNjs, inputOffset) * 0.5f);
+            return _movementData.moveDuration + (GetJumpDuration(v2, inputNjs, inputOffset) * 0.5f);
         }
 
         private static float LineYPosForLineLayer(float height)
@@ -241,7 +247,48 @@ namespace NoodleExtensions.Managers
             noGravity = GetJumpGravity(lineYPos);
         }
 
+        // We have to use our own implementation of this function in case we're on a v2 beatmap, to fix many old modcharts.
+        // If we are on a v2 beatmap, we'll use our own implementation of CalculateHalfJumpDurationInBeats.
+        // Otherwise, we'll use the built in CalculateHalfJumpDurationInBeats.
+        private float CalculateHalfJumpDurationInBeats(
+            bool? v2,
+            float startHalfJumpDurationInBeats,
+            float maxHalfJumpDistance,
+            float noteJumpMovementSpeed,
+            float oneBeatDuration,
+            float noteJumpStartBeatOffset)
+        {
+            if (!v2.HasValue || !v2.Value)
+            {
+                return CoreMathUtils.CalculateHalfJumpDurationInBeats(
+                    startHalfJumpDurationInBeats,
+                    maxHalfJumpDistance,
+                    noteJumpMovementSpeed,
+                    oneBeatDuration,
+                    noteJumpStartBeatOffset);
+            }
+
+            float num = startHalfJumpDurationInBeats;
+            float num2 = noteJumpMovementSpeed * oneBeatDuration;
+            float num3 = num2 * num;
+            maxHalfJumpDistance -= 0.001f;
+            while (num3 > maxHalfJumpDistance)
+            {
+                num /= 2f;
+                num3 = num2 * num;
+            }
+
+            num += noteJumpStartBeatOffset;
+            if (num < 1f)
+            {
+                num = 1f;
+            }
+
+            return num;
+        }
+
         private float GetJumpDuration(
+            bool? v2,
             float? inputNjs,
             float? inputOffset)
         {
@@ -251,7 +298,8 @@ namespace NoodleExtensions.Managers
             }
 
             float oneBeatDuration = _initData.beatsPerMinute.OneBeatDuration();
-            float halfJumpDurationInBeats = CoreMathUtils.CalculateHalfJumpDurationInBeats(
+            float halfJumpDurationInBeats = CalculateHalfJumpDurationInBeats(
+                v2,
                 _movementData._startHalfJumpDurationInBeats,
                 _movementData._maxHalfJumpDistance,
                 inputNjs ?? _movementData.noteJumpMovementSpeed,
@@ -261,6 +309,7 @@ namespace NoodleExtensions.Managers
         }
 
         private void GetNoteJumpValues(
+            bool? v2,
             float? inputNjs,
             float? inputOffset,
             out float jumpDuration,
@@ -269,7 +318,7 @@ namespace NoodleExtensions.Managers
             out Vector3 moveEndPos,
             out Vector3 jumpEndPos)
         {
-            jumpDuration = GetJumpDuration(inputNjs, inputOffset);
+            jumpDuration = GetJumpDuration(v2, inputNjs, inputOffset);
 
             Vector3 centerPos = _movementData.centerPos;
             Vector3 forwardVec = _movementData._forwardVec;
