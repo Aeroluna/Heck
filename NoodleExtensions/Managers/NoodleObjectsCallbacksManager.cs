@@ -118,9 +118,10 @@ namespace NoodleExtensions.Managers
                         throw new InvalidOperationException("Failed to get data.");
                     }
 
+                    bool? v2 = noodleData.V2;
                     float? noteJumpMovementSpeed = noodleData.NJS;
                     float? noteJumpStartBeatOffset = noodleData.SpawnOffset;
-                    float aheadTime = _spawnDataManager.GetSpawnAheadTime(noteJumpMovementSpeed, noteJumpStartBeatOffset);
+                    float aheadTime = _spawnDataManager.GetSpawnAheadTime(v2, noteJumpMovementSpeed, noteJumpStartBeatOffset);
                     noodleData.InternalAheadTime = aheadTime;
                     return beatmapObjectData.time - aheadTime;
                 });
