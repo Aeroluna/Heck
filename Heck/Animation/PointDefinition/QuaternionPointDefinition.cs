@@ -26,13 +26,14 @@ namespace Heck.Animation
             Quaternion? value;
             if (baseProvider != null)
             {
-                Assert.That(floats == null);
+                Assert.IsNull(floats, "Modifier cannot have both base and a point");
                 value = null;
             }
             else
             {
-                Assert.That(floats is { Length: ARRAY_COUNT });
-                value = Quaternion.Euler(new Vector3(floats![0], floats[1], floats[2]));
+                Assert.IsNotNull(floats, "Modifier without base must have a point");
+                Assert.IsEqual(ARRAY_COUNT, floats!.Length, $"Quaternion modifier point must have {ARRAY_COUNT} numbers");
+                value = Quaternion.Euler(new Vector3(floats[0], floats[1], floats[2]));
             }
 
             return new Modifier(value, baseProvider, modifiers, operation);
@@ -44,13 +45,13 @@ namespace Heck.Animation
             float time;
             if (baseProvider != null)
             {
-                Assert.That(floats.Length == 1);
+                Assert.IsEqual(1, floats.Length, "Point with base must have only time");
                 value = null;
                 time = floats[0];
             }
             else
             {
-                Assert.That(floats.Length == ARRAY_COUNT + 1);
+                Assert.IsEqual(ARRAY_COUNT + 1, floats.Length, $"Quaternion point must have {ARRAY_COUNT + 1} numbers");
                 value = Quaternion.Euler(new Vector3(floats[0], floats[1], floats[2]));
                 time = floats[ARRAY_COUNT];
             }

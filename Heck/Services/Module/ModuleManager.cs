@@ -6,7 +6,6 @@ using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using IPA.Logging;
-using JetBrains.Annotations;
 
 namespace Heck
 {

@@ -21,6 +21,7 @@ namespace Heck
         }
 
         internal static void DeserializeBeatmapData(
+            IDifficultyBeatmap difficultyBeatmap,
             CustomBeatmapData customBeatmapData,
             IReadonlyBeatmapData untransformedBeatmapData,
             bool leftHanded,
@@ -146,13 +147,11 @@ namespace Heck
 
             object[] inputs =
             {
+                difficultyBeatmap,
                 customBeatmapData,
                 trackManager,
                 pointDefinitions,
                 trackManager.Tracks,
-                customBeatmapData.customEventDatas, // TODO: lists are now provided by CustomBeatmapData, remove these from deserializers
-                customBeatmapData.beatmapEventDatas,
-                customBeatmapData.beatmapObjectDatas,
                 leftHanded
             };
 

@@ -42,13 +42,14 @@ namespace Heck.Animation
             Vector4? value;
             if (baseProvider != null)
             {
-                Assert.That(floats == null);
+                Assert.IsNull(floats, "Modifier cannot have both base and a point");
                 value = null;
             }
             else
             {
-                Assert.That(floats is { Length: ARRAY_COUNT });
-                value = new Vector4(floats![0], floats[1], floats[2], floats[3]);
+                Assert.IsNotNull(floats, "Modifier without base must have a point");
+                Assert.IsEqual(ARRAY_COUNT, floats!.Length, $"Vector4 modifier point must have {ARRAY_COUNT} numbers");
+                value = new Vector4(floats[0], floats[1], floats[2], floats[3]);
             }
 
             return new Modifier(value, baseProvider, modifiers, operation);
@@ -60,13 +61,13 @@ namespace Heck.Animation
             float time;
             if (baseProvider != null)
             {
-                Assert.That(floats.Length == 1);
+                Assert.IsEqual(1, floats.Length, "Point with base must have only time");
                 value = null;
                 time = floats[0];
             }
             else
             {
-                Assert.That(floats.Length == ARRAY_COUNT + 1);
+                Assert.IsEqual(ARRAY_COUNT + 1, floats.Length, $"Vector4 point must have {ARRAY_COUNT + 1} numbers");
                 value = new Vector4(floats[0], floats[1], floats[2], floats[3]);
                 time = floats[ARRAY_COUNT];
             }

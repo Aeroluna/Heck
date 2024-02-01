@@ -11,12 +11,12 @@ namespace Heck
         [CustomEventsDeserializer]
         private static Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents(
             CustomBeatmapData beatmapData,
+            IDifficultyBeatmap difficultyBeatmap,
             Dictionary<string, List<object>> pointDefinitions,
-            Dictionary<string, Track> tracks,
-            List<CustomEventData> customEventDatas)
+            Dictionary<string, Track> tracks)
         {
             Dictionary<CustomEventData, ICustomEventCustomData> dictionary = new();
-            foreach (CustomEventData customEventData in customEventDatas)
+            foreach (CustomEventData customEventData in beatmapData.customEventDatas)
             {
                 bool v2 = customEventData.version2_6_0AndEarlier;
                 try
@@ -43,7 +43,7 @@ namespace Heck
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, customEventData);
+                    Log.Logger.LogFailure(e, customEventData, difficultyBeatmap);
                 }
             }
 

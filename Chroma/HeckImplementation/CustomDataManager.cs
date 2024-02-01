@@ -18,7 +18,7 @@ namespace Chroma
         internal static void DeserializerEarly(
             TrackBuilder trackBuilder,
             CustomBeatmapData beatmapData,
-            IReadOnlyList<CustomEventData> customEventDatas)
+            IDifficultyBeatmap difficultyBeatmap)
         {
             bool v2 = beatmapData.version2_6_0AndEarlier;
             IEnumerable<CustomData>? environmentData = beatmapData.customData.Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)?.Cast<CustomData>();
@@ -56,7 +56,7 @@ namespace Chroma
                 return;
             }
 
-            foreach (CustomEventData customEventData in customEventDatas)
+            foreach (CustomEventData customEventData in beatmapData.customEventDatas)
             {
                 try
                 {
@@ -72,7 +72,7 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, customEventData);
+                    Log.Logger.LogFailure(e, customEventData, difficultyBeatmap);
                 }
             }
         }
@@ -80,12 +80,12 @@ namespace Chroma
         [CustomEventsDeserializer]
         internal static Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents(
             CustomBeatmapData beatmapData,
+            IDifficultyBeatmap difficultyBeatmap,
             Dictionary<string, Track> beatmapTracks,
-            Dictionary<string, List<object>> pointDefinitions,
-            IReadOnlyList<CustomEventData> customEventDatas)
+            Dictionary<string, List<object>> pointDefinitions)
         {
             Dictionary<CustomEventData, ICustomEventCustomData> dictionary = new();
-            foreach (CustomEventData customEventData in customEventDatas)
+            foreach (CustomEventData customEventData in beatmapData.customEventDatas)
             {
                 bool v2 = customEventData.version2_6_0AndEarlier;
                 try
@@ -120,7 +120,7 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, customEventData);
+                    Log.Logger.LogFailure(e, customEventData, difficultyBeatmap);
                 }
             }
 
@@ -130,13 +130,13 @@ namespace Chroma
         [ObjectsDeserializer]
         internal static Dictionary<BeatmapObjectData, IObjectCustomData> DeserializeObjects(
             CustomBeatmapData beatmapData,
+            IDifficultyBeatmap difficultyBeatmap,
             Dictionary<string, Track> beatmapTracks,
-            Dictionary<string, List<object>> pointDefinitions,
-            IReadOnlyList<BeatmapObjectData> beatmapObjectDatas)
+            Dictionary<string, List<object>> pointDefinitions)
         {
             Dictionary<BeatmapObjectData, IObjectCustomData> dictionary = new();
 
-            foreach (BeatmapObjectData beatmapObjectData in beatmapObjectDatas)
+            foreach (BeatmapObjectData beatmapObjectData in beatmapData.beatmapObjectDatas)
             {
                 try
                 {
@@ -161,7 +161,7 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, beatmapObjectData);
+                    Log.Logger.LogFailure(e, beatmapObjectData, difficultyBeatmap);
                 }
             }
 
@@ -171,10 +171,10 @@ namespace Chroma
         [EventsDeserializer]
         internal static Dictionary<BeatmapEventData, IEventCustomData> DeserializeEvents(
             CustomBeatmapData beatmapData,
-            IReadOnlyList<BeatmapEventData> allBeatmapEventDatas)
+            IDifficultyBeatmap difficultyBeatmap)
         {
             bool beatmapv2 = beatmapData.version2_6_0AndEarlier;
-            List<BasicBeatmapEventData> beatmapEventDatas = allBeatmapEventDatas.OfType<BasicBeatmapEventData>().ToList();
+            List<BasicBeatmapEventData> beatmapEventDatas = beatmapData.beatmapEventDatas.OfType<BasicBeatmapEventData>().ToList();
 
             LegacyLightHelper? legacyLightHelper = null;
             if (beatmapv2)
@@ -193,7 +193,7 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, beatmapEventData);
+                    Log.Logger.LogFailure(e, beatmapEventData, difficultyBeatmap);
                 }
             }
 

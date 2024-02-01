@@ -58,6 +58,7 @@ namespace Heck.HarmonyPatches
 
             bool leftHanded = sceneSetupData.playerSpecificSettings.leftHanded;
             DeserializerManager.DeserializeBeatmapData(
+                sceneSetupData.difficultyBeatmap,
                 (CustomBeatmapData)sceneSetupData.transformedBeatmapData,
                 untransformedBeatmapData,
                 leftHanded,

@@ -12,10 +12,10 @@ namespace NoodleExtensions
         [EarlyDeserializer]
         internal static void DeserializeEarly(
             CustomBeatmapData beatmapData,
-            TrackBuilder trackBuilder,
-            List<CustomEventData> customEventDatas)
+            IDifficultyBeatmap difficultyBeatmap,
+            TrackBuilder trackBuilder)
         {
-            foreach (CustomEventData customEventData in customEventDatas)
+            foreach (CustomEventData customEventData in beatmapData.customEventDatas)
             {
                 bool v2 = customEventData.version2_6_0AndEarlier;
                 try
@@ -36,7 +36,7 @@ namespace NoodleExtensions
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, customEventData);
+                    Log.Logger.LogFailure(e, customEventData, difficultyBeatmap);
                 }
             }
         }
@@ -44,32 +44,32 @@ namespace NoodleExtensions
         [ObjectsDeserializer]
         private static Dictionary<BeatmapObjectData, IObjectCustomData> DeserializeObjects(
             CustomBeatmapData beatmapData,
+            IDifficultyBeatmap difficultyBeatmap,
             Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
-            IReadOnlyList<BeatmapObjectData> beatmapObjectsDatas,
             bool leftHanded)
         {
             Dictionary<BeatmapObjectData, IObjectCustomData> dictionary = new();
-            foreach (BeatmapObjectData beatmapObjectData in beatmapObjectsDatas)
+            foreach (BeatmapObjectData beatmapObjectData in beatmapData.beatmapObjectDatas)
             {
                 CustomData customData = ((ICustomData)beatmapObjectData).customData;
                 switch (beatmapObjectData)
                 {
                     case CustomObstacleData customObstacleData:
-                        dictionary.Add(beatmapObjectData, new NoodleObstacleData(customObstacleData, customData, pointDefinitions, beatmapTracks, customObstacleData.version2_6_0AndEarlier, leftHanded));
+                        dictionary.Add(beatmapObjectData, new NoodleObstacleData(customObstacleData, customData, difficultyBeatmap, pointDefinitions, beatmapTracks, customObstacleData.version2_6_0AndEarlier, leftHanded));
                         break;
 
                     case CustomNoteData customNoteData:
-                        dictionary.Add(beatmapObjectData, new NoodleNoteData(customNoteData, customData, pointDefinitions, beatmapTracks, customNoteData.version2_6_0AndEarlier, leftHanded));
+                        dictionary.Add(beatmapObjectData, new NoodleNoteData(customNoteData, customData, difficultyBeatmap, pointDefinitions, beatmapTracks, customNoteData.version2_6_0AndEarlier, leftHanded));
                         break;
 
                     case CustomSliderData customSliderData:
-                        dictionary.Add(beatmapObjectData, new NoodleSliderData(customSliderData, customData, pointDefinitions, beatmapTracks, customSliderData.version2_6_0AndEarlier, leftHanded));
+                        dictionary.Add(beatmapObjectData, new NoodleSliderData(customSliderData, customData, difficultyBeatmap, pointDefinitions, beatmapTracks, customSliderData.version2_6_0AndEarlier, leftHanded));
                         break;
 
                     default:
                         bool v2 = beatmapObjectData is IVersionable { version2_6_0AndEarlier: true };
-                        dictionary.Add(beatmapObjectData, new NoodleObjectData(beatmapObjectData, customData, pointDefinitions, beatmapTracks, v2, leftHanded));
+                        dictionary.Add(beatmapObjectData, new NoodleObjectData(beatmapObjectData, customData, difficultyBeatmap, pointDefinitions, beatmapTracks, v2, leftHanded));
                         break;
                 }
             }
@@ -80,12 +80,12 @@ namespace NoodleExtensions
         [CustomEventsDeserializer]
         private static Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents(
             CustomBeatmapData beatmapData,
+            IDifficultyBeatmap difficultyBeatmap,
             Dictionary<string, List<object>> pointDefinitions,
-            Dictionary<string, Track> tracks,
-            IReadOnlyList<CustomEventData> customEventDatas)
+            Dictionary<string, Track> tracks)
         {
             Dictionary<CustomEventData, ICustomEventCustomData> dictionary = new();
-            foreach (CustomEventData customEventData in customEventDatas)
+            foreach (CustomEventData customEventData in beatmapData.customEventDatas)
             {
                 bool v2 = customEventData.version2_6_0AndEarlier;
                 try
@@ -107,7 +107,7 @@ namespace NoodleExtensions
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, customEventData);
+                    Log.Logger.LogFailure(e, customEventData, difficultyBeatmap);
                 }
             }
 

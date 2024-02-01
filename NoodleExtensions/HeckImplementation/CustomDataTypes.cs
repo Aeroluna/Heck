@@ -17,11 +17,12 @@ namespace NoodleExtensions
         internal NoodleNoteData(
             NoteData noteData,
             CustomData customData,
+            IDifficultyBeatmap difficultyBeatmap,
             Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
-            : base(noteData, customData, pointDefinitions, beatmapTracks, v2, leftHanded)
+            : base(noteData, customData, difficultyBeatmap, pointDefinitions, beatmapTracks, v2, leftHanded)
         {
             try
             {
@@ -49,7 +50,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, noteData);
+                Log.Logger.LogFailure(e, noteData, difficultyBeatmap);
             }
         }
 
@@ -68,11 +69,12 @@ namespace NoodleExtensions
         internal NoodleBaseNoteData(
             BeatmapObjectData noteData,
             CustomData customData,
+            IDifficultyBeatmap difficultyBeatmap,
             Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
-            : base(noteData, customData, pointDefinitions, beatmapTracks, v2, leftHanded)
+            : base(noteData, customData, difficultyBeatmap, pointDefinitions, beatmapTracks, v2, leftHanded)
         {
             try
             {
@@ -92,7 +94,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, noteData);
+                Log.Logger.LogFailure(e, noteData, difficultyBeatmap);
             }
         }
 
@@ -120,11 +122,12 @@ namespace NoodleExtensions
         internal NoodleObstacleData(
             ObstacleData obstacleData,
             CustomData customData,
+            IDifficultyBeatmap difficultyBeatmap,
             Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
-            : base(obstacleData, customData, pointDefinitions, beatmapTracks, v2, leftHanded)
+            : base(obstacleData, customData, difficultyBeatmap, pointDefinitions, beatmapTracks, v2, leftHanded)
         {
             try
             {
@@ -151,7 +154,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, obstacleData);
+                Log.Logger.LogFailure(e, obstacleData, difficultyBeatmap);
             }
         }
 
@@ -171,11 +174,12 @@ namespace NoodleExtensions
         internal NoodleSliderData(
             BeatmapObjectData sliderData,
             CustomData customData,
+            IDifficultyBeatmap difficultyBeatmap,
             Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
-            : base(sliderData, customData, pointDefinitions, beatmapTracks, v2, leftHanded)
+            : base(sliderData, customData, difficultyBeatmap, pointDefinitions, beatmapTracks, v2, leftHanded)
         {
             try
             {
@@ -187,7 +191,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, sliderData);
+                Log.Logger.LogFailure(e, sliderData, difficultyBeatmap);
             }
         }
 
@@ -218,6 +222,7 @@ namespace NoodleExtensions
         internal NoodleObjectData(
             BeatmapObjectData beatmapObjectData,
             CustomData customData,
+            IDifficultyBeatmap difficultyBeatmap,
             Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
@@ -270,7 +275,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, beatmapObjectData);
+                Log.Logger.LogFailure(e, beatmapObjectData, difficultyBeatmap);
             }
         }
 

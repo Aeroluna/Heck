@@ -4,7 +4,7 @@
   "author": "Aeroluna",
   "description": "This mod lets you see cool things that mappers have put in their maps. Report all issues to Reaxt.",
   "dependsOn": {
-    "_Heck": "^1.4.7",
+    "_Heck": "^1.4.18",
     "SongCore": "^3.9.5",
     "CustomJSONData": "^2.5.1",
     "BSIPA": "^4.2.2",

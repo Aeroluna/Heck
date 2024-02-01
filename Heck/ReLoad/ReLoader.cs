@@ -180,6 +180,7 @@ namespace Heck.ReLoad
 
             HeckinGameplayCoreSceneSetupData heckinGameplayCoreSceneSetupData = (HeckinGameplayCoreSceneSetupData)_gameplayCoreSceneSetupData;
             DeserializerManager.DeserializeBeatmapData(
+                _difficultyBeatmap,
                 (CustomBeatmapData)beatmapData,
                 heckinGameplayCoreSceneSetupData.UntransformedBeatmapData,
                 _leftHanded,
