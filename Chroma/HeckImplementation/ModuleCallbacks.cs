@@ -15,6 +15,35 @@ namespace Chroma
 {
     internal class ModuleCallbacks
     {
+        // if there is a better way to detect v3 lights, i would love to know it
+        // blacklist because likely this list will never need to be updated
+        private static string[] _basicEnvironments =
+        {
+            "DefaultEnvironment",
+            "TriangleEnvironment",
+            "NiceEnvironment",
+            "BigMirrorEnvironment",
+            "KDAEnvironment",
+            "MonstercatEnvironment",
+            "CrabRaveEnvironment",
+            "DragonsEnvironment",
+            "OriginsEnvironment",
+            "PanicEnvironment",
+            "RocketEnvironment",
+            "GreenDayEnvironment",
+            "GreenDayGrenadeEnvironment",
+            "TimbalandEnvironment",
+            "FitBeatEnvironment",
+            "LinkinParkEnvironment",
+            "BTSEnvironment",
+            "KaleidoscopeEnvironment",
+            "InterscopeEnvironment",
+            "SkrillexEnvironment",
+            "BillieEnvironment",
+            "HalloweenEnvironment",
+            "GagaEnvironment"
+        };
+
         [ModuleCallback(PatchType.Colorizer)]
         private static void ToggleColorizer(bool value)
         {
@@ -63,15 +92,19 @@ namespace Chroma
             EnvironmentInfoSO environmentInfo = difficultyBeatmap.GetEnvironmentInfo();
             EnvironmentTypeSO type = environmentInfo.environmentType;
 
+            bool settingForce = (Config.Instance.ForceMapEnvironmentWhenChroma && dependency) ||
+                                (Config.Instance.ForceMapEnvironmentWhenV3 && !_basicEnvironments.Contains(environmentInfo._serializedName));
+
             CustomBeatmapSaveData? customBeatmapSaveData = difficultyBeatmap.GetBeatmapSaveData();
-            if (!Config.Instance.EnvironmentEnhancementsDisabled &&
+            if (settingForce ||
+                (!Config.Instance.EnvironmentEnhancementsDisabled &&
                 customBeatmapSaveData != null &&
                 ((customBeatmapSaveData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
                  (customBeatmapSaveData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false) ||
-                 (customBeatmapSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false)))
+                 (customBeatmapSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false))))
             {
                 // TODO: this logic should probably not be in the condition
-                if (dependency)
+                if (settingForce || dependency)
                 {
                     try
                     {

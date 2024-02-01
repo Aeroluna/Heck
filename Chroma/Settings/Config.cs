@@ -90,5 +90,9 @@ namespace Chroma.Settings
 
         [UsedImplicitly]
         public bool PrintEnvironmentEnhancementDebug { get; set; }
+
+        public bool ForceMapEnvironmentWhenChroma { get; set; }
+
+        public bool ForceMapEnvironmentWhenV3 { get; set; }
     }
 }
