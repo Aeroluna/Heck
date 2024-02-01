@@ -263,7 +263,7 @@ namespace NoodleExtensions.Animation
                     _ => throw new ArgumentOutOfRangeException(nameof(playerTrackObject), playerTrackObject, null)
                 };
 
-                origin.SetParent(target.parent, true);
+                origin.SetParent(target.parent, false);
                 target.SetParent(origin, true);
 
                 return _container.InstantiateComponent<PlayerTrack>(noodleObject, new object[] { playerTrackObject });
