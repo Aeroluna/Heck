@@ -11,17 +11,17 @@ namespace Heck.PlayView
             IDifficultyBeatmap difficultyBeatmap,
             IPreviewBeatmapLevel previewBeatmapLevel,
             OverrideEnvironmentSettings? overrideEnvironmentSettings,
-            ColorScheme overrideColorScheme,
+            ColorScheme? overrideColorScheme,
 #if LATEST
             ColorScheme? beatmapOverrideColorScheme,
 #endif
             GameplayModifiers gameplayModifiers,
             PlayerSpecificSettings playerSpecificSettings,
-            PracticeSettings practiceSettings,
+            PracticeSettings? practiceSettings,
             string backButtonText,
             bool useTestNoteCutSoundEffects,
             bool startPaused,
-            Action beforeSceneSwitchCallback,
+            Action? beforeSceneSwitchCallback,
             Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>? levelFinishedCallback,
 #if LATEST
             Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>? levelRestartedCallback,
@@ -94,7 +94,7 @@ namespace Heck.PlayView
 
         public PlayerSpecificSettings PlayerSpecificSettings { get; set; }
 
-        public PracticeSettings PracticeSettings { get; }
+        public PracticeSettings? PracticeSettings { get; }
 
         public string BackButtonText { get; }
 

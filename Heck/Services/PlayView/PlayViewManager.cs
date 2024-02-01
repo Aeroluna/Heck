@@ -10,7 +10,7 @@ using Zenject;
 
 namespace Heck.PlayView
 {
-    internal sealed class PlayViewManager : IDisposable
+    public sealed class PlayViewManager : IDisposable
     {
         private readonly PlayViewControllerData[] _viewControllers;
         private readonly SoloFreePlayFlowCoordinator _soloFreePlayFlowCoordinator;
@@ -71,11 +71,28 @@ namespace Heck.PlayView
             }
         }
 
-        internal void Init(StartStandardLevelParameters startParameters)
+        // SEND IT BABY!!!!
+        public void ForceStart(StartStandardLevelParameters startParameters)
+        {
+            Init(startParameters, true);
+            StartStandard();
+        }
+
+        internal void Init(StartStandardLevelParameters startParameters, bool forced = false)
         {
             _currentIndex = 0;
             _currentParameters = startParameters;
             _modifiedParameters = false;
+            for (int i = 0; i < _viewControllers.Length; i++)
+            {
+                _doPresent[i] = _viewControllers[i].ViewController.Init(_currentParameters);
+            }
+
+            if (forced)
+            {
+                return;
+            }
+
             if (startParameters is StartMultiplayerLevelParameters)
             {
                 _flowCoordinator = _gameServerLobbyFlowCoordinator;
@@ -83,11 +100,6 @@ namespace Heck.PlayView
             else
             {
                 _flowCoordinator = _soloFreePlayFlowCoordinator.isActivated ? _soloFreePlayFlowCoordinator : _partyFreePlayFlowCoordinator;
-            }
-
-            for (int i = 0; i < _viewControllers.Length; i++)
-            {
-                _doPresent[i] = _viewControllers[i].ViewController.Init(_currentParameters);
             }
 
             Activate();

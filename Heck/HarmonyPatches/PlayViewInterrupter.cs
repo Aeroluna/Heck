@@ -111,11 +111,16 @@ namespace Heck.HarmonyPatches
 
         [AffinityPrefix]
         [AffinityPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), nameof(SinglePlayerLevelSelectionFlowCoordinator.StartLevel))]
-        private bool StartLevelPrefix(SinglePlayerLevelSelectionFlowCoordinator __instance, Action beforeSceneSwitchCallback, bool practice)
+        private void StartLevelPrefix(ref bool __runOriginal, SinglePlayerLevelSelectionFlowCoordinator __instance, Action beforeSceneSwitchCallback, bool practice)
         {
+            if (!__runOriginal)
+            {
+                return;
+            }
+
             StartStandardLevelParameters parameters = GetParameters(__instance, beforeSceneSwitchCallback, practice);
             _playViewManager.Init(parameters);
-            return false;
+            __runOriginal = false;
         }
 
         [AffinityPostfix]
@@ -141,10 +146,15 @@ namespace Heck.HarmonyPatches
 
         [AffinityPrefix]
         [AffinityPatch(typeof(LobbyGameStateController), nameof(LobbyGameStateController.StartMultiplayerLevel))]
-        private bool StartMultiplayer()
+        private void StartMultiplayer(ref bool __runOriginal)
         {
+            if (!__runOriginal)
+            {
+                return;
+            }
+
             _playViewManagerHasRun = false;
-            return _playViewManager.StartMultiplayer();
+            __runOriginal = _playViewManager.StartMultiplayer();
         }
 
         [AffinityPrefix]
@@ -178,9 +188,14 @@ namespace Heck.HarmonyPatches
 
         [AffinityPrefix]
         [AffinityPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), "BackButtonWasPressed")]
-        private bool BackButtonWasPressedPrefix(SinglePlayerLevelSelectionFlowCoordinator __instance)
+        private void BackButtonWasPressedPrefix(ref bool __runOriginal, SinglePlayerLevelSelectionFlowCoordinator __instance)
         {
-            return _playViewManager.EarlyDismiss();
+            if (!__runOriginal)
+            {
+                return;
+            }
+
+            __runOriginal = _playViewManager.EarlyDismiss();
         }
 
         [AffinityPrefix]

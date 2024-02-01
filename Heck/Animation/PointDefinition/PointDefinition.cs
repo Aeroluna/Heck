@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Heck.BaseProvider;
-using Zenject;
 
 namespace Heck.Animation
 {
