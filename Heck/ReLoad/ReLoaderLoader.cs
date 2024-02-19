@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using BeatmapSaveDataVersion3;
-using IPA.Logging;
 using IPA.Utilities;
 using JetBrains.Annotations;
+using SiraUtil.Logging;
 
 namespace Heck.ReLoad
 {
@@ -12,16 +12,19 @@ namespace Heck.ReLoad
         private static readonly FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.Accessor _beatmapSaveDataAccessor
             = FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.GetAccessor("<beatmapSaveData>k__BackingField");
 
+        private readonly SiraLog _log;
         private readonly CustomLevelLoader _customLevelLoader;
         private readonly BeatmapDataCache _beatmapDataCache;
 
         [UsedImplicitly]
 #pragma warning disable 8618
         private ReLoaderLoader(
+            SiraLog log,
             CustomLevelLoader customLevelLoader,
             BeatmapDataCache beatmapDataCache)
 #pragma warning restore 8618
         {
+            _log = log;
             _customLevelLoader = customLevelLoader;
             _beatmapDataCache = beatmapDataCache;
         }
@@ -31,11 +34,11 @@ namespace Heck.ReLoad
             if (difficultyBeatmap is not
                     CustomDifficultyBeatmap { level: CustomPreviewBeatmapLevel customPreviewBeatmapLevel } customDifficultyBeatmap)
             {
-                Log.Logger.Log("Cannot ReLoad non-custom map.", Logger.Level.Error);
+                _log.Error("Cannot ReLoad non-custom map");
                 return;
             }
 
-            Log.Logger.Log("ReLoaded beatmap.", Logger.Level.Trace);
+            _log.Trace("ReLoaded beatmap");
 
             _beatmapDataCache.difficultyBeatmap = null;
 

@@ -3,15 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using SiraUtil.Logging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
-using Logger = IPA.Logging.Logger;
 
 namespace Chroma.EnvironmentEnhancement
 {
     internal class EnvironmentMaterialsManager : MonoBehaviour
     {
+        private SiraLog _log = null!;
+
         private Dictionary<ShaderType, Material>? _environmentMaterials;
 
         internal Dictionary<ShaderType, Material> EnvironmentMaterials
@@ -27,7 +29,14 @@ namespace Chroma.EnvironmentEnhancement
             }
         }
 
-        public void Initialize()
+        [UsedImplicitly]
+        [Inject]
+        private void Construct(SiraLog log)
+        {
+            _log = log;
+        }
+
+        private void Initialize()
         {
             StartCoroutine(Activate());
         }
@@ -37,12 +46,6 @@ namespace Chroma.EnvironmentEnhancement
             if (_environmentMaterials != null)
             {
                 yield break;
-            }
-
-            AsyncOperation Load(string environmentName)
-            {
-                Log.Logger.Log($"Loading environment [{environmentName}].", Logger.Level.Trace);
-                return SceneManager.LoadSceneAsync(environmentName, LoadSceneMode.Additive);
             }
 
             string[] environments = { "BTSEnvironment", "BillieEnvironment", "InterscopeEnvironment" };
@@ -55,20 +58,6 @@ namespace Chroma.EnvironmentEnhancement
 
             Material[] environmentMaterials = Resources.FindObjectsOfTypeAll<Material>();
 
-            void Save(ShaderType key, string matName)
-            {
-                Material? material = environmentMaterials.FirstOrDefault(e => e.name == matName);
-                if (material != null)
-                {
-                    _environmentMaterials[key] = material;
-                    Log.Logger.Log($"Saving [{matName}] to [{key}].", Logger.Level.Trace);
-                }
-                else
-                {
-                    Log.Logger.Log($"Could not find [{matName}].", Logger.Level.Error);
-                }
-            }
-
             _environmentMaterials = new Dictionary<ShaderType, Material>();
             Save(ShaderType.BTSPillar, "BTSDarkEnvironmentWithHeightFog");
             Save(ShaderType.BillieWater, "WaterfallFalling");
@@ -80,24 +69,46 @@ namespace Chroma.EnvironmentEnhancement
             {
                 SceneManager.UnloadSceneAsync(environment);
             }
+
+            yield break;
+
+            void Save(ShaderType key, string matName)
+            {
+                Material? material = environmentMaterials.FirstOrDefault(e => e.name == matName);
+                if (material != null)
+                {
+                    _environmentMaterials[key] = material;
+                    _log.Trace($"Saving [{matName}] to [{key}]");
+                }
+                else
+                {
+                    _log.Trace($"Could not find [{matName}]");
+                }
+            }
+
+            AsyncOperation Load(string environmentName)
+            {
+                _log.Trace($"Loading environment [{environmentName}]");
+                return SceneManager.LoadSceneAsync(environmentName, LoadSceneMode.Additive);
+            }
         }
-    }
 
-    // Exists because AppInit.GetAppStartType check scenecount for some reason and we cannot load extra scenes during appinit
-    // credit to meivyn for figuring out this bug
-    internal class EnvironmentMaterialsManagerInitializer : IInitializable
-    {
-        private readonly EnvironmentMaterialsManager _environmentMaterialsManager;
-
-        [UsedImplicitly]
-        private EnvironmentMaterialsManagerInitializer(EnvironmentMaterialsManager environmentMaterialsManager)
+        // Exists because AppInit.GetAppStartType check scenecount for some reason and we cannot load extra scenes during appinit
+        // credit to meivyn for figuring out this bug
+        internal class EnvironmentMaterialsManagerInitializer : IInitializable
         {
-            _environmentMaterialsManager = environmentMaterialsManager;
-        }
+            private readonly EnvironmentMaterialsManager _environmentMaterialsManager;
 
-        public void Initialize()
-        {
-            _environmentMaterialsManager.Initialize();
+            [UsedImplicitly]
+            private EnvironmentMaterialsManagerInitializer(EnvironmentMaterialsManager environmentMaterialsManager)
+            {
+                _environmentMaterialsManager = environmentMaterialsManager;
+            }
+
+            public void Initialize()
+            {
+                _environmentMaterialsManager.Initialize();
+            }
         }
     }
 }

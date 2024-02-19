@@ -4,7 +4,6 @@ using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
-using IPA.Logging;
 using static Heck.HeckController;
 
 namespace Heck
@@ -35,36 +34,6 @@ namespace Heck
 
                 foreach (string propertyKey in propertyKeys)
                 {
-                    void HandleProperty(string name, string? alias = null)
-                    {
-                        IPropertyBuilder? builder = Track.GetBuilder(name);
-                        if (builder == null)
-                        {
-                            Log.Logger.Log($"Could not find property [{name}].", Logger.Level.Error);
-                            return;
-                        }
-
-                        CreateInfo(track.GetOrCreateProperty(name, builder), builder, name, alias);
-                    }
-
-                    void HandlePathProperty(string name, string? alias = null)
-                    {
-                        IPropertyBuilder? builder = Track.GetPathBuilder(name);
-                        if (builder == null)
-                        {
-                            Log.Logger.Log($"Could not find path property [{name}].", Logger.Level.Error);
-                            return;
-                        }
-
-                        CreateInfo(track.GetOrCreatePathProperty(name, builder), builder, name, alias);
-                    }
-
-                    void CreateInfo(BaseProperty property, IPropertyBuilder builder, string name, string? alias)
-                    {
-                        CoroutineInfo coroutineInfo = new(builder.GetPointData(data, alias ?? name, pointDefinitions), property, track);
-                        coroutineInfos.Add(coroutineInfo);
-                    }
-
                     if (!v2)
                     {
                         if (path)
@@ -86,6 +55,38 @@ namespace Heck
                         {
                             Track.GetAliases(propertyKey).Do(n => HandleProperty(n, propertyKey));
                         }
+                    }
+
+                    continue;
+
+                    void CreateInfo(BaseProperty property, IPropertyBuilder builder, string name, string? alias)
+                    {
+                        CoroutineInfo coroutineInfo = new(builder.GetPointData(data, alias ?? name, pointDefinitions), property, track);
+                        coroutineInfos.Add(coroutineInfo);
+                    }
+
+                    void HandlePathProperty(string name, string? alias = null)
+                    {
+                        IPropertyBuilder? builder = Track.GetPathBuilder(name);
+                        if (builder == null)
+                        {
+                            Plugin.Log.Error($"Could not find path property [{name}]");
+                            return;
+                        }
+
+                        CreateInfo(track.GetOrCreatePathProperty(name, builder), builder, name, alias);
+                    }
+
+                    void HandleProperty(string name, string? alias = null)
+                    {
+                        IPropertyBuilder? builder = Track.GetBuilder(name);
+                        if (builder == null)
+                        {
+                            Plugin.Log.Error($"Could not find property [{name}]");
+                            return;
+                        }
+
+                        CreateInfo(track.GetOrCreateProperty(name, builder), builder, name, alias);
                     }
                 }
             }

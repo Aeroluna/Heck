@@ -33,7 +33,7 @@ namespace Heck.SettingsSetter
         internal static void SetupSettingsTable()
         {
             using JsonReader reader = new JsonTextReader(new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("Heck.SettingsSetter.SettingsSetterSettableSettings.json")
-                                                                          ?? throw new InvalidOperationException("Failed to retrieve SettingsSetterSettableSettings.json")));
+                                                                          ?? throw new InvalidOperationException("Failed to retrieve [SettingsSetterSettableSettings.json].")));
             _settingsTable = new JsonSerializer().Deserialize<Dictionary<string, List<Dictionary<string, object>>>>(reader) ?? throw new InvalidOperationException("Failed to deserialize settings table.");
         }
     }

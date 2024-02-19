@@ -1,5 +1,4 @@
-﻿using Heck;
-using Heck.Animation;
+﻿using Heck.Animation;
 using IPA;
 using JetBrains.Annotations;
 using NoodleExtensions.Installers;
@@ -19,11 +18,12 @@ namespace NoodleExtensions
         [Init]
         public Plugin(Logger pluginLogger, Zenjector zenjector)
         {
-            Log.Logger = new HeckLogger(pluginLogger);
+            Log = pluginLogger;
 
             zenjector.Install<NoodleAppInstaller>(Location.App);
             zenjector.Install<NoodlePlayerInstaller>(Location.Player);
             zenjector.Expose<NoteCutCoreEffectsSpawner>("Gameplay");
+            zenjector.UseLogger(pluginLogger);
 
             Track.RegisterProperty<Vector3>(OFFSET_POSITION, V2_POSITION);
             Track.RegisterProperty<Quaternion>(OFFSET_ROTATION, V2_ROTATION);
@@ -41,6 +41,8 @@ namespace NoodleExtensions
             Track.RegisterPathProperty<float>(DISSOLVE_ARROW, V2_DISSOLVE_ARROW);
             Track.RegisterPathProperty<float>(INTERACTABLE, V2_CUTTABLE);
         }
+
+        internal static Logger Log { get; private set; } = null!;
 
 #pragma warning disable CA1822
         [UsedImplicitly]

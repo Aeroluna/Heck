@@ -2,11 +2,11 @@
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
-using IPA.Logging;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 
 namespace Chroma.EnvironmentEnhancement.Component
 {
+    // TODO: zenject this
     internal static class BloomFogCustomizer
     {
         internal static void BloomFogEnvironmentInit(List<UnityEngine.Component> allComponents, CustomData customData)
@@ -16,7 +16,7 @@ namespace Chroma.EnvironmentEnhancement.Component
                 .ToArray();
             if (bloomFogEnvironments.Length == 0)
             {
-                Log.Logger.Log($"No [{BLOOM_FOG_ENVIRONMENT}] component found.", Logger.Level.Error);
+                Plugin.Log.Error($"No [{BLOOM_FOG_ENVIRONMENT}] component found");
                 return;
             }
 

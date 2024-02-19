@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Chroma.Settings;
-using IPA.Logging;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using SiraUtil.Logging;
 using Zenject;
 
 namespace Chroma.Lighting
@@ -35,12 +35,14 @@ namespace Chroma.Lighting
 
         private readonly HashSet<Tuple<int, int>> _failureLog = new();
 
+        private readonly SiraLog _log;
         private readonly Config _config;
 
         private Dictionary<int, Dictionary<int, int>>? _activeTable;
 
-        private LightIDTableManager(Config config)
+        private LightIDTableManager(SiraLog log, Config config)
         {
+            _log = log;
             _config = config;
         }
 
@@ -49,6 +51,7 @@ namespace Chroma.Lighting
             _activeTable = _loadedTable?.ToDictionary(n => n.Key, n => n.Value.ToDictionary(m => m.Key, m => m.Value));
         }
 
+        // TODO: do a ??=
         internal static void InitTable()
         {
             const string tableNamespace = "Chroma.LightIDTables.";
@@ -58,13 +61,13 @@ namespace Chroma.Lighting
             {
                 using JsonReader reader = new JsonTextReader(new StreamReader(
                     assembly.GetManifestResourceStream(tableName)
-                    ?? throw new InvalidOperationException($"Failed to retrieve {tableName}.")));
+                    ?? throw new InvalidOperationException($"Failed to retrieve {tableName}")));
                 Dictionary<int, Dictionary<int, int>> typeTable = new();
 
                 JsonSerializer serializer = new();
                 Dictionary<string, Dictionary<string, int>> rawDict =
                     serializer.Deserialize<Dictionary<string, Dictionary<string, int>>>(reader)
-                    ?? throw new InvalidOperationException($"Failed to deserialize ID table [{tableName}].");
+                    ?? throw new InvalidOperationException($"Failed to deserialize ID table [{tableName}]");
 
                 foreach ((string key, Dictionary<string, int> value) in rawDict)
                 {
@@ -91,7 +94,7 @@ namespace Chroma.Lighting
                 ////_activeTable = new Dictionary<int, Dictionary<int, int>>();
                 ////Enumerable.Range(0, 10).Do(n => _activeTable[n] = new Dictionary<int, int>());
                 _loadedTable = _defaultTable;
-                Log.Logger.Log($"Table not found for: {environmentName}", Logger.Level.Warning);
+                Plugin.Log.Warn($"Table not found for: {environmentName}");
             }
         }
 
@@ -110,13 +113,13 @@ namespace Chroma.Lighting
                     return null;
                 }
 
-                Log.Logger.Log($"Unable to find value for light ID [{lightID}] and id [{id}]. Omitting future messages...", Logger.Level.Error);
+                _log.Error($"Unable to find value for light ID [{lightID}] and id [{id}], omitting future messages...");
                 _failureLog.Add(failure);
 
                 return null;
             }
 
-            Log.Logger.Log("No active table loaded.", Logger.Level.Error);
+            _log.Error("No active table loaded");
 
             return null;
         }
@@ -142,7 +145,7 @@ namespace Chroma.Lighting
                 return null;
             }
 
-            Log.Logger.Log("No active table loaded.", Logger.Level.Error);
+            _log.Error("No active table loaded");
 
             return null;
         }
@@ -178,17 +181,17 @@ namespace Chroma.Lighting
                     dictioanry.Add(key, index);
                     if (_config.PrintEnvironmentEnhancementDebug)
                     {
-                        Log.Logger.Log($"Registered key [{key}] to light ID [{lightID}].");
+                        _log.Debug($"Registered key [{key}] to light ID [{lightID}]");
                     }
                 }
                 else
                 {
-                    Log.Logger.Log($"Table does not contain light ID [{lightID}].", Logger.Level.Warning);
+                    _log.Warn($"Table does not contain light ID [{lightID}]");
                 }
             }
             else
             {
-                Log.Logger.Log("No active table, could not register index.", Logger.Level.Warning);
+                _log.Warn("No active table, could not register index");
             }
         }
 
@@ -208,22 +211,22 @@ namespace Chroma.Lighting
                         dictioanry.Remove(key);
                         if (_config.PrintEnvironmentEnhancementDebug)
                         {
-                            Log.Logger.Log($"Unregistered key [{key}] from light ID [{lightID}].");
+                            _log.Debug($"Unregistered key [{key}] from light ID [{lightID}]");
                         }
 
                         return;
                     }
 
-                    Log.Logger.Log("Could not find key to unregister.", Logger.Level.Warning);
+                    _log.Warn("Could not find key to unregister");
                 }
                 else
                 {
-                    Log.Logger.Log($"Table does not contain light ID [{lightID}].", Logger.Level.Warning);
+                    _log.Warn($"Table does not contain light ID [{lightID}]");
                 }
             }
             else
             {
-                Log.Logger.Log("No active table, could not unregister index.", Logger.Level.Warning);
+                _log.Warn("No active table, could not unregister index");
             }
         }
     }

@@ -67,7 +67,6 @@ namespace Chroma.Colorizer
 
         internal override void Refresh()
         {
-            SliderController sliderController = _sliderController;
             _sliderController._initColor = Color;
         }
 

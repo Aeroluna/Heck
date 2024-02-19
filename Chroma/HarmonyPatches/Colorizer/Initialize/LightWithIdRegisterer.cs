@@ -12,7 +12,7 @@ namespace Chroma.HarmonyPatches.Colorizer.Initialize
         private readonly HashSet<ILightWithId> _needToRegister = new();
         private readonly LightColorizerManager _colorizerManager;
         private readonly LightIDTableManager _tableManager;
-        private LightWithIdManager _lightWithIdManager;
+        private readonly LightWithIdManager _lightWithIdManager;
 
         private LightWithIdRegisterer(
             LightColorizerManager colorizerManager,

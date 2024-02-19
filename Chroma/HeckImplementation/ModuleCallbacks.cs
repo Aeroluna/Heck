@@ -7,7 +7,6 @@ using Chroma.Settings;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck;
-using IPA.Logging;
 using JetBrains.Annotations;
 using static Chroma.ChromaController;
 
@@ -17,7 +16,7 @@ namespace Chroma
     {
         // if there is a better way to detect v3 lights, i would love to know it
         // blacklist because likely this list will never need to be updated
-        private static string[] _basicEnvironments =
+        private static readonly string[] _basicEnvironments =
         {
             "DefaultEnvironment",
             "TriangleEnvironment",
@@ -67,8 +66,8 @@ namespace Chroma
             // ReSharper disable once InvertIf
             if (legacyOverride)
             {
-                Log.Logger.Log("Legacy Chroma Detected...", Logger.Level.Warning);
-                Log.Logger.Log("Please do not use Legacy Chroma Lights for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed", Logger.Level.Warning);
+                Plugin.Log.Warn("Legacy Chroma Detected...");
+                Plugin.Log.Warn("Please do not use Legacy Chroma Lights for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed");
             }
 
             return (chromaRequirement || legacyOverride || customEnvironment) && !Config.Instance.ChromaEventsDisabled;
@@ -115,7 +114,7 @@ namespace Chroma
                     }
                     catch (Exception e)
                     {
-                        Log.Logger.Log(e, Logger.Level.Error);
+                        Plugin.Log.Error(e);
                     }
                 }
             }

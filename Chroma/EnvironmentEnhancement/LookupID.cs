@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using Logger = IPA.Logging.Logger;
 
 namespace Chroma.EnvironmentEnhancement
 {
     internal static class LookupID
     {
-        private const string LOOKUPDLL = @"LookupID.dll";
+        private const string LOOKUPDLL = "LookupID.dll";
 
         private static bool _useFallback;
 
@@ -36,9 +35,9 @@ namespace Chroma.EnvironmentEnhancement
             }
             catch (Exception e)
             {
-                Log.Logger.Log("Error running LookupID, falling back to managed code.", Logger.Level.Error);
-                Log.Logger.Log("Expect long load times...", Logger.Level.Error);
-                Log.Logger.Log(e.ToString(), Logger.Level.Error);
+                Plugin.Log.Error("Error running LookupID, falling back to managed code");
+                Plugin.Log.Error("Expect long load times...");
+                Plugin.Log.Error(e);
 
                 _useFallback = true;
                 return LookupID_Legacy(source, id, lookupMethod);

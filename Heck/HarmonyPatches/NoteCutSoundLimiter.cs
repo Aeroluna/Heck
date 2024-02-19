@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using HarmonyLib;
 using SiraUtil.Affinity;
+using SiraUtil.Logging;
 using UnityEngine;
 using Zenject;
 
@@ -13,15 +14,18 @@ namespace Heck.HarmonyPatches
 
         private readonly List<NoteController> _hitsoundQueue = new();
 
+        private readonly SiraLog _log;
         private readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
         private readonly AudioTimeSyncController _audioTimeSyncController;
         private int _lastFrame = -1;
         private int _cutCount = -1;
 
         internal NoteCutSoundLimiter(
+            SiraLog log,
             NoteCutSoundEffectManager noteCutSoundEffectManager,
             AudioTimeSyncController audioTimeSyncController)
         {
+            _log = log;
             _noteCutSoundEffectManager = noteCutSoundEffectManager;
             _audioTimeSyncController = audioTimeSyncController;
         }
@@ -36,7 +40,7 @@ namespace Heck.HarmonyPatches
             List<NoteController> noteControllers = new(_hitsoundQueue);
             _hitsoundQueue.Clear();
             noteControllers.ForEach(_noteCutSoundEffectManager.HandleNoteWasSpawned);
-            Log.Logger.Log($"[{noteControllers.Count}] cut sounds moved to next frame!");
+            _log.Warn($"[{noteControllers.Count}] cut sounds moved to next frame!");
         }
 
         [AffinityPriority(Priority.Low)]

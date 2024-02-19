@@ -2,7 +2,6 @@
 using Chroma.Installers;
 using Chroma.Lighting;
 using Chroma.Settings;
-using Heck;
 using Heck.Animation;
 using IPA;
 using IPA.Config.Stores;
@@ -22,12 +21,14 @@ namespace Chroma
         [Init]
         public Plugin(Logger pluginLogger, IPA.Config.Config conf, Zenjector zenjector)
         {
-            Log.Logger = new HeckLogger(pluginLogger);
+            Log = pluginLogger;
+
             ChromaSettableSettings.SetupSettableSettings();
             LightIDTableManager.InitTable();
             zenjector.Install<ChromaPlayerInstaller>(Location.Player);
             zenjector.Install<ChromaAppInstaller>(Location.App, conf.Generated<Config>());
             zenjector.Install<ChromaMenuInstaller>(Location.Menu);
+            zenjector.UseLogger(pluginLogger);
 
             Track.RegisterProperty<Vector4>(COLOR, V2_COLOR);
             Track.RegisterPathProperty<Vector4>(COLOR, V2_COLOR);
@@ -38,6 +39,8 @@ namespace Chroma
             Track.RegisterProperty<float>(V2_HEIGHT_FOG_STARTY, V2_HEIGHT_FOG_STARTY);
             Track.RegisterProperty<float>(V2_HEIGHT_FOG_HEIGHT, V2_HEIGHT_FOG_HEIGHT);
         }
+
+        internal static Logger Log { get; private set; } = null!;
 
 #pragma warning disable CA1822
         [UsedImplicitly]

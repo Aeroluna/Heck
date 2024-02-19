@@ -10,12 +10,12 @@ using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using Heck.Animation.Transform;
 using SiraUtil.Affinity;
+using SiraUtil.Logging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
 using static Chroma.ChromaController;
 using static Heck.HeckController;
-using Logger = IPA.Logging.Logger;
 using Object = UnityEngine.Object;
 
 namespace Chroma.EnvironmentEnhancement
@@ -32,6 +32,7 @@ namespace Chroma.EnvironmentEnhancement
 
     internal class EnvironmentEnhancementManager : IAffinity
     {
+        private readonly SiraLog _log;
         private readonly CustomBeatmapData _beatmapData;
         private readonly Dictionary<string, Track> _tracks;
         private readonly bool _leftHanded;
@@ -46,6 +47,7 @@ namespace Chroma.EnvironmentEnhancement
         private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 
         private EnvironmentEnhancementManager(
+            SiraLog log,
             IReadonlyBeatmapData beatmapData,
             Dictionary<string, Track> tracks,
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
@@ -60,6 +62,7 @@ namespace Chroma.EnvironmentEnhancement
             SavedEnvironmentLoader savedEnvironmentLoader)
         {
             _beatmapData = (CustomBeatmapData)beatmapData;
+            _log = log;
             _tracks = tracks;
             _leftHanded = leftHanded;
             _geometryFactory = geometryFactory;
@@ -124,8 +127,8 @@ namespace Chroma.EnvironmentEnhancement
                     }
                     catch (Exception e)
                     {
-                        Log.Logger.Log("Could not run Legacy Enviroment Removal", Logger.Level.Error);
-                        Log.Logger.Log(e, Logger.Level.Error);
+                        _log.Error("Could not run Legacy Enviroment Removal");
+                        _log.Error(e);
                     }
                 }
             }
@@ -146,7 +149,7 @@ namespace Chroma.EnvironmentEnhancement
 
             if (_config.PrintEnvironmentEnhancementDebug)
             {
-                Log.Logger.Log("=====================================");
+                _log.Debug("=====================================");
             }
 
             string[] gameObjectInfoIds = allGameObjectInfos.Select(n => n.FullID).ToArray();
@@ -167,8 +170,8 @@ namespace Chroma.EnvironmentEnhancement
                     foundObjects = new List<GameObjectInfo> { newObjectInfo };
                     if (_config.PrintEnvironmentEnhancementDebug)
                     {
-                        Log.Logger.Log("Created new geometry object:");
-                        Log.Logger.Log(newObjectInfo.FullID);
+                        _log.Debug("Created new geometry object:");
+                        _log.Debug(newObjectInfo.FullID);
                     }
 
                     // cause i know ppl are gonna fck it up
@@ -189,13 +192,13 @@ namespace Chroma.EnvironmentEnhancement
                     {
                         if (_config.PrintEnvironmentEnhancementDebug)
                         {
-                            Log.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
-                            foundObjects.ForEach(n => Log.Logger.Log(n.FullID));
+                            _log.Debug($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
+                            foundObjects.ForEach(n => _log.Debug(n.FullID));
                         }
                     }
                     else
                     {
-                        Log.Logger.Log($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.", Logger.Level.Error);
+                        _log.Error($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing");
                     }
                 }
 
@@ -225,7 +228,7 @@ namespace Chroma.EnvironmentEnhancement
                     gameObjects = new List<GameObject>();
                     if (foundObjects.Count > 100)
                     {
-                        Log.Logger.Log("Extreme value reached. You are attempting to duplicate over 100 objects! Environment enhancements stopped.", Logger.Level.Error);
+                        _log.Error("Extreme value reached, you are attempting to duplicate over 100 objects! Environment enhancements stopped");
                         break;
                     }
 
@@ -233,7 +236,7 @@ namespace Chroma.EnvironmentEnhancement
                     {
                         if (_config.PrintEnvironmentEnhancementDebug)
                         {
-                            Log.Logger.Log($"Duplicating [{gameObjectInfo.FullID}]:");
+                            _log.Debug($"Duplicating [{gameObjectInfo.FullID}]:");
                         }
 
                         GameObject gameObject = gameObjectInfo.GameObject;
@@ -266,7 +269,7 @@ namespace Chroma.EnvironmentEnhancement
 
                             if (_config.PrintEnvironmentEnhancementDebug)
                             {
-                                gameObjectInfos.ForEach(n => Log.Logger.Log(n.FullID));
+                                gameObjectInfos.ForEach(n => _log.Debug(n.FullID));
                             }
                         }
                     }
@@ -278,7 +281,7 @@ namespace Chroma.EnvironmentEnhancement
                 {
                     if (lightID.HasValue)
                     {
-                        Log.Logger.Log("LightID requested but no duplicated object to apply to.", Logger.Level.Error);
+                        _log.Error("LightID requested but no duplicated object to apply to");
                     }
 
                     gameObjects = foundObjects.Select(n => n.GameObject).ToList();
@@ -351,7 +354,7 @@ namespace Chroma.EnvironmentEnhancement
 
                 if (_config.PrintEnvironmentEnhancementDebug)
                 {
-                    Log.Logger.Log("=====================================");
+                    _log.Debug("=====================================");
                 }
             }
         }
@@ -406,7 +409,7 @@ namespace Chroma.EnvironmentEnhancement
             if (_config.PrintEnvironmentEnhancementDebug)
             {
                 objectsToPrint.Sort();
-                objectsToPrint.ForEach(n => Log.Logger.Log(n));
+                objectsToPrint.ForEach(n => _log.Debug(n));
             }
 
             return result;

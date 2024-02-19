@@ -60,13 +60,13 @@ namespace Chroma.HarmonyPatches.Events
         private float GetPrecisionStep(float @default, BasicBeatmapEventData beatmapEventData)
         {
             _deserializedData.Resolve(beatmapEventData, out ChromaEventData? chromaData);
-            return chromaData is { Step: { } } ? chromaData.Step.Value : @default;
+            return chromaData is { Step: not null } ? chromaData.Step.Value : @default;
         }
 
         private float GetPrecisionSpeed(float @default, BasicBeatmapEventData beatmapEventData)
         {
             _deserializedData.Resolve(beatmapEventData, out ChromaEventData? chromaData);
-            return chromaData is { Speed: { } } ? chromaData.Speed.Value : @default;
+            return chromaData is { Speed: not null } ? chromaData.Speed.Value : @default;
         }
     }
 }

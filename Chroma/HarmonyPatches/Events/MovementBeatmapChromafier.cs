@@ -45,7 +45,7 @@ namespace Chroma.HarmonyPatches.Events
             Vector3 finalPos;
             if (customAvail &&
                 ____movementData.Length == 2 &&
-                chromaEventData.Step.HasValue)
+                chromaEventData!.Step.HasValue)
             {
                 Vector3 dir = (____movementData[1].localPositionOffset - ____movementData[0].localPositionOffset).normalized;
                 finalPos = chromaEventData.Step.Value * dir;
@@ -55,7 +55,7 @@ namespace Chroma.HarmonyPatches.Events
                 finalPos = ____movementData[____currentMovementDataIdx].localPositionOffset;
             }
 
-            float speed = customAvail && chromaEventData.Speed.HasValue ? chromaEventData.Speed.Value : ____transitionSpeed;
+            float speed = customAvail && chromaEventData!.Speed.HasValue ? chromaEventData.Speed.Value : ____transitionSpeed;
 
             ____prevPositionOffset = ____currentPositionOffset;
             ____currentPositionOffset = Vector3.LerpUnclamped(____currentPositionOffset, finalPos, Time.fixedDeltaTime * speed);

@@ -158,16 +158,6 @@ namespace Chroma.Colorizer
 
             _lightId = chromaLightSwitchEventEffect.LightsID;
 
-            void Initialize(ColorSO colorSO, int index)
-            {
-                _originalColors[index] = colorSO switch
-                {
-                    MultipliedColorSO lightMultSO => lightMultSO._baseColor,
-                    SimpleColorSO simpleColorSO => simpleColorSO,
-                    _ => throw new InvalidOperationException($"Unhandled ColorSO type: [{colorSO.GetType().Name}].")
-                };
-            }
-
             LightSwitchEventEffect lightSwitchEventEffect = chromaLightSwitchEventEffect.LightSwitchEventEffect;
             Initialize(lightSwitchEventEffect._lightColor0, 0);
             Initialize(lightSwitchEventEffect._lightColor1, 1);
@@ -184,6 +174,17 @@ namespace Chroma.Colorizer
             }
 
             Lights = lights;
+            return;
+
+            void Initialize(ColorSO colorSO, int index)
+            {
+                _originalColors[index] = colorSO switch
+                {
+                    MultipliedColorSO lightMultSO => lightMultSO._baseColor,
+                    SimpleColorSO simpleColorSO => simpleColorSO,
+                    _ => throw new InvalidOperationException($"Unhandled ColorSO type: [{colorSO.GetType().Name}].")
+                };
+            }
         }
 
         public ChromaLightSwitchEventEffect ChromaLightSwitchEventEffect { get; }

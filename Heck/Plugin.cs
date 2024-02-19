@@ -22,13 +22,13 @@ namespace Heck
         [Init]
         public Plugin(Logger pluginLogger, IPA.Config.Config conf, Zenjector zenjector)
         {
-            Log.Logger = new HeckLogger(pluginLogger);
+            Log = pluginLogger;
 
             string[] arguments = Environment.GetCommandLineArgs();
             if (arguments.Any(arg => arg.ToLower() == "-aerolunaisthebestmodder"))
             {
                 DebugMode = true;
-                Log.Logger.Log("[-aerolunaisthebestmodder] launch argument detected, running in Debug mode.");
+                pluginLogger.Debug("[-aerolunaisthebestmodder] launch argument detected, running in Debug mode");
             }
 
             SettingSetterSettableSettingsManager.SetupSettingsTable();
@@ -36,6 +36,7 @@ namespace Heck
             zenjector.Install<HeckAppInstaller>(Location.App, conf.Generated<Config>());
             zenjector.Install<HeckPlayerInstaller>(Location.Player);
             zenjector.Install<HeckMenuInstaller>(Location.Menu);
+            zenjector.UseLogger(pluginLogger);
             zenjector.Expose<NoteCutSoundEffectManager>("Gameplay");
 
             ModuleManager.Register<ModuleCallbacks>("Heck", 0, RequirementType.None);
@@ -46,6 +47,8 @@ namespace Heck
             Track.RegisterProperty<Quaternion>(LOCAL_ROTATION, V2_LOCAL_ROTATION);
             Track.RegisterProperty<Vector3>(SCALE, V2_SCALE);
         }
+
+        internal static Logger Log { get; private set; } = null!;
 
 #pragma warning disable CA1822
         [UsedImplicitly]

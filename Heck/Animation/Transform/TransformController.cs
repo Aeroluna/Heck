@@ -4,11 +4,11 @@ using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using JetBrains.Annotations;
+using SiraUtil.Logging;
 using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
 using static Heck.NullableExtensions;
-using Logger = IPA.Logging.Logger;
 using Object = UnityEngine.Object;
 
 namespace Heck.Animation.Transform
@@ -139,13 +139,16 @@ namespace Heck.Animation.Transform
 
     public sealed class TransformControllerFactory : IDisposable
     {
+        private readonly SiraLog _log;
         private readonly IInstantiator _instantiator;
         private readonly HashSet<TransformController> _transformControllers = new();
 
         [UsedImplicitly]
         private TransformControllerFactory(
+            SiraLog log,
             IInstantiator instantiator)
         {
+            _log = log;
             _instantiator = instantiator;
         }
 
@@ -166,12 +169,12 @@ namespace Heck.Animation.Transform
             {
                 if (overwrite)
                 {
-                    Log.Logger.Log($"Overwriting existing [{nameof(TransformController)}] on [{gameObject.name}]...", Logger.Level.Error);
+                    _log.Error($"Overwriting existing [{nameof(TransformController)}] on [{gameObject.name}]...");
                     Object.Destroy(existing);
                 }
                 else
                 {
-                    Log.Logger.Log($"Could not create [{nameof(TransformController)}], [{gameObject.name}] already has one.", Logger.Level.Error);
+                    _log.Error($"Could not create [{nameof(TransformController)}], [{gameObject.name}] already has one");
                     return existing;
                 }
             }

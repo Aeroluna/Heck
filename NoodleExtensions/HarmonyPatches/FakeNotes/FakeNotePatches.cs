@@ -1,6 +1,6 @@
-﻿using IPA.Logging;
-using NoodleExtensions.Managers;
+﻿using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
+using SiraUtil.Logging;
 using Zenject;
 
 namespace NoodleExtensions.HarmonyPatches.FakeNotes
@@ -11,6 +11,7 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
         private readonly NoteCutCoreEffectsSpawner? _noteCutCoreEffectsSpawner;
 
         private FakeNotePatches(
+            SiraLog log,
             FakePatchesManager fakePatchesManager,
             [InjectOptional] GameObjectContext? context,
             [InjectOptional] NoteCutCoreEffectsSpawner? noteCutCoreEffectsSpawner)
@@ -20,7 +21,7 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
 
             if (_noteCutCoreEffectsSpawner == null)
             {
-                Log.Logger.Log($"Could not get [{nameof(NoteCutCoreEffectsSpawner)}].", Logger.Level.Error);
+                log.Error($"Could not get [{nameof(NoteCutCoreEffectsSpawner)}]");
             }
         }
 

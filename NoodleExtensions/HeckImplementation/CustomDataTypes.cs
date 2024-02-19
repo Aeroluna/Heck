@@ -50,7 +50,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, noteData, difficultyBeatmap);
+                Plugin.Log.DeserializeFailure(e, noteData, difficultyBeatmap);
             }
         }
 
@@ -94,7 +94,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, noteData, difficultyBeatmap);
+                Plugin.Log.DeserializeFailure(e, noteData, difficultyBeatmap);
             }
         }
 
@@ -154,7 +154,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, obstacleData, difficultyBeatmap);
+                Plugin.Log.DeserializeFailure(e, obstacleData, difficultyBeatmap);
             }
         }
 
@@ -191,7 +191,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, sliderData, difficultyBeatmap);
+                Plugin.Log.DeserializeFailure(e, sliderData, difficultyBeatmap);
             }
         }
 
@@ -275,7 +275,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Log.Logger.LogFailure(e, beatmapObjectData, difficultyBeatmap);
+                Plugin.Log.DeserializeFailure(e, beatmapObjectData, difficultyBeatmap);
             }
         }
 

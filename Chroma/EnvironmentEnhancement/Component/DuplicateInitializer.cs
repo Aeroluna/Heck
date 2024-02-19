@@ -8,12 +8,12 @@ using HarmonyLib;
 using Heck.Animation.Transform;
 using IPA.Utilities;
 using JetBrains.Annotations;
+using SiraUtil.Logging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Chroma.EnvironmentEnhancement.Component
 {
-    [UsedImplicitly]
     internal class DuplicateInitializer
     {
         private static readonly FieldAccessor<Spectrogram, BasicSpectrogramData>.Accessor _spectrogramDataAccessor = FieldAccessor<Spectrogram, BasicSpectrogramData>.GetAccessor(nameof(Spectrogram._spectrogramData));
@@ -23,17 +23,21 @@ namespace Chroma.EnvironmentEnhancement.Component
         private static readonly FieldAccessor<ParticleSystemEventEffect, BeatmapCallbacksController>.Accessor _particleCallbackControllerAccessor = FieldAccessor<ParticleSystemEventEffect, BeatmapCallbacksController>.GetAccessor(nameof(ParticleSystemEventEffect._beatmapCallbacksController));
         private static readonly FieldAccessor<TrackLaneRingsRotationEffectSpawner, BeatmapCallbacksController>.Accessor _rotationEffectSpawnerCallbackControllerAccessor = FieldAccessor<TrackLaneRingsRotationEffectSpawner, BeatmapCallbacksController>.GetAccessor(nameof(TrackLaneRingsRotationEffectSpawner._beatmapCallbacksController));
 
+        private readonly SiraLog _log;
         private readonly TrackLaneRingOffset _trackLaneRingOffset;
         private readonly LightWithIdRegisterer _lightWithIdRegisterer;
         private readonly Config _config;
 
         private readonly HashSet<TrackLaneRingsManager> _trackLaneRingsManagers;
 
+        [UsedImplicitly]
         private DuplicateInitializer(
+            SiraLog log,
             TrackLaneRingOffset trackLaneRingOffset,
             LightWithIdRegisterer lightWithIdRegisterer,
             Config config)
         {
+            _log = log;
             _trackLaneRingOffset = trackLaneRingOffset;
             _lightWithIdRegisterer = lightWithIdRegisterer;
             _config = config;
@@ -85,23 +89,6 @@ namespace Chroma.EnvironmentEnhancement.Component
 
         internal void InitializeComponents(Transform root, Transform original, List<GameObjectInfo> gameObjectInfos, List<IComponentData> componentDatas)
         {
-            void GetComponentAndOriginal<T>(Action<T, T> initializeDelegate)
-                where T : UnityEngine.Component
-            {
-                T[] rootComponents = root.GetComponents<T>();
-                T[] originalComponents = original.GetComponents<T>();
-
-                for (int i = 0; i < rootComponents.Length; i++)
-                {
-                    initializeDelegate(rootComponents[i], originalComponents[i]);
-
-                    if (_config.PrintEnvironmentEnhancementDebug)
-                    {
-                        Log.Logger.Log($"Initialized {typeof(T).Name}");
-                    }
-                }
-            }
-
             TransformController transformController = root.GetComponent<TransformController>();
             if (transformController != null)
             {
@@ -223,7 +210,7 @@ namespace Chroma.EnvironmentEnhancement.Component
             {
                 if (_config.PrintEnvironmentEnhancementDebug)
                 {
-                    Log.Logger.Log("SaberBurnMarkArea yeeted. Complain to me if you would rather it not.");
+                    _log.Debug("SaberBurnMarkArea yeeted, complain to me if you would rather it not");
                 }
 
                 Object.DestroyImmediate(saberBurnMarkArea);
@@ -234,7 +221,7 @@ namespace Chroma.EnvironmentEnhancement.Component
             {
                 if (_config.PrintEnvironmentEnhancementDebug)
                 {
-                    Log.Logger.Log("SaberBurnMarkSparkles yeeted. Complain to me if you would rather it not.");
+                    _log.Debug("SaberBurnMarkSparkles yeeted, complain to me if you would rather it not");
                 }
 
                 Object.DestroyImmediate(saberBurnMarkSparkles);
@@ -247,6 +234,25 @@ namespace Chroma.EnvironmentEnhancement.Component
             {
                 int index = transform.GetSiblingIndex();
                 InitializeComponents(transform, original.GetChild(index), gameObjectInfos, componentDatas);
+            }
+
+            return;
+
+            void GetComponentAndOriginal<T>(Action<T, T> initializeDelegate)
+                where T : UnityEngine.Component
+            {
+                T[] rootComponents = root.GetComponents<T>();
+                T[] originalComponents = original.GetComponents<T>();
+
+                for (int i = 0; i < rootComponents.Length; i++)
+                {
+                    initializeDelegate(rootComponents[i], originalComponents[i]);
+
+                    if (_config.PrintEnvironmentEnhancementDebug)
+                    {
+                        _log.Debug($"Initialized {typeof(T).Name}");
+                    }
+                }
             }
         }
     }

@@ -18,24 +18,6 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
         [HarmonyPatch(typeof(SliderData), nameof(SliderData.Mirror))]
         private static void FlipLineIndex(BeatmapObjectData __instance)
         {
-            static void Flip(CustomData customData, string key)
-            {
-                IEnumerable<float?>? position = customData.GetNullableFloats(key)?.ToList();
-                float? x = position?.ElementAtOrDefault(0);
-                if (x != null)
-                {
-                    customData[key] = new List<object?> { x.Value.MirrorLineIndex(), position!.ElementAtOrDefault(1) };
-                }
-            }
-
-            static void Wipe(CustomData customData)
-            {
-                customData.TryRemove(INTERNAL_FLIPYSIDE, out _);
-                customData.TryRemove(INTERNAL_FLIPLINEINDEX, out _);
-                customData.TryRemove(INTERNAL_STARTNOTELINELAYER, out _);
-                customData.TryRemove(INTERNAL_TAILSTARTNOTELINELAYER, out _);
-            }
-
             switch (__instance)
             {
                 case CustomNoteData noteData:
@@ -59,6 +41,26 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                     }
 
                     break;
+            }
+
+            return;
+
+            static void Wipe(CustomData customData)
+            {
+                customData.TryRemove(INTERNAL_FLIPYSIDE, out _);
+                customData.TryRemove(INTERNAL_FLIPLINEINDEX, out _);
+                customData.TryRemove(INTERNAL_STARTNOTELINELAYER, out _);
+                customData.TryRemove(INTERNAL_TAILSTARTNOTELINELAYER, out _);
+            }
+
+            static void Flip(CustomData customData, string key)
+            {
+                IEnumerable<float?>? position = customData.GetNullableFloats(key)?.ToList();
+                float? x = position?.ElementAtOrDefault(0);
+                if (x != null)
+                {
+                    customData[key] = new List<object?> { x.Value.MirrorLineIndex(), position!.ElementAtOrDefault(1) };
+                }
             }
         }
     }

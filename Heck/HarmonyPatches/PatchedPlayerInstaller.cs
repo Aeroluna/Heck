@@ -52,7 +52,7 @@ namespace Heck.HarmonyPatches
             }
             else
             {
-                Log.Logger.Log("Failed to get untransformedBeatmapData, falling back.");
+                Plugin.Log.Debug("Failed to get untransformedBeatmapData, falling back");
                 untransformedBeatmapData = sceneSetupData.transformedBeatmapData;
             }
 

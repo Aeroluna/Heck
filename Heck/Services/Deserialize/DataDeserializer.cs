@@ -20,6 +20,12 @@ namespace Heck
 
             foreach (MethodInfo method in type.GetMethods(AccessTools.allDeclared))
             {
+                AccessAttribute<EarlyDeserializer>(ref _earlyMethod);
+                AccessAttribute<CustomEventsDeserializer>(ref _customEventMethod);
+                AccessAttribute<EventsDeserializer>(ref _beatmapEventMethod);
+                AccessAttribute<ObjectsDeserializer>(ref _beatmapObjectMethod);
+                continue;
+
                 void AccessAttribute<TAttribute>(ref MethodInfo? savedMethod)
                     where TAttribute : Attribute
                 {
@@ -30,11 +36,6 @@ namespace Heck
 
                     savedMethod = method;
                 }
-
-                AccessAttribute<EarlyDeserializer>(ref _earlyMethod);
-                AccessAttribute<CustomEventsDeserializer>(ref _customEventMethod);
-                AccessAttribute<EventsDeserializer>(ref _beatmapEventMethod);
-                AccessAttribute<ObjectsDeserializer>(ref _beatmapObjectMethod);
             }
         }
 

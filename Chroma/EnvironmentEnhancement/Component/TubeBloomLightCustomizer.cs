@@ -2,7 +2,6 @@
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
-using IPA.Logging;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 
 namespace Chroma.EnvironmentEnhancement.Component
@@ -16,7 +15,7 @@ namespace Chroma.EnvironmentEnhancement.Component
                 .ToArray();
             if (tubeBloomPrePassLights.Length == 0)
             {
-                Log.Logger.Log($"No [{TUBE_BLOOM_PRE_PASS_LIGHT}] component found.", Logger.Level.Error);
+                Plugin.Log.Error($"No [{TUBE_BLOOM_PRE_PASS_LIGHT}] component found");
                 return;
             }
 

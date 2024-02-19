@@ -35,6 +35,7 @@ namespace Chroma.Settings
         }
     }
 
+    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     internal class Config
     {
         private static Config? _instance;
@@ -88,7 +89,6 @@ namespace Chroma.Settings
         public string? CustomEnvironment { get; set; }
 #pragma warning restore CA1822
 
-        [UsedImplicitly]
         public bool PrintEnvironmentEnhancementDebug { get; set; }
 
         public bool ForceMapEnvironmentWhenChroma { get; set; }

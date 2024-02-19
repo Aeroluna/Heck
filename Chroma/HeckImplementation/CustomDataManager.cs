@@ -72,7 +72,7 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, customEventData, difficultyBeatmap);
+                    Plugin.Log.DeserializeFailure(e, customEventData, difficultyBeatmap);
                 }
             }
         }
@@ -120,7 +120,7 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, customEventData, difficultyBeatmap);
+                    Plugin.Log.DeserializeFailure(e, customEventData, difficultyBeatmap);
                 }
             }
 
@@ -161,7 +161,7 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, beatmapObjectData, difficultyBeatmap);
+                    Plugin.Log.DeserializeFailure(e, beatmapObjectData, difficultyBeatmap);
                 }
             }
 
@@ -193,20 +193,8 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, beatmapEventData, difficultyBeatmap);
+                    Plugin.Log.DeserializeFailure(e, beatmapEventData, difficultyBeatmap);
                 }
-            }
-
-            bool TryGetEventData(BeatmapEventData beatmapEventData, [NotNullWhen(true)] out ChromaEventData? chromaEventData)
-            {
-                if (dictionary.TryGetValue(beatmapEventData, out IEventCustomData? eventCustomData))
-                {
-                    chromaEventData = (ChromaEventData)eventCustomData;
-                    return true;
-                }
-
-                chromaEventData = null;
-                return false;
             }
 
             // Horrible stupid logic to get next same type event per light id
@@ -244,6 +232,18 @@ namespace Chroma
             }
 
             return dictionary;
+
+            bool TryGetEventData(BeatmapEventData beatmapEventData, [NotNullWhen(true)] out ChromaEventData? chromaEventData)
+            {
+                if (dictionary.TryGetValue(beatmapEventData, out IEventCustomData? eventCustomData))
+                {
+                    chromaEventData = (ChromaEventData)eventCustomData;
+                    return true;
+                }
+
+                chromaEventData = null;
+                return false;
+            }
         }
 
         internal static Color? GetColorFromData(CustomData data, bool v2)

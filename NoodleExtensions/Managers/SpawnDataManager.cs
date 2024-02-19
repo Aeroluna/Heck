@@ -236,9 +236,10 @@ namespace NoodleExtensions.Managers
             // NoteJumpGravityForLineLayer
             float num = jumpDistance / (njs ?? _movementData.noteJumpMovementSpeed) * 0.5f;
             num = 2 / (num * num);
-            float GetJumpGravity(float gravityLineYPos) => (highestJump - gravityLineYPos) * num;
             gravity = GetJumpGravity(startLayerLineYPos);
             noGravity = GetJumpGravity(lineYPos);
+            return;
+            float GetJumpGravity(float gravityLineYPos) => (highestJump - gravityLineYPos) * num;
         }
 
         private float GetJumpDuration(

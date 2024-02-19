@@ -72,6 +72,7 @@ namespace Heck.PlayView
         }
 
         // SEND IT BABY!!!!
+        [PublicAPI]
         public void ForceStart(StartStandardLevelParameters startParameters)
         {
             Init(startParameters, true);

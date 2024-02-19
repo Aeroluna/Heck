@@ -113,12 +113,6 @@ namespace Heck.Animation.Events
             float time,
             out bool onLast)
         {
-            static Property<T> Cast<T>(BaseProperty toCast)
-                where T : struct
-            {
-                return toCast as Property<T> ?? throw new InvalidOperationException();
-            }
-
             switch (points)
             {
                 case PointDefinition<float> values:
@@ -139,6 +133,14 @@ namespace Heck.Animation.Events
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(points));
+            }
+
+            return;
+
+            static Property<T> Cast<T>(BaseProperty toCast)
+                where T : struct
+            {
+                return toCast as Property<T> ?? throw new InvalidOperationException();
             }
         }
 

@@ -43,7 +43,7 @@ namespace Heck
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.LogFailure(e, customEventData, difficultyBeatmap);
+                    Plugin.Log.DeserializeFailure(e, customEventData, difficultyBeatmap);
                 }
             }
 

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
+using JetBrains.Annotations;
 using UnityEngine;
 using static Heck.HeckController;
-using Logger = IPA.Logging.Logger;
 
 namespace Heck.Animation
 {
@@ -52,7 +52,7 @@ namespace Heck.Animation
                         return pointData.ToPointDefinition<T>();
                     }
 
-                    Log.Logger.Log($"Could not find point definition [{castedString}].", Logger.Level.Error);
+                    Plugin.Log.Error($"Could not find point definition [{castedString}]");
                     return null;
 
                 case List<object> list:
@@ -73,6 +73,7 @@ namespace Heck.Animation
             return GetNullableTrack(customData, beatmapTracks, name) ?? throw new JsonNotDefinedException(name);
         }
 
+        [PublicAPI]
         public static Track? GetNullableTrack(this CustomData customData, Dictionary<string, Track> beatmapTracks, bool v2)
         {
             return GetNullableTrack(customData, beatmapTracks, v2 ? V2_TRACK : TRACK);

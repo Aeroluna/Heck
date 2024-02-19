@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using Chroma.Settings;
-using IPA.Logging;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using SiraUtil.Logging;
 
 namespace Chroma.EnvironmentEnhancement.Saved
 {
@@ -17,12 +17,14 @@ namespace Chroma.EnvironmentEnhancement.Saved
         // TODO: change modules to use instanced
         private static SavedEnvironmentLoader? _instance;
 
+        private readonly SiraLog _log;
         private readonly Config _config;
 
         [UsedImplicitly]
-        private SavedEnvironmentLoader(Config config)
+        private SavedEnvironmentLoader(SiraLog log, Config config)
         {
             _instance = this;
+            _log = log;
             _config = config;
             Init();
         }
@@ -75,14 +77,14 @@ namespace Chroma.EnvironmentEnhancement.Saved
                     }
 
                     string fileName = Path.GetFileName(file);
-                    Log.Logger.Log($"Loaded [{file}].", Logger.Level.Trace);
+                    _log.Trace($"Loaded [{file}]");
 
                     Environments.Add(fileName, savedEnvironment);
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.Log($"Encountered error deserializing [{file}].", Logger.Level.Error);
-                    Log.Logger.Log(e, Logger.Level.Error);
+                    _log.Error($"Encountered error deserializing [{file}]");
+                    _log.Error(e);
                 }
             }
         }

@@ -11,7 +11,7 @@ namespace Chroma.Installers
     {
         public override void InstallBindings()
         {
-            Container.BindInterfacesTo<EnvironmentMaterialsManagerInitializer>().AsSingle(); // what even is this
+            Container.BindInterfacesTo<EnvironmentMaterialsManager.EnvironmentMaterialsManagerInitializer>().AsSingle(); // what even is this
 
             if (HeckController.DebugMode)
             {

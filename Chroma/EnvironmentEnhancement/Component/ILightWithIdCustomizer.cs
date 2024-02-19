@@ -3,24 +3,27 @@ using System.Linq;
 using Chroma.Colorizer;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
 using CustomJSONData.CustomBeatmap;
-using IPA.Logging;
 using JetBrains.Annotations;
+using SiraUtil.Logging;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 
 namespace Chroma.EnvironmentEnhancement.Component
 {
     internal class ILightWithIdCustomizer
     {
+        private readonly SiraLog _log;
         private readonly LightColorizerManager _lightColorizerManager;
         private readonly LightWithIdRegisterer _lightWithIdRegisterer;
         private readonly LightWithIdManager _lightWithIdManager;
 
         [UsedImplicitly]
         private ILightWithIdCustomizer(
+            SiraLog log,
             LightColorizerManager lightColorizerManager,
             LightWithIdRegisterer lightWithIdRegisterer,
             LightWithIdManager lightWithIdManager)
         {
+            _log = log;
             _lightColorizerManager = lightColorizerManager;
             _lightWithIdRegisterer = lightWithIdRegisterer;
             _lightWithIdManager = lightWithIdManager;
@@ -36,7 +39,7 @@ namespace Chroma.EnvironmentEnhancement.Component
                 .ToArray();
             if (lightWithIds.Length == 0)
             {
-                Log.Logger.Log($"No [{LIGHT_WITH_ID}] component found.", Logger.Level.Error);
+                _log.Error($"No [{LIGHT_WITH_ID}] component found");
                 return;
             }
 
@@ -49,6 +52,30 @@ namespace Chroma.EnvironmentEnhancement.Component
 
             foreach (ILightWithId lightWithId in lightWithIds)
             {
+                if (lightWithId.isRegistered)
+                {
+                    _lightWithIdRegisterer.ForceUnregister(lightWithId);
+                    _lightWithIdRegisterer.MarkForTableRegister(lightWithId);
+                    SetType();
+                    SetLightID();
+                    _lightWithIdManager.RegisterLight(lightWithId);
+                }
+                else
+                {
+                    SetType();
+                    SetLightID();
+                }
+
+                continue;
+
+                void SetLightID()
+                {
+                    if (lightID.HasValue)
+                    {
+                        _lightWithIdRegisterer.SetRequestedId(lightWithId, lightID.Value);
+                    }
+                }
+
                 void SetType()
                 {
                     if (!type.HasValue)
@@ -68,28 +95,6 @@ namespace Chroma.EnvironmentEnhancement.Component
                             lightWithIdMonoBehaviour._ID = lightId;
                             break;
                     }
-                }
-
-                void SetLightID()
-                {
-                    if (lightID.HasValue)
-                    {
-                        _lightWithIdRegisterer.SetRequestedId(lightWithId, lightID.Value);
-                    }
-                }
-
-                if (lightWithId.isRegistered)
-                {
-                    _lightWithIdRegisterer.ForceUnregister(lightWithId);
-                    _lightWithIdRegisterer.MarkForTableRegister(lightWithId);
-                    SetType();
-                    SetLightID();
-                    _lightWithIdManager.RegisterLight(lightWithId);
-                }
-                else
-                {
-                    SetType();
-                    SetLightID();
                 }
             }
         }

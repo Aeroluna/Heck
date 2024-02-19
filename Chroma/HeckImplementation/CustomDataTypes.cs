@@ -143,7 +143,7 @@ namespace Chroma
             LockPosition = customData.Get<bool?>(v2 ? V2_LOCK_POSITION : LOCK_POSITION).GetValueOrDefault(false);
             NameFilter = customData.Get<string>(v2 ? V2_NAME_FILTER : NAME_FILTER);
             Direction = customData.Get<int?>(v2 ? V2_DIRECTION : DIRECTION);
-            CounterSpin = v2 ? customData.Get<bool?>(V2_COUNTER_SPIN) : null; // TODO: YEET
+            CounterSpin = v2 ? customData.Get<bool?>(V2_COUNTER_SPIN) : null;
             Reset = v2 ? customData.Get<bool?>(V2_RESET) : null;
             Step = customData.Get<float?>(v2 ? V2_STEP : STEP);
             Prop = customData.Get<float?>(v2 ? V2_PROP : PROP);

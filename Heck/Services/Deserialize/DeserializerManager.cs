@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
-using IPA.Logging;
 using IPA.Utilities;
 using static Heck.HeckController;
 
@@ -28,12 +27,12 @@ namespace Heck
             out Dictionary<string, Track> beatmapTracks,
             out HashSet<(object? Id, DeserializedData DeserializedData)> deserializedDatas)
         {
-            Log.Logger.Log("Deserializing BeatmapData.", Logger.Level.Trace);
+            Plugin.Log.Trace("Deserializing BeatmapData");
 
             bool v2 = customBeatmapData.version2_6_0AndEarlier;
             if (v2)
             {
-                Log.Logger.Log("BeatmapData is v2, converting...", Logger.Level.Trace);
+                Plugin.Log.Trace("BeatmapData is v2, converting...");
             }
 
             // tracks are built based off the untransformed beatmapdata so modifiers like "no walls" do not prevent track creation
@@ -67,18 +66,6 @@ namespace Heck
 
             // Point definitions
             Dictionary<string, List<object>> pointDefinitions = new();
-
-            void AddPoint(string pointDataName, List<object> pointData)
-            {
-                if (!pointDefinitions.ContainsKey(pointDataName))
-                {
-                    pointDefinitions.Add(pointDataName, pointData);
-                }
-                else
-                {
-                    Log.Logger.Log($"Duplicate point defintion name, {pointDataName} could not be registered!", Logger.Level.Error);
-                }
-            }
 
             if (v2)
             {
@@ -131,7 +118,7 @@ namespace Heck
                         }
                         else
                         {
-                            Log.Logger.Log($"Duplicate event defintion name, {eventName} could not be registered!", Logger.Level.Error);
+                            Plugin.Log.Error($"Duplicate event defintion name, {eventName} could not be registered");
                         }
                     }
                 }
@@ -169,9 +156,23 @@ namespace Heck
                 Dictionary<BeatmapEventData, IEventCustomData> eventCustomDatas = deserializer.InjectedInvokeEvent(inputs);
                 Dictionary<BeatmapObjectData, IObjectCustomData> objectCustomDatas = deserializer.InjectedInvokeObject(inputs);
 
-                Log.Logger.Log($"Binding [{deserializer.Id}].", Logger.Level.Trace);
+                Plugin.Log.Trace($"Binding [{deserializer.Id}]");
 
                 deserializedDatas.Add((deserializer.Id, new DeserializedData(customEventCustomDatas, eventCustomDatas, objectCustomDatas)));
+            }
+
+            return;
+
+            void AddPoint(string pointDataName, List<object> pointData)
+            {
+                if (!pointDefinitions.ContainsKey(pointDataName))
+                {
+                    pointDefinitions.Add(pointDataName, pointData);
+                }
+                else
+                {
+                    Plugin.Log.Error($"Duplicate point defintion name, {pointDataName} could not be registered");
+                }
             }
         }
     }

@@ -8,9 +8,9 @@ using Heck.HarmonyPatches;
 using Heck.Settings;
 using IPA.Utilities;
 using JetBrains.Annotations;
+using SiraUtil.Logging;
 using UnityEngine;
 using Zenject;
-using Logger = IPA.Logging.Logger;
 
 namespace Heck.ReLoad
 {
@@ -46,6 +46,7 @@ namespace Heck.ReLoad
         private static readonly FieldAccessor<CustomBeatmapData, List<CustomEventData>>.Accessor _customEventDatasAccessor
             = FieldAccessor<CustomBeatmapData, List<CustomEventData>>.GetAccessor("_customEventDatas");
 
+        private readonly SiraLog _log;
         private readonly AudioTimeSyncController _audioTimeSyncController;
         private readonly ReLoaderLoader _reLoaderLoader;
         private readonly IDifficultyBeatmap _difficultyBeatmap;
@@ -66,6 +67,7 @@ namespace Heck.ReLoad
 
         [UsedImplicitly]
         private ReLoader(
+            SiraLog log,
             AudioTimeSyncController audioTimeSyncController,
             AudioTimeSyncController.InitData audioTimeSyncControllerInitData,
             IDifficultyBeatmap difficultyBeatmap,
@@ -83,6 +85,7 @@ namespace Heck.ReLoad
             DiContainer container,
             Config.ReLoaderSettings config)
         {
+            _log = log;
             _audioTimeSyncController = audioTimeSyncController;
             _songStartTime = audioTimeSyncControllerInitData.startSongTime;
             _reLoaderLoader = reLoaderLoader;
@@ -105,7 +108,7 @@ namespace Heck.ReLoad
             }
             else
             {
-                Log.Logger.Log("Cannot reload a non-custom map!", Logger.Level.Error);
+                log.Error("Cannot reload a non-custom map");
                 _reloadable = false;
             }
         }
@@ -121,7 +124,7 @@ namespace Heck.ReLoad
             {
                 // Set new start time
                 _songStartTime = _audioTimeSyncController.songTime;
-                Log.Logger.Log($"Saved: [{_songStartTime}].", Logger.Level.Trace);
+                _log.Trace($"Saved: [{_songStartTime}]");
             }
             else if (_reloadable && Input.GetKeyDown(_config.Reload))
             {
@@ -135,7 +138,7 @@ namespace Heck.ReLoad
             if (Input.GetKeyDown(_config.JumpToSavedTime))
             {
                 Rewind(_songStartTime);
-                Log.Logger.Log($"Loaded to: [{_songStartTime}].", Logger.Level.Trace);
+                _log.Trace($"Loaded to: [{_songStartTime}]");
             }
             else if (Input.GetKeyDown(_config.ScrubBackwards))
             {

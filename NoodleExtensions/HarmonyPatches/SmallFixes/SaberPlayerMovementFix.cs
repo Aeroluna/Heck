@@ -7,6 +7,7 @@ using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
 using SiraUtil.Affinity;
+using SiraUtil.Logging;
 using UnityEngine;
 
 namespace NoodleExtensions.HarmonyPatches.SmallFixes
@@ -18,12 +19,17 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
 
         private static readonly Dictionary<IBladeMovementData, SaberMovementData> _worldMovementData = new();
 
+        private readonly SiraLog _log;
         private readonly Transform _origin;
         private readonly CodeInstruction _computeWorld;
         private readonly bool _local;
 
-        private SaberPlayerMovementFix(PlayerTransforms playerTransforms, IReadonlyBeatmapData beatmapData)
+        private SaberPlayerMovementFix(
+            SiraLog log,
+            PlayerTransforms playerTransforms,
+            IReadonlyBeatmapData beatmapData)
         {
+            _log = log;
             _origin = playerTransforms._originTransform;
             _computeWorld = InstanceTranspilers.EmitInstanceDelegate<Func<Vector3, Vector3>>(ComputeWorld);
             _local = ((CustomBeatmapData)beatmapData).beatmapCustomData.Get<bool?>(NoodleController.TRAIL_LOCAL_SPACE) ?? false;
@@ -40,7 +46,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         {
             if (_local)
             {
-                Log.Logger.Log("Parented saber trail to local space.");
+                _log.Debug("Parented saber trail to local space");
                 ____trailRenderer.transform.SetParent(__instance.transform.parent.parent.parent, false);
                 return;
             }

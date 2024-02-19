@@ -29,6 +29,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
             .CreateDelegate(typeof(Func<IEnumerable, IEnumerable>));
 
         private static readonly FieldInfo _sliderField = AccessTools.Field(_sliderTailDataType, "slider");
+        private static readonly MethodInfo _clampMethod = AccessTools.Method(typeof(Mathf), nameof(Mathf.Clamp), new[] { typeof(int), typeof(int), typeof(int) });
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(BeatmapObjectsInTimeRowProcessor.HandleCurrentTimeSliceAllNotesAndSlidersDidFinishTimeSlice))]
@@ -49,7 +50,7 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                 .Insert(
                     new CodeInstruction(OpCodes.Ldc_I4_0),
                     new CodeInstruction(OpCodes.Ldc_I4_3),
-                    new CodeInstruction(OpCodes.Call, SymbolExtensions.GetMethodInfo(() => Mathf.Clamp(0, 0, 0))))
+                    new CodeInstruction(OpCodes.Call, _clampMethod))
 
                 // yeet slider processing
                 /*
