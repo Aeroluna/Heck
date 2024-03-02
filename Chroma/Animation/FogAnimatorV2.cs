@@ -1,5 +1,8 @@
 ﻿using System;
+using CustomJSONData.CustomBeatmap;
+using Heck;
 using Heck.Animation;
+using Heck.Event;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -8,17 +11,22 @@ using Object = UnityEngine.Object;
 
 namespace Chroma.Animation
 {
-    internal class FogAnimatorV2 : ITickable, IDisposable
+    [CustomEvent(ASSIGN_FOG_TRACK)]
+    internal class FogAnimatorV2 : ITickable, IDisposable, ICustomEvent
     {
         private readonly BloomFogSO _bloomFog;
+        private readonly DeserializedData _deserializedData;
 
         private readonly BloomFogEnvironmentParams _transitionFogParams;
         private Track? _track;
 
         [UsedImplicitly]
-        private FogAnimatorV2(BloomFogSO bloomFog)
+        private FogAnimatorV2(
+            BloomFogSO bloomFog,
+            [Inject(Id = ID)] DeserializedData deserializedData)
         {
             _bloomFog = bloomFog;
+            _deserializedData = deserializedData;
 
             _transitionFogParams = ScriptableObject.CreateInstance<BloomFogEnvironmentParams>();
             BloomFogEnvironmentParams defaultParams = bloomFog.defaultForParams;
@@ -27,6 +35,14 @@ namespace Chroma.Animation
             _transitionFogParams.heightFogStartY = defaultParams.heightFogStartY;
             _transitionFogParams.heightFogHeight = defaultParams.heightFogHeight;
             bloomFog.transitionFogParams = _transitionFogParams;
+        }
+
+        public void Callback(CustomEventData customEventData)
+        {
+            if (_deserializedData.Resolve(customEventData, out ChromaAssignFogEventData? chromaData))
+            {
+                _track = chromaData.Track;
+            }
         }
 
         public void Dispose()
@@ -67,11 +83,6 @@ namespace Chroma.Animation
             }
 
             _bloomFog._transition = 1;
-        }
-
-        internal void AssignTrack(Track track)
-        {
-            _track = track;
         }
     }
 }

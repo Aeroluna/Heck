@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using CustomJSONData.CustomBeatmap;
+using Heck.Event;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -14,7 +15,8 @@ namespace Heck.Animation.Events
         AssignPathAnimation
     }
 
-    internal class CoroutineEventManager
+    [CustomEvent(ANIMATE_TRACK, ASSIGN_PATH_ANIMATION)]
+    internal class CoroutineEvent : ICustomEvent
     {
         private readonly IBpmController _bpmController;
         private readonly IAudioTimeSource _audioTimeSource;
@@ -22,7 +24,7 @@ namespace Heck.Animation.Events
         private readonly DeserializedData _deserializedData;
 
         [UsedImplicitly]
-        private CoroutineEventManager(
+        private CoroutineEvent(
             IBpmController bpmController,
             IAudioTimeSource audioTimeSource,
             CoroutineDummy coroutineDummy,
@@ -32,6 +34,28 @@ namespace Heck.Animation.Events
             _audioTimeSource = audioTimeSource;
             _coroutineDummy = coroutineDummy;
             _deserializedData = deserializedData;
+        }
+
+        public void Callback(CustomEventData customEventData)
+        {
+            switch (customEventData.eventType)
+            {
+                case ANIMATE_TRACK:
+                    StartEventCoroutine(customEventData, EventType.AnimateTrack);
+                    break;
+                case ASSIGN_PATH_ANIMATION:
+                    StartEventCoroutine(customEventData, EventType.AssignPathAnimation);
+                    break;
+
+                // TODO: reimplement this
+                /*case INVOKE_EVENT:
+                    if (_customData.Resolve(customEventData, out HeckInvokeEventData? heckData))
+                    {
+                        _customEventCallbackController.InvokeCustomEvent(heckData.CustomEventData);
+                    }
+
+                    break;*/
+            }
         }
 
         internal void StartEventCoroutine(CustomEventData customEventData, EventType eventType)

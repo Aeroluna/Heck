@@ -25,7 +25,7 @@ namespace Heck
             Log = pluginLogger;
 
             string[] arguments = Environment.GetCommandLineArgs();
-            if (arguments.Any(arg => arg.ToLower() == "-aerolunaisthebestmodder"))
+            if (arguments.Any(arg => arg.Equals("-aerolunaisthebestmodder", StringComparison.CurrentCultureIgnoreCase)))
             {
                 DebugMode = true;
                 pluginLogger.Debug("[-aerolunaisthebestmodder] launch argument detected, running in Debug mode");

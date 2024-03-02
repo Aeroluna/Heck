@@ -81,4 +81,16 @@ namespace Heck
 
         internal string Title { get; }
     }
+
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
+    public class CustomEvent : Attribute
+    {
+        public CustomEvent(params string[] type)
+        {
+            Type = type;
+        }
+
+        internal string[] Type { get; }
+    }
 }

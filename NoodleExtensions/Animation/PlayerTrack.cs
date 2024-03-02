@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
 using Heck.Animation.Transform;
+using Heck.Event;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -236,38 +238,60 @@ namespace NoodleExtensions.Animation
             transform2.position = transform1.position;
             transform2.rotation = transform1.rotation;
         }
+    }
 
-        [UsedImplicitly]
-        internal class PlayerTrackFactory : PlaceholderFactory<PlayerTrackObject, PlayerTrack>
+    [CustomEvent(ASSIGN_PLAYER_TO_TRACK)]
+    internal class AssignPlayerToTrack : ICustomEvent
+    {
+        private readonly IInstantiator _container;
+        private readonly PlayerTransforms _playerTransforms;
+        private readonly DeserializedData _deserializedData;
+        private readonly Dictionary<PlayerTrackObject, PlayerTrack> _playerTracks = new();
+
+        private AssignPlayerToTrack(
+            IInstantiator container,
+            PlayerTransforms playerTransforms,
+            [Inject(Id = ID)] DeserializedData deserializedData)
         {
-            private readonly IInstantiator _container;
-            private readonly PlayerTransforms _playerTransforms;
+            _container = container;
+            _playerTransforms = playerTransforms;
+            _deserializedData = deserializedData;
+        }
 
-            private PlayerTrackFactory(IInstantiator container, PlayerTransforms playerTransforms)
+        public void Callback(CustomEventData customEventData)
+        {
+            if (!_deserializedData.Resolve(customEventData, out NoodlePlayerTrackEventData? noodlePlayerData))
             {
-                _container = container;
-                _playerTransforms = playerTransforms;
+                return;
             }
 
-            public override PlayerTrack Create(PlayerTrackObject playerTrackObject)
+            PlayerTrackObject resultPlayerTrackObject = noodlePlayerData.PlayerTrackObject;
+            if (!_playerTracks.TryGetValue(resultPlayerTrackObject, out PlayerTrack? playerTrack))
             {
-                GameObject noodleObject = new($"NoodlePlayerTrack{playerTrackObject}");
-                Transform origin = noodleObject.transform;
-
-                Transform target = playerTrackObject switch
-                {
-                    PlayerTrackObject.Root => _playerTransforms._originTransform.parent,
-                    PlayerTrackObject.Head => _playerTransforms._headTransform,
-                    PlayerTrackObject.LeftHand => _playerTransforms._leftHandTransform,
-                    PlayerTrackObject.RightHand => _playerTransforms._rightHandTransform,
-                    _ => throw new ArgumentOutOfRangeException(nameof(playerTrackObject), playerTrackObject, null)
-                };
-
-                origin.SetParent(target.parent, false);
-                target.SetParent(origin, true);
-
-                return _container.InstantiateComponent<PlayerTrack>(noodleObject, new object[] { playerTrackObject });
+                _playerTracks[resultPlayerTrackObject] = playerTrack = Create(resultPlayerTrackObject);
             }
+
+            playerTrack.AssignTrack(noodlePlayerData.Track);
+        }
+
+        private PlayerTrack Create(PlayerTrackObject playerTrackObject)
+        {
+            GameObject noodleObject = new($"NoodlePlayerTrack{playerTrackObject}");
+            Transform origin = noodleObject.transform;
+
+            Transform target = playerTrackObject switch
+            {
+                PlayerTrackObject.Root => _playerTransforms._originTransform.parent,
+                PlayerTrackObject.Head => _playerTransforms._headTransform,
+                PlayerTrackObject.LeftHand => _playerTransforms._leftHandTransform,
+                PlayerTrackObject.RightHand => _playerTransforms._rightHandTransform,
+                _ => throw new ArgumentOutOfRangeException(nameof(playerTrackObject), playerTrackObject, null)
+            };
+
+            origin.SetParent(target.parent, false);
+            target.SetParent(origin, true);
+
+            return _container.InstantiateComponent<PlayerTrack>(noodleObject, new object[] { playerTrackObject });
         }
     }
 }

@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 
 namespace Heck
 {
+    // TODO: use categories instead
     public class HeckPatcher
     {
         private readonly Harmony _harmony;

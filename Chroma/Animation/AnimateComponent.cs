@@ -7,6 +7,7 @@ using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
 using Heck.Animation;
+using Heck.Event;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -15,7 +16,8 @@ using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 
 namespace Chroma.Animation
 {
-    internal class AnimateComponentEvent
+    [CustomEvent(ANIMATE_COMPONENT)]
+    internal class AnimateComponent : ICustomEvent
     {
         private readonly IBpmController _bpmController;
         private readonly IAudioTimeSource _audioTimeSource;
@@ -24,7 +26,7 @@ namespace Chroma.Animation
         private readonly Dictionary<string, Dictionary<Track, Coroutine>> _allCoroutines = new();
 
         [UsedImplicitly]
-        private AnimateComponentEvent(
+        private AnimateComponent(
             IBpmController bpmController,
             IAudioTimeSource audioTimeSource,
             CoroutineDummy coroutineDummy,
@@ -36,7 +38,7 @@ namespace Chroma.Animation
             _deserializedData = deserializedData;
         }
 
-        internal void StartEventCoroutine(CustomEventData customEventData)
+        public void Callback(CustomEventData customEventData)
         {
             if (!_deserializedData.Resolve(customEventData, out ChromaAnimateComponentData? chromaData))
             {

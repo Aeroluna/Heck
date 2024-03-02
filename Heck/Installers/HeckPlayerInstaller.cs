@@ -1,6 +1,7 @@
 ﻿using Heck.Animation;
 using Heck.Animation.Events;
 using Heck.Animation.Transform;
+using Heck.Event;
 using Heck.HarmonyPatches;
 using JetBrains.Annotations;
 using Zenject;
@@ -22,8 +23,10 @@ namespace Heck.Installers
 
             // Events
             Container.Bind<CoroutineDummy>().FromNewComponentOnRoot().AsSingle();
-            Container.BindInterfacesTo<EventController>().AsSingle();
-            Container.Bind<CoroutineEventManager>().AsSingle();
+
+            // Custom Events
+            Container.BindInterfacesTo<CustomEventController>().AsSingle();
+            Container.BindInterfacesTo<CoroutineEvent>().AsSingle();
 
             // TransformController
             Container.BindInterfacesAndSelfTo<TransformControllerFactory>().AsSingle();

@@ -64,11 +64,6 @@ namespace Chroma.Installers
 
             if (ChromaController.FeaturesPatcher.Enabled)
             {
-                // Animation
-                Container.BindInterfacesTo<EventController>().AsSingle();
-                Container.BindInterfacesAndSelfTo<FogAnimatorV2>().AsSingle();
-                Container.Bind<AnimateComponentEvent>().AsSingle();
-
                 // Colorizer Patch
                 Container.BindInterfacesTo<ObjectColorize>().AsSingle();
                 Container.BindInterfacesTo<NoteObjectColorize>().AsSingle();
@@ -80,6 +75,10 @@ namespace Chroma.Installers
                 Container.BindInterfacesTo<RingStepChromafier>().AsSingle();
                 Container.BindInterfacesTo<MovementBeatmapChromafier>().AsSingle();
                 Container.Bind<ChromaRingsRotationEffect.Factory>().AsSingle();
+
+                // Custom Events
+                Container.BindInterfacesTo<AnimateComponent>().AsSingle();
+                Container.BindInterfacesTo<FogAnimatorV2>().AsSingle();
 
                 // Disable Spawn Effect
                 Container.BindInterfacesTo<BeatEffectSpawnerSkip>().AsSingle();

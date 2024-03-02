@@ -4,7 +4,7 @@ using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
 using Heck.Animation.Transform;
-using JetBrains.Annotations;
+using Heck.Event;
 using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
@@ -161,8 +161,8 @@ namespace NoodleExtensions.Animation
         }
     }
 
-    [UsedImplicitly]
-    internal class ParentController
+    [CustomEvent(ASSIGN_TRACK_PARENT)]
+    internal class AssignTrackParent : ICustomEvent
     {
         private readonly bool _v2;
         private readonly DeserializedData _deserializedData;
@@ -170,7 +170,7 @@ namespace NoodleExtensions.Animation
         private readonly TransformControllerFactory _transformControllerFactory;
         private readonly HashSet<ParentObject> _parentObjects = new();
 
-        internal ParentController(
+        internal AssignTrackParent(
             IReadonlyBeatmapData beatmapData,
             [Inject(Id = ID)] DeserializedData deserializedData,
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
@@ -182,7 +182,7 @@ namespace NoodleExtensions.Animation
             _transformControllerFactory = transformControllerFactory;
         }
 
-        internal void Create(
+        public void Callback(
             CustomEventData customEventData)
         {
             if (!_deserializedData.Resolve(customEventData, out NoodleParentTrackEventData? noodleData))
