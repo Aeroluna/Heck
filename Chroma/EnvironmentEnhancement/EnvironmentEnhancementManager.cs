@@ -45,6 +45,7 @@ namespace Chroma.EnvironmentEnhancement
         private readonly TransformControllerFactory _controllerFactory;
         private readonly Config _config;
         private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
+        private readonly bool _usingOverrideEnvironment;
 
         private EnvironmentEnhancementManager(
             SiraLog log,
@@ -59,7 +60,8 @@ namespace Chroma.EnvironmentEnhancement
             ComponentCustomizer componentCustomizer,
             TransformControllerFactory controllerFactory,
             Config config,
-            SavedEnvironmentLoader savedEnvironmentLoader)
+            SavedEnvironmentLoader savedEnvironmentLoader,
+            EnvironmentSceneSetupData sceneSetupData)
         {
             _beatmapData = (CustomBeatmapData)beatmapData;
             _log = log;
@@ -74,6 +76,7 @@ namespace Chroma.EnvironmentEnhancement
             _controllerFactory = controllerFactory;
             _config = config;
             _savedEnvironmentLoader = savedEnvironmentLoader;
+            _usingOverrideEnvironment = sceneSetupData.hideBranding;
         }
 
         private static void GetChildRecursive(Transform gameObject, ref List<Transform> children)
@@ -92,6 +95,7 @@ namespace Chroma.EnvironmentEnhancement
             __instance.StartCoroutine(DelayedStart());
         }
 
+        // TODO: add a null check on OverrideEnvironmentSettings
         private IEnumerator DelayedStart()
         {
             yield return new WaitForEndOfFrame();
@@ -133,7 +137,8 @@ namespace Chroma.EnvironmentEnhancement
                 }
             }
 
-            if (environmentData == null && _config.CustomEnvironmentEnabled)
+            // _usingOverrideEnvironment kinda a jank way to allow forcing map environment
+            if (environmentData == null && _config.CustomEnvironmentEnabled && _usingOverrideEnvironment)
             {
                 // custom environment
                 v2 = false;

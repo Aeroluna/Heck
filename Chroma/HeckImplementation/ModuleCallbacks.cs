@@ -98,9 +98,9 @@ namespace Chroma
             if (settingForce ||
                 (!Config.Instance.EnvironmentEnhancementsDisabled &&
                 customBeatmapSaveData != null &&
-                ((customBeatmapSaveData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
-                 (customBeatmapSaveData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false) ||
-                 (customBeatmapSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false))))
+                ((customBeatmapSaveData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Count ?? 0) > 0 ||
+                 (customBeatmapSaveData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Count ?? 0) > 0 ||
+                 (customBeatmapSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Count ?? 0) > 0)))
             {
                 // TODO: this logic should probably not be in the condition
                 if (settingForce || dependency)
@@ -118,7 +118,7 @@ namespace Chroma
                     }
                 }
             }
-            else
+            else if (moduleArgs.OverrideEnvironmentSettings != null)
             {
                 SavedEnvironment? savedEnvironment = SavedEnvironmentLoader.Instance.SavedEnvironment;
                 if (Config.Instance.CustomEnvironmentEnabled && savedEnvironment != null)

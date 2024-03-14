@@ -47,6 +47,7 @@ namespace Chroma.Animation
 
         public void Dispose()
         {
+            _bloomFog.transition = 0;
             _bloomFog.transitionFogParams = null;
             Object.Destroy(_transitionFogParams);
         }
