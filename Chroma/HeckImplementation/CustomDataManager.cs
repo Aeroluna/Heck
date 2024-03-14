@@ -221,6 +221,10 @@ namespace Chroma
                 if (ids == null)
                 {
                     nextSameTypes[-1] = beatmapEventData;
+                    foreach (int key in nextSameTypes.Keys.ToArray())
+                    {
+                        nextSameTypes[key] = beatmapEventData;
+                    }
                 }
                 else
                 {
