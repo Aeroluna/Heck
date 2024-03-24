@@ -68,7 +68,7 @@ namespace NoodleExtensions.Managers
             return noodleData?.Fake is not true;
         }
 
-        internal bool GetCuttable(NoteData noteData)
+        internal bool GetCuttable(BeatmapObjectData noteData)
         {
             _deserializedData.Resolve(noteData, out NoodleBaseNoteData? noodleData);
             return noodleData?.Uninteractable is not true;
