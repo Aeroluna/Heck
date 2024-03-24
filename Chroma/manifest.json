@@ -4,7 +4,7 @@
   "author": "Aeroluna",
   "description": "Chroma™ boasts the most power in color customization you've ever seen, allowing mappers to customize blocks, lights, sabers, and barriers into not just one but multiple colors!",
   "dependsOn": {
-    "_Heck": "^1.4.18",
+    "_Heck": "^1.5.0",
     "BeatSaberMarkupLanguage": "^1.6.3",
     "CustomJSONData": "^2.5.1",
     "SongCore": "^3.9.5",
