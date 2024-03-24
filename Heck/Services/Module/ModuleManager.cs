@@ -115,7 +115,7 @@ namespace Heck
             List<Module> queue = _modules.ToList();
             HashSet<Module> active = new();
 
-            while (queue.Any())
+            while (queue.Count != 0)
             {
                 InitializeModule(queue.First());
             }
@@ -165,7 +165,7 @@ namespace Heck
                     case RequirementType.Always:
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(module.RequirementType), "Was not valid RequirementType.");
+                        throw new ArgumentOutOfRangeException(nameof(module), "Was not valid RequirementType.");
                 }
 
                 // Handle conflicts

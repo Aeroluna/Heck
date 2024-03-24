@@ -25,7 +25,7 @@ namespace Chroma.Lighting
             _bpmController = bpmController;
         }
 
-        private IDictionary<BasicBeatmapEventType, ChromaGradientEvent> Gradients { get; } = new Dictionary<BasicBeatmapEventType, ChromaGradientEvent>();
+        private Dictionary<BasicBeatmapEventType, ChromaGradientEvent> Gradients { get; } = new();
 
         public void Tick()
         {

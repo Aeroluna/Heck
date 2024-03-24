@@ -315,7 +315,7 @@ namespace Heck.SettingsSetter
                         }
                     }
 
-                    if (_contents.Any())
+                    if (_contents.Count != 0)
                     {
                         if (_contentObject != null)
                         {

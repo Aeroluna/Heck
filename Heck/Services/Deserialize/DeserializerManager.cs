@@ -98,7 +98,7 @@ namespace Heck
             }
 
             // Event definitions
-            IDictionary<string, CustomEventData> eventDefinitions = new Dictionary<string, CustomEventData>();
+            Dictionary<string, CustomEventData> eventDefinitions = new();
 
             if (!v2)
             {

@@ -168,7 +168,7 @@ namespace Chroma.Lighting
                     }
                     else
                     {
-                        if (dictioanry.Any())
+                        if (dictioanry.Count != 0)
                         {
                             key = dictioanry.Keys.Max() + 1;
                         }

@@ -201,7 +201,7 @@ namespace Chroma.Colorizer
                 }
 
                 // AAAAAA PROPAGATION STUFFF
-                IDictionary<int, List<ILightWithId>> lightsPreGroup = new Dictionary<int, List<ILightWithId>>();
+                Dictionary<int, List<ILightWithId>> lightsPreGroup = new();
                 TrackLaneRingsManager[] managers = Object.FindObjectsOfType<TrackLaneRingsManager>();
                 foreach (ILightWithId light in Lights)
                 {
