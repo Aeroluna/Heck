@@ -13,16 +13,17 @@ namespace NoodleExtensions.HarmonyPatches.Objects
         private readonly Dictionary<NoteController, HashSet<NoteController>> _linkedLinkedNotes = new();
 
         private NoteLinker(
-            [Inject(Id = NoodleController.ID)] DeserializedData deserializedData)
+            [Inject(Id = NoodleController.ID)] DeserializedData deserializedData,
+            BeatmapObjectManager beatmapObjectManager)
         {
             _deserializedData = deserializedData;
+            beatmapObjectManager.noteWasSpawnedEvent += AddLink;
+            beatmapObjectManager.noteWasDespawnedEvent += RemoveLink;
         }
 
-        [AffinityPostfix]
-        [AffinityPatch(typeof(NoteController), "Init")]
-        private void AddLink(NoteController __instance, NoteData noteData)
+        private void AddLink(NoteController noteController)
         {
-            if (!_deserializedData.Resolve(noteData, out NoodleBaseNoteData? baseNoteData) || baseNoteData is not NoodleNoteData noodleData)
+            if (!_deserializedData.Resolve(noteController.noteData, out NoodleBaseNoteData? baseNoteData) || baseNoteData is not NoodleNoteData noodleData)
             {
                 return;
             }
@@ -39,27 +40,38 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 _linkedNotes.Add(link, linkedNotes);
             }
 
-            linkedNotes.Add(__instance);
-            _linkedLinkedNotes.Add(__instance, linkedNotes);
+            linkedNotes.Add(noteController);
+            _linkedLinkedNotes.Add(noteController, linkedNotes);
         }
 
-        [AffinityPostfix]
-        [AffinityPatch(typeof(NoteController), "SendNoteWasCutEvent")]
-        private void TriggerLink(NoteController __instance, NoteCutInfo noteCutInfo)
+        private void RemoveLink(NoteController noteController)
         {
-            if (!_linkedLinkedNotes.TryGetValue(__instance, out HashSet<NoteController> noteControllers))
+            if (!_linkedLinkedNotes.TryGetValue(noteController, out HashSet<NoteController> linkedNotes))
             {
                 return;
             }
 
-            _linkedLinkedNotes.Remove(__instance);
-            noteControllers.Remove(__instance);
+            linkedNotes.Remove(noteController);
+            _linkedLinkedNotes.Remove(noteController);
+        }
 
-            NoteController[] linked = noteControllers.ToArray();
+        [AffinityPrefix]
+        [AffinityPatch(typeof(NoteController), "SendNoteWasCutEvent")]
+        private void TriggerLink(NoteController __instance, NoteCutInfo noteCutInfo)
+        {
+            if (!_linkedLinkedNotes.TryGetValue(__instance, out HashSet<NoteController> linkedNotes))
+            {
+                return;
+            }
+
+            linkedNotes.Remove(__instance);
+            _linkedLinkedNotes.Remove(__instance);
+
+            NoteController[] linked = linkedNotes.ToArray();
+            linkedNotes.Clear();
             foreach (NoteController noteController in linked)
             {
                 _linkedLinkedNotes.Remove(noteController);
-                noteControllers.Remove(noteController);
             }
 
             foreach (NoteController noteController in linked)
@@ -73,19 +85,6 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 #pragma warning restore SA1117
                 noteController.SendNoteWasCutEvent(newInfo);
             }
-        }
-
-        [AffinityPostfix]
-        [AffinityPatch(typeof(BeatmapObjectManager), "Despawn", AffinityMethodType.Normal, null, typeof(NoteController))]
-        private void RemoveLink(NoteController noteController)
-        {
-            if (!_linkedLinkedNotes.TryGetValue(noteController, out HashSet<NoteController> linkedNotes))
-            {
-                return;
-            }
-
-            linkedNotes.Remove(noteController);
-            _linkedLinkedNotes.Remove(noteController);
         }
     }
 }
