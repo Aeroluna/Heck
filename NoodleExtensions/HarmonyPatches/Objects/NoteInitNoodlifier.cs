@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
-using Heck.Animation;
 using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;
@@ -91,16 +90,6 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             }
 
             transform.localScale = Vector3.one; // This is a fix for animation due to notes being recycled
-
-            IEnumerable<Track>? tracks = noodleData.Track;
-            if (tracks != null)
-            {
-                foreach (Track track in tracks)
-                {
-                    // add to gameobjects
-                    track.AddGameObject(__instance.gameObject);
-                }
-            }
 
             noodleData.InternalEndRotation = endRotation;
             noodleData.InternalStartPos = moveStartPos;

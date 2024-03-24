@@ -31,8 +31,11 @@ namespace Heck.Installers
             // TransformController
             Container.BindInterfacesAndSelfTo<TransformControllerFactory>().AsSingle();
 
+            // Track GameObject Tracker
+            Container.BindInterfacesTo<GameObjectTracker>().AsSingle();
+
             // Track updater
-            Container.BindInterfacesTo<TrackUpdateManager>().AsSingle().NonLazy();
+            Container.BindInterfacesTo<TrackUpdateManager>().AsSingle();
 
             // BurstSliders
             Container.BindInterfacesTo<BurstSliderDataRegisterer>().AsSingle();

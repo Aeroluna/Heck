@@ -1,22 +1,18 @@
 ﻿using HarmonyLib;
 using Heck;
-using Heck.Animation;
 using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
 using UnityEngine;
-using Zenject;
 
 namespace NoodleExtensions.HarmonyPatches.Mirror
 {
     [HeckPatch(PatchType.Features)]
     internal class MirroredNoteNoodleTracker : IAffinity
     {
-        private readonly DeserializedData _deserializedData;
         private readonly CutoutManager _cutoutManager;
 
-        private MirroredNoteNoodleTracker([Inject(Id = NoodleController.ID)] DeserializedData deserializedData, CutoutManager cutoutManager)
+        private MirroredNoteNoodleTracker(CutoutManager cutoutManager)
         {
-            _deserializedData = deserializedData;
             _cutoutManager = cutoutManager;
         }
 
@@ -90,34 +86,6 @@ namespace NoodleExtensions.HarmonyPatches.Mirror
             if (followedNote is IGameNoteMirrorable)
             {
                 _cutoutManager.NoteDisappearingArrowWrappers[noteController].SetCutout(_cutoutManager.NoteDisappearingArrowWrappers[followedNote].Cutout);
-            }
-        }
-
-        [AffinityPostfix]
-        [AffinityPatch(typeof(MirroredNoteController<INoteMirrorable>), "Mirror")]
-        private void INoteMirrorableMirror(MirroredNoteController<INoteMirrorable> __instance)
-        {
-            AddToTrack(__instance.noteData, __instance.gameObject);
-        }
-
-        [AffinityPostfix]
-        [AffinityPatch(typeof(MirroredNoteController<IGameNoteMirrorable>), "Mirror")]
-        private void ICubeNoteMirrorableMirror(MirroredNoteController<IGameNoteMirrorable> __instance)
-        {
-            AddToTrack(__instance.noteData, __instance.gameObject);
-        }
-
-        private void AddToTrack(NoteData noteData, GameObject gameObject)
-        {
-            if (!_deserializedData.Resolve(noteData, out NoodleBaseNoteData? noodleData) || noodleData.Track == null)
-            {
-                return;
-            }
-
-            foreach (Track track in noodleData.Track)
-            {
-                // add to gameobjects
-                track.AddGameObject(gameObject);
             }
         }
     }

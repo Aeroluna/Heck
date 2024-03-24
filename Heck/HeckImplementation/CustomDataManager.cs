@@ -8,6 +8,23 @@ namespace Heck
 {
     internal class CustomDataManager
     {
+        [ObjectsDeserializer]
+        private static Dictionary<BeatmapObjectData, IObjectCustomData> DeserializeObjects(
+            CustomBeatmapData beatmapData,
+            IDifficultyBeatmap difficultyBeatmap,
+            Dictionary<string, Track> beatmapTracks)
+        {
+            Dictionary<BeatmapObjectData, IObjectCustomData> dictionary = new();
+            foreach (BeatmapObjectData beatmapObjectData in beatmapData.beatmapObjectDatas)
+            {
+                CustomData customData = ((ICustomData)beatmapObjectData).customData;
+                bool v2 = beatmapObjectData is IVersionable { version2_6_0AndEarlier: true };
+                dictionary.Add(beatmapObjectData, new HeckObjectData(beatmapObjectData, customData, difficultyBeatmap, beatmapTracks, v2));
+            }
+
+            return dictionary;
+        }
+
         [CustomEventsDeserializer]
         private static Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents(
             CustomBeatmapData beatmapData,

@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
-using Heck.Animation;
 using NoodleExtensions.HarmonyPatches.ObjectProcessing;
 using SiraUtil.Affinity;
 using UnityEngine;
@@ -122,16 +121,6 @@ namespace NoodleExtensions.HarmonyPatches.Objects
             }
 
             transform.localScale = Vector3.one; // This is a fix for animation due to obstacles being recycled
-
-            IEnumerable<Track>? tracks = noodleData.Track;
-            if (tracks != null)
-            {
-                foreach (Track track in tracks)
-                {
-                    // add to gameobjects
-                    track.AddGameObject(__instance.gameObject);
-                }
-            }
 
             if (noodleData is { Uninteractable: true })
             {

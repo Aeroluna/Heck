@@ -48,7 +48,6 @@ namespace NoodleExtensions.Installers
             Container.BindInterfacesAndSelfTo<ManagedActiveObstacleTracker>().AsSingle();
             Container.BindInterfacesTo<NoodledSpawnMovementData>().AsSingle();
             Container.BindInterfacesTo<ObjectCallbackAheadTimeReorder>().AsSingle();
-            Container.BindInterfacesTo<RemoveFromTrackObjects>().AsSingle();
 
             // Objects
             Container.BindInterfacesTo<GameNoteCutNoodlifier>().AsSingle();

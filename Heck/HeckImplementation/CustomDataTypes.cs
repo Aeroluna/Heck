@@ -8,6 +8,28 @@ using static Heck.HeckController;
 
 namespace Heck
 {
+    internal class HeckObjectData : IObjectCustomData
+    {
+        internal HeckObjectData(
+            BeatmapObjectData beatmapObjectData,
+            CustomData customData,
+            IDifficultyBeatmap difficultyBeatmap,
+            Dictionary<string, Track> beatmapTracks,
+            bool v2)
+        {
+            try
+            {
+                Track = customData.GetNullableTrackArray(beatmapTracks, v2)?.ToList();
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.DeserializeFailure(e, beatmapObjectData, difficultyBeatmap);
+            }
+        }
+
+        internal List<Track>? Track { get; }
+    }
+
     internal class HeckCoroutineEventData : ICustomEventCustomData
     {
         internal HeckCoroutineEventData(
