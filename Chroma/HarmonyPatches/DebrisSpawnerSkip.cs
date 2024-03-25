@@ -46,7 +46,7 @@ namespace Chroma.HarmonyPatches
         }
 
         [AffinityTranspiler]
-        [AffinityPatch(typeof(BeatEffectSpawner), nameof(BeatEffectSpawner.HandleNoteDidStartJump))]
+        [AffinityPatch(typeof(NoteCutCoreEffectsSpawner), nameof(NoteCutCoreEffectsSpawner.SpawnNoteCutEffect))]
         private IEnumerable<CodeInstruction> ReplaceConditionTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)

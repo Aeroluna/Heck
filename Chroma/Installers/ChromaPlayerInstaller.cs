@@ -82,6 +82,7 @@ namespace Chroma.Installers
 
                 // Disable Spawn Effect
                 Container.BindInterfacesTo<BeatEffectSpawnerSkip>().AsSingle();
+                Container.BindInterfacesTo<DebrisSpawnerSkip>().AsSingle();
 
                 // Lighting
                 Container.BindInterfacesAndSelfTo<ChromaGradientController>().AsSingle();
