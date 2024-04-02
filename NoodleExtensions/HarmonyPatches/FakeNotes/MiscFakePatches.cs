@@ -52,7 +52,7 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
         [AffinityPatch(typeof(SliderController), nameof(SliderController.SetSaberAttraction))]
         private bool SliderCuttable(SliderController __instance, bool saberAttraction)
         {
-            return saberAttraction && _fakePatchesManager.GetCuttable(__instance.sliderData);
+            return !saberAttraction || _fakePatchesManager.GetCuttable(__instance.sliderData);
         }
     }
 }
