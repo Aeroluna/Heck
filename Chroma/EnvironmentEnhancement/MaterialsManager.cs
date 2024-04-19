@@ -101,7 +101,10 @@ namespace Chroma.EnvironmentEnhancement
             if (color != null)
             {
                 material.color = color.Value;
-                material.SetFloat("_Metallic", 0);
+                if (shaderType == ShaderType.Standard)
+                {
+                    material.SetFloat("_Metallic", 0);
+                }
             }
 
             if (shaderKeywords != null)
