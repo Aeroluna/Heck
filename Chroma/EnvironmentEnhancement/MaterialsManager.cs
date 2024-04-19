@@ -28,6 +28,8 @@ namespace Chroma.EnvironmentEnhancement
         private readonly LazyInject<MaterialColorAnimator> _materialColorAnimator;
         private readonly bool _v2;
 
+        private static readonly int _metallicPropertyID = Shader.PropertyToID("_Metallic");
+
         [UsedImplicitly]
         private MaterialsManager(
             EnvironmentMaterialsManager environmentMaterialsManager,
@@ -103,7 +105,7 @@ namespace Chroma.EnvironmentEnhancement
                 material.color = color.Value;
                 if (shaderType == ShaderType.Standard)
                 {
-                    material.SetFloat("_Metallic", 0);
+                    material.SetFloat(_metallicPropertyID, 0);
                 }
             }
 
