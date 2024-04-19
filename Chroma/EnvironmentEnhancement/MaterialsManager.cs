@@ -16,6 +16,8 @@ namespace Chroma.EnvironmentEnhancement
 {
     internal class MaterialsManager : IDisposable
     {
+        private static readonly int _metallicPropertyID = Shader.PropertyToID("_Metallic");
+
         private static readonly Material _standardMaterial = InstantiateSharedMaterial(ShaderType.Standard);
         private static readonly Material _opaqueLightMaterial = InstantiateSharedMaterial(ShaderType.OpaqueLight);
         private static readonly Material _transparentLightMaterial = InstantiateSharedMaterial(ShaderType.TransparentLight);
@@ -27,8 +29,6 @@ namespace Chroma.EnvironmentEnhancement
         private readonly Dictionary<string, Track> _beatmapTracks;
         private readonly LazyInject<MaterialColorAnimator> _materialColorAnimator;
         private readonly bool _v2;
-
-        private static readonly int _metallicPropertyID = Shader.PropertyToID("_Metallic");
 
         [UsedImplicitly]
         private MaterialsManager(
@@ -103,10 +103,6 @@ namespace Chroma.EnvironmentEnhancement
             if (color != null)
             {
                 material.color = color.Value;
-                if (shaderType == ShaderType.Standard)
-                {
-                    material.SetFloat(_metallicPropertyID, 0);
-                }
             }
 
             if (shaderKeywords != null)
@@ -125,7 +121,7 @@ namespace Chroma.EnvironmentEnhancement
 
         private static Material InstantiateSharedMaterial(ShaderType shaderType)
         {
-            return new Material(Shader.Find(shaderType switch
+            Material material = new Material(Shader.Find(shaderType switch
             {
                 ShaderType.OpaqueLight => "Custom/OpaqueNeonLight",
                 ShaderType.TransparentLight => "Custom/TransparentNeonLight",
@@ -170,6 +166,12 @@ namespace Chroma.EnvironmentEnhancement
                 },
                 color = new Color(0, 0, 0, 0)
             };
+            if (shaderType == ShaderType.Standard)
+            {
+                material.SetFloat(_metallicPropertyID, 0);
+            }
+
+            return material;
         }
 
         internal readonly struct MaterialInfo
