@@ -22,6 +22,7 @@ namespace Chroma.EnvironmentEnhancement
         private static readonly Material _baseWaterMaterial = InstantiateSharedMaterial(ShaderType.BaseWater);
 
         private readonly HashSet<Material> _createdMaterials = new();
+        private readonly Dictionary<string, MaterialInfo> _materialInfos = new();
 
         private readonly EnvironmentMaterialsManager _environmentMaterialsManager;
         private readonly Dictionary<string, Track> _beatmapTracks;
@@ -67,11 +68,9 @@ namespace Chroma.EnvironmentEnhancement
                     throw new InvalidOperationException($"[{key}] was null.");
                 }
 
-                MaterialInfos.Add(key, CreateMaterialInfo((CustomData)value));
+                _materialInfos.Add(key, CreateMaterialInfo((CustomData)value));
             }
         }
-
-        internal Dictionary<string, MaterialInfo> MaterialInfos { get; } = new();
 
         public void Dispose()
         {
@@ -79,6 +78,16 @@ namespace Chroma.EnvironmentEnhancement
             {
                 Object.Destroy(createdMaterial);
             }
+        }
+
+        internal MaterialInfo GetMaterialInfo(string name)
+        {
+            if (_materialInfos.TryGetValue(name, out MaterialInfo info))
+            {
+                return info;
+            }
+
+            throw new InvalidOperationException($"No material with name [{name}].");
         }
 
         internal MaterialInfo CreateMaterialInfo(CustomData customData)

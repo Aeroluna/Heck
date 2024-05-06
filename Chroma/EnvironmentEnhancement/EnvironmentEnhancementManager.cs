@@ -161,200 +161,214 @@ namespace Chroma.EnvironmentEnhancement
 
             foreach (CustomData gameObjectData in environmentData)
             {
-                int? dupeAmount = gameObjectData.Get<int?>(v2 ? V2_DUPLICATION_AMOUNT : DUPLICATION_AMOUNT);
-                bool? active = gameObjectData.Get<bool?>(v2 ? V2_ACTIVE : ACTIVE);
-                TransformData spawnData = new(gameObjectData, v2);
-                int? lightID = gameObjectData.Get<int?>(V2_LIGHT_ID);
-
-                List<GameObjectInfo> foundObjects;
-                CustomData? geometryData = gameObjectData.Get<CustomData?>(v2 ? V2_GEOMETRY : GEOMETRY);
-                if (geometryData != null)
+                try
                 {
-                    GameObjectInfo newObjectInfo = new(_geometryFactory.Create(geometryData, v2));
-                    allGameObjectInfos.Add(newObjectInfo);
-                    foundObjects = new List<GameObjectInfo> { newObjectInfo };
-                    if (_config.PrintEnvironmentEnhancementDebug)
-                    {
-                        _log.Debug("Created new geometry object:");
-                        _log.Debug(newObjectInfo.FullID);
-                    }
+                    int? dupeAmount = gameObjectData.Get<int?>(v2 ? V2_DUPLICATION_AMOUNT : DUPLICATION_AMOUNT);
+                    bool? active = gameObjectData.Get<bool?>(v2 ? V2_ACTIVE : ACTIVE);
+                    TransformData spawnData = new(gameObjectData, v2);
+                    int? lightID = gameObjectData.Get<int?>(V2_LIGHT_ID);
 
-                    // cause i know ppl are gonna fck it up
-                    string? id = gameObjectData.Get<string>(GAMEOBJECT_ID);
-                    LookupMethod? lookupMethod = gameObjectData.GetStringToEnum<LookupMethod?>(LOOKUP_METHOD);
-                    if (id != null || lookupMethod != null)
+                    List<GameObjectInfo> foundObjects;
+                    CustomData? geometryData = gameObjectData.Get<CustomData?>(v2 ? V2_GEOMETRY : GEOMETRY);
+                    if (geometryData != null)
                     {
-                        throw new InvalidOperationException("you cant have geometry and an id you goofball");
-                    }
-                }
-                else
-                {
-                    string id = gameObjectData.GetRequired<string>(v2 ? V2_GAMEOBJECT_ID : GAMEOBJECT_ID);
-                    LookupMethod lookupMethod = gameObjectData.GetStringToEnumRequired<LookupMethod>(v2 ? V2_LOOKUP_METHOD : LOOKUP_METHOD);
-                    foundObjects = LookupID.Get(allGameObjectInfos, gameObjectInfoIds, id, lookupMethod);
-
-                    if (foundObjects.Count > 0)
-                    {
+                        GameObjectInfo newObjectInfo = new(_geometryFactory.Create(geometryData, v2));
+                        allGameObjectInfos.Add(newObjectInfo);
+                        foundObjects = new List<GameObjectInfo> { newObjectInfo };
                         if (_config.PrintEnvironmentEnhancementDebug)
                         {
-                            _log.Debug($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
-                            foundObjects.ForEach(n => _log.Debug(n.FullID));
+                            _log.Debug("Created new geometry object:");
+                            _log.Debug(newObjectInfo.FullID);
+                        }
+
+                        // cause i know ppl are gonna fck it up
+                        string? id = gameObjectData.Get<string>(GAMEOBJECT_ID);
+                        LookupMethod? lookupMethod = gameObjectData.GetStringToEnum<LookupMethod?>(LOOKUP_METHOD);
+                        if (id != null || lookupMethod != null)
+                        {
+                            throw new InvalidOperationException("you cant have geometry and an id you goofball");
                         }
                     }
                     else
                     {
-                        _log.Error($"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing");
-                    }
-                }
+                        string id = gameObjectData.GetRequired<string>(v2 ? V2_GAMEOBJECT_ID : GAMEOBJECT_ID);
+                        LookupMethod lookupMethod =
+                            gameObjectData.GetStringToEnumRequired<LookupMethod>(v2 ? V2_LOOKUP_METHOD : LOOKUP_METHOD);
+                        foundObjects = LookupID.Get(allGameObjectInfos, gameObjectInfoIds, id, lookupMethod);
 
-                CustomData? componentData = null;
-                if (!v2)
-                {
-                    componentData = gameObjectData.Get<CustomData>(ComponentConstants.COMPONENTS);
-                }
-                else if (lightID != null)
-                {
-                    componentData = new CustomData(new[]
-                    {
-                        new KeyValuePair<string, object?>(
-                            ComponentConstants.LIGHT_WITH_ID,
-                            new CustomData(new[]
-                            {
-                                new KeyValuePair<string, object?>(LIGHT_ID, lightID.Value)
-                            }))
-                    });
-                }
-
-                List<GameObject> gameObjects;
-
-                // handle duplicating
-                if (dupeAmount.HasValue)
-                {
-                    gameObjects = new List<GameObject>();
-                    if (foundObjects.Count > 100)
-                    {
-                        _log.Error("Extreme value reached, you are attempting to duplicate over 100 objects! Environment enhancements stopped");
-                        break;
-                    }
-
-                    foreach (GameObjectInfo gameObjectInfo in foundObjects)
-                    {
-                        if (_config.PrintEnvironmentEnhancementDebug)
+                        if (foundObjects.Count > 0)
                         {
-                            _log.Debug($"Duplicating [{gameObjectInfo.FullID}]:");
-                        }
-
-                        GameObject gameObject = gameObjectInfo.GameObject;
-                        Transform parent = gameObject.transform.parent;
-                        Scene scene = gameObject.scene;
-
-                        for (int i = 0; i < dupeAmount.Value; i++)
-                        {
-                            List<IComponentData> componentDatas = new();
-                            DuplicateInitializer.PrefillComponentsData(gameObject.transform, componentDatas);
-                            GameObject newGameObject = Object.Instantiate(gameObject);
-                            _duplicateInitializer.PostfillComponentsData(
-                                newGameObject.transform,
-                                gameObject.transform,
-                                componentDatas);
-                            SceneManager.MoveGameObjectToScene(newGameObject, scene);
-
-                            // ReSharper disable once Unity.InstantiateWithoutParent
-                            // need to move shit to right scene first
-                            newGameObject.transform.SetParent(parent, true);
-                            _duplicateInitializer.InitializeComponents(
-                                newGameObject.transform,
-                                gameObject.transform,
-                                allGameObjectInfos,
-                                componentDatas);
-
-                            List<GameObjectInfo> gameObjectInfos =
-                                allGameObjectInfos.Where(n => n.GameObject == newGameObject).ToList();
-                            gameObjects.AddRange(gameObjectInfos.Select(n => n.GameObject));
-
                             if (_config.PrintEnvironmentEnhancementDebug)
                             {
-                                gameObjectInfos.ForEach(n => _log.Debug(n.FullID));
+                                _log.Debug($"ID [\"{id}\"] using method [{lookupMethod:G}] found:");
+                                foundObjects.ForEach(n => _log.Debug(n.FullID));
                             }
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException(
+                                $"ID [\"{id}\"] using method [{lookupMethod:G}] found nothing.");
                         }
                     }
 
-                    // Update array with new duplicated objects
-                    gameObjectInfoIds = allGameObjectInfos.Select(n => n.FullID).ToArray();
+                    CustomData? componentData = null;
+                    if (!v2)
+                    {
+                        componentData = gameObjectData.Get<CustomData>(ComponentConstants.COMPONENTS);
+                    }
+                    else if (lightID != null)
+                    {
+                        componentData = new CustomData(new[]
+                        {
+                            new KeyValuePair<string, object?>(
+                                ComponentConstants.LIGHT_WITH_ID,
+                                new CustomData(new[]
+                                {
+                                    new KeyValuePair<string, object?>(LIGHT_ID, lightID.Value)
+                                }))
+                        });
+                    }
+
+                    List<GameObject> gameObjects;
+
+                    // handle duplicating
+                    if (dupeAmount.HasValue)
+                    {
+                        gameObjects = new List<GameObject>();
+                        if (foundObjects.Count > 100)
+                        {
+                            throw new InvalidOperationException(
+                                "Extreme value reached, you are attempting to duplicate over 100 objects! Environment enhancements stopped");
+                        }
+
+                        foreach (GameObjectInfo gameObjectInfo in foundObjects)
+                        {
+                            if (_config.PrintEnvironmentEnhancementDebug)
+                            {
+                                _log.Debug($"Duplicating [{gameObjectInfo.FullID}]:");
+                            }
+
+                            GameObject gameObject = gameObjectInfo.GameObject;
+                            Transform parent = gameObject.transform.parent;
+                            Scene scene = gameObject.scene;
+
+                            for (int i = 0; i < dupeAmount.Value; i++)
+                            {
+                                List<IComponentData> componentDatas = new();
+                                DuplicateInitializer.PrefillComponentsData(gameObject.transform, componentDatas);
+                                GameObject newGameObject = Object.Instantiate(gameObject);
+                                _duplicateInitializer.PostfillComponentsData(
+                                    newGameObject.transform,
+                                    gameObject.transform,
+                                    componentDatas);
+                                SceneManager.MoveGameObjectToScene(newGameObject, scene);
+
+                                // ReSharper disable once Unity.InstantiateWithoutParent
+                                // need to move shit to right scene first
+                                newGameObject.transform.SetParent(parent, true);
+                                _duplicateInitializer.InitializeComponents(
+                                    newGameObject.transform,
+                                    gameObject.transform,
+                                    allGameObjectInfos,
+                                    componentDatas);
+
+                                List<GameObjectInfo> gameObjectInfos =
+                                    allGameObjectInfos.Where(n => n.GameObject == newGameObject).ToList();
+                                gameObjects.AddRange(gameObjectInfos.Select(n => n.GameObject));
+
+                                if (_config.PrintEnvironmentEnhancementDebug)
+                                {
+                                    gameObjectInfos.ForEach(n => _log.Debug(n.FullID));
+                                }
+                            }
+                        }
+
+                        // Update array with new duplicated objects
+                        gameObjectInfoIds = allGameObjectInfos.Select(n => n.FullID).ToArray();
+                    }
+                    else
+                    {
+                        if (lightID.HasValue)
+                        {
+                            _log.Error("LightID requested but no duplicated object to apply to");
+                        }
+
+                        gameObjects = foundObjects.Select(n => n.GameObject).ToList();
+                    }
+
+                    foreach (GameObject gameObject in gameObjects)
+                    {
+                        if (active.HasValue)
+                        {
+                            gameObject.SetActive(active.Value);
+                        }
+
+                        Transform transform = gameObject.transform;
+
+                        spawnData.Apply(transform, _leftHanded, v2);
+
+                        // Handle TrackLaneRing
+                        TrackLaneRing? trackLaneRing = gameObject.GetComponentInChildren<TrackLaneRing>();
+                        if (trackLaneRing != null)
+                        {
+                            _trackLaneRingOffset.SetTransform(trackLaneRing, spawnData);
+                        }
+
+                        // Handle ParametricBoxController
+                        ParametricBoxController parametricBoxController =
+                            gameObject.GetComponentInChildren<ParametricBoxController>();
+                        if (parametricBoxController != null)
+                        {
+                            _parametricBoxControllerTransformOverride.SetTransform(parametricBoxController, spawnData);
+                        }
+
+                        // Handle BeatmapObjectsAvoidance
+                        BeatmapObjectsAvoidance beatmapObjectsAvoidance =
+                            gameObject.GetComponentInChildren<BeatmapObjectsAvoidance>();
+                        if (beatmapObjectsAvoidance != null)
+                        {
+                            _beatmapObjectsAvoidanceTransformOverride.SetTransform(beatmapObjectsAvoidance, spawnData);
+                        }
+
+                        if (componentData != null)
+                        {
+                            _componentCustomizer.Customize(transform, componentData);
+                        }
+
+                        List<Track>? track = gameObjectData.GetNullableTrackArray(_tracks, v2)?.ToList();
+                        if (track == null)
+                        {
+                            continue;
+                        }
+
+                        TransformController controller = _controllerFactory.Create(gameObject, track, true);
+                        if (trackLaneRing != null)
+                        {
+                            controller.RotationUpdated += () => _trackLaneRingOffset.UpdateRotation(trackLaneRing);
+                            controller.PositionUpdated += () => TrackLaneRingOffset.UpdatePosition(trackLaneRing);
+                        }
+                        else if (parametricBoxController != null)
+                        {
+                            controller.PositionUpdated += () =>
+                                _parametricBoxControllerTransformOverride.UpdatePosition(parametricBoxController);
+                            controller.ScaleUpdated += () =>
+                                _parametricBoxControllerTransformOverride.UpdateScale(parametricBoxController);
+                        }
+                        else if (beatmapObjectsAvoidance != null)
+                        {
+                            controller.RotationUpdated += () =>
+                                _beatmapObjectsAvoidanceTransformOverride.UpdateRotation(beatmapObjectsAvoidance);
+                            controller.PositionUpdated += () =>
+                                _beatmapObjectsAvoidanceTransformOverride.UpdatePosition(beatmapObjectsAvoidance);
+                        }
+
+                        track.ForEach(n => n.AddGameObject(gameObject));
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    if (lightID.HasValue)
-                    {
-                        _log.Error("LightID requested but no duplicated object to apply to");
-                    }
-
-                    gameObjects = foundObjects.Select(n => n.GameObject).ToList();
-                }
-
-                foreach (GameObject gameObject in gameObjects)
-                {
-                    if (active.HasValue)
-                    {
-                        gameObject.SetActive(active.Value);
-                    }
-
-                    Transform transform = gameObject.transform;
-
-                    spawnData.Apply(transform, _leftHanded, v2);
-
-                    // Handle TrackLaneRing
-                    TrackLaneRing? trackLaneRing = gameObject.GetComponentInChildren<TrackLaneRing>();
-                    if (trackLaneRing != null)
-                    {
-                        _trackLaneRingOffset.SetTransform(trackLaneRing, spawnData);
-                    }
-
-                    // Handle ParametricBoxController
-                    ParametricBoxController parametricBoxController =
-                        gameObject.GetComponentInChildren<ParametricBoxController>();
-                    if (parametricBoxController != null)
-                    {
-                        _parametricBoxControllerTransformOverride.SetTransform(parametricBoxController, spawnData);
-                    }
-
-                    // Handle BeatmapObjectsAvoidance
-                    BeatmapObjectsAvoidance beatmapObjectsAvoidance =
-                        gameObject.GetComponentInChildren<BeatmapObjectsAvoidance>();
-                    if (beatmapObjectsAvoidance != null)
-                    {
-                        _beatmapObjectsAvoidanceTransformOverride.SetTransform(beatmapObjectsAvoidance, spawnData);
-                    }
-
-                    if (componentData != null)
-                    {
-                        _componentCustomizer.Customize(transform, componentData);
-                    }
-
-                    List<Track>? track = gameObjectData.GetNullableTrackArray(_tracks, v2)?.ToList();
-                    if (track == null)
-                    {
-                        continue;
-                    }
-
-                    TransformController controller = _controllerFactory.Create(gameObject, track, true);
-                    if (trackLaneRing != null)
-                    {
-                        controller.RotationUpdated += () => _trackLaneRingOffset.UpdateRotation(trackLaneRing);
-                        controller.PositionUpdated += () => TrackLaneRingOffset.UpdatePosition(trackLaneRing);
-                    }
-                    else if (parametricBoxController != null)
-                    {
-                        controller.PositionUpdated += () => _parametricBoxControllerTransformOverride.UpdatePosition(parametricBoxController);
-                        controller.ScaleUpdated += () => _parametricBoxControllerTransformOverride.UpdateScale(parametricBoxController);
-                    }
-                    else if (beatmapObjectsAvoidance != null)
-                    {
-                        controller.RotationUpdated += () => _beatmapObjectsAvoidanceTransformOverride.UpdateRotation(beatmapObjectsAvoidance);
-                        controller.PositionUpdated += () => _beatmapObjectsAvoidanceTransformOverride.UpdatePosition(beatmapObjectsAvoidance);
-                    }
-
-                    track.ForEach(n => n.AddGameObject(gameObject));
+                    _log.Error($"Error processing environment data for: {gameObjectData}");
+                    _log.Error(e);
                 }
 
                 if (_config.PrintEnvironmentEnhancementDebug)
