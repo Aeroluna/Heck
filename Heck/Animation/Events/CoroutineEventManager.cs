@@ -90,7 +90,7 @@ namespace Heck.Animation.Events
                     switch (eventType)
                     {
                         case EventType.AnimateTrack:
-                            if (noDuration || (pointData.Count <= 1 && hasBase))
+                            if (noDuration || (pointData.Count <= 1 && !hasBase))
                             {
                                 SetPropertyValue(pointData, property, coroutineInfo.Track, 1, out _);
                             }
