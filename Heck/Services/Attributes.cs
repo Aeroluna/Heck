@@ -95,30 +95,6 @@ namespace Heck
         public Type Type { get; }
     }
 
-    [MeansImplicitUse]
-    [AttributeUsage(AttributeTargets.Method)]
-    public class EarlyDeserializer : Attribute
-    {
-    }
-
-    [MeansImplicitUse]
-    [AttributeUsage(AttributeTargets.Method)]
-    public class CustomEventsDeserializer : Attribute
-    {
-    }
-
-    [MeansImplicitUse]
-    [AttributeUsage(AttributeTargets.Method)]
-    public class EventsDeserializer : Attribute
-    {
-    }
-
-    [MeansImplicitUse]
-    [AttributeUsage(AttributeTargets.Method)]
-    public class ObjectsDeserializer : Attribute
-    {
-    }
-
     [AttributeUsage(AttributeTargets.Class)]
     public class PlayViewControllerSettings : Attribute
     {

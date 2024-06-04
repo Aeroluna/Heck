@@ -148,19 +148,15 @@ namespace Heck
 
             foreach (DataDeserializer deserializer in deserializers)
             {
-                deserializer.InjectedInvokeEarly(inputs);
+                deserializer.Create(inputs);
             }
 
             deserializedDatas = new HashSet<(object? Id, DeserializedData DeserializedData)>(deserializers.Length);
             foreach (DataDeserializer deserializer in deserializers)
             {
-                Dictionary<CustomEventData, ICustomEventCustomData> customEventCustomDatas = deserializer.InjectedInvokeCustomEvent(inputs);
-                Dictionary<BeatmapEventData, IEventCustomData> eventCustomDatas = deserializer.InjectedInvokeEvent(inputs);
-                Dictionary<BeatmapObjectData, IObjectCustomData> objectCustomDatas = deserializer.InjectedInvokeObject(inputs);
-
                 Plugin.Log.Trace($"Binding [{deserializer.Id}]");
 
-                deserializedDatas.Add((deserializer.Id, new DeserializedData(customEventCustomDatas, eventCustomDatas, objectCustomDatas)));
+                deserializedDatas.Add((deserializer.Id, deserializer.Deserialize()));
             }
 
             return;

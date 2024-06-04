@@ -12,32 +12,48 @@ using static Chroma.ChromaController;
 
 namespace Chroma
 {
-    internal static class CustomDataManager
+    internal class CustomDataDeserializer : IEarlyDeserializer, ICustomEventsDeserializer, IEventsDeserializer, IObjectsDeserializer
     {
-        [EarlyDeserializer]
-        internal static void DeserializerEarly(
+        private readonly TrackBuilder _trackBuilder;
+        private readonly CustomBeatmapData _beatmapData;
+        private readonly IDifficultyBeatmap _difficultyBeatmap;
+        private readonly Dictionary<string, Track> _tracks;
+        private readonly Dictionary<string, List<object>> _pointDefinitions;
+
+        private CustomDataDeserializer(
             TrackBuilder trackBuilder,
             CustomBeatmapData beatmapData,
-            IDifficultyBeatmap difficultyBeatmap)
+            IDifficultyBeatmap difficultyBeatmap,
+            Dictionary<string, Track> tracks,
+            Dictionary<string, List<object>> pointDefinitions)
         {
-            bool v2 = beatmapData.version2_6_0AndEarlier;
-            IEnumerable<CustomData>? environmentData = beatmapData.customData.Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)?.Cast<CustomData>();
+            _trackBuilder = trackBuilder;
+            _beatmapData = beatmapData;
+            _difficultyBeatmap = difficultyBeatmap;
+            _tracks = tracks;
+            _pointDefinitions = pointDefinitions;
+        }
+
+        public void DeserializeEarly()
+        {
+            bool v2 = _beatmapData.version2_6_0AndEarlier;
+            IEnumerable<CustomData>? environmentData = _beatmapData.customData.Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)?.Cast<CustomData>();
             if (environmentData != null)
             {
                 foreach (CustomData gameObjectData in environmentData)
                 {
-                    trackBuilder.AddManyFromCustomData(gameObjectData, v2, false);
+                    _trackBuilder.AddManyFromCustomData(gameObjectData, v2, false);
 
                     CustomData? geometryData = gameObjectData.Get<CustomData?>(v2 ? V2_GEOMETRY : GEOMETRY);
                     object? materialData = geometryData?.Get<object?>(v2 ? V2_MATERIAL : MATERIAL);
                     if (materialData is CustomData materialCustomData)
                     {
-                        trackBuilder.AddFromCustomData(materialCustomData, v2, false);
+                        _trackBuilder.AddFromCustomData(materialCustomData, v2, false);
                     }
                 }
             }
 
-            CustomData? materialsData = beatmapData.customData.Get<CustomData>(v2 ? V2_MATERIALS : MATERIALS);
+            CustomData? materialsData = _beatmapData.customData.Get<CustomData>(v2 ? V2_MATERIALS : MATERIALS);
             if (materialsData != null)
             {
                 foreach ((string _, object? value) in materialsData)
@@ -47,7 +63,7 @@ namespace Chroma
                         continue;
                     }
 
-                    trackBuilder.AddFromCustomData((CustomData)value, v2, false);
+                    _trackBuilder.AddFromCustomData((CustomData)value, v2, false);
                 }
             }
 
@@ -56,14 +72,14 @@ namespace Chroma
                 return;
             }
 
-            foreach (CustomEventData customEventData in beatmapData.customEventDatas)
+            foreach (CustomEventData customEventData in _beatmapData.customEventDatas)
             {
                 try
                 {
                     switch (customEventData.eventType)
                     {
                         case ASSIGN_FOG_TRACK:
-                            trackBuilder.AddFromCustomData(customEventData.customData, v2);
+                            _trackBuilder.AddFromCustomData(customEventData.customData, v2);
                             break;
 
                         default:
@@ -72,20 +88,15 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Plugin.Log.DeserializeFailure(e, customEventData, difficultyBeatmap);
+                    Plugin.Log.DeserializeFailure(e, customEventData, _difficultyBeatmap);
                 }
             }
         }
 
-        [CustomEventsDeserializer]
-        internal static Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents(
-            CustomBeatmapData beatmapData,
-            IDifficultyBeatmap difficultyBeatmap,
-            Dictionary<string, Track> beatmapTracks,
-            Dictionary<string, List<object>> pointDefinitions)
+        public Dictionary<CustomEventData, ICustomEventCustomData> DeserializeCustomEvents()
         {
             Dictionary<CustomEventData, ICustomEventCustomData> dictionary = new();
-            foreach (CustomEventData customEventData in beatmapData.customEventDatas)
+            foreach (CustomEventData customEventData in _beatmapData.customEventDatas)
             {
                 bool v2 = customEventData.version2_6_0AndEarlier;
                 try
@@ -100,7 +111,7 @@ namespace Chroma
                                 continue;
                             }
 
-                            chromaCustomEventData = new ChromaAssignFogEventData(customEventData.customData.GetTrack(beatmapTracks, v2));
+                            chromaCustomEventData = new ChromaAssignFogEventData(customEventData.customData.GetTrack(_tracks, v2));
                             break;
 
                         case ANIMATE_COMPONENT:
@@ -109,7 +120,7 @@ namespace Chroma
                                 continue;
                             }
 
-                            chromaCustomEventData = new ChromaAnimateComponentData(customEventData.customData, beatmapTracks, pointDefinitions);
+                            chromaCustomEventData = new ChromaAnimateComponentData(customEventData.customData, _tracks, _pointDefinitions);
                             break;
 
                         default:
@@ -120,23 +131,18 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Plugin.Log.DeserializeFailure(e, customEventData, difficultyBeatmap);
+                    Plugin.Log.DeserializeFailure(e, customEventData, _difficultyBeatmap);
                 }
             }
 
             return dictionary;
         }
 
-        [ObjectsDeserializer]
-        internal static Dictionary<BeatmapObjectData, IObjectCustomData> DeserializeObjects(
-            CustomBeatmapData beatmapData,
-            IDifficultyBeatmap difficultyBeatmap,
-            Dictionary<string, Track> beatmapTracks,
-            Dictionary<string, List<object>> pointDefinitions)
+        public Dictionary<BeatmapObjectData, IObjectCustomData> DeserializeObjects()
         {
             Dictionary<BeatmapObjectData, IObjectCustomData> dictionary = new();
 
-            foreach (BeatmapObjectData beatmapObjectData in beatmapData.beatmapObjectDatas)
+            foreach (BeatmapObjectData beatmapObjectData in _beatmapData.beatmapObjectDatas)
             {
                 try
                 {
@@ -144,15 +150,15 @@ namespace Chroma
                     switch (beatmapObjectData)
                     {
                         case CustomNoteData noteData:
-                            dictionary.Add(beatmapObjectData, new ChromaNoteData(customData, beatmapTracks, pointDefinitions, noteData.version2_6_0AndEarlier));
+                            dictionary.Add(beatmapObjectData, new ChromaNoteData(customData, _tracks, _pointDefinitions, noteData.version2_6_0AndEarlier));
                             break;
 
                         case CustomSliderData sliderData:
-                            dictionary.Add(beatmapObjectData, new ChromaNoteData(customData, beatmapTracks, pointDefinitions, sliderData.version2_6_0AndEarlier));
+                            dictionary.Add(beatmapObjectData, new ChromaNoteData(customData, _tracks, _pointDefinitions, sliderData.version2_6_0AndEarlier));
                             break;
 
                         case CustomObstacleData obstacleData:
-                            dictionary.Add(beatmapObjectData, new ChromaObjectData(customData, beatmapTracks, pointDefinitions, obstacleData.version2_6_0AndEarlier));
+                            dictionary.Add(beatmapObjectData, new ChromaObjectData(customData, _tracks, _pointDefinitions, obstacleData.version2_6_0AndEarlier));
                             break;
 
                         default:
@@ -161,20 +167,17 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Plugin.Log.DeserializeFailure(e, beatmapObjectData, difficultyBeatmap);
+                    Plugin.Log.DeserializeFailure(e, beatmapObjectData, _difficultyBeatmap);
                 }
             }
 
             return dictionary;
         }
 
-        [EventsDeserializer]
-        internal static Dictionary<BeatmapEventData, IEventCustomData> DeserializeEvents(
-            CustomBeatmapData beatmapData,
-            IDifficultyBeatmap difficultyBeatmap)
+        public Dictionary<BeatmapEventData, IEventCustomData> DeserializeEvents()
         {
-            bool beatmapv2 = beatmapData.version2_6_0AndEarlier;
-            List<BasicBeatmapEventData> beatmapEventDatas = beatmapData.beatmapEventDatas.OfType<BasicBeatmapEventData>().ToList();
+            bool beatmapv2 = _beatmapData.version2_6_0AndEarlier;
+            List<BasicBeatmapEventData> beatmapEventDatas = _beatmapData.beatmapEventDatas.OfType<BasicBeatmapEventData>().ToList();
 
             LegacyLightHelper? legacyLightHelper = null;
             if (beatmapv2)
@@ -193,7 +196,7 @@ namespace Chroma
                 }
                 catch (Exception e)
                 {
-                    Plugin.Log.DeserializeFailure(e, beatmapEventData, difficultyBeatmap);
+                    Plugin.Log.DeserializeFailure(e, beatmapEventData, _difficultyBeatmap);
                 }
             }
 

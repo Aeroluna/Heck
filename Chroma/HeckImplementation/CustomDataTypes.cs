@@ -104,7 +104,7 @@ namespace Chroma
             Dictionary<string, List<object>> pointDefinitions,
             bool v2)
         {
-            Color = CustomDataManager.GetColorFromData(customData, v2);
+            Color = CustomDataDeserializer.GetColorFromData(customData, v2);
             CustomData? animationData = customData.Get<CustomData>(v2 ? V2_ANIMATION : ANIMATION);
             if (animationData != null)
             {
@@ -130,7 +130,7 @@ namespace Chroma
         {
             CustomData customData = ((ICustomData)beatmapEventData).customData;
 
-            Color? color = CustomDataManager.GetColorFromData(customData, v2);
+            Color? color = CustomDataDeserializer.GetColorFromData(customData, v2);
             if (legacyLightHelper != null)
             {
                 color ??= legacyLightHelper.GetLegacyColor(beatmapEventData);
@@ -160,8 +160,8 @@ namespace Chroma
                 {
                     GradientObject = new GradientObjectData(
                         gradientObject.Get<float>(V2_DURATION),
-                        CustomDataManager.GetColorFromData(gradientObject, V2_START_COLOR) ?? Color.white,
-                        CustomDataManager.GetColorFromData(gradientObject, V2_END_COLOR) ?? Color.white,
+                        CustomDataDeserializer.GetColorFromData(gradientObject, V2_START_COLOR) ?? Color.white,
+                        CustomDataDeserializer.GetColorFromData(gradientObject, V2_END_COLOR) ?? Color.white,
                         gradientObject.GetStringToEnum<Functions?>(V2_EASING) ?? Functions.easeLinear);
                 }
             }

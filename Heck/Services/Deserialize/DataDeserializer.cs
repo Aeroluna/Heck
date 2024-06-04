@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
@@ -9,34 +10,14 @@ namespace Heck
 {
     internal class DataDeserializer
     {
-        private readonly MethodInfo? _customEventMethod;
-        private readonly MethodInfo? _beatmapEventMethod;
-        private readonly MethodInfo? _beatmapObjectMethod;
-        private readonly MethodInfo? _earlyMethod;
+        private readonly ConstructorInfo _constructor;
 
-        internal DataDeserializer(string? id, IReflect type)
+        private object? _instance;
+
+        internal DataDeserializer(string? id, Type type)
         {
+            _constructor = AccessTools.FirstConstructor(type, _ => true);
             Id = id;
-
-            foreach (MethodInfo method in type.GetMethods(AccessTools.allDeclared))
-            {
-                AccessAttribute<EarlyDeserializer>(ref _earlyMethod);
-                AccessAttribute<CustomEventsDeserializer>(ref _customEventMethod);
-                AccessAttribute<EventsDeserializer>(ref _beatmapEventMethod);
-                AccessAttribute<ObjectsDeserializer>(ref _beatmapObjectMethod);
-                continue;
-
-                void AccessAttribute<TAttribute>(ref MethodInfo? savedMethod)
-                    where TAttribute : Attribute
-                {
-                    if (method.GetCustomAttribute<TAttribute>() == null)
-                    {
-                        return;
-                    }
-
-                    savedMethod = method;
-                }
-            }
         }
 
         internal bool Enabled { get; set; }
@@ -48,30 +29,45 @@ namespace Heck
             return Id ?? "NULL";
         }
 
-        internal void InjectedInvokeEarly(object[] inputs)
+        internal void Create(object[] inputs)
         {
-            _earlyMethod?.Invoke(null, _earlyMethod.ActualParameters(inputs));
+            _instance = _constructor.Invoke(_constructor.ActualParameters(inputs));
+            if (_instance is IEarlyDeserializer earlyDeserializer)
+            {
+                earlyDeserializer.DeserializeEarly();
+            }
         }
 
-        internal Dictionary<CustomEventData, ICustomEventCustomData> InjectedInvokeCustomEvent(object[] inputs)
+        internal DeserializedData Deserialize()
         {
-            return InjectedInvoke<Dictionary<CustomEventData, ICustomEventCustomData>>(_customEventMethod, inputs);
-        }
+            if (_instance == null)
+            {
+                throw new InvalidOperationException("No instance found");
+            }
 
-        internal Dictionary<BeatmapEventData, IEventCustomData> InjectedInvokeEvent(object[] inputs)
-        {
-            return InjectedInvoke<Dictionary<BeatmapEventData, IEventCustomData>>(_beatmapEventMethod, inputs);
-        }
+            Dictionary<CustomEventData, ICustomEventCustomData>? customEventDatas = null;
+            if (_instance is ICustomEventsDeserializer customEventsDeserializer)
+            {
+                customEventDatas = customEventsDeserializer.DeserializeCustomEvents();
+            }
 
-        internal Dictionary<BeatmapObjectData, IObjectCustomData> InjectedInvokeObject(object[] inputs)
-        {
-            return InjectedInvoke<Dictionary<BeatmapObjectData, IObjectCustomData>>(_beatmapObjectMethod, inputs);
-        }
+            Dictionary<BeatmapEventData, IEventCustomData>? eventDatas = null;
+            if (_instance is IEventsDeserializer eventsDeserializer)
+            {
+                eventDatas = eventsDeserializer.DeserializeEvents();
+            }
 
-        private static T InjectedInvoke<T>(MethodInfo? method, object[] inputs)
-            where T : new()
-        {
-            return (T?)method?.Invoke(null, method.ActualParameters(inputs)) ?? new T();
+            Dictionary<BeatmapObjectData, IObjectCustomData>? objectDatas = null;
+            if (_instance is IObjectsDeserializer objectsDeserializer)
+            {
+                objectDatas = objectsDeserializer.DeserializeObjects();
+            }
+
+            customEventDatas ??= new Dictionary<CustomEventData, ICustomEventCustomData>();
+            eventDatas ??= new Dictionary<BeatmapEventData, IEventCustomData>();
+            objectDatas ??= new Dictionary<BeatmapObjectData, IObjectCustomData>();
+
+            return new DeserializedData(customEventDatas, eventDatas, objectDatas);
         }
     }
 }

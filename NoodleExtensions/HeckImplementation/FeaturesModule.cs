@@ -6,7 +6,7 @@ namespace NoodleExtensions
 {
     [Module(ID, 2, LoadType.Active, new[] { "Heck" })]
     [ModulePatcher(HARMONY_ID + "Features", PatchType.Features)]
-    [ModuleDataDeserializer(ID, typeof(CustomDataManager))]
+    [ModuleDataDeserializer(ID, typeof(CustomDataDeserializer))]
     internal class FeaturesModule : IModule
     {
         internal bool Active { get; private set; }
