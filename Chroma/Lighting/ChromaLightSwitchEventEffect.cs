@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Chroma.Colorizer;
 using Chroma.Extras;
+using Chroma.Modules;
 using Heck;
 using Heck.Animation;
 using JetBrains.Annotations;
@@ -29,6 +30,7 @@ namespace Chroma.Lighting
         private readonly ColorManager _colorManager;
         private readonly DeserializedData _deserializedData;
         private readonly ChromaGradientController? _gradientController;
+        private readonly FeaturesModule _featuresModule;
 
         private readonly BeatmapDataCallbackWrapper _basicCallbackWrapper;
         private readonly BeatmapDataCallbackWrapper _boostCallbackWrapper;
@@ -58,7 +60,8 @@ namespace Chroma.Lighting
             BeatmapCallbacksController callbacksController,
             ColorManager colorManager,
             [Inject(Id = ChromaController.ID)] DeserializedData deserializedData,
-            [InjectOptional] ChromaGradientController? gradientController)
+            [InjectOptional] ChromaGradientController? gradientController,
+            FeaturesModule featuresModule)
         {
             LightSwitchEventEffect = lightSwitchEventEffect;
             _log = log;
@@ -69,6 +72,7 @@ namespace Chroma.Lighting
             _colorManager = colorManager;
             _deserializedData = deserializedData;
             _gradientController = gradientController;
+            _featuresModule = featuresModule;
 
             EventType = lightSwitchEventEffect._event;
             LightsID = lightSwitchEventEffect._lightsID;
@@ -294,7 +298,7 @@ namespace Chroma.Lighting
                     _deserializedData.Resolve(previousEvent, out ChromaEventData? eventData);
                     Dictionary<int, BasicBeatmapEventData>? nextSameTypesDict = eventData?.NextSameTypeEvent;
                     BasicBeatmapEventData? nextSameTypeEvent = null;
-                    if (!ChromaController.FeaturesPatcher.Enabled || nextSameTypesDict == null)
+                    if (!_featuresModule.Active || nextSameTypesDict == null)
                     {
                         nextSameTypeEvent = previousEvent.nextSameTypeEventData;
                     }
@@ -320,7 +324,7 @@ namespace Chroma.Lighting
                     _deserializedData.Resolve(nextSameTypeEvent, out ChromaEventData? nextEventData);
                     Color? nextColorData = nextEventData?.ColorData;
                     if (nextColorType != EnvironmentColorType.ColorW &&
-                        ChromaController.FeaturesPatcher.Enabled &&
+                        _featuresModule.Active &&
                         nextColorData.HasValue)
                     {
                         Color multiplierColor;
@@ -414,7 +418,7 @@ namespace Chroma.Lighting
             LerpType? lerpType = null;
 
             // fun fun chroma stuff
-            if (ChromaController.FeaturesPatcher.Enabled)
+            if (_featuresModule.Active)
             {
                 if (_gradientController == null)
                 {

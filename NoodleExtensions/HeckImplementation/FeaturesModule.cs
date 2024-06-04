@@ -4,8 +4,13 @@ using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions
 {
-    internal class ModuleCallbacks
+    [Module(ID, 2, LoadType.Active, new[] { "Heck" })]
+    [ModulePatcher(HARMONY_ID + "Features", PatchType.Features)]
+    [ModuleDataDeserializer(ID, typeof(CustomDataManager))]
+    internal class FeaturesModule : IModule
     {
+        internal bool Active { get; private set; }
+
         [ModuleCondition]
         private static bool Condition(Capabilities capabilities)
         {
@@ -13,10 +18,9 @@ namespace NoodleExtensions
         }
 
         [ModuleCallback]
-        private static void Toggle(bool value)
+        private void Callback(bool value)
         {
-            FeaturesPatcher.Enabled = value;
-            Deserializer.Enabled = value;
+            Active = value;
         }
     }
 }

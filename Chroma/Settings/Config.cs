@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Heck.SettingsSetter;
 using IPA.Config.Stores;
 using JetBrains.Annotations;
@@ -36,15 +35,6 @@ namespace Chroma.Settings
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     internal class Config
     {
-        private static Config? _instance;
-
-        public Config()
-        {
-            _instance = this;
-        }
-
-        public static Config Instance => _instance ?? throw new InvalidOperationException("Chroma Config instance not yet created.");
-
 #pragma warning disable CA1822
         public bool ChromaEventsDisabled
         {

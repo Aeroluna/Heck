@@ -12,7 +12,7 @@ using static Chroma.ChromaController;
 
 namespace Chroma
 {
-    internal class CustomDataManager
+    internal static class CustomDataManager
     {
         [EarlyDeserializer]
         internal static void DeserializerEarly(

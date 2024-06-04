@@ -1,4 +1,5 @@
 ﻿using Heck.BaseProvider;
+using Heck.HarmonyPatches;
 using Heck.ReLoad;
 using Heck.Settings;
 using JetBrains.Annotations;
@@ -19,6 +20,12 @@ namespace Heck.Installers
         public override void InstallBindings()
         {
             Container.Bind<BaseProviderManager>().AsSingle().NonLazy();
+            Container.Bind<ModuleManager>().AsSingle();
+            Container.BindInterfacesTo<SceneTransitionModuleActivator>().AsSingle();
+            Container.Bind<DeserializerManager>().AsSingle();
+            Container.BindInterfacesTo<PatchedPlayerInstaller>().AsSingle();
+
+            Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
 
             if (!HeckController.DebugMode)
             {

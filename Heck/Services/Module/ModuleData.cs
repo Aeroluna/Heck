@@ -1,13 +1,12 @@
-﻿using System.Reflection;
+﻿using System.Linq;
 using JetBrains.Annotations;
 
 namespace Heck
 {
-    public enum RequirementType
+    public enum LoadType
     {
-        None,
-        Condition,
-        Always
+        Passive,
+        Active
     }
 
     [PublicAPI]
@@ -17,6 +16,10 @@ namespace Heck
         Multiplayer,
         Standard,
         Tutorial
+    }
+
+    public interface IModule
+    {
     }
 
     public readonly struct Capabilities
@@ -32,25 +35,27 @@ namespace Heck
         public string[] Suggestions { get; }
     }
 
-    public class Module
+    internal class ModuleData
     {
-        internal Module(
+        internal ModuleData(
+            IModule module,
             string id,
             int priority,
-            MethodInfo callback,
-            RequirementType requirementType,
-            MethodInfo? conditionCallback,
+            LoadType loadType,
             string[] depends,
-            string[] conflict)
+            string[] conflict,
+            IModuleFeature[] features)
         {
+            Module = module;
             Id = id;
             Priority = priority;
-            RequirementType = requirementType;
-            Callback = callback;
-            ConditionCallback = conditionCallback;
+            LoadType = loadType;
             Depends = depends;
             Conflict = conflict;
+            Features = features;
         }
+
+        public IModule Module { get; }
 
         public string Id { get; }
 
@@ -60,17 +65,19 @@ namespace Heck
 
         public string[] Conflict { get; }
 
-        public RequirementType RequirementType { get; }
+        public LoadType LoadType { get; }
 
-        public MethodInfo Callback { get; }
-
-        public MethodInfo? ConditionCallback { get; }
-
-        public bool Enabled { get; set; } = true;
+        public IModuleFeature[] Features { get; }
 
         public override string ToString()
         {
             return Id;
+        }
+
+        internal T? GetFeature<T>()
+            where T : IModuleFeature
+        {
+            return (T?)Features.FirstOrDefault(n => n is T);
         }
     }
 }

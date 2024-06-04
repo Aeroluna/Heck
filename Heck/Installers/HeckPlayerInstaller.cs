@@ -11,12 +11,21 @@ namespace Heck.Installers
     [UsedImplicitly]
     internal class HeckPlayerInstaller : Installer
     {
+        private readonly FeaturesModule _featuresModule;
+
+        private HeckPlayerInstaller(FeaturesModule featuresModule)
+        {
+            _featuresModule = featuresModule;
+        }
+
         public override void InstallBindings()
         {
-            if (!HeckController.FeaturesPatcher.Enabled)
+            if (!_featuresModule.Active)
             {
                 return;
             }
+
+            Container.Bind<ObjectInitializerManager>().AsSingle();
 
             // Note Cut Sound Fix
             Container.BindInterfacesTo<NoteCutSoundLimiter>().AsSingle();

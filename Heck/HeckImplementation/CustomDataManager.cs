@@ -6,7 +6,7 @@ using static Heck.HeckController;
 
 namespace Heck
 {
-    internal class CustomDataManager
+    internal static class CustomDataManager
     {
         [ObjectsDeserializer]
         private static Dictionary<BeatmapObjectData, IObjectCustomData> DeserializeObjects(

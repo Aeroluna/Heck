@@ -25,23 +25,74 @@ namespace Heck
     }
 
     [MeansImplicitUse]
-    [AttributeUsage(AttributeTargets.Method)]
-    public class ModuleCondition : AttributeWithId
+    [AttributeUsage(AttributeTargets.Class)]
+    public class Module : Attribute
     {
-        public ModuleCondition(object? id = null)
-            : base(id)
+        public Module(
+            string id,
+            int priority,
+            LoadType loadType,
+            string[]? depends = null,
+            string[]? conflict = null)
         {
+            Id = id;
+            Priority = priority;
+            LoadType = loadType;
+            Depends = depends;
+            Conflict = conflict;
         }
+
+        public string Id { get; }
+
+        public int Priority { get; }
+
+        public LoadType LoadType { get; }
+
+        public string[]? Depends { get; }
+
+        public string[]? Conflict { get; }
     }
 
     [MeansImplicitUse]
     [AttributeUsage(AttributeTargets.Method)]
-    public class ModuleCallback : AttributeWithId
+    public class ModuleCallback : Attribute
     {
-        public ModuleCallback(object? id = null)
-            : base(id)
+    }
+
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Method)]
+    public class ModuleCondition : Attribute
+    {
+    }
+
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
+    public class ModulePatcher : Attribute
+    {
+        public ModulePatcher(string harmonyId, object? id)
         {
+            HarmonyId = harmonyId;
+            Id = id;
         }
+
+        public string HarmonyId { get; }
+
+        public object? Id { get; }
+    }
+
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
+    public class ModuleDataDeserializer : Attribute
+    {
+        public ModuleDataDeserializer(string id, Type type)
+        {
+            Id = id;
+            Type = type;
+        }
+
+        public string Id { get; }
+
+        public Type Type { get; }
     }
 
     [MeansImplicitUse]

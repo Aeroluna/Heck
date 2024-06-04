@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using HarmonyLib;
-using JetBrains.Annotations;
 
 namespace Heck
 {
     // TODO: use categories instead
-    public class HeckPatcher
+    // nvm, bsipa needs to update its harmony ver
+    internal class HeckPatcher
     {
         private readonly Harmony _harmony;
         private readonly HashSet<Type> _types = new();
         private bool _enabled;
 
-        public HeckPatcher(string harmonyId, object? id = null)
+        internal HeckPatcher(Assembly assembly, string harmonyId, object? id)
         {
-            Assembly assembly = new StackTrace().GetFrame(1).GetMethod().ReflectedType!.Assembly;
-
+            Id = id;
             Plugin.Log.Trace($"Initializing patches for Harmony instance [{harmonyId}] in [{assembly.GetName()}]");
 
             _harmony = new Harmony(harmonyId);
@@ -47,10 +45,10 @@ namespace Heck
             }
         }
 
-        [PublicAPI]
-        public bool Enabled
+        internal object? Id { get; }
+
+        internal bool Enabled
         {
-            get => _enabled;
             set
             {
                 if (value == _enabled)

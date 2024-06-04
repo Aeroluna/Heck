@@ -2,6 +2,7 @@
 using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.HarmonyPatches;
 using Chroma.HarmonyPatches.ZenModeWalls;
+using Chroma.Modules;
 using Chroma.Settings;
 using JetBrains.Annotations;
 using Zenject;
@@ -21,17 +22,19 @@ namespace Chroma.Installers
         public override void InstallBindings()
         {
             Container.BindInstance(_config);
-            Container.Bind<ChromaSettingsUI>().AsSingle().NonLazy();
+            Container.BindInterfacesTo<ChromaSettingsUI>().AsSingle().NonLazy();
 
             Container.Bind<SavedEnvironmentLoader>().AsSingle();
             Container.Bind<EnvironmentMaterialsManager>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesTo<CustomEnvironmentLoading>().AsSingle();
 
-            Container.Bind<CustomLevelLoaderExposer>().AsSingle().NonLazy();
-
             Container.BindInterfacesAndSelfTo<ColorBaseProvider>().AsSingle();
 
             Container.BindInterfacesTo<ForceZenModeObstacleBeatmapData>().AsSingle();
+
+            Container.BindInterfacesAndSelfTo<ColorizerModule>().AsSingle();
+            Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
+            Container.BindInterfacesAndSelfTo<EnvironmentModule>().AsSingle();
         }
     }
 }

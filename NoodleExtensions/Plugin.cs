@@ -1,4 +1,5 @@
-﻿using Heck.Animation;
+﻿using Heck;
+using Heck.Animation;
 using IPA;
 using JetBrains.Annotations;
 using NoodleExtensions.Installers;
@@ -24,6 +25,8 @@ namespace NoodleExtensions
             zenjector.Expose<NoteCutCoreEffectsSpawner>("Gameplay");
             zenjector.UseLogger(pluginLogger);
 
+            HeckPatchManager.Register(HARMONY_ID);
+
             Track.RegisterProperty<Vector3>(OFFSET_POSITION, V2_POSITION);
             Track.RegisterProperty<Quaternion>(OFFSET_ROTATION, V2_ROTATION);
             Track.RegisterProperty<float>(DISSOLVE, V2_DISSOLVE);
@@ -48,9 +51,7 @@ namespace NoodleExtensions
         [OnEnable]
         public void OnEnable()
         {
-            Capability.Register();
-            CorePatcher.Enabled = true;
-            FeaturesModule.Enabled = true;
+            NoodleController.Capability.Register();
             JSONDeserializer.Enabled = true;
         }
 
@@ -58,11 +59,7 @@ namespace NoodleExtensions
         [OnDisable]
         public void OnDisable()
         {
-            Capability.Deregister();
-            CorePatcher.Enabled = false;
-            FeaturesPatcher.Enabled = false;
-            FeaturesModule.Enabled = false;
-            Deserializer.Enabled = false;
+            NoodleController.Capability.Deregister();
             JSONDeserializer.Enabled = false;
         }
 #pragma warning restore CA1822

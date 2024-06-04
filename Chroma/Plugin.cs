@@ -1,7 +1,7 @@
-﻿using Chroma.Extras;
-using Chroma.Installers;
+﻿using Chroma.Installers;
 using Chroma.Lighting;
 using Chroma.Settings;
+using Heck;
 using Heck.Animation;
 using IPA;
 using IPA.Config.Stores;
@@ -17,6 +17,8 @@ namespace Chroma
     [Plugin(RuntimeOptions.DynamicInit)]
     internal class Plugin
     {
+        private readonly Config _config;
+
         [UsedImplicitly]
         [Init]
         public Plugin(Logger pluginLogger, IPA.Config.Config conf, Zenjector zenjector)
@@ -25,10 +27,13 @@ namespace Chroma
 
             ChromaSettableSettings.SetupSettableSettings();
             LightIDTableManager.InitTable();
+            _config = conf.Generated<Config>();
             zenjector.Install<ChromaPlayerInstaller>(Location.Player);
-            zenjector.Install<ChromaAppInstaller>(Location.App, conf.Generated<Config>());
+            zenjector.Install<ChromaAppInstaller>(Location.App, _config);
             zenjector.Install<ChromaMenuInstaller>(Location.Menu);
             zenjector.UseLogger(pluginLogger);
+
+            HeckPatchManager.Register(HARMONY_ID);
 
             Track.RegisterProperty<Vector4>(COLOR, V2_COLOR);
             Track.RegisterPathProperty<Vector4>(COLOR, V2_COLOR);
@@ -47,19 +52,14 @@ namespace Chroma
         [OnEnable]
         public void OnEnable()
         {
-            CorePatcher.Enabled = true;
-            FeaturesModule.Enabled = true;
-            ColorizerModule.Enabled = true;
-            EnvironmentModule.Enabled = true;
-
             // ChromaConfig wont set if there is no config!
-            if (!Config.Instance.ChromaEventsDisabled)
+            if (!_config.ChromaEventsDisabled)
             {
-                Capability.Register();
+                ChromaController.Capability.Register();
             }
             else
             {
-                Capability.Deregister();
+                ChromaController.Capability.Deregister();
             }
 
             // Legacy support
@@ -70,14 +70,7 @@ namespace Chroma
         [OnDisable]
         public void OnDisable()
         {
-            CorePatcher.Enabled = false;
-            FeaturesPatcher.Enabled = false;
-            EnvironmentPatcher.Enabled = false;
-            FeaturesModule.Enabled = false;
-            ColorizerModule.Enabled = false;
-            Deserializer.Enabled = false;
-
-            Capability.Deregister();
+            ChromaController.Capability.Deregister();
 
             // Legacy support
             LegacyCapability.Deregister();

@@ -13,9 +13,16 @@ namespace NoodleExtensions.Installers
     [UsedImplicitly]
     internal class NoodlePlayerInstaller : Installer
     {
+        private readonly FeaturesModule _featuresModule;
+
+        private NoodlePlayerInstaller(FeaturesModule featuresModule)
+        {
+            _featuresModule = featuresModule;
+        }
+
         public override void InstallBindings()
         {
-            if (!NoodleController.FeaturesPatcher.Enabled)
+            if (!_featuresModule.Active)
             {
                 return;
             }

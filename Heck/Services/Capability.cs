@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using HarmonyLib;
-using IPA.Loader;
 
 namespace Heck
 {
@@ -23,17 +22,16 @@ namespace Heck
             }
 
             _initialized = true;
-            Assembly? assembly = PluginManager.GetPlugin("SongCore")?.Assembly;
-            if (assembly == null)
+            Type? collections = Type.GetType("SongCore.Collections, SongCore");
+            if (collections == null)
             {
                 return;
             }
 
-            Type collections = assembly.GetType("SongCore.Collections");
             MethodInfo register = AccessTools.Method(collections, "RegisterCapability");
-            _register = (Action<string>)Delegate.CreateDelegate(collections, register);
+            _register = (Action<string>)Delegate.CreateDelegate(typeof(Action<string>), register);
             MethodInfo deregister = AccessTools.Method(collections, "DeregisterizeCapability");
-            _deregister = (Action<string>)Delegate.CreateDelegate(collections, deregister);
+            _deregister = (Action<string>)Delegate.CreateDelegate(typeof(Action<string>), deregister);
         }
 
         public void Register()

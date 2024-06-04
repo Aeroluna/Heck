@@ -7,7 +7,7 @@ using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions
 {
-    internal class CustomDataManager
+    internal static class CustomDataManager
     {
         [EarlyDeserializer]
         internal static void DeserializeEarly(

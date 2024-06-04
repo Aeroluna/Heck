@@ -7,14 +7,14 @@ using HarmonyLib;
 
 namespace Heck
 {
-    public class DataDeserializer
+    internal class DataDeserializer
     {
         private readonly MethodInfo? _customEventMethod;
         private readonly MethodInfo? _beatmapEventMethod;
         private readonly MethodInfo? _beatmapObjectMethod;
         private readonly MethodInfo? _earlyMethod;
 
-        internal DataDeserializer(object? id, IReflect type)
+        internal DataDeserializer(string? id, IReflect type)
         {
             Id = id;
 
@@ -39,13 +39,13 @@ namespace Heck
             }
         }
 
-        public bool Enabled { get; set; }
+        internal bool Enabled { get; set; }
 
-        public object? Id { get; }
+        internal string? Id { get; }
 
         public override string ToString()
         {
-            return Id?.ToString() ?? "NULL";
+            return Id ?? "NULL";
         }
 
         internal void InjectedInvokeEarly(object[] inputs)

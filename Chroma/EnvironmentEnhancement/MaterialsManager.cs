@@ -130,7 +130,7 @@ namespace Chroma.EnvironmentEnhancement
 
         private static Material InstantiateSharedMaterial(ShaderType shaderType)
         {
-            Material material = new Material(Shader.Find(shaderType switch
+            Material material = new(Shader.Find(shaderType switch
             {
                 ShaderType.OpaqueLight => "Custom/OpaqueNeonLight",
                 ShaderType.TransparentLight => "Custom/TransparentNeonLight",

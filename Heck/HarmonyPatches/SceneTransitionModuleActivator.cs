@@ -1,50 +1,56 @@
-﻿using HarmonyLib;
+﻿using SiraUtil.Affinity;
 
 namespace Heck.HarmonyPatches
 {
-    [HeckPatch]
-    internal static class SceneTransitionModuleActivator
+    internal class SceneTransitionModuleActivator : IAffinity
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(
+        private readonly ModuleManager _moduleManager;
+
+        internal SceneTransitionModuleActivator(ModuleManager moduleManager)
+        {
+            _moduleManager = moduleManager;
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(
             typeof(MissionLevelScenesTransitionSetupDataSO),
             nameof(MissionLevelScenesTransitionSetupDataSO.Init))]
-        private static void MissionPrefix(IDifficultyBeatmap difficultyBeatmap, IPreviewBeatmapLevel previewBeatmapLevel)
+        private void MissionPrefix(IDifficultyBeatmap difficultyBeatmap, IPreviewBeatmapLevel previewBeatmapLevel)
         {
             OverrideEnvironmentSettings? overrideEnvironmentSettings = null;
-            ModuleManager.Activate(difficultyBeatmap, previewBeatmapLevel, LevelType.Mission, ref overrideEnvironmentSettings);
+            _moduleManager.Activate(difficultyBeatmap, previewBeatmapLevel, LevelType.Mission, ref overrideEnvironmentSettings);
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(
+        [AffinityPrefix]
+        [AffinityPatch(
             typeof(MultiplayerLevelScenesTransitionSetupDataSO),
             nameof(MultiplayerLevelScenesTransitionSetupDataSO.Init))]
-        private static void MultiplayerPrefix(IDifficultyBeatmap difficultyBeatmap, IPreviewBeatmapLevel previewBeatmapLevel)
+        private void MultiplayerPrefix(IDifficultyBeatmap difficultyBeatmap, IPreviewBeatmapLevel previewBeatmapLevel)
         {
             OverrideEnvironmentSettings? overrideEnvironmentSettings = null;
-            ModuleManager.Activate(difficultyBeatmap, previewBeatmapLevel, LevelType.Multiplayer, ref overrideEnvironmentSettings);
+            _moduleManager.Activate(difficultyBeatmap, previewBeatmapLevel, LevelType.Multiplayer, ref overrideEnvironmentSettings);
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(
+        [AffinityPrefix]
+        [AffinityPatch(
             typeof(StandardLevelScenesTransitionSetupDataSO),
             nameof(StandardLevelScenesTransitionSetupDataSO.Init))]
-        private static void StandardPrefix(
+        private void StandardPrefix(
             IDifficultyBeatmap difficultyBeatmap,
             IPreviewBeatmapLevel previewBeatmapLevel,
             ref OverrideEnvironmentSettings? overrideEnvironmentSettings)
         {
-            ModuleManager.Activate(difficultyBeatmap, previewBeatmapLevel, LevelType.Standard, ref overrideEnvironmentSettings);
+            _moduleManager.Activate(difficultyBeatmap, previewBeatmapLevel, LevelType.Standard, ref overrideEnvironmentSettings);
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(
+        [AffinityPrefix]
+        [AffinityPatch(
             typeof(TutorialScenesTransitionSetupDataSO),
             nameof(TutorialScenesTransitionSetupDataSO.Init))]
-        private static void TutorialPrefix()
+        private void TutorialPrefix()
         {
             OverrideEnvironmentSettings? overrideEnvironmentSettings = null;
-            ModuleManager.Activate(null, null, LevelType.Standard, ref overrideEnvironmentSettings);
+            _moduleManager.Activate(null, null, LevelType.Standard, ref overrideEnvironmentSettings);
         }
     }
 }

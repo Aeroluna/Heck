@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.GameplaySetup;
@@ -7,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace Chroma.Settings
 {
-    internal class ChromaSettingsUI
+    internal class ChromaSettingsUI : IDisposable
     {
         private const string NO_ENVIRONMENT = "None";
 
@@ -28,14 +29,20 @@ namespace Chroma.Settings
             _beatmapDataCache = beatmapDataCache;
             _environmentOptions = _savedEnvironmentLoader.Environments.Keys.Cast<object?>().Prepend(null).ToList();
 
-            // TODO: find some way to disable this for DynamicInit
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", this);
+        }
+
+        public void Dispose()
+        {
+            GameplaySetup.instance.RemoveTab("Chroma");
         }
 
 #pragma warning disable CA1822
         [UsedImplicitly]
         [UIValue("rgbevents")]
+#pragma warning disable SA1201
         public bool ChromaEventsDisabled
+#pragma warning restore SA1201
         {
             get => _config.ChromaEventsDisabled;
             set => _config.ChromaEventsDisabled = value;

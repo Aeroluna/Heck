@@ -7,12 +7,13 @@ using Chroma.Settings;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck;
-using JetBrains.Annotations;
 using static Chroma.ChromaController;
 
-namespace Chroma
+namespace Chroma.Modules
 {
-    internal class ModuleCallbacks
+    [Module(ID, 3, LoadType.Active, new[] { "ChromaColorizer", "ChromaEnvironment" })]
+    [ModulePatcher(HARMONY_ID + "Features", PatchType.Features)]
+    internal class EnvironmentModule : IModule
     {
         // if there is a better way to detect v3 lights, i would love to know it
         // blacklist because likely this list will never need to be updated
@@ -43,47 +44,25 @@ namespace Chroma
             "GagaEnvironment"
         };
 
-        [ModuleCallback(PatchType.Colorizer)]
-        private static void ToggleColorizer(bool value)
+        private readonly Config _config;
+        private readonly CustomLevelLoader _customLevelLoader;
+
+        private EnvironmentModule(Config config, CustomLevelLoader customLevelLoader)
         {
-            Deserializer.Enabled = value;
-            ColorizerPatcher.Enabled = value;
+            _config = config;
+            _customLevelLoader = customLevelLoader;
         }
 
-        [ModuleCondition(PatchType.Features)]
-        private static bool ConditionFeatures(
-            Capabilities capabilities,
-            IDifficultyBeatmap difficultyBeatmap)
+        internal bool Active { get; private set; }
+
+        [ModuleCallback]
+        private void Callback(bool value)
         {
-            bool chromaRequirement = capabilities.Requirements.Contains(CAPABILITY) || capabilities.Suggestions.Contains(CAPABILITY);
-
-            // please let me remove this shit
-            bool legacyOverride = difficultyBeatmap is CustomDifficultyBeatmap { beatmapSaveData: CustomBeatmapSaveData customBeatmapSaveData }
-                                  && customBeatmapSaveData.basicBeatmapEvents.Any(n => n.value >= LegacyLightHelper.RGB_INT_OFFSET);
-
-            bool customEnvironment = Config.Instance.CustomEnvironmentEnabled && (SavedEnvironmentLoader.Instance.SavedEnvironment?.Features.UseChromaEvents ?? false);
-
-            // ReSharper disable once InvertIf
-            if (legacyOverride)
-            {
-                Plugin.Log.Warn("Legacy Chroma Detected...");
-                Plugin.Log.Warn("Please do not use Legacy Chroma Lights for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed");
-            }
-
-            return (chromaRequirement || legacyOverride || customEnvironment) && !Config.Instance.ChromaEventsDisabled;
+            Active = value;
         }
 
-        [ModuleCallback(PatchType.Features)]
-        private static void ToggleFeatures(
-            bool value,
-            IDifficultyBeatmap difficultyBeatmap,
-            ModuleManager.ModuleArgs moduleArgs)
-        {
-            FeaturesPatcher.Enabled = value;
-        }
-
-        [ModuleCondition(PatchType.Environment)]
-        private static bool ConditionEnvironment(
+        [ModuleCondition]
+        private bool ConditionEnvironment(
             IDifficultyBeatmap difficultyBeatmap,
             ModuleManager.ModuleArgs moduleArgs,
             bool dependency)
@@ -91,12 +70,12 @@ namespace Chroma
             EnvironmentInfoSO environmentInfo = difficultyBeatmap.GetEnvironmentInfo();
             EnvironmentTypeSO type = environmentInfo.environmentType;
 
-            bool settingForce = (Config.Instance.ForceMapEnvironmentWhenChroma && dependency) ||
-                                (Config.Instance.ForceMapEnvironmentWhenV3 && !_basicEnvironments.Contains(environmentInfo._serializedName));
+            bool settingForce = (_config.ForceMapEnvironmentWhenChroma && dependency) ||
+                                (_config.ForceMapEnvironmentWhenV3 && !_basicEnvironments.Contains(environmentInfo._serializedName));
 
             CustomBeatmapSaveData? customBeatmapSaveData = difficultyBeatmap.GetBeatmapSaveData();
             if (settingForce ||
-                (!Config.Instance.EnvironmentEnhancementsDisabled &&
+                (!_config.EnvironmentEnhancementsDisabled &&
                 customBeatmapSaveData != null &&
                 ((customBeatmapSaveData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Count ?? 0) > 0 ||
                  (customBeatmapSaveData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Count ?? 0) > 0 ||
@@ -121,9 +100,9 @@ namespace Chroma
             else if (moduleArgs.OverrideEnvironmentSettings != null)
             {
                 SavedEnvironment? savedEnvironment = SavedEnvironmentLoader.Instance.SavedEnvironment;
-                if (Config.Instance.CustomEnvironmentEnabled && savedEnvironment != null)
+                if (_config.CustomEnvironmentEnabled && savedEnvironment != null)
                 {
-                    EnvironmentInfoSO overrideEnv = CustomLevelLoaderExposer.CustomLevelLoader.LoadEnvironmentInfo(savedEnvironment.EnvironmentName, type);
+                    EnvironmentInfoSO overrideEnv = _customLevelLoader.LoadEnvironmentInfo(savedEnvironment.EnvironmentName, type);
                     LightIDTableManager.SetEnvironment(overrideEnv.serializedName);
                     OverrideEnvironmentSettings newSettings = new()
                     {
@@ -142,23 +121,5 @@ namespace Chroma
 
             return dependency;
         }
-
-        [ModuleCallback(PatchType.Environment)]
-        private static void ToggleEnvironment(bool value)
-        {
-            EnvironmentPatcher.Enabled = value;
-        }
-    }
-
-    internal class CustomLevelLoaderExposer
-    {
-        [UsedImplicitly]
-        private CustomLevelLoaderExposer(CustomLevelLoader customLevelLoader)
-        {
-            CustomLevelLoader = customLevelLoader;
-        }
-
-        // im lazy
-        internal static CustomLevelLoader CustomLevelLoader { get; private set; } = null!;
     }
 }

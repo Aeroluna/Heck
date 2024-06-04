@@ -5,73 +5,91 @@ using System.Reflection;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+using JetBrains.Annotations;
+using SiraUtil.Logging;
+using Zenject;
 
 namespace Heck
 {
-    public static class ModuleManager
+    public class ModuleManager
     {
-        private static List<Module> _modules = new();
+        private List<ModuleData> _modules = new();
 
-        private static bool _sorted;
+        private bool _sorted;
 
-        public static Module Register<T>(
-            string id,
-            int priority,
-            RequirementType requirementType,
-            object? attributeId = null,
-            string[]? depends = null,
-            string[]? conflict = null)
+        [UsedImplicitly]
+        private ModuleManager(
+            SiraLog log,
+            [Inject(Optional = true, Source = InjectSources.Local)] IEnumerable<IModule> modules,
+            DeserializerManager deserializerManager)
         {
-            MethodInfo? method = typeof(T).GetMethods(AccessTools.allDeclared).FirstOrDefault(SearchForAttribute<ModuleCallback>);
-            if (method == null)
+            foreach (IModule module in modules)
             {
-                throw new ArgumentException($"[{typeof(T).FullName}] does not contain a method marked with [{nameof(ModuleCallback)}] and id [{attributeId}].", nameof(T));
-            }
-
-            MethodInfo? condition = null;
-            if (requirementType == RequirementType.Condition)
-            {
-                condition = typeof(T).GetMethods(AccessTools.allDeclared).FirstOrDefault(SearchForAttribute<ModuleCondition>);
-                if (condition == null || condition.ReturnType != typeof(bool))
-                {
-                    throw new ArgumentException($"[{typeof(T).FullName}] does not contain a method marked with [{nameof(ModuleCondition)}] and id [{attributeId}] that returns [{nameof(Boolean)}].", nameof(T));
-                }
-            }
-
-            Module module = new(
-                id,
-                priority,
-                method,
-                requirementType,
-                condition,
-                depends ?? Array.Empty<string>(),
-                conflict ?? Array.Empty<string>());
-
-            _modules.Add(module);
-            _sorted = false;
-
-            return module;
-
-            bool SearchForAttribute<TAttribute>(MethodInfo searchedMethod)
-                where TAttribute : AttributeWithId
-            {
-                AttributeWithId? attribute = searchedMethod.GetCustomAttribute<TAttribute>();
-
+                Type type = module.GetType();
+                Module? attribute = type.GetCustomAttribute<Module>();
                 if (attribute == null)
                 {
-                    return false;
+                    log.Warn($"[{type.FullName}] is missing Module attribute and will be ignored.");
+                    continue;
                 }
 
-                if (attribute.Id != null)
+                List<IModuleFeature> features = new();
+
+                MethodInfo? callback = GetMethodWithAttribute<ModuleCallback>(type);
+                if (callback != null)
                 {
-                    return attribute.Id.Equals(attributeId);
+                    features.Add(new CallbackModuleFeature(callback));
                 }
 
-                return attributeId == null;
+                MethodInfo? condition = GetMethodWithAttribute<ModuleCondition>(type);
+                if (condition != null)
+                {
+                    if (condition.ReturnType != typeof(bool))
+                    {
+                        log.Warn(
+                            $"[{type.FullName}] does not contain a method marked with [{nameof(ModuleCondition)}] that returns [{nameof(Boolean)}].");
+                    }
+                    else
+                    {
+                        features.Add(new ConditionModuleFeature(condition));
+                    }
+                }
+
+                ModuleDataDeserializer? dataDeserializer = type.GetCustomAttribute<ModuleDataDeserializer>();
+                if (dataDeserializer != null)
+                {
+                    features.Add(new DeserializerModuleFeature(deserializerManager.Register(dataDeserializer.Id, dataDeserializer.Type)));
+                }
+
+                ModulePatcher? modulePatcher = type.GetCustomAttribute<ModulePatcher>();
+                if (modulePatcher != null)
+                {
+                    features.Add(new PatcherModuleFeature(new HeckPatcher(type.Assembly, modulePatcher.HarmonyId, modulePatcher.Id)));
+                }
+
+                ModuleData moduleData = new(
+                    module,
+                    attribute.Id,
+                    attribute.Priority,
+                    attribute.LoadType,
+                    attribute.Depends ?? Array.Empty<string>(),
+                    attribute.Conflict ?? Array.Empty<string>(),
+                    features.ToArray());
+
+                _modules.Add(moduleData);
+                _sorted = false;
+            }
+
+            return;
+
+            static MethodInfo? GetMethodWithAttribute<TAttribute>(Type type)
+                where TAttribute : Attribute
+            {
+                return type.GetMethods(AccessTools.allDeclared).FirstOrDefault(n => n.GetCustomAttribute<TAttribute>() != null);
             }
         }
 
-        internal static void Activate(
+        internal void Activate(
             IDifficultyBeatmap? difficultyBeatmap,
             IPreviewBeatmapLevel? previewBeatmapLevel,
             LevelType levelType,
@@ -112,8 +130,8 @@ namespace Heck
                 _sorted = true;
             }
 
-            List<Module> queue = _modules.ToList();
-            HashSet<Module> active = new();
+            List<ModuleData> queue = _modules.ToList();
+            HashSet<ModuleData> active = new();
 
             while (queue.Count != 0)
             {
@@ -123,68 +141,68 @@ namespace Heck
             overrideEnvironmentSettings = moduleArgs.OverrideEnvironmentSettings;
             return;
 
-            void InitializeModule(Module module, bool depended = false)
+            void InitializeModule(ModuleData module, bool depended = false)
             {
                 // Remove module from processing queue
                 queue.Remove(module);
 
-                // skip disabled modules
-                if (!module.Enabled)
-                {
-                    return;
-                }
-
-                MethodInfo callBack = module.Callback;
-
                 // force fail on all modules
                 if (disableAll)
                 {
-                    goto fail;
+                    Finish(false);
+                    return;
                 }
 
                 // check requirement
-                switch (module.RequirementType)
+                switch (module.LoadType)
                 {
-                    case RequirementType.None:
+                    case LoadType.Passive:
                         if (!depended)
                         {
                             Plugin.Log.Trace($"[{module.Id}] not requested by any other module, skipping");
-                            goto fail;
+                            Finish(false);
+                            return;
                         }
 
                         break;
-                    case RequirementType.Condition:
-                        MethodInfo condition = module.ConditionCallback!;
-                        if (!(bool)condition.Invoke(null, condition.ActualParameters(inputs.AddToArray(depended))))
+                    case LoadType.Active:
+                        ConditionModuleFeature? conditionFeature = module.GetFeature<ConditionModuleFeature>();
+                        if (conditionFeature != null)
                         {
-                            Plugin.Log.Trace($"[{module.Id}] did not pass condition, skipping");
-                            goto fail;
+                            MethodInfo condition = conditionFeature.Method;
+                            if (!(bool)condition.Invoke(
+                                    module.Module,
+                                    condition.ActualParameters(inputs.AddToArray(depended))))
+                            {
+                                Plugin.Log.Trace($"[{module.Id}] did not pass condition, skipping");
+                                Finish(false);
+                                return;
+                            }
                         }
 
-                        break;
-                    case RequirementType.Always:
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(module), "Was not valid RequirementType.");
+                        throw new ArgumentOutOfRangeException(nameof(module), $"Was not valid {nameof(LevelType)}.");
                 }
 
                 // Handle conflicts
                 foreach (string conflictId in module.Conflict)
                 {
-                    Module? conflict = active.FirstOrDefault(n => n.Id == conflictId);
+                    ModuleData? conflict = active.FirstOrDefault(n => n.Id == conflictId);
                     if (conflict == null)
                     {
                         continue;
                     }
 
                     Plugin.Log.Trace($"[{module.Id}] conflicts with [{conflictId}], skipping");
-                    goto fail;
+                    Finish(false);
+                    return;
                 }
 
                 // handle dependencies
                 foreach (string dependId in module.Depends)
                 {
-                    Module? depend = queue.FirstOrDefault(n => n.Id == dependId);
+                    ModuleData? depend = queue.FirstOrDefault(n => n.Id == dependId);
                     if (depend != null)
                     {
                         InitializeModule(depend, true);
@@ -203,7 +221,7 @@ namespace Heck
                 active.Add(module);
                 try
                 {
-                    callBack.Invoke(null, callBack.ActualParameters(inputs.AddToArray(true)));
+                    Finish(true);
                     Plugin.Log.Trace($"[{module.Id}] loaded");
                 }
                 catch
@@ -214,9 +232,26 @@ namespace Heck
 
                 return;
 
-                // goto just seemed to work for this
-                fail:
-                callBack.Invoke(null, callBack.ActualParameters(inputs.AddToArray(false)));
+                void Finish(bool success)
+                {
+                    MethodInfo? callBack =
+                        module.GetFeature<CallbackModuleFeature>()?.Method;
+                    callBack?.Invoke(module.Module, callBack.ActualParameters(inputs.AddToArray(success)));
+
+                    DataDeserializer? dataDeserializer =
+                        module.GetFeature<DeserializerModuleFeature>()?.DataDeserializer;
+                    if (dataDeserializer != null)
+                    {
+                        dataDeserializer.Enabled = success;
+                    }
+
+                    HeckPatcher? patcher =
+                        module.GetFeature<PatcherModuleFeature>()?.Patcher;
+                    if (patcher != null)
+                    {
+                        patcher.Enabled = success;
+                    }
+                }
             }
         }
 

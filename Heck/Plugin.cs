@@ -39,7 +39,7 @@ namespace Heck
             zenjector.UseLogger(pluginLogger);
             zenjector.Expose<NoteCutSoundEffectManager>("Gameplay");
 
-            ModuleManager.Register<ModuleCallbacks>("Heck", 0, RequirementType.None);
+            HeckPatchManager.Register(HARMONY_ID);
 
             Track.RegisterProperty<Vector3>(POSITION, V2_POSITION);
             Track.RegisterProperty<Vector3>(LOCAL_POSITION, V2_LOCAL_POSITION);
@@ -55,15 +55,14 @@ namespace Heck
         [OnEnable]
         public void OnEnable()
         {
-            CorePatcher.Enabled = true;
+            HeckPatchManager.Enable();
         }
 
         [UsedImplicitly]
         [OnDisable]
         public void OnDisable()
         {
-            CorePatcher.Enabled = false;
-            FeaturesPatcher.Enabled = false;
+            HeckPatchManager.Disable();
         }
 #pragma warning restore CA1822
     }

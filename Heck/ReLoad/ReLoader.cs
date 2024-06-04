@@ -57,6 +57,7 @@ namespace Heck.ReLoad
         private readonly BeatmapCallbacksController _beatmapCallbacksController;
         private readonly IGamePause _gamePause;
         private readonly PauseMenuManager _pauseMenuManager;
+        private readonly DeserializerManager _deserializerManager;
         private readonly bool _leftHanded;
         private readonly Dictionary<string, Track> _beatmapTracks;
         private readonly DiContainer _container;
@@ -80,6 +81,7 @@ namespace Heck.ReLoad
             BeatmapCallbacksController beatmapCallbacksController,
             IGamePause gamePause,
             PauseMenuManager pauseMenuManager,
+            DeserializerManager deserializerManager,
             [Inject(Id = HeckController.LEFT_HANDED_ID)] bool leftHanded,
             Dictionary<string, Track> beatmapTracks,
             DiContainer container,
@@ -96,6 +98,7 @@ namespace Heck.ReLoad
             _beatmapCallbacksController = beatmapCallbacksController;
             _gamePause = gamePause;
             _pauseMenuManager = pauseMenuManager;
+            _deserializerManager = deserializerManager;
             _leftHanded = leftHanded;
             _beatmapTracks = beatmapTracks;
             _container = container;
@@ -182,7 +185,7 @@ namespace Heck.ReLoad
             FillBeatmapData(beatmapData, _beatmapData);
 
             HeckinGameplayCoreSceneSetupData heckinGameplayCoreSceneSetupData = (HeckinGameplayCoreSceneSetupData)_gameplayCoreSceneSetupData;
-            DeserializerManager.DeserializeBeatmapData(
+            _deserializerManager.DeserializeBeatmapData(
                 _difficultyBeatmap,
                 (CustomBeatmapData)beatmapData,
                 heckinGameplayCoreSceneSetupData.UntransformedBeatmapData,

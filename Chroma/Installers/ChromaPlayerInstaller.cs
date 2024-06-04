@@ -10,6 +10,7 @@ using Chroma.HarmonyPatches.Events;
 using Chroma.HarmonyPatches.Mirror;
 using Chroma.HarmonyPatches.ZenModeWalls;
 using Chroma.Lighting;
+using Chroma.Modules;
 using Heck;
 using JetBrains.Annotations;
 using Zenject;
@@ -19,9 +20,23 @@ namespace Chroma.Installers
     [UsedImplicitly]
     internal class ChromaPlayerInstaller : Installer
     {
+        private readonly ColorizerModule _colorizerModule;
+        private readonly FeaturesModule _featuresModule;
+        private readonly EnvironmentModule _environmentModule;
+
+        internal ChromaPlayerInstaller(
+            ColorizerModule colorizerModule,
+            FeaturesModule featuresModule,
+            EnvironmentModule environmentModule)
+        {
+            _colorizerModule = colorizerModule;
+            _featuresModule = featuresModule;
+            _environmentModule = environmentModule;
+        }
+
         public override void InstallBindings()
         {
-            if (ChromaController.ColorizerPatcher.Enabled)
+            if (_colorizerModule.Active)
             {
                 // Colorizer
                 Container.Bind<BombColorizerManager>().AsSingle();
@@ -62,7 +77,7 @@ namespace Chroma.Installers
                 Container.BindInterfacesTo<ColorSchemeGetter>().AsSingle();
             }
 
-            if (ChromaController.FeaturesPatcher.Enabled)
+            if (_featuresModule.Active)
             {
                 // Colorizer Patch
                 Container.BindInterfacesTo<ObjectColorize>().AsSingle();
@@ -88,7 +103,7 @@ namespace Chroma.Installers
                 Container.BindInterfacesAndSelfTo<ChromaGradientController>().AsSingle();
             }
 
-            if (ChromaController.EnvironmentPatcher.Enabled)
+            if (_environmentModule.Active)
             {
                 // EnvironmentComponent
                 Container.BindInterfacesAndSelfTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();

@@ -9,6 +9,7 @@ namespace NoodleExtensions.Installers
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<NoodleBaseProvider>().AsSingle();
+            Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
         }
     }
 }

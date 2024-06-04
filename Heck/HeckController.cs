@@ -46,11 +46,5 @@
         internal const string HARMONY_ID = "aeroluna.Heck";
 
         public static bool DebugMode { get; internal set; }
-
-        internal static HeckPatcher CorePatcher { get; } = new(HARMONY_ID + "Core");
-
-        internal static HeckPatcher FeaturesPatcher { get; } = new(HARMONY_ID + "Features", PatchType.Features);
-
-        internal static DataDeserializer Deserializer { get; } = DeserializerManager.Register<CustomDataManager>(ID);
     }
 }

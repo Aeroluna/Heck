@@ -34,6 +34,17 @@ namespace Chroma.HarmonyPatches
             InstanceTranspilers.DisposeDelegate(_changeFilterPreset);
         }
 
+        private static bool Any(CustomData customData, string key)
+        {
+            List<object>? list = customData.Get<List<object>>(key);
+            if (list == null)
+            {
+                return false;
+            }
+
+            return list.Count != 0;
+        }
+
         [AffinityTranspiler]
         [AffinityPatch(typeof(BeatmapDataLoader), nameof(BeatmapDataLoader.GetBeatmapDataFromBeatmapSaveData))]
         private IEnumerable<CodeInstruction> ChangeFilterPreset(IEnumerable<CodeInstruction> instructions)
@@ -55,9 +66,9 @@ namespace Chroma.HarmonyPatches
             if (!_config.CustomEnvironmentEnabled ||
                 (saveData is CustomBeatmapSaveData customSaveData &&
                 (!_config.EnvironmentEnhancementsDisabled &&
-                    ((customSaveData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
-                    (customSaveData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false) ||
-                    (customSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false)))))
+                 (Any(customSaveData.beatmapCustomData, V2_ENVIRONMENT_REMOVAL) ||
+                  Any(customSaveData.customData, V2_ENVIRONMENT) ||
+                  Any(customSaveData.customData, ENVIRONMENT)))))
             {
                 return original;
             }
@@ -78,9 +89,9 @@ namespace Chroma.HarmonyPatches
             if (!_config.CustomEnvironmentEnabled ||
                 (beatmapData is CustomBeatmapData customBeatmapData &&
                 (!_config.EnvironmentEnhancementsDisabled &&
-                 ((customBeatmapData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Any() ?? false) ||
-                  (customBeatmapData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Any() ?? false) ||
-                  (customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Any() ?? false)))))
+                 (Any(customBeatmapData.beatmapCustomData, V2_ENVIRONMENT_REMOVAL) ||
+                  Any(customBeatmapData.customData, V2_ENVIRONMENT) ||
+                  Any(customBeatmapData.customData, ENVIRONMENT)))))
             {
                 return true;
             }

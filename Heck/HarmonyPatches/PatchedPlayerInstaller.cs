@@ -1,30 +1,38 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
 using Heck.ReLoad;
+using SiraUtil.Affinity;
 using Zenject;
 
 namespace Heck.HarmonyPatches
 {
-    [HeckPatch(PatchType.Features)]
-    internal static class PatchedPlayerInstaller
+    internal class PatchedPlayerInstaller : IAffinity
     {
         private static readonly MethodInfo _getContainer = AccessTools.PropertyGetter(typeof(MonoInstallerBase), "Container");
         private static readonly MethodInfo _bindHeckMultiPlayer = AccessTools.Method(typeof(PatchedPlayerInstaller), nameof(BindHeckMultiPlayer));
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
-        private static void GameplayCoreBinder(MonoInstallerBase __instance, GameplayCoreSceneSetupData ____sceneSetupData)
+        private readonly DeserializerManager _deserializerManager;
+
+        private PatchedPlayerInstaller(DeserializerManager deserializerManager)
+        {
+            _deserializerManager = deserializerManager;
+        }
+
+        [AffinityPostfix]
+        [AffinityPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
+        private void GameplayCoreBinder(MonoInstallerBase __instance, GameplayCoreSceneSetupData ____sceneSetupData)
         {
             BindHeckSinglePlayer(____sceneSetupData, __instance.Container);
         }
 
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(MultiplayerConnectedPlayerInstaller), nameof(MultiplayerConnectedPlayerInstaller.InstallBindings))]
-        private static IEnumerable<CodeInstruction> MultiplayerConnectedTranspiler(IEnumerable<CodeInstruction> instructions)
+        [AffinityTranspiler]
+        [AffinityPatch(typeof(MultiplayerConnectedPlayerInstaller), nameof(MultiplayerConnectedPlayerInstaller.InstallBindings))]
+        private IEnumerable<CodeInstruction> MultiplayerConnectedTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
                 /*
@@ -41,7 +49,14 @@ namespace Heck.HarmonyPatches
                 .InstructionEnumeration();
         }
 
-        private static void BindHeckSinglePlayer(
+        private static void BindHeckMultiPlayer(
+            PlayerSpecificSettingsNetSerializable playerSpecificSettings,
+            DiContainer container)
+        {
+            container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(playerSpecificSettings.leftHanded);
+        }
+
+        private void BindHeckSinglePlayer(
             GameplayCoreSceneSetupData sceneSetupData,
             DiContainer container)
         {
@@ -57,7 +72,7 @@ namespace Heck.HarmonyPatches
             }
 
             bool leftHanded = sceneSetupData.playerSpecificSettings.leftHanded;
-            DeserializerManager.DeserializeBeatmapData(
+            _deserializerManager.DeserializeBeatmapData(
                 sceneSetupData.difficultyBeatmap,
                 (CustomBeatmapData)sceneSetupData.transformedBeatmapData,
                 untransformedBeatmapData,
@@ -70,23 +85,12 @@ namespace Heck.HarmonyPatches
                     .WithId(n.Id));
             container.BindInstance(deserializedDatas);
 
-            container.Bind<ObjectInitializerManager>().AsSingle();
-
             container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(leftHanded);
 
             if (HeckController.DebugMode && sceneSetupData.practiceSettings != null)
             {
                 container.BindInterfacesAndSelfTo<ReLoader>().AsSingle().NonLazy();
             }
-        }
-
-        private static void BindHeckMultiPlayer(
-            PlayerSpecificSettingsNetSerializable playerSpecificSettings,
-            DiContainer container)
-        {
-            container.Bind<ObjectInitializerManager>().AsSingle();
-
-            container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(playerSpecificSettings.leftHanded);
         }
     }
 }

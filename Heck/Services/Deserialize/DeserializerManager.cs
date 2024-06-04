@@ -4,22 +4,24 @@ using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Utilities;
+using JetBrains.Annotations;
 using static Heck.HeckController;
 
 namespace Heck
 {
-    public static class DeserializerManager
+    [UsedImplicitly]
+    internal class DeserializerManager
     {
-        private static readonly HashSet<DataDeserializer> _customDataDeserializers = new();
+        private readonly HashSet<DataDeserializer> _customDataDeserializers = new();
 
-        public static DataDeserializer Register<T>(object? id)
+        internal DataDeserializer Register(string id, Type type)
         {
-            DataDeserializer deserializer = new(id, typeof(T));
+            DataDeserializer deserializer = new(id, type);
             _customDataDeserializers.Add(deserializer);
             return deserializer;
         }
 
-        internal static void DeserializeBeatmapData(
+        internal void DeserializeBeatmapData(
             IDifficultyBeatmap difficultyBeatmap,
             CustomBeatmapData customBeatmapData,
             IReadonlyBeatmapData untransformedBeatmapData,
