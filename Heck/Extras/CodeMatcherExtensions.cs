@@ -10,11 +10,10 @@ namespace Heck
     {
 #if DEBUG
         [PublicAPI]
-        public static CodeMatcher PrintInstructions(this CodeMatcher codeMatcher, HeckLogger logger, string seperator = "\t")
+        public static CodeMatcher PrintInstructions(this CodeMatcher codeMatcher, Logger logger, string seperator = "\t")
         {
-            logger.Log("Printing instructions:");
-            Logger ipaLogger = logger.IPALogger;
-            codeMatcher.Instructions().ForEach(n => ipaLogger.Log(Logger.Level.Info, seperator + n));
+            logger.Info("Printing instructions:");
+            codeMatcher.Instructions().ForEach(n => logger.Info(seperator + n));
             return codeMatcher;
         }
 
