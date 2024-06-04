@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Chroma.Extras;
 using Heck.SettingsSetter;
 using IPA.Config.Stores;
 using JetBrains.Annotations;
 using static Chroma.ChromaController;
 using static Chroma.Settings.ChromaSettableSettings;
-using Loader = SongCore.Loader;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 
@@ -54,11 +52,20 @@ namespace Chroma.Settings
             set
             {
                 ChromaEventsDisabledSetting.Value = value;
-                ChromaUtils.SetSongCoreCapability(CAPABILITY, !ChromaEventsDisabledSetting.Value);
-                if (Loader.Instance != null)
+                if (!value)
+                {
+                    Capability.Register();
+                }
+                else
+                {
+                    Capability.Deregister();
+                }
+
+                // tbh this is too laggy, i'd like a better way to refresh capabilities
+                /*if (Loader.Instance != null)
                 {
                     Loader.Instance.RefreshSongs();
-                }
+                }*/
             }
         }
 

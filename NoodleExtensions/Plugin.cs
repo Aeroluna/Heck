@@ -3,7 +3,6 @@ using IPA;
 using JetBrains.Annotations;
 using NoodleExtensions.Installers;
 using SiraUtil.Zenject;
-using SongCore;
 using UnityEngine;
 using static Heck.HeckController;
 using static NoodleExtensions.NoodleController;
@@ -49,7 +48,7 @@ namespace NoodleExtensions
         [OnEnable]
         public void OnEnable()
         {
-            Collections.RegisterCapability(CAPABILITY);
+            Capability.Register();
             CorePatcher.Enabled = true;
             FeaturesModule.Enabled = true;
             JSONDeserializer.Enabled = true;
@@ -59,7 +58,7 @@ namespace NoodleExtensions
         [OnDisable]
         public void OnDisable()
         {
-            Collections.DeregisterizeCapability(CAPABILITY);
+            Capability.Deregister();
             CorePatcher.Enabled = false;
             FeaturesPatcher.Enabled = false;
             FeaturesModule.Enabled = false;

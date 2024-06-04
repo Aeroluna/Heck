@@ -68,6 +68,8 @@ namespace NoodleExtensions
         internal const string ID = "NoodleExtensions";
         internal const string HARMONY_ID = "aeroluna.NoodleExtensions";
 
+        internal static Capability Capability { get; } = new(CAPABILITY);
+
         internal static HeckPatcher CorePatcher { get; } = new(HARMONY_ID + "Core");
 
         internal static HeckPatcher FeaturesPatcher { get; } = new(HARMONY_ID + "Features", PatchType.Features);

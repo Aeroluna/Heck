@@ -1,23 +1,10 @@
-﻿using SongCore;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Chroma.Extras
 {
     internal static class ChromaUtils
     {
         internal static Mesh TriangleMesh { get; set; } = null!; // used for caching the triangle mesh, for performance reasons.
-
-        internal static void SetSongCoreCapability(string capability, bool enabled = true)
-        {
-            if (enabled)
-            {
-                Collections.RegisterCapability(capability);
-            }
-            else
-            {
-                Collections.DeregisterizeCapability(capability);
-            }
-        }
 
         internal static Color MultAlpha(this Color color, float alpha)
         {

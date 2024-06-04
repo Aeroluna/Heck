@@ -53,10 +53,17 @@ namespace Chroma
             EnvironmentModule.Enabled = true;
 
             // ChromaConfig wont set if there is no config!
-            ChromaUtils.SetSongCoreCapability(CAPABILITY, !Config.Instance.ChromaEventsDisabled);
+            if (!Config.Instance.ChromaEventsDisabled)
+            {
+                Capability.Register();
+            }
+            else
+            {
+                Capability.Deregister();
+            }
 
             // Legacy support
-            ChromaUtils.SetSongCoreCapability("Chroma Lighting Events");
+            LegacyCapability.Register();
         }
 
         [UsedImplicitly]
@@ -70,10 +77,10 @@ namespace Chroma
             ColorizerModule.Enabled = false;
             Deserializer.Enabled = false;
 
-            ChromaUtils.SetSongCoreCapability(CAPABILITY, false);
+            Capability.Deregister();
 
             // Legacy support
-            ChromaUtils.SetSongCoreCapability("Chroma Lighting Events", false);
+            LegacyCapability.Deregister();
         }
 #pragma warning restore CA1822
     }
