@@ -23,6 +23,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         private readonly Transform _origin;
         private readonly CodeInstruction _computeWorld;
         private readonly bool _local;
+        private readonly bool _active;
 
         private SaberPlayerMovementFix(
             SiraLog log,
@@ -32,7 +33,10 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
             _log = log;
             _origin = playerTransforms._originTransform;
             _computeWorld = InstanceTranspilers.EmitInstanceDelegate<Func<Vector3, Vector3>>(ComputeWorld);
-            _local = ((CustomBeatmapData)beatmapData).beatmapCustomData.Get<bool?>(NoodleController.TRAIL_LOCAL_SPACE) ?? false;
+
+            CustomBeatmapData customBeatmapData = (CustomBeatmapData)beatmapData;
+            _local = customBeatmapData.beatmapCustomData.Get<bool?>(NoodleController.TRAIL_LOCAL_SPACE) ?? false;
+            _active = customBeatmapData.customEventDatas.Any(n => n.eventType == NoodleController.ASSIGN_PLAYER_TO_TRACK);
         }
 
         public void Dispose()
@@ -44,6 +48,11 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         [AffinityPatch(typeof(SaberTrail), nameof(SaberTrail.Setup))]
         private void CreateSaberMovementData(ref IBladeMovementData movementData, SaberTrail __instance, TrailRenderer ____trailRenderer)
         {
+            if (!_active)
+            {
+                return;
+            }
+
             if (_local)
             {
                 _log.Debug("Parented saber trail to local space");
@@ -61,7 +70,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         [AffinityPatch(typeof(SaberTrail), nameof(SaberTrail.OnDestroy))]
         private void CleanupWorldMovement(IBladeMovementData ____movementData)
         {
-            if (_local)
+            if (_local || !_active)
             {
                 return;
             }
@@ -79,7 +88,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         [AffinityPatch(typeof(SaberMovementData), nameof(SaberMovementData.AddNewData))]
         private void ConvertToWorld(SaberMovementData __instance, ref Vector3 topPos, ref Vector3 bottomPos, float time)
         {
-            if (_local)
+            if (_local || !_active)
             {
                 return;
             }
@@ -104,7 +113,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         [AffinityPatch(typeof(SaberMovementData), nameof(SaberMovementData.lastAddedData), AffinityMethodType.Getter)]
         private void ConvertToLocal(SaberMovementData __instance, ref BladeMovementDataElement __result)
         {
-            if (_local)
+            if (_local || !_active)
             {
                 return;
             }
@@ -122,7 +131,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         [AffinityPatch(typeof(SaberSwingRatingCounter), nameof(SaberSwingRatingCounter.ProcessNewData))]
         private void ConvertProcessorToLocal(ref BladeMovementDataElement newData, ref BladeMovementDataElement prevData)
         {
-            if (_local)
+            if (_local || !_active)
             {
                 return;
             }
@@ -137,7 +146,7 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes
         [AffinityPatch(typeof(SaberMovementData), nameof(SaberMovementData.ComputeAdditionalData))]
         private IEnumerable<CodeInstruction> ComputeWorldTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            if (_local)
+            if (_local || !_active)
             {
                 return instructions;
             }
