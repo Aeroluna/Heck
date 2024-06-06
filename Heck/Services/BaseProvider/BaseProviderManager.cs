@@ -52,6 +52,7 @@ namespace Heck.BaseProvider
             _getter = getter;
         }
 
+        // TODO: use delegates instead for better performance
         internal object GetValue()
         {
             object result = _getter.Invoke(_baseProvider, Array.Empty<object>());

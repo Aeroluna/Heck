@@ -95,7 +95,7 @@ namespace Heck.Animation
                             Operation.opSub => modVec - modVec,
                             Operation.opMul => Vector3.Scale(curVec, modVec),
                             Operation.opDiv => Vector3PointDefinition.DivideByComponent(curVec, modVec),
-                            _ => throw new InvalidOperationException($"[{modifier.Operation}] cannot be performed on type float.")
+                            _ => throw new InvalidOperationException($"[{modifier.Operation}] cannot be performed on type Quaternion.")
                         };
 
                         return Quaternion.Euler(resVec);
