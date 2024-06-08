@@ -5,6 +5,7 @@ using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Utilities;
 using JetBrains.Annotations;
+using SiraUtil.Logging;
 using static Heck.HeckController;
 
 namespace Heck
@@ -12,7 +13,13 @@ namespace Heck
     [UsedImplicitly]
     internal class DeserializerManager
     {
+        private readonly SiraLog _log;
         private readonly HashSet<DataDeserializer> _customDataDeserializers = new();
+
+        private DeserializerManager(SiraLog log)
+        {
+            _log = log;
+        }
 
         internal DataDeserializer Register(string id, Type type)
         {
@@ -29,12 +36,12 @@ namespace Heck
             out Dictionary<string, Track> beatmapTracks,
             out HashSet<(object? Id, DeserializedData DeserializedData)> deserializedDatas)
         {
-            Plugin.Log.Trace("Deserializing BeatmapData");
+            _log.Trace("Deserializing BeatmapData");
 
             bool v2 = customBeatmapData.version2_6_0AndEarlier;
             if (v2)
             {
-                Plugin.Log.Trace("BeatmapData is v2, converting...");
+                _log.Trace("BeatmapData is v2, converting...");
             }
 
             // tracks are built based off the untransformed beatmapdata so modifiers like "no walls" do not prevent track creation
@@ -120,7 +127,7 @@ namespace Heck
                         }
                         else
                         {
-                            Plugin.Log.Error($"Duplicate event defintion name, {eventName} could not be registered");
+                            _log.Error($"Duplicate event defintion name, {eventName} could not be registered");
                         }
                     }
                 }
@@ -154,7 +161,7 @@ namespace Heck
             deserializedDatas = new HashSet<(object? Id, DeserializedData DeserializedData)>(deserializers.Length);
             foreach (DataDeserializer deserializer in deserializers)
             {
-                Plugin.Log.Trace($"Binding [{deserializer.Id}]");
+                _log.Trace($"Binding [{deserializer.Id}]");
 
                 deserializedDatas.Add((deserializer.Id, deserializer.Deserialize()));
             }
@@ -169,7 +176,7 @@ namespace Heck
                 }
                 else
                 {
-                    Plugin.Log.Error($"Duplicate point defintion name, {pointDataName} could not be registered");
+                    _log.Error($"Duplicate point defintion name, {pointDataName} could not be registered");
                 }
             }
         }

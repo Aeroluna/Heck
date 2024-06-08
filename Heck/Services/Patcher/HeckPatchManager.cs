@@ -38,7 +38,7 @@ namespace Heck
             {
                 foreach (HeckPatcher heckPatcher in patchersValue.Where(n => n.Id == null))
                 {
-                    heckPatcher.Enabled = false;
+                    heckPatcher.Enabled = true;
                 }
             }
         }

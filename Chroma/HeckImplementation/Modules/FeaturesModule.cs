@@ -4,18 +4,21 @@ using Chroma.Lighting;
 using Chroma.Settings;
 using CustomJSONData.CustomBeatmap;
 using Heck;
+using SiraUtil.Logging;
 using static Chroma.ChromaController;
 
 namespace Chroma.Modules
 {
-    [Module("ChromaEnvironment", 2, LoadType.Active, new[] { "ChromaColorizer" })]
-    [ModulePatcher(HARMONY_ID + "Environment", PatchType.Environment)]
+    [Module(ID, 3, LoadType.Active, new[] { "ChromaColorizer", "ChromaEnvironment" })]
+    [ModulePatcher(HARMONY_ID + "Features", PatchType.Features)]
     internal class FeaturesModule : IModule
     {
+        private readonly SiraLog _log;
         private readonly Config _config;
 
-        private FeaturesModule(Config config)
+        private FeaturesModule(SiraLog log, Config config)
         {
+            _log = log;
             _config = config;
         }
 
@@ -43,8 +46,8 @@ namespace Chroma.Modules
             // ReSharper disable once InvertIf
             if (legacyOverride)
             {
-                Plugin.Log.Warn("Legacy Chroma Detected...");
-                Plugin.Log.Warn("Please do not use Legacy Chroma Lights for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed");
+                _log.Warn("Legacy Chroma Detected...");
+                _log.Warn("Please do not use Legacy Chroma Lights for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed");
             }
 
             return (chromaRequirement || legacyOverride || customEnvironment) && !_config.ChromaEventsDisabled;

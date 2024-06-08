@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using CustomJSONData.CustomBeatmap;
@@ -7,6 +6,7 @@ using HarmonyLib;
 using Heck.Animation;
 using Heck.ReLoad;
 using SiraUtil.Affinity;
+using SiraUtil.Logging;
 using Zenject;
 
 namespace Heck.HarmonyPatches
@@ -16,11 +16,20 @@ namespace Heck.HarmonyPatches
         private static readonly MethodInfo _getContainer = AccessTools.PropertyGetter(typeof(MonoInstallerBase), "Container");
         private static readonly MethodInfo _bindHeckMultiPlayer = AccessTools.Method(typeof(PatchedPlayerInstaller), nameof(BindHeckMultiPlayer));
 
+        private readonly SiraLog _log;
         private readonly DeserializerManager _deserializerManager;
 
-        private PatchedPlayerInstaller(DeserializerManager deserializerManager)
+        private PatchedPlayerInstaller(SiraLog log, DeserializerManager deserializerManager)
         {
+            _log = log;
             _deserializerManager = deserializerManager;
+        }
+
+        private static void BindHeckMultiPlayer(
+            PlayerSpecificSettingsNetSerializable playerSpecificSettings,
+            DiContainer container)
+        {
+            container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(playerSpecificSettings.leftHanded);
         }
 
         [AffinityPostfix]
@@ -49,13 +58,6 @@ namespace Heck.HarmonyPatches
                 .InstructionEnumeration();
         }
 
-        private static void BindHeckMultiPlayer(
-            PlayerSpecificSettingsNetSerializable playerSpecificSettings,
-            DiContainer container)
-        {
-            container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(playerSpecificSettings.leftHanded);
-        }
-
         private void BindHeckSinglePlayer(
             GameplayCoreSceneSetupData sceneSetupData,
             DiContainer container)
@@ -67,7 +69,7 @@ namespace Heck.HarmonyPatches
             }
             else
             {
-                Plugin.Log.Debug("Failed to get untransformedBeatmapData, falling back");
+                _log.Debug("Failed to get untransformedBeatmapData, falling back");
                 untransformedBeatmapData = sceneSetupData.transformedBeatmapData;
             }
 

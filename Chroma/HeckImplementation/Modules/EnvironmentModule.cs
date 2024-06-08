@@ -7,12 +7,13 @@ using Chroma.Settings;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck;
+using SiraUtil.Logging;
 using static Chroma.ChromaController;
 
 namespace Chroma.Modules
 {
-    [Module(ID, 3, LoadType.Active, new[] { "ChromaColorizer", "ChromaEnvironment" })]
-    [ModulePatcher(HARMONY_ID + "Features", PatchType.Features)]
+    [Module("ChromaEnvironment", 2, LoadType.Active, new[] { "ChromaColorizer" })]
+    [ModulePatcher(HARMONY_ID + "Environment", PatchType.Environment)]
     internal class EnvironmentModule : IModule
     {
         // if there is a better way to detect v3 lights, i would love to know it
@@ -44,11 +45,13 @@ namespace Chroma.Modules
             "GagaEnvironment"
         };
 
+        private readonly SiraLog _log;
         private readonly Config _config;
         private readonly CustomLevelLoader _customLevelLoader;
 
-        private EnvironmentModule(Config config, CustomLevelLoader customLevelLoader)
+        private EnvironmentModule(SiraLog log, Config config, CustomLevelLoader customLevelLoader)
         {
+            _log = log;
             _config = config;
             _customLevelLoader = customLevelLoader;
         }
@@ -93,7 +96,7 @@ namespace Chroma.Modules
                     }
                     catch (Exception e)
                     {
-                        Plugin.Log.Error(e);
+                        _log.Error(e);
                     }
                 }
             }

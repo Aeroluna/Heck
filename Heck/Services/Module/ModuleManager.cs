@@ -13,6 +13,7 @@ namespace Heck
 {
     public class ModuleManager
     {
+        private readonly SiraLog _log;
         private List<ModuleData> _modules = new();
 
         private bool _sorted;
@@ -23,6 +24,7 @@ namespace Heck
             [Inject(Optional = true, Source = InjectSources.Local)] IEnumerable<IModule> modules,
             DeserializerManager deserializerManager)
         {
+            _log = log;
             foreach (IModule module in modules)
             {
                 Type type = module.GetType();
@@ -126,7 +128,7 @@ namespace Heck
             if (!_sorted)
             {
                 _modules = _modules.OrderByDescending(n => n.Priority).ToList();
-                Plugin.Log.Trace($"Modules registered: {string.Join(", ", _modules.Select(n => $"[{n}]"))}");
+                _log.Trace($"Modules registered: {string.Join(", ", _modules.Select(n => $"[{n}]"))}");
                 _sorted = true;
             }
 
@@ -159,7 +161,7 @@ namespace Heck
                     case LoadType.Passive:
                         if (!depended)
                         {
-                            Plugin.Log.Trace($"[{module.Id}] not requested by any other module, skipping");
+                            _log.Trace($"[{module.Id}] not requested by any other module, skipping");
                             Finish(false);
                             return;
                         }
@@ -174,7 +176,7 @@ namespace Heck
                                     module.Module,
                                     condition.ActualParameters(inputs.AddToArray(depended))))
                             {
-                                Plugin.Log.Trace($"[{module.Id}] did not pass condition, skipping");
+                                _log.Trace($"[{module.Id}] did not pass condition, skipping");
                                 Finish(false);
                                 return;
                             }
@@ -194,7 +196,7 @@ namespace Heck
                         continue;
                     }
 
-                    Plugin.Log.Trace($"[{module.Id}] conflicts with [{conflictId}], skipping");
+                    _log.Trace($"[{module.Id}] conflicts with [{conflictId}], skipping");
                     Finish(false);
                     return;
                 }
@@ -222,11 +224,11 @@ namespace Heck
                 try
                 {
                     Finish(true);
-                    Plugin.Log.Trace($"[{module.Id}] loaded");
+                    _log.Trace($"[{module.Id}] loaded");
                 }
                 catch
                 {
-                    Plugin.Log.Critical($"Exception while loading [{module.Id}]");
+                    _log.Critical($"Exception while loading [{module.Id}]");
                     throw;
                 }
 
