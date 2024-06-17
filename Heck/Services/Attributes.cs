@@ -16,9 +16,9 @@ namespace Heck
 
     [MeansImplicitUse]
     [AttributeUsage(AttributeTargets.Class)]
-    public class HeckPatch : AttributeWithId
+    public class HeckPatchAttribute : AttributeWithId
     {
-        public HeckPatch(object? id = null)
+        public HeckPatchAttribute(object? id = null)
             : base(id)
         {
         }
@@ -26,9 +26,9 @@ namespace Heck
 
     [MeansImplicitUse]
     [AttributeUsage(AttributeTargets.Class)]
-    public class Module : Attribute
+    public class ModuleAttribute : Attribute
     {
-        public Module(
+        public ModuleAttribute(
             string id,
             int priority,
             LoadType loadType,
@@ -55,21 +55,21 @@ namespace Heck
 
     [MeansImplicitUse]
     [AttributeUsage(AttributeTargets.Method)]
-    public class ModuleCallback : Attribute
+    public class ModuleCallbackAttribute : Attribute
     {
     }
 
     [MeansImplicitUse]
     [AttributeUsage(AttributeTargets.Method)]
-    public class ModuleCondition : Attribute
+    public class ModuleConditionAttribute : Attribute
     {
     }
 
     [MeansImplicitUse]
     [AttributeUsage(AttributeTargets.Class)]
-    public class ModulePatcher : Attribute
+    public class ModulePatcherAttribute : Attribute
     {
-        public ModulePatcher(string harmonyId, object? id)
+        public ModulePatcherAttribute(string harmonyId, object? id)
         {
             HarmonyId = harmonyId;
             Id = id;
@@ -82,9 +82,9 @@ namespace Heck
 
     [MeansImplicitUse]
     [AttributeUsage(AttributeTargets.Class)]
-    public class ModuleDataDeserializer : Attribute
+    public class ModuleDataDeserializerAttribute : Attribute
     {
-        public ModuleDataDeserializer(string id, Type type)
+        public ModuleDataDeserializerAttribute(string id, Type type)
         {
             Id = id;
             Type = type;
@@ -96,9 +96,9 @@ namespace Heck
     }
 
     [AttributeUsage(AttributeTargets.Class)]
-    public class PlayViewControllerSettings : Attribute
+    public class PlayViewControllerSettingsAttribute : Attribute
     {
-        public PlayViewControllerSettings(int priority, string title)
+        public PlayViewControllerSettingsAttribute(int priority, string title)
         {
             Priority = priority;
             Title = title;
@@ -111,9 +111,9 @@ namespace Heck
 
     [MeansImplicitUse]
     [AttributeUsage(AttributeTargets.Class)]
-    public class CustomEvent : Attribute
+    public class CustomEventAttribute : Attribute
     {
-        public CustomEvent(params string[] type)
+        public CustomEventAttribute(params string[] type)
         {
             Type = type;
         }

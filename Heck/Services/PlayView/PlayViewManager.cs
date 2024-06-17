@@ -275,7 +275,7 @@ namespace Heck.PlayView
             {
                 ViewController = viewController;
                 Type type = viewController.GetType();
-                PlayViewControllerSettings? settingsAttribute = type.TryGetAttribute<PlayViewControllerSettings>();
+                PlayViewControllerSettingsAttribute? settingsAttribute = type.TryGetAttribute<PlayViewControllerSettingsAttribute>();
                 Priority = settingsAttribute?.Priority ?? 0;
                 Title = settingsAttribute?.Title ?? string.Empty;
                 _onPlay = type.GetMethod("OnPlay", AccessTools.all);

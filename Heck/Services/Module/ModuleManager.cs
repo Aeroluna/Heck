@@ -28,7 +28,7 @@ namespace Heck
             foreach (IModule module in modules)
             {
                 Type type = module.GetType();
-                Module? attribute = type.GetCustomAttribute<Module>();
+                ModuleAttribute? attribute = type.GetCustomAttribute<ModuleAttribute>();
                 if (attribute == null)
                 {
                     log.Warn($"[{type.FullName}] is missing Module attribute and will be ignored.");
@@ -37,19 +37,19 @@ namespace Heck
 
                 List<IModuleFeature> features = new();
 
-                MethodInfo? callback = GetMethodWithAttribute<ModuleCallback>(type);
+                MethodInfo? callback = GetMethodWithAttribute<ModuleCallbackAttribute>(type);
                 if (callback != null)
                 {
                     features.Add(new CallbackModuleFeature(callback));
                 }
 
-                MethodInfo? condition = GetMethodWithAttribute<ModuleCondition>(type);
+                MethodInfo? condition = GetMethodWithAttribute<ModuleConditionAttribute>(type);
                 if (condition != null)
                 {
                     if (condition.ReturnType != typeof(bool))
                     {
                         log.Warn(
-                            $"[{type.FullName}] does not contain a method marked with [{nameof(ModuleCondition)}] that returns [{nameof(Boolean)}].");
+                            $"[{type.FullName}] does not contain a method marked with [{nameof(ModuleConditionAttribute)}] that returns [{nameof(Boolean)}].");
                     }
                     else
                     {
@@ -57,13 +57,13 @@ namespace Heck
                     }
                 }
 
-                ModuleDataDeserializer? dataDeserializer = type.GetCustomAttribute<ModuleDataDeserializer>();
+                ModuleDataDeserializerAttribute? dataDeserializer = type.GetCustomAttribute<ModuleDataDeserializerAttribute>();
                 if (dataDeserializer != null)
                 {
                     features.Add(new DeserializerModuleFeature(deserializerManager.Register(dataDeserializer.Id, dataDeserializer.Type)));
                 }
 
-                ModulePatcher? modulePatcher = type.GetCustomAttribute<ModulePatcher>();
+                ModulePatcherAttribute? modulePatcher = type.GetCustomAttribute<ModulePatcherAttribute>();
                 if (modulePatcher != null)
                 {
                     features.Add(new PatcherModuleFeature(new HeckPatcher(type.Assembly, modulePatcher.HarmonyId, modulePatcher.Id)));

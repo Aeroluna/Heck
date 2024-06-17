@@ -22,7 +22,7 @@ namespace Heck
 
             foreach (Type type in AccessTools.GetTypesFromAssembly(assembly))
             {
-                HeckPatch? heckPatch = type.GetCustomAttribute<HeckPatch>(false);
+                HeckPatchAttribute? heckPatch = type.GetCustomAttribute<HeckPatchAttribute>(false);
 
                 if (heckPatch == null)
                 {

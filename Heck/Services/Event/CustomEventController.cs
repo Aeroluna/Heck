@@ -26,7 +26,7 @@ namespace Heck.Event
             foreach (ICustomEvent customEvent in customEvents)
             {
                 Type systemType = customEvent.GetType();
-                CustomEvent? attribute = systemType.GetCustomAttribute<CustomEvent>();
+                CustomEventAttribute? attribute = systemType.GetCustomAttribute<CustomEventAttribute>();
                 if (attribute == null)
                 {
                     log.Warn($"[{systemType.FullName}] is missing CustomEvent attribute and will be ignored.");
