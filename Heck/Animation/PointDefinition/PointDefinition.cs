@@ -28,7 +28,7 @@ namespace Heck.Animation
                 Modifier<T>[]? modifiers = null;
                 string[]? flags = null;
                 float[]? floatList = null;
-                BaseProviderData? baseProvider = null;
+                BaseProviderData<T>? baseProvider = null;
                 foreach (IGrouping<GroupType, object> grouping in Group(rawPoint))
                 {
                     List<object> groupList = grouping.ToList();
@@ -39,7 +39,7 @@ namespace Heck.Animation
                             break;
 
                         case GroupType.BaseValue:
-                            baseProvider = BaseProviderManager.Instance.GetProviderData((string)groupList.First());
+                            baseProvider = BaseProviderManager.Instance.GetProviderData<T>((string)groupList.First());
                             break;
 
                         case GroupType.Flag:
@@ -147,9 +147,9 @@ namespace Heck.Animation
 
         protected abstract T InterpolatePoints(List<IPointData> points, int l, int r, float time);
 
-        private protected abstract Modifier<T> CreateModifier(float[]? floats, BaseProviderData? baseProvider, Modifier<T>[] modifiers, Operation operation);
+        private protected abstract Modifier<T> CreateModifier(float[]? floats, BaseProviderData<T>? baseProvider, Modifier<T>[] modifiers, Operation operation);
 
-        private protected abstract IPointData CreatePointData(float[] floats, BaseProviderData? baseProvider, string[] flags, Modifier<T>[] modifiers, Functions easing);
+        private protected abstract IPointData CreatePointData(float[] floats, BaseProviderData<T>? baseProvider, string[] flags, Modifier<T>[] modifiers, Functions easing);
 
         private static IEnumerable<IGrouping<GroupType, object>> Group(IEnumerable<object> list)
         {
@@ -169,7 +169,7 @@ namespace Heck.Animation
             Modifier<T>[]? modifiers = null;
             Operation? operation = null;
             float[]? floatList = null;
-            BaseProviderData? baseProvider = null;
+            BaseProviderData<T>? baseProvider = null;
             foreach (IGrouping<GroupType, object> grouping in Group(list))
             {
                 List<object> groupList = grouping.ToList();
@@ -180,7 +180,7 @@ namespace Heck.Animation
                         break;
 
                     case GroupType.BaseValue:
-                        baseProvider = BaseProviderManager.Instance.GetProviderData((string)groupList.First());
+                        baseProvider = BaseProviderManager.Instance.GetProviderData<T>((string)groupList.First());
                         break;
 
                     case GroupType.Flag:

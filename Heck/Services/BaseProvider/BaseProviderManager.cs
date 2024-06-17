@@ -7,9 +7,13 @@ using Zenject;
 
 namespace Heck.BaseProvider
 {
+    internal interface IBaseProviderData
+    {
+    }
+
     internal class BaseProviderManager
     {
-        private readonly Dictionary<string, BaseProviderData> _baseProviders = new();
+        private readonly Dictionary<string, IBaseProviderData> _baseProviders = new();
 
         [UsedImplicitly]
         private BaseProviderManager(
@@ -27,7 +31,11 @@ namespace Heck.BaseProvider
                         continue;
                     }
 
-                    _baseProviders.Add(attribute.Name, new BaseProviderData(baseProvider, propertyInfo.GetMethod));
+                    IBaseProviderData data = (IBaseProviderData)Activator.CreateInstance(
+                        typeof(BaseProviderData<>).MakeGenericType(propertyInfo.GetUnderlyingType()),
+                        baseProvider,
+                        propertyInfo.GetMethod);
+                    _baseProviders.Add(attribute.Name, data);
                 }
             }
         }
@@ -35,28 +43,24 @@ namespace Heck.BaseProvider
         // I couldnt think of a way to di this thing
         internal static BaseProviderManager Instance { get; private set; } = null!;
 
-        internal BaseProviderData GetProviderData(string key)
+        internal BaseProviderData<T> GetProviderData<T>(string key)
         {
-            return _baseProviders[key];
+            return (BaseProviderData<T>)_baseProviders[key];
         }
     }
 
-    internal class BaseProviderData
+    internal class BaseProviderData<T> : IBaseProviderData
     {
-        private readonly IBaseProvider _baseProvider;
-        private readonly MethodInfo _getter;
+        private readonly Func<T> _getter;
 
-        internal BaseProviderData(IBaseProvider baseProvider, MethodInfo getter)
+        public BaseProviderData(IBaseProvider baseProvider, MethodInfo getter)
         {
-            _baseProvider = baseProvider;
-            _getter = getter;
+            _getter = (Func<T>)Delegate.CreateDelegate(typeof(Func<T>), baseProvider, getter);
         }
 
-        // TODO: use delegates instead for better performance
-        internal object GetValue()
+        internal T GetValue()
         {
-            object result = _getter.Invoke(_baseProvider, Array.Empty<object>());
-            return result;
+            return _getter();
         }
     }
 }

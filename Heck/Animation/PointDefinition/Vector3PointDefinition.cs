@@ -33,7 +33,7 @@ namespace Heck.Animation
                 : Vector3.LerpUnclamped(points[l].Point, pointR.Point, time);
         }
 
-        private protected override Modifier<Vector3> CreateModifier(float[]? floats, BaseProviderData? baseProvider, Modifier<Vector3>[] modifiers, Operation operation)
+        private protected override Modifier<Vector3> CreateModifier(float[]? floats, BaseProviderData<Vector3>? baseProvider, Modifier<Vector3>[] modifiers, Operation operation)
         {
             Vector3? value;
             if (baseProvider != null)
@@ -51,7 +51,7 @@ namespace Heck.Animation
             return new Modifier(value, baseProvider, modifiers, operation);
         }
 
-        private protected override IPointData CreatePointData(float[] floats, BaseProviderData? baseProvider, string[] flags, Modifier<Vector3>[] modifiers, Functions easing)
+        private protected override IPointData CreatePointData(float[] floats, BaseProviderData<Vector3>? baseProvider, string[] flags, Modifier<Vector3>[] modifiers, Functions easing)
         {
             Vector3? value;
             float time;
@@ -97,7 +97,7 @@ namespace Heck.Animation
 
         private class PointData : Modifier, IPointData
         {
-            internal PointData(Vector3? point, BaseProviderData? baseProvider, bool smooth, float time, Modifier<Vector3>[] modifiers, Functions easing)
+            internal PointData(Vector3? point, BaseProviderData<Vector3>? baseProvider, bool smooth, float time, Modifier<Vector3>[] modifiers, Functions easing)
                 : base(point, baseProvider, modifiers, default)
             {
                 Smooth = smooth;
@@ -114,7 +114,7 @@ namespace Heck.Animation
 
         private class Modifier : Modifier<Vector3>
         {
-            internal Modifier(Vector3? point, BaseProviderData? baseProvider, Modifier<Vector3>[] modifiers, Operation operation)
+            internal Modifier(Vector3? point, BaseProviderData<Vector3>? baseProvider, Modifier<Vector3>[] modifiers, Operation operation)
                 : base(point, baseProvider, modifiers, operation)
             {
             }

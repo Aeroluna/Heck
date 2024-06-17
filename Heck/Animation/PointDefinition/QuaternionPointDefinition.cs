@@ -21,7 +21,7 @@ namespace Heck.Animation
             return Quaternion.SlerpUnclamped(points[l].Point, points[r].Point, time);
         }
 
-        private protected override Modifier<Quaternion> CreateModifier(float[]? floats, BaseProviderData? baseProvider, Modifier<Quaternion>[] modifiers, Operation operation)
+        private protected override Modifier<Quaternion> CreateModifier(float[]? floats, BaseProviderData<Quaternion>? baseProvider, Modifier<Quaternion>[] modifiers, Operation operation)
         {
             Quaternion? value;
             if (baseProvider != null)
@@ -39,7 +39,7 @@ namespace Heck.Animation
             return new Modifier(value, baseProvider, modifiers, operation);
         }
 
-        private protected override IPointData CreatePointData(float[] floats, BaseProviderData? baseProvider, string[] flags, Modifier<Quaternion>[] modifiers, Functions easing)
+        private protected override IPointData CreatePointData(float[] floats, BaseProviderData<Quaternion>? baseProvider, string[] flags, Modifier<Quaternion>[] modifiers, Functions easing)
         {
             Quaternion? value;
             float time;
@@ -61,7 +61,7 @@ namespace Heck.Animation
 
         private class PointData : Modifier, IPointData
         {
-            internal PointData(Quaternion? point, BaseProviderData? baseProvider, float time, Modifier<Quaternion>[] modifiers, Functions easing)
+            internal PointData(Quaternion? point, BaseProviderData<Quaternion>? baseProvider, float time, Modifier<Quaternion>[] modifiers, Functions easing)
                 : base(point, baseProvider, modifiers, default)
             {
                 Time = time;
@@ -75,7 +75,7 @@ namespace Heck.Animation
 
         private class Modifier : Modifier<Quaternion>
         {
-            internal Modifier(Quaternion? point, BaseProviderData? baseProvider, Modifier<Quaternion>[] modifiers, Operation operation)
+            internal Modifier(Quaternion? point, BaseProviderData<Quaternion>? baseProvider, Modifier<Quaternion>[] modifiers, Operation operation)
                 : base(point, baseProvider, modifiers, operation)
             {
             }

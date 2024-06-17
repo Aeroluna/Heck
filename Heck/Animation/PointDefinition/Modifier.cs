@@ -25,9 +25,9 @@ namespace Heck.Animation
         where T : struct
     {
         private readonly T? _rawPoint;
-        private readonly BaseProviderData? _baseProvider;
+        private readonly BaseProviderData<T>? _baseProvider;
 
-        internal Modifier(T? point, BaseProviderData? baseProvider, Modifier<T>[] modifiers, Operation operation)
+        internal Modifier(T? point, BaseProviderData<T>? baseProvider, Modifier<T>[] modifiers, Operation operation)
         {
             _rawPoint = point;
             _baseProvider = baseProvider;
@@ -42,7 +42,7 @@ namespace Heck.Animation
 
         public bool HasBaseProvider { get; }
 
-        protected T OriginalPoint => _rawPoint ?? (T?)_baseProvider?.GetValue() ?? throw new InvalidOperationException();
+        protected T OriginalPoint => _rawPoint ?? _baseProvider?.GetValue() ?? throw new InvalidOperationException();
 
         protected Modifier<T>[] Modifiers { get; }
 

@@ -22,7 +22,7 @@ namespace Heck.Animation
             return Mathf.LerpUnclamped(points[l].Point, points[r].Point, time);
         }
 
-        private protected override Modifier<float> CreateModifier(float[]? floats, BaseProviderData? baseProvider, Modifier<float>[] modifiers, Operation operation)
+        private protected override Modifier<float> CreateModifier(float[]? floats, BaseProviderData<float>? baseProvider, Modifier<float>[] modifiers, Operation operation)
         {
             if (baseProvider != null)
             {
@@ -37,7 +37,7 @@ namespace Heck.Animation
             return new Modifier(floats?[0], baseProvider, modifiers, operation);
         }
 
-        private protected override IPointData CreatePointData(float[] floats, BaseProviderData? baseProvider, string[] flags, Modifier<float>[] modifiers, Functions easing)
+        private protected override IPointData CreatePointData(float[] floats, BaseProviderData<float>? baseProvider, string[] flags, Modifier<float>[] modifiers, Functions easing)
         {
             float? value;
             float time;
@@ -59,7 +59,7 @@ namespace Heck.Animation
 
         private class PointData : Modifier, IPointData
         {
-            internal PointData(float? point, BaseProviderData? baseProvider, float time, Modifier<float>[] modifiers, Functions easing)
+            internal PointData(float? point, BaseProviderData<float>? baseProvider, float time, Modifier<float>[] modifiers, Functions easing)
                 : base(point, baseProvider, modifiers, default)
             {
                 Time = time;
@@ -73,7 +73,7 @@ namespace Heck.Animation
 
         private class Modifier : Modifier<float>
         {
-            internal Modifier(float? point, BaseProviderData? baseProvider, Modifier<float>[] modifiers, Operation operation)
+            internal Modifier(float? point, BaseProviderData<float>? baseProvider, Modifier<float>[] modifiers, Operation operation)
                 : base(point, baseProvider, modifiers, operation)
             {
             }
