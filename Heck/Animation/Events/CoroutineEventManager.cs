@@ -103,7 +103,8 @@ namespace Heck.Animation.Events
                                     duration,
                                     customEventData.time,
                                     easing,
-                                    repeat));
+                                    repeat,
+                                    hasBase));
                             }
 
                             break;
@@ -244,22 +245,24 @@ namespace Heck.Animation.Events
             float duration,
             float startTime,
             Functions easing,
-            int repeat)
+            int repeat,
+            bool nonLazy)
         {
-            bool onLast = false;
+            bool skip = false;
             while (repeat >= 0)
             {
                 float elapsedTime = _audioTimeSource.songTime - startTime;
-                if (!onLast)
+                if (!skip)
                 {
                     float normalizedTime = Mathf.Min(elapsedTime / duration, 1);
                     float time = Easings.Interpolate(normalizedTime, easing);
-                    SetPropertyValue(points, property, track, time, out onLast);
+                    SetPropertyValue(points, property, track, time, out bool onLast);
+                    skip = !nonLazy && onLast;
                 }
 
                 if (elapsedTime < duration)
                 {
-                    if (repeat <= 0 && onLast)
+                    if (repeat <= 0 && skip)
                     {
                         break;
                     }
@@ -270,7 +273,7 @@ namespace Heck.Animation.Events
                 {
                     repeat--;
                     startTime += duration;
-                    onLast = false;
+                    skip = false;
                 }
             }
         }
