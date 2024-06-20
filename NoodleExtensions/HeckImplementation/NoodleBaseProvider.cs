@@ -5,33 +5,37 @@ using Zenject;
 
 namespace NoodleExtensions
 {
+    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     internal class NoodleBaseProvider : IBaseProvider
     {
-        [BaseProvider("baseHeadLocalPosition")]
         internal Vector3 HeadLocalPosition { get; set; }
 
-        [BaseProvider("baseLeftHandLocalPosition")]
         internal Vector3 LeftHandLocalPosition { get; set; }
 
-        [BaseProvider("baseRightHandLocalPosition")]
         internal Vector3 RightHandLocalPosition { get; set; }
 
-        [BaseProvider("baseHeadLocalRotation")]
         internal Quaternion HeadLocalRotation { get; set; }
 
-        [BaseProvider("baseLeftHandLocalRotation")]
         internal Quaternion LeftHandLocalRotation { get; set; }
 
-        [BaseProvider("baseRightHandLocalRotation")]
         internal Quaternion RightHandLocalRotation { get; set; }
 
-        [BaseProvider("baseHeadLocalScale")]
+        internal Vector3 HeadPosition { get; set; }
+
+        internal Vector3 LeftHandPosition { get; set; }
+
+        internal Vector3 RightHandPosition { get; set; }
+
+        internal Quaternion HeadRotation { get; set; }
+
+        internal Quaternion LeftHandRotation { get; set; }
+
+        internal Quaternion RightHandRotation { get; set; }
+
         internal Vector3 HeadLocalScale { get; set; }
 
-        [BaseProvider("baseLeftHandLocalScale")]
         internal Vector3 LeftHandLocalScale { get; set; }
 
-        [BaseProvider("baseRightHandLocalScale")]
         internal Vector3 RightHandLocalScale { get; set; }
     }
 
@@ -59,6 +63,12 @@ namespace NoodleExtensions
             _noodleBaseProvider.HeadLocalRotation = _head.localRotation;
             _noodleBaseProvider.LeftHandLocalRotation = _leftHand.localRotation;
             _noodleBaseProvider.RightHandLocalRotation = _rightHand.localRotation;
+            _noodleBaseProvider.HeadPosition = _head.position;
+            _noodleBaseProvider.LeftHandPosition = _leftHand.position;
+            _noodleBaseProvider.RightHandPosition = _rightHand.position;
+            _noodleBaseProvider.HeadRotation = _head.rotation;
+            _noodleBaseProvider.LeftHandRotation = _leftHand.rotation;
+            _noodleBaseProvider.RightHandRotation = _rightHand.rotation;
             _noodleBaseProvider.HeadLocalScale = _head.localScale;
             _noodleBaseProvider.LeftHandLocalScale = _leftHand.localScale;
             _noodleBaseProvider.RightHandLocalScale = _rightHand.localScale;

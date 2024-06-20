@@ -24,45 +24,53 @@ namespace Heck.Animation
         private protected override Modifier<Quaternion> CreateModifier(float[]? floats, BaseProviderData<Quaternion>? baseProvider, Modifier<Quaternion>[] modifiers, Operation operation)
         {
             Quaternion? value;
+            Vector3? vectorPoint;
             if (baseProvider != null)
             {
                 Assert.IsNull(floats, "Modifier cannot have both base and a point");
+                vectorPoint = null;
                 value = null;
             }
             else
             {
                 Assert.IsNotNull(floats, "Modifier without base must have a point");
                 Assert.IsEqual(ARRAY_COUNT, floats!.Length, $"Quaternion modifier point must have {ARRAY_COUNT} numbers");
-                value = Quaternion.Euler(new Vector3(floats[0], floats[1], floats[2]));
+                Vector3 vector = new(floats[0], floats[1], floats[2]);
+                vectorPoint = vector;
+                value = Quaternion.Euler(vector);
             }
 
-            return new Modifier(value, baseProvider, modifiers, operation);
+            return new Modifier(value, vectorPoint, baseProvider, modifiers, operation);
         }
 
         private protected override IPointData CreatePointData(float[] floats, BaseProviderData<Quaternion>? baseProvider, string[] flags, Modifier<Quaternion>[] modifiers, Functions easing)
         {
             Quaternion? value;
+            Vector3? vectorPoint;
             float time;
             if (baseProvider != null)
             {
                 Assert.IsEqual(1, floats.Length, "Point with base must have only time");
+                vectorPoint = null;
                 value = null;
                 time = floats[0];
             }
             else
             {
                 Assert.IsEqual(ARRAY_COUNT + 1, floats.Length, $"Quaternion point must have {ARRAY_COUNT + 1} numbers");
-                value = Quaternion.Euler(new Vector3(floats[0], floats[1], floats[2]));
+                Vector3 vector = new(floats[0], floats[1], floats[2]);
+                vectorPoint = vector;
+                value = Quaternion.Euler(vector);
                 time = floats[ARRAY_COUNT];
             }
 
-            return new PointData(value, baseProvider, time, modifiers, easing);
+            return new PointData(value, vectorPoint, baseProvider, time, modifiers, easing);
         }
 
         private class PointData : Modifier, IPointData
         {
-            internal PointData(Quaternion? point, BaseProviderData<Quaternion>? baseProvider, float time, Modifier<Quaternion>[] modifiers, Functions easing)
-                : base(point, baseProvider, modifiers, default)
+            internal PointData(Quaternion? point, Vector3? vectorPoint, BaseProviderData<Quaternion>? baseProvider, float time, Modifier<Quaternion>[] modifiers, Functions easing)
+                : base(point, vectorPoint, baseProvider, modifiers, default)
             {
                 Time = time;
                 Easing = easing;
@@ -75,35 +83,42 @@ namespace Heck.Animation
 
         private class Modifier : Modifier<Quaternion>
         {
-            internal Modifier(Quaternion? point, BaseProviderData<Quaternion>? baseProvider, Modifier<Quaternion>[] modifiers, Operation operation)
+            private readonly Vector3? _vectorPoint;
+            private readonly BaseProviderData<Quaternion>? _baseProvider;
+
+            internal Modifier(Quaternion? point, Vector3? vectorPoint, BaseProviderData<Quaternion>? baseProvider, Modifier<Quaternion>[] modifiers, Operation operation)
                 : base(point, baseProvider, modifiers, operation)
             {
+                _vectorPoint = vectorPoint;
+                _baseProvider = baseProvider;
             }
 
-            public override Quaternion Point
+            public override Quaternion Point => Modifiers.Length == 0 ? OriginalPoint : Quaternion.Euler(VectorPoint);
+
+            protected override string FormattedValue => Vector3PointDefinition.Format(OriginalPoint.eulerAngles);
+
+            private Vector3 VectorPoint
             {
                 get
                 {
-                    return Modifiers.Aggregate(OriginalPoint, (current, modifier) =>
+                    Vector3 original = _vectorPoint ?? _baseProvider?.GetValue().eulerAngles ?? throw new InvalidOperationException();
+                    return Modifiers.Aggregate(original, (current, genericModifier) =>
                     {
-                        // Potentially painfully slow by converting between vectors and quaternions
-                        Vector3 curVec = current.eulerAngles;
-                        Vector3 modVec = modifier.Point.eulerAngles;
+                        Modifier modifier = (Modifier)genericModifier;
+                        Vector3 modVec = modifier.VectorPoint;
                         Vector3 resVec = modifier.Operation switch
                         {
-                            Operation.opAdd => curVec + curVec,
+                            Operation.opAdd => current + current,
                             Operation.opSub => modVec - modVec,
-                            Operation.opMul => Vector3.Scale(curVec, modVec),
-                            Operation.opDiv => Vector3PointDefinition.DivideByComponent(curVec, modVec),
+                            Operation.opMul => Vector3.Scale(current, modVec),
+                            Operation.opDiv => Vector3PointDefinition.DivideByComponent(current, modVec),
                             _ => throw new InvalidOperationException($"[{modifier.Operation}] cannot be performed on type Quaternion.")
                         };
 
-                        return Quaternion.Euler(resVec);
+                        return resVec;
                     });
                 }
             }
-
-            protected override string FormattedValue => Vector3PointDefinition.Format(OriginalPoint.eulerAngles);
         }
     }
 }

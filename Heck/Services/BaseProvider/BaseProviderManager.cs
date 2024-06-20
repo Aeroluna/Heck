@@ -25,17 +25,12 @@ namespace Heck.BaseProvider
             {
                 foreach (PropertyInfo propertyInfo in baseProvider.GetType().GetProperties(AccessTools.allDeclared))
                 {
-                    BaseProviderAttribute? attribute = propertyInfo.GetCustomAttribute<BaseProviderAttribute>();
-                    if (attribute == null)
-                    {
-                        continue;
-                    }
-
+                    string name = $"base{propertyInfo.Name}";
                     IBaseProviderData data = (IBaseProviderData)Activator.CreateInstance(
                         typeof(BaseProviderData<>).MakeGenericType(propertyInfo.GetUnderlyingType()),
                         baseProvider,
                         propertyInfo.GetMethod);
-                    _baseProviders.Add(attribute.Name, data);
+                    _baseProviders.Add(name, data);
                 }
             }
         }
