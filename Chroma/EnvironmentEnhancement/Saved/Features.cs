@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BeatmapSaveDataVersion3;
 using CustomJSONData.CustomBeatmap;
 using Newtonsoft.Json;
+#if LATEST
+using _BasicEventData = BeatmapSaveDataVersion3.BasicEventData;
+#else
+using _BasicEventData = BeatmapSaveDataVersion3.BeatmapSaveData.BasicEventData;
+#endif
 
 namespace Chroma.EnvironmentEnhancement.Saved
 {
     [JsonConverter(typeof(FeaturesDataConverter))]
     internal readonly struct Features
     {
-        internal Features(bool useChromaEvents, EnvironmentEffectsFilterPreset? forcedPreset, List<CustomBeatmapSaveData.BasicEventData>? basicEventDatas)
+        internal Features(bool useChromaEvents, EnvironmentEffectsFilterPreset? forcedPreset, List<Version3CustomBeatmapSaveData.BasicEventSaveData>? basicEventDatas)
         {
             UseChromaEvents = useChromaEvents;
             ForcedPreset = forcedPreset;
@@ -21,7 +25,7 @@ namespace Chroma.EnvironmentEnhancement.Saved
 
         internal EnvironmentEffectsFilterPreset? ForcedPreset { get; }
 
-        internal List<CustomBeatmapSaveData.BasicEventData>? BasicEventDatas { get; }
+        internal List<Version3CustomBeatmapSaveData.BasicEventSaveData>? BasicEventDatas { get; }
 
         private class FeaturesDataConverter : JsonConverter<Features>
         {
@@ -34,7 +38,7 @@ namespace Chroma.EnvironmentEnhancement.Saved
             {
                 bool useChromaEvents = false;
                 EnvironmentEffectsFilterPreset? forcedPreset = null;
-                List<BeatmapSaveData.BasicEventData> basicBeatmapEvents = new();
+                List<_BasicEventData> basicBeatmapEvents = new();
                 while (reader.Read() && reader.TokenType == JsonToken.PropertyName)
                 {
                     switch (reader.Value)
@@ -57,12 +61,12 @@ namespace Chroma.EnvironmentEnhancement.Saved
                             break;
 
                         case "basicBeatmapEvents":
-                            CustomBeatmapSaveData.DeserializeBasicEventArray(reader, basicBeatmapEvents);
+                            Version3CustomBeatmapSaveData.DeserializeBasicEventArray(reader, basicBeatmapEvents);
                             break;
                     }
                 }
 
-                return new Features(useChromaEvents, forcedPreset, basicBeatmapEvents.Count > 0 ? basicBeatmapEvents.Cast<CustomBeatmapSaveData.BasicEventData>().ToList() : null);
+                return new Features(useChromaEvents, forcedPreset, basicBeatmapEvents.Count > 0 ? basicBeatmapEvents.Cast<Version3CustomBeatmapSaveData.BasicEventSaveData>().ToList() : null);
             }
         }
     }

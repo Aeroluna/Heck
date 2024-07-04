@@ -5,6 +5,7 @@ using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
 using Heck.Animation.Transform;
+using Heck.Deserialize;
 using NoodleExtensions.Animation;
 using UnityEngine;
 using static Heck.HeckController;
@@ -17,12 +18,12 @@ namespace NoodleExtensions
         internal NoodleNoteData(
             NoteData noteData,
             CustomData customData,
-            IDifficultyBeatmap difficultyBeatmap,
+            float bpm,
             Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
-            : base(noteData, customData, difficultyBeatmap, pointDefinitions, beatmapTracks, v2, leftHanded)
+            : base(noteData, customData, bpm, pointDefinitions, beatmapTracks, v2, leftHanded)
         {
             try
             {
@@ -50,7 +51,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Plugin.Log.DeserializeFailure(e, noteData, difficultyBeatmap);
+                Plugin.Log.DeserializeFailure(e, noteData, bpm);
             }
         }
 
@@ -69,12 +70,12 @@ namespace NoodleExtensions
         internal NoodleBaseNoteData(
             BeatmapObjectData noteData,
             CustomData customData,
-            IDifficultyBeatmap difficultyBeatmap,
+            float bpm,
             Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
-            : base(noteData, customData, difficultyBeatmap, pointDefinitions, beatmapTracks, v2, leftHanded)
+            : base(noteData, customData, bpm, pointDefinitions, beatmapTracks, v2, leftHanded)
         {
             try
             {
@@ -94,7 +95,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Plugin.Log.DeserializeFailure(e, noteData, difficultyBeatmap);
+                Plugin.Log.DeserializeFailure(e, noteData, bpm);
             }
         }
 
@@ -122,12 +123,12 @@ namespace NoodleExtensions
         internal NoodleObstacleData(
             ObstacleData obstacleData,
             CustomData customData,
-            IDifficultyBeatmap difficultyBeatmap,
+            float bpm,
             Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
-            : base(obstacleData, customData, difficultyBeatmap, pointDefinitions, beatmapTracks, v2, leftHanded)
+            : base(obstacleData, customData, bpm, pointDefinitions, beatmapTracks, v2, leftHanded)
         {
             try
             {
@@ -154,7 +155,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Plugin.Log.DeserializeFailure(e, obstacleData, difficultyBeatmap);
+                Plugin.Log.DeserializeFailure(e, obstacleData, bpm);
             }
         }
 
@@ -174,12 +175,12 @@ namespace NoodleExtensions
         internal NoodleSliderData(
             BeatmapObjectData sliderData,
             CustomData customData,
-            IDifficultyBeatmap difficultyBeatmap,
+            float bpm,
             Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
             bool leftHanded)
-            : base(sliderData, customData, difficultyBeatmap, pointDefinitions, beatmapTracks, v2, leftHanded)
+            : base(sliderData, customData, bpm, pointDefinitions, beatmapTracks, v2, leftHanded)
         {
             try
             {
@@ -191,7 +192,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Plugin.Log.DeserializeFailure(e, sliderData, difficultyBeatmap);
+                Plugin.Log.DeserializeFailure(e, sliderData, bpm);
             }
         }
 
@@ -222,7 +223,7 @@ namespace NoodleExtensions
         internal NoodleObjectData(
             BeatmapObjectData beatmapObjectData,
             CustomData customData,
-            IDifficultyBeatmap difficultyBeatmap,
+            float bpm,
             Dictionary<string, List<object>> pointDefinitions,
             Dictionary<string, Track> beatmapTracks,
             bool v2,
@@ -275,7 +276,7 @@ namespace NoodleExtensions
             }
             catch (Exception e)
             {
-                Plugin.Log.DeserializeFailure(e, beatmapObjectData, difficultyBeatmap);
+                Plugin.Log.DeserializeFailure(e, beatmapObjectData, bpm);
             }
         }
 

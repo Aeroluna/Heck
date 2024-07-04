@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
 using Heck.Animation.Transform;
+using Heck.Deserialize;
 using Heck.Event;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -110,7 +112,7 @@ namespace NoodleExtensions.Animation
             }
 
             // v3 uses an underlying TransformController
-            _v2 = ((CustomBeatmapData)beatmapData).version2_6_0AndEarlier;
+            _v2 = ((CustomBeatmapData)beatmapData).version.IsVersion2();
             if (!_v2)
             {
                 enabled = false;

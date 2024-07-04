@@ -6,6 +6,7 @@ using Chroma.EnvironmentEnhancement.Component;
 using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.HarmonyPatches.EnvironmentComponent;
 using Chroma.Settings;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using Heck.Animation.Transform;
@@ -39,7 +40,9 @@ namespace Chroma.EnvironmentEnhancement
         private readonly GeometryFactory _geometryFactory;
         private readonly TrackLaneRingOffset _trackLaneRingOffset;
         private readonly ParametricBoxControllerTransformOverride _parametricBoxControllerTransformOverride;
+#if !LATEST
         private readonly BeatmapObjectsAvoidanceTransformOverride _beatmapObjectsAvoidanceTransformOverride;
+#endif
         private readonly DuplicateInitializer _duplicateInitializer;
         private readonly ComponentCustomizer _componentCustomizer;
         private readonly TransformControllerFactory _controllerFactory;
@@ -55,7 +58,9 @@ namespace Chroma.EnvironmentEnhancement
             GeometryFactory geometryFactory,
             TrackLaneRingOffset trackLaneRingOffset,
             ParametricBoxControllerTransformOverride parametricBoxControllerTransformOverride,
+#if !LATEST
             BeatmapObjectsAvoidanceTransformOverride beatmapObjectsAvoidanceTransformOverride,
+#endif
             DuplicateInitializer duplicateInitializer,
             ComponentCustomizer componentCustomizer,
             TransformControllerFactory controllerFactory,
@@ -70,7 +75,9 @@ namespace Chroma.EnvironmentEnhancement
             _geometryFactory = geometryFactory;
             _trackLaneRingOffset = trackLaneRingOffset;
             _parametricBoxControllerTransformOverride = parametricBoxControllerTransformOverride;
+#if !LATEST
             _beatmapObjectsAvoidanceTransformOverride = beatmapObjectsAvoidanceTransformOverride;
+#endif
             _duplicateInitializer = duplicateInitializer;
             _componentCustomizer = componentCustomizer;
             _controllerFactory = controllerFactory;
@@ -100,7 +107,7 @@ namespace Chroma.EnvironmentEnhancement
         {
             yield return new WaitForEndOfFrame();
 
-            bool v2 = _beatmapData.version2_6_0AndEarlier;
+            bool v2 = _beatmapData.version.IsVersion2();
             IEnumerable<CustomData>? environmentData = null;
 
             if (!_config.EnvironmentEnhancementsDisabled || _config.CustomEnvironmentEnabled)
@@ -322,6 +329,7 @@ namespace Chroma.EnvironmentEnhancement
                             _parametricBoxControllerTransformOverride.SetTransform(parametricBoxController, spawnData);
                         }
 
+#if !LATEST
                         // Handle BeatmapObjectsAvoidance
                         BeatmapObjectsAvoidance beatmapObjectsAvoidance =
                             gameObject.GetComponentInChildren<BeatmapObjectsAvoidance>();
@@ -329,6 +337,7 @@ namespace Chroma.EnvironmentEnhancement
                         {
                             _beatmapObjectsAvoidanceTransformOverride.SetTransform(beatmapObjectsAvoidance, spawnData);
                         }
+#endif
 
                         if (componentData != null)
                         {
@@ -354,6 +363,7 @@ namespace Chroma.EnvironmentEnhancement
                             controller.ScaleUpdated += () =>
                                 _parametricBoxControllerTransformOverride.UpdateScale(parametricBoxController);
                         }
+#if !LATEST
                         else if (beatmapObjectsAvoidance != null)
                         {
                             controller.RotationUpdated += () =>
@@ -361,6 +371,7 @@ namespace Chroma.EnvironmentEnhancement
                             controller.PositionUpdated += () =>
                                 _beatmapObjectsAvoidanceTransformOverride.UpdatePosition(beatmapObjectsAvoidance);
                         }
+#endif
 
                         track.ForEach(n => n.AddGameObject(gameObject));
                     }

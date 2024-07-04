@@ -30,7 +30,11 @@ namespace Heck.ReLoad
             if (_config.ReloadOnRestart &&
                 ____standardLevelScenesTransitionSetupData.practiceSettings != null)
             {
+#if LATEST
+                _reLoaderLoader.Reload();
+#else
                 _reLoaderLoader.Reload(____standardLevelScenesTransitionSetupData.difficultyBeatmap);
+#endif
             }
         }
     }

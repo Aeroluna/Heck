@@ -1,6 +1,8 @@
-﻿using SiraUtil.Affinity;
+﻿#if !LATEST
+using Heck.Module;
+using SiraUtil.Affinity;
 
-namespace Heck.HarmonyPatches
+namespace Heck.HarmonyPatches.ModuleActivator
 {
     internal class SceneTransitionModuleActivator : IAffinity
     {
@@ -15,20 +17,20 @@ namespace Heck.HarmonyPatches
         [AffinityPatch(
             typeof(MissionLevelScenesTransitionSetupDataSO),
             nameof(MissionLevelScenesTransitionSetupDataSO.Init))]
-        private void MissionPrefix(IDifficultyBeatmap difficultyBeatmap, IPreviewBeatmapLevel previewBeatmapLevel)
+        private void MissionPrefix(IDifficultyBeatmap difficultyBeatmap)
         {
             OverrideEnvironmentSettings? overrideEnvironmentSettings = null;
-            _moduleManager.Activate(difficultyBeatmap, previewBeatmapLevel, LevelType.Mission, ref overrideEnvironmentSettings);
+            _moduleManager.Activate(difficultyBeatmap, LevelType.Mission, ref overrideEnvironmentSettings);
         }
 
         [AffinityPrefix]
         [AffinityPatch(
             typeof(MultiplayerLevelScenesTransitionSetupDataSO),
             nameof(MultiplayerLevelScenesTransitionSetupDataSO.Init))]
-        private void MultiplayerPrefix(IDifficultyBeatmap difficultyBeatmap, IPreviewBeatmapLevel previewBeatmapLevel)
+        private void MultiplayerPrefix(IDifficultyBeatmap difficultyBeatmap)
         {
             OverrideEnvironmentSettings? overrideEnvironmentSettings = null;
-            _moduleManager.Activate(difficultyBeatmap, previewBeatmapLevel, LevelType.Multiplayer, ref overrideEnvironmentSettings);
+            _moduleManager.Activate(difficultyBeatmap, LevelType.Multiplayer, ref overrideEnvironmentSettings);
         }
 
         [AffinityPrefix]
@@ -37,10 +39,9 @@ namespace Heck.HarmonyPatches
             nameof(StandardLevelScenesTransitionSetupDataSO.Init))]
         private void StandardPrefix(
             IDifficultyBeatmap difficultyBeatmap,
-            IPreviewBeatmapLevel previewBeatmapLevel,
             ref OverrideEnvironmentSettings? overrideEnvironmentSettings)
         {
-            _moduleManager.Activate(difficultyBeatmap, previewBeatmapLevel, LevelType.Standard, ref overrideEnvironmentSettings);
+            _moduleManager.Activate(difficultyBeatmap, LevelType.Standard, ref overrideEnvironmentSettings);
         }
 
         [AffinityPrefix]
@@ -50,7 +51,8 @@ namespace Heck.HarmonyPatches
         private void TutorialPrefix()
         {
             OverrideEnvironmentSettings? overrideEnvironmentSettings = null;
-            _moduleManager.Activate(null, null, LevelType.Standard, ref overrideEnvironmentSettings);
+            _moduleManager.Activate(null, LevelType.Standard, ref overrideEnvironmentSettings);
         }
     }
 }
+#endif

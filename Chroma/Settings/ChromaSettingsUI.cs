@@ -15,18 +15,32 @@ namespace Chroma.Settings
         private readonly Config _config;
         private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 
-        // TODO: do a comparison instead of just always wiping the cache
+#if LATEST
+        private readonly BeatmapDataLoader _beatmapDataLoader;
+#else
         private readonly BeatmapDataCache _beatmapDataCache;
+#endif
 
         [UsedImplicitly]
         [UIValue("environmentoptions")]
         private List<object?> _environmentOptions;
 
-        private ChromaSettingsUI(Config config, SavedEnvironmentLoader savedEnvironmentLoader, BeatmapDataCache beatmapDataCache)
+        private ChromaSettingsUI(
+            Config config,
+            SavedEnvironmentLoader savedEnvironmentLoader,
+#if LATEST
+            BeatmapDataLoader beatmapDataLoader)
+#else
+            BeatmapDataCache beatmapDataCache)
+#endif
         {
             _config = config;
             _savedEnvironmentLoader = savedEnvironmentLoader;
+#if LATEST
+            _beatmapDataLoader = beatmapDataLoader;
+#else
             _beatmapDataCache = beatmapDataCache;
+#endif
             _environmentOptions = _savedEnvironmentLoader.Environments.Keys.Cast<object?>().Prepend(null).ToList();
 
             GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", this);
@@ -35,6 +49,16 @@ namespace Chroma.Settings
         public void Dispose()
         {
             GameplaySetup.instance.RemoveTab("Chroma");
+        }
+
+        // TODO: do a comparison instead of just always wiping the cache
+        private void ClearCache()
+        {
+#if LATEST
+            _beatmapDataLoader._lastUsedBeatmapDataCache = default;
+#else
+            _beatmapDataCache.difficultyBeatmap = null;
+#endif
         }
 
 #pragma warning disable CA1822
@@ -55,7 +79,7 @@ namespace Chroma.Settings
             get => _config.EnvironmentEnhancementsDisabled;
             set
             {
-                _beatmapDataCache.difficultyBeatmap = null;
+                ClearCache();
                 _config.EnvironmentEnhancementsDisabled = value;
             }
         }
@@ -75,7 +99,7 @@ namespace Chroma.Settings
             get => _config.ForceZenWallsEnabled;
             set
             {
-                _beatmapDataCache.difficultyBeatmap = null;
+                ClearCache();
                 _config.ForceZenWallsEnabled = value;
             }
         }
@@ -87,7 +111,7 @@ namespace Chroma.Settings
             get => _config.CustomEnvironmentEnabled;
             set
             {
-                _beatmapDataCache.difficultyBeatmap = null;
+                ClearCache();
                 _config.CustomEnvironmentEnabled = value;
             }
         }
@@ -104,7 +128,7 @@ namespace Chroma.Settings
 
             set
             {
-                _beatmapDataCache.difficultyBeatmap = null;
+                ClearCache();
                 _config.CustomEnvironment = value;
             }
         }

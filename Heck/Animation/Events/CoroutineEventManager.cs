@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using CustomJSONData.CustomBeatmap;
+using Heck.Deserialize;
 using Heck.Event;
 using JetBrains.Annotations;
 using UnityEngine;

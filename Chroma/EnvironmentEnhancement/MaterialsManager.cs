@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.Settings;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Utilities;
@@ -10,7 +11,9 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using static Chroma.ChromaController;
-using Object = UnityEngine.Object;
+#if LATEST
+using SiraUtil.Logging;
+#endif
 
 namespace Chroma.EnvironmentEnhancement
 {
@@ -18,22 +21,36 @@ namespace Chroma.EnvironmentEnhancement
     {
         private static readonly int _metallicPropertyID = Shader.PropertyToID("_Metallic");
 
+#if LATEST
+        private static readonly Shader[] _allShaders = Resources.FindObjectsOfTypeAll<Shader>();
+#endif
+
         private static readonly Material _standardMaterial = InstantiateSharedMaterial(ShaderType.Standard);
         private static readonly Material _opaqueLightMaterial = InstantiateSharedMaterial(ShaderType.OpaqueLight);
         private static readonly Material _transparentLightMaterial = InstantiateSharedMaterial(ShaderType.TransparentLight);
+#if !LATEST
         private static readonly Material _baseWaterMaterial = InstantiateSharedMaterial(ShaderType.BaseWater);
+#endif
 
         private readonly HashSet<Material> _createdMaterials = new();
         private readonly Dictionary<string, MaterialInfo> _materialInfos = new();
 
+#if LATEST
+        private readonly SiraLog _log;
+#else
         private readonly EnvironmentMaterialsManager _environmentMaterialsManager;
+#endif
         private readonly Dictionary<string, Track> _beatmapTracks;
         private readonly LazyInject<MaterialColorAnimator> _materialColorAnimator;
         private readonly bool _v2;
 
         [UsedImplicitly]
         private MaterialsManager(
+#if LATEST
+            SiraLog log,
+#else
             EnvironmentMaterialsManager environmentMaterialsManager,
+#endif
             IReadonlyBeatmapData readonlyBeatmap,
             Dictionary<string, Track> beatmapTracks,
             LazyInject<MaterialColorAnimator> materialColorAnimator,
@@ -41,8 +58,12 @@ namespace Chroma.EnvironmentEnhancement
             Config config)
         {
             CustomBeatmapData beatmapData = (CustomBeatmapData)readonlyBeatmap;
-            _v2 = beatmapData.version2_6_0AndEarlier;
+            _v2 = beatmapData.version.IsVersion2();
+#if LATEST
+            _log = log;
+#else
             _environmentMaterialsManager = environmentMaterialsManager;
+#endif
             _beatmapTracks = beatmapTracks;
             _materialColorAnimator = materialColorAnimator;
 
@@ -78,7 +99,7 @@ namespace Chroma.EnvironmentEnhancement
         {
             foreach (Material createdMaterial in _createdMaterials)
             {
-                Object.Destroy(createdMaterial);
+                UnityEngine.Object.Destroy(createdMaterial);
             }
         }
 
@@ -99,15 +120,28 @@ namespace Chroma.EnvironmentEnhancement
             string[]? shaderKeywords = customData.Get<List<object>?>(_v2 ? V2_SHADER_KEYWORDS : SHADER_KEYWORDS)?.Cast<string>().ToArray();
             List<Track>? track = customData.GetNullableTrackArray(_beatmapTracks, _v2)?.ToList();
 
+#if LATEST
+            if (shaderType >= ShaderType.BaseWater)
+            {
+                _log.Warn($"[{shaderType}] not current supported on latest Beat Saber version, falling back to standard");
+            }
+#endif
+
             Material originalMaterial = shaderType switch
             {
                 ShaderType.Standard => _standardMaterial,
                 ShaderType.OpaqueLight => _opaqueLightMaterial,
                 ShaderType.TransparentLight => _transparentLightMaterial,
+#if !LATEST
                 ShaderType.BaseWater => _baseWaterMaterial,
+#endif
+#if LATEST
+                _ => _standardMaterial
+#else
                 _ => _environmentMaterialsManager.EnvironmentMaterials.TryGetValue(shaderType, out Material foundMat) ? foundMat : throw new InvalidOperationException()
+#endif
             };
-            Material material = Object.Instantiate(originalMaterial);
+            Material material = UnityEngine.Object.Instantiate(originalMaterial);
             _createdMaterials.Add(material);
             if (color != null)
             {
@@ -130,13 +164,19 @@ namespace Chroma.EnvironmentEnhancement
 
         private static Material InstantiateSharedMaterial(ShaderType shaderType)
         {
-            Material material = new(Shader.Find(shaderType switch
+            string shaderName = shaderType switch
             {
                 ShaderType.OpaqueLight => "Custom/OpaqueNeonLight",
                 ShaderType.TransparentLight => "Custom/TransparentNeonLight",
                 ShaderType.BaseWater => "Custom/WaterLit",
                 _ => "Custom/SimpleLit"
-            }))
+            };
+#if LATEST
+            Shader shader = _allShaders.First(n => n.name == shaderName);
+#else
+            Shader shader = Shader.Find(shaderName);
+#endif
+            Material material = new(shader)
             {
                 globalIlluminationFlags = GeometryFactory.IsLightType(shaderType)
                     ? MaterialGlobalIlluminationFlags.EmissiveIsBlack

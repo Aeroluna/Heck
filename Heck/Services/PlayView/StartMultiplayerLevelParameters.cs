@@ -8,14 +8,20 @@ namespace Heck.PlayView
         [UsedImplicitly]
         public StartMultiplayerLevelParameters(
             string gameMode,
+#if LATEST
+            in BeatmapKey beatmapKey,
+            BeatmapLevel beatmapLevel,
+            IBeatmapLevelData beatmapLevelData,
+#else
             IPreviewBeatmapLevel previewBeatmapLevel,
             BeatmapDifficulty beatmapDifficulty,
             BeatmapCharacteristicSO beatmapCharacteristic,
             IDifficultyBeatmap difficultyBeatmap,
+#endif
             ColorScheme overrideColorScheme,
             GameplayModifiers gameplayModifiers,
             PlayerSpecificSettings playerSpecificSettings,
-            PracticeSettings practiceSettings,
+            PracticeSettings? practiceSettings,
             string backButtonText,
             bool useTestNoteCutSoundEffects,
             Action beforeSceneSwitchCallback,
@@ -23,28 +29,43 @@ namespace Heck.PlayView
             Action<DisconnectedReason> didDisconnectCallback)
             : base(
                 gameMode,
+#if LATEST
+                in beatmapKey,
+                beatmapLevel,
+#else
                 difficultyBeatmap,
                 previewBeatmapLevel,
+#endif
                 null,
                 overrideColorScheme,
-#if LATEST
+#if !V1_29_1
                 null,
 #endif
                 gameplayModifiers,
                 playerSpecificSettings,
                 practiceSettings,
+#if LATEST
+                null,
+#endif
                 backButtonText,
                 useTestNoteCutSoundEffects,
                 false,
                 beforeSceneSwitchCallback,
-                null,
 #if LATEST
+                null,
+#endif
+                null,
+#if !V1_29_1
                 null,
 #endif
                 null)
         {
+#if LATEST
+            BeatmapLevelData = beatmapLevelData;
+#else
             BeatmapDifficulty = beatmapDifficulty;
             BeatmapCharacteristic = beatmapCharacteristic;
+#endif
             MultiplayerLevelFinishedCallback = levelFinishedCallback;
             DidDisconnectCallback = didDisconnectCallback;
         }
@@ -52,15 +73,23 @@ namespace Heck.PlayView
         public StartMultiplayerLevelParameters(StartMultiplayerLevelParameters original)
             : base(original)
         {
+#if LATEST
+            BeatmapLevelData = original.BeatmapLevelData;
+#else
             BeatmapDifficulty = original.BeatmapDifficulty;
             BeatmapCharacteristic = original.BeatmapCharacteristic;
+#endif
             MultiplayerLevelFinishedCallback = original.MultiplayerLevelFinishedCallback;
             DidDisconnectCallback = original.DidDisconnectCallback;
         }
 
+#if LATEST
+        public IBeatmapLevelData BeatmapLevelData { get; }
+#else
         public BeatmapDifficulty BeatmapDifficulty { get; }
 
         public BeatmapCharacteristicSO BeatmapCharacteristic { get; }
+#endif
 
         public Action<MultiplayerLevelScenesTransitionSetupDataSO, MultiplayerResultsData>? MultiplayerLevelFinishedCallback { get; }
 

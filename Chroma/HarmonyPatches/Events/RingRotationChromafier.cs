@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Chroma.Lighting;
-using Heck;
+using Heck.Deserialize;
 using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;

@@ -1,60 +1,100 @@
-﻿using System;
+﻿#if LATEST
+using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
+using System.Diagnostics.CodeAnalysis;
 using Chroma.Colorizer;
-using HarmonyLib;
-using Heck;
+using IPA.Utilities;
 using SiraUtil.Affinity;
 using UnityEngine;
 
 namespace Chroma.HarmonyPatches.Colorizer
 {
-    internal class ObstacleEffectsColorize : IAffinity, IDisposable
+    internal class ObstacleEffectsColorize : IAffinity
     {
-        private static readonly MethodInfo _setPositionAndRotation = AccessTools.Method(typeof(ObstacleSaberSparkleEffect), nameof(ObstacleSaberSparkleEffect.SetPositionAndRotation));
+        private static readonly FieldAccessor<ObstacleSaberSparkleEffectManager, Action<SaberType>>.Accessor
+            _sparkleEffectDidStartEventAccessor =
+                FieldAccessor<ObstacleSaberSparkleEffectManager, Action<SaberType>>.GetAccessor(nameof(ObstacleSaberSparkleEffectManager.sparkleEffectDidStartEvent));
 
-        private static readonly FieldInfo _effectsField = AccessTools.Field(typeof(ObstacleSaberSparkleEffectManager), "_effects");
+        private static readonly FieldAccessor<ObstacleSaberSparkleEffectManager, Action<SaberType>>.Accessor
+            _sparkleEffectDidEndEventAccessor =
+                FieldAccessor<ObstacleSaberSparkleEffectManager, Action<SaberType>>.GetAccessor(nameof(ObstacleSaberSparkleEffectManager.sparkleEffectDidEndEvent));
 
-        private readonly CodeInstruction _setObstacleSparksColor;
         private readonly ObstacleColorizerManager _manager;
 
         private ObstacleEffectsColorize(ObstacleColorizerManager manager)
         {
             _manager = manager;
-            _setObstacleSparksColor = InstanceTranspilers.EmitInstanceDelegate<Action<ObstacleSaberSparkleEffect, ObstacleController>>(SetObstacleSaberSparkleColor);
         }
 
-        public void Dispose()
+        private static bool IntersectSaberWithObstacles(
+            Saber saber,
+            List<ObstacleController> obstacles,
+            ref Pose hit,
+            [NotNullWhen(true)] ref ObstacleController? hitObstacle)
         {
-            InstanceTranspilers.DisposeDelegate(_setObstacleSparksColor);
+            if (!saber.isActiveAndEnabled)
+            {
+                return false;
+            }
+
+            foreach (ObstacleController obstacle in obstacles)
+            {
+                Bounds bounds = obstacle.bounds;
+                Transform transform = obstacle.transform;
+                Vector3 start = transform.InverseTransformPoint(saber.saberBladeBottomPos);
+                Vector3 end = transform.InverseTransformPoint(saber.saberBladeTopPos);
+                if (!ObstacleSaberSparkleEffectManager.IntersectBoxSurfacePose(in bounds, start, end, ref hit))
+                {
+                    continue;
+                }
+
+                hit.position = transform.TransformPoint(hit.position);
+                hit.rotation *= transform.rotation;
+                hitObstacle = obstacle;
+                return true;
+            }
+
+            return false;
         }
 
-        [AffinityTranspiler]
+        [AffinityPrefix]
         [AffinityPatch(typeof(ObstacleSaberSparkleEffectManager), nameof(ObstacleSaberSparkleEffectManager.Update))]
-        private IEnumerable<CodeInstruction> SetObstacleSparksColorTranspiler(IEnumerable<CodeInstruction> instructions)
+        private bool SetObstacleSparksColorReplace(
+            ObstacleSaberSparkleEffectManager __instance,
+            Saber[] ____sabers,
+            ObstacleSaberSparkleEffect[] ____effects)
         {
-            return new CodeMatcher(instructions)
-                /*
-                 * this._effects[i].SetPositionAndRotation(vector, this.GetEffectRotation(vector, obstacleController.transform, bounds));
-                 * ++ SetObstacleSaberSparkleColor(this._effects[i], obstacleController);
-                 */
-                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _setPositionAndRotation))
-                .Advance(1)
-                .Insert(
-                    new CodeInstruction(OpCodes.Ldarg_0),
-                    new CodeInstruction(OpCodes.Ldfld, _effectsField),
-                    new CodeInstruction(OpCodes.Ldloc_3),
-                    new CodeInstruction(OpCodes.Ldelem_Ref),
-                    new CodeInstruction(OpCodes.Ldloc_1),
-                    _setObstacleSparksColor)
-                .InstructionEnumeration();
-        }
+            List<ObstacleController> activeObstacleControllers = __instance._beatmapObjectManager.activeObstacleControllers;
+            Pose identity = Pose.identity;
+            ObstacleController? hitObstacle = null;
+            for (int i = 0; i < ____sabers.Length; i++)
+            {
+                bool emitting = ____effects[i].IsEmitting();
+                if (IntersectSaberWithObstacles(____sabers[i], activeObstacleControllers, ref identity, ref hitObstacle))
+                {
+                    ____effects[i].SetPositionAndRotation(identity.position, identity.rotation);
+                    __instance._hapticFeedbackManager.PlayHapticFeedback(____sabers[i].saberType.Node(), __instance._rumblePreset);
 
-        private void SetObstacleSaberSparkleColor(ObstacleSaberSparkleEffect obstacleSaberSparkleEffect, ObstacleController obstacleController)
-        {
-            Color.RGBToHSV(_manager.GetColorizer(obstacleController).Color, out float h, out float s, out _);
-            obstacleSaberSparkleEffect.color = Color.HSVToRGB(h, s, 1);
+                    Color.RGBToHSV(_manager.GetColorizer(hitObstacle).Color, out float h, out float s, out _);
+                    ____effects[i].color = Color.HSVToRGB(h, s, 1);
+
+                    if (emitting)
+                    {
+                        continue;
+                    }
+
+                    ____effects[i].StartEmission();
+                    _sparkleEffectDidStartEventAccessor(ref __instance)?.DynamicInvoke(____sabers[i].saberType);
+                }
+                else if (emitting)
+                {
+                    ____effects[i].StopEmission();
+                    _sparkleEffectDidEndEventAccessor(ref __instance)?.DynamicInvoke(____sabers[i].saberType);
+                }
+            }
+
+            return false;
         }
     }
 }
+#endif

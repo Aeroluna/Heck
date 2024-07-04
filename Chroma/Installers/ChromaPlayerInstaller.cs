@@ -106,7 +106,9 @@ namespace Chroma.Installers
             if (_environmentModule.Active)
             {
                 // EnvironmentComponent
+#if !LATEST
                 Container.BindInterfacesAndSelfTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();
+#endif
                 Container.BindInterfacesAndSelfTo<ParametricBoxControllerTransformOverride>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackLaneRingOffset>().AsSingle();
 

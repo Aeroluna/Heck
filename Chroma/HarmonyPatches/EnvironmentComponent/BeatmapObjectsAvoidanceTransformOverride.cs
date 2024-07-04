@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if !LATEST
+using System.Collections.Generic;
 using Heck.Animation.Transform;
 using SiraUtil.Affinity;
 using UnityEngine;
@@ -49,3 +50,4 @@ namespace Chroma.HarmonyPatches.EnvironmentComponent
         }
     }
 }
+#endif

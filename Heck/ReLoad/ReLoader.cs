@@ -4,13 +4,15 @@ using System.Threading.Tasks;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
-using Heck.HarmonyPatches;
+using Heck.Deserialize;
+using Heck.HarmonyPatches.UntransformedData;
 using Heck.Settings;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using SiraUtil.Logging;
 using UnityEngine;
 using Zenject;
+using DeserializerManager = Heck.Deserialize.DeserializerManager;
 
 namespace Heck.ReLoad
 {
@@ -25,8 +27,8 @@ namespace Heck.ReLoad
         private static readonly FieldAccessor<BeatmapData, BeatmapObjectsInTimeRowProcessor>.Accessor _beatmapObjectsInTimeRowProcessorAccessor
             = FieldAccessor<BeatmapData, BeatmapObjectsInTimeRowProcessor>.GetAccessor(nameof(BeatmapData._beatmapObjectsInTimeRowProcessor));
 
-        private static readonly FieldAccessor<CustomBeatmapData, bool>.Accessor _version2_6_0AndEarlierAccessor
-            = FieldAccessor<CustomBeatmapData, bool>.GetAccessor("<version2_6_0AndEarlier>k__BackingField");
+        private static readonly FieldAccessor<CustomBeatmapData, bool>.Accessor _versionAccessor
+            = FieldAccessor<CustomBeatmapData, bool>.GetAccessor("<version>k__BackingField");
 
         private static readonly FieldAccessor<CustomBeatmapData, CustomData>.Accessor _customDataAccessor
             = FieldAccessor<CustomBeatmapData, CustomData>.GetAccessor("<customData>k__BackingField");
@@ -49,7 +51,11 @@ namespace Heck.ReLoad
         private readonly SiraLog _log;
         private readonly AudioTimeSyncController _audioTimeSyncController;
         private readonly ReLoaderLoader _reLoaderLoader;
+#if LATEST
+        private readonly PauseMenuManager.InitData _pauseInitData;
+#else
         private readonly IDifficultyBeatmap _difficultyBeatmap;
+#endif
         private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData;
         private readonly IReadonlyBeatmapData _beatmapData;
         private readonly BeatmapObjectManager _beatmapObjectManager;
@@ -71,7 +77,11 @@ namespace Heck.ReLoad
             SiraLog log,
             AudioTimeSyncController audioTimeSyncController,
             AudioTimeSyncController.InitData audioTimeSyncControllerInitData,
+#if LATEST
+            PauseMenuManager.InitData pauseInitData,
+#else
             IDifficultyBeatmap difficultyBeatmap,
+#endif
             ReLoaderLoader reLoaderLoader,
             StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupDataSO,
             GameplayCoreSceneSetupData gameplayCoreSceneSetupData,
@@ -103,9 +113,13 @@ namespace Heck.ReLoad
             _beatmapTracks = beatmapTracks;
             _container = container;
             _config = config;
+#if LATEST
+            _pauseInitData = pauseInitData;
+            if (pauseInitData.beatmapLevel is CustomBeatmapLevel)
+#else
             _difficultyBeatmap = difficultyBeatmap;
-
             if (difficultyBeatmap is CustomDifficultyBeatmap)
+#endif
             {
                 _reloadable = true;
             }
@@ -163,7 +177,7 @@ namespace Heck.ReLoad
             _allBeatmapDataAccessor(ref destData) = sourceData._allBeatmapData;
             _beatmapDataItemsPerTypeAccessor(ref destData) = sourceData._beatmapDataItemsPerTypeAndId;
             _beatmapObjectsInTimeRowProcessorAccessor(ref destData) = sourceData._beatmapObjectsInTimeRowProcessor;
-            _version2_6_0AndEarlierAccessor(ref destCustomData) = _version2_6_0AndEarlierAccessor(ref sourceCustomData);
+            _versionAccessor(ref destCustomData) = _versionAccessor(ref sourceCustomData);
             _customDataAccessor(ref destCustomData) = _customDataAccessor(ref sourceCustomData);
             _beatmapCustomDataAccessor(ref destCustomData) = _beatmapCustomDataAccessor(ref sourceCustomData);
             _levelCustomDataAccessor(ref destCustomData) = _levelCustomDataAccessor(ref sourceCustomData);
@@ -180,15 +194,26 @@ namespace Heck.ReLoad
                 _gamePause.Pause();
             }
 
+#if LATEST
+            _reLoaderLoader.Reload();
+            _gameplayCoreSceneSetupData.LoadTransformedBeatmapData();
+            IReadonlyBeatmapData beatmapData = _gameplayCoreSceneSetupData.transformedBeatmapData;
+#else
             _reLoaderLoader.Reload(_difficultyBeatmap);
             IReadonlyBeatmapData beatmapData = Task.Run<IReadonlyBeatmapData>(async () => await _gameplayCoreSceneSetupData.GetTransformedBeatmapDataAsync()).Result;
+#endif
             FillBeatmapData(beatmapData, _beatmapData);
 
-            HeckinGameplayCoreSceneSetupData heckinGameplayCoreSceneSetupData = (HeckinGameplayCoreSceneSetupData)_gameplayCoreSceneSetupData;
+            HeckGameplayCoreSceneSetupData heckGameplayCoreSceneSetupData = (HeckGameplayCoreSceneSetupData)_gameplayCoreSceneSetupData;
+#if LATEST
+            _deserializerManager.DeserializeBeatmapData(
+                _pauseInitData.beatmapLevel,
+#else
             _deserializerManager.DeserializeBeatmapData(
                 _difficultyBeatmap,
+#endif
                 (CustomBeatmapData)beatmapData,
-                heckinGameplayCoreSceneSetupData.UntransformedBeatmapData,
+                heckGameplayCoreSceneSetupData.UntransformedBeatmapData,
                 _leftHanded,
                 out Dictionary<string, Track> beatmapTracks,
                 out HashSet<(object? Id, DeserializedData DeserializedData)> deserializedDatas);

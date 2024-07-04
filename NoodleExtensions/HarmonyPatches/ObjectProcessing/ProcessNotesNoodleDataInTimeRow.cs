@@ -187,7 +187,11 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                     }
                     else
                     {
+#if LATEST
+                        noteData.MarkAsSliderHead();
+#else
                         noteData.ChangeToSliderHead();
+#endif
                     }
                 }
             }
@@ -212,7 +216,11 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
                     sliderData.SetHasTailNote(true);
                     sliderData.customData[INTERNAL_TAILSTARTNOTELINELAYER] = noteData.customData[INTERNAL_STARTNOTELINELAYER];
                     sliderData.SetTailBeforeJumpLineLayer(noteData.beforeJumpNoteLineLayer);
+#if LATEST
+                    noteData.MarkAsSliderTail();
+#else
                     noteData.ChangeToSliderTail();
+#endif
                 }
             }
         }

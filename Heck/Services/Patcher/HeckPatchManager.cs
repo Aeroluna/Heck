@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using IPA.Loader;
 
-namespace Heck
+namespace Heck.Patcher
 {
     public static class HeckPatchManager
     {

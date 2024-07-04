@@ -3,6 +3,7 @@ using Heck.Animation.Events;
 using Heck.Animation.Transform;
 using Heck.Event;
 using Heck.HarmonyPatches;
+using Heck.ObjectInitialize;
 using JetBrains.Annotations;
 using Zenject;
 

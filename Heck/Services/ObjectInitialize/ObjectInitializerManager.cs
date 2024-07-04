@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 
-namespace Heck
+namespace Heck.ObjectInitialize
 {
     [UsedImplicitly]
     internal class ObjectInitializerManager

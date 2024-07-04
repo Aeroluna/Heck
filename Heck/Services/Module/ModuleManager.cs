@@ -5,11 +5,13 @@ using System.Reflection;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+using Heck.Deserialize;
+using Heck.Patcher;
 using JetBrains.Annotations;
 using SiraUtil.Logging;
 using Zenject;
 
-namespace Heck
+namespace Heck.Module
 {
     public class ModuleManager
     {
@@ -92,17 +94,27 @@ namespace Heck
         }
 
         internal void Activate(
+#if LATEST
+            in BeatmapKey beatmapKey,
+            BeatmapLevel? beatmapLevel,
+#else
             IDifficultyBeatmap? difficultyBeatmap,
-            IPreviewBeatmapLevel? previewBeatmapLevel,
+#endif
             LevelType levelType,
             ref OverrideEnvironmentSettings? overrideEnvironmentSettings)
         {
             bool disableAll = false;
             string[]? requirements = null;
             string[]? suggestions = null;
+#if LATEST
+            CustomData? beatmapCustomData = beatmapLevel?.GetBeatmapCustomData(beatmapKey);
+            if (beatmapCustomData != null)
+            {
+#else
             if (difficultyBeatmap != null)
             {
                 CustomData beatmapCustomData = difficultyBeatmap.GetBeatmapCustomData();
+#endif
                 requirements = beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>().ToArray() ?? Array.Empty<string>();
                 suggestions = beatmapCustomData.Get<List<object>>("_suggestions")?.Cast<string>().ToArray() ?? Array.Empty<string>();
             }
@@ -119,8 +131,29 @@ namespace Heck
             object[] inputs =
             {
                 new Capabilities(requirements, suggestions),
+#if LATEST
+                beatmapKey,
+                beatmapLevel ?? new BeatmapLevel(
+                    0,
+                    false,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    PlayerSensitivityFlag.Unknown,
+                    null,
+                    null),
+#else
                 difficultyBeatmap ?? new EmptyDifficultyBeatmap(),
-                previewBeatmapLevel ?? new EmptyBeatmapLevel(),
+#endif
                 moduleArgs,
                 levelType
             };

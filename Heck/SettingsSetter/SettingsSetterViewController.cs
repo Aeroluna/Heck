@@ -14,7 +14,14 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 using SiraUtil.Logging;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
+#if LATEST
+using BeatSaber.GameSettings;
+using BeatSaber.PerformancePresets;
+using BGLib.JsonExtension;
+using Newtonsoft.Json;
+#endif
 
 namespace Heck.SettingsSetter
 {
@@ -33,9 +40,17 @@ namespace Heck.SettingsSetter
         [UIObject("decline-button")]
         private readonly GameObject? _declineButton;
 
+        [UIComponent("top-vertical")]
+        private readonly VerticalLayoutGroup _topVertical = null!;
+
         private SiraLog _log = null!;
+#if LATEST
+        private SettingsApplicatorSO _settingsApplicator = null!;
+        private GraphicSettingsHandler _graphicSettingsHandler = null!;
+#else
         private MainSystemInit _mainSystemInit = null!;
         private MainSettingsModelSO _mainSettings = null!;
+#endif
         private ColorSchemesSettings _colorSchemesSettings = null!;
         private PlayerDataModel _playerDataModel = null!;
 
@@ -82,7 +97,12 @@ namespace Heck.SettingsSetter
             // When in doubt, wrap everything in one big try catch statement!
             try
             {
-                CustomData? settings = startParameters.DifficultyBeatmap.GetBeatmapCustomData().Get<CustomData>("_settings");
+#if LATEST
+                CustomData beatmapCustomData = startParameters.BeatmapLevel.GetBeatmapCustomData(startParameters.BeatmapKey);
+#else
+                CustomData beatmapCustomData = startParameters.DifficultyBeatmap.GetBeatmapCustomData();
+#endif
+                CustomData? settings = beatmapCustomData.Get<CustomData>("_settings");
                 if (settings != null)
                 {
                     _contents.Clear();
@@ -244,6 +264,20 @@ namespace Heck.SettingsSetter
                     {
                         List<Dictionary<string, object>> settableGraphicsSettings = SettingSetterSettableSettingsManager.SettingsTable["_graphics"];
 
+#if LATEST
+                        if (!_graphicSettingsHandler.TryGetCurrentPerformancePreset(out PerformancePreset? preset))
+                        {
+                            throw new Exception("Could not get current performance preset.");
+                        }
+
+                        _cachedMainSettings = new SettableMainSettings(
+                            (int)preset.mirrorGraphics,
+                            (int)preset.mainEffectGraphics,
+                            preset.smokeGraphics,
+                            preset.burnMarkTrails,
+                            preset.screenDisplacementEffects,
+                            preset.maxShockwaveParticles);
+#else
                         _cachedMainSettings = new SettableMainSettings(
                             _mainSettings.mirrorGraphicsSettings,
                             _mainSettings.mainEffectGraphicsSettings,
@@ -251,6 +285,8 @@ namespace Heck.SettingsSetter
                             _mainSettings.burnMarkTrailsEnabled,
                             _mainSettings.screenDisplacementEffectsEnabled,
                             _mainSettings.maxShockwaveParticles);
+#endif
+
                         _modifiedMainSettings = _cachedMainSettings with { };
 
                         foreach (Dictionary<string, object> settableGraphicSetting in settableGraphicsSettings)
@@ -264,15 +300,9 @@ namespace Heck.SettingsSetter
                                 continue;
                             }
 
-                            // substring is to remove underscore
-                            object valueSO = typeof(MainSettingsModelSO).GetField(fieldName.Substring(1), BindingFlags.Instance | BindingFlags.Public)?.GetValue(_mainSettings)
-                                             ?? throw new InvalidOperationException($"Unable to find valueSO with name [{fieldName.Substring(1)}].");
-                            object activeValue = valueSO switch
-                            {
-                                BoolSO boolSO => boolSO.value,
-                                IntSO intSO => intSO.value,
-                                _ => throw new InvalidOperationException($"How the hell did you reach this? [{valueSO.GetType()}]")
-                            };
+                            FieldInfo field = typeof(SettableMainSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)
+                                              ?? throw new InvalidOperationException($"Unable to find field with name {fieldName}.");
+                            object activeValue = field.GetValue(_modifiedMainSettings);
                             if (json is IConvertible)
                             {
                                 json = Convert.ChangeType(json, activeValue.GetType());
@@ -284,8 +314,6 @@ namespace Heck.SettingsSetter
                             }
 
                             _contents.Add(new ListObject($"[Graphics] {settingName}", $"{activeValue} -> {json}"));
-                            FieldInfo field = typeof(SettableMainSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)
-                                              ?? throw new InvalidOperationException($"Unable to find field with name {fieldName}.");
                             field.SetValue(_modifiedMainSettings, json);
                         }
                     }
@@ -347,6 +375,23 @@ namespace Heck.SettingsSetter
             return false;
         }
 
+        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+        {
+            base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
+
+            if (!addedToHierarchy)
+            {
+                return;
+            }
+
+            RectTransform rect = (RectTransform)_topVertical.transform;
+#if LATEST
+            rect.anchorMax = new Vector2(rect.anchorMax.x, 1.55f);
+#else
+            rect.anchorMax = new Vector2(rect.anchorMax.x, 1.25f);
+#endif
+        }
+
         [UsedImplicitly]
         private void OnPlay()
         {
@@ -358,6 +403,24 @@ namespace Heck.SettingsSetter
             if (_modifiedMainSettings != null)
             {
                 _log.Trace("Main settings modified");
+
+#if LATEST
+                if (!_graphicSettingsHandler.TryGetCurrentPerformancePreset(out PerformancePreset? preset))
+                {
+                    throw new Exception("Could not get current performance preset.");
+                }
+
+                CustomPerformancePreset customPerformancePreset = JsonConvert.DeserializeObject<CustomPerformancePreset>(
+                    JsonConvert.SerializeObject(preset, JsonSettings.compactWithDefault))!;
+                customPerformancePreset.mirrorGraphics = (MirrorQualityPreset)_modifiedMainSettings.MirrorGraphicsSettings;
+                customPerformancePreset.mainEffectGraphics = (MainEffectPreset)_modifiedMainSettings.MainEffectGraphicsSettings;
+                customPerformancePreset.smokeGraphics = _modifiedMainSettings.SmokeGraphicsSettings;
+                customPerformancePreset.burnMarkTrails = _modifiedMainSettings.BurnMarkTrailsEnabled;
+                customPerformancePreset.screenDisplacementEffects =
+                    _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
+                customPerformancePreset.maxShockwaveParticles = _modifiedMainSettings.MaxShockwaveParticles;
+                _settingsApplicator.ApplyPerformancePreset(customPerformancePreset);
+#else
                 _mainSettings.mirrorGraphicsSettings.value = _modifiedMainSettings.MirrorGraphicsSettings;
                 _mainSettings.mainEffectGraphicsSettings.value = _modifiedMainSettings.MainEffectGraphicsSettings;
                 _mainSettings.smokeGraphicsSettings.value = _modifiedMainSettings.SmokeGraphicsSettings;
@@ -365,8 +428,9 @@ namespace Heck.SettingsSetter
                 _mainSettings.screenDisplacementEffectsEnabled.value = _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
                 _mainSettings.maxShockwaveParticles.value = _modifiedMainSettings.MaxShockwaveParticles;
                 _mainSettings.depthTextureEnabled.value = _mainSettings.smokeGraphicsSettings;
-                _modifiedMainSettings = null;
                 _mainSystemInit.Init();
+#endif
+                _modifiedMainSettings = null;
             }
 
             // ReSharper disable once InvertIf
@@ -408,6 +472,14 @@ namespace Heck.SettingsSetter
             }
 
             _log.Trace("Main settings restored");
+#if LATEST
+            if (!_graphicSettingsHandler.TryGetCurrentPerformancePreset(out PerformancePreset? preset))
+            {
+                throw new Exception("Could not get current performance preset.");
+            }
+
+            _settingsApplicator.ApplyPerformancePreset(preset);
+#else
             _mainSettings.mirrorGraphicsSettings.value = _cachedMainSettings.MirrorGraphicsSettings;
             _mainSettings.mainEffectGraphicsSettings.value = _cachedMainSettings.MainEffectGraphicsSettings;
             _mainSettings.smokeGraphicsSettings.value = _cachedMainSettings.SmokeGraphicsSettings;
@@ -415,8 +487,9 @@ namespace Heck.SettingsSetter
             _mainSettings.screenDisplacementEffectsEnabled.value = _cachedMainSettings.ScreenDisplacementEffectsEnabled;
             _mainSettings.maxShockwaveParticles.value = _cachedMainSettings.MaxShockwaveParticles;
             _mainSettings.depthTextureEnabled.value = _mainSettings.smokeGraphicsSettings;
-            _cachedMainSettings = null;
             _mainSystemInit.Init();
+#endif
+            _cachedMainSettings = null;
         }
 
         [UsedImplicitly]
@@ -424,13 +497,22 @@ namespace Heck.SettingsSetter
         private void Construct(
             SiraLog log,
             GameplaySetupViewController gameplaySetupViewController,
+#if LATEST
+            SettingsApplicatorSO settingsApplicator,
+            GraphicSettingsHandler graphicSettingsHandler,
+#endif
             PlayerDataModel playerDataModel)
         {
             _log = log;
             _colorSchemesSettings = gameplaySetupViewController.colorSchemesSettings;
             _playerDataModel = playerDataModel;
+#if LATEST
+            _settingsApplicator = settingsApplicator;
+            _graphicSettingsHandler = graphicSettingsHandler;
+#else
             _mainSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().First();
             _mainSystemInit = Resources.FindObjectsOfTypeAll<MainSystemInit>().First();
+#endif
         }
 
         [UsedImplicitly]

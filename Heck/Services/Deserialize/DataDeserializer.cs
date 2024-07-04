@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 
-namespace Heck
+namespace Heck.Deserialize
 {
     internal class DataDeserializer
     {

@@ -2,6 +2,7 @@
 using System.Linq;
 using Heck.Animation;
 using Heck.Installers;
+using Heck.Patcher;
 using Heck.SettingsSetter;
 using IPA;
 using IPA.Config.Stores;

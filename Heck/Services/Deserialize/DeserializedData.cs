@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using CustomJSONData.CustomBeatmap;
 
-namespace Heck
+namespace Heck.Deserialize
 {
     public class DeserializedData
     {

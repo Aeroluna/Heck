@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Chroma.Animation;
 using Chroma.Colorizer;
-using Heck;
 using Heck.Animation;
+using Heck.Deserialize;
 using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;

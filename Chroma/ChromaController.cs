@@ -84,8 +84,10 @@ namespace Chroma
         internal const string ID = "Chroma";
         internal const string HARMONY_ID = "aeroluna.Chroma";
 
+        internal const string LEGACY_CAPABILITY = "Chroma Lighting Events";
+
         internal static Capability Capability { get; } = new(CAPABILITY);
 
-        internal static Capability LegacyCapability { get; } = new("Chroma Lighting Events");
+        internal static Capability LegacyCapability { get; } = new(LEGACY_CAPABILITY);
     }
 }

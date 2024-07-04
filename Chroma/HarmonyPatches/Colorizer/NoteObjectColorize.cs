@@ -7,6 +7,7 @@ using Chroma.Settings;
 using HarmonyLib;
 using Heck;
 using Heck.Animation;
+using Heck.Deserialize;
 using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;

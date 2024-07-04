@@ -1,5 +1,8 @@
 ﻿using Heck.BaseProvider;
+using Heck.Deserialize;
 using Heck.HarmonyPatches;
+using Heck.HarmonyPatches.ModuleActivator;
+using Heck.Module;
 using Heck.ReLoad;
 using Heck.Settings;
 using JetBrains.Annotations;
@@ -21,7 +24,13 @@ namespace Heck.Installers
         {
             Container.Bind<BaseProviderManager>().AsSingle().NonLazy();
             Container.Bind<ModuleManager>().AsSingle();
+#if LATEST
+            Container.BindInterfacesTo<StandardModuleActivator>().AsSingle();
+            Container.BindInterfacesTo<MissionModuleActivator>().AsSingle();
+            Container.BindInterfacesTo<MiscModuleActivator>().AsSingle();
+#else
             Container.BindInterfacesTo<SceneTransitionModuleActivator>().AsSingle();
+#endif
             Container.Bind<DeserializerManager>().AsSingle();
             Container.BindInterfacesTo<PatchedPlayerInstaller>().AsSingle();
 

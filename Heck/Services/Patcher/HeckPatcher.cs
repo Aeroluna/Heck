@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 
-namespace Heck
+namespace Heck.Patcher
 {
     // TODO: use categories instead
     // nvm, bsipa needs to update its harmony ver

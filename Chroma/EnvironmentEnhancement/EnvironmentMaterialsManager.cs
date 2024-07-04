@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !LATEST
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -112,3 +113,4 @@ namespace Chroma.EnvironmentEnhancement
         }
     }
 }
+#endif

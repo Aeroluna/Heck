@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
+using Heck.ObjectInitialize;
 using UnityEngine;
 using Zenject;
 

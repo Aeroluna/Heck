@@ -1,5 +1,5 @@
-﻿using Heck;
-using Heck.Animation;
+﻿using Heck.Animation;
+using Heck.Patcher;
 using IPA;
 using JetBrains.Annotations;
 using NoodleExtensions.Installers;
@@ -51,7 +51,7 @@ namespace NoodleExtensions
         [OnEnable]
         public void OnEnable()
         {
-            NoodleController.Capability.Register();
+            Capability.Register();
             JSONDeserializer.Enabled = true;
         }
 
@@ -59,7 +59,7 @@ namespace NoodleExtensions
         [OnDisable]
         public void OnDisable()
         {
-            NoodleController.Capability.Deregister();
+            Capability.Deregister();
             JSONDeserializer.Enabled = false;
         }
 #pragma warning restore CA1822

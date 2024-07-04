@@ -1,4 +1,4 @@
-﻿using Heck;
+﻿using Heck.Deserialize;
 using JetBrains.Annotations;
 using NoodleExtensions.HarmonyPatches.SmallFixes;
 using UnityEngine;

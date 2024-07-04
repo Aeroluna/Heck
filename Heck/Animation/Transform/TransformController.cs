@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -34,7 +35,11 @@ namespace Heck.Animation.Transform
             List<Track> track)
         {
             _leftHanded = leftHanded;
-            _v2 = beatmapData is CustomBeatmapData { version2_6_0AndEarlier: true };
+            if (beatmapData is IVersionable versionable)
+            {
+                _v2 = versionable.version.IsVersion2();
+            }
+
             _track = track;
         }
 

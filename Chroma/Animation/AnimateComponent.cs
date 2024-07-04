@@ -7,6 +7,7 @@ using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
 using Heck.Animation;
+using Heck.Deserialize;
 using Heck.Event;
 using JetBrains.Annotations;
 using UnityEngine;

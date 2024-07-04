@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+using Heck.Deserialize;
+using Heck.Patcher;
 
-namespace Heck
+namespace Heck.Module
 {
     internal interface IModuleFeature
     {

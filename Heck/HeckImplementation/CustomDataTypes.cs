@@ -4,6 +4,7 @@ using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
+using Heck.Deserialize;
 using static Heck.HeckController;
 
 namespace Heck
@@ -13,8 +14,8 @@ namespace Heck
         internal HeckObjectData(
             BeatmapObjectData beatmapObjectData,
             CustomData customData,
-            IDifficultyBeatmap difficultyBeatmap,
             Dictionary<string, Track> beatmapTracks,
+            float bpm,
             bool v2)
         {
             try
@@ -23,7 +24,7 @@ namespace Heck
             }
             catch (Exception e)
             {
-                Plugin.Log.DeserializeFailure(e, beatmapObjectData, difficultyBeatmap);
+                Plugin.Log.DeserializeFailure(e, beatmapObjectData, bpm);
             }
         }
 

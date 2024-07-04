@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
@@ -23,7 +24,8 @@ namespace NoodleExtensions.HarmonyPatches.ObjectProcessing
 
         internal static bool GetV2(BeatmapObjectsInTimeRowProcessor processor)
         {
-            return processor is NoodleBeatmapObjectsInTimeRowProcessor { BeatmapData: CustomBeatmapData { version2_6_0AndEarlier: true } };
+            return processor is NoodleBeatmapObjectsInTimeRowProcessor { BeatmapData: CustomBeatmapData and IVersionable versionable } &&
+                   versionable.version.IsVersion2();
         }
 
         [HarmonyTranspiler]

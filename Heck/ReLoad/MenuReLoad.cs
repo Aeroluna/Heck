@@ -8,17 +8,23 @@ namespace Heck.ReLoad
     public class MenuReLoad : ITickable
     {
         private readonly ReLoaderLoader _reLoaderLoader;
+#if !LATEST
         private readonly LevelSelectionNavigationController _levelSelectionNavigationController;
+#endif
         private readonly Config.ReLoaderSettings _config;
 
         [UsedImplicitly]
         private MenuReLoad(
             ReLoaderLoader reLoaderLoader,
+#if !LATEST
             LevelSelectionNavigationController levelSelectionNavigationController,
+#endif
             Config.ReLoaderSettings config)
         {
             _reLoaderLoader = reLoaderLoader;
+#if !LATEST
             _levelSelectionNavigationController = levelSelectionNavigationController;
+#endif
             _config = config;
         }
 
@@ -29,11 +35,15 @@ namespace Heck.ReLoad
                 return;
             }
 
+#if LATEST
+            _reLoaderLoader.Reload();
+#else
             IDifficultyBeatmap? difficultyBeatmap = _levelSelectionNavigationController.selectedDifficultyBeatmap;
             if (difficultyBeatmap != null)
             {
                 _reLoaderLoader.Reload(difficultyBeatmap);
             }
+#endif
         }
     }
 }

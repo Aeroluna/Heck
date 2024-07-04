@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
+using Heck.Deserialize;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;

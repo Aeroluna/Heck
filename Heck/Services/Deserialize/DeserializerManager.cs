@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
 using IPA.Utilities;
@@ -8,7 +9,7 @@ using JetBrains.Annotations;
 using SiraUtil.Logging;
 using static Heck.HeckController;
 
-namespace Heck
+namespace Heck.Deserialize
 {
     [UsedImplicitly]
     internal class DeserializerManager
@@ -28,8 +29,26 @@ namespace Heck
             return deserializer;
         }
 
+        internal HashSet<(object? Id, DeserializedData DeserializedData)> EmptyDeserialize()
+        {
+            HashSet<(object? Id, DeserializedData DeserializedData)> result = new();
+            foreach (DataDeserializer dataDeserializer in _customDataDeserializers)
+            {
+                result.Add((dataDeserializer.Id, new DeserializedData(
+                    new Dictionary<CustomEventData, ICustomEventCustomData>(),
+                    new Dictionary<BeatmapEventData, IEventCustomData>(),
+                    new Dictionary<BeatmapObjectData, IObjectCustomData>())));
+            }
+
+            return result;
+        }
+
         internal void DeserializeBeatmapData(
+#if LATEST
+            BeatmapLevel beatmapLevel,
+#else
             IDifficultyBeatmap difficultyBeatmap,
+#endif
             CustomBeatmapData customBeatmapData,
             IReadonlyBeatmapData untransformedBeatmapData,
             bool leftHanded,
@@ -38,7 +57,8 @@ namespace Heck
         {
             _log.Trace("Deserializing BeatmapData");
 
-            bool v2 = customBeatmapData.version2_6_0AndEarlier;
+            Version version = customBeatmapData.version;
+            bool v2 = version.IsVersion2();
             if (v2)
             {
                 _log.Trace("BeatmapData is v2, converting...");
@@ -123,7 +143,7 @@ namespace Heck
 
                         if (!eventDefinitions.ContainsKey(eventName))
                         {
-                            eventDefinitions.Add(eventName, new CustomEventData(-1, type, data, v2));
+                            eventDefinitions.Add(eventName, new CustomEventData(-1, type, data, version));
                         }
                         else
                         {
@@ -141,14 +161,20 @@ namespace Heck
             // Currently used by Chroma.GameObjectTrackController
             beatmapTracks = trackManager.Tracks;
 
+#if LATEST
+            float bpm = beatmapLevel.beatsPerMinute;
+#else
+            float bpm = difficultyBeatmap.level.beatsPerMinute;
+#endif
+
             object[] inputs =
             {
-                difficultyBeatmap,
                 customBeatmapData,
                 trackManager,
                 pointDefinitions,
                 trackManager.Tracks,
-                leftHanded
+                leftHanded,
+                bpm
             };
 
             DataDeserializer[] deserializers = _customDataDeserializers.Where(n => n.Enabled).ToArray();

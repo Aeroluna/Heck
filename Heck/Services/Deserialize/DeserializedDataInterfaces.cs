@@ -1,4 +1,4 @@
-﻿namespace Heck
+﻿namespace Heck.Deserialize
 {
     public interface ICustomEventCustomData
     {

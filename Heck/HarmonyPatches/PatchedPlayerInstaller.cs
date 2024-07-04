@@ -4,10 +4,12 @@ using System.Reflection.Emit;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
+using Heck.HarmonyPatches.UntransformedData;
 using Heck.ReLoad;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using Zenject;
+using DeserializerManager = Heck.Deserialize.DeserializerManager;
 
 namespace Heck.HarmonyPatches
 {
@@ -62,37 +64,53 @@ namespace Heck.HarmonyPatches
             GameplayCoreSceneSetupData sceneSetupData,
             DiContainer container)
         {
-            IReadonlyBeatmapData untransformedBeatmapData;
-            if (sceneSetupData is HeckinGameplayCoreSceneSetupData hecked)
+            bool leftHanded = sceneSetupData.playerSpecificSettings.leftHanded;
+            container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(leftHanded);
+
+            Dictionary<string, Track> beatmapTracks;
+            HashSet<(object? Id, Deserialize.DeserializedData DeserializedData)> deserializedDatas;
+            if (sceneSetupData.transformedBeatmapData is CustomBeatmapData customBeatmapData)
             {
-                untransformedBeatmapData = hecked.UntransformedBeatmapData;
+                IReadonlyBeatmapData untransformedBeatmapData;
+                if (sceneSetupData is HeckGameplayCoreSceneSetupData hecked)
+                {
+                    untransformedBeatmapData = hecked.UntransformedBeatmapData;
+                }
+                else
+                {
+                    _log.Debug("Failed to get untransformedBeatmapData, falling back");
+                    untransformedBeatmapData = customBeatmapData;
+                }
+
+#if LATEST
+                _deserializerManager.DeserializeBeatmapData(
+                    sceneSetupData.beatmapLevel,
+#else
+                _deserializerManager.DeserializeBeatmapData(
+                    sceneSetupData.difficultyBeatmap,
+#endif
+                    customBeatmapData,
+                    untransformedBeatmapData,
+                    leftHanded,
+                    out beatmapTracks,
+                    out deserializedDatas);
+
+                if (HeckController.DebugMode && sceneSetupData.practiceSettings != null)
+                {
+                    container.BindInterfacesAndSelfTo<ReLoader>().AsSingle().NonLazy();
+                }
             }
             else
             {
-                _log.Debug("Failed to get untransformedBeatmapData, falling back");
-                untransformedBeatmapData = sceneSetupData.transformedBeatmapData;
+                deserializedDatas = _deserializerManager.EmptyDeserialize();
+                beatmapTracks = new Dictionary<string, Track>();
             }
 
-            bool leftHanded = sceneSetupData.playerSpecificSettings.leftHanded;
-            _deserializerManager.DeserializeBeatmapData(
-                sceneSetupData.difficultyBeatmap,
-                (CustomBeatmapData)sceneSetupData.transformedBeatmapData,
-                untransformedBeatmapData,
-                leftHanded,
-                out Dictionary<string, Track> beatmapTracks,
-                out HashSet<(object? Id, DeserializedData DeserializedData)> deserializedDatas);
             container.Bind<Dictionary<string, Track>>().FromInstance(beatmapTracks).AsSingle();
             deserializedDatas.Do(n =>
                 container.BindInstance(n.DeserializedData)
                     .WithId(n.Id));
             container.BindInstance(deserializedDatas);
-
-            container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(leftHanded);
-
-            if (HeckController.DebugMode && sceneSetupData.practiceSettings != null)
-            {
-                container.BindInterfacesAndSelfTo<ReLoader>().AsSingle().NonLazy();
-            }
         }
     }
 }

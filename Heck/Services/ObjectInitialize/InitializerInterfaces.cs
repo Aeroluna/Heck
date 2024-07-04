@@ -1,4 +1,4 @@
-﻿namespace Heck
+﻿namespace Heck.ObjectInitialize
 {
     public interface IGameNoteInitializer
     {

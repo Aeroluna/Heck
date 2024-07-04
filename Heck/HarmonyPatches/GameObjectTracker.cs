@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using Heck.Animation;
+using Heck.Deserialize;
 using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;

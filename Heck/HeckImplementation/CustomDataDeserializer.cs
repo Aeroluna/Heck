@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
+using Heck.Deserialize;
 using static Heck.HeckController;
 
 namespace Heck
@@ -9,20 +11,20 @@ namespace Heck
     internal class CustomDataDeserializer : IObjectsDeserializer, ICustomEventsDeserializer
     {
         private readonly CustomBeatmapData _beatmapData;
-        private readonly IDifficultyBeatmap _difficultyBeatmap;
         private readonly Dictionary<string, List<object>> _pointDefinitions;
         private readonly Dictionary<string, Track> _tracks;
+        private readonly float _bpm;
 
         private CustomDataDeserializer(
             CustomBeatmapData beatmapData,
-            IDifficultyBeatmap difficultyBeatmap,
             Dictionary<string, List<object>> pointDefinitions,
-            Dictionary<string, Track> tracks)
+            Dictionary<string, Track> tracks,
+            float bpm)
         {
             _beatmapData = beatmapData;
-            _difficultyBeatmap = difficultyBeatmap;
             _pointDefinitions = pointDefinitions;
             _tracks = tracks;
+            _bpm = bpm;
         }
 
         public Dictionary<BeatmapObjectData, IObjectCustomData> DeserializeObjects()
@@ -31,8 +33,17 @@ namespace Heck
             foreach (BeatmapObjectData beatmapObjectData in _beatmapData.beatmapObjectDatas)
             {
                 CustomData customData = ((ICustomData)beatmapObjectData).customData;
-                bool v2 = beatmapObjectData is IVersionable { version2_6_0AndEarlier: true };
-                dictionary.Add(beatmapObjectData, new HeckObjectData(beatmapObjectData, customData, _difficultyBeatmap, _tracks, v2));
+                bool v2;
+                if (beatmapObjectData is IVersionable versionable)
+                {
+                    v2 = versionable.version.IsVersion2();
+                }
+                else
+                {
+                    v2 = false;
+                }
+
+                dictionary.Add(beatmapObjectData, new HeckObjectData(beatmapObjectData, customData, _tracks, _bpm, v2));
             }
 
             return dictionary;
@@ -43,7 +54,7 @@ namespace Heck
             Dictionary<CustomEventData, ICustomEventCustomData> dictionary = new();
             foreach (CustomEventData customEventData in _beatmapData.customEventDatas)
             {
-                bool v2 = customEventData.version2_6_0AndEarlier;
+                bool v2 = customEventData.version.IsVersion2();
                 try
                 {
                     switch (customEventData.eventType)
@@ -68,7 +79,7 @@ namespace Heck
                 }
                 catch (Exception e)
                 {
-                    Plugin.Log.DeserializeFailure(e, customEventData, _difficultyBeatmap);
+                    Plugin.Log.DeserializeFailure(e, customEventData, _bpm);
                 }
             }
 

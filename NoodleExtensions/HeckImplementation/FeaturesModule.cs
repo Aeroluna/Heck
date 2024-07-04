@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Heck;
+using Heck.Module;
 using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions

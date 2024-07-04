@@ -1,4 +1,5 @@
 ﻿using Heck;
+using Heck.Module;
 using static Chroma.ChromaController;
 
 namespace Chroma.Modules

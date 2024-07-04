@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
-using Heck;
+using Heck.Deserialize;
 using Heck.ReLoad;
 using JetBrains.Annotations;
 using Zenject;

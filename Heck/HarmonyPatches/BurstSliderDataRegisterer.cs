@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
+using Heck.Deserialize;
 using SiraUtil.Affinity;
 
 namespace Heck.HarmonyPatches

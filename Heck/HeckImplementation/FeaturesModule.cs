@@ -1,4 +1,5 @@
-﻿using static Heck.HeckController;
+﻿using Heck.Module;
+using static Heck.HeckController;
 
 namespace Heck
 {

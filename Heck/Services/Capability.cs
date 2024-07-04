@@ -30,7 +30,12 @@ namespace Heck
 
             MethodInfo register = AccessTools.Method(collections, "RegisterCapability");
             _register = (Action<string>)Delegate.CreateDelegate(typeof(Action<string>), register);
+#if LATEST
+            // random rename in 1.37.0 songcore
+            MethodInfo deregister = AccessTools.Method(collections, "DeregisterCapability");
+#else
             MethodInfo deregister = AccessTools.Method(collections, "DeregisterizeCapability");
+#endif
             _deregister = (Action<string>)Delegate.CreateDelegate(typeof(Action<string>), deregister);
         }
 

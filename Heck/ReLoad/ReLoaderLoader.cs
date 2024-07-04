@@ -9,6 +9,20 @@ namespace Heck.ReLoad
 {
     public class ReLoaderLoader
     {
+#if LATEST
+        private readonly BeatmapDataLoader _beatmapDataLoader;
+
+        [UsedImplicitly]
+        public ReLoaderLoader(BeatmapDataLoader beatmapDataLoader)
+        {
+            _beatmapDataLoader = beatmapDataLoader;
+        }
+
+        public void Reload()
+        {
+            _beatmapDataLoader._lastUsedBeatmapDataCache = default;
+        }
+#else
         private static readonly FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.Accessor _beatmapSaveDataAccessor
             = FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.GetAccessor("<beatmapSaveData>k__BackingField");
 
@@ -56,5 +70,6 @@ namespace Heck.ReLoad
 
             _beatmapSaveDataAccessor(ref customDifficultyBeatmap) = tuple.Item1;
         }
+#endif
     }
 }

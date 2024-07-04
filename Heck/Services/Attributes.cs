@@ -1,4 +1,5 @@
 ﻿using System;
+using Heck.Module;
 using JetBrains.Annotations;
 
 namespace Heck

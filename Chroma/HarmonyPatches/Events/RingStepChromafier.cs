@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
+using Heck.Deserialize;
 using SiraUtil.Affinity;
 using Zenject;
 

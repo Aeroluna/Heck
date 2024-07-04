@@ -4,6 +4,7 @@ using Chroma.Lighting;
 using Chroma.Settings;
 using CustomJSONData.CustomBeatmap;
 using Heck;
+using Heck.Module;
 using SiraUtil.Logging;
 using static Chroma.ChromaController;
 
@@ -15,11 +16,13 @@ namespace Chroma.Modules
     {
         private readonly SiraLog _log;
         private readonly Config _config;
+        private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 
-        private FeaturesModule(SiraLog log, Config config)
+        private FeaturesModule(SiraLog log, Config config, SavedEnvironmentLoader savedEnvironmentLoader)
         {
             _log = log;
             _config = config;
+            _savedEnvironmentLoader = savedEnvironmentLoader;
         }
 
         internal bool Active { get; private set; }
@@ -32,16 +35,25 @@ namespace Chroma.Modules
 
         [ModuleCondition]
         private bool Condition(
-            Capabilities capabilities,
-            IDifficultyBeatmap difficultyBeatmap)
+#if !LATEST
+            IDifficultyBeatmap difficultyBeatmap,
+#endif
+            Capabilities capabilities)
         {
             bool chromaRequirement = capabilities.Requirements.Contains(CAPABILITY) || capabilities.Suggestions.Contains(CAPABILITY);
+            bool customEnvironment = _config.CustomEnvironmentEnabled && (_savedEnvironmentLoader.SavedEnvironment?.Features.UseChromaEvents ?? false);
 
+            // the only alternative i see is postfixing LevelScenesTransitionSetupDataSO.BeforeScenesWillBeActivatedAsync
+            // that would push module activation further up, after the beatmapdata is created, allowing us to read its customdata and events
+            // unfortunately that would be after environment info is loaded so it wouldnt be possible to override the OverrideEnvironmentSettings for the environment module
+            // for now we will listen to for the legacy capability, but this will miss maps who dont set requirements unfortunately
             // please let me remove this shit
-            bool legacyOverride = difficultyBeatmap is CustomDifficultyBeatmap { beatmapSaveData: CustomBeatmapSaveData customBeatmapSaveData }
+#if LATEST
+            bool legacyOverride = capabilities.Requirements.Contains(LEGACY_CAPABILITY) || capabilities.Suggestions.Contains(LEGACY_CAPABILITY);
+#else
+            bool legacyOverride = difficultyBeatmap is CustomDifficultyBeatmap { beatmapSaveData: Version3CustomBeatmapSaveData customBeatmapSaveData }
                                   && customBeatmapSaveData.basicBeatmapEvents.Any(n => n.value >= LegacyLightHelper.RGB_INT_OFFSET);
-
-            bool customEnvironment = _config.CustomEnvironmentEnabled && (SavedEnvironmentLoader.Instance.SavedEnvironment?.Features.UseChromaEvents ?? false);
+#endif
 
             // ReSharper disable once InvertIf
             if (legacyOverride)
@@ -50,7 +62,9 @@ namespace Chroma.Modules
                 _log.Warn("Please do not use Legacy Chroma Lights for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed");
             }
 
-            return (chromaRequirement || legacyOverride || customEnvironment) && !_config.ChromaEventsDisabled;
+            return (chromaRequirement ||
+                    legacyOverride ||
+                    customEnvironment) && !_config.ChromaEventsDisabled;
         }
     }
 }

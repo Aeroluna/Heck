@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
 using Heck.Animation.Transform;
+using Heck.Deserialize;
 using Heck.Event;
 using UnityEngine;
 using Zenject;
@@ -176,7 +178,7 @@ namespace NoodleExtensions.Animation
             [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
             TransformControllerFactory transformControllerFactory)
         {
-            _v2 = ((CustomBeatmapData)beatmapData).version2_6_0AndEarlier;
+            _v2 = ((CustomBeatmapData)beatmapData).version.IsVersion2();
             _deserializedData = deserializedData;
             _leftHanded = leftHanded;
             _transformControllerFactory = transformControllerFactory;

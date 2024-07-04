@@ -1,5 +1,8 @@
 ﻿using System;
 using JetBrains.Annotations;
+#if LATEST
+using Zenject;
+#endif
 
 namespace Heck.PlayView
 {
@@ -8,22 +11,33 @@ namespace Heck.PlayView
         [UsedImplicitly]
         public StartStandardLevelParameters(
             string gameMode,
+#if LATEST
+            in BeatmapKey beatmapKey,
+            BeatmapLevel beatmapLevel,
+#else
             IDifficultyBeatmap difficultyBeatmap,
             IPreviewBeatmapLevel previewBeatmapLevel,
+#endif
             OverrideEnvironmentSettings? overrideEnvironmentSettings,
             ColorScheme? overrideColorScheme,
-#if LATEST
+#if !V1_29_1
             ColorScheme? beatmapOverrideColorScheme,
 #endif
             GameplayModifiers gameplayModifiers,
             PlayerSpecificSettings playerSpecificSettings,
             PracticeSettings? practiceSettings,
+#if LATEST
+            EnvironmentsListModel? environmentsListModel,
+#endif
             string backButtonText,
             bool useTestNoteCutSoundEffects,
             bool startPaused,
             Action? beforeSceneSwitchCallback,
-            Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>? levelFinishedCallback,
 #if LATEST
+            Action<DiContainer>? afterSceneSwitchCallback,
+#endif
+            Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>? levelFinishedCallback,
+#if !V1_29_1
             Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>? levelRestartedCallback,
             RecordingToolManager.SetupData? recordingToolData)
 #else
@@ -31,23 +45,31 @@ namespace Heck.PlayView
 #endif
         {
             GameMode = gameMode;
+#if LATEST
+            BeatmapKey = beatmapKey;
+            BeatmapLevel = beatmapLevel;
+#else
             DifficultyBeatmap = difficultyBeatmap;
             PreviewBeatmapLevel = previewBeatmapLevel;
+#endif
             OverrideEnvironmentSettings = overrideEnvironmentSettings;
             OverrideColorScheme = overrideColorScheme;
-#if LATEST
+#if !V1_29_1
             BeatmapOverrideColorScheme = beatmapOverrideColorScheme;
 #endif
             GameplayModifiers = gameplayModifiers;
             PlayerSpecificSettings = playerSpecificSettings;
             PracticeSettings = practiceSettings;
+#if LATEST
+            EnvironmentsListModel = environmentsListModel;
+#endif
             BackButtonText = backButtonText;
             UseTestNoteCutSoundEffects = useTestNoteCutSoundEffects;
             StartPaused = startPaused;
             BeforeSceneSwitchCallback = beforeSceneSwitchCallback;
             LevelFinishedCallback = levelFinishedCallback;
             LevelRestartedCallback = levelRestartedCallback;
-#if LATEST
+#if !V1_29_1
             RecordingToolData = recordingToolData;
 #endif
         }
@@ -55,38 +77,52 @@ namespace Heck.PlayView
         public StartStandardLevelParameters(StartStandardLevelParameters original)
         {
             GameMode = original.GameMode;
+#if LATEST
+            BeatmapKey = original.BeatmapKey;
+            BeatmapLevel = original.BeatmapLevel;
+#else
             DifficultyBeatmap = original.DifficultyBeatmap;
             PreviewBeatmapLevel = original.PreviewBeatmapLevel;
+#endif
             OverrideEnvironmentSettings = original.OverrideEnvironmentSettings;
             OverrideColorScheme = original.OverrideColorScheme;
-#if LATEST
+#if !V1_29_1
             BeatmapOverrideColorScheme = original.BeatmapOverrideColorScheme;
 #endif
             GameplayModifiers = original.GameplayModifiers;
             PlayerSpecificSettings = original.PlayerSpecificSettings;
             PracticeSettings = original.PracticeSettings;
+#if LATEST
+            EnvironmentsListModel = original.EnvironmentsListModel;
+#endif
             BackButtonText = original.BackButtonText;
             UseTestNoteCutSoundEffects = original.UseTestNoteCutSoundEffects;
             StartPaused = original.StartPaused;
             BeforeSceneSwitchCallback = original.BeforeSceneSwitchCallback;
             LevelFinishedCallback = original.LevelFinishedCallback;
             LevelRestartedCallback = original.LevelRestartedCallback;
-#if LATEST
+#if !V1_29_1
             RecordingToolData = original.RecordingToolData;
 #endif
         }
 
         public string GameMode { get; }
 
+#if LATEST
+        public BeatmapKey BeatmapKey { get; }
+
+        public BeatmapLevel BeatmapLevel { get; }
+#else
         public IDifficultyBeatmap DifficultyBeatmap { get; }
 
         public IPreviewBeatmapLevel PreviewBeatmapLevel { get; }
+#endif
 
         public OverrideEnvironmentSettings? OverrideEnvironmentSettings { get; set; }
 
         public ColorScheme? OverrideColorScheme { get; set; }
 
-#if LATEST
+#if !V1_29_1
         public ColorScheme? BeatmapOverrideColorScheme { get; }
 #endif
 
@@ -95,6 +131,10 @@ namespace Heck.PlayView
         public PlayerSpecificSettings PlayerSpecificSettings { get; set; }
 
         public PracticeSettings? PracticeSettings { get; }
+
+#if LATEST
+        public EnvironmentsListModel? EnvironmentsListModel { get; }
+#endif
 
         public string BackButtonText { get; }
 
@@ -108,7 +148,7 @@ namespace Heck.PlayView
 
         public Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>? LevelRestartedCallback { get; }
 
-#if LATEST
+#if !V1_29_1
         public RecordingToolManager.SetupData? RecordingToolData { get; }
 #endif
 

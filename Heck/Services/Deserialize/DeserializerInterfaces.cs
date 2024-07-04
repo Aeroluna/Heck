@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using CustomJSONData.CustomBeatmap;
 
-namespace Heck
+namespace Heck.Deserialize
 {
     public interface IEarlyDeserializer
     {

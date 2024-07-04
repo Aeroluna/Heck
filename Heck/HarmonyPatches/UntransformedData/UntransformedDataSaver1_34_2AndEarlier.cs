@@ -1,24 +1,25 @@
-﻿using System;
+﻿#if !LATEST
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 using HarmonyLib;
 
-namespace Heck.HarmonyPatches
+namespace Heck.HarmonyPatches.UntransformedData
 {
     // whatever mess they created with the beatmapdatas in the base class is real stinky
     [HeckPatch]
-    public class HeckinGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
+    public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
     {
         private static readonly ConstructorInfo _original = AccessTools.FirstConstructor(typeof(GameplayCoreSceneSetupData), _ => true);
-        private static readonly ConstructorInfo _hecked = AccessTools.FirstConstructor(typeof(HeckinGameplayCoreSceneSetupData), _ => true);
+        private static readonly ConstructorInfo _hecked = AccessTools.FirstConstructor(typeof(HeckGameplayCoreSceneSetupData), _ => true);
 
-        private static readonly MethodInfo _heckType = AccessTools.Method(typeof(HeckinGameplayCoreSceneSetupData), nameof(HeckGetType));
+        private static readonly MethodInfo _heckType = AccessTools.Method(typeof(HeckGameplayCoreSceneSetupData), nameof(HeckGetType));
 
         private IReadonlyBeatmapData? _untransformedBeatmapData;
 
-        public HeckinGameplayCoreSceneSetupData(
+        public HeckGameplayCoreSceneSetupData(
             IDifficultyBeatmap difficultyBeatmap,
             IPreviewBeatmapLevel previewBeatmapLevel,
             GameplayModifiers gameplayModifiers,
@@ -28,7 +29,7 @@ namespace Heck.HarmonyPatches
             EnvironmentInfoSO environmentInfo,
             ColorScheme colorScheme,
             MainSettingsModelSO mainSettingsModel,
-#if LATEST
+#if !V1_29_1
             BeatmapDataCache? beatmapDataCache = null,
             RecordingToolManager.SetupData? recordingToolData = null)
 #else
@@ -44,7 +45,7 @@ namespace Heck.HarmonyPatches
                 environmentInfo,
                 colorScheme,
                 mainSettingsModel,
-#if LATEST
+#if !V1_29_1
                 beatmapDataCache,
                 recordingToolData)
 #else
@@ -61,7 +62,7 @@ namespace Heck.HarmonyPatches
         [HarmonyPatch(typeof(GameplayCoreSceneSetupData), nameof(GameplayCoreSceneSetupData.GetTransformedBeatmapDataAsync))]
         private static bool OverrideGetTransformedBeatmapDataAsync(GameplayCoreSceneSetupData __instance, ref Task<IReadonlyBeatmapData?> __result)
         {
-            if (__instance is not HeckinGameplayCoreSceneSetupData hecked)
+            if (__instance is not HeckGameplayCoreSceneSetupData hecked)
             {
                 return true;
             }
@@ -79,7 +80,7 @@ namespace Heck.HarmonyPatches
             return new CodeMatcher(instructions)
                 /*
                  * -- base.gameplayCoreSceneSetupData = new GameplayCoreSceneSetupData(difficultyBeatmap, previewBeatmapLevel, gameplayModifiers, playerSpecificSettings, practiceSettings, useTestNoteCutSoundEffects, this.environmentInfo, this.colorScheme, this._mainSettingsModel);
-                 * ++ base.gameplayCoreSceneSetupData = new HeckinGameplayCoreSceneSetupData(difficultyBeatmap, previewBeatmapLevel, gameplayModifiers, playerSpecificSettings, practiceSettings, useTestNoteCutSoundEffects, this.environmentInfo, this.colorScheme, this._mainSettingsModel);
+                 * ++ base.gameplayCoreSceneSetupData = new HeckGameplayCoreSceneSetupData(difficultyBeatmap, previewBeatmapLevel, gameplayModifiers, playerSpecificSettings, practiceSettings, useTestNoteCutSoundEffects, this.environmentInfo, this.colorScheme, this._mainSettingsModel);
                  */
                 .MatchForward(false, new CodeMatch(OpCodes.Newobj, _original))
                 .SetOperandAndAdvance(_hecked)
@@ -103,7 +104,7 @@ namespace Heck.HarmonyPatches
 
         private static Type HeckGetType(Type original)
         {
-            return original == typeof(HeckinGameplayCoreSceneSetupData) ? typeof(GameplayCoreSceneSetupData) : original;
+            return original == typeof(HeckGameplayCoreSceneSetupData) ? typeof(GameplayCoreSceneSetupData) : original;
         }
 
         // override to store the untransformed beatmapdata
@@ -134,3 +135,4 @@ namespace Heck.HarmonyPatches
         }
     }
 }
+#endif

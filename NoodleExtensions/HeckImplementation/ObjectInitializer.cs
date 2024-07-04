@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
-using Heck;
+using Heck.ObjectInitialize;
 using JetBrains.Annotations;
 using NoodleExtensions.Managers;
 using UnityEngine;

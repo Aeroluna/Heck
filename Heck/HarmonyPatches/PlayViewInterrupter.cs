@@ -16,39 +16,10 @@ namespace Heck.HarmonyPatches
         private static readonly FieldInfo _menuTransitionHelperField = AccessTools.Field(typeof(SinglePlayerLevelSelectionFlowCoordinator), "_menuTransitionsHelper");
 
         private static readonly ConstructorInfo _standardLevelParametersCtor = AccessTools.FirstConstructor(typeof(StartStandardLevelParameters), _ => true);
+
+#if !LATEST
         private static readonly ConstructorInfo _multiplayerLevelParametersCtor = AccessTools.FirstConstructor(typeof(StartMultiplayerLevelParameters), _ => true);
-
-        private static readonly MethodInfo _startStandardLevel = AccessTools.Method(
-            typeof(MenuTransitionsHelper),
-            nameof(MenuTransitionsHelper.StartStandardLevel),
-            new[]
-            {
-                typeof(string), typeof(IDifficultyBeatmap), typeof(IPreviewBeatmapLevel),
-                typeof(OverrideEnvironmentSettings), typeof(ColorScheme),
-#if LATEST
-                typeof(ColorScheme),
 #endif
-                typeof(GameplayModifiers),
-                typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(string), typeof(bool), typeof(bool),
-                typeof(Action), typeof(Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>),
-#if LATEST
-                typeof(Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>),
-                typeof(RecordingToolManager.SetupData?)
-#else
-                typeof(Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>)
-#endif
-            });
-
-        private static readonly MethodInfo _startMultiplayerLevel = AccessTools.Method(
-            typeof(MenuTransitionsHelper),
-            nameof(MenuTransitionsHelper.StartMultiplayerLevel),
-            new[]
-            {
-                typeof(string), typeof(IPreviewBeatmapLevel), typeof(BeatmapDifficulty), typeof(BeatmapCharacteristicSO),
-                typeof(IDifficultyBeatmap), typeof(ColorScheme), typeof(GameplayModifiers), typeof(PlayerSpecificSettings),
-                typeof(PracticeSettings), typeof(string), typeof(bool), typeof(Action),
-                typeof(Action<MultiplayerLevelScenesTransitionSetupDataSO, MultiplayerResultsData>), typeof(Action<DisconnectedReason>)
-            });
 
         private readonly PlayViewManager _playViewManager;
         private readonly LobbyGameStateController _lobbyGameStateController;
@@ -83,12 +54,35 @@ namespace Heck.HarmonyPatches
                     .Advance(-1)
                     .SetOpcodeAndAdvance(OpCodes.Nop)
                     .RemoveInstructions(1)
-                    .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _startStandardLevel))
+                    .MatchForward(false, new CodeMatch(n => n.opcode == OpCodes.Callvirt && ((MethodInfo)n.operand).Name == nameof(MenuTransitionsHelper.StartStandardLevel)))
                     .SetInstruction(new CodeInstruction(OpCodes.Newobj, _standardLevelParametersCtor))
                     .InstructionEnumeration();
             }
         }
 
+#if LATEST
+        private static StartMultiplayerLevelParameters GetMultiplayerParameters(
+            LobbyGameStateController instance,
+            ILevelGameplaySetupData gameplaySetupData,
+            IBeatmapLevelData beatmapLevelData,
+            Action beforeSceneSwitchCallback)
+        {
+            return new StartMultiplayerLevelParameters(
+                "Multiplayer",
+                gameplaySetupData.beatmapKey,
+                instance._beatmapLevelsModel.GetBeatmapLevel(gameplaySetupData.beatmapKey.levelId)!,
+                beatmapLevelData,
+                instance._playerDataModel.playerData.colorSchemesSettings.GetOverrideColorScheme(),
+                gameplaySetupData.gameplayModifiers,
+                instance._playerDataModel.playerData.playerSpecificSettings,
+                null,
+                string.Empty,
+                false,
+                beforeSceneSwitchCallback,
+                instance.HandleMultiplayerLevelDidFinish,
+                instance.HandleMultiplayerLevelDidDisconnect);
+        }
+#else
         [HarmonyReversePatch]
         [HarmonyPatch(typeof(LobbyGameStateController), nameof(LobbyGameStateController.StartMultiplayerLevel))]
         private static StartMultiplayerLevelParameters GetMultiplayerParameters(
@@ -102,11 +96,12 @@ namespace Heck.HarmonyPatches
                 return new CodeMatcher(instructions)
                     .Start()
                     .RemoveInstructions(7)
-                    .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _startMultiplayerLevel))
+                    .MatchForward(false, new CodeMatch(n => n.opcode == OpCodes.Callvirt && ((MethodInfo)n.operand).Name == nameof(MenuTransitionsHelper.StartMultiplayerLevel)))
                     .SetInstruction(new CodeInstruction(OpCodes.Newobj, _multiplayerLevelParametersCtor))
                     .InstructionEnumeration();
             }
         }
+#endif
 #pragma warning restore CS8321
 
         [AffinityPrefix]
@@ -125,7 +120,14 @@ namespace Heck.HarmonyPatches
 
         [AffinityPostfix]
         [AffinityPatch(typeof(MultiplayerLevelLoader), nameof(MultiplayerLevelLoader.Tick))]
-        private void WaitingForCountdownPostfix(MultiplayerLevelLoader.MultiplayerBeatmapLoaderState ____loaderState, ILevelGameplaySetupData ____gameplaySetupData, IDifficultyBeatmap ____difficultyBeatmap)
+        private void WaitingForCountdownPostfix(
+            MultiplayerLevelLoader.MultiplayerBeatmapLoaderState ____loaderState,
+            ILevelGameplaySetupData ____gameplaySetupData,
+#if LATEST
+            IBeatmapLevelData ____beatmapLevelData)
+#else
+            IDifficultyBeatmap ____difficultyBeatmap)
+#endif
         {
             if (____loaderState != MultiplayerLevelLoader.MultiplayerBeatmapLoaderState.WaitingForCountdown ||
                 _playViewManagerHasRun)
@@ -139,7 +141,15 @@ namespace Heck.HarmonyPatches
                 return;
             }
 
-            StartMultiplayerLevelParameters parameters = GetMultiplayerParameters(_lobbyGameStateController, ____gameplaySetupData, ____difficultyBeatmap, null!);
+            StartMultiplayerLevelParameters parameters = GetMultiplayerParameters(
+                _lobbyGameStateController,
+                ____gameplaySetupData,
+#if LATEST
+                ____beatmapLevelData,
+#else
+                ____difficultyBeatmap,
+#endif
+                null!);
             _playViewManager.Init(parameters);
             _playViewManagerHasRun = true;
         }

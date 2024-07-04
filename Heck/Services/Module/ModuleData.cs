@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using JetBrains.Annotations;
 
-namespace Heck
+namespace Heck.Module
 {
     public enum LoadType
     {

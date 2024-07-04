@@ -146,10 +146,16 @@ namespace Heck.PlayView
 
             _menuTransitionsHelper.StartMultiplayerLevel(
                 multiplayerStartParameters.GameMode,
+#if LATEST
+                multiplayerStartParameters.BeatmapKey,
+                multiplayerStartParameters.BeatmapLevel,
+                multiplayerStartParameters.BeatmapLevelData,
+#else
                 multiplayerStartParameters.PreviewBeatmapLevel,
                 multiplayerStartParameters.BeatmapDifficulty,
                 multiplayerStartParameters.BeatmapCharacteristic,
                 multiplayerStartParameters.DifficultyBeatmap,
+#endif
                 multiplayerStartParameters.OverrideColorScheme,
                 multiplayerStartParameters.GameplayModifiers,
                 multiplayerStartParameters.PlayerSpecificSettings,
@@ -237,23 +243,31 @@ namespace Heck.PlayView
 
             _menuTransitionsHelper.StartStandardLevel(
                 _currentParameters.GameMode,
+#if LATEST
+                _currentParameters.BeatmapKey,
+                _currentParameters.BeatmapLevel,
+#else
                 _currentParameters.DifficultyBeatmap,
                 _currentParameters.PreviewBeatmapLevel,
+#endif
                 _currentParameters.OverrideEnvironmentSettings,
                 _currentParameters.OverrideColorScheme,
-#if LATEST
+#if !V1_29_1
                 _currentParameters.BeatmapOverrideColorScheme,
 #endif
                 _currentParameters.GameplayModifiers,
                 _currentParameters.PlayerSpecificSettings,
                 _currentParameters.PracticeSettings,
+#if LATEST
+                _currentParameters.EnvironmentsListModel,
+#endif
                 _currentParameters.BackButtonText,
                 _currentParameters.UseTestNoteCutSoundEffects,
                 _currentParameters.StartPaused,
                 _currentParameters.BeforeSceneSwitchCallback,
                 null,
                 _currentParameters.LevelFinishedCallback,
-#if LATEST
+#if !V1_29_1
                 _currentParameters.LevelRestartedCallback,
                 _currentParameters.RecordingToolData);
 #else

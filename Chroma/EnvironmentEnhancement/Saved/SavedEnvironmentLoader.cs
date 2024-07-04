@@ -14,22 +14,16 @@ namespace Chroma.EnvironmentEnhancement.Saved
         private static readonly string _directory = Path.Combine(UnityGame.UserDataPath, ChromaController.ID, "Environments");
         private static readonly Version _currVer = new(1, 0, 0);
 
-        // TODO: change modules to use instanced
-        private static SavedEnvironmentLoader? _instance;
-
         private readonly SiraLog _log;
         private readonly Config _config;
 
         [UsedImplicitly]
         private SavedEnvironmentLoader(SiraLog log, Config config)
         {
-            _instance = this;
             _log = log;
             _config = config;
             Init();
         }
-
-        public static SavedEnvironmentLoader Instance => _instance ?? throw new InvalidOperationException("SavedEnvironmentLoader instance not yet created.");
 
         public Dictionary<string?, SavedEnvironment?> Environments { get; private set; } = new();
 

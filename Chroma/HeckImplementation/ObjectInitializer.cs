@@ -1,5 +1,5 @@
 ﻿using Chroma.Colorizer;
-using Heck;
+using Heck.ObjectInitialize;
 using JetBrains.Annotations;
 
 namespace Chroma

@@ -1,8 +1,8 @@
 ﻿using Chroma.Installers;
 using Chroma.Lighting;
 using Chroma.Settings;
-using Heck;
 using Heck.Animation;
+using Heck.Patcher;
 using IPA;
 using IPA.Config.Stores;
 using JetBrains.Annotations;
@@ -55,11 +55,11 @@ namespace Chroma
             // ChromaConfig wont set if there is no config!
             if (!_config.ChromaEventsDisabled)
             {
-                ChromaController.Capability.Register();
+                Capability.Register();
             }
             else
             {
-                ChromaController.Capability.Deregister();
+                Capability.Deregister();
             }
 
             // Legacy support
@@ -70,7 +70,7 @@ namespace Chroma
         [OnDisable]
         public void OnDisable()
         {
-            ChromaController.Capability.Deregister();
+            Capability.Deregister();
 
             // Legacy support
             LegacyCapability.Deregister();

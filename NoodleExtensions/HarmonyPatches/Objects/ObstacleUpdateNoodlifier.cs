@@ -5,6 +5,7 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
 using Heck.Animation;
+using Heck.Deserialize;
 using NoodleExtensions.Animation;
 using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
