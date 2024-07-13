@@ -31,6 +31,7 @@ namespace Heck.HarmonyPatches.UntransformedData
                 original._performancePreset,
                 original._audioClipAsyncLoader,
                 original._beatmapDataLoader,
+                original._beatmapLevelsEntitlementModel,
                 original._enableBeatmapDataCaching,
                 original._allowNullBeatmapLevelData,
                 original.recordingToolData)

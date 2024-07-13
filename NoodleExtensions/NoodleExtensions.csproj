@@ -5,7 +5,7 @@
     <OutputType>Library</OutputType>
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
-    <Configurations>Debug-1.29.1;Release-1.29.1;Debug-1.34.2;Release-1.34.2;Debug-1.37.0;Release-1.37.0</Configurations>
+    <Configurations>Debug-1.29.1;Release-1.29.1;Debug-1.34.2;Release-1.34.2;Debug-1.37.1;Release-1.37.1</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
