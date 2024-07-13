@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
@@ -12,7 +11,9 @@ using JetBrains.Annotations;
 using SiraUtil.Logging;
 using UnityEngine;
 using Zenject;
-using DeserializerManager = Heck.Deserialize.DeserializerManager;
+#if !LATEST
+using System.Threading.Tasks;
+#endif
 
 namespace Heck.ReLoad
 {
@@ -27,8 +28,8 @@ namespace Heck.ReLoad
         private static readonly FieldAccessor<BeatmapData, BeatmapObjectsInTimeRowProcessor>.Accessor _beatmapObjectsInTimeRowProcessorAccessor
             = FieldAccessor<BeatmapData, BeatmapObjectsInTimeRowProcessor>.GetAccessor(nameof(BeatmapData._beatmapObjectsInTimeRowProcessor));
 
-        private static readonly FieldAccessor<CustomBeatmapData, bool>.Accessor _versionAccessor
-            = FieldAccessor<CustomBeatmapData, bool>.GetAccessor("<version>k__BackingField");
+        private static readonly FieldAccessor<CustomBeatmapData, Version>.Accessor _versionAccessor
+            = FieldAccessor<CustomBeatmapData, Version>.GetAccessor("<version>k__BackingField");
 
         private static readonly FieldAccessor<CustomBeatmapData, CustomData>.Accessor _customDataAccessor
             = FieldAccessor<CustomBeatmapData, CustomData>.GetAccessor("<customData>k__BackingField");
