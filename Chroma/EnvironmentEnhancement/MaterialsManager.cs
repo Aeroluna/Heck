@@ -191,9 +191,15 @@ namespace Chroma.EnvironmentEnhancement
                         "HEIGHT_FOG", "REFLECTION_PROBE_BOX_PROJECTION", "SPECULAR", "_EMISSION",
                         "_ENABLE_FOG_TINT", "_RIMLIGHT_NONE",
 
+#if !V1_29_1
                         // Added in BS 1.30
                         "_ACES_APPROACH_AFTER_EMISSIVE", "_DECALBLEND_ALPHABLEND", "_DISSOLVEAXIS_LOCALX", "_EMISSIONCOLORTYPE_FLAT",
-                        "EMISSIONTEXTURE_NONE", "_ROTATE_UV_NONE", "_VERTEXMODE_NONE", "WHITEBOOSTTYPE_NONE", "ZWRITE_ON"
+                        "EMISSIONTEXTURE_NONE", "_ROTATE_UV_NONE", "_VERTEXMODE_NONE", "WHITEBOOSTTYPE_NONE", "ZWRITE_ON",
+#endif
+#if LATEST
+                        // added at some point idk
+                        "MULTIPLY_REFLECTIONS"
+#endif
                     },
                     ShaderType.OpaqueLight => new[]
                     {
