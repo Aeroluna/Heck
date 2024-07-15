@@ -46,6 +46,10 @@ namespace Chroma.EnvironmentEnhancement.Component
 
         internal static void SetColorAlphaMultiplier(TubeBloomPrePassLight tubeBloomPrePassLight, float value)
         {
+#if LATEST
+            tubeBloomPrePassLight._parametricBoxControllerOnceParInitialized = false;
+            tubeBloomPrePassLight._bakedGlowOnceParInitialized = false;
+#endif
             tubeBloomPrePassLight._colorAlphaMultiplier = value;
             tubeBloomPrePassLight.MarkDirty();
         }
