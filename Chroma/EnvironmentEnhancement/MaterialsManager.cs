@@ -11,9 +11,6 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using static Chroma.ChromaController;
-#if LATEST
-using SiraUtil.Logging;
-#endif
 
 namespace Chroma.EnvironmentEnhancement
 {
@@ -35,22 +32,18 @@ namespace Chroma.EnvironmentEnhancement
         private readonly HashSet<Material> _createdMaterials = new();
         private readonly Dictionary<string, MaterialInfo> _materialInfos = new();
 
-#if LATEST
-        private readonly SiraLog _log;
-#else
         private readonly EnvironmentMaterialsManager _environmentMaterialsManager;
-#endif
         private readonly Dictionary<string, Track> _beatmapTracks;
         private readonly LazyInject<MaterialColorAnimator> _materialColorAnimator;
         private readonly bool _v2;
 
+#if LATEST
+        private Material? _baseWaterMaterial;
+#endif
+
         [UsedImplicitly]
         private MaterialsManager(
-#if LATEST
-            SiraLog log,
-#else
             EnvironmentMaterialsManager environmentMaterialsManager,
-#endif
             IReadonlyBeatmapData readonlyBeatmap,
             Dictionary<string, Track> beatmapTracks,
             LazyInject<MaterialColorAnimator> materialColorAnimator,
@@ -59,11 +52,7 @@ namespace Chroma.EnvironmentEnhancement
         {
             CustomBeatmapData beatmapData = (CustomBeatmapData)readonlyBeatmap;
             _v2 = beatmapData.version.IsVersion2();
-#if LATEST
-            _log = log;
-#else
             _environmentMaterialsManager = environmentMaterialsManager;
-#endif
             _beatmapTracks = beatmapTracks;
             _materialColorAnimator = materialColorAnimator;
 
@@ -120,26 +109,17 @@ namespace Chroma.EnvironmentEnhancement
             string[]? shaderKeywords = customData.Get<List<object>?>(_v2 ? V2_SHADER_KEYWORDS : SHADER_KEYWORDS)?.Cast<string>().ToArray();
             List<Track>? track = customData.GetNullableTrackArray(_beatmapTracks, _v2)?.ToList();
 
-#if LATEST
-            if (shaderType >= ShaderType.BaseWater)
-            {
-                _log.Warn($"[{shaderType}] not current supported on latest Beat Saber version, falling back to standard");
-            }
-#endif
-
             Material originalMaterial = shaderType switch
             {
                 ShaderType.Standard => _standardMaterial,
                 ShaderType.OpaqueLight => _opaqueLightMaterial,
                 ShaderType.TransparentLight => _transparentLightMaterial,
-#if !LATEST
+#if LATEST
+                ShaderType.BaseWater => _baseWaterMaterial ??= InstantiateMaterialFromShader(ShaderType.BaseWater, _environmentMaterialsManager.WaterLit),
+#else
                 ShaderType.BaseWater => _baseWaterMaterial,
 #endif
-#if LATEST
-                _ => _standardMaterial
-#else
                 _ => _environmentMaterialsManager.EnvironmentMaterials.TryGetValue(shaderType, out Material foundMat) ? foundMat : throw new InvalidOperationException()
-#endif
             };
             Material material = UnityEngine.Object.Instantiate(originalMaterial);
             _createdMaterials.Add(material);
@@ -168,7 +148,9 @@ namespace Chroma.EnvironmentEnhancement
             {
                 ShaderType.OpaqueLight => "Custom/OpaqueNeonLight",
                 ShaderType.TransparentLight => "Custom/TransparentNeonLight",
+#if !LATEST
                 ShaderType.BaseWater => "Custom/WaterLit",
+#endif
                 _ => "Custom/SimpleLit"
             };
 #if LATEST
@@ -176,6 +158,11 @@ namespace Chroma.EnvironmentEnhancement
 #else
             Shader shader = Shader.Find(shaderName);
 #endif
+            return InstantiateMaterialFromShader(shaderType, shader);
+        }
+
+        private static Material InstantiateMaterialFromShader(ShaderType shaderType, Shader shader)
+        {
             Material material = new(shader)
             {
                 globalIlluminationFlags = GeometryFactory.IsLightType(shaderType)

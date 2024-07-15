@@ -1,5 +1,4 @@
-﻿#if !LATEST
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +7,12 @@ using SiraUtil.Logging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
+#if LATEST
+using UnityEngine.AddressableAssets;
+using _AsyncOperation = UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<UnityEngine.ResourceManagement.ResourceProviders.SceneInstance>;
+#else
+using _AsyncOperation = UnityEngine.AsyncOperation;
+#endif
 
 namespace Chroma.EnvironmentEnhancement
 {
@@ -16,6 +21,10 @@ namespace Chroma.EnvironmentEnhancement
         private SiraLog _log = null!;
 
         private Dictionary<ShaderType, Material>? _environmentMaterials;
+
+#if LATEST
+        private Shader? _waterLit;
+#endif
 
         internal Dictionary<ShaderType, Material> EnvironmentMaterials
         {
@@ -29,6 +38,21 @@ namespace Chroma.EnvironmentEnhancement
                 return _environmentMaterials;
             }
         }
+
+#if LATEST
+        internal Shader WaterLit
+        {
+            get
+            {
+                if (_waterLit == null)
+                {
+                    throw new InvalidOperationException("Environment materials not yet fetched!");
+                }
+
+                return _waterLit;
+            }
+        }
+#endif
 
         [UsedImplicitly]
         [Inject]
@@ -50,11 +74,10 @@ namespace Chroma.EnvironmentEnhancement
             }
 
             string[] environments = { "BTSEnvironment", "BillieEnvironment", "InterscopeEnvironment" };
-            AsyncOperation[] loads = environments.Select(Load).ToArray();
-
-            while (loads.Any(n => !n.isDone))
+            IEnumerable<_AsyncOperation> loads = environments.Select(Load).ToArray();
+            foreach (_AsyncOperation asyncOperationHandle in loads)
             {
-                yield return null;
+                yield return asyncOperationHandle;
             }
 
             Material[] environmentMaterials = Resources.FindObjectsOfTypeAll<Material>();
@@ -65,6 +88,9 @@ namespace Chroma.EnvironmentEnhancement
             Save(ShaderType.WaterfallMirror, "WaterfallMirror");
             Save(ShaderType.InterscopeConcrete, "Concrete2");
             Save(ShaderType.InterscopeCar, "Car");
+#if LATEST
+            _waterLit = Resources.FindObjectsOfTypeAll<Shader>().First(n => n.name == "Custom/WaterLit");
+#endif
 
             foreach (string environment in environments)
             {
@@ -78,19 +104,27 @@ namespace Chroma.EnvironmentEnhancement
                 Material? material = environmentMaterials.FirstOrDefault(e => e.name == matName);
                 if (material != null)
                 {
+#if LATEST
+                    // must be copied because the original gets unloaded.
+                    material = new Material(material);
+#endif
                     _environmentMaterials[key] = material;
                     _log.Trace($"Saving [{matName}] to [{key}]");
                 }
                 else
                 {
-                    _log.Trace($"Could not find [{matName}]");
+                    _log.Error($"Could not find [{matName}]");
                 }
             }
 
-            AsyncOperation Load(string environmentName)
+            _AsyncOperation Load(string environmentName)
             {
                 _log.Trace($"Loading environment [{environmentName}]");
+#if LATEST
+                return Addressables.LoadSceneAsync(environmentName, LoadSceneMode.Additive, true, int.MaxValue);
+#else
                 return SceneManager.LoadSceneAsync(environmentName, LoadSceneMode.Additive);
+#endif
             }
         }
 
@@ -113,4 +147,3 @@ namespace Chroma.EnvironmentEnhancement
         }
     }
 }
-#endif

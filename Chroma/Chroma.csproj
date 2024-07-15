@@ -45,6 +45,8 @@
     <Reference Include="Rendering" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Rendering.dll" Publicize="true" />
     <Reference Include="SiraUtil" HintPath="$(BeatSaberDir)\Plugins\SiraUtil.dll" />
     <Reference Include="Tweening" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Tweening.dll" />
+    <Reference Include="Unity.Addressables" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Unity.Addressables.dll" />
+    <Reference Include="Unity.ResourceManager" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Unity.ResourceManager.dll" />
     <Reference Include="UnityEngine.CoreModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll" />
     <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.InputLegacyModule.dll" />
     <Reference Include="UnityEngine.ParticleSystemModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.ParticleSystemModule.dll" />

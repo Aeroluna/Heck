@@ -25,9 +25,7 @@ namespace Chroma.Installers
             Container.BindInterfacesTo<ChromaSettingsUI>().AsSingle().NonLazy();
 
             Container.Bind<SavedEnvironmentLoader>().AsSingle();
-#if !LATEST
             Container.Bind<EnvironmentMaterialsManager>().FromNewComponentOnNewGameObject().AsSingle();
-#endif
             Container.BindInterfacesTo<SavedEnvironmentLoading>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<ColorBaseProvider>().AsSingle();
