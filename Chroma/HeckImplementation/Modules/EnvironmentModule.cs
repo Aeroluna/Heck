@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.Lighting;
 using Chroma.Settings;
-using CustomJSONData;
 using Heck;
 using Heck.Module;
 using SiraUtil.Logging;
@@ -12,6 +10,8 @@ using static Chroma.ChromaController;
 #if LATEST
 using _EnvironmentType = EnvironmentType;
 #else
+using System.Collections.Generic;
+using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using _EnvironmentType = EnvironmentTypeSO;
 #endif

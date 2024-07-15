@@ -1,9 +1,11 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+#if !LATEST
+using System;
 using System.Linq;
 using BeatmapSaveDataVersion3;
 using IPA.Utilities;
-using JetBrains.Annotations;
 using SiraUtil.Logging;
+#endif
 
 namespace Heck.ReLoad
 {

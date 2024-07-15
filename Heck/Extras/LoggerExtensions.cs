@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿#if DEBUG
+using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using IPA.Logging;
@@ -8,7 +9,6 @@ namespace Heck
 {
     public static class LoggerExtensions
     {
-#if DEBUG
         [PublicAPI]
         public static void PrintHarmonyInfo(Logger logger, MethodBase method)
         {
@@ -33,6 +33,6 @@ namespace Heck
                 logger.Debug("=============================");
             }
         }
-#endif
     }
 }
+#endif

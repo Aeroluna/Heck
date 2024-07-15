@@ -1,12 +1,14 @@
 ﻿using System.Linq;
 using Chroma.EnvironmentEnhancement.Saved;
-using Chroma.Lighting;
 using Chroma.Settings;
-using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Module;
 using SiraUtil.Logging;
 using static Chroma.ChromaController;
+#if !LATEST
+using Chroma.Lighting;
+using CustomJSONData.CustomBeatmap;
+#endif
 
 namespace Chroma.Modules
 {

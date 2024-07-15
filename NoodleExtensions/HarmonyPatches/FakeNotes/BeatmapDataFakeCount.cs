@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
@@ -10,6 +8,8 @@ using BeatmapSaveData = BeatmapSaveDataVersion3.BeatmapSaveData;
 #if LATEST
 using _BeatmapSaveDataItemV3 = BeatmapSaveDataVersion3.BeatmapSaveDataItem;
 #else
+using System.Collections.Generic;
+using CustomJSONData;
 using _BeatmapSaveDataItemV3 = BeatmapSaveDataVersion3.BeatmapSaveData.BeatmapSaveDataItem;
 #endif
 
