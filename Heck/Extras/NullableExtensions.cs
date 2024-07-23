@@ -2,17 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Heck
 {
     public static class NullableExtensions
     {
+        [Pure]
         public static IEnumerable<float?>? GetNullableFloats(this CustomData customData, string key)
         {
             return customData.Get<List<object>>(key)?.Select(n => n.ToNullableFloat());
         }
 
+        [Pure]
         public static float? ToNullableFloat(this object? @this)
         {
             if (@this == null || @this == DBNull.Value)
@@ -23,6 +26,7 @@ namespace Heck
             return Convert.ToSingle(@this);
         }
 
+        [Pure]
         public static Vector3? SumVectorNullables(Vector3? vectorOne, Vector3? vectorTwo)
         {
             if (!vectorOne.HasValue && !vectorTwo.HasValue)
@@ -44,6 +48,7 @@ namespace Heck
             return total;
         }
 
+        [Pure]
         public static Vector3? MultVectorNullables(Vector3? vectorOne, Vector3? vectorTwo)
         {
             if (vectorOne.HasValue)
@@ -54,6 +59,7 @@ namespace Heck
             return vectorTwo;
         }
 
+        [Pure]
         public static Quaternion? MultQuaternionNullables(Quaternion? quaternionOne, Quaternion? quaternionTwo)
         {
             if (quaternionOne.HasValue)
@@ -64,6 +70,7 @@ namespace Heck
             return quaternionTwo;
         }
 
+        [Pure]
         public static float? MultFloatNullables(float? floatOne, float? floatTwo)
         {
             if (floatOne.HasValue)
@@ -74,6 +81,7 @@ namespace Heck
             return floatTwo;
         }
 
+        [Pure]
         public static Vector4? MultVector4Nullables(Vector4? vectorOne, Vector4? vectorTwo)
         {
             if (vectorOne.HasValue)
@@ -84,6 +92,7 @@ namespace Heck
             return vectorTwo;
         }
 
+        [Pure]
         public static Vector3? SumVectorNullables(IEnumerable<Vector3?> vectors)
         {
             bool valid = false;
@@ -103,6 +112,7 @@ namespace Heck
             return valid ? total : null;
         }
 
+        [Pure]
         public static Vector3? MultVectorNullables(IEnumerable<Vector3?> vectors)
         {
             bool valid = false;
@@ -122,6 +132,7 @@ namespace Heck
             return valid ? total : null;
         }
 
+        [Pure]
         public static Quaternion? MultQuaternionNullables(IEnumerable<Quaternion?> quaternions)
         {
             bool valid = false;
@@ -141,6 +152,7 @@ namespace Heck
             return valid ? total : null;
         }
 
+        [Pure]
         public static float? MultFloatNullables(IEnumerable<float?> floats)
         {
             bool valid = false;
@@ -160,6 +172,7 @@ namespace Heck
             return valid ? total : null;
         }
 
+        [Pure]
         public static Vector4? MultVector4Nullables(IEnumerable<Vector4?> vectors)
         {
             bool valid = false;
