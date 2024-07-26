@@ -116,7 +116,7 @@ namespace Heck.ReLoad
             _config = config;
 #if LATEST
             _pauseInitData = pauseInitData;
-            if (pauseInitData.beatmapLevel is CustomBeatmapLevel)
+            if (beatmapData is CustomBeatmapData)
 #else
             _difficultyBeatmap = difficultyBeatmap;
             if (difficultyBeatmap is CustomDifficultyBeatmap)
