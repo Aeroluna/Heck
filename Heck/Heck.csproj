@@ -12,13 +12,13 @@
     <PluginId>_Heck</PluginId>
     <PluginName>Heck</PluginName>
     <Author>Aeroluna</Author>
-    <Version>1.6.1</Version>
+    <Version>1.6.2</Version>
     <Description>Library for Aeroluna's mods.</Description>
   </PropertyGroup>
   <ItemGroup>
     <DependsOn Include="BeatSaberMarkupLanguage" Version="^1.5.9" />
     <DependsOn Include="BSIPA" Version="^4.2.2" />
-    <DependsOn Include="CustomJSONData" Version="^2.6.0" />
+    <DependsOn Include="CustomJSONData" Version="^2.6.1" />
     <DependsOn Include="SiraUtil" Version="^3.0.5" />
   </ItemGroup>
 
