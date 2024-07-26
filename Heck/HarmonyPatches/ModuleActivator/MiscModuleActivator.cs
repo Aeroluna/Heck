@@ -30,7 +30,7 @@ namespace Heck.HarmonyPatches.ModuleActivator
         private void TutorialPrefix()
         {
             OverrideEnvironmentSettings? overrideEnvironmentSettings = null;
-            _moduleManager.Activate(default, null, LevelType.Standard, ref overrideEnvironmentSettings);
+            _moduleManager.Activate(default, null, LevelType.Tutorial, ref overrideEnvironmentSettings);
         }
     }
 }
