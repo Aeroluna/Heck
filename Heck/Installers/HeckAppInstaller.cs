@@ -23,7 +23,7 @@ namespace Heck.Installers
         public override void InstallBindings()
         {
             Container.Bind<BaseProviderManager>().AsSingle().NonLazy();
-            Container.Bind<ModuleManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ModuleManager>().AsSingle();
 #if LATEST
             Container.BindInterfacesTo<StandardModuleActivator>().AsSingle();
             Container.BindInterfacesTo<MissionModuleActivator>().AsSingle();

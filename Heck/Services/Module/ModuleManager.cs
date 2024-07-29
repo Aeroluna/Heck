@@ -13,7 +13,7 @@ using Zenject;
 
 namespace Heck.Module
 {
-    public class ModuleManager
+    public class ModuleManager : IDisposable
     {
         private readonly SiraLog _log;
         private List<ModuleData> _modules = new();
@@ -23,7 +23,8 @@ namespace Heck.Module
         [UsedImplicitly]
         private ModuleManager(
             SiraLog log,
-            [Inject(Optional = true, Source = InjectSources.Local)] IEnumerable<IModule> modules,
+            [Inject(Optional = true, Source = InjectSources.Local)]
+            IEnumerable<IModule> modules,
             DeserializerManager deserializerManager)
         {
             _log = log;
@@ -59,16 +60,21 @@ namespace Heck.Module
                     }
                 }
 
-                ModuleDataDeserializerAttribute? dataDeserializer = type.GetCustomAttribute<ModuleDataDeserializerAttribute>();
+                ModuleDataDeserializerAttribute? dataDeserializer =
+                    type.GetCustomAttribute<ModuleDataDeserializerAttribute>();
                 if (dataDeserializer != null)
                 {
-                    features.Add(new DeserializerModuleFeature(deserializerManager.Register(dataDeserializer.Id, dataDeserializer.Type)));
+                    features.Add(
+                        new DeserializerModuleFeature(
+                            deserializerManager.Register(dataDeserializer.Id, dataDeserializer.Type)));
                 }
 
                 ModulePatcherAttribute? modulePatcher = type.GetCustomAttribute<ModulePatcherAttribute>();
                 if (modulePatcher != null)
                 {
-                    features.Add(new PatcherModuleFeature(new HeckPatcher(type.Assembly, modulePatcher.HarmonyId, modulePatcher.Id)));
+                    features.Add(
+                        new PatcherModuleFeature(
+                            new HeckPatcher(type.Assembly, modulePatcher.HarmonyId, modulePatcher.Id)));
                 }
 
                 ModuleData moduleData = new(
@@ -89,7 +95,20 @@ namespace Heck.Module
             static MethodInfo? GetMethodWithAttribute<TAttribute>(Type type)
                 where TAttribute : Attribute
             {
-                return type.GetMethods(AccessTools.allDeclared).FirstOrDefault(n => n.GetCustomAttribute<TAttribute>() != null);
+                return type
+                    .GetMethods(AccessTools.allDeclared)
+                    .FirstOrDefault(n => n.GetCustomAttribute<TAttribute>() != null);
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (IModuleFeature moduleFeature in _modules.SelectMany(n => n.Features))
+            {
+                if (moduleFeature is PatcherModuleFeature patcherFeature)
+                {
+                    patcherFeature.Patcher.Dispose();
+                }
             }
         }
 
@@ -115,8 +134,10 @@ namespace Heck.Module
             {
                 CustomData beatmapCustomData = difficultyBeatmap.GetBeatmapCustomData();
 #endif
-                requirements = beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>().ToArray() ?? Array.Empty<string>();
-                suggestions = beatmapCustomData.Get<List<object>>("_suggestions")?.Cast<string>().ToArray() ?? Array.Empty<string>();
+                requirements = beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>().ToArray() ??
+                               Array.Empty<string>();
+                suggestions = beatmapCustomData.Get<List<object>>("_suggestions")?.Cast<string>().ToArray() ??
+                              Array.Empty<string>();
             }
             else
             {
@@ -249,7 +270,8 @@ namespace Heck.Module
                         continue;
                     }
 
-                    throw new InvalidOperationException($"[{module.Id}] requires [{dependId}] but it is not available.");
+                    throw new InvalidOperationException(
+                        $"[{module.Id}] requires [{dependId}] but it is not available.");
                 }
 
                 // passed the checks, initilaize

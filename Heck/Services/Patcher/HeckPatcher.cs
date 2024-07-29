@@ -7,7 +7,7 @@ namespace Heck.Patcher
 {
     // TODO: use categories instead
     // nvm, bsipa needs to update its harmony ver
-    internal class HeckPatcher
+    internal class HeckPatcher : IDisposable
     {
         private readonly Harmony _harmony;
         private readonly HashSet<Type> _types = new();
@@ -67,6 +67,11 @@ namespace Heck.Patcher
                     _harmony.UnpatchSelf();
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            Enabled = false;
         }
     }
 }

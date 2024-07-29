@@ -35,7 +35,7 @@ namespace Heck.Module
             Patcher = patcher;
         }
 
-        public HeckPatcher Patcher { get; }
+        internal HeckPatcher Patcher { get; }
     }
 
     internal class DeserializerModuleFeature : IModuleFeature
