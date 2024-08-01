@@ -56,6 +56,7 @@ namespace NoodleExtensions.Managers
             _reloader.Rewinded -= OnRewind;
         }
 
+        // TODO: Check allocations.
         internal void ManualUpdate(float songTime)
         {
             if (songTime <= _prevSongtime)

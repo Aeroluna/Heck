@@ -180,8 +180,8 @@ namespace Chroma.Lighting
 
         public void Refresh(bool hard, IEnumerable<ILightWithId>? selectLights, BasicBeatmapEventData? beatmapEventData = null, Functions? easing = null, LerpType? lerpType = null)
         {
-            IEnumerable<ChromaIDColorTween> selectTweens = selectLights == null ? ColorTweens.Values
-                : selectLights.Where(n => ColorTweens.ContainsKey(n)).Select(n => ColorTweens[n]);
+            // TODO: This makes significant amount of allocation.
+            IEnumerable<ChromaIDColorTween> selectTweens = selectLights == null ? ColorTweens.Values : GetColorTweens(selectLights);
 
             foreach (ChromaIDColorTween tween in selectTweens)
             {
@@ -374,6 +374,17 @@ namespace Chroma.Lighting
             DidRefresh?.Invoke();
         }
 
+        private IEnumerable<ChromaIDColorTween> GetColorTweens(IEnumerable<ILightWithId> selectLights)
+        {
+            foreach (ILightWithId light in selectLights)
+            {
+                if (ColorTweens.TryGetValue(light, out ChromaIDColorTween? tween))
+                {
+                    yield return tween;
+                }
+            }
+        }
+
         internal void RegisterLight(ILightWithId lightWithId, int id)
         {
             if (!ColorTweens.ContainsKey(lightWithId))
@@ -411,6 +422,7 @@ namespace Chroma.Lighting
             ColorTweens.Remove(lightWithId);
         }
 
+        // TODO: Something in there makes significant amount of allocation.
         private void BasicCallback(BasicBeatmapEventData beatmapEventData)
         {
             IEnumerable<ILightWithId>? selectLights = null;
@@ -429,22 +441,27 @@ namespace Chroma.Lighting
                 {
                     Color? color = null;
 
-                    if (chromaData.LightID != null)
-                    {
-                        selectLights = Colorizer.GetLightWithIds(chromaData.LightID);
-                    }
-
                     // propID is now DEPRECATED!!!!!!!!
                     object? propID = chromaData.PropID;
                     if (propID != null)
                     {
-                        selectLights = propID switch
+                        if (propID is List<object> propIDobjects)
                         {
-                            List<object> propIDobjects => Colorizer.GetPropagationLightWithIds(
-                                propIDobjects.Select(Convert.ToInt32)),
-                            long propIDlong => Colorizer.GetPropagationLightWithIds(new[] { (int)propIDlong }),
-                            _ => selectLights
-                        };
+                            var ids = new List<int>();
+                            foreach (var obj in propIDobjects)
+                            {
+                                ids.Add(Convert.ToInt32(obj));
+                            }
+                            selectLights = Colorizer.GetPropagationLightWithIds(ids);
+                        }
+                        else if (propID is long propIDlong)
+                        {
+                            selectLights = Colorizer.GetPropagationLightWithIds(new[] { (int)propIDlong });
+                        }
+                    }
+                    else if (chromaData.LightID != null)
+                    {
+                        selectLights = Colorizer.GetLightWithIds(chromaData.LightID);
                     }
 
                     // fck gradients

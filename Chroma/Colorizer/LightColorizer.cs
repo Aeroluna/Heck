@@ -144,6 +144,11 @@ namespace Chroma.Colorizer
         private readonly Color?[] _colors = new Color?[COLOR_FIELDS];
         private readonly SimpleColorSO[] _originalColors = new SimpleColorSO[COLOR_FIELDS];
 
+        // TODO: Are those reliable enough?
+        private readonly Color[] _reusableColorsList = new Color[COLOR_FIELDS]; // This prevents a big amount of allocation.
+        private readonly List<ILightWithId> _reusableLightsList = new(); // This prevents a significant amount of allocation.
+        private readonly List<ILightWithId> _reusablePropagationLightsList = new(); // This prevents a significant amount of allocation.
+
         private ILightWithId[][]? _lightsPropagationGrouped;
 
         private LightColorizer(
@@ -254,13 +259,12 @@ namespace Chroma.Colorizer
         {
             get
             {
-                Color[] colors = new Color[COLOR_FIELDS];
                 for (int i = 0; i < COLOR_FIELDS; i++)
                 {
-                    colors[i] = _colors[i] ?? _colorizerManager.GlobalColor[i] ?? _originalColors[i];
+                    _reusableColorsList[i] = _colors[i] ?? _colorizerManager.GlobalColor[i] ?? _originalColors[i];
                 }
 
-                return colors;
+                return _reusableColorsList;
             }
         }
 
@@ -297,26 +301,35 @@ namespace Chroma.Colorizer
 
         public IEnumerable<ILightWithId> GetLightWithIds(IEnumerable<int> ids)
         {
-            IEnumerable<int> newIds = ids.Select(n => _tableManager.GetActiveTableValue(_lightId, n) ?? n);
+            _reusableLightsList.Clear();
+            foreach (int id in ids)
+            {
+                int newId = _tableManager.GetActiveTableValue(_lightId, id) ?? id;
+                ILightWithId? lightWithId = Lights.ElementAtOrDefault(newId);
+                if (lightWithId != null)
+                {
+                    _reusableLightsList.Add(lightWithId);
+                }
+            }
 
-            return newIds.Select(id => Lights.ElementAtOrDefault(id)).Where(lightWithId => lightWithId != null).ToList();
+            return _reusableLightsList;
         }
 
         // dont use this please
         // cant be fucked to make an overload for this
         internal IEnumerable<ILightWithId> GetPropagationLightWithIds(IEnumerable<int> ids)
         {
-            List<ILightWithId> result = new();
+            _reusablePropagationLightsList.Clear();
             int lightCount = LightsPropagationGrouped.Length;
             foreach (int id in ids)
             {
                 if (lightCount > id)
                 {
-                    result.AddRange(LightsPropagationGrouped[id]);
+                    _reusablePropagationLightsList.AddRange(LightsPropagationGrouped[id]);
                 }
             }
 
-            return result;
+            return _reusablePropagationLightsList;
         }
 
         [UsedImplicitly]

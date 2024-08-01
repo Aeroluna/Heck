@@ -9,6 +9,7 @@ namespace Chroma.Animation
 {
     internal static class AnimationHelper
     {
+        // This method runs on each frame in the game scene, so avoid allocations (do NOT use Linq).
         internal static void GetColorOffset(PointDefinition<Vector4>? localColor, IReadOnlyList<Track>? tracks, float time, out Color? color)
         {
             Vector4? pathColor = localColor?.Interpolate(time);
@@ -17,8 +18,26 @@ namespace Chroma.Animation
             {
                 if (tracks.Count > 1)
                 {
-                    pathColor ??= MultVector4Nullables(tracks.Select(n => n.GetVector4PathProperty(COLOR, time)));
-                    colorVector = MultVector4Nullables(MultVector4Nullables(tracks.Select(n => n.GetProperty<Vector4>(COLOR))), pathColor);
+                    Vector4? multPathColor = null;
+                    Vector4? multColorVector = null;
+                    bool hasPathColor = pathColor.HasValue;
+
+                    foreach (Track track in tracks)
+                    {
+                        if (!hasPathColor)
+                        {
+                            multPathColor = MultVector4Nullables(multPathColor, track.GetVector4PathProperty(COLOR, time));
+                        }
+
+                        multColorVector = MultVector4Nullables(multColorVector, track.GetProperty<Vector4>(COLOR));
+                    }
+
+                    if (!hasPathColor)
+                    {
+                        pathColor = multPathColor;
+                    }
+
+                    colorVector = MultVector4Nullables(multColorVector, pathColor);
                 }
                 else
                 {

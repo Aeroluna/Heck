@@ -250,6 +250,7 @@ namespace Heck.Animation.Events
             bool nonLazy)
         {
             bool skip = false;
+            WaitForEndOfFrame waitForEndOfFrame = new();
             while (repeat >= 0)
             {
                 float elapsedTime = _audioTimeSource.songTime - startTime;
@@ -268,7 +269,7 @@ namespace Heck.Animation.Events
                         break;
                     }
 
-                    yield return new WaitForEndOfFrame();
+                    yield return waitForEndOfFrame;
                 }
                 else
                 {

@@ -53,14 +53,31 @@ namespace Heck.Animation.Transform
             UpdatePos();
         }
 
+        // This method runs on each frame in the game scene, so avoid allocations (do NOT use Linq).
         private void Update()
         {
-            if (_track != null && _track.Any(n => n.UpdatedThisFrame))
+            if (_track == null)
+            {
+                return;
+            }
+
+            bool updated = false;
+            foreach (Track track in _track)
+            {
+                if (track.UpdatedThisFrame)
+                {
+                    updated = true;
+                    break;
+                }
+            }
+
+            if (updated)
             {
                 UpdatePos();
             }
         }
 
+        // This method runs on each frame in the game scene, so avoid allocations (do NOT use Linq).
         private void UpdatePos()
         {
             if (_track == null)
@@ -76,11 +93,26 @@ namespace Heck.Animation.Transform
 
             if (_track.Count > 1)
             {
-                scale = MultVectorNullables(_track.Select(n => n.GetProperty<Vector3>(SCALE)));
-                rotation = MultQuaternionNullables(_track.Select(n => n.GetProperty<Quaternion>(ROTATION)));
-                localRotation = MultQuaternionNullables(_track.Select(n => n.GetProperty<Quaternion>(LOCAL_ROTATION)));
-                position = SumVectorNullables(_track.Select(n => n.GetProperty<Vector3>(POSITION)));
-                localPosition = SumVectorNullables(_track.Select(n => n.GetProperty<Vector3>(LOCAL_POSITION)));
+                Vector3? multScale = null;
+                Quaternion? multRotation = null;
+                Quaternion? multLocalRotation = null;
+                Vector3? sumPosition = null;
+                Vector3? sumLocalPosition = null;
+
+                foreach (Track track in _track)
+                {
+                    multScale = MultVectorNullables(multScale, track.GetProperty<Vector3>(SCALE));
+                    multRotation = MultQuaternionNullables(multRotation, track.GetProperty<Quaternion>(ROTATION));
+                    multLocalRotation = MultQuaternionNullables(multLocalRotation, track.GetProperty<Quaternion>(LOCAL_ROTATION));
+                    sumPosition = SumVectorNullables(sumPosition, track.GetProperty<Vector3>(POSITION));
+                    sumLocalPosition = SumVectorNullables(sumLocalPosition, track.GetProperty<Vector3>(LOCAL_POSITION));
+                }
+
+                scale = multScale;
+                rotation = multRotation;
+                localRotation = multLocalRotation;
+                position = sumPosition;
+                localPosition = sumLocalPosition;
             }
             else
             {

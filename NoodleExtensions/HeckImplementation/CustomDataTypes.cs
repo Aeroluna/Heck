@@ -314,9 +314,23 @@ namespace NoodleExtensions
 
         internal float? InternalAheadTime { get; set; }
 
+        // This method runs on each frame in the game scene, so avoid allocations (do NOT use Linq).
         internal float? GetTimeProperty()
         {
-            return Track?.Select(n => n.GetProperty<float>(TIME)).FirstOrDefault(n => n.HasValue);
+            List<Track>? tracks = Track;
+            if (tracks != null)
+            {
+                foreach (Track track in tracks)
+                {
+                    float? time = track.GetProperty<float>(TIME);
+                    if (time.HasValue)
+                    {
+                        return time;
+                    }
+                }
+            }
+
+            return null;
         }
 
         internal class AnimationObjectData

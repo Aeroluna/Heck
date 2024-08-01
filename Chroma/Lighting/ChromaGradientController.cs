@@ -29,6 +29,7 @@ namespace Chroma.Lighting
 
         public void Tick()
         {
+            // TODO: Is this allocation needed?
             foreach ((BasicBeatmapEventType eventType, ChromaGradientEvent value) in new Dictionary<BasicBeatmapEventType, ChromaGradientEvent>(Gradients))
             {
                 Color color = value.Interpolate();
