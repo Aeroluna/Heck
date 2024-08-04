@@ -132,26 +132,26 @@ namespace Heck.Animation
                 return null;
             }
 
-            IEnumerable<string> trackNames;
+            string[] trackNames;
             if (trackNameRaw is List<object> listTrack)
             {
-                trackNames = listTrack.Cast<string>();
+                trackNames = listTrack.Cast<string>().ToArray();
             }
             else
             {
                 trackNames = new[] { (string)trackNameRaw };
             }
 
-            HashSet<Track> result = new();
-            foreach (string trackName in trackNames)
+            Track[] result = new Track[trackNames.Length];
+            for (int i = 0; i < trackNames.Length; i++)
             {
-                if (beatmapTracks.TryGetValue(trackName, out Track track))
+                if (beatmapTracks.TryGetValue(trackNames[i], out Track track))
                 {
-                    result.Add(track);
+                    result[i] = track;
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Could not find track [{trackName}].");
+                    throw new InvalidOperationException($"Could not find track [{trackNames[i]}].");
                 }
             }
 

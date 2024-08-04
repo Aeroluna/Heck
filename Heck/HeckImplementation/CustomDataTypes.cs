@@ -28,11 +28,13 @@ namespace Heck
             }
         }
 
-        internal List<Track>? Track { get; }
+        internal IReadOnlyList<Track>? Track { get; }
     }
 
     internal class HeckCoroutineEventData : ICustomEventCustomData
     {
+        private readonly string[] _excludedStrings = { V2_TRACK, V2_DURATION, V2_EASING, TRACK, DURATION, EASING, REPEAT };
+
         internal HeckCoroutineEventData(
             CustomEventData customEventData,
             Dictionary<string, List<object>> pointDefinitions,
@@ -43,8 +45,7 @@ namespace Heck
 
             IEnumerable<Track> tracks = data.GetTrackArray(beatmapTracks, v2);
 
-            string[] excludedStrings = { V2_TRACK, V2_DURATION, V2_EASING, TRACK, DURATION, EASING, REPEAT };
-            IEnumerable<string> propertyKeys = data.Keys.Where(n => excludedStrings.All(m => m != n)).ToList();
+            IEnumerable<string> propertyKeys = data.Keys.Where(n => _excludedStrings.All(m => m != n)).ToArray();
             List<CoroutineInfo> coroutineInfos = new();
             foreach (Track track in tracks)
             {
@@ -130,7 +131,7 @@ namespace Heck
 
         internal int Repeat { get; }
 
-        internal List<CoroutineInfo> CoroutineInfos { get; }
+        internal IReadOnlyList<CoroutineInfo> CoroutineInfos { get; }
 
         internal readonly struct CoroutineInfo
         {

@@ -9,7 +9,7 @@ namespace Chroma.Animation
 {
     internal static class AnimationHelper
     {
-        internal static void GetColorOffset(PointDefinition<Vector4>? localColor, List<Track>? tracks, float time, out Color? color)
+        internal static void GetColorOffset(PointDefinition<Vector4>? localColor, IReadOnlyList<Track>? tracks, float time, out Color? color)
         {
             Vector4? pathColor = localColor?.Interpolate(time);
             Vector4? colorVector;

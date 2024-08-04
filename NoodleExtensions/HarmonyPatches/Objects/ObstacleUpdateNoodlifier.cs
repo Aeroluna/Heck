@@ -106,7 +106,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 __instance.Hide(false);
             }
 
-            List<Track>? tracks = noodleData.Track;
+            IReadOnlyList<Track>? tracks = noodleData.Track;
             NoodleObjectData.AnimationObjectData? animationObject = noodleData.AnimationObject;
             if (tracks == null && animationObject == null)
             {

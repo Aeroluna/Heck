@@ -155,7 +155,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
                 return;
             }
 
-            List<Track>? tracks = _noodleData?.Track;
+            IReadOnlyList<Track>? tracks = _noodleData?.Track;
             NoodleObjectData.AnimationObjectData? animationObject = _noodleData?.AnimationObject;
             if (tracks == null && animationObject == null)
             {

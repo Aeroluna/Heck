@@ -50,7 +50,7 @@ namespace Chroma.Animation
             duration = 60f * duration / _bpmController.currentBpm; // Convert to real time;
 
             Functions easing = chromaData.Easing;
-            List<Track> tracks = chromaData.Track;
+            IReadOnlyList<Track> tracks = chromaData.Track;
 
             foreach ((string componentName, Dictionary<string, PointDefinition<float>?> properties) in chromaData.CoroutineInfos)
             {

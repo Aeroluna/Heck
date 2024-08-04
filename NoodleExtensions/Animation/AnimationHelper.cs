@@ -23,7 +23,7 @@ namespace NoodleExtensions.Animation
 
         internal void GetDefinitePositionOffset(
             NoodleObjectData.AnimationObjectData? animationObject,
-            List<Track>? tracks,
+            IReadOnlyList<Track>? tracks,
             float time,
             out Vector3? definitePosition)
         {
@@ -69,7 +69,7 @@ namespace NoodleExtensions.Animation
 
         internal void GetObjectOffset(
             NoodleObjectData.AnimationObjectData? animationObject,
-            List<Track>? tracks,
+            IReadOnlyList<Track>? tracks,
             float time,
             out Vector3? positionOffset,
             out Quaternion? rotationOffset,

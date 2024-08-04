@@ -90,14 +90,18 @@ namespace Heck.HarmonyPatches
         [AffinityPatch(typeof(NoteDebris), nameof(NoteDebris.Init))]
         private void AddNoteDebris(NoteDebris __instance)
         {
-            if (_noteDebrisNoteData == null || !TryGetTrack(_noteDebrisNoteData, out List<Track>? track))
+            if (_noteDebrisNoteData == null || !TryGetTrack(_noteDebrisNoteData, out IReadOnlyList<Track>? tracks))
             {
                 return;
             }
 
             GameObject gameObject = __instance.gameObject;
-            NoteDebrisTracker tracker = new(track, gameObject);
-            track.ForEach(n => n.AddGameObject(gameObject));
+            NoteDebrisTracker tracker = new(tracks, gameObject);
+            foreach (Track track in tracks)
+            {
+                track.AddGameObject(gameObject);
+            }
+
             __instance.didFinishEvent.Add(tracker);
         }
 
@@ -123,27 +127,33 @@ namespace Heck.HarmonyPatches
 
         private void AddObject(BeatmapObjectData objectData, MonoBehaviour behaviour)
         {
-            if (!TryGetTrack(objectData, out List<Track>? track))
+            if (!TryGetTrack(objectData, out IReadOnlyList<Track>? tracks))
             {
                 return;
             }
 
             GameObject gameObject = behaviour.gameObject;
-            track.ForEach(n => n.AddGameObject(gameObject));
+            foreach (Track track in tracks)
+            {
+                track.AddGameObject(gameObject);
+            }
         }
 
         private void RemoveObject(BeatmapObjectData objectData, MonoBehaviour behaviour)
         {
-            if (!TryGetTrack(objectData, out List<Track>? track))
+            if (!TryGetTrack(objectData, out IReadOnlyList<Track>? tracks))
             {
                 return;
             }
 
             GameObject gameObject = behaviour.gameObject;
-            track.ForEach(n => n.RemoveGameObject(gameObject));
+            foreach (Track track in tracks)
+            {
+                track.RemoveGameObject(gameObject);
+            }
         }
 
-        private bool TryGetTrack(BeatmapObjectData objectData, [NotNullWhen(true)] out List<Track>? track)
+        private bool TryGetTrack(BeatmapObjectData objectData, [NotNullWhen(true)] out IReadOnlyList<Track>? track)
         {
             if (!_deserializedData.Resolve(objectData, out HeckObjectData? heckData) || heckData.Track == null)
             {
@@ -157,10 +167,10 @@ namespace Heck.HarmonyPatches
 
         private class NoteDebrisTracker : INoteDebrisDidFinishEvent
         {
-            private readonly List<Track> _tracks;
+            private readonly IReadOnlyList<Track> _tracks;
             private readonly GameObject _gameObject;
 
-            internal NoteDebrisTracker(List<Track> tracks, GameObject gameObject)
+            internal NoteDebrisTracker(IReadOnlyList<Track> tracks, GameObject gameObject)
             {
                 _tracks = tracks;
                 _gameObject = gameObject;
@@ -169,7 +179,10 @@ namespace Heck.HarmonyPatches
             public void HandleNoteDebrisDidFinish(NoteDebris noteDebris)
             {
                 noteDebris.didFinishEvent.Remove(this);
-                _tracks.ForEach(n => n.RemoveGameObject(_gameObject));
+                foreach (Track track in _tracks)
+                {
+                    track.RemoveGameObject(_gameObject);
+                }
             }
         }
     }

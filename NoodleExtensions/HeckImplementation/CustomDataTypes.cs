@@ -290,7 +290,7 @@ namespace NoodleExtensions
 
         internal Quaternion? LocalRotationQuaternion { get; }
 
-        internal List<Track>? Track { get; }
+        internal IReadOnlyList<Track>? Track { get; }
 
         internal Quaternion InternalWorldRotation { get; set; }
 
@@ -395,7 +395,7 @@ namespace NoodleExtensions
 
         internal Track ParentTrack { get; }
 
-        internal List<Track> ChildrenTracks { get; }
+        internal IReadOnlyList<Track> ChildrenTracks { get; }
 
         internal bool WorldPositionStays { get; }
 

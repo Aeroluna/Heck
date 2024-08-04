@@ -109,7 +109,7 @@ namespace Chroma.HarmonyPatches.Colorizer
                 return;
             }
 
-            List<Track>? tracks = chromaData.Track;
+            IReadOnlyList<Track>? tracks = chromaData.Track;
             PointDefinition<Vector4>? pathPointDefinition = chromaData.LocalPathColor;
             if (tracks == null && pathPointDefinition == null)
             {

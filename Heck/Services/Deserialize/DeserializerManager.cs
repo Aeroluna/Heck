@@ -171,7 +171,7 @@ namespace Heck.Deserialize
             {
                 customBeatmapData,
                 trackManager,
-                pointDefinitions,
+                pointDefinitions, // TODO: use a readonly implementation
                 trackManager.Tracks,
                 leftHanded,
                 bpm

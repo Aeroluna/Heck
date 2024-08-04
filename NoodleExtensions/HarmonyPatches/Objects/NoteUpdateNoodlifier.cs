@@ -42,7 +42,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects
 
             NoodleData = noodleData;
 
-            List<Track>? tracks = noodleData.Track;
+            IReadOnlyList<Track>? tracks = noodleData.Track;
             NoodleObjectData.AnimationObjectData? animationObject = noodleData.AnimationObject;
             if (tracks == null && animationObject == null)
             {

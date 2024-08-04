@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using Heck;
@@ -31,7 +32,7 @@ namespace NoodleExtensions.Animation
             bool leftHanded,
             HashSet<ParentObject> parentObjects)
         {
-            List<Track> tracks = noodleData.ChildrenTracks;
+            IReadOnlyList<Track> tracks = noodleData.ChildrenTracks;
             Track parentTrack = noodleData.ParentTrack;
             if (tracks.Contains(parentTrack))
             {

@@ -36,6 +36,7 @@ namespace Chroma
 
             string[] availableNames = { BLOOM_FOG_ENVIRONMENT, TUBE_BLOOM_PRE_PASS_LIGHT };
             List<KeyValuePair<string, object?>> componentKeys = customData.Where(n => availableNames.Contains(n.Key)).ToList();
+            List<(string ComponentName, Dictionary<string, PointDefinition<float>?> PointDefinition)> coroutineInfos = new();
             foreach ((string key, object? value) in componentKeys)
             {
                 if (value == null)
@@ -46,17 +47,19 @@ namespace Chroma
                 CustomData component = (CustomData)value;
                 Dictionary<string, PointDefinition<float>?> componentPoints = component.Keys
                     .ToDictionary(propertyKey => propertyKey, propertyKey => component.GetPointData<float>(propertyKey, pointDefinitions));
-                CoroutineInfos.Add((key, componentPoints));
+                coroutineInfos.Add((key, componentPoints));
             }
+
+            CoroutineInfos = coroutineInfos;
         }
 
-        internal List<Track> Track { get; }
+        internal IReadOnlyList<Track> Track { get; }
 
         internal float Duration { get; }
 
         internal Functions Easing { get; }
 
-        internal List<(string ComponentName, Dictionary<string, PointDefinition<float>?> PointDefinition)> CoroutineInfos { get; } = new();
+        internal IReadOnlyList<(string ComponentName, Dictionary<string, PointDefinition<float>?> PointDefinition)> CoroutineInfos { get; }
     }
 
     internal class ChromaNoteData : ChromaObjectData, ICopyable<IObjectCustomData>
@@ -116,7 +119,7 @@ namespace Chroma
 
         internal Color? Color { get; }
 
-        internal List<Track>? Track { get; }
+        internal IReadOnlyList<Track>? Track { get; }
 
         internal PointDefinition<Vector4>? LocalPathColor { get; }
     }
