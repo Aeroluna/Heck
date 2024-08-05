@@ -1,29 +1,28 @@
 ﻿using Chroma.Colorizer;
 using SiraUtil.Affinity;
 
-namespace Chroma.HarmonyPatches.Colorizer.Initialize
+namespace Chroma.HarmonyPatches.Colorizer.Initialize;
+
+internal class ParticleColorizerInitialize : IAffinity
 {
-    internal class ParticleColorizerInitialize : IAffinity
+    private readonly ParticleColorizerManager _manager;
+
+    private ParticleColorizerInitialize(ParticleColorizerManager manager)
     {
-        private readonly ParticleColorizerManager _manager;
+        _manager = manager;
+    }
 
-        private ParticleColorizerInitialize(ParticleColorizerManager manager)
-        {
-            _manager = manager;
-        }
+    [AffinityPostfix]
+    [AffinityPatch(typeof(ParticleSystemEventEffect), nameof(ParticleSystemEventEffect.Start))]
+    private void IntializeParticleColorizer(ParticleSystemEventEffect __instance)
+    {
+        _manager.Create(__instance);
+    }
 
-        [AffinityPostfix]
-        [AffinityPatch(typeof(ParticleSystemEventEffect), nameof(ParticleSystemEventEffect.Start))]
-        private void IntializeParticleColorizer(ParticleSystemEventEffect __instance)
-        {
-            _manager.Create(__instance);
-        }
-
-        [AffinityPrefix]
-        [AffinityPatch(typeof(ParticleSystemEventEffect), nameof(ParticleSystemEventEffect.HandleBeatmapEvent))]
-        private bool SkipCallback()
-        {
-            return false;
-        }
+    [AffinityPrefix]
+    [AffinityPatch(typeof(ParticleSystemEventEffect), nameof(ParticleSystemEventEffect.HandleBeatmapEvent))]
+    private bool SkipCallback()
+    {
+        return false;
     }
 }

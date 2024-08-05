@@ -2,27 +2,27 @@
 using SiraUtil.Affinity;
 using Zenject;
 
-namespace Chroma.HarmonyPatches.ZenModeWalls
+namespace Chroma.HarmonyPatches.ZenModeWalls;
+
+internal class ObstacleHeadCollisionDisable : IAffinity
 {
-    internal class ObstacleHeadCollisionDisable : IAffinity
+    private readonly Config _config;
+    private readonly bool _zenMode;
+
+    private ObstacleHeadCollisionDisable(
+        [Inject(Optional = true, Id = "zenMode")]
+        bool zenMode,
+        Config config)
     {
-        private readonly bool _zenMode;
-        private readonly Config _config;
+        _zenMode = zenMode;
+        _config = config;
+    }
 
-        private ObstacleHeadCollisionDisable(
-            [Inject(Optional = true, Id = "zenMode")] bool zenMode,
-            Config config)
-        {
-            _zenMode = zenMode;
-            _config = config;
-        }
-
-        [AffinityPrefix]
-        [AffinityPatch(typeof(PlayerHeadAndObstacleInteraction), "RefreshIntersectingObstacles")]
-        private bool Prefix()
-        {
-            return !_config.ForceZenWallsEnabled ||
-                   !_zenMode;
-        }
+    [AffinityPrefix]
+    [AffinityPatch(typeof(PlayerHeadAndObstacleInteraction), "RefreshIntersectingObstacles")]
+    private bool Prefix()
+    {
+        return !_config.ForceZenWallsEnabled ||
+               !_zenMode;
     }
 }

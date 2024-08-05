@@ -4,142 +4,146 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 
-namespace Chroma.Colorizer
+namespace Chroma.Colorizer;
+
+[UsedImplicitly]
+public sealed class NoteColorizerManager : IDisposable
 {
-    [UsedImplicitly]
-    public sealed class NoteColorizerManager : IDisposable
+    private readonly BeatmapObjectManager _beatmapObjectManager;
+    private readonly NoteColorizer.Factory _factory;
+    private readonly SaberColorizerManager _saberManager;
+    private readonly SliderColorizerManager _sliderManager;
+
+    private NoteColorizerManager(
+        NoteColorizer.Factory factory,
+        BeatmapObjectManager beatmapObjectManager,
+        SaberColorizerManager saberManager,
+        SliderColorizerManager sliderManager,
+        [Inject(Optional = true, Id = "dontColorizeSabers")]
+        bool dontColorizeSabers)
     {
-        private readonly NoteColorizer.Factory _factory;
-        private readonly BeatmapObjectManager _beatmapObjectManager;
-        private readonly SaberColorizerManager _saberManager;
-        private readonly SliderColorizerManager _sliderManager;
+        _factory = factory;
+        _beatmapObjectManager = beatmapObjectManager;
+        _saberManager = saberManager;
+        _sliderManager = sliderManager;
 
-        private NoteColorizerManager(
-            NoteColorizer.Factory factory,
-            BeatmapObjectManager beatmapObjectManager,
-            SaberColorizerManager saberManager,
-            SliderColorizerManager sliderManager,
-            [Inject(Optional = true, Id = "dontColorizeSabers")] bool dontColorizeSabers)
+        if (!dontColorizeSabers)
         {
-            _factory = factory;
-            _beatmapObjectManager = beatmapObjectManager;
-            _saberManager = saberManager;
-            _sliderManager = sliderManager;
+            beatmapObjectManager.noteWasCutEvent += ColorizeSaber;
+        }
+    }
 
-            if (!dontColorizeSabers)
-            {
-                beatmapObjectManager.noteWasCutEvent += ColorizeSaber;
-            }
+    public Dictionary<NoteControllerBase, NoteColorizer> Colorizers { get; } = new();
+
+    public Color?[] GlobalColor { get; } = new Color?[2];
+
+    public void Colorize(NoteControllerBase noteController, Color? color)
+    {
+        GetColorizer(noteController).Colorize(color);
+    }
+
+    public void Dispose()
+    {
+        _beatmapObjectManager.noteWasCutEvent -= ColorizeSaber;
+    }
+
+    public NoteColorizer GetColorizer(NoteControllerBase noteController)
+    {
+        return Colorizers[noteController];
+    }
+
+    [PublicAPI]
+    public void GlobalColorize(Color? color, ColorType colorType)
+    {
+        GlobalColor[(int)colorType] = color;
+        foreach (KeyValuePair<NoteControllerBase, NoteColorizer> valuePair in Colorizers)
+        {
+            valuePair.Value.Refresh();
         }
 
-        public Dictionary<NoteControllerBase, NoteColorizer> Colorizers { get; } = new();
-
-        public Color?[] GlobalColor { get; } = new Color?[2];
-
-        public void Dispose()
+        foreach (KeyValuePair<SliderController, SliderColorizer> valuePair in _sliderManager.Colorizers)
         {
-            _beatmapObjectManager.noteWasCutEvent -= ColorizeSaber;
+            valuePair.Value.Refresh();
+        }
+    }
+
+    internal void Create(NoteControllerBase noteController)
+    {
+        Colorizers.Add(noteController, _factory.Create(noteController));
+    }
+
+    private void ColorizeSaber(NoteController noteController, in NoteCutInfo noteCutInfo)
+    {
+        NoteData noteData = noteController.noteData;
+        SaberType saberType = noteCutInfo.saberType;
+        if ((int)noteData.colorType == (int)saberType)
+        {
+            _saberManager.Colorize(saberType, GetColorizer(noteController).Color);
+        }
+    }
+}
+
+[UsedImplicitly]
+public class NoteColorizer : ObjectColorizer
+{
+    private static readonly int _colorID = Shader.PropertyToID("_Color");
+    private readonly ColorManager _colorManager;
+    private readonly ColorNoteVisuals _colorNoteVisuals;
+    private readonly NoteColorizerManager _manager;
+
+    private readonly MaterialPropertyBlockController[] _materialPropertyBlockControllers;
+
+    private readonly NoteControllerBase _noteController;
+
+    internal NoteColorizer(
+        NoteControllerBase noteController,
+        NoteColorizerManager manager,
+        ColorManager colorManager)
+    {
+        _noteController = noteController;
+        _colorNoteVisuals = _noteController.GetComponent<ColorNoteVisuals>();
+        _materialPropertyBlockControllers = _colorNoteVisuals._materialPropertyBlockControllers;
+        _manager = manager;
+        _colorManager = colorManager;
+    }
+
+    public ColorType ColorType => _noteController.noteData?.colorType ?? ColorType.ColorA;
+
+    protected override Color? GlobalColorGetter
+    {
+        get
+        {
+            ColorType colorType = ColorType;
+            return colorType == ColorType.None ? null : _manager.GlobalColor[(int)colorType];
+        }
+    }
+
+    protected override Color OriginalColorGetter => _colorManager.ColorForType(ColorType);
+
+    internal override void Refresh()
+    {
+        if (!_colorNoteVisuals.isActiveAndEnabled)
+        {
+            return;
         }
 
-        public NoteColorizer GetColorizer(NoteControllerBase noteController) => Colorizers[noteController];
-
-        public void Colorize(NoteControllerBase noteController, Color? color) => GetColorizer(noteController).Colorize(color);
-
-        [PublicAPI]
-        public void GlobalColorize(Color? color, ColorType colorType)
+        Color color = Color;
+        if (color == _colorNoteVisuals._noteColor)
         {
-            GlobalColor[(int)colorType] = color;
-            foreach (KeyValuePair<NoteControllerBase, NoteColorizer> valuePair in Colorizers)
-            {
-                valuePair.Value.Refresh();
-            }
-
-            foreach (KeyValuePair<SliderController, SliderColorizer> valuePair in _sliderManager.Colorizers)
-            {
-                valuePair.Value.Refresh();
-            }
+            return;
         }
 
-        internal void Create(NoteControllerBase noteController)
-        {
-            Colorizers.Add(noteController, _factory.Create(noteController));
-        }
+        _colorNoteVisuals._noteColor = color;
 
-        private void ColorizeSaber(NoteController noteController, in NoteCutInfo noteCutInfo)
+        foreach (MaterialPropertyBlockController materialPropertyBlockController in _materialPropertyBlockControllers)
         {
-            NoteData noteData = noteController.noteData;
-            SaberType saberType = noteCutInfo.saberType;
-            if ((int)noteData.colorType == (int)saberType)
-            {
-                _saberManager.Colorize(saberType, GetColorizer(noteController).Color);
-            }
+            MaterialPropertyBlock propertyBlock = materialPropertyBlockController.materialPropertyBlock;
+            Color original = propertyBlock.GetColor(_colorID);
+            propertyBlock.SetColor(_colorID, color.ColorWithAlpha(original.a));
+            materialPropertyBlockController.ApplyChanges();
         }
     }
 
     [UsedImplicitly]
-    public class NoteColorizer : ObjectColorizer
-    {
-        private static readonly int _colorID = Shader.PropertyToID("_Color");
-
-        private readonly NoteControllerBase _noteController;
-        private readonly NoteColorizerManager _manager;
-        private readonly ColorManager _colorManager;
-
-        private readonly MaterialPropertyBlockController[] _materialPropertyBlockControllers;
-        private readonly ColorNoteVisuals _colorNoteVisuals;
-
-        internal NoteColorizer(
-            NoteControllerBase noteController,
-            NoteColorizerManager manager,
-            ColorManager colorManager)
-        {
-            _noteController = noteController;
-            _colorNoteVisuals = _noteController.GetComponent<ColorNoteVisuals>();
-            _materialPropertyBlockControllers = _colorNoteVisuals._materialPropertyBlockControllers;
-            _manager = manager;
-            _colorManager = colorManager;
-        }
-
-        public ColorType ColorType => _noteController.noteData?.colorType ?? ColorType.ColorA;
-
-        protected override Color? GlobalColorGetter
-        {
-            get
-            {
-                ColorType colorType = ColorType;
-                return colorType == ColorType.None ? null : _manager.GlobalColor[(int)colorType];
-            }
-        }
-
-        protected override Color OriginalColorGetter => _colorManager.ColorForType(ColorType);
-
-        internal override void Refresh()
-        {
-            if (!_colorNoteVisuals.isActiveAndEnabled)
-            {
-                return;
-            }
-
-            Color color = Color;
-            if (color == _colorNoteVisuals._noteColor)
-            {
-                return;
-            }
-
-            _colorNoteVisuals._noteColor = color;
-
-            foreach (MaterialPropertyBlockController materialPropertyBlockController in _materialPropertyBlockControllers)
-            {
-                MaterialPropertyBlock propertyBlock = materialPropertyBlockController.materialPropertyBlock;
-                Color original = propertyBlock.GetColor(_colorID);
-                propertyBlock.SetColor(_colorID, color.ColorWithAlpha(original.a));
-                materialPropertyBlockController.ApplyChanges();
-            }
-        }
-
-        [UsedImplicitly]
-        internal class Factory : PlaceholderFactory<NoteControllerBase, NoteColorizer>
-        {
-        }
-    }
+    internal class Factory : PlaceholderFactory<NoteControllerBase, NoteColorizer>;
 }

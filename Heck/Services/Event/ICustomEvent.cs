@@ -1,9 +1,8 @@
 ﻿using CustomJSONData.CustomBeatmap;
 
-namespace Heck.Event
+namespace Heck.Event;
+
+public interface ICustomEvent
 {
-    public interface ICustomEvent
-    {
-        public void Callback(CustomEventData customEventData);
-    }
+    public void Callback(CustomEventData customEventData);
 }

@@ -1,15 +1,14 @@
 ﻿using JetBrains.Annotations;
 using Zenject;
 
-namespace NoodleExtensions.Installers
+namespace NoodleExtensions.Installers;
+
+[UsedImplicitly]
+internal class NoodleAppInstaller : Installer
 {
-    [UsedImplicitly]
-    internal class NoodleAppInstaller : Installer
+    public override void InstallBindings()
     {
-        public override void InstallBindings()
-        {
-            Container.BindInterfacesAndSelfTo<NoodleBaseProvider>().AsSingle();
-            Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
-        }
+        Container.BindInterfacesAndSelfTo<NoodleBaseProvider>().AsSingle();
+        Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
     }
 }

@@ -5,28 +5,27 @@ using UnityEngine;
 using Zenject;
 using static Chroma.EnvironmentEnhancement.MaterialsManager;
 
-namespace Chroma.EnvironmentEnhancement
-{
-    [UsedImplicitly]
-    internal class MaterialColorAnimator : ITickable
-    {
-        private readonly HashSet<MaterialInfo> _activeMaterials = new();
+namespace Chroma.EnvironmentEnhancement;
 
-        public void Tick()
+[UsedImplicitly]
+internal class MaterialColorAnimator : ITickable
+{
+    private readonly HashSet<MaterialInfo> _activeMaterials = [];
+
+    public void Tick()
+    {
+        foreach (MaterialInfo materialInfo in _activeMaterials)
         {
-            foreach (MaterialInfo materialInfo in _activeMaterials)
+            AnimationHelper.GetColorOffset(null, materialInfo.Track, 0, out Color? color);
+            if (color.HasValue)
             {
-                AnimationHelper.GetColorOffset(null, materialInfo.Track, 0, out Color? color);
-                if (color.HasValue)
-                {
-                    materialInfo.Material.color = color.Value;
-                }
+                materialInfo.Material.color = color.Value;
             }
         }
+    }
 
-        internal void Add(MaterialInfo materialInfo)
-        {
-            _activeMaterials.Add(materialInfo);
-        }
+    internal void Add(MaterialInfo materialInfo)
+    {
+        _activeMaterials.Add(materialInfo);
     }
 }

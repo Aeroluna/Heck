@@ -3,47 +3,46 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 
-namespace Heck.ReLoad
+namespace Heck.ReLoad;
+
+public class MenuReLoad : ITickable
 {
-    public class MenuReLoad : ITickable
+    private readonly Config.ReLoaderSettings _config;
+#if !LATEST
+    private readonly LevelSelectionNavigationController _levelSelectionNavigationController;
+#endif
+    private readonly ReLoaderLoader _reLoaderLoader;
+
+    [UsedImplicitly]
+    private MenuReLoad(
+        ReLoaderLoader reLoaderLoader,
+#if !LATEST
+        LevelSelectionNavigationController levelSelectionNavigationController,
+#endif
+        Config.ReLoaderSettings config)
     {
-        private readonly ReLoaderLoader _reLoaderLoader;
+        _reLoaderLoader = reLoaderLoader;
 #if !LATEST
-        private readonly LevelSelectionNavigationController _levelSelectionNavigationController;
+        _levelSelectionNavigationController = levelSelectionNavigationController;
 #endif
-        private readonly Config.ReLoaderSettings _config;
+        _config = config;
+    }
 
-        [UsedImplicitly]
-        private MenuReLoad(
-            ReLoaderLoader reLoaderLoader,
-#if !LATEST
-            LevelSelectionNavigationController levelSelectionNavigationController,
-#endif
-            Config.ReLoaderSettings config)
+    public void Tick()
+    {
+        if (!Input.GetKeyDown(_config.Reload))
         {
-            _reLoaderLoader = reLoaderLoader;
-#if !LATEST
-            _levelSelectionNavigationController = levelSelectionNavigationController;
-#endif
-            _config = config;
+            return;
         }
-
-        public void Tick()
-        {
-            if (!Input.GetKeyDown(_config.Reload))
-            {
-                return;
-            }
 
 #if LATEST
-            _reLoaderLoader.Reload();
+        _reLoaderLoader.Reload();
 #else
-            IDifficultyBeatmap? difficultyBeatmap = _levelSelectionNavigationController.selectedDifficultyBeatmap;
-            if (difficultyBeatmap != null)
-            {
-                _reLoaderLoader.Reload(difficultyBeatmap);
-            }
-#endif
+        IDifficultyBeatmap? difficultyBeatmap = _levelSelectionNavigationController.selectedDifficultyBeatmap;
+        if (difficultyBeatmap != null)
+        {
+            _reLoaderLoader.Reload(difficultyBeatmap);
         }
+#endif
     }
 }

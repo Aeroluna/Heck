@@ -8,42 +8,41 @@ using Heck.Settings;
 using JetBrains.Annotations;
 using Zenject;
 
-namespace Heck.Installers
+namespace Heck.Installers;
+
+[UsedImplicitly]
+internal class HeckAppInstaller : Installer
 {
-    [UsedImplicitly]
-    internal class HeckAppInstaller : Installer
+    private readonly Config _config;
+
+    private HeckAppInstaller(Config config)
     {
-        private readonly Config _config;
+        _config = config;
+    }
 
-        private HeckAppInstaller(Config config)
-        {
-            _config = config;
-        }
-
-        public override void InstallBindings()
-        {
-            Container.Bind<BaseProviderManager>().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<ModuleManager>().AsSingle();
+    public override void InstallBindings()
+    {
+        Container.Bind<BaseProviderManager>().AsSingle().NonLazy();
+        Container.BindInterfacesAndSelfTo<ModuleManager>().AsSingle();
 #if LATEST
-            Container.BindInterfacesTo<StandardModuleActivator>().AsSingle();
-            Container.BindInterfacesTo<MissionModuleActivator>().AsSingle();
-            Container.BindInterfacesTo<MiscModuleActivator>().AsSingle();
+        Container.BindInterfacesTo<StandardModuleActivator>().AsSingle();
+        Container.BindInterfacesTo<MissionModuleActivator>().AsSingle();
+        Container.BindInterfacesTo<MiscModuleActivator>().AsSingle();
 #else
-            Container.BindInterfacesTo<SceneTransitionModuleActivator>().AsSingle();
+        Container.BindInterfacesTo<SceneTransitionModuleActivator>().AsSingle();
 #endif
-            Container.Bind<DeserializerManager>().AsSingle();
-            Container.BindInterfacesTo<PatchedPlayerInstaller>().AsSingle();
+        Container.Bind<DeserializerManager>().AsSingle();
+        Container.BindInterfacesTo<PatchedPlayerInstaller>().AsSingle();
 
-            Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
+        Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
 
-            if (!HeckController.DebugMode)
-            {
-                return;
-            }
-
-            Container.BindInstance(_config.ReLoader).AsSingle();
-            Container.Bind<ReLoaderLoader>().AsSingle();
-            Container.BindInterfacesTo<ReLoadRestart>().AsSingle();
+        if (!HeckController.DebugMode)
+        {
+            return;
         }
+
+        Container.BindInstance(_config.ReLoader).AsSingle();
+        Container.Bind<ReLoaderLoader>().AsSingle();
+        Container.BindInterfacesTo<ReLoadRestart>().AsSingle();
     }
 }

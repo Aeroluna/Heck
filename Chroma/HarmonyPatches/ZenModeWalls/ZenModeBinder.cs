@@ -2,29 +2,28 @@
 using SiraUtil.Affinity;
 using Zenject;
 
-namespace Chroma.HarmonyPatches.ZenModeWalls
+namespace Chroma.HarmonyPatches.ZenModeWalls;
+
+internal class ZenModeBinder : IAffinity
 {
-    internal class ZenModeBinder : IAffinity
+    private readonly Config _config;
+
+    private ZenModeBinder(Config config)
     {
-        private readonly Config _config;
+        _config = config;
+    }
 
-        private ZenModeBinder(Config config)
+    [AffinityPostfix]
+    [AffinityPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
+    private void Postfix(GameplayCoreInstaller __instance, GameplayCoreSceneSetupData ____sceneSetupData)
+    {
+        if (!_config.ForceZenWallsEnabled)
         {
-            _config = config;
+            return;
         }
 
-        [AffinityPostfix]
-        [AffinityPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
-        private void Postfix(GameplayCoreInstaller __instance, GameplayCoreSceneSetupData ____sceneSetupData)
-        {
-            if (!_config.ForceZenWallsEnabled)
-            {
-                return;
-            }
-
-            MonoInstallerBase installerBase = __instance;
-            DiContainer container = installerBase.Container;
-            container.Bind<bool>().WithId("zenMode").FromInstance(____sceneSetupData.gameplayModifiers.zenMode);
-        }
+        MonoInstallerBase installerBase = __instance;
+        DiContainer container = installerBase.Container;
+        container.Bind<bool>().WithId("zenMode").FromInstance(____sceneSetupData.gameplayModifiers.zenMode);
     }
 }

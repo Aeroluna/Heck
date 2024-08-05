@@ -9,80 +9,86 @@ using Zenject;
 using Zenject.Internal;
 using Object = UnityEngine.Object;
 
-namespace Chroma.HarmonyPatches.EnvironmentComponent
+namespace Chroma.HarmonyPatches.EnvironmentComponent;
+
+[HeckPatch(PatchType.Environment)]
+internal static class RingAwakeInstantiator
 {
-    [HeckPatch(PatchType.Environment)]
-    internal static class RingAwakeInstantiator
+    private static readonly FieldInfo _trackLaneRingPrefab = AccessTools.Field(
+        typeof(TrackLaneRingsManager),
+        nameof(TrackLaneRingsManager._trackLaneRingPrefab));
+
+    private static readonly MethodInfo _queueInject = AccessTools.Method(
+        typeof(RingAwakeInstantiator),
+        nameof(QueueInject));
+
+    private static readonly FieldAccessor<TrackLaneRingsManager, DiContainer>.Accessor _containerAccessor =
+        FieldAccessor<TrackLaneRingsManager, DiContainer>.GetAccessor(nameof(TrackLaneRingsManager._container));
+
+    private static void FindTrackLaneRingManager(Transform transform, List<TrackLaneRingsManager> managers)
     {
-        private static readonly FieldInfo _trackLaneRingPrefab = AccessTools.Field(typeof(TrackLaneRingsManager), nameof(TrackLaneRingsManager._trackLaneRingPrefab));
-        private static readonly MethodInfo _queueInject = AccessTools.Method(typeof(RingAwakeInstantiator), nameof(QueueInject));
-        private static readonly FieldAccessor<TrackLaneRingsManager, DiContainer>.Accessor _containerAccessor =
-            FieldAccessor<TrackLaneRingsManager, DiContainer>.GetAccessor(nameof(TrackLaneRingsManager._container));
+        managers.Add(transform.GetComponent<TrackLaneRingsManager>());
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(SceneDecoratorContext), nameof(SceneDecoratorContext.Initialize))]
-        private static void InitManagers(SceneDecoratorContext __instance, DiContainer container)
+        foreach (Transform child in transform)
         {
-            if (__instance.DecoratedContractName != "Environment")
-            {
-                return;
-            }
+            FindTrackLaneRingManager(child, managers);
+        }
+    }
 
-            List<TrackLaneRingsManager> managers = new(1);
-            __instance.gameObject.scene.GetRootGameObjects().Do(n => FindTrackLaneRingManager(n.transform, managers));
-            foreach (TrackLaneRingsManager manager in managers)
-            {
-                if (manager == null)
-                {
-                    continue;
-                }
-
-                TrackLaneRingsManager managerref = manager;
-                _containerAccessor(ref managerref) = container;
-                manager.Start();
-            }
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(SceneDecoratorContext), nameof(SceneDecoratorContext.Initialize))]
+    private static void InitManagers(SceneDecoratorContext __instance, DiContainer container)
+    {
+        if (__instance.DecoratedContractName != "Environment")
+        {
+            return;
         }
 
-        private static void FindTrackLaneRingManager(Transform transform, List<TrackLaneRingsManager> managers)
+        List<TrackLaneRingsManager> managers = new(1);
+        __instance.gameObject.scene.GetRootGameObjects().Do(n => FindTrackLaneRingManager(n.transform, managers));
+        foreach (TrackLaneRingsManager manager in managers)
         {
-            managers.Add(transform.GetComponent<TrackLaneRingsManager>());
-
-            foreach (Transform child in transform)
+            if (manager == null)
             {
-                FindTrackLaneRingManager(child, managers);
+                continue;
             }
-        }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(TrackLaneRingsManager), nameof(TrackLaneRingsManager.Start))]
-        private static bool InitOnce(TrackLaneRing[]? ____rings)
-        {
-            return ____rings == null;
+            TrackLaneRingsManager managerref = manager;
+            _containerAccessor(ref managerref) = container;
+            manager.Start();
         }
+    }
 
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(TrackLaneRingsManager), nameof(TrackLaneRingsManager.Start))]
-        private static IEnumerable<CodeInstruction> QueueInjectTranspiler(IEnumerable<CodeInstruction> instructions)
-        {
-            /*
-             * -- this._rings[i] = this._container.InstantiatePrefabForComponent<TrackLaneRing>(this._trackLaneRingPrefab);
-             * ++ this._rings[i] = QueueInject(this._container, this._trackLaneRingPrefab);
-             */
-            return new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Ldfld, _trackLaneRingPrefab))
-                .Repeat(n => n
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(TrackLaneRingsManager), nameof(TrackLaneRingsManager.Start))]
+    private static bool InitOnce(TrackLaneRing[]? ____rings)
+    {
+        return ____rings == null;
+    }
+
+    private static TrackLaneRing QueueInject(DiContainer container, TrackLaneRing prefab)
+    {
+        TrackLaneRing trackLaneRing = Object.Instantiate(prefab);
+        List<MonoBehaviour> injectables = [];
+        ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(trackLaneRing.gameObject, injectables);
+        injectables.ForEach(container.QueueForInject);
+        return trackLaneRing;
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch(typeof(TrackLaneRingsManager), nameof(TrackLaneRingsManager.Start))]
+    private static IEnumerable<CodeInstruction> QueueInjectTranspiler(IEnumerable<CodeInstruction> instructions)
+    {
+        /*
+         * -- this._rings[i] = this._container.InstantiatePrefabForComponent<TrackLaneRing>(this._trackLaneRingPrefab);
+         * ++ this._rings[i] = QueueInject(this._container, this._trackLaneRingPrefab);
+         */
+        return new CodeMatcher(instructions)
+            .MatchForward(false, new CodeMatch(OpCodes.Ldfld, _trackLaneRingPrefab))
+            .Repeat(
+                n => n
                     .Advance(1)
                     .Set(OpCodes.Call, _queueInject))
-                .InstructionEnumeration();
-        }
-
-        private static TrackLaneRing QueueInject(DiContainer container, TrackLaneRing prefab)
-        {
-            TrackLaneRing trackLaneRing = Object.Instantiate(prefab);
-            List<MonoBehaviour> injectables = new();
-            ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(trackLaneRing.gameObject, injectables);
-            injectables.ForEach(container.QueueForInject);
-            return trackLaneRing;
-        }
+            .InstructionEnumeration();
     }
 }

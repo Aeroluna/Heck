@@ -7,48 +7,47 @@ using Heck.ObjectInitialize;
 using JetBrains.Annotations;
 using Zenject;
 
-namespace Heck.Installers
+namespace Heck.Installers;
+
+[UsedImplicitly]
+internal class HeckPlayerInstaller : Installer
 {
-    [UsedImplicitly]
-    internal class HeckPlayerInstaller : Installer
+    private readonly FeaturesModule _featuresModule;
+
+    private HeckPlayerInstaller(FeaturesModule featuresModule)
     {
-        private readonly FeaturesModule _featuresModule;
+        _featuresModule = featuresModule;
+    }
 
-        private HeckPlayerInstaller(FeaturesModule featuresModule)
+    public override void InstallBindings()
+    {
+        if (!_featuresModule.Active)
         {
-            _featuresModule = featuresModule;
+            return;
         }
 
-        public override void InstallBindings()
-        {
-            if (!_featuresModule.Active)
-            {
-                return;
-            }
+        Container.Bind<ObjectInitializerManager>().AsSingle();
 
-            Container.Bind<ObjectInitializerManager>().AsSingle();
+        // Note Cut Sound Fix
+        Container.BindInterfacesTo<NoteCutSoundLimiter>().AsSingle();
 
-            // Note Cut Sound Fix
-            Container.BindInterfacesTo<NoteCutSoundLimiter>().AsSingle();
+        // Events
+        Container.Bind<CoroutineDummy>().FromNewComponentOnRoot().AsSingle();
 
-            // Events
-            Container.Bind<CoroutineDummy>().FromNewComponentOnRoot().AsSingle();
+        // Custom Events
+        Container.BindInterfacesTo<CustomEventController>().AsSingle();
+        Container.BindInterfacesTo<CoroutineEvent>().AsSingle();
 
-            // Custom Events
-            Container.BindInterfacesTo<CustomEventController>().AsSingle();
-            Container.BindInterfacesTo<CoroutineEvent>().AsSingle();
+        // TransformController
+        Container.BindInterfacesAndSelfTo<TransformControllerFactory>().AsSingle();
 
-            // TransformController
-            Container.BindInterfacesAndSelfTo<TransformControllerFactory>().AsSingle();
+        // Track GameObject Tracker
+        Container.BindInterfacesTo<GameObjectTracker>().AsSingle();
 
-            // Track GameObject Tracker
-            Container.BindInterfacesTo<GameObjectTracker>().AsSingle();
+        // Track updater
+        Container.BindInterfacesTo<TrackUpdateManager>().AsSingle();
 
-            // Track updater
-            Container.BindInterfacesTo<TrackUpdateManager>().AsSingle();
-
-            // BurstSliders
-            Container.BindInterfacesTo<BurstSliderDataRegisterer>().AsSingle();
-        }
+        // BurstSliders
+        Container.BindInterfacesTo<BurstSliderDataRegisterer>().AsSingle();
     }
 }

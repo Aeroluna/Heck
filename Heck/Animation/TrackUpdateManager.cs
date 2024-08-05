@@ -2,24 +2,23 @@
 using JetBrains.Annotations;
 using Zenject;
 
-namespace Heck.Animation
+namespace Heck.Animation;
+
+internal class TrackUpdateManager : ILateTickable
 {
-    internal class TrackUpdateManager : ILateTickable
+    private readonly HashSet<Track> _tracks;
+
+    [UsedImplicitly]
+    private TrackUpdateManager(Dictionary<string, Track> beatmapTracks)
     {
-        private readonly HashSet<Track> _tracks;
+        _tracks = new HashSet<Track>(beatmapTracks.Values);
+    }
 
-        [UsedImplicitly]
-        private TrackUpdateManager(Dictionary<string, Track> beatmapTracks)
+    public void LateTick()
+    {
+        foreach (Track track in _tracks)
         {
-            _tracks = new HashSet<Track>(beatmapTracks.Values);
-        }
-
-        public void LateTick()
-        {
-            foreach (Track track in _tracks)
-            {
-                track.UpdatedThisFrame = false;
-            }
+            track.UpdatedThisFrame = false;
         }
     }
 }

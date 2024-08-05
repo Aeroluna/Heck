@@ -2,52 +2,51 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Chroma.EnvironmentEnhancement
+namespace Chroma.EnvironmentEnhancement;
+
+internal readonly struct GameObjectInfo
 {
-    internal readonly struct GameObjectInfo
+    internal GameObjectInfo(GameObject gameObject)
     {
-        internal GameObjectInfo(GameObject gameObject)
+        List<string> nameList = [];
+
+        Transform transform = gameObject.transform;
+        while (true)
         {
-            List<string> nameList = new();
+            Transform parent = transform.parent;
+            bool parentExist = parent != null;
 
-            Transform transform = gameObject.transform;
-            while (true)
+            int index;
+            if (parentExist)
             {
-                Transform parent = transform.parent;
-                bool parentExist = parent != null;
-
-                int index;
-                if (parentExist)
-                {
-                    index = transform.GetSiblingIndex();
-                }
-                else
-                {
-                    // Why doesnt GetSiblingIndex work on root objects?
-                    GameObject currentObject = transform.gameObject;
-                    GameObject[] rootGameObjects = currentObject.scene.GetRootGameObjects();
-                    index = Array.IndexOf(rootGameObjects, currentObject);
-                }
-
-                nameList.Add($"[{index}]{transform.name}");
-
-                if (!parentExist)
-                {
-                    break;
-                }
-
-                transform = parent!;
+                index = transform.GetSiblingIndex();
+            }
+            else
+            {
+                // Why doesnt GetSiblingIndex work on root objects?
+                GameObject currentObject = transform.gameObject;
+                GameObject[] rootGameObjects = currentObject.scene.GetRootGameObjects();
+                index = Array.IndexOf(rootGameObjects, currentObject);
             }
 
-            nameList.Add($"{gameObject.scene.name}");
-            nameList.Reverse();
+            nameList.Add($"[{index}]{transform.name}");
 
-            FullID = string.Join(".", nameList);
-            GameObject = gameObject;
+            if (!parentExist)
+            {
+                break;
+            }
+
+            transform = parent!;
         }
 
-        internal string FullID { get; }
+        nameList.Add($"{gameObject.scene.name}");
+        nameList.Reverse();
 
-        internal GameObject GameObject { get; }
+        FullID = string.Join(".", nameList);
+        GameObject = gameObject;
     }
+
+    internal string FullID { get; }
+
+    internal GameObject GameObject { get; }
 }

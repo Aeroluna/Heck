@@ -1,45 +1,45 @@
 {
-	"_playerOptions": [
-		{
-			"_name": "Left Handed Mode",
-			"_fieldName": "_leftHanded"
-		},
-		{
-			"_name": "Player Height",
-			"_fieldName": "_playerHeight"
-		},
-		{
-			"_name": "Automatic Player Height",
-			"_fieldName": "_automaticPlayerHeight"
-		},
-		{
-			"_name": "SFX Volume",
-			"_fieldName": "_sfxVolume"
-		},
-		{
-			"_name": "Reduce Debris",
-			"_fieldName": "_reduceDebris"
-		},
-		{
-			"_name": "No Texts & HUDs",
-			"_fieldName": "_noTextsAndHuds"
-		},
-		{
-			"_name": "No Fail Effects <size=70%><color=red>(Hidden)",
-			"_fieldName": "_noFailEffects"
-		},
-		{
-			"_name": "Advanced HUD",
-			"_fieldName": "_advancedHud"
-		},
-		{
-			"_name": "Auto Restart on Fail",
-			"_fieldName": "_autoRestart"
-		},
-		{
-			"_name": "Trail Intensity",
-			"_fieldName": "_saberTrailIntensity"
-		},
+  "_playerOptions": [
+    {
+      "_name": "Left Handed Mode",
+      "_fieldName": "_leftHanded"
+    },
+    {
+      "_name": "Player Height",
+      "_fieldName": "_playerHeight"
+    },
+    {
+      "_name": "Automatic Player Height",
+      "_fieldName": "_automaticPlayerHeight"
+    },
+    {
+      "_name": "SFX Volume",
+      "_fieldName": "_sfxVolume"
+    },
+    {
+      "_name": "Reduce Debris",
+      "_fieldName": "_reduceDebris"
+    },
+    {
+      "_name": "No Texts & HUDs",
+      "_fieldName": "_noTextsAndHuds"
+    },
+    {
+      "_name": "No Fail Effects <size=70%><color=red>(Hidden)",
+      "_fieldName": "_noFailEffects"
+    },
+    {
+      "_name": "Advanced HUD",
+      "_fieldName": "_advancedHud"
+    },
+    {
+      "_name": "Auto Restart on Fail",
+      "_fieldName": "_autoRestart"
+    },
+    {
+      "_name": "Trail Intensity",
+      "_fieldName": "_saberTrailIntensity"
+    },
     {
       "_name": "Jump Duration Type",
       "_fieldName": "_noteJumpDurationTypeSettings"
@@ -48,125 +48,125 @@
       "_name": "Jump Duration",
       "_fieldName": "_noteJumpFixedDuration"
     },
-		{
-			"_name": "Note Jump Offset",
-			"_fieldName": "_noteJumpStartBeatOffset"
-		},
-		{
-			"_name": "Hide Note Spawning Effect",
-			"_fieldName": "_hideNoteSpawnEffect"
-		},
-		{
-			"_name": "Adaptive SFX",
-			"_fieldName": "_adaptiveSfx"
-		},
-		{
-			"_name": "Environment Effects",
-			"_fieldName": "_environmentEffectsFilterDefaultPreset"
-		},
-		{
-			"_name": "Expert+ Environment Effects",
-			"_fieldName": "_environmentEffectsFilterExpertPlusPreset"
-		}
-	],
-	"_modifiers": [
-		{
-			"_name": "Energy Type",
-			"_fieldName": "_energyType"
-		},
-		{
-			"_name": "No Fail",
-			"_fieldName": "_noFailOn0Energy"
-		},
-		{
-			"_name": "1 Life",
-			"_fieldName": "_instaFail"
-		},
-		{
-			"_name": "Fail on Saber Clash <size=70%><color=red>(Hidden)",
-			"_fieldName": "_failOnSaberClash"
-		},
-		{
-			"_name": "Enabled Obstacles",
-			"_fieldName": "_enabledObstacleType"
-		},
-		{
-			"_name": "Fast Notes <size=70%><color=red>(Hidden)",
-			"_fieldName": "_fastNotes"
-		},
-		{
-			"_name": "Strict Angles (beta)",
-			"_fieldName": "_strictAngles"
-		},
-		{
-			"_name": "Disappearing Arrows",
-			"_fieldName": "_disappearingArrows"
-		},
-		{
-			"_name": "Ghost Notes",
-			"_fieldName": "_ghostNotes"
-		},
-		{
-			"_name": "No Bombs",
-			"_fieldName": "_noBombs"
-		},
-		{
-			"_name": "Song Speed",
-			"_fieldName": "_songSpeed"
-		},
-		{
-			"_name": "No Arrows",
-			"_fieldName": "_noArrows"
-		},
-		{
-			"_name": "Pro Mode (beta)",
-			"_fieldName": "_proMode"
-		},
-		{
-			"_name": "Zen Mode",
-			"_fieldName": "_zenMode"
-		},
-		{
-			"_name": "Small Notes (beta)",
-			"_fieldName": "_smallCubes"
-		}
-	],
-	"_environments": [
-		{
-			"_name": "Override Default Environments",
-			"_fieldName": "_overrideEnvironments"
-		}
-	],
-	"_colors": [
-		{
-			"_name": "Override Default Colors",
-			"_fieldName": "_overrideDefaultColors"
-		}
-	],
-	"_graphics": [
-		{
-			"_name": "Mirror Quality",
-			"_fieldName": "_mirrorGraphicsSettings"
-		},
-		{
-			"_name": "Bloom Post Process",
-			"_fieldName": "_mainEffectGraphicsSettings"
-		},
-		{
-			"_name": "Smoke",
-			"_fieldName": "_smokeGraphicsSettings"
-		},
-		{
-			"_name": "Burn Mark Trails Enabled <size=70%><color=red>(Hidden)",
-			"_fieldName": "_burnMarkTrailsEnabled"
-		},
-		{
-			"_name": "Screen Distortion Effects",
-			"_fieldName": "_screenDisplacementEffectsEnabled"
-		},
-		{
-			"_name": "Max Shockwave Particles",
-			"_fieldName": "_maxShockwaveParticles"
-		}
-	]
+    {
+      "_name": "Note Jump Offset",
+      "_fieldName": "_noteJumpStartBeatOffset"
+    },
+    {
+      "_name": "Hide Note Spawning Effect",
+      "_fieldName": "_hideNoteSpawnEffect"
+    },
+    {
+      "_name": "Adaptive SFX",
+      "_fieldName": "_adaptiveSfx"
+    },
+    {
+      "_name": "Environment Effects",
+      "_fieldName": "_environmentEffectsFilterDefaultPreset"
+    },
+    {
+      "_name": "Expert+ Environment Effects",
+      "_fieldName": "_environmentEffectsFilterExpertPlusPreset"
+    }
+  ],
+  "_modifiers": [
+    {
+      "_name": "Energy Type",
+      "_fieldName": "_energyType"
+    },
+    {
+      "_name": "No Fail",
+      "_fieldName": "_noFailOn0Energy"
+    },
+    {
+      "_name": "1 Life",
+      "_fieldName": "_instaFail"
+    },
+    {
+      "_name": "Fail on Saber Clash <size=70%><color=red>(Hidden)",
+      "_fieldName": "_failOnSaberClash"
+    },
+    {
+      "_name": "Enabled Obstacles",
+      "_fieldName": "_enabledObstacleType"
+    },
+    {
+      "_name": "Fast Notes <size=70%><color=red>(Hidden)",
+      "_fieldName": "_fastNotes"
+    },
+    {
+      "_name": "Strict Angles (beta)",
+      "_fieldName": "_strictAngles"
+    },
+    {
+      "_name": "Disappearing Arrows",
+      "_fieldName": "_disappearingArrows"
+    },
+    {
+      "_name": "Ghost Notes",
+      "_fieldName": "_ghostNotes"
+    },
+    {
+      "_name": "No Bombs",
+      "_fieldName": "_noBombs"
+    },
+    {
+      "_name": "Song Speed",
+      "_fieldName": "_songSpeed"
+    },
+    {
+      "_name": "No Arrows",
+      "_fieldName": "_noArrows"
+    },
+    {
+      "_name": "Pro Mode (beta)",
+      "_fieldName": "_proMode"
+    },
+    {
+      "_name": "Zen Mode",
+      "_fieldName": "_zenMode"
+    },
+    {
+      "_name": "Small Notes (beta)",
+      "_fieldName": "_smallCubes"
+    }
+  ],
+  "_environments": [
+    {
+      "_name": "Override Default Environments",
+      "_fieldName": "_overrideEnvironments"
+    }
+  ],
+  "_colors": [
+    {
+      "_name": "Override Default Colors",
+      "_fieldName": "_overrideDefaultColors"
+    }
+  ],
+  "_graphics": [
+    {
+      "_name": "Mirror Quality",
+      "_fieldName": "_mirrorGraphicsSettings"
+    },
+    {
+      "_name": "Bloom Post Process",
+      "_fieldName": "_mainEffectGraphicsSettings"
+    },
+    {
+      "_name": "Smoke",
+      "_fieldName": "_smokeGraphicsSettings"
+    },
+    {
+      "_name": "Burn Mark Trails Enabled <size=70%><color=red>(Hidden)",
+      "_fieldName": "_burnMarkTrailsEnabled"
+    },
+    {
+      "_name": "Screen Distortion Effects",
+      "_fieldName": "_screenDisplacementEffectsEnabled"
+    },
+    {
+      "_name": "Max Shockwave Particles",
+      "_fieldName": "_maxShockwaveParticles"
+    }
+  ]
 }

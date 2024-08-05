@@ -5,20 +5,20 @@
     <DisableZipRelease>false</DisableZipRelease>
   </PropertyGroup>
   <Target Name="Modified_ZipRelease" AfterTargets="Build" DependsOnTargets="BSMT_AfterBuild;CopyToArtifactDestination" Condition="'$(DefineConstants.Contains(RELEASE))'">
-    <Message Text="Target: Modified_ZipRelease" Importance="high" />
+    <Message Text="Target: Modified_ZipRelease" Importance="high"/>
     <PropertyGroup>
       <!--Set 'ArtifactName' if it failed before.-->
       <ArtifactName Condition="'$(ArtifactName)' == ''">$(AssemblyName)</ArtifactName>
       <ZipDestinationDirectory>$(OutDir)zip\</ZipDestinationDirectory>
       <ZipDestinationFile>$(ZipDestinationDirectory)$(ArtifactName).zip</ZipDestinationFile>
     </PropertyGroup>
-    <Message Text="   Output Properties:" Importance="high" />
-    <Message Text="      ZipDestinationDirectory= '$(ZipDestinationDirectory)'" Importance="high" />
-    <Message Text="      ZipDestinationFile= '$(ZipDestinationFile)'" Importance="high" />
+    <Message Text="   Output Properties:" Importance="high"/>
+    <Message Text="      ZipDestinationDirectory= '$(ZipDestinationDirectory)'" Importance="high"/>
+    <Message Text="      ZipDestinationFile= '$(ZipDestinationFile)'" Importance="high"/>
     <ItemGroup>
       <OldZips Include="$(ZipDestinationDirectory)$(AssemblyName)*.zip"/>
     </ItemGroup>
-    <Delete Files="@(OldZips)" TreatErrorsAsWarnings="true" ContinueOnError="true" />
-    <ZipDir SourceDirectory="$(ArtifactDestination)" DestinationFile="$(ZipDestinationDirectory)$(ArtifactName).zip" MessagePrefix="   " />
+    <Delete Files="@(OldZips)" TreatErrorsAsWarnings="true" ContinueOnError="true"/>
+    <ZipDir SourceDirectory="$(ArtifactDestination)" DestinationFile="$(ZipDestinationDirectory)$(ArtifactName).zip" MessagePrefix="   "/>
   </Target>
 </Project>

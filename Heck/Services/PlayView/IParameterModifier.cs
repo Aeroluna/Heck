@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Heck.PlayView
+namespace Heck.PlayView;
+
+public interface IParameterModifier
 {
-    public interface IParameterModifier
-    {
-        public event Action<StartStandardLevelParameters>? ParametersModified;
-    }
+    public event Action<StartStandardLevelParameters>? ParametersModified;
 }

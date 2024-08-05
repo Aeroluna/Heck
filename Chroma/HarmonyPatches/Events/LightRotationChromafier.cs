@@ -3,74 +3,73 @@ using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;
 
-namespace Chroma.HarmonyPatches.Events
+namespace Chroma.HarmonyPatches.Events;
+
+internal class LightRotationChromafier : IAffinity
 {
-    internal class LightRotationChromafier : IAffinity
+    private readonly DeserializedData _deserializedData;
+
+    private LightRotationChromafier([Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
     {
-        private readonly DeserializedData _deserializedData;
+        _deserializedData = deserializedData;
+    }
 
-        private LightRotationChromafier([Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
+    [AffinityPrefix]
+    [AffinityPatch(typeof(LightRotationEventEffect), nameof(LightRotationEventEffect.HandleBeatmapEvent))]
+    private bool Prefix(
+        BasicBeatmapEventData basicBeatmapEventData,
+        LightRotationEventEffect __instance,
+        BasicBeatmapEventType ____event,
+        Quaternion ____startRotation,
+        ref float ____rotationSpeed,
+        Vector3 ____rotationVector)
+    {
+        if (!_deserializedData.Resolve(basicBeatmapEventData, out ChromaEventData? chromaData))
         {
-            _deserializedData = deserializedData;
+            return true;
         }
 
-        [AffinityPrefix]
-        [AffinityPatch(typeof(LightRotationEventEffect), nameof(LightRotationEventEffect.HandleBeatmapEvent))]
-        private bool Prefix(
-            BasicBeatmapEventData basicBeatmapEventData,
-            LightRotationEventEffect __instance,
-            BasicBeatmapEventType ____event,
-            Quaternion ____startRotation,
-            ref float ____rotationSpeed,
-            Vector3 ____rotationVector)
+        bool isLeftEvent = ____event == BasicBeatmapEventType.Event12;
+
+        bool lockPosition = chromaData.LockPosition;
+        float precisionSpeed = chromaData.Speed.GetValueOrDefault(basicBeatmapEventData.value);
+        int? dir = chromaData.Direction;
+
+        float direction = dir switch
         {
-            if (!_deserializedData.Resolve(basicBeatmapEventData, out ChromaEventData? chromaData))
+            0 => isLeftEvent ? -1 : 1,
+            1 => isLeftEvent ? 1 : -1,
+            _ => Random.value > 0.5f ? 1f : -1f
+        };
+
+        switch (basicBeatmapEventData.value)
+        {
+            // Actual lasering
+            case 0:
             {
-                return true;
-            }
-
-            bool isLeftEvent = ____event == BasicBeatmapEventType.Event12;
-
-            bool lockPosition = chromaData.LockPosition;
-            float precisionSpeed = chromaData.Speed.GetValueOrDefault(basicBeatmapEventData.value);
-            int? dir = chromaData.Direction;
-
-            float direction = dir switch
-            {
-                0 => isLeftEvent ? -1 : 1,
-                1 => isLeftEvent ? 1 : -1,
-                _ => (Random.value > 0.5f) ? 1f : -1f
-            };
-
-            switch (basicBeatmapEventData.value)
-            {
-                // Actual lasering
-                case 0:
+                __instance.enabled = false;
+                if (!lockPosition)
                 {
-                    __instance.enabled = false;
-                    if (!lockPosition)
-                    {
-                        __instance.transform.localRotation = ____startRotation;
-                    }
-
-                    break;
+                    __instance.transform.localRotation = ____startRotation;
                 }
 
-                case > 0:
-                {
-                    __instance.enabled = true;
-                    ____rotationSpeed = precisionSpeed * 20f * direction;
-                    if (!lockPosition)
-                    {
-                        __instance.transform.localRotation = ____startRotation;
-                        __instance.transform.Rotate(____rotationVector, Random.Range(0f, 180f), Space.Self);
-                    }
-
-                    break;
-                }
+                break;
             }
 
-            return false;
+            case > 0:
+            {
+                __instance.enabled = true;
+                ____rotationSpeed = precisionSpeed * 20f * direction;
+                if (!lockPosition)
+                {
+                    __instance.transform.localRotation = ____startRotation;
+                    __instance.transform.Rotate(____rotationVector, Random.Range(0f, 180f), Space.Self);
+                }
+
+                break;
+            }
         }
+
+        return false;
     }
 }

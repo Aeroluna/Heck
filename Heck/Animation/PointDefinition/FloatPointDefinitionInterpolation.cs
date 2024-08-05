@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
 
-namespace Heck.Animation
+namespace Heck.Animation;
+
+internal class FloatPointDefinitionInterpolation : PointDefinitionInterpolation<float>
 {
-    internal class FloatPointDefinitionInterpolation : PointDefinitionInterpolation<float>
+    protected override float InterpolatePoints(
+        PointDefinition<float> previousPoint,
+        PointDefinition<float> basePoint,
+        float interpolation,
+        float time)
     {
-        protected override float InterpolatePoints(PointDefinition<float> previousPoint, PointDefinition<float> basePoint, float interpolation, float time)
-        {
-            return Mathf.LerpUnclamped(previousPoint.Interpolate(time), basePoint.Interpolate(time), interpolation);
-        }
+        return Mathf.LerpUnclamped(previousPoint.Interpolate(time), basePoint.Interpolate(time), interpolation);
     }
 }

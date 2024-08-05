@@ -8,53 +8,53 @@ using Heck.Deserialize;
 using SiraUtil.Affinity;
 using Zenject;
 
-namespace Chroma.HarmonyPatches
+namespace Chroma.HarmonyPatches;
+
+internal class BeatEffectSpawnerSkip : IAffinity, IDisposable
 {
-    internal class BeatEffectSpawnerSkip : IAffinity, IDisposable
+    private static readonly FieldInfo _hideNoteSpawnEffect =
+        AccessTools.Field(typeof(BeatEffectSpawner.InitData), nameof(BeatEffectSpawner.InitData.hideNoteSpawnEffect));
+
+    private readonly CodeInstruction _beatEffectForce;
+
+    private readonly DeserializedData _deserializedData;
+
+    private BeatEffectSpawnerSkip([Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
     {
-        private static readonly FieldInfo _hideNoteSpawnEffect =
-            AccessTools.Field(typeof(BeatEffectSpawner.InitData), nameof(BeatEffectSpawner.InitData.hideNoteSpawnEffect));
+        _deserializedData = deserializedData;
+        _beatEffectForce = InstanceTranspilers.EmitInstanceDelegate<Func<bool, NoteController, bool>>(BeatEffectForce);
+    }
 
-        private readonly DeserializedData _deserializedData;
+    public void Dispose()
+    {
+        InstanceTranspilers.DisposeDelegate(_beatEffectForce);
+    }
 
-        private readonly CodeInstruction _beatEffectForce;
-
-        private BeatEffectSpawnerSkip([Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
+    private bool BeatEffectForce(bool hideNoteSpawnEffect, NoteController noteController)
+    {
+        if (_deserializedData.Resolve(noteController.noteData, out ChromaNoteData? chromaData) &&
+            chromaData.SpawnEffect.HasValue)
         {
-            _deserializedData = deserializedData;
-            _beatEffectForce = InstanceTranspilers.EmitInstanceDelegate<Func<bool, NoteController, bool>>(BeatEffectForce);
+            return !chromaData.SpawnEffect.Value;
         }
 
-        public void Dispose()
-        {
-            InstanceTranspilers.DisposeDelegate(_beatEffectForce);
-        }
+        return hideNoteSpawnEffect;
+    }
 
-        [AffinityTranspiler]
-        [AffinityPatch(typeof(BeatEffectSpawner), nameof(BeatEffectSpawner.HandleNoteDidStartJump))]
-        private IEnumerable<CodeInstruction> ReplaceConditionTranspiler(IEnumerable<CodeInstruction> instructions)
-        {
-            return new CodeMatcher(instructions)
-                /*
-                 * -- if (this._initData.hideNoteSpawnEffect)
-                 * ++ if (BeatEffectForce(this._initData.hideNoteSpawnEffect, noteController))
-                 */
-                .MatchForward(false, new CodeMatch(OpCodes.Ldfld, _hideNoteSpawnEffect))
-                .Advance(1)
-                .Insert(
-                    new CodeInstruction(OpCodes.Ldarg_1),
-                    _beatEffectForce)
-                .InstructionEnumeration();
-        }
-
-        private bool BeatEffectForce(bool hideNoteSpawnEffect, NoteController noteController)
-        {
-            if (_deserializedData.Resolve(noteController.noteData, out ChromaNoteData? chromaData) && chromaData.SpawnEffect.HasValue)
-            {
-                return !chromaData.SpawnEffect.Value;
-            }
-
-            return hideNoteSpawnEffect;
-        }
+    [AffinityTranspiler]
+    [AffinityPatch(typeof(BeatEffectSpawner), nameof(BeatEffectSpawner.HandleNoteDidStartJump))]
+    private IEnumerable<CodeInstruction> ReplaceConditionTranspiler(IEnumerable<CodeInstruction> instructions)
+    {
+        return new CodeMatcher(instructions)
+            /*
+             * -- if (this._initData.hideNoteSpawnEffect)
+             * ++ if (BeatEffectForce(this._initData.hideNoteSpawnEffect, noteController))
+             */
+            .MatchForward(false, new CodeMatch(OpCodes.Ldfld, _hideNoteSpawnEffect))
+            .Advance(1)
+            .Insert(
+                new CodeInstruction(OpCodes.Ldarg_1),
+                _beatEffectForce)
+            .InstructionEnumeration();
     }
 }

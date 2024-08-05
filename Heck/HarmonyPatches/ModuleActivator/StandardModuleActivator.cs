@@ -7,44 +7,44 @@ using Heck.Module;
 using JetBrains.Annotations;
 using Zenject;
 
-namespace Heck.HarmonyPatches.ModuleActivator
+namespace Heck.HarmonyPatches.ModuleActivator;
+
+[HeckPatch]
+internal class StandardModuleActivator : IInitializable
 {
-    [HeckPatch]
-    internal class StandardModuleActivator : IInitializable
+    // i wish auros didnt quit before adding affinity targetmethods
+    private static StandardModuleActivator _instance = null!;
+
+    private readonly ModuleManager _moduleManager;
+
+    [UsedImplicitly]
+    internal StandardModuleActivator(ModuleManager moduleManager)
     {
-        // i wish auros didnt quit before adding affinity targetmethods
-        private static StandardModuleActivator instance = null!;
+        _moduleManager = moduleManager;
+    }
 
-        private readonly ModuleManager _moduleManager;
+    public void Initialize()
+    {
+        _instance = this;
+    }
 
-        [UsedImplicitly]
-        internal StandardModuleActivator(ModuleManager moduleManager)
-        {
-            _moduleManager = moduleManager;
-        }
+    [UsedImplicitly]
+    [HarmonyPrefix]
+    private static void StandardPrefix(
+        in BeatmapKey beatmapKey,
+        BeatmapLevel beatmapLevel,
+        ref OverrideEnvironmentSettings? overrideEnvironmentSettings)
+    {
+        _instance._moduleManager.Activate(beatmapKey, beatmapLevel, LevelType.Standard, ref overrideEnvironmentSettings);
+    }
 
-        public void Initialize()
-        {
-            instance = this;
-        }
-
-        [UsedImplicitly]
-        [HarmonyTargetMethods]
-        private static IEnumerable<MethodBase> TargetMethods()
-        {
-            return typeof(StandardLevelScenesTransitionSetupDataSO).GetMethods()
-                .Where(n => n.Name == nameof(StandardLevelScenesTransitionSetupDataSO.Init));
-        }
-
-        [UsedImplicitly]
-        [HarmonyPrefix]
-        private static void StandardPrefix(
-            in BeatmapKey beatmapKey,
-            BeatmapLevel beatmapLevel,
-            ref OverrideEnvironmentSettings? overrideEnvironmentSettings)
-        {
-            instance._moduleManager.Activate(beatmapKey, beatmapLevel, LevelType.Standard, ref overrideEnvironmentSettings);
-        }
+    [UsedImplicitly]
+    [HarmonyTargetMethods]
+    private static IEnumerable<MethodBase> TargetMethods()
+    {
+        return typeof(StandardLevelScenesTransitionSetupDataSO)
+            .GetMethods()
+            .Where(n => n.Name == nameof(StandardLevelScenesTransitionSetupDataSO.Init));
     }
 }
 #endif

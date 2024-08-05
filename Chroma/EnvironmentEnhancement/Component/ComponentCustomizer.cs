@@ -4,51 +4,50 @@ using JetBrains.Annotations;
 using UnityEngine;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 
-namespace Chroma.EnvironmentEnhancement.Component
+namespace Chroma.EnvironmentEnhancement.Component;
+
+internal class ComponentCustomizer
 {
-    internal class ComponentCustomizer
+    private readonly LightWithIdCustomizer _lightWithIdCustomizer;
+
+    [UsedImplicitly]
+    private ComponentCustomizer(
+        LightWithIdCustomizer lightWithIdCustomizer)
     {
-        private readonly ILightWithIdCustomizer _lightWithIdCustomizer;
+        _lightWithIdCustomizer = lightWithIdCustomizer;
+    }
 
-        [UsedImplicitly]
-        private ComponentCustomizer(
-            ILightWithIdCustomizer _lightWithIdCustomizer)
+    internal static void GetAllComponents(List<UnityEngine.Component> components, Transform root)
+    {
+        components.AddRange(root.GetComponents<UnityEngine.Component>());
+
+        foreach (Transform transform in root)
         {
-            this._lightWithIdCustomizer = _lightWithIdCustomizer;
+            GetAllComponents(components, transform);
+        }
+    }
+
+    internal void Customize(Transform gameObject, CustomData customData)
+    {
+        List<UnityEngine.Component> allComponents = [];
+        GetAllComponents(allComponents, gameObject);
+
+        CustomData? lightWithID = customData.Get<CustomData>(LIGHT_WITH_ID);
+        if (lightWithID != null)
+        {
+            _lightWithIdCustomizer.LightWithIdInit(allComponents, lightWithID);
         }
 
-        internal static void GetAllComponents(List<UnityEngine.Component> components, Transform root)
+        CustomData? bloomFogEnvironment = customData.Get<CustomData>(BLOOM_FOG_ENVIRONMENT);
+        if (bloomFogEnvironment != null)
         {
-            components.AddRange(root.GetComponents<UnityEngine.Component>());
-
-            foreach (Transform transform in root)
-            {
-                GetAllComponents(components, transform);
-            }
+            BloomFogCustomizer.BloomFogEnvironmentInit(allComponents, bloomFogEnvironment);
         }
 
-        internal void Customize(Transform gameObject, CustomData customData)
+        CustomData? tubeBloomPrePassLight = customData.Get<CustomData>(TUBE_BLOOM_PRE_PASS_LIGHT);
+        if (tubeBloomPrePassLight != null)
         {
-            List<UnityEngine.Component> allComponents = new();
-            GetAllComponents(allComponents, gameObject);
-
-            CustomData? lightWithID = customData.Get<CustomData>(LIGHT_WITH_ID);
-            if (lightWithID != null)
-            {
-                _lightWithIdCustomizer.ILightWithIdInit(allComponents, lightWithID);
-            }
-
-            CustomData? bloomFogEnvironment = customData.Get<CustomData>(BLOOM_FOG_ENVIRONMENT);
-            if (bloomFogEnvironment != null)
-            {
-                BloomFogCustomizer.BloomFogEnvironmentInit(allComponents, bloomFogEnvironment);
-            }
-
-            CustomData? tubeBloomPrePassLight = customData.Get<CustomData>(TUBE_BLOOM_PRE_PASS_LIGHT);
-            if (tubeBloomPrePassLight != null)
-            {
-                TubeBloomLightCustomizer.TubeBloomPrePassLightInit(allComponents, tubeBloomPrePassLight);
-            }
+            TubeBloomLightCustomizer.TubeBloomPrePassLightInit(allComponents, tubeBloomPrePassLight);
         }
     }
 }

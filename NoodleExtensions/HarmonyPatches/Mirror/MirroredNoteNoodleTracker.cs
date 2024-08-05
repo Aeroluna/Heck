@@ -4,89 +4,99 @@ using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
 using UnityEngine;
 
-namespace NoodleExtensions.HarmonyPatches.Mirror
+namespace NoodleExtensions.HarmonyPatches.Mirror;
+
+[HeckPatch(PatchType.Features)]
+internal class MirroredNoteNoodleTracker : IAffinity
 {
-    [HeckPatch(PatchType.Features)]
-    internal class MirroredNoteNoodleTracker : IAffinity
+    private readonly CutoutManager _cutoutManager;
+
+    private MirroredNoteNoodleTracker(CutoutManager cutoutManager)
     {
-        private readonly CutoutManager _cutoutManager;
+        _cutoutManager = cutoutManager;
+    }
 
-        private MirroredNoteNoodleTracker(CutoutManager cutoutManager)
+    private static bool CheckSkip(Transform noteTransform, Transform followedNoteTransform)
+    {
+        if (followedNoteTransform.position.y < 0)
         {
-            _cutoutManager = cutoutManager;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(MirroredNoteController<INoteMirrorable>), "UpdatePositionAndRotation")]
-        private static bool INoteMirrorableUpdateUpdatePositionAndRotationPrefix(Transform ____noteTransform, Transform ____followedNoteTransform)
-        {
-            return CheckSkip(____noteTransform, ____followedNoteTransform);
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(MirroredNoteController<IGameNoteMirrorable>), "UpdatePositionAndRotation")]
-        private static bool ICubeNoteMirrorableUpdateUpdatePositionAndRotationPrefix(Transform ____noteTransform, Transform ____followedNoteTransform)
-        {
-            return CheckSkip(____noteTransform, ____followedNoteTransform);
-        }
-
-        private static bool CheckSkip(Transform noteTransform, Transform followedNoteTransform)
-        {
-            if (followedNoteTransform.position.y < 0)
+            if (noteTransform.gameObject.activeInHierarchy)
             {
-                if (noteTransform.gameObject.activeInHierarchy)
-                {
-                    noteTransform.gameObject.SetActive(false);
-                }
-
-                return false;
+                noteTransform.gameObject.SetActive(false);
             }
 
-            if (!noteTransform.gameObject.activeInHierarchy)
-            {
-                noteTransform.gameObject.SetActive(true);
-            }
-
-            return true;
+            return false;
         }
 
-        [AffinityPostfix]
-        [AffinityPatch(typeof(MirroredNoteController<INoteMirrorable>), "UpdatePositionAndRotation")]
-        private void INoteMirrorableUpdateUpdatePositionAndRotationPostfix(
-            MirroredNoteController<INoteMirrorable> __instance,
-            INoteMirrorable ___followedNote,
-            Transform ____noteTransform,
-            Transform ____followedNoteTransform)
+        if (!noteTransform.gameObject.activeInHierarchy)
         {
-            UpdateMirror(
-                ____noteTransform,
-                __instance,
-                (NoteControllerBase)___followedNote);
+            noteTransform.gameObject.SetActive(true);
         }
 
-        [AffinityPostfix]
-        [AffinityPatch(typeof(MirroredNoteController<IGameNoteMirrorable>), "UpdatePositionAndRotation")]
-        private void ICubeNoteMirrorableUpdateUpdatePositionAndRotationPostfix(
-            MirroredNoteController<IGameNoteMirrorable> __instance,
-            INoteMirrorable ___followedNote,
-            Transform ____noteTransform,
-            Transform ____followedNoteTransform)
-        {
-            UpdateMirror(
-                ____noteTransform,
-                __instance,
-                (NoteControllerBase)___followedNote);
-        }
+        return true;
+    }
 
-        private void UpdateMirror(Transform noteTransform, NoteControllerBase noteController, NoteControllerBase followedNote)
-        {
-            noteTransform.localScale = followedNote.transform.localScale;
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(MirroredNoteController<IGameNoteMirrorable>), "UpdatePositionAndRotation")]
+    private static bool CubeNoteMirrorableUpdateUpdatePositionAndRotationPrefix(
+        Transform ____noteTransform,
+        Transform ____followedNoteTransform)
+    {
+        return CheckSkip(____noteTransform, ____followedNoteTransform);
+    }
 
-            _cutoutManager.NoteCutoutEffects[noteController].SetCutout(_cutoutManager.NoteCutoutEffects[followedNote].Cutout);
-            if (followedNote is IGameNoteMirrorable)
-            {
-                _cutoutManager.NoteDisappearingArrowWrappers[noteController].SetCutout(_cutoutManager.NoteDisappearingArrowWrappers[followedNote].Cutout);
-            }
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(MirroredNoteController<INoteMirrorable>), "UpdatePositionAndRotation")]
+    private static bool NoteMirrorableUpdateUpdatePositionAndRotationPrefix(
+        Transform ____noteTransform,
+        Transform ____followedNoteTransform)
+    {
+        return CheckSkip(____noteTransform, ____followedNoteTransform);
+    }
+
+    [AffinityPostfix]
+    [AffinityPatch(typeof(MirroredNoteController<IGameNoteMirrorable>), "UpdatePositionAndRotation")]
+    private void CubeNoteMirrorableUpdateUpdatePositionAndRotationPostfix(
+        MirroredNoteController<IGameNoteMirrorable> __instance,
+        INoteMirrorable ___followedNote,
+        Transform ____noteTransform,
+        Transform ____followedNoteTransform)
+    {
+        UpdateMirror(
+            ____noteTransform,
+            __instance,
+            (NoteControllerBase)___followedNote);
+    }
+
+    [AffinityPostfix]
+    [AffinityPatch(typeof(MirroredNoteController<INoteMirrorable>), "UpdatePositionAndRotation")]
+    private void NoteMirrorableUpdateUpdatePositionAndRotationPostfix(
+        MirroredNoteController<INoteMirrorable> __instance,
+        INoteMirrorable ___followedNote,
+        Transform ____noteTransform,
+        Transform ____followedNoteTransform)
+    {
+        UpdateMirror(
+            ____noteTransform,
+            __instance,
+            (NoteControllerBase)___followedNote);
+    }
+
+    private void UpdateMirror(
+        Transform noteTransform,
+        NoteControllerBase noteController,
+        NoteControllerBase followedNote)
+    {
+        noteTransform.localScale = followedNote.transform.localScale;
+
+        _cutoutManager
+            .NoteCutoutEffects[noteController]
+            .SetCutout(_cutoutManager.NoteCutoutEffects[followedNote].Cutout);
+        if (followedNote is IGameNoteMirrorable)
+        {
+            _cutoutManager
+                .NoteDisappearingArrowWrappers[noteController]
+                .SetCutout(_cutoutManager.NoteDisappearingArrowWrappers[followedNote].Cutout);
         }
     }
 }

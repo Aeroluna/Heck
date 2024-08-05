@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <OutputType>Library</OutputType>
-    <LangVersion>9</LangVersion>
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <Configurations>Debug-1.29.1;Release-1.29.1;Debug-1.34.2;Release-1.34.2;Debug-1.37.1;Release-1.37.1</Configurations>
   </PropertyGroup>
@@ -16,58 +16,58 @@
     <Description>Library for Aeroluna's mods.</Description>
   </PropertyGroup>
   <ItemGroup>
-    <DependsOn Include="BeatSaberMarkupLanguage" Version="^1.5.9" />
-    <DependsOn Include="BSIPA" Version="^4.2.2" />
-    <DependsOn Include="CustomJSONData" Version="^2.6.1" />
-    <DependsOn Include="SiraUtil" Version="^3.0.5" />
+    <DependsOn Include="BeatSaberMarkupLanguage" Version="^1.5.9"/>
+    <DependsOn Include="BSIPA" Version="^4.2.2"/>
+    <DependsOn Include="CustomJSONData" Version="^2.6.1"/>
+    <DependsOn Include="SiraUtil" Version="^3.0.5"/>
   </ItemGroup>
 
   <ItemDefinitionGroup>
-    <Reference Private="False" />
+    <Reference Private="False"/>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Reference Include="0Harmony" HintPath="$(BeatSaberDir)\Libs\0Harmony.dll" />
-    <Reference Include="BeatmapCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll" />
-    <Reference Include="BeatSaber.GameSettings" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.GameSettings.dll" />
-    <Reference Include="BeatSaber.PerformancePresets" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.PerformancePresets.dll" />
-    <Reference Include="BeatSaberMarkupLanguage" HintPath="$(BeatSaberDir)\Plugins\BSML.dll" />
-    <Reference Include="BGLib.AppFlow" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.AppFlow.dll" />
-    <Reference Include="BGLib.DotnetExtension" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.DotnetExtension.dll" />
-    <Reference Include="BGLib.JsonExtension" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.JsonExtension.dll" />
-    <Reference Include="BGLib.SaveDataCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.SaveDataCore.dll" />
-    <Reference Include="BGLib.UnityExtension" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.UnityExtension.dll" />
-    <Reference Include="BGNet" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGNet.dll" />
-    <Reference Include="BGNetCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGNetCore.dll" />
-    <Reference Include="DataModels" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\DataModels.dll" Publicize="true" />
-    <Reference Include="Colors" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll" />
-    <Reference Include="CustomJSONData" HintPath="$(BeatSaberDir)\Plugins\CustomJSONData.dll" />
-    <Reference Include="GameplayCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll" />
-    <Reference Include="HMLib" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll" />
-    <Reference Include="HMUI" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll" Publicize="true" />
-    <Reference Include="IPA.Loader" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll" />
-    <Reference Include="Main" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll" Publicize="true" />
-    <Reference Include="MediaLoader" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\MediaLoader.dll" />
-    <Reference Include="MonoMod.Utils" HintPath="$(BeatSaberDir)\Libs\MonoMod.Utils.dll" />
-    <Reference Include="Newtonsoft.Json" HintPath="$(BeatSaberDir)\Libs\Newtonsoft.Json.dll" />
-    <Reference Include="SiraUtil" HintPath="$(BeatSaberDir)\Plugins\SiraUtil.dll" />
-    <Reference Include="UnityEngine.AudioModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.AudioModule.dll" />
-    <Reference Include="UnityEngine.CoreModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll" />
-    <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.InputLegacyModule.dll" />
-    <Reference Include="UnityEngine.UI" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll" />
-    <Reference Include="Zenject" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll" Publicize="true" />
-    <Reference Include="Zenject-usage" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll" />
+    <Reference Include="0Harmony" HintPath="$(BeatSaberDir)\Libs\0Harmony.dll"/>
+    <Reference Include="BeatmapCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll"/>
+    <Reference Include="BeatSaber.GameSettings" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.GameSettings.dll"/>
+    <Reference Include="BeatSaber.PerformancePresets" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.PerformancePresets.dll"/>
+    <Reference Include="BeatSaberMarkupLanguage" HintPath="$(BeatSaberDir)\Plugins\BSML.dll"/>
+    <Reference Include="BGLib.AppFlow" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.AppFlow.dll"/>
+    <Reference Include="BGLib.DotnetExtension" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.DotnetExtension.dll"/>
+    <Reference Include="BGLib.JsonExtension" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.JsonExtension.dll"/>
+    <Reference Include="BGLib.SaveDataCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.SaveDataCore.dll"/>
+    <Reference Include="BGLib.UnityExtension" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.UnityExtension.dll"/>
+    <Reference Include="BGNet" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGNet.dll"/>
+    <Reference Include="BGNetCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGNetCore.dll"/>
+    <Reference Include="DataModels" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\DataModels.dll" Publicize="true"/>
+    <Reference Include="Colors" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll"/>
+    <Reference Include="CustomJSONData" HintPath="$(BeatSaberDir)\Plugins\CustomJSONData.dll"/>
+    <Reference Include="GameplayCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll"/>
+    <Reference Include="HMLib" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll"/>
+    <Reference Include="HMUI" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll" Publicize="true"/>
+    <Reference Include="IPA.Loader" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll"/>
+    <Reference Include="Main" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll" Publicize="true"/>
+    <Reference Include="MediaLoader" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\MediaLoader.dll"/>
+    <Reference Include="MonoMod.Utils" HintPath="$(BeatSaberDir)\Libs\MonoMod.Utils.dll"/>
+    <Reference Include="Newtonsoft.Json" HintPath="$(BeatSaberDir)\Libs\Newtonsoft.Json.dll"/>
+    <Reference Include="SiraUtil" HintPath="$(BeatSaberDir)\Plugins\SiraUtil.dll"/>
+    <Reference Include="UnityEngine.AudioModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.AudioModule.dll"/>
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll"/>
+    <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.InputLegacyModule.dll"/>
+    <Reference Include="UnityEngine.UI" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll"/>
+    <Reference Include="Zenject" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll" Publicize="true"/>
+    <Reference Include="Zenject-usage" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll"/>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="SettingsSetter\SettableSettingsContent.bsml" />
-    <EmbeddedResource Include="SettingsSetter\SettingsSetter.bsml" />
-    <EmbeddedResource Include="SettingsSetter\SettingsSetterSettableSettings.json" />
+    <EmbeddedResource Include="SettingsSetter\SettableSettingsContent.bsml"/>
+    <EmbeddedResource Include="SettingsSetter\SettingsSetter.bsml"/>
+    <EmbeddedResource Include="SettingsSetter\SettingsSetterSettableSettings.json"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BeatSaberModdingTools.Tasks.Luna" Version="2.1.0" />
-    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.*" />
-    <PackageReference Include="LunaBSMod.Tasks" Version="1.0.0" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.354" />
+    <PackageReference Include="BeatSaberModdingTools.Tasks.Luna" Version="2.1.0"/>
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.*"/>
+    <PackageReference Include="LunaBSMod.Tasks" Version="1.0.0"/>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.354"/>
   </ItemGroup>
 </Project>

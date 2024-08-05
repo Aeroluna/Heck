@@ -2,123 +2,76 @@
 using Heck.Module;
 using JetBrains.Annotations;
 
-namespace Heck
+namespace Heck;
+
+// really wish the annotations could be inherited...
+public abstract class AttributeWithId(object? id = null) : Attribute
 {
-    // really wish the annotations could be inherited...
-    public abstract class AttributeWithId : Attribute
-    {
-        protected AttributeWithId(object? id = null)
-        {
-            Id = id;
-        }
+    internal object? Id { get; } = id;
+}
 
-        internal object? Id { get; }
-    }
+[MeansImplicitUse]
+[AttributeUsage(AttributeTargets.Class)]
+public class HeckPatchAttribute(object? id = null) : AttributeWithId(id);
 
-    [MeansImplicitUse]
-    [AttributeUsage(AttributeTargets.Class)]
-    public class HeckPatchAttribute : AttributeWithId
-    {
-        public HeckPatchAttribute(object? id = null)
-            : base(id)
-        {
-        }
-    }
+[MeansImplicitUse]
+[AttributeUsage(AttributeTargets.Class)]
+public class ModuleAttribute(
+    string id,
+    int priority,
+    LoadType loadType,
+    string[]? depends = null,
+    string[]? conflict = null)
+    : Attribute
+{
+    public string[]? Conflict { get; } = conflict;
 
-    [MeansImplicitUse]
-    [AttributeUsage(AttributeTargets.Class)]
-    public class ModuleAttribute : Attribute
-    {
-        public ModuleAttribute(
-            string id,
-            int priority,
-            LoadType loadType,
-            string[]? depends = null,
-            string[]? conflict = null)
-        {
-            Id = id;
-            Priority = priority;
-            LoadType = loadType;
-            Depends = depends;
-            Conflict = conflict;
-        }
+    public string[]? Depends { get; } = depends;
 
-        public string Id { get; }
+    public string Id { get; } = id;
 
-        public int Priority { get; }
+    public LoadType LoadType { get; } = loadType;
 
-        public LoadType LoadType { get; }
+    public int Priority { get; } = priority;
+}
 
-        public string[]? Depends { get; }
+[MeansImplicitUse]
+[AttributeUsage(AttributeTargets.Method)]
+public class ModuleCallbackAttribute : Attribute;
 
-        public string[]? Conflict { get; }
-    }
+[MeansImplicitUse]
+[AttributeUsage(AttributeTargets.Method)]
+public class ModuleConditionAttribute : Attribute;
 
-    [MeansImplicitUse]
-    [AttributeUsage(AttributeTargets.Method)]
-    public class ModuleCallbackAttribute : Attribute
-    {
-    }
+[MeansImplicitUse]
+[AttributeUsage(AttributeTargets.Class)]
+public class ModulePatcherAttribute(string harmonyId, object? id) : Attribute
+{
+    public string HarmonyId { get; } = harmonyId;
 
-    [MeansImplicitUse]
-    [AttributeUsage(AttributeTargets.Method)]
-    public class ModuleConditionAttribute : Attribute
-    {
-    }
+    public object? Id { get; } = id;
+}
 
-    [MeansImplicitUse]
-    [AttributeUsage(AttributeTargets.Class)]
-    public class ModulePatcherAttribute : Attribute
-    {
-        public ModulePatcherAttribute(string harmonyId, object? id)
-        {
-            HarmonyId = harmonyId;
-            Id = id;
-        }
+[MeansImplicitUse]
+[AttributeUsage(AttributeTargets.Class)]
+public class ModuleDataDeserializerAttribute(string id, Type type) : Attribute
+{
+    public string Id { get; } = id;
 
-        public string HarmonyId { get; }
+    public Type Type { get; } = type;
+}
 
-        public object? Id { get; }
-    }
+[AttributeUsage(AttributeTargets.Class)]
+public class PlayViewControllerSettingsAttribute(int priority, string title) : Attribute
+{
+    internal int Priority { get; } = priority;
 
-    [MeansImplicitUse]
-    [AttributeUsage(AttributeTargets.Class)]
-    public class ModuleDataDeserializerAttribute : Attribute
-    {
-        public ModuleDataDeserializerAttribute(string id, Type type)
-        {
-            Id = id;
-            Type = type;
-        }
+    internal string Title { get; } = title;
+}
 
-        public string Id { get; }
-
-        public Type Type { get; }
-    }
-
-    [AttributeUsage(AttributeTargets.Class)]
-    public class PlayViewControllerSettingsAttribute : Attribute
-    {
-        public PlayViewControllerSettingsAttribute(int priority, string title)
-        {
-            Priority = priority;
-            Title = title;
-        }
-
-        internal int Priority { get; }
-
-        internal string Title { get; }
-    }
-
-    [MeansImplicitUse]
-    [AttributeUsage(AttributeTargets.Class)]
-    public class CustomEventAttribute : Attribute
-    {
-        public CustomEventAttribute(params string[] type)
-        {
-            Type = type;
-        }
-
-        internal string[] Type { get; }
-    }
+[MeansImplicitUse]
+[AttributeUsage(AttributeTargets.Class)]
+public class CustomEventAttribute(params string[] type) : Attribute
+{
+    internal string[] Type { get; } = type;
 }

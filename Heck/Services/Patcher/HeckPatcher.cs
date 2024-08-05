@@ -3,75 +3,74 @@ using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 
-namespace Heck.Patcher
+namespace Heck.Patcher;
+
+// TODO: use categories instead
+// nvm, bsipa needs to update its harmony ver
+internal class HeckPatcher : IDisposable
 {
-    // TODO: use categories instead
-    // nvm, bsipa needs to update its harmony ver
-    internal class HeckPatcher : IDisposable
+    private readonly Harmony _harmony;
+    private readonly HashSet<Type> _types = [];
+    private bool _enabled;
+
+    internal HeckPatcher(Assembly assembly, string harmonyId, object? id)
     {
-        private readonly Harmony _harmony;
-        private readonly HashSet<Type> _types = new();
-        private bool _enabled;
+        Id = id;
+        Plugin.Log.Trace($"Initializing patches for Harmony instance [{harmonyId}] in [{assembly.GetName()}]");
 
-        internal HeckPatcher(Assembly assembly, string harmonyId, object? id)
+        _harmony = new Harmony(harmonyId);
+
+        foreach (Type type in AccessTools.GetTypesFromAssembly(assembly))
         {
-            Id = id;
-            Plugin.Log.Trace($"Initializing patches for Harmony instance [{harmonyId}] in [{assembly.GetName()}]");
+            HeckPatchAttribute? heckPatch = type.GetCustomAttribute<HeckPatchAttribute>(false);
 
-            _harmony = new Harmony(harmonyId);
-
-            foreach (Type type in AccessTools.GetTypesFromAssembly(assembly))
+            if (heckPatch == null)
             {
-                HeckPatchAttribute? heckPatch = type.GetCustomAttribute<HeckPatchAttribute>(false);
+                continue;
+            }
 
-                if (heckPatch == null)
+            if (heckPatch.Id != null)
+            {
+                if (!heckPatch.Id.Equals(id))
                 {
                     continue;
                 }
 
-                if (heckPatch.Id != null)
-                {
-                    if (!heckPatch.Id.Equals(id))
-                    {
-                        continue;
-                    }
-
-                    _types.Add(type);
-                }
-                else if (id == null)
-                {
-                    _types.Add(type);
-                }
+                _types.Add(type);
             }
-        }
-
-        internal object? Id { get; }
-
-        internal bool Enabled
-        {
-            set
+            else if (id == null)
             {
-                if (value == _enabled)
-                {
-                    return;
-                }
-
-                Plugin.Log.Trace($"Toggling [{_harmony.Id}] to [{value}]");
-                _enabled = value;
-                if (value)
-                {
-                    _types.Do(_harmony.PatchAll);
-                }
-                else
-                {
-                    _harmony.UnpatchSelf();
-                }
+                _types.Add(type);
             }
         }
+    }
 
-        public void Dispose()
+    internal object? Id { get; }
+
+    internal bool Enabled
+    {
+        set
         {
-            Enabled = false;
+            if (value == _enabled)
+            {
+                return;
+            }
+
+            Plugin.Log.Trace($"Toggling [{_harmony.Id}] to [{value}]");
+            _enabled = value;
+            if (value)
+            {
+                _types.Do(_harmony.PatchAll);
+            }
+            else
+            {
+                _harmony.UnpatchSelf();
+            }
         }
+    }
+
+    public void Dispose()
+    {
+        Enabled = false;
     }
 }

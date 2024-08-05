@@ -3,76 +3,79 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 
-namespace Chroma.Colorizer
+namespace Chroma.Colorizer;
+
+[UsedImplicitly]
+public class SliderColorizerManager
 {
-    [UsedImplicitly]
-    public class SliderColorizerManager
+    private readonly SliderColorizer.Factory _factory;
+
+    internal SliderColorizerManager(
+        SliderColorizer.Factory factory)
     {
-        private readonly SliderColorizer.Factory _factory;
+        _factory = factory;
+    }
 
-        internal SliderColorizerManager(
-            SliderColorizer.Factory factory)
+    public Dictionary<SliderController, SliderColorizer> Colorizers { get; } = new();
+
+    public void Colorize(SliderController sliderController, Color? color)
+    {
+        GetColorizer(sliderController).Colorize(color);
+    }
+
+    ////public Color? GlobalColor { get; private set; }
+
+    public SliderColorizer GetColorizer(SliderController sliderController)
+    {
+        return Colorizers[sliderController];
+    }
+
+    // Global coloring handled by NoteColorizerManager
+    /*[PublicAPI]
+    public void GlobalColorize(Color? color)
+    {
+        GlobalColor = color;
+        foreach (KeyValuePair<SliderController, SliderColorizer> valuePair in Colorizers)
         {
-            _factory = factory;
+            valuePair.Value.Refresh();
         }
+    }*/
 
-        public Dictionary<SliderController, SliderColorizer> Colorizers { get; } = new();
+    internal void Create(SliderController sliderController)
+    {
+        Colorizers.Add(sliderController, _factory.Create(sliderController));
+    }
+}
 
-        ////public Color? GlobalColor { get; private set; }
+[UsedImplicitly]
+public class SliderColorizer : ObjectColorizer
+{
+    private readonly ColorManager _colorManager;
+    private readonly NoteColorizerManager _manager;
+    private readonly SliderController _sliderController;
 
-        public SliderColorizer GetColorizer(SliderController sliderController) => Colorizers[sliderController];
+    // Does not handle MirroredSliderController
+    internal SliderColorizer(
+        SliderController sliderController,
+        NoteColorizerManager manager,
+        ColorManager colorManager)
+    {
+        _sliderController = sliderController;
+        _manager = manager;
+        _colorManager = colorManager;
+    }
 
-        public void Colorize(SliderController sliderController, Color? color) => GetColorizer(sliderController).Colorize(color);
+    public ColorType ColorType => _sliderController.sliderData?.colorType ?? ColorType.ColorA;
 
-        // Global coloring handled by NoteColorizerManager
-        /*[PublicAPI]
-        public void GlobalColorize(Color? color)
-        {
-            GlobalColor = color;
-            foreach (KeyValuePair<SliderController, SliderColorizer> valuePair in Colorizers)
-            {
-                valuePair.Value.Refresh();
-            }
-        }*/
+    protected override Color? GlobalColorGetter => _manager.GlobalColor[(int)ColorType];
 
-        internal void Create(SliderController sliderController)
-        {
-            Colorizers.Add(sliderController, _factory.Create(sliderController));
-        }
+    protected override Color OriginalColorGetter => _colorManager.ColorForType(ColorType);
+
+    internal override void Refresh()
+    {
+        _sliderController._initColor = Color;
     }
 
     [UsedImplicitly]
-    public class SliderColorizer : ObjectColorizer
-    {
-        private readonly SliderController _sliderController;
-        private readonly NoteColorizerManager _manager;
-        private readonly ColorManager _colorManager;
-
-        // Does not handle MirroredSliderController
-        internal SliderColorizer(
-            SliderController sliderController,
-            NoteColorizerManager manager,
-            ColorManager colorManager)
-        {
-            _sliderController = sliderController;
-            _manager = manager;
-            _colorManager = colorManager;
-        }
-
-        public ColorType ColorType => _sliderController.sliderData?.colorType ?? ColorType.ColorA;
-
-        protected override Color? GlobalColorGetter => _manager.GlobalColor[(int)ColorType];
-
-        protected override Color OriginalColorGetter => _colorManager.ColorForType(ColorType);
-
-        internal override void Refresh()
-        {
-            _sliderController._initColor = Color;
-        }
-
-        [UsedImplicitly]
-        internal class Factory : PlaceholderFactory<SliderController, SliderColorizer>
-        {
-        }
-    }
+    internal class Factory : PlaceholderFactory<SliderController, SliderColorizer>;
 }

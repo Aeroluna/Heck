@@ -5,52 +5,50 @@ using CustomJSONData.CustomBeatmap;
 using JetBrains.Annotations;
 using SiraUtil.Logging;
 
-namespace Heck.Event
+namespace Heck.Event;
+
+internal class CustomEventController : IDisposable
 {
-    internal class CustomEventController : IDisposable
+    private readonly BeatmapCallbacksController _callbacksController;
+    private readonly BeatmapDataCallbackWrapper _callbackWrapper;
+    private readonly Dictionary<string, ICustomEvent> _customEvents;
+
+    [UsedImplicitly]
+    private CustomEventController(
+        SiraLog log,
+        BeatmapCallbacksController callbacksController,
+        List<ICustomEvent> customEvents)
     {
-        private readonly Dictionary<string, ICustomEvent> _customEvents;
-
-        private readonly BeatmapCallbacksController _callbacksController;
-        private readonly BeatmapDataCallbackWrapper _callbackWrapper;
-
-        [UsedImplicitly]
-        private CustomEventController(
-            SiraLog log,
-            BeatmapCallbacksController callbacksController,
-            List<ICustomEvent> customEvents)
+        _callbacksController = callbacksController;
+        _callbackWrapper = callbacksController.AddBeatmapCallback<CustomEventData>(HandleCallback);
+        _customEvents = new Dictionary<string, ICustomEvent>(customEvents.Count);
+        foreach (ICustomEvent customEvent in customEvents)
         {
-            _callbacksController = callbacksController;
-            _callbackWrapper = callbacksController.AddBeatmapCallback<CustomEventData>(HandleCallback);
-            _customEvents = new Dictionary<string, ICustomEvent>(customEvents.Count);
-            foreach (ICustomEvent customEvent in customEvents)
+            Type systemType = customEvent.GetType();
+            CustomEventAttribute? attribute = systemType.GetCustomAttribute<CustomEventAttribute>();
+            if (attribute == null)
             {
-                Type systemType = customEvent.GetType();
-                CustomEventAttribute? attribute = systemType.GetCustomAttribute<CustomEventAttribute>();
-                if (attribute == null)
-                {
-                    log.Warn($"[{systemType.FullName}] is missing CustomEvent attribute and will be ignored.");
-                    continue;
-                }
+                log.Warn($"[{systemType.FullName}] is missing CustomEvent attribute and will be ignored.");
+                continue;
+            }
 
-                foreach (string type in attribute.Type)
-                {
-                    _customEvents.Add(type, customEvent);
-                }
+            foreach (string type in attribute.Type)
+            {
+                _customEvents.Add(type, customEvent);
             }
         }
+    }
 
-        public void Dispose()
-        {
-            _callbacksController.RemoveBeatmapCallback(_callbackWrapper);
-        }
+    public void Dispose()
+    {
+        _callbacksController.RemoveBeatmapCallback(_callbackWrapper);
+    }
 
-        private void HandleCallback(CustomEventData customEventData)
+    private void HandleCallback(CustomEventData customEventData)
+    {
+        if (_customEvents.TryGetValue(customEventData.eventType, out ICustomEvent customEvent))
         {
-            if (_customEvents.TryGetValue(customEventData.eventType, out ICustomEvent customEvent))
-            {
-                customEvent.Callback(customEventData);
-            }
+            customEvent.Callback(customEventData);
         }
     }
 }

@@ -4,84 +4,83 @@ using System.Linq;
 using System.Reflection;
 using IPA.Loader;
 
-namespace Heck.Patcher
+namespace Heck.Patcher;
+
+public static class HeckPatchManager
 {
-    public static class HeckPatchManager
+    private static readonly Dictionary<Assembly, List<HeckPatcher>> _patchers = new();
+
+    public static void Register(string harmonyId, object? id = null)
     {
-        private static readonly Dictionary<Assembly, List<HeckPatcher>> _patchers = new();
+        Assembly assembly = new StackTrace().GetFrame(1).GetMethod().ReflectedType!.Assembly;
+        HeckPatcher patcher = new(assembly, harmonyId, id);
 
-        public static void Register(string harmonyId, object? id = null)
+        if (!_patchers.TryGetValue(assembly, out List<HeckPatcher> patchers))
         {
-            Assembly assembly = new StackTrace().GetFrame(1).GetMethod().ReflectedType!.Assembly;
-            HeckPatcher patcher = new(assembly, harmonyId, id);
-
-            if (!_patchers.TryGetValue(assembly, out List<HeckPatcher> patchers))
-            {
-                patchers = new List<HeckPatcher>();
-                _patchers[assembly] = patchers;
-            }
-
-            patchers.Add(patcher);
-
-            if (id == null)
-            {
-                patcher.Enabled = true;
-            }
+            patchers = [];
+            _patchers[assembly] = patchers;
         }
 
-        internal static void Enable()
-        {
-            PluginManager.PluginEnabled += OnPluginEnabled;
-            PluginManager.PluginDisabled += OnPluginDisabled;
+        patchers.Add(patcher);
 
-            foreach (List<HeckPatcher> patchersValue in _patchers.Values)
+        if (id == null)
+        {
+            patcher.Enabled = true;
+        }
+    }
+
+    internal static void Disable()
+    {
+        PluginManager.PluginEnabled -= OnPluginEnabled;
+        PluginManager.PluginDisabled -= OnPluginDisabled;
+
+        foreach (List<HeckPatcher> patchersValue in _patchers.Values)
+        {
+            foreach (HeckPatcher heckPatcher in patchersValue)
             {
-                foreach (HeckPatcher heckPatcher in patchersValue.Where(n => n.Id == null))
-                {
-                    heckPatcher.Enabled = true;
-                }
+                heckPatcher.Enabled = false;
             }
         }
+    }
 
-        internal static void Disable()
+    internal static void Enable()
+    {
+        PluginManager.PluginEnabled += OnPluginEnabled;
+        PluginManager.PluginDisabled += OnPluginDisabled;
+
+        foreach (List<HeckPatcher> patchersValue in _patchers.Values)
         {
-            PluginManager.PluginEnabled -= OnPluginEnabled;
-            PluginManager.PluginDisabled -= OnPluginDisabled;
-
-            foreach (List<HeckPatcher> patchersValue in _patchers.Values)
+            foreach (HeckPatcher heckPatcher in patchersValue.Where(n => n.Id == null))
             {
-                foreach (HeckPatcher heckPatcher in patchersValue)
-                {
-                    heckPatcher.Enabled = false;
-                }
+                heckPatcher.Enabled = true;
             }
         }
+    }
 
-        private static void OnPluginEnabled(PluginMetadata metadata, bool _)
+    private static void OnPluginDisabled(PluginMetadata metadata, bool _)
+    {
+        if (!_patchers.TryGetValue(metadata.Assembly, out List<HeckPatcher> patchers))
         {
-            if (!_patchers.TryGetValue(metadata.Assembly, out List<HeckPatcher> patchers))
-            {
-                return;
-            }
-
-            HeckPatcher? patcher = patchers.FirstOrDefault(n => n.Id == null);
-            if (patcher != null)
-            {
-                patcher.Enabled = true;
-            }
+            return;
         }
 
-        private static void OnPluginDisabled(PluginMetadata metadata, bool _)
+        foreach (HeckPatcher patcher in patchers)
         {
-            if (!_patchers.TryGetValue(metadata.Assembly, out List<HeckPatcher> patchers))
-            {
-                return;
-            }
+            patcher.Enabled = false;
+        }
+    }
 
-            foreach (HeckPatcher patcher in patchers)
-            {
-                patcher.Enabled = false;
-            }
+    private static void OnPluginEnabled(PluginMetadata metadata, bool _)
+    {
+        if (!_patchers.TryGetValue(metadata.Assembly, out List<HeckPatcher> patchers))
+        {
+            return;
+        }
+
+        HeckPatcher? patcher = patchers.FirstOrDefault(n => n.Id == null);
+        if (patcher != null)
+        {
+            patcher.Enabled = true;
         }
     }
 }

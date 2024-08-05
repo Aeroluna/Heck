@@ -1,6 +1,3 @@
-﻿namespace Heck.BaseProvider
-{
-    public interface IBaseProvider
-    {
-    }
-}
+﻿namespace Heck.BaseProvider;
+
+public interface IBaseProvider;

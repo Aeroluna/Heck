@@ -15,140 +15,148 @@ using Zenject;
 using static Chroma.ChromaController;
 using static Chroma.EnvironmentEnhancement.Component.ComponentConstants;
 
-namespace Chroma.Animation
+namespace Chroma.Animation;
+
+[CustomEvent(ANIMATE_COMPONENT)]
+internal class AnimateComponent : ICustomEvent
 {
-    [CustomEvent(ANIMATE_COMPONENT)]
-    internal class AnimateComponent : ICustomEvent
+    private readonly Dictionary<string, Dictionary<Track, Coroutine>> _allCoroutines = new();
+    private readonly IAudioTimeSource _audioTimeSource;
+    private readonly IBpmController _bpmController;
+    private readonly CoroutineDummy _coroutineDummy;
+    private readonly DeserializedData _deserializedData;
+
+    [UsedImplicitly]
+    private AnimateComponent(
+        IBpmController bpmController,
+        IAudioTimeSource audioTimeSource,
+        CoroutineDummy coroutineDummy,
+        [Inject(Id = ID)] DeserializedData deserializedData)
     {
-        private readonly IBpmController _bpmController;
-        private readonly IAudioTimeSource _audioTimeSource;
-        private readonly CoroutineDummy _coroutineDummy;
-        private readonly DeserializedData _deserializedData;
-        private readonly Dictionary<string, Dictionary<Track, Coroutine>> _allCoroutines = new();
+        _bpmController = bpmController;
+        _audioTimeSource = audioTimeSource;
+        _coroutineDummy = coroutineDummy;
+        _deserializedData = deserializedData;
+    }
 
-        [UsedImplicitly]
-        private AnimateComponent(
-            IBpmController bpmController,
-            IAudioTimeSource audioTimeSource,
-            CoroutineDummy coroutineDummy,
-            [Inject(Id = ID)] DeserializedData deserializedData)
+    public void Callback(CustomEventData customEventData)
+    {
+        if (!_deserializedData.Resolve(customEventData, out ChromaAnimateComponentData? chromaData))
         {
-            _bpmController = bpmController;
-            _audioTimeSource = audioTimeSource;
-            _coroutineDummy = coroutineDummy;
-            _deserializedData = deserializedData;
+            return;
         }
 
-        public void Callback(CustomEventData customEventData)
+        float duration = chromaData.Duration;
+        duration = (60f * duration) / _bpmController.currentBpm; // Convert to real time;
+
+        Functions easing = chromaData.Easing;
+        IReadOnlyList<Track> tracks = chromaData.Track;
+
+        foreach ((string componentName, Dictionary<string, PointDefinition<float>?> properties) in chromaData
+                     .CoroutineInfos)
         {
-            if (!_deserializedData.Resolve(customEventData, out ChromaAnimateComponentData? chromaData))
+            foreach (Track track in tracks)
             {
-                return;
-            }
+                object[] components;
 
-            float duration = chromaData.Duration;
-            duration = 60f * duration / _bpmController.currentBpm; // Convert to real time;
-
-            Functions easing = chromaData.Easing;
-            IReadOnlyList<Track> tracks = chromaData.Track;
-
-            foreach ((string componentName, Dictionary<string, PointDefinition<float>?> properties) in chromaData.CoroutineInfos)
-            {
-                foreach (Track track in tracks)
+                switch (componentName)
                 {
-                    object[] components;
+                    case BLOOM_FOG_ENVIRONMENT:
+                        components = BloomFogCustomizer.GetComponents(track);
+                        if (components.Length == 0)
+                        {
+                            break;
+                        }
 
-                    switch (componentName)
+                        HandleProperty<BloomFogEnvironmentParams>(ATTENUATION, (a, b) => a.Do(n => n.attenuation = b));
+                        HandleProperty<BloomFogEnvironmentParams>(OFFSET, (a, b) => a.Do(n => n.offset = b));
+                        HandleProperty<BloomFogEnvironmentParams>(
+                            HEIGHT_FOG_HEIGHT,
+                            (a, b) => a.Do(n => n.heightFogHeight = b));
+                        HandleProperty<BloomFogEnvironmentParams>(
+                            HEIGHT_FOG_STARTY,
+                            (a, b) => a.Do(n => n.heightFogStartY = b));
+                        break;
+
+                    case TUBE_BLOOM_PRE_PASS_LIGHT:
+                        components = TubeBloomLightCustomizer.GetComponents(track);
+                        if (components.Length == 0)
+                        {
+                            break;
+                        }
+
+                        HandleProperty<TubeBloomPrePassLight>(
+                            COLOR_ALPHA_MULTIPLIER,
+                            (a, b) => a.Do(n => TubeBloomLightCustomizer.SetColorAlphaMultiplier(n, b)));
+                        HandleProperty<TubeBloomPrePassLight>(
+                            BLOOM_FOG_INTENSITY_MULTIPLIER,
+                            (a, b) => a.Do(n => n.bloomFogIntensityMultiplier = b));
+                        break;
+                }
+
+                continue;
+
+                void HandleProperty<T>(string key, Action<T[], float> action)
+                {
+                    if (!properties.TryGetValue(key, out PointDefinition<float>? points))
                     {
-                        case BLOOM_FOG_ENVIRONMENT:
-                            components = BloomFogCustomizer.GetComponents(track);
-                            if (components.Length == 0)
-                            {
-                                break;
-                            }
-
-                            HandleProperty<BloomFogEnvironmentParams>(ATTENUATION, (a, b) => a.Do(n => n.attenuation = b));
-                            HandleProperty<BloomFogEnvironmentParams>(OFFSET, (a, b) => a.Do(n => n.offset = b));
-                            HandleProperty<BloomFogEnvironmentParams>(HEIGHT_FOG_HEIGHT, (a, b) => a.Do(n => n.heightFogHeight = b));
-                            HandleProperty<BloomFogEnvironmentParams>(HEIGHT_FOG_STARTY, (a, b) => a.Do(n => n.heightFogStartY = b));
-                            break;
-
-                        case TUBE_BLOOM_PRE_PASS_LIGHT:
-                            components = TubeBloomLightCustomizer.GetComponents(track);
-                            if (components.Length == 0)
-                            {
-                                break;
-                            }
-
-                            HandleProperty<TubeBloomPrePassLight>(COLOR_ALPHA_MULTIPLIER, (a, b) => a.Do(n => TubeBloomLightCustomizer.SetColorAlphaMultiplier(n, b)));
-                            HandleProperty<TubeBloomPrePassLight>(BLOOM_FOG_INTENSITY_MULTIPLIER, (a, b) => a.Do(n => n.bloomFogIntensityMultiplier = b));
-                            break;
+                        return;
                     }
 
-                    continue;
-
-                    void HandleProperty<T>(string key, Action<T[], float> action)
+                    if (!_allCoroutines.TryGetValue(key, out Dictionary<Track, Coroutine> coroutines))
                     {
-                        if (!properties.TryGetValue(key, out PointDefinition<float>? points))
-                        {
-                            return;
-                        }
-
-                        if (!_allCoroutines.TryGetValue(key, out Dictionary<Track, Coroutine> coroutines))
-                        {
-                            coroutines = new Dictionary<Track, Coroutine>();
-                            _allCoroutines[key] = coroutines;
-                        }
-
-                        if (coroutines.TryGetValue(track, out Coroutine? coroutine))
-                        {
-                            if (coroutine != null)
-                            {
-                                _coroutineDummy.StopCoroutine(coroutine);
-                            }
-                        }
-
-                        if (points == null)
-                        {
-                            return;
-                        }
-
-                        coroutines[track] = _coroutineDummy
-                            .StartCoroutine(
-                                AnimateCoroutine(
-                                    components.Cast<T>().ToArray(),
-                                    points,
-                                    duration,
-                                    customEventData.time,
-                                    easing,
-                                    action));
+                        coroutines = new Dictionary<Track, Coroutine>();
+                        _allCoroutines[key] = coroutines;
                     }
+
+                    if (coroutines.TryGetValue(track, out Coroutine? coroutine))
+                    {
+                        if (coroutine != null)
+                        {
+                            _coroutineDummy.StopCoroutine(coroutine);
+                        }
+                    }
+
+                    if (points == null)
+                    {
+                        return;
+                    }
+
+                    coroutines[track] = _coroutineDummy
+                        .StartCoroutine(
+                            AnimateCoroutine(
+                                components.Cast<T>().ToArray(),
+                                points,
+                                duration,
+                                customEventData.time,
+                                easing,
+                                action));
                 }
             }
         }
+    }
 
-        private IEnumerator AnimateCoroutine<T>(
-            T[] component,
-            PointDefinition<float> points,
-            float duration,
-            float startTime,
-            Functions easing,
-            Action<T[], float> action)
+    private IEnumerator AnimateCoroutine<T>(
+        T[] component,
+        PointDefinition<float> points,
+        float duration,
+        float startTime,
+        Functions easing,
+        Action<T[], float> action)
+    {
+        while (true)
         {
-            while (true)
-            {
-                float elapsedTime = _audioTimeSource.songTime - startTime;
-                float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
-                action(component, points.Interpolate(time));
+            float elapsedTime = _audioTimeSource.songTime - startTime;
+            float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
+            action(component, points.Interpolate(time));
 
-                if (elapsedTime < duration)
-                {
-                    yield return null;
-                }
-                else
-                {
-                    break;
-                }
+            if (elapsedTime < duration)
+            {
+                yield return null;
+            }
+            else
+            {
+                break;
             }
         }
     }

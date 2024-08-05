@@ -1,4 +1,4 @@
-﻿<bg id='contentObject' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+﻿<bg id='contentObject'>
   <vertical anchor-max-y='1.05' bg='round-rect-panel' horizontal-fit='PreferredSize' vertical-fit='PreferredSize'>
     <scroll-view preferred-height='50' preferred-width='120'>
       <macro.for-each hosts='contents'>

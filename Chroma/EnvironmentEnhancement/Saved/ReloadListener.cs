@@ -2,48 +2,47 @@
 using UnityEngine;
 using Zenject;
 
-namespace Chroma.EnvironmentEnhancement.Saved
+namespace Chroma.EnvironmentEnhancement.Saved;
+
+internal class ReloadListener : ITickable
 {
-    internal class ReloadListener : ITickable
+    private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
+
+#if LATEST
+    private readonly BeatmapDataLoader _beatmapDataLoader;
+#else
+    private readonly BeatmapDataCache _beatmapDataCache;
+#endif
+
+    [UsedImplicitly]
+    private ReloadListener(
+        SavedEnvironmentLoader savedEnvironmentLoader,
+#if LATEST
+        BeatmapDataLoader beatmapDataLoader)
+#else
+        BeatmapDataCache beatmapDataCache)
+#endif
     {
-        private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
-
+        _savedEnvironmentLoader = savedEnvironmentLoader;
 #if LATEST
-        private readonly BeatmapDataLoader _beatmapDataLoader;
+        _beatmapDataLoader = beatmapDataLoader;
 #else
-        private readonly BeatmapDataCache _beatmapDataCache;
+        _beatmapDataCache = beatmapDataCache;
 #endif
+    }
 
-        [UsedImplicitly]
-        private ReloadListener(
-            SavedEnvironmentLoader savedEnvironmentLoader,
-#if LATEST
-            BeatmapDataLoader beatmapDataLoader)
-#else
-            BeatmapDataCache beatmapDataCache)
-#endif
+    public void Tick()
+    {
+        if (!Input.GetKey(KeyCode.LeftControl) || !Input.GetKeyDown(KeyCode.E))
         {
-            _savedEnvironmentLoader = savedEnvironmentLoader;
-#if LATEST
-            _beatmapDataLoader = beatmapDataLoader;
-#else
-            _beatmapDataCache = beatmapDataCache;
-#endif
+            return;
         }
 
-        public void Tick()
-        {
-            if (!Input.GetKey(KeyCode.LeftControl) || !Input.GetKeyDown(KeyCode.E))
-            {
-                return;
-            }
-
 #if LATEST
-            _beatmapDataLoader._lastUsedBeatmapDataCache = default;
+        _beatmapDataLoader._lastUsedBeatmapDataCache = default;
 #else
-            _beatmapDataCache.difficultyBeatmap = null;
+        _beatmapDataCache.difficultyBeatmap = null;
 #endif
-            _savedEnvironmentLoader.Init();
-        }
+        _savedEnvironmentLoader.Init();
     }
 }

@@ -2,40 +2,41 @@
 using JetBrains.Annotations;
 using SiraUtil.Affinity;
 
-namespace Heck.ReLoad
-{
-    internal class ReLoadRestart : IAffinity
-    {
-        private readonly ReLoaderLoader _reLoaderLoader;
-        private readonly Config.ReLoaderSettings _config;
+namespace Heck.ReLoad;
 
-        [UsedImplicitly]
-        private ReLoadRestart(
-            ReLoaderLoader reLoaderLoader,
-            Config.ReLoaderSettings config)
+internal class ReLoadRestart : IAffinity
+{
+    private readonly Config.ReLoaderSettings _config;
+    private readonly ReLoaderLoader _reLoaderLoader;
+
+    [UsedImplicitly]
+    private ReLoadRestart(
+        ReLoaderLoader reLoaderLoader,
+        Config.ReLoaderSettings config)
+    {
+        _reLoaderLoader = reLoaderLoader;
+        _config = config;
+    }
+
+    [AffinityPrefix]
+    [AffinityPatch(typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.HandleMainGameSceneDidFinish))]
+    private void Prefix(
+        LevelCompletionResults levelCompletionResults,
+        StandardLevelScenesTransitionSetupDataSO ____standardLevelScenesTransitionSetupData)
+    {
+        if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.Restart)
         {
-            _reLoaderLoader = reLoaderLoader;
-            _config = config;
+            return;
         }
 
-        [AffinityPrefix]
-        [AffinityPatch(typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.HandleMainGameSceneDidFinish))]
-        private void Prefix(LevelCompletionResults levelCompletionResults, StandardLevelScenesTransitionSetupDataSO ____standardLevelScenesTransitionSetupData)
+        if (_config.ReloadOnRestart &&
+            ____standardLevelScenesTransitionSetupData.practiceSettings != null)
         {
-            if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.Restart)
-            {
-                return;
-            }
-
-            if (_config.ReloadOnRestart &&
-                ____standardLevelScenesTransitionSetupData.practiceSettings != null)
-            {
 #if LATEST
-                _reLoaderLoader.Reload();
+            _reLoaderLoader.Reload();
 #else
-                _reLoaderLoader.Reload(____standardLevelScenesTransitionSetupData.difficultyBeatmap);
+            _reLoaderLoader.Reload(____standardLevelScenesTransitionSetupData.difficultyBeatmap);
 #endif
-            }
         }
     }
 }

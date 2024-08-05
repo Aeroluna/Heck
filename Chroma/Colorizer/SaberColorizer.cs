@@ -4,87 +4,91 @@ using SiraUtil.Sabers;
 using UnityEngine;
 using Zenject;
 
-namespace Chroma.Colorizer
+namespace Chroma.Colorizer;
+
+[UsedImplicitly]
+public class SaberColorizerManager
 {
-    [UsedImplicitly]
-    public class SaberColorizerManager
+    private readonly SaberColorizer.Factory _factory;
+
+    internal SaberColorizerManager(SaberColorizer.Factory factory)
     {
-        private readonly SaberColorizer.Factory _factory;
+        _factory = factory;
+    }
 
-        internal SaberColorizerManager(SaberColorizer.Factory factory)
+    public Dictionary<SaberType, List<SaberColorizer>> Colorizers { get; } = new();
+
+    public Color?[] GlobalColor { get; } = new Color?[2];
+
+    public void Colorize(SaberType saber, Color? color)
+    {
+        color = color?.ColorWithAlpha(1);
+        GetColorizers(saber).ForEach(n => n.Colorize(color));
+    }
+
+    public List<SaberColorizer> GetColorizers(SaberType saber)
+    {
+        return Colorizers[saber];
+    }
+
+    [PublicAPI]
+    public void GlobalColorize(Color? color, SaberType saberType)
+    {
+        GlobalColor[(int)saberType] = color?.ColorWithAlpha(1);
+        GetColorizers(saberType).ForEach(n => n.Refresh());
+    }
+
+    internal void Create(Saber saber)
+    {
+        if (!Colorizers.TryGetValue(saber.saberType, out List<SaberColorizer> colorizers))
         {
-            _factory = factory;
+            colorizers = [];
+            Colorizers.Add(saber.saberType, colorizers);
         }
 
-        public Dictionary<SaberType, List<SaberColorizer>> Colorizers { get; } = new();
+        colorizers.Add(_factory.Create(saber));
+    }
+}
 
-        public Color?[] GlobalColor { get; } = new Color?[2];
+[UsedImplicitly]
+public class SaberColorizer : ObjectColorizer
+{
+    private readonly SaberColorizerManager _manager;
+    private readonly SaberModelManager _modelManager;
+    private readonly Saber _saber;
+    private readonly SaberType _saberType;
+    private Color _lastColor;
 
-        public List<SaberColorizer> GetColorizers(SaberType saber) => Colorizers[saber];
+    private SaberColorizer(
+        Saber saber,
+        ColorManager colorManager,
+        SaberColorizerManager manager,
+        SaberModelManager modelManager)
+    {
+        _saber = saber;
+        _manager = manager;
+        _modelManager = modelManager;
+        _saberType = saber.saberType;
+        _lastColor = colorManager.ColorForSaberType(_saberType);
+        OriginalColor = _lastColor;
+    }
 
-        public void Colorize(SaberType saber, Color? color)
+    protected override Color? GlobalColorGetter => _manager.GlobalColor[(int)_saberType];
+
+    internal override void Refresh()
+    {
+        Color color = Color;
+        if (color == _lastColor)
         {
-            color = color?.ColorWithAlpha(1);
-            GetColorizers(saber).ForEach(n => n.Colorize(color));
+            return;
         }
 
-        [PublicAPI]
-        public void GlobalColorize(Color? color, SaberType saberType)
-        {
-            GlobalColor[(int)saberType] = color?.ColorWithAlpha(1);
-            GetColorizers(saberType).ForEach(n => n.Refresh());
-        }
+        _lastColor = color;
 
-        internal void Create(Saber saber)
-        {
-            if (!Colorizers.TryGetValue(saber.saberType, out List<SaberColorizer> colorizers))
-            {
-                colorizers = new List<SaberColorizer>();
-                Colorizers.Add(saber.saberType, colorizers);
-            }
-
-            colorizers.Add(_factory.Create(saber));
-        }
+        // not sure why sirautil does default saber coloring or if its even faster than my implementation, but it works
+        _modelManager.SetColor(_saber, color);
     }
 
     [UsedImplicitly]
-    public class SaberColorizer : ObjectColorizer
-    {
-        private readonly Saber _saber;
-        private readonly SaberColorizerManager _manager;
-        private readonly SaberModelManager _modelManager;
-        private readonly SaberType _saberType;
-        private Color _lastColor;
-
-        private SaberColorizer(Saber saber, ColorManager colorManager, SaberColorizerManager manager, SaberModelManager modelManager)
-        {
-            _saber = saber;
-            _manager = manager;
-            _modelManager = modelManager;
-            _saberType = saber.saberType;
-            _lastColor = colorManager.ColorForSaberType(_saberType);
-            OriginalColor = _lastColor;
-        }
-
-        protected override Color? GlobalColorGetter => _manager.GlobalColor[(int)_saberType];
-
-        internal override void Refresh()
-        {
-            Color color = Color;
-            if (color == _lastColor)
-            {
-                return;
-            }
-
-            _lastColor = color;
-
-            // not sure why sirautil does default saber coloring or if its even faster than my implementation, but it works
-            _modelManager.SetColor(_saber, color);
-        }
-
-        [UsedImplicitly]
-        internal class Factory : PlaceholderFactory<Saber, SaberColorizer>
-        {
-        }
-    }
+    internal class Factory : PlaceholderFactory<Saber, SaberColorizer>;
 }

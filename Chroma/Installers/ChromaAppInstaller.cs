@@ -7,34 +7,33 @@ using Chroma.Settings;
 using JetBrains.Annotations;
 using Zenject;
 
-namespace Chroma.Installers
+namespace Chroma.Installers;
+
+[UsedImplicitly]
+internal class ChromaAppInstaller : Installer
 {
-    [UsedImplicitly]
-    internal class ChromaAppInstaller : Installer
+    private readonly Config _config;
+
+    private ChromaAppInstaller(Config config)
     {
-        private readonly Config _config;
+        _config = config;
+    }
 
-        private ChromaAppInstaller(Config config)
-        {
-            _config = config;
-        }
+    public override void InstallBindings()
+    {
+        Container.BindInstance(_config);
+        Container.BindInterfacesTo<ChromaSettingsUI>().AsSingle().NonLazy();
 
-        public override void InstallBindings()
-        {
-            Container.BindInstance(_config);
-            Container.BindInterfacesTo<ChromaSettingsUI>().AsSingle().NonLazy();
+        Container.Bind<SavedEnvironmentLoader>().AsSingle();
+        Container.Bind<EnvironmentMaterialsManager>().FromNewComponentOnNewGameObject().AsSingle();
+        Container.BindInterfacesTo<SavedEnvironmentLoading>().AsSingle();
 
-            Container.Bind<SavedEnvironmentLoader>().AsSingle();
-            Container.Bind<EnvironmentMaterialsManager>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.BindInterfacesTo<SavedEnvironmentLoading>().AsSingle();
+        Container.BindInterfacesAndSelfTo<ColorBaseProvider>().AsSingle();
 
-            Container.BindInterfacesAndSelfTo<ColorBaseProvider>().AsSingle();
+        Container.BindInterfacesTo<ForceZenModeObstacleBeatmapData>().AsSingle();
 
-            Container.BindInterfacesTo<ForceZenModeObstacleBeatmapData>().AsSingle();
-
-            Container.BindInterfacesAndSelfTo<ColorizerModule>().AsSingle();
-            Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
-            Container.BindInterfacesAndSelfTo<EnvironmentModule>().AsSingle();
-        }
+        Container.BindInterfacesAndSelfTo<ColorizerModule>().AsSingle();
+        Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
+        Container.BindInterfacesAndSelfTo<EnvironmentModule>().AsSingle();
     }
 }

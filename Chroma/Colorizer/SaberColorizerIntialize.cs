@@ -1,14 +1,13 @@
 ﻿using JetBrains.Annotations;
 
-namespace Chroma.Colorizer
+namespace Chroma.Colorizer;
+
+[UsedImplicitly]
+internal class SaberColorizerIntialize
 {
-    [UsedImplicitly]
-    internal class SaberColorizerIntialize
+    private SaberColorizerIntialize(SaberColorizerManager manager, SaberManager saberManager)
     {
-        private SaberColorizerIntialize(SaberColorizerManager manager, SaberManager saberManager)
-        {
-            manager.Create(saberManager.leftSaber);
-            manager.Create(saberManager.rightSaber);
-        }
+        manager.Create(saberManager.leftSaber);
+        manager.Create(saberManager.rightSaber);
     }
 }

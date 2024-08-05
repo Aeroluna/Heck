@@ -1,6 +1,7 @@
-﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+﻿<bg>
   <vertical id='top-vertical' child-control-height='false'>
-    <text text='This map recommends these settings, do you want to change to them?&#xA;(Your settings will be restored after the map.)' align='Center' font-size='4'/>
+    <text text='This map recommends these settings, do you want to change to them?&#xA;(Your settings will be restored after the map.)'
+          align='Center' font-size='4'/>
   </vertical>
   <horizontal anchor-max-y='0.25' horizontal-fit='PreferredSize' vertical-fit='PreferredSize' spacing='2'>
     <button id='decline-button' text='decline' on-click='decline-click' preferred-height='10' preferred-width='24'/>

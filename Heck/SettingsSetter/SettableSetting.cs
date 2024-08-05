@@ -1,55 +1,53 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Heck.SettingsSetter
+namespace Heck.SettingsSetter;
+
+public interface ISettableSetting
 {
-    public interface ISettableSetting
+    string FieldName { get; }
+
+    string GroupName { get; }
+
+    object TrueValue { get; }
+
+    void SetTemporary(object? tempValue);
+}
+
+public class SettableSetting<T> : ISettableSetting
+    where T : struct
+{
+    private T? _tempValue;
+    private T _value;
+
+    public SettableSetting(string groupName, string fieldName)
     {
-        string GroupName { get; }
-
-        string FieldName { get; }
-
-        object TrueValue { get; }
-
-        void SetTemporary(object? tempValue);
+        GroupName = groupName;
+        FieldName = fieldName;
     }
 
-    public class SettableSetting<T> : ISettableSetting
-        where T : struct
+    [PublicAPI]
+    public event Action? ValueChanged;
+
+    public string FieldName { get; }
+
+    public string GroupName { get; }
+
+    public object TrueValue => _value;
+
+    public T Value
     {
-        private T _value;
-
-        private T? _tempValue;
-
-        public SettableSetting(string groupName, string fieldName)
+        get => _tempValue ?? _value;
+        set
         {
-            GroupName = groupName;
-            FieldName = fieldName;
-        }
-
-        [PublicAPI]
-        public event Action? ValueChanged;
-
-        public string GroupName { get; }
-
-        public string FieldName { get; }
-
-        public object TrueValue => _value;
-
-        public T Value
-        {
-            get => _tempValue ?? _value;
-            set
-            {
-                _value = value;
-                ValueChanged?.Invoke();
-            }
-        }
-
-        public void SetTemporary(object? tempValue)
-        {
-            _tempValue = (T?)tempValue;
+            _value = value;
             ValueChanged?.Invoke();
         }
+    }
+
+    public void SetTemporary(object? tempValue)
+    {
+        _tempValue = (T?)tempValue;
+        ValueChanged?.Invoke();
     }
 }

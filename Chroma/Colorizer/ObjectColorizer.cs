@@ -1,25 +1,24 @@
 ﻿using UnityEngine;
 
-namespace Chroma.Colorizer
+namespace Chroma.Colorizer;
+
+public abstract class ObjectColorizer
 {
-    public abstract class ObjectColorizer
+    private Color? _color;
+
+    public Color Color => _color ?? GlobalColorGetter ?? OriginalColorGetter;
+
+    protected abstract Color? GlobalColorGetter { get; }
+
+    protected virtual Color OriginalColorGetter => OriginalColor;
+
+    protected Color OriginalColor { get; set; }
+
+    public void Colorize(Color? color)
     {
-        private Color? _color;
-
-        public Color Color => _color ?? GlobalColorGetter ?? OriginalColorGetter;
-
-        protected Color OriginalColor { get; set; }
-
-        protected abstract Color? GlobalColorGetter { get; }
-
-        protected virtual Color OriginalColorGetter => OriginalColor;
-
-        public void Colorize(Color? color)
-        {
-            _color = color;
-            Refresh();
-        }
-
-        internal abstract void Refresh();
+        _color = color;
+        Refresh();
     }
+
+    internal abstract void Refresh();
 }

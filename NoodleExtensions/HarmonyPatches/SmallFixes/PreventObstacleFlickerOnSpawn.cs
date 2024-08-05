@@ -7,50 +7,54 @@ using Heck.Deserialize;
 using SiraUtil.Affinity;
 using Zenject;
 
-namespace NoodleExtensions.HarmonyPatches.SmallFixes
+namespace NoodleExtensions.HarmonyPatches.SmallFixes;
+
+// TODO: find out what actually causes obstacle flickering
+[HeckPatch(PatchType.Features)]
+[HarmonyPatch(typeof(BeatmapObjectManager))]
+internal class PreventObstacleFlickerOnSpawn : IAffinity
 {
-    // TODO: find out what actually causes obstacle flickering
-    [HeckPatch(PatchType.Features)]
-    [HarmonyPatch(typeof(BeatmapObjectManager))]
-    internal class PreventObstacleFlickerOnSpawn : IAffinity
+    private static readonly MethodInfo _spawnHiddenGetter = AccessTools.PropertyGetter(
+        typeof(BeatmapObjectManager),
+        nameof(BeatmapObjectManager.spawnHidden));
+
+    private static readonly MethodInfo _getHiddenForType = AccessTools.Method(
+        typeof(PreventObstacleFlickerOnSpawn),
+        nameof(GetHiddenForType));
+
+    private readonly DeserializedData _deserializedData;
+
+    private PreventObstacleFlickerOnSpawn([Inject(Id = NoodleController.ID)] DeserializedData deserializedData)
     {
-        private static readonly MethodInfo _spawnhiddenGetter = AccessTools.PropertyGetter(typeof(BeatmapObjectManager), nameof(BeatmapObjectManager.spawnHidden));
-        private static readonly MethodInfo _getHiddenForType = AccessTools.Method(typeof(PreventObstacleFlickerOnSpawn), nameof(GetHiddenForType));
+        _deserializedData = deserializedData;
+    }
 
-        private readonly DeserializedData _deserializedData;
+    private static bool GetHiddenForType(BeatmapObjectManager beatmapObjectManager)
+    {
+        return beatmapObjectManager is BasicBeatmapObjectManager || beatmapObjectManager.spawnHidden;
+    }
 
-        private PreventObstacleFlickerOnSpawn([Inject(Id = NoodleController.ID)] DeserializedData deserializedData)
+    [HarmonyTranspiler]
+    [HarmonyPatch(nameof(BeatmapObjectManager.AddSpawnedObstacleController))]
+    private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        return new CodeMatcher(instructions)
+            /*
+             * -- obstacleController.Hide(this.spawnHidden);
+             * ++ obstacleController.Hide(GetHiddenForType(this));
+             */
+            .MatchForward(false, new CodeMatch(OpCodes.Call, _spawnHiddenGetter))
+            .SetOperandAndAdvance(_getHiddenForType)
+            .InstructionEnumeration();
+    }
+
+    [AffinityPostfix]
+    [AffinityPatch(typeof(BeatmapObjectManager), "AddSpawnedObstacleController")]
+    private void SetUnhideFlag(ObstacleController obstacleController)
+    {
+        if (_deserializedData.Resolve(obstacleController.obstacleData, out NoodleObstacleData? noodleData))
         {
-            _deserializedData = deserializedData;
-        }
-
-        private static bool GetHiddenForType(BeatmapObjectManager beatmapObjectManager)
-        {
-            return beatmapObjectManager is BasicBeatmapObjectManager || beatmapObjectManager.spawnHidden;
-        }
-
-        [HarmonyTranspiler]
-        [HarmonyPatch(nameof(BeatmapObjectManager.AddSpawnedObstacleController))]
-        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            return new CodeMatcher(instructions)
-                /*
-                 * -- obstacleController.Hide(this.spawnHidden);
-                 * ++ obstacleController.Hide(GetHiddenForType(this));
-                 */
-                .MatchForward(false, new CodeMatch(OpCodes.Call, _spawnhiddenGetter))
-                .SetOperandAndAdvance(_getHiddenForType)
-                .InstructionEnumeration();
-        }
-
-        [AffinityPostfix]
-        [AffinityPatch(typeof(BeatmapObjectManager), "AddSpawnedObstacleController")]
-        private void SetUnhideFlag(ObstacleController obstacleController)
-        {
-            if (_deserializedData.Resolve(obstacleController.obstacleData, out NoodleObstacleData? noodleData))
-            {
-                noodleData.InternalDoUnhide = true;
-            }
+            noodleData.InternalDoUnhide = true;
         }
     }
 }

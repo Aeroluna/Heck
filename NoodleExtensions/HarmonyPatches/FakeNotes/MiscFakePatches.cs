@@ -4,55 +4,56 @@ using Heck;
 using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
 
-namespace NoodleExtensions.HarmonyPatches.FakeNotes
+namespace NoodleExtensions.HarmonyPatches.FakeNotes;
+
+[HeckPatch(PatchType.Features)]
+internal class MiscFakePatches : IAffinity
 {
-    [HeckPatch(PatchType.Features)]
-    internal class MiscFakePatches : IAffinity
+    private readonly FakePatchesManager _fakePatchesManager;
+
+    private MiscFakePatches(FakePatchesManager fakePatchesManager)
     {
-        private readonly FakePatchesManager _fakePatchesManager;
+        _fakePatchesManager = fakePatchesManager;
+    }
 
-        private MiscFakePatches(FakePatchesManager fakePatchesManager)
+    [AffinityPostfix]
+    [AffinityPatch(typeof(BombNoteController), nameof(BombNoteController.Init))]
+    private void BombNoteCuttable(NoteData noteData, CuttableBySaber ____cuttableBySaber)
+    {
+        if (!_fakePatchesManager.GetCuttable(noteData))
         {
-            _fakePatchesManager = fakePatchesManager;
+            ____cuttableBySaber.canBeCut = false;
         }
+    }
 
-        // TODO: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        /*[HarmonyTranspiler]
-        [HarmonyPatch(typeof(ObstacleSaberSparkleEffectManager), nameof(ObstacleSaberSparkleEffectManager.Update))]
-        private static IEnumerable<CodeInstruction> ObstacleSaberSparkleBoundsTranspiler(IEnumerable<CodeInstruction> instructions)
-        {
-            return FakePatchesManager.BoundsNullCheckTranspiler(instructions);
-        }*/
+    [AffinityPrefix]
+    [AffinityPatch(typeof(GameNoteController), "NoteDidStartJump")]
+    private bool NoteStartJumpCuttable(GameNoteController __instance)
+    {
+        return _fakePatchesManager.GetCuttable(__instance.noteData);
+    }
 
-        [AffinityTranspiler]
-        [AffinityPatch(typeof(PlayerHeadAndObstacleInteraction), nameof(PlayerHeadAndObstacleInteraction.RefreshIntersectingObstacles))]
-        private IEnumerable<CodeInstruction> PlayerObstacleBoundsTranspiler(IEnumerable<CodeInstruction> instructions)
-        {
-            return _fakePatchesManager.BoundsNullCheckTranspiler(instructions);
-        }
+    // TODO: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    /*[HarmonyTranspiler]
+    [HarmonyPatch(typeof(ObstacleSaberSparkleEffectManager), nameof(ObstacleSaberSparkleEffectManager.Update))]
+    private static IEnumerable<CodeInstruction> ObstacleSaberSparkleBoundsTranspiler(IEnumerable<CodeInstruction> instructions)
+    {
+        return FakePatchesManager.BoundsNullCheckTranspiler(instructions);
+    }*/
 
-        [AffinityPostfix]
-        [AffinityPatch(typeof(BombNoteController), nameof(BombNoteController.Init))]
-        private void BombNoteCuttable(NoteData noteData, CuttableBySaber ____cuttableBySaber)
-        {
-            if (!_fakePatchesManager.GetCuttable(noteData))
-            {
-                ____cuttableBySaber.canBeCut = false;
-            }
-        }
+    [AffinityTranspiler]
+    [AffinityPatch(
+        typeof(PlayerHeadAndObstacleInteraction),
+        nameof(PlayerHeadAndObstacleInteraction.RefreshIntersectingObstacles))]
+    private IEnumerable<CodeInstruction> PlayerObstacleBoundsTranspiler(IEnumerable<CodeInstruction> instructions)
+    {
+        return _fakePatchesManager.BoundsNullCheckTranspiler(instructions);
+    }
 
-        [AffinityPrefix]
-        [AffinityPatch(typeof(GameNoteController), "NoteDidStartJump")]
-        private bool NoteStartJumpCuttable(GameNoteController __instance)
-        {
-            return _fakePatchesManager.GetCuttable(__instance.noteData);
-        }
-
-        [AffinityPrefix]
-        [AffinityPatch(typeof(SliderController), nameof(SliderController.SetSaberAttraction))]
-        private bool SliderCuttable(SliderController __instance, bool saberAttraction)
-        {
-            return !saberAttraction || _fakePatchesManager.GetCuttable(__instance.sliderData);
-        }
+    [AffinityPrefix]
+    [AffinityPatch(typeof(SliderController), nameof(SliderController.SetSaberAttraction))]
+    private bool SliderCuttable(SliderController __instance, bool saberAttraction)
+    {
+        return !saberAttraction || _fakePatchesManager.GetCuttable(__instance.sliderData);
     }
 }

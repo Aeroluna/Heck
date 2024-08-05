@@ -9,70 +9,72 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 
-namespace NoodleExtensions.Managers
+namespace NoodleExtensions.Managers;
+
+[UsedImplicitly]
+internal class FakePatchesManager : IDisposable
 {
-    [UsedImplicitly]
-    internal class FakePatchesManager : IDisposable
+    private static readonly MethodInfo _currentGetter = AccessTools.PropertyGetter(
+        typeof(List<ObstacleController>.Enumerator),
+        nameof(List<ObstacleController>.Enumerator.Current));
+
+    private readonly DeserializedData _deserializedData;
+
+    private readonly CodeInstruction _obstacleFakeCheck;
+
+    private FakePatchesManager([Inject(Id = NoodleController.ID)] DeserializedData deserializedData)
     {
-        private static readonly MethodInfo _currentGetter = AccessTools.PropertyGetter(typeof(List<ObstacleController>.Enumerator), nameof(List<ObstacleController>.Enumerator.Current));
+        _deserializedData = deserializedData;
+        _obstacleFakeCheck = InstanceTranspilers.EmitInstanceDelegate<Func<ObstacleController, bool>>(BoundsNullCheck);
+    }
 
-        private readonly CodeInstruction _obstacleFakeCheck;
-        private readonly DeserializedData _deserializedData;
+    public void Dispose()
+    {
+        InstanceTranspilers.DisposeDelegate(_obstacleFakeCheck);
+    }
 
-        private FakePatchesManager([Inject(Id = NoodleController.ID)] DeserializedData deserializedData)
+    internal bool BoundsNullCheck(ObstacleController obstacleController)
+    {
+        if (obstacleController.bounds.size == Vector3.zero)
         {
-            _deserializedData = deserializedData;
-            _obstacleFakeCheck = InstanceTranspilers.EmitInstanceDelegate<Func<ObstacleController, bool>>(BoundsNullCheck);
+            return true;
         }
 
-        public void Dispose()
-        {
-            InstanceTranspilers.DisposeDelegate(_obstacleFakeCheck);
-        }
+        _deserializedData.Resolve(obstacleController.obstacleData, out NoodleObstacleData? noodleData);
+        return noodleData?.Fake is true;
+    }
 
-        internal bool BoundsNullCheck(ObstacleController obstacleController)
-        {
-            if (obstacleController.bounds.size == Vector3.zero)
-            {
-                return true;
-            }
+    internal IEnumerable<CodeInstruction> BoundsNullCheckTranspiler(IEnumerable<CodeInstruction> instructions)
+    {
+        CodeMatcher codeMatcher = new CodeMatcher(instructions)
+            .MatchForward(false, new CodeMatch(OpCodes.Brfalse));
 
-            _deserializedData.Resolve(obstacleController.obstacleData, out NoodleObstacleData? noodleData);
-            return noodleData?.Fake is true;
-        }
+        object label = codeMatcher.Operand;
 
-        internal IEnumerable<CodeInstruction> BoundsNullCheckTranspiler(IEnumerable<CodeInstruction> instructions)
-        {
-            CodeMatcher codeMatcher = new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Brfalse));
+        return codeMatcher
+            /*
+             * foreach (ObstacleController obstacleController in this._beatmapObjectManager.activeObstacleControllers)
+             * {
+             * ++ if (BoundsNullCheck(obstacleController)) continue;
+             */
+            .MatchForward(false, new CodeMatch(OpCodes.Call, _currentGetter))
+            .Advance(2)
+            .Insert(
+                new CodeInstruction(OpCodes.Ldloc_1),
+                _obstacleFakeCheck,
+                new CodeInstruction(OpCodes.Brtrue_S, label))
+            .InstructionEnumeration();
+    }
 
-            object label = codeMatcher.Operand;
+    internal bool GetCuttable(BeatmapObjectData noteData)
+    {
+        _deserializedData.Resolve(noteData, out NoodleBaseNoteData? noodleData);
+        return noodleData?.Uninteractable is not true;
+    }
 
-            return codeMatcher
-                /*
-                 * foreach (ObstacleController obstacleController in this._beatmapObjectManager.activeObstacleControllers)
-                 * {
-                 * ++ if (BoundsNullCheck(obstacleController)) continue;
-                 */
-                .MatchForward(false, new CodeMatch(OpCodes.Call, _currentGetter))
-                .Advance(2)
-                .Insert(
-                    new CodeInstruction(OpCodes.Ldloc_1),
-                    _obstacleFakeCheck,
-                    new CodeInstruction(OpCodes.Brtrue_S, label))
-                .InstructionEnumeration();
-        }
-
-        internal bool GetFakeNote(NoteController noteController)
-        {
-            _deserializedData.Resolve(noteController.noteData, out NoodleBaseNoteData? noodleData);
-            return noodleData?.Fake is not true;
-        }
-
-        internal bool GetCuttable(BeatmapObjectData noteData)
-        {
-            _deserializedData.Resolve(noteData, out NoodleBaseNoteData? noodleData);
-            return noodleData?.Uninteractable is not true;
-        }
+    internal bool GetFakeNote(NoteController noteController)
+    {
+        _deserializedData.Resolve(noteController.noteData, out NoodleBaseNoteData? noodleData);
+        return noodleData?.Fake is not true;
     }
 }

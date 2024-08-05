@@ -12,126 +12,129 @@ using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;
 
-namespace Chroma.HarmonyPatches.Colorizer
+namespace Chroma.HarmonyPatches.Colorizer;
+
+internal class NoteObjectColorize : IAffinity, IDisposable
 {
-    internal class NoteObjectColorize : IAffinity, IDisposable
+    private readonly BombColorizerManager _bombManager;
+    private readonly Config _config;
+    private readonly DeserializedData _deserializedData;
+    private readonly NoteColorizerManager _noteManager;
+    private readonly CodeInstruction _noteUpdateColorize;
+
+    private NoteController? _noteController;
+
+    private NoteObjectColorize(
+        BombColorizerManager bombManager,
+        NoteColorizerManager noteManager,
+        [Inject(Id = ChromaController.ID)] DeserializedData deserializedData,
+        Config config)
     {
-        private readonly BombColorizerManager _bombManager;
-        private readonly NoteColorizerManager _noteManager;
-        private readonly DeserializedData _deserializedData;
-        private readonly Config _config;
-        private readonly CodeInstruction _noteUpdateColorize;
+        _bombManager = bombManager;
+        _noteManager = noteManager;
+        _deserializedData = deserializedData;
+        _config = config;
+        _noteUpdateColorize = InstanceTranspilers.EmitInstanceDelegate<Action<float>>(NoteUpdateColorize);
+    }
 
-        private NoteController? _noteController;
+    public void Dispose()
+    {
+        InstanceTranspilers.DisposeDelegate(_noteUpdateColorize);
+    }
 
-        private NoteObjectColorize(
-            BombColorizerManager bombManager,
-            NoteColorizerManager noteManager,
-            [Inject(Id = ChromaController.ID)] DeserializedData deserializedData,
-            Config config)
+    [AffinityPostfix]
+    [AffinityPatch(typeof(BombNoteController), nameof(BombNoteController.Init))]
+    private void BombColorize(BombNoteController __instance, NoteData noteData)
+    {
+        // They said it couldn't be done, they called me a madman
+        if (_deserializedData.Resolve(noteData, out ChromaObjectData? chromaData))
         {
-            _bombManager = bombManager;
-            _noteManager = noteManager;
-            _deserializedData = deserializedData;
-            _config = config;
-            _noteUpdateColorize = InstanceTranspilers.EmitInstanceDelegate<Action<float>>(NoteUpdateColorize);
+            _bombManager.Colorize(__instance, chromaData.Color);
+        }
+    }
+
+    [AffinityPostfix]
+    [AffinityPatch(typeof(GameNoteController), nameof(GameNoteController.Init))]
+    [AffinityPatch(typeof(BurstSliderGameNoteController), nameof(BurstSliderGameNoteController.Init))]
+    private void NoteColorize(GameNoteController __instance, NoteData noteData)
+    {
+        if (_config.NoteColoringDisabled)
+        {
+            return;
         }
 
-        public void Dispose()
+        if (_deserializedData.Resolve(noteData, out ChromaObjectData? chromaData))
         {
-            InstanceTranspilers.DisposeDelegate(_noteUpdateColorize);
+            _noteManager.Colorize(__instance, chromaData.Color);
+        }
+    }
+
+    [AffinityPostfix]
+    [AffinityPatch(typeof(NoteFloorMovement), nameof(NoteFloorMovement.ManualUpdate))]
+    private void NoteFloorMovementColorize()
+    {
+        NoteUpdateColorize(0);
+    }
+
+    [AffinityTranspiler]
+    [AffinityPatch(typeof(NoteJump), nameof(NoteJump.ManualUpdate))]
+    private IEnumerable<CodeInstruction> NoteJumpColorize(IEnumerable<CodeInstruction> instructions)
+    {
+        return new CodeMatcher(instructions)
+            /*
+             * float num2 = num / this._jumpDuration;
+             * ++ NoteUpdateColorize(num2);
+             */
+            .MatchForward(false, new CodeMatch(OpCodes.Stloc_1))
+            .Advance(1)
+            .Insert(
+                new CodeInstruction(OpCodes.Ldloc_1),
+                _noteUpdateColorize)
+            .InstructionEnumeration();
+    }
+
+    private void NoteUpdateColorize(float time)
+    {
+        if (_noteController == null ||
+            !_deserializedData.Resolve(_noteController.noteData, out ChromaObjectData? chromaData))
+        {
+            return;
         }
 
-        [AffinityPostfix]
-        [AffinityPatch(typeof(BombNoteController), nameof(BombNoteController.Init))]
-        private void BombColorize(BombNoteController __instance, NoteData noteData)
+        IReadOnlyList<Track>? tracks = chromaData.Track;
+        PointDefinition<Vector4>? pathPointDefinition = chromaData.LocalPathColor;
+        if (tracks == null && pathPointDefinition == null)
         {
-            // They said it couldn't be done, they called me a madman
-            if (_deserializedData.Resolve(noteData, out ChromaObjectData? chromaData))
-            {
-                _bombManager.Colorize(__instance, chromaData.Color);
-            }
+            return;
         }
 
-        [AffinityPostfix]
-        [AffinityPatch(typeof(GameNoteController), nameof(GameNoteController.Init))]
-        [AffinityPatch(typeof(BurstSliderGameNoteController), nameof(BurstSliderGameNoteController.Init))]
-        private void NoteColorize(GameNoteController __instance, NoteData noteData)
-        {
-            if (_config.NoteColoringDisabled)
-            {
-                return;
-            }
+        AnimationHelper.GetColorOffset(pathPointDefinition, tracks, time, out Color? colorOffset);
 
-            if (_deserializedData.Resolve(noteData, out ChromaObjectData? chromaData))
-            {
-                _noteManager.Colorize(__instance, chromaData.Color);
-            }
+        if (!colorOffset.HasValue)
+        {
+            return;
         }
 
-        [AffinityPrefix]
-        [AffinityPatch(typeof(NoteController), nameof(NoteController.ManualUpdate))]
-        private void NoteUpdateSetData(NoteController __instance)
+        Color color = colorOffset.Value;
+        if (_noteController is BombNoteController)
         {
-            if (_config.NoteColoringDisabled)
-            {
-                return;
-            }
+            _bombManager.Colorize(_noteController, color);
+        }
+        else
+        {
+            _noteManager.Colorize(_noteController, color);
+        }
+    }
 
-            _noteController = __instance;
+    [AffinityPrefix]
+    [AffinityPatch(typeof(NoteController), nameof(NoteController.ManualUpdate))]
+    private void NoteUpdateSetData(NoteController __instance)
+    {
+        if (_config.NoteColoringDisabled)
+        {
+            return;
         }
 
-        [AffinityPostfix]
-        [AffinityPatch(typeof(NoteFloorMovement), nameof(NoteFloorMovement.ManualUpdate))]
-        private void NoteFloorMovementColorize() => NoteUpdateColorize(0);
-
-        [AffinityTranspiler]
-        [AffinityPatch(typeof(NoteJump), nameof(NoteJump.ManualUpdate))]
-        private IEnumerable<CodeInstruction> NoteJumpColorize(IEnumerable<CodeInstruction> instructions)
-        {
-            return new CodeMatcher(instructions)
-                /*
-                 * float num2 = num / this._jumpDuration;
-                 * ++ NoteUpdateColorize(num2);
-                 */
-                .MatchForward(false, new CodeMatch(OpCodes.Stloc_1))
-                .Advance(1)
-                .Insert(
-                    new CodeInstruction(OpCodes.Ldloc_1),
-                    _noteUpdateColorize)
-                .InstructionEnumeration();
-        }
-
-        private void NoteUpdateColorize(float time)
-        {
-            if (_noteController == null || !_deserializedData.Resolve(_noteController.noteData, out ChromaObjectData? chromaData))
-            {
-                return;
-            }
-
-            IReadOnlyList<Track>? tracks = chromaData.Track;
-            PointDefinition<Vector4>? pathPointDefinition = chromaData.LocalPathColor;
-            if (tracks == null && pathPointDefinition == null)
-            {
-                return;
-            }
-
-            AnimationHelper.GetColorOffset(pathPointDefinition, tracks, time, out Color? colorOffset);
-
-            if (!colorOffset.HasValue)
-            {
-                return;
-            }
-
-            Color color = colorOffset.Value;
-            if (_noteController is BombNoteController)
-            {
-                _bombManager.Colorize(_noteController, color);
-            }
-            else
-            {
-                _noteManager.Colorize(_noteController, color);
-            }
-        }
+        _noteController = __instance;
     }
 }
