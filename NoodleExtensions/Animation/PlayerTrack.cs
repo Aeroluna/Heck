@@ -247,19 +247,31 @@ namespace NoodleExtensions.Animation
     {
         private readonly IInstantiator _container;
         private readonly PlayerTransforms _playerTransforms;
+#if LATEST
+        private readonly IInstantiator _instantiator;
+#else
         private readonly VRCenterAdjust _vrCenterAdjust;
+#endif
         private readonly DeserializedData _deserializedData;
         private readonly Dictionary<PlayerTrackObject, PlayerTrack> _playerTracks = new();
 
         private AssignPlayerToTrack(
             IInstantiator container,
             PlayerTransforms playerTransforms,
+#if LATEST
+            IInstantiator instantiator,
+#else
             VRCenterAdjust vrCenterAdjust,
+#endif
             [Inject(Id = ID)] DeserializedData deserializedData)
         {
             _container = container;
             _playerTransforms = playerTransforms;
+#if LATEST
+            _instantiator = instantiator;
+#else
             _vrCenterAdjust = vrCenterAdjust;
+#endif
             _deserializedData = deserializedData;
         }
 
@@ -284,10 +296,14 @@ namespace NoodleExtensions.Animation
                     GameObject roomOffset = new("NoodleRoomOffset");
                     roomOffset.SetActive(false);
                     Transform roomOffsetTransform = roomOffset.transform;
+#if LATEST
+                    _instantiator.InstantiateComponent<VRCenterAdjust>(roomOffset);
+#else
                     VRCenterAdjust vrCenterAdjust = roomOffset.AddComponent<VRCenterAdjust>();
                     vrCenterAdjust._roomCenter = _vrCenterAdjust._roomCenter;
                     vrCenterAdjust._roomRotation = _vrCenterAdjust._roomRotation;
                     vrCenterAdjust._mainSettingsModel = _vrCenterAdjust._mainSettingsModel;
+#endif
                     Transform target = playerTrackTransform.GetChild(0);
                     roomOffsetTransform.SetParent(playerTrackTransform);
                     roomOffset.SetActive(true);

@@ -174,14 +174,14 @@ namespace Chroma
             {
                 LightID = lightID switch
                 {
-                    List<object> lightIDobjects => lightIDobjects.Select(Convert.ToInt32),
+                    List<object> lightIDobjects => lightIDobjects.Select(Convert.ToInt32).ToArray(),
                     long lightIDint => new[] { (int)lightIDint },
                     _ => null
                 };
             }
         }
 
-        internal IEnumerable<int>? LightID { get; }
+        internal int[]? LightID { get; }
 
         internal object? PropID { get; }
 

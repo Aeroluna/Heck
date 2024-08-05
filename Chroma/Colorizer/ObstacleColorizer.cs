@@ -48,7 +48,7 @@ namespace Chroma.Colorizer
         private readonly ObstacleColorizerManager _manager;
 
         private readonly ParametricBoxFrameController _obstacleFrame;
-        private readonly ParametricBoxFakeGlowController _obstacleFakeGlow;
+        private readonly ParametricBoxFakeGlowController? _obstacleFakeGlow;
         private readonly float _addColorMultiplier;
         private readonly float _obstacleCoreLerpToWhiteFactor;
         private readonly MaterialPropertyBlockController[] _materialPropertyBlockControllers;

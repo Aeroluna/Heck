@@ -317,12 +317,16 @@ namespace NoodleExtensions
         // This method runs on each frame in the game scene, so avoid allocations (do NOT use Linq).
         internal float? GetTimeProperty()
         {
-            List<Track>? tracks = Track;
+            IReadOnlyList<Track>? tracks = Track;
+
+            // ReSharper disable once InvertIf
             if (tracks != null)
             {
-                foreach (Track track in tracks)
+                // foreach causes an allocation, so we'll use a for loop as this method is called extremely often
+                // ReSharper disable once ForCanBeConvertedToForeach
+                for (int i = 0; i < tracks.Count; i++)
                 {
-                    float? time = track.GetProperty<float>(TIME);
+                    float? time = tracks[i].GetProperty<float>(TIME);
                     if (time.HasValue)
                     {
                         return time;

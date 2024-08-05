@@ -4,13 +4,10 @@ using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
 using static NoodleExtensions.NoodleController;
-using BeatmapSaveData = BeatmapSaveDataVersion3.BeatmapSaveData;
-#if LATEST
-using _BeatmapSaveDataItemV3 = BeatmapSaveDataVersion3.BeatmapSaveDataItem;
-#else
+#if !LATEST
 using System.Collections.Generic;
+using BeatmapSaveDataVersion3;
 using CustomJSONData;
-using _BeatmapSaveDataItemV3 = BeatmapSaveDataVersion3.BeatmapSaveData.BeatmapSaveDataItem;
 #endif
 
 namespace NoodleExtensions.HarmonyPatches.FakeNotes
@@ -18,74 +15,9 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
     [HeckPatch]
     internal static class BeatmapDataFakeCount
     {
-        [HarmonyPrefix]
 #if LATEST
-        [HarmonyPatch(
-            typeof(BeatmapDataLoaderVersion3.BeatmapDataLoader),
-            nameof(BeatmapDataLoaderVersion3.BeatmapDataLoader.GetBeatmapDataBasicInfoFromSaveDataJson))]
-#else
-        [HarmonyPatch(typeof(BeatmapDataLoader), nameof(BeatmapDataLoader.GetBeatmapDataBasicInfoFromSaveData))]
-#endif
-        private static bool PrefixV3(
-            ref BeatmapDataBasicInfo? __result,
-#if LATEST
-            string beatmapJson)
-        {
-#else
-            BeatmapSaveData beatmapSaveData)
-        {
-            if (beatmapSaveData is not Version3CustomBeatmapSaveData customBeatmapSaveData
-                || !(customBeatmapSaveData.beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>().Contains(CAPABILITY) ?? false))
-            {
-                return true;
-            }
-#endif
-
-#if LATEST
-            if (string.IsNullOrEmpty(beatmapJson))
-            {
-                __result = null;
-                return false;
-            }
-
-            // double deserialization WOOHOO!!!
-            // why did they stop storing the save data...
-            BeatmapSaveData beatmapSaveData = Version3CustomBeatmapSaveData.Deserialize(beatmapJson);
-
-            const string name = INTERNAL_FAKE_NOTE;
-#else
-            string name = new Version(customBeatmapSaveData.version).IsVersion2() ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE;
-#endif
-
-            int count = beatmapSaveData.colorNotes.Count(n => n.FakeConditionV3(name));
-            int count2 = beatmapSaveData.obstacles.Count(n => n.FakeConditionV3(name));
-            int count3 = beatmapSaveData.bombNotes.Count(n => n.FakeConditionV3(name));
-#if LATEST
-            __result = new BeatmapDataBasicInfo(4, count, count2, count3);
-#else
-            List<string> list = beatmapSaveData.basicEventTypesWithKeywords.data
-                .Select(basicEventTypesForKeyword => basicEventTypesForKeyword.keyword).ToList();
-            __result = new BeatmapDataBasicInfo(4, count, count2, count3, list);
-#endif
-            return false;
-        }
-
-        private static bool FakeConditionV3(this _BeatmapSaveDataItemV3 dataItem, string name)
-        {
-            try
-            {
-                bool? fake = ((ICustomData)dataItem).customData.Get<bool?>(name);
-                return !fake.HasValue || !fake.Value;
-            }
-            catch (Exception e)
-            {
-                Plugin.Log.Error($"Could not parse fake for object [{dataItem.GetType().Name}] at [{dataItem.beat}]");
-                Plugin.Log.Error(e);
-                return true;
-            }
-        }
-
-#if LATEST
+        // We only need to patch v2 maps for fake note counting,
+        // v3 maps have fake objects in a separate array that doesn't get counted by vanilla!
         [HarmonyPrefix]
         [HarmonyPatch(
             typeof(BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader),
@@ -100,16 +32,53 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes
 
             BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData beatmapSaveData = Version2_6_0AndEarlierCustomBeatmapSaveData.Deserialize(beatmapSaveDataJson);
 
-            BeatmapSaveDataVersion2_6_0AndEarlier.NoteData[] totalnotes =
+            BeatmapSaveDataVersion2_6_0AndEarlier.NoteData[] totalNotes =
                 beatmapSaveData.notes.Where(n => n.FakeConditionV2(V2_FAKE_NOTE)).ToArray();
-            int count = totalnotes.Count(n => n.type != BeatmapSaveDataVersion2_6_0AndEarlier.NoteType.Bomb);
+            int count = totalNotes.Count(n => n.type != BeatmapSaveDataVersion2_6_0AndEarlier.NoteType.Bomb);
             int count2 = beatmapSaveData.obstacles.Count(n => n.FakeConditionV2(V2_FAKE_NOTE));
-            int count3 = totalnotes.Length - count;
+            int count3 = totalNotes.Length - count;
             __result = new BeatmapDataBasicInfo(4, count, count2, count3);
             return false;
         }
 
         private static bool FakeConditionV2(this BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveDataItem dataItem, string name)
+        {
+            try
+            {
+                bool? fake = ((ICustomData)dataItem).customData.Get<bool?>(name);
+                return !fake.HasValue || !fake.Value;
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.Error($"Could not parse fake for object [{dataItem.GetType().Name}] at [{dataItem.beat}]");
+                Plugin.Log.Error(e);
+                return true;
+            }
+        }
+#else
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BeatmapDataLoader), nameof(BeatmapDataLoader.GetBeatmapDataBasicInfoFromSaveData))]
+        private static bool PrefixV3(
+            ref BeatmapDataBasicInfo? __result,
+            BeatmapSaveData beatmapSaveData)
+        {
+            if (beatmapSaveData is not Version3CustomBeatmapSaveData customBeatmapSaveData
+                || !(customBeatmapSaveData.beatmapCustomData.Get<List<object>>("_requirements")?.Cast<string>().Contains(CAPABILITY) ?? false))
+            {
+                return true;
+            }
+
+            string name = new Version(customBeatmapSaveData.version).IsVersion2() ? V2_FAKE_NOTE : INTERNAL_FAKE_NOTE;
+            int count = beatmapSaveData.colorNotes.Count(n => n.FakeConditionV3(name));
+            int count2 = beatmapSaveData.obstacles.Count(n => n.FakeConditionV3(name));
+            int count3 = beatmapSaveData.bombNotes.Count(n => n.FakeConditionV3(name));
+            List<string> list = beatmapSaveData.basicEventTypesWithKeywords.data
+                .Select(basicEventTypesForKeyword => basicEventTypesForKeyword.keyword).ToList();
+            __result = new BeatmapDataBasicInfo(4, count, count2, count3, list);
+            return false;
+        }
+
+        private static bool FakeConditionV3(this BeatmapSaveData.BeatmapSaveDataItem dataItem, string name)
         {
             try
             {

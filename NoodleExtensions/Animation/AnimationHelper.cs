@@ -35,6 +35,8 @@ namespace NoodleExtensions.Animation
                 if (tracks.Count > 1)
                 {
                     Vector3? sumPathDefinitePosition = null;
+
+                    // ReSharper disable once LoopCanBeConvertedToQuery
                     foreach (Track track in tracks)
                     {
                         sumPathDefinitePosition = SumVectorNullables(sumPathDefinitePosition, track.GetVector3PathProperty(DEFINITE_POSITION, time));

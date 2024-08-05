@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using HarmonyLib;
 using JetBrains.Annotations;
 using Zenject;
 
@@ -17,7 +16,10 @@ namespace Heck.Animation
 
         public void LateTick()
         {
-            _tracks.Do(n => n.UpdatedThisFrame = false);
+            foreach (Track track in _tracks)
+            {
+                track.UpdatedThisFrame = false;
+            }
         }
     }
 }

@@ -19,6 +19,8 @@ namespace Heck.Animation.Events
     [CustomEvent(ANIMATE_TRACK, ASSIGN_PATH_ANIMATION)]
     internal class CoroutineEvent : ICustomEvent
     {
+        private static readonly WaitForEndOfFrame _waitForEndOfFrame = new();
+
         private readonly IBpmController _bpmController;
         private readonly IAudioTimeSource _audioTimeSource;
         private readonly CoroutineDummy _coroutineDummy;
@@ -250,7 +252,6 @@ namespace Heck.Animation.Events
             bool nonLazy)
         {
             bool skip = false;
-            WaitForEndOfFrame waitForEndOfFrame = new();
             while (repeat >= 0)
             {
                 float elapsedTime = _audioTimeSource.songTime - startTime;
@@ -269,7 +270,7 @@ namespace Heck.Animation.Events
                         break;
                     }
 
-                    yield return waitForEndOfFrame;
+                    yield return _waitForEndOfFrame;
                 }
                 else
                 {

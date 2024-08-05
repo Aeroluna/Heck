@@ -4,7 +4,7 @@ namespace Chroma.Extras
 {
     internal static class ChromaUtils
     {
-        internal static Mesh TriangleMesh { get; set; } = null!; // used for caching the triangle mesh, for performance reasons.
+        internal static Mesh? TriangleMesh { get; set; } // used for caching the triangle mesh, for performance reasons.
 
         internal static Color MultAlpha(this Color color, float alpha)
         {

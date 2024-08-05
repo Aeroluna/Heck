@@ -61,19 +61,17 @@ namespace Heck.Animation.Transform
                 return;
             }
 
-            bool updated = false;
-            foreach (Track track in _track)
+            // ReSharper disable once ForCanBeConvertedToForeach
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            for (int i = 0; i < _track.Count; i++)
             {
-                if (track.UpdatedThisFrame)
+                if (!_track[i].UpdatedThisFrame)
                 {
-                    updated = true;
-                    break;
+                    continue;
                 }
-            }
 
-            if (updated)
-            {
                 UpdatePos();
+                return;
             }
         }
 

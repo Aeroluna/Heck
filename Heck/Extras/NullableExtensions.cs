@@ -92,7 +92,7 @@ namespace Heck
             return vectorTwo;
         }
 
-        [Pure]
+        /*[Pure]
         public static Vector3? SumVectorNullables(IEnumerable<Vector3?> vectors)
         {
             bool valid = false;
@@ -190,6 +190,6 @@ namespace Heck
             }
 
             return valid ? total : null;
-        }
+        }*/
     }
 }

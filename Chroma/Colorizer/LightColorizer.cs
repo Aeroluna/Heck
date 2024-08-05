@@ -144,10 +144,9 @@ namespace Chroma.Colorizer
         private readonly Color?[] _colors = new Color?[COLOR_FIELDS];
         private readonly SimpleColorSO[] _originalColors = new SimpleColorSO[COLOR_FIELDS];
 
-        // TODO: Are those reliable enough?
         private readonly Color[] _reusableColorsList = new Color[COLOR_FIELDS]; // This prevents a big amount of allocation.
-        private readonly List<ILightWithId> _reusableLightsList = new(); // This prevents a significant amount of allocation.
-        private readonly List<ILightWithId> _reusablePropagationLightsList = new(); // This prevents a significant amount of allocation.
+        private readonly HashSet<ILightWithId> _reusableLightsList = new(); // This prevents a significant amount of allocation.
+        private readonly HashSet<ILightWithId> _reusablePropagationLightsList = new(); // This prevents a significant amount of allocation.
 
         private ILightWithId[][]? _lightsPropagationGrouped;
 
@@ -317,7 +316,7 @@ namespace Chroma.Colorizer
 
         // dont use this please
         // cant be fucked to make an overload for this
-        internal IEnumerable<ILightWithId> GetPropagationLightWithIds(IEnumerable<int> ids)
+        internal IEnumerable<ILightWithId> GetPropagationLightWithIds(IEnumerable<object> ids)
         {
             _reusablePropagationLightsList.Clear();
             int lightCount = LightsPropagationGrouped.Length;
@@ -325,11 +324,16 @@ namespace Chroma.Colorizer
             {
                 if (lightCount > id)
                 {
-                    _reusablePropagationLightsList.AddRange(LightsPropagationGrouped[id]);
+                    _reusablePropagationLightsList.UnionWith(LightsPropagationGrouped[id]);
                 }
             }
 
             return _reusablePropagationLightsList;
+        }
+
+        internal IEnumerable<ILightWithId> GetPropagationLightWithId(int id)
+        {
+            return LightsPropagationGrouped.Length > id ? LightsPropagationGrouped[id] : Array.Empty<ILightWithId>();
         }
 
         [UsedImplicitly]
