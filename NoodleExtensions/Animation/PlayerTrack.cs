@@ -247,16 +247,19 @@ namespace NoodleExtensions.Animation
     {
         private readonly IInstantiator _container;
         private readonly PlayerTransforms _playerTransforms;
+        private readonly VRCenterAdjust _vrCenterAdjust;
         private readonly DeserializedData _deserializedData;
         private readonly Dictionary<PlayerTrackObject, PlayerTrack> _playerTracks = new();
 
         private AssignPlayerToTrack(
             IInstantiator container,
             PlayerTransforms playerTransforms,
+            VRCenterAdjust vrCenterAdjust,
             [Inject(Id = ID)] DeserializedData deserializedData)
         {
             _container = container;
             _playerTransforms = playerTransforms;
+            _vrCenterAdjust = vrCenterAdjust;
             _deserializedData = deserializedData;
         }
 
@@ -267,10 +270,29 @@ namespace NoodleExtensions.Animation
                 return;
             }
 
-            PlayerTrackObject resultPlayerTrackObject = noodlePlayerData.PlayerTrackObject;
-            if (!_playerTracks.TryGetValue(resultPlayerTrackObject, out PlayerTrack? playerTrack))
+            PlayerTrackObject playerTrackObject = noodlePlayerData.PlayerTrackObject;
+            if (!_playerTracks.TryGetValue(playerTrackObject, out PlayerTrack? playerTrack))
             {
-                _playerTracks[resultPlayerTrackObject] = playerTrack = Create(resultPlayerTrackObject);
+                _playerTracks[playerTrackObject] = playerTrack = Create(playerTrackObject);
+
+                // unparent non-root objects so our script can set their position and afterward apply the room offset
+                if (playerTrackObject != PlayerTrackObject.Root)
+                {
+                    Transform playerTrackTransform = playerTrack.transform;
+                    playerTrackTransform.SetParent(_playerTransforms._originParentTransform.transform);
+
+                    GameObject roomOffset = new("NoodleRoomOffset");
+                    roomOffset.SetActive(false);
+                    Transform roomOffsetTransform = roomOffset.transform;
+                    VRCenterAdjust vrCenterAdjust = roomOffset.AddComponent<VRCenterAdjust>();
+                    vrCenterAdjust._roomCenter = _vrCenterAdjust._roomCenter;
+                    vrCenterAdjust._roomRotation = _vrCenterAdjust._roomRotation;
+                    vrCenterAdjust._mainSettingsModel = _vrCenterAdjust._mainSettingsModel;
+                    Transform target = playerTrackTransform.GetChild(0);
+                    roomOffsetTransform.SetParent(playerTrackTransform);
+                    roomOffset.SetActive(true);
+                    target.SetParent(roomOffsetTransform, true);
+                }
             }
 
             playerTrack.AssignTrack(noodlePlayerData.Track);
