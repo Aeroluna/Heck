@@ -294,7 +294,7 @@ internal class AssignPlayerToTrack : ICustomEvent
             if (playerTrackObject != PlayerTrackObject.Root)
             {
                 Transform playerTrackTransform = playerTrack.transform;
-                playerTrackTransform.SetParent(_playerTransforms._originParentTransform.transform);
+                playerTrackTransform.SetParent(_playerTransforms._originParentTransform.transform, false);
 
                 GameObject roomOffset = new("NoodleRoomOffset");
                 roomOffset.SetActive(false);
