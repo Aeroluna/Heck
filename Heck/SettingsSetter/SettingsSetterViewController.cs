@@ -141,7 +141,11 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                         object activeValue = field.GetValue(playerSettings);
                         json = json switch
                         {
-                            string jsonString => Enum.Parse(typeof(EnvironmentEffectsFilterPreset), jsonString),
+                            string jsonString => fieldName switch
+                            {
+                                "_noteJumpDurationTypeSettings" => Enum.Parse(typeof(NoteJumpDurationTypeSettings), jsonString),
+                                _ => Enum.Parse(typeof(EnvironmentEffectsFilterPreset), jsonString)
+                            },
                             IConvertible => Convert.ChangeType(json, activeValue.GetType()),
                             _ => json
                         };
