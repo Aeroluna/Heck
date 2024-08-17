@@ -92,7 +92,8 @@ public static class NullableExtensions
         return Convert.ToSingle(@this);
     }
 
-    /*[Pure]
+    [Pure]
+    [Obsolete]
     public static Vector3? SumVectorNullables(IEnumerable<Vector3?> vectors)
     {
         bool valid = false;
@@ -113,6 +114,7 @@ public static class NullableExtensions
     }
 
     [Pure]
+    [Obsolete]
     public static Vector3? MultVectorNullables(IEnumerable<Vector3?> vectors)
     {
         bool valid = false;
@@ -133,6 +135,7 @@ public static class NullableExtensions
     }
 
     [Pure]
+    [Obsolete]
     public static Quaternion? MultQuaternionNullables(IEnumerable<Quaternion?> quaternions)
     {
         bool valid = false;
@@ -153,6 +156,7 @@ public static class NullableExtensions
     }
 
     [Pure]
+    [Obsolete]
     public static float? MultFloatNullables(IEnumerable<float?> floats)
     {
         bool valid = false;
@@ -173,6 +177,7 @@ public static class NullableExtensions
     }
 
     [Pure]
+    [Obsolete]
     public static Vector4? MultVector4Nullables(IEnumerable<Vector4?> vectors)
     {
         bool valid = false;
@@ -190,5 +195,5 @@ public static class NullableExtensions
         }
 
         return valid ? total : null;
-    }*/
+    }
 }
