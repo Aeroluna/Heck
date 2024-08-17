@@ -105,7 +105,7 @@ internal static class ObjectInitializer
             .InstructionEnumeration();
     }
 
-    [HarmonyPriority(Priority.Low)]
+    /*[HarmonyPriority(Priority.Low)]
     [HarmonyTranspiler]
     [HarmonyPatch(
         typeof(MultiplayerConnectedPlayerInstaller),
@@ -114,5 +114,5 @@ internal static class ObjectInitializer
         IEnumerable<CodeInstruction> instructions)
     {
         return FromInitializerTranspiler(instructions);
-    }
+    }*/
 }

@@ -16,13 +16,13 @@ namespace Heck.HarmonyPatches;
 
 internal class PatchedPlayerInstaller : IAffinity
 {
-    private static readonly MethodInfo _getContainer = AccessTools.PropertyGetter(
+    /*private static readonly MethodInfo _getContainer = AccessTools.PropertyGetter(
         typeof(MonoInstallerBase),
         "Container");
 
     private static readonly MethodInfo _bindHeckMultiPlayer = AccessTools.Method(
         typeof(PatchedPlayerInstaller),
-        nameof(BindHeckMultiPlayer));
+        nameof(BindHeckMultiPlayer));*/
 
     private readonly DeserializerManager _deserializerManager;
 
@@ -34,12 +34,12 @@ internal class PatchedPlayerInstaller : IAffinity
         _deserializerManager = deserializerManager;
     }
 
-    private static void BindHeckMultiPlayer(
+    /*private static void BindHeckMultiPlayer(
         PlayerSpecificSettingsNetSerializable playerSpecificSettings,
         DiContainer container)
     {
         container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(playerSpecificSettings.leftHanded);
-    }
+    }*/
 
     private void BindHeckSinglePlayer(
         GameplayCoreSceneSetupData sceneSetupData,
@@ -103,7 +103,7 @@ internal class PatchedPlayerInstaller : IAffinity
         BindHeckSinglePlayer(____sceneSetupData, __instance.Container);
     }
 
-    [AffinityTranspiler]
+    /*[AffinityTranspiler]
     [AffinityPatch(
         typeof(MultiplayerConnectedPlayerInstaller),
         nameof(MultiplayerConnectedPlayerInstaller.InstallBindings))]
@@ -114,7 +114,7 @@ internal class PatchedPlayerInstaller : IAffinity
              * PlayerSpecificSettingsNetSerializable playerSpecificSettingsForUserId = this._playersSpecificSettingsAtGameStartModel.GetPlayerSpecificSettingsForUserId(this._connectedPlayer.userId);
              * ++ BindHeckMultiPlayer(playerSpecificSettingsForUserId, base.Container);
              */
-            .MatchForward(false, new CodeMatch(OpCodes.Stloc_0))
+            /*.MatchForward(false, new CodeMatch(OpCodes.Stloc_0))
             .Advance(1)
             .Insert(
                 new CodeInstruction(OpCodes.Ldloc_0),
@@ -122,5 +122,5 @@ internal class PatchedPlayerInstaller : IAffinity
                 new CodeInstruction(OpCodes.Call, _getContainer),
                 new CodeInstruction(OpCodes.Call, _bindHeckMultiPlayer))
             .InstructionEnumeration();
-    }
+    }*/
 }
