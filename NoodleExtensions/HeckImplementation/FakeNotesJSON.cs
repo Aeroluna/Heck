@@ -18,13 +18,6 @@ namespace NoodleExtensions;
 
 internal class FakeNotesJson
 {
-#if !LATEST
-    private static bool CheckRequirement(Version3CustomBeatmapSaveData.SaveDataCustomDatas customData)
-    {
-        return !(customData.beatmapCustomData.Get<List<object>>("_requirements")?.Contains(CAPABILITY) ?? false);
-    }
-#endif
-
     [CustomJSONDataDeserializer.JSONDeserializer("fakeBombNotes")]
     private static bool HandleFakeBombs(
 #if !LATEST
@@ -116,4 +109,11 @@ internal class FakeNotesJson
         obstacles.AddRange(newObstacles);
         return false;
     }
+
+#if !LATEST
+    private static bool CheckRequirement(Version3CustomBeatmapSaveData.SaveDataCustomDatas customData)
+    {
+        return !(customData.beatmapCustomData.Get<List<object>>("_requirements")?.Contains(CAPABILITY) ?? false);
+    }
+#endif
 }

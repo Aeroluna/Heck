@@ -246,7 +246,9 @@ public sealed class ChromaLightSwitchEventEffect : IDisposable
                     tween.fromValue = color;
                     tween.toValue = color;
                     tween.SetColor(color);
-                    goto CheckNextEventForFadeBetter;
+                    CheckNextEventForFadeBetter();
+
+                    break;
                 }
 
                 case 1:
@@ -265,7 +267,9 @@ public sealed class ChromaLightSwitchEventEffect : IDisposable
                     tween.fromValue = color;
                     tween.toValue = color;
                     tween.SetColor(color);
-                    goto CheckNextEventForFadeBetter;
+                    CheckNextEventForFadeBetter();
+
+                    break;
                 }
 
                 case 2:
@@ -315,87 +319,88 @@ public sealed class ChromaLightSwitchEventEffect : IDisposable
 
             continue;
 
-            // the cursed goto
             // this code is UGLY
-            CheckNextEventForFadeBetter:
-            _deserializedData.Resolve(previousEvent, out ChromaEventData? eventData);
-            Dictionary<int, BasicBeatmapEventData>? nextSameTypesDict = eventData?.NextSameTypeEvent;
-            BasicBeatmapEventData? nextSameTypeEvent = null;
-            if (!_featuresModule.Active || nextSameTypesDict == null)
+            void CheckNextEventForFadeBetter()
             {
-                nextSameTypeEvent = previousEvent.nextSameTypeEventData;
-            }
-            else if (nextSameTypesDict.TryGetValue(tween.Id, out BasicBeatmapEventData? value))
-            {
-                nextSameTypeEvent = value;
-            }
-            else if (nextSameTypesDict.TryGetValue(-1, out BasicBeatmapEventData? nullVal))
-            {
-                nextSameTypeEvent = nullVal;
-            }
-
-            if (nextSameTypeEvent == null || !nextSameTypeEvent.HasLightFadeEventDataValue())
-            {
-                return;
-            }
-
-            float nextFloatValue = nextSameTypeEvent.floatValue;
-            int nextValue = nextSameTypeEvent.value;
-            EnvironmentColorType nextColorType =
-                BeatmapEventDataLightsExtensions.GetLightColorTypeFromEventDataValue(nextSameTypeEvent.value);
-            Color nextColor;
-
-            _deserializedData.Resolve(nextSameTypeEvent, out ChromaEventData? nextEventData);
-            Color? nextColorData = nextEventData?.ColorData;
-            if (nextColorType != EnvironmentColorType.ColorW &&
-                _featuresModule.Active &&
-                nextColorData.HasValue)
-            {
-                Color multiplierColor;
-                if (_usingBoostColors)
+                _deserializedData.Resolve(previousEvent, out ChromaEventData? eventData);
+                Dictionary<int, BasicBeatmapEventData>? nextSameTypesDict = eventData?.NextSameTypeEvent;
+                BasicBeatmapEventData? nextSameTypeEvent = null;
+                if (!_featuresModule.Active || nextSameTypesDict == null)
                 {
-                    multiplierColor = nextColorType == EnvironmentColorType.Color1
-                        ? _lightColor1BoostMult
-                        : _lightColor0BoostMult;
+                    nextSameTypeEvent = previousEvent.nextSameTypeEventData;
+                }
+                else if (nextSameTypesDict.TryGetValue(tween.Id, out BasicBeatmapEventData? value))
+                {
+                    nextSameTypeEvent = value;
+                }
+                else if (nextSameTypesDict.TryGetValue(-1, out BasicBeatmapEventData? nullVal))
+                {
+                    nextSameTypeEvent = nullVal;
+                }
+
+                if (nextSameTypeEvent == null || !nextSameTypeEvent.HasLightFadeEventDataValue())
+                {
+                    return;
+                }
+
+                float nextFloatValue = nextSameTypeEvent.floatValue;
+                int nextValue = nextSameTypeEvent.value;
+                EnvironmentColorType nextColorType =
+                    BeatmapEventDataLightsExtensions.GetLightColorTypeFromEventDataValue(nextSameTypeEvent.value);
+                Color nextColor;
+
+                _deserializedData.Resolve(nextSameTypeEvent, out ChromaEventData? nextEventData);
+                Color? nextColorData = nextEventData?.ColorData;
+                if (nextColorType != EnvironmentColorType.ColorW &&
+                    _featuresModule.Active &&
+                    nextColorData.HasValue)
+                {
+                    Color multiplierColor;
+                    if (_usingBoostColors)
+                    {
+                        multiplierColor = nextColorType == EnvironmentColorType.Color1
+                            ? _lightColor1BoostMult
+                            : _lightColor0BoostMult;
+                    }
+                    else
+                    {
+                        multiplierColor = nextColorType == EnvironmentColorType.Color1
+                            ? _lightColor1Mult
+                            : _lightColor0Mult;
+                    }
+
+                    nextColor = nextColorData.Value * multiplierColor;
                 }
                 else
                 {
-                    multiplierColor = nextColorType == EnvironmentColorType.Color1
-                        ? _lightColor1Mult
-                        : _lightColor0Mult;
+                    nextColor = LightSwitchEventEffect.GetNormalColor(nextValue, _usingBoostColors);
                 }
 
-                nextColor = nextColorData.Value * multiplierColor;
-            }
-            else
-            {
-                nextColor = LightSwitchEventEffect.GetNormalColor(nextValue, _usingBoostColors);
-            }
+                nextColor = nextColor.MultAlpha(nextFloatValue);
+                Color prevColor = tween.toValue;
+                if (previousValue == 0)
+                {
+                    prevColor = nextColor.ColorWithAlpha(0f);
+                }
+                else if (!previousEvent.HasFixedDurationLightSwitchEventDataValue())
+                {
+                    prevColor = GetNormalColor(previousValue).MultAlpha(previousFloatValue);
+                }
 
-            nextColor = nextColor.MultAlpha(nextFloatValue);
-            Color prevColor = tween.toValue;
-            if (previousValue == 0)
-            {
-                prevColor = nextColor.ColorWithAlpha(0f);
-            }
-            else if (!previousEvent.HasFixedDurationLightSwitchEventDataValue())
-            {
-                prevColor = GetNormalColor(previousValue).MultAlpha(previousFloatValue);
-            }
+                tween.fromValue = prevColor;
+                tween.toValue = nextColor;
+                tween.ForceOnUpdate();
 
-            tween.fromValue = prevColor;
-            tween.toValue = nextColor;
-            tween.ForceOnUpdate();
+                if (!hard)
+                {
+                    return;
+                }
 
-            if (!hard)
-            {
-                return;
+                tween.SetStartTimeAndEndTime(previousEvent.time, nextSameTypeEvent.time);
+                tween.HeckEasing = easing ?? Functions.easeLinear;
+                tween.LerpType = lerpType ?? LerpType.RGB;
+                _tweeningManager.ResumeTween(tween, LightSwitchEventEffect);
             }
-
-            tween.SetStartTimeAndEndTime(previousEvent.time, nextSameTypeEvent.time);
-            tween.HeckEasing = easing ?? Functions.easeLinear;
-            tween.LerpType = lerpType ?? LerpType.RGB;
-            _tweeningManager.ResumeTween(tween, LightSwitchEventEffect);
         }
 
         DidRefresh?.Invoke();
