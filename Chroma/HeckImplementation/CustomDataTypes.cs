@@ -167,8 +167,8 @@ internal class ChromaEventData : IEventCustomData
             {
                 GradientObject = new GradientObjectData(
                     gradientObject.Get<float>(V2_DURATION),
-                    CustomDataDeserializer.GetColorFromData(gradientObject, V2_START_COLOR) ?? Color.white,
-                    CustomDataDeserializer.GetColorFromData(gradientObject, V2_END_COLOR) ?? Color.white,
+                    gradientObject.GetColor(V2_START_COLOR) ?? Color.white,
+                    gradientObject.GetColor(V2_END_COLOR) ?? Color.white,
                     gradientObject.GetStringToEnum<Functions?>(V2_EASING) ?? Functions.easeLinear);
             }
         }
