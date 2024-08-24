@@ -19,8 +19,7 @@ using Zenject;
 #if LATEST
 using BeatSaber.GameSettings;
 using BeatSaber.PerformancePresets;
-using BGLib.JsonExtension;
-using Newtonsoft.Json;
+using Heck.HarmonyPatches;
 #endif
 
 namespace Heck.SettingsSetter;
@@ -45,8 +44,8 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
 
     private SiraLog _log = null!;
 #if LATEST
-    private SettingsApplicatorSO _settingsApplicator = null!;
     private GraphicSettingsHandler _graphicSettingsHandler = null!;
+    private PerformancePresetOverride _performancePresetOverride = null!;
 #else
     private MainSystemInit _mainSystemInit = null!;
     private MainSettingsModelSO _mainSettings = null!;
@@ -57,7 +56,9 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
     private StartStandardLevelParameters? _defaultParameters;
     private StartStandardLevelParameters? _modifiedParameters;
 
+#if !LATEST
     private SettableMainSettings? _cachedMainSettings;
+#endif
     private SettableMainSettings? _modifiedMainSettings;
 
     private bool _isMultiplayer;
@@ -280,7 +281,9 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                 }
 
                 _modifiedMainSettings = null;
+#if !LATEST
                 _cachedMainSettings = null;
+#endif
                 CustomData? jsonGraphics = settings.Get<CustomData>("_graphics");
                 if (jsonGraphics != null)
                 {
@@ -293,7 +296,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                         throw new Exception("Could not get current performance preset.");
                     }
 
-                    _cachedMainSettings = new SettableMainSettings(
+                    _modifiedMainSettings = new SettableMainSettings(
                         (int)preset.mirrorGraphics,
                         (int)preset.mainEffectGraphics,
                         preset.smokeGraphics,
@@ -308,9 +311,9 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                         _mainSettings.burnMarkTrailsEnabled,
                         _mainSettings.screenDisplacementEffectsEnabled,
                         _mainSettings.maxShockwaveParticles);
-#endif
 
                     _modifiedMainSettings = _cachedMainSettings with { };
+#endif
 
                     foreach (Dictionary<string, object> settableGraphicSetting in settableGraphicsSettings)
                     {
@@ -435,22 +438,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             _log.Trace("Main settings modified");
 
 #if LATEST
-            if (!_graphicSettingsHandler.TryGetCurrentPerformancePreset(out PerformancePreset? preset))
-            {
-                throw new Exception("Could not get current performance preset.");
-            }
-
-            CustomPerformancePreset customPerformancePreset = JsonConvert.DeserializeObject<CustomPerformancePreset>(
-                JsonConvert.SerializeObject(preset, JsonSettings.compactWithDefault))!;
-            customPerformancePreset.mirrorGraphics = (MirrorQualityPreset)_modifiedMainSettings.MirrorGraphicsSettings;
-            customPerformancePreset.mainEffectGraphics =
-                (MainEffectPreset)_modifiedMainSettings.MainEffectGraphicsSettings;
-            customPerformancePreset.smokeGraphics = _modifiedMainSettings.SmokeGraphicsSettings;
-            customPerformancePreset.burnMarkTrails = _modifiedMainSettings.BurnMarkTrailsEnabled;
-            customPerformancePreset.screenDisplacementEffects =
-                _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
-            customPerformancePreset.maxShockwaveParticles = _modifiedMainSettings.MaxShockwaveParticles;
-            _settingsApplicator.ApplyPerformancePreset(customPerformancePreset);
+            _performancePresetOverride.SettingsOverride = _modifiedMainSettings;
 #else
             _mainSettings.mirrorGraphicsSettings.value = _modifiedMainSettings.MirrorGraphicsSettings;
             _mainSettings.mainEffectGraphicsSettings.value = _modifiedMainSettings.MainEffectGraphicsSettings;
@@ -493,26 +481,20 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         }
 
         // Needed for multiplayer
+        // ReSharper disable once InvertIf
         if (_cachedOverrideEnvironmentSettings != null)
         {
             _playerDataModel.playerData.SetProperty("overrideEnvironmentSettings", _cachedOverrideEnvironmentSettings);
             _cachedOverrideEnvironmentSettings = null;
         }
 
+#if !LATEST
         if (_cachedMainSettings == null)
         {
             return;
         }
 
         _log.Trace("Main settings restored");
-#if LATEST
-        if (!_graphicSettingsHandler.TryGetCurrentPerformancePreset(out PerformancePreset? preset))
-        {
-            throw new Exception("Could not get current performance preset.");
-        }
-
-        _settingsApplicator.ApplyPerformancePreset(preset);
-#else
         _mainSettings.mirrorGraphicsSettings.value = _cachedMainSettings.MirrorGraphicsSettings;
         _mainSettings.mainEffectGraphicsSettings.value = _cachedMainSettings.MainEffectGraphicsSettings;
         _mainSettings.smokeGraphicsSettings.value = _cachedMainSettings.SmokeGraphicsSettings;
@@ -521,8 +503,9 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         _mainSettings.maxShockwaveParticles.value = _cachedMainSettings.MaxShockwaveParticles;
         _mainSettings.depthTextureEnabled.value = _mainSettings.smokeGraphicsSettings;
         _mainSystemInit.Init();
-#endif
+
         _cachedMainSettings = null;
+#endif
     }
 
     [UsedImplicitly]
@@ -531,8 +514,8 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         SiraLog log,
         GameplaySetupViewController gameplaySetupViewController,
 #if LATEST
-        SettingsApplicatorSO settingsApplicator,
         GraphicSettingsHandler graphicSettingsHandler,
+        PerformancePresetOverride performancePresetOverride,
 #endif
         PlayerDataModel playerDataModel)
     {
@@ -540,8 +523,8 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         _colorSchemesSettings = gameplaySetupViewController.colorSchemesSettings;
         _playerDataModel = playerDataModel;
 #if LATEST
-        _settingsApplicator = settingsApplicator;
         _graphicSettingsHandler = graphicSettingsHandler;
+        _performancePresetOverride = performancePresetOverride;
 #else
         _mainSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().First();
         _mainSystemInit = Resources.FindObjectsOfTypeAll<MainSystemInit>().First();
@@ -557,7 +540,9 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             throw new InvalidOperationException($"[{nameof(_defaultParameters)}] was null.");
         }
 
+#if !LATEST
         _cachedMainSettings = null;
+#endif
         _modifiedMainSettings = null;
         _settableSettingsToSet = null;
         if (_cachedOverrideEnvironmentSettings != null)
@@ -583,6 +568,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         Finished?.Invoke();
     }
 
+    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     private readonly struct ListObject
     {
         internal ListObject(string leftText, string rightText)
@@ -591,34 +577,22 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             RightText = rightText;
         }
 
-        [UsedImplicitly]
         [UIValue("lefttext")]
         private string LeftText { get; }
 
-        [UsedImplicitly]
         [UIValue("righttext")]
         private string RightText { get; }
     }
 
     [SuppressMessage("ReSharper", "ConvertToAutoProperty", Justification = "Fields are set through reflection")]
-    private record SettableMainSettings
+    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
+    internal record SettableMainSettings
     {
-        [UsedImplicitly]
         private int _mirrorGraphicsSettings;
-
-        [UsedImplicitly]
         private int _mainEffectGraphicsSettings;
-
-        [UsedImplicitly]
         private bool _smokeGraphicsSettings;
-
-        [UsedImplicitly]
         private bool _burnMarkTrailsEnabled;
-
-        [UsedImplicitly]
         private bool _screenDisplacementEffectsEnabled;
-
-        [UsedImplicitly]
         private int _maxShockwaveParticles;
 
         internal SettableMainSettings(

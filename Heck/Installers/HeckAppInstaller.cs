@@ -36,6 +36,10 @@ internal class HeckAppInstaller : Installer
 
         Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
 
+#if LATEST
+        Container.BindInterfacesAndSelfTo<PerformancePresetOverride>().AsSingle();
+#endif
+
         if (!HeckController.DebugMode)
         {
             return;
