@@ -19,7 +19,7 @@
     <DependsOn Include="_Heck" Version="^1.6.0"/>
     <DependsOn Include="BeatSaberMarkupLanguage" Version="^1.6.3"/>
     <DependsOn Include="BSIPA" Version="^4.2.2"/>
-    <DependsOn Include="CustomJSONData" Version="^2.6.0"/>
+    <DependsOn Include="CustomJSONData" Version="^2.6.3"/>
     <DependsOn Include="LookupID" Version="^1.0.1"/>
     <DependsOn Include="SiraUtil" Version="^3.0.5"/>
   </ItemGroup>

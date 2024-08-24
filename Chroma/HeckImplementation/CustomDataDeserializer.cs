@@ -272,17 +272,6 @@ internal class CustomDataDeserializer : IEarlyDeserializer, ICustomEventsDeseria
 
     internal static Color? GetColorFromData(CustomData data, bool v2)
     {
-        return GetColorFromData(data, v2 ? V2_COLOR : COLOR);
-    }
-
-    internal static Color? GetColorFromData(CustomData data, string member = COLOR)
-    {
-        List<float>? color = data.Get<List<object>>(member)?.Select(Convert.ToSingle).ToList();
-        if (color == null)
-        {
-            return null;
-        }
-
-        return new Color(color[0], color[1], color[2], color.Count > 3 ? color[3] : 1);
+        return data.GetColor(v2 ? V2_COLOR : COLOR);
     }
 }
