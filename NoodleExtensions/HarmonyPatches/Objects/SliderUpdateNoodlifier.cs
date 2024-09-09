@@ -44,6 +44,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
     private readonly AudioTimeSyncController _audioTimeSyncController;
     private readonly CutoutManager _cutoutManager;
     private readonly DeserializedData _deserializedData;
+    private readonly PlayerTransforms _playerTransforms;
 
     private readonly CodeInstruction _sliderTimeAdjust;
 
@@ -53,12 +54,14 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
         [Inject(Id = ID)] DeserializedData deserializedData,
         AnimationHelper animationHelper,
         CutoutManager cutoutManager,
-        AudioTimeSyncController audioTimeSyncController)
+        AudioTimeSyncController audioTimeSyncController,
+        PlayerTransforms playerTransforms)
     {
         _deserializedData = deserializedData;
         _animationHelper = animationHelper;
         _cutoutManager = cutoutManager;
         _audioTimeSyncController = audioTimeSyncController;
+        _playerTransforms = playerTransforms;
         _sliderTimeAdjust = InstanceTranspilers.EmitInstanceDelegate<SliderTimeAdjustDelegate>(SliderUpdate);
     }
 
@@ -127,88 +130,90 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
         normalizedTailTime = timeSinceTailNoteJump / jumpDuration;
 
         Transform transform = instance.transform;
+        localPosition = Vector3.zero;
 
-        if (_noodleData == null)
+        if (_noodleData != null)
         {
-            return;
-        }
-
-        IReadOnlyList<Track>? tracks = _noodleData?.Track;
-        NoodleObjectData.AnimationObjectData? animationObject = _noodleData?.AnimationObject;
-        if (tracks == null && animationObject == null)
-        {
-            return;
-        }
-
-        normalizedTime = Math.Max(normalizedTime, 0);
-        _animationHelper.GetObjectOffset(
-            animationObject,
-            tracks,
-            normalizedTime,
-            out Vector3? positionOffset,
-            out Quaternion? rotationOffset,
-            out Vector3? scaleOffset,
-            out Quaternion? localRotationOffset,
-            out float? dissolve,
-            out _,
-            out _);
-
-        if (rotationOffset.HasValue || localRotationOffset.HasValue)
-        {
-            Quaternion noodleWorldRotation = _noodleData!.InternalWorldRotation;
-            Quaternion localRotation = _noodleData.InternalLocalRotation;
-
-            Quaternion worldRotationQuatnerion = noodleWorldRotation;
-            if (rotationOffset.HasValue)
+            IReadOnlyList<Track>? tracks = _noodleData?.Track;
+            NoodleObjectData.AnimationObjectData? animationObject = _noodleData?.AnimationObject;
+            if (tracks != null || animationObject != null)
             {
-                worldRotationQuatnerion *= rotationOffset.Value;
-                worldRotation = worldRotationQuatnerion;
-                inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
+                normalizedTime = Math.Max(normalizedTime, 0);
+                _animationHelper.GetObjectOffset(
+                    animationObject,
+                    tracks,
+                    normalizedTime,
+                    out Vector3? positionOffset,
+                    out Quaternion? rotationOffset,
+                    out Vector3? scaleOffset,
+                    out Quaternion? localRotationOffset,
+                    out float? dissolve,
+                    out _,
+                    out _);
+
+                if (rotationOffset.HasValue || localRotationOffset.HasValue)
+                {
+                    Quaternion noodleWorldRotation = _noodleData!.InternalWorldRotation;
+                    Quaternion localRotation = _noodleData.InternalLocalRotation;
+
+                    Quaternion worldRotationQuatnerion = noodleWorldRotation;
+                    if (rotationOffset.HasValue)
+                    {
+                        worldRotationQuatnerion *= rotationOffset.Value;
+                        worldRotation = worldRotationQuatnerion;
+                        inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
+                    }
+
+                    worldRotationQuatnerion *= localRotation;
+
+                    if (localRotationOffset.HasValue)
+                    {
+                        worldRotationQuatnerion *= localRotationOffset.Value;
+                    }
+
+                    transform.localRotation = worldRotationQuatnerion;
+                }
+
+                if (scaleOffset.HasValue)
+                {
+                    transform.localScale = scaleOffset.Value;
+                }
+
+                if (dissolve.HasValue)
+                {
+                    _cutoutManager.SliderCutoutEffects[instance].SetCutout(dissolve.Value);
+                }
+
+                _animationHelper.GetDefinitePositionOffset(
+                    animationObject,
+                    tracks,
+                    normalizedTime,
+                    out Vector3? definitePosition);
+                if (definitePosition.HasValue)
+                {
+                    transform.localPosition = definitePosition.Value;
+                    return;
+                }
+
+                if (positionOffset.HasValue)
+                {
+                    Vector3 startPos = _noodleData!.InternalStartPos;
+                    Vector3 endPos = _noodleData.InternalEndPos;
+
+                    Vector3 offset = positionOffset.Value;
+                    headNoteJumpStartPos = startPos + offset;
+                    headNoteJumpEndPos = endPos + offset;
+                    localPosition = offset;
+                }
             }
-
-            worldRotationQuatnerion *= localRotation;
-
-            if (localRotationOffset.HasValue)
-            {
-                worldRotationQuatnerion *= localRotationOffset.Value;
-            }
-
-            transform.localRotation = worldRotationQuatnerion;
         }
 
-        if (scaleOffset.HasValue)
-        {
-            transform.localScale = scaleOffset.Value;
-        }
-
-        if (dissolve.HasValue)
-        {
-            _cutoutManager.SliderCutoutEffects[instance].SetCutout(dissolve.Value);
-        }
-
-        _animationHelper.GetDefinitePositionOffset(
-            animationObject,
-            tracks,
-            normalizedTime,
-            out Vector3? definitePosition);
-        if (definitePosition.HasValue)
-        {
-            transform.localPosition = definitePosition.Value;
-
-            return;
-        }
-
-        // ReSharper disable once InvertIf
-        if (positionOffset.HasValue)
-        {
-            Vector3 startPos = _noodleData!.InternalStartPos;
-            Vector3 endPos = _noodleData.InternalEndPos;
-
-            Vector3 offset = positionOffset.Value;
-            headNoteJumpStartPos = startPos + offset;
-            headNoteJumpEndPos = endPos + offset;
-            localPosition = offset;
-        }
+        localPosition.z += _playerTransforms.MoveTowardsHead(
+            headNoteJumpStartPos.z,
+            headNoteJumpEndPos.z,
+            inverseWorldRotation,
+            normalizedHeadTime);
+        transform.localPosition = worldRotation * localPosition;
     }
 
     [AffinityTranspiler]
@@ -229,7 +234,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
              */
             .Start()
             .RemoveInstructions(34)
-            .InsertAndAdvance(
+            .Insert(
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldfld, _headNoteTime),
