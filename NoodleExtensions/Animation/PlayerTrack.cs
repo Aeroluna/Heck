@@ -250,6 +250,7 @@ internal class AssignPlayerToTrack : ICustomEvent
 {
     private readonly IInstantiator _container;
     private readonly PlayerTransforms _playerTransforms;
+    private readonly PlayerVRControllersManager _playerVRControllersManager;
 #if LATEST
     private readonly IInstantiator _instantiator;
 #else
@@ -261,6 +262,7 @@ internal class AssignPlayerToTrack : ICustomEvent
     private AssignPlayerToTrack(
         IInstantiator container,
         PlayerTransforms playerTransforms,
+        PlayerVRControllersManager playerVRControllersManager,
 #if LATEST
         IInstantiator instantiator,
 #else
@@ -270,6 +272,7 @@ internal class AssignPlayerToTrack : ICustomEvent
     {
         _container = container;
         _playerTransforms = playerTransforms;
+        _playerVRControllersManager = playerVRControllersManager;
 #if LATEST
         _instantiator = instantiator;
 #else
@@ -322,12 +325,13 @@ internal class AssignPlayerToTrack : ICustomEvent
         GameObject noodleObject = new($"NoodlePlayerTrack{playerTrackObject}");
         Transform origin = noodleObject.transform;
 
+        // _playerTransforms._leftHandTransform points to the saber instead of the hand in 1.34+
         Transform target = playerTrackObject switch
         {
             PlayerTrackObject.Root => _playerTransforms._originTransform.parent,
             PlayerTrackObject.Head => _playerTransforms._headTransform,
-            PlayerTrackObject.LeftHand => _playerTransforms._leftHandTransform,
-            PlayerTrackObject.RightHand => _playerTransforms._rightHandTransform,
+            PlayerTrackObject.LeftHand => _playerVRControllersManager.leftHandVRController.transform,
+            PlayerTrackObject.RightHand => _playerVRControllersManager.rightHandVRController.transform,
             _ => throw new ArgumentOutOfRangeException(nameof(playerTrackObject), playerTrackObject, null)
         };
 
