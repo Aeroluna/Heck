@@ -103,7 +103,10 @@ internal class EnvironmentEnhancementManager : IAffinity
         bool v2 = _beatmapData.version.IsVersion2();
         IEnumerable<CustomData>? environmentData = null;
 
-        if (!_config.EnvironmentEnhancementsDisabled || _config.CustomEnvironmentEnabled)
+        bool useMapEnvironment = !_config.EnvironmentEnhancementsDisabled;
+        bool useUserEnvironment = _config.CustomEnvironmentEnabled;
+
+        if (useMapEnvironment || useUserEnvironment)
         {
             // seriously what the fuck beat games
             // GradientBackground permanently yeeted because it looks awful and can ruin multi-colored chroma maps
@@ -114,13 +117,11 @@ internal class EnvironmentEnhancementManager : IAffinity
             }
         }
 
-        if (!_config.EnvironmentEnhancementsDisabled)
+        if (useMapEnvironment)
         {
             environmentData = _beatmapData
-                .customData
-                .Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)
-                ?
-                .Cast<CustomData>();
+                .customData.Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)
+                ?.Cast<CustomData>();
 
             if (v2)
             {
@@ -133,14 +134,14 @@ internal class EnvironmentEnhancementManager : IAffinity
                 }
                 catch (Exception e)
                 {
-                    _log.Error("Could not run Legacy Enviroment Removal");
+                    _log.Error("Could not run Legacy Environment Removal");
                     _log.Error(e);
                 }
             }
         }
 
         // _usingOverrideEnvironment kinda a jank way to allow forcing map environment
-        if (environmentData == null && _config.CustomEnvironmentEnabled && _usingOverrideEnvironment)
+        if (environmentData == null && useUserEnvironment && (_usingOverrideEnvironment || !useMapEnvironment))
         {
             // custom environment
             v2 = false;

@@ -8,7 +8,7 @@
                            options='environmentoptions'
                            formatter='environmentformat'/>
     <bool-setting text='Disable Environment Enhancements' value='platform' apply-on-change='true'
-                  hover-hint='Disable Chroma&apos;s ability to manage the environment.'/>
+                  hover-hint='Stop custom maps from managing the environment.'/>
     <bool-setting text='Disable Note Coloring' value='notecolors' apply-on-change='true' hover-hint='Blame Mawntee.'/>
     <bool-setting text='Disable Chroma Events' value='rgbevents' apply-on-change='true'
                   hover-hint='Disable everything Chroma, but you&apos;ll break my heart.'/>
