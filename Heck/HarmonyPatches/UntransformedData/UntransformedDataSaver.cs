@@ -1,4 +1,4 @@
-﻿#if LATEST
+﻿#if !PRE_V1_37_1
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -32,12 +32,19 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
             original.useTestNoteCutSoundEffects,
             original.environmentInfo,
             original.colorScheme,
+#if LATEST
+            original._settingsManager,
+#elif V1_37_1
             original._performancePreset,
+#endif
             original._audioClipAsyncLoader,
             original._beatmapDataLoader,
             original._beatmapLevelsEntitlementModel,
             original._enableBeatmapDataCaching,
             original._allowNullBeatmapLevelData,
+#if LATEST
+            original.environmentsListModel,
+#endif
             original.recordingToolData)
     {
         GameplayCoreSceneSetupData @this = this;

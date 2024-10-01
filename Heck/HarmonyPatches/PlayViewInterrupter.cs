@@ -20,7 +20,7 @@ internal class PlayViewInterrupter : IAffinity
     private static readonly ConstructorInfo _standardLevelParametersCtor =
         AccessTools.FirstConstructor(typeof(StartStandardLevelParameters), _ => true);
 
-#if !LATEST
+#if PRE_V1_37_1
     private static readonly ConstructorInfo _multiplayerLevelParametersCtor =
         AccessTools.FirstConstructor(typeof(StartMultiplayerLevelParameters), _ => true);
 #endif
@@ -72,7 +72,7 @@ internal class PlayViewInterrupter : IAffinity
         }
     }
 
-#if LATEST
+#if !PRE_V1_37_1
     private static StartMultiplayerLevelParameters GetMultiplayerParameters(
         LobbyGameStateController instance,
         ILevelGameplaySetupData gameplaySetupData,
@@ -148,7 +148,7 @@ internal class PlayViewInterrupter : IAffinity
     private void WaitingForCountdownPostfix(
         MultiplayerLevelLoader.MultiplayerBeatmapLoaderState ____loaderState,
         ILevelGameplaySetupData ____gameplaySetupData,
-#if LATEST
+#if !PRE_V1_37_1
         IBeatmapLevelData ____beatmapLevelData)
 #else
         IDifficultyBeatmap ____difficultyBeatmap)
@@ -169,7 +169,7 @@ internal class PlayViewInterrupter : IAffinity
         StartMultiplayerLevelParameters parameters = GetMultiplayerParameters(
             _lobbyGameStateController,
             ____gameplaySetupData,
-#if LATEST
+#if !PRE_V1_37_1
             ____beatmapLevelData,
 #else
             ____difficultyBeatmap,

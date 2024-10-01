@@ -251,7 +251,7 @@ internal class AssignPlayerToTrack : ICustomEvent
     private readonly IInstantiator _container;
     private readonly PlayerTransforms _playerTransforms;
     private readonly PlayerVRControllersManager _playerVRControllersManager;
-#if LATEST
+#if !PRE_V1_37_1
     private readonly IInstantiator _instantiator;
 #else
     private readonly VRCenterAdjust _vrCenterAdjust;
@@ -263,7 +263,7 @@ internal class AssignPlayerToTrack : ICustomEvent
         IInstantiator container,
         PlayerTransforms playerTransforms,
         PlayerVRControllersManager playerVRControllersManager,
-#if LATEST
+#if !PRE_V1_37_1
         IInstantiator instantiator,
 #else
         VRCenterAdjust vrCenterAdjust,
@@ -273,7 +273,7 @@ internal class AssignPlayerToTrack : ICustomEvent
         _container = container;
         _playerTransforms = playerTransforms;
         _playerVRControllersManager = playerVRControllersManager;
-#if LATEST
+#if !PRE_V1_37_1
         _instantiator = instantiator;
 #else
         _vrCenterAdjust = vrCenterAdjust;
@@ -302,7 +302,7 @@ internal class AssignPlayerToTrack : ICustomEvent
                 GameObject roomOffset = new("NoodleRoomOffset");
                 roomOffset.SetActive(false);
                 Transform roomOffsetTransform = roomOffset.transform;
-#if LATEST
+#if !PRE_V1_37_1
                 _instantiator.InstantiateComponent<VRCenterAdjust>(roomOffset);
 #else
                 VRCenterAdjust vrCenterAdjust = roomOffset.AddComponent<VRCenterAdjust>();

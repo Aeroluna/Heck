@@ -24,7 +24,7 @@ internal class HeckAppInstaller : Installer
     {
         Container.Bind<BaseProviderManager>().AsSingle().NonLazy();
         Container.BindInterfacesAndSelfTo<ModuleManager>().AsSingle();
-#if LATEST
+#if !PRE_V1_37_1
         Container.BindInterfacesTo<StandardModuleActivator>().AsSingle();
         Container.BindInterfacesTo<MissionModuleActivator>().AsSingle();
         Container.BindInterfacesTo<MiscModuleActivator>().AsSingle();
@@ -36,7 +36,7 @@ internal class HeckAppInstaller : Installer
 
         Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
 
-#if LATEST
+#if V1_37_1
         Container.BindInterfacesAndSelfTo<PerformancePresetOverride>().AsSingle();
 #endif
 

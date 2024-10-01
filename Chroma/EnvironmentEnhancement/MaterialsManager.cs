@@ -19,14 +19,14 @@ internal class MaterialsManager : IDisposable
 {
     private static readonly int _metallicPropertyID = Shader.PropertyToID("_Metallic");
 
-#if LATEST
+#if !PRE_V1_37_1
     private static readonly Shader[] _allShaders = Resources.FindObjectsOfTypeAll<Shader>();
 #endif
 
     private static readonly Material _standardMaterial = InstantiateSharedMaterial(ShaderType.Standard);
     private static readonly Material _opaqueLightMaterial = InstantiateSharedMaterial(ShaderType.OpaqueLight);
     private static readonly Material _transparentLightMaterial = InstantiateSharedMaterial(ShaderType.TransparentLight);
-#if !LATEST
+#if PRE_V1_37_1
     private static readonly Material _baseWaterMaterial = InstantiateSharedMaterial(ShaderType.BaseWater);
 #endif
 
@@ -38,7 +38,7 @@ internal class MaterialsManager : IDisposable
     private readonly LazyInject<MaterialColorAnimator> _materialColorAnimator;
     private readonly bool _v2;
 
-#if LATEST
+#if !PRE_V1_37_1
     private Material? _baseWaterMaterial;
 #endif
 
@@ -118,7 +118,7 @@ internal class MaterialsManager : IDisposable
             ShaderType.Standard => _standardMaterial,
             ShaderType.OpaqueLight => _opaqueLightMaterial,
             ShaderType.TransparentLight => _transparentLightMaterial,
-#if LATEST
+#if !PRE_V1_37_1
             ShaderType.BaseWater => _baseWaterMaterial ??= InstantiateMaterialFromShader(
                 ShaderType.BaseWater,
                 _environmentMaterialsManager.WaterLit),
@@ -156,12 +156,12 @@ internal class MaterialsManager : IDisposable
         {
             ShaderType.OpaqueLight => "Custom/OpaqueNeonLight",
             ShaderType.TransparentLight => "Custom/TransparentNeonLight",
-#if !LATEST
+#if PRE_V1_37_1
             ShaderType.BaseWater => "Custom/WaterLit",
 #endif
             _ => "Custom/SimpleLit"
         };
-#if LATEST
+#if !PRE_V1_37_1
         Shader shader = _allShaders.First(n => n.name == shaderName);
 #else
         Shader shader = Shader.Find(shaderName);
@@ -192,7 +192,7 @@ internal class MaterialsManager : IDisposable
                     "_EMISSIONCOLORTYPE_FLAT",
                     "EMISSIONTEXTURE_NONE", "_ROTATE_UV_NONE", "_VERTEXMODE_NONE", "WHITEBOOSTTYPE_NONE", "ZWRITE_ON",
 #endif
-#if LATEST
+#if !PRE_V1_37_1
                     // added at some point idk
                     "MULTIPLY_REFLECTIONS"
 #endif

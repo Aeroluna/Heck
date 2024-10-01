@@ -7,7 +7,7 @@ using Heck;
 using Heck.Module;
 using SiraUtil.Logging;
 using static Chroma.ChromaController;
-#if LATEST
+#if !PRE_V1_37_1
 using _EnvironmentType = EnvironmentType;
 #else
 using System.Collections.Generic;
@@ -54,7 +54,7 @@ internal class EnvironmentModule : IModule
     private readonly SiraLog _log;
     private readonly Config _config;
     private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
-#if LATEST
+#if !PRE_V1_37_1
     private readonly EnvironmentsListModel _environmentsListModel;
 #else
     private readonly CustomLevelLoader _customLevelLoader;
@@ -64,7 +64,7 @@ internal class EnvironmentModule : IModule
         SiraLog log,
         Config config,
         SavedEnvironmentLoader savedEnvironmentLoader,
-#if LATEST
+#if !PRE_V1_37_1
         EnvironmentsListModel environmentsListModel)
 #else
         CustomLevelLoader customLevelLoader)
@@ -73,7 +73,7 @@ internal class EnvironmentModule : IModule
         _log = log;
         _config = config;
         _savedEnvironmentLoader = savedEnvironmentLoader;
-#if LATEST
+#if !PRE_V1_37_1
         _environmentsListModel = environmentsListModel;
 #else
         _customLevelLoader = customLevelLoader;
@@ -90,7 +90,7 @@ internal class EnvironmentModule : IModule
 
     [ModuleCondition]
     private bool ConditionEnvironment(
-#if LATEST
+#if !PRE_V1_37_1
         BeatmapKey beatmapKey,
         BeatmapLevel beatmapLevel,
 #else
@@ -99,7 +99,7 @@ internal class EnvironmentModule : IModule
         ModuleManager.ModuleArgs moduleArgs,
         bool dependency)
     {
-#if LATEST
+#if !PRE_V1_37_1
         EnvironmentName environmentName = beatmapLevel.GetEnvironmentName(
             beatmapKey.beatmapCharacteristic,
             beatmapKey.difficulty);
@@ -114,12 +114,12 @@ internal class EnvironmentModule : IModule
                             (_config.ForceMapEnvironmentWhenV3 &&
                              !_basicEnvironments.Contains(environmentInfo._serializedName));
 
-#if !LATEST
+#if PRE_V1_37_1
         Version3CustomBeatmapSaveData? customBeatmapSaveData = difficultyBeatmap.GetBeatmapSaveData();
 #endif
         if (settingForce ||
             (!_config.EnvironmentEnhancementsDisabled &&
-#if LATEST
+#if !PRE_V1_37_1
              // cant conditionally enable environment module without reading customdata
              dependency))
 #else
@@ -150,7 +150,7 @@ internal class EnvironmentModule : IModule
             SavedEnvironment? savedEnvironment = _savedEnvironmentLoader.SavedEnvironment;
             if (_config.CustomEnvironmentEnabled && savedEnvironment != null)
             {
-#if LATEST
+#if !PRE_V1_37_1
                 EnvironmentInfoSO overrideEnv =
                     _environmentsListModel.GetEnvironmentInfoBySerializedNameSafe(savedEnvironment.EnvironmentName);
 #else

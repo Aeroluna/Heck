@@ -34,7 +34,7 @@ internal enum LookupMethod
 internal class EnvironmentEnhancementManager : IAffinity
 {
     private readonly CustomBeatmapData _beatmapData;
-#if !LATEST
+#if PRE_V1_37_1
     private readonly BeatmapObjectsAvoidanceTransformOverride _beatmapObjectsAvoidanceTransformOverride;
 #endif
     private readonly ComponentCustomizer _componentCustomizer;
@@ -58,7 +58,7 @@ internal class EnvironmentEnhancementManager : IAffinity
         GeometryFactory geometryFactory,
         TrackLaneRingOffset trackLaneRingOffset,
         ParametricBoxControllerTransformOverride parametricBoxControllerTransformOverride,
-#if !LATEST
+#if PRE_V1_37_1
         BeatmapObjectsAvoidanceTransformOverride beatmapObjectsAvoidanceTransformOverride,
 #endif
         DuplicateInitializer duplicateInitializer,
@@ -75,7 +75,7 @@ internal class EnvironmentEnhancementManager : IAffinity
         _geometryFactory = geometryFactory;
         _trackLaneRingOffset = trackLaneRingOffset;
         _parametricBoxControllerTransformOverride = parametricBoxControllerTransformOverride;
-#if !LATEST
+#if PRE_V1_37_1
         _beatmapObjectsAvoidanceTransformOverride = beatmapObjectsAvoidanceTransformOverride;
 #endif
         _duplicateInitializer = duplicateInitializer;
@@ -327,7 +327,7 @@ internal class EnvironmentEnhancementManager : IAffinity
                         _parametricBoxControllerTransformOverride.SetTransform(parametricBoxController, spawnData);
                     }
 
-#if !LATEST
+#if PRE_V1_37_1
                     // Handle BeatmapObjectsAvoidance
                     BeatmapObjectsAvoidance beatmapObjectsAvoidance =
                         gameObject.GetComponentInChildren<BeatmapObjectsAvoidance>();
@@ -361,7 +361,7 @@ internal class EnvironmentEnhancementManager : IAffinity
                         controller.ScaleUpdated += () =>
                             _parametricBoxControllerTransformOverride.UpdateScale(parametricBoxController);
                     }
-#if !LATEST
+#if PRE_V1_37_1
                     else if (beatmapObjectsAvoidance != null)
                     {
                         controller.RotationUpdated += () =>

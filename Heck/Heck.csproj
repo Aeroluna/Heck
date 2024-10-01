@@ -5,14 +5,14 @@
     <OutputType>Library</OutputType>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <Configurations>Debug-1.29.1;Release-1.29.1;Debug-1.34.2;Release-1.34.2;Debug-1.37.1;Release-1.37.1</Configurations>
+    <Configurations>Debug-1.29.1;Release-1.29.1;Debug-1.34.2;Release-1.34.2;Debug-1.37.1;Release-1.37.1;Debug-1.37.5;Release-1.37.5</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
     <PluginId>_Heck</PluginId>
     <PluginName>Heck</PluginName>
     <Author>Aeroluna</Author>
-    <Version>1.6.4</Version>
+    <Version>1.6.5</Version>
     <Description>Library for Aeroluna's mods.</Description>
   </PropertyGroup>
   <ItemGroup>
@@ -30,6 +30,8 @@
     <Reference Include="BeatmapCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll"/>
     <Reference Include="BeatSaber.GameSettings" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.GameSettings.dll"/>
     <Reference Include="BeatSaber.PerformancePresets" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.PerformancePresets.dll"/>
+    <Reference Include="BeatSaber.Settings" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.Settings.dll"/>
+    <Reference Include="BeatSaber.ViewSystem" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll" Publicize="true"/>
     <Reference Include="BeatSaberMarkupLanguage" HintPath="$(BeatSaberDir)\Plugins\BSML.dll"/>
     <Reference Include="BGLib.AppFlow" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.AppFlow.dll"/>
     <Reference Include="BGLib.DotnetExtension" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.DotnetExtension.dll"/>
@@ -67,7 +69,7 @@
   <ItemGroup>
     <PackageReference Include="BeatSaberModdingTools.Tasks.Luna" Version="2.1.0"/>
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.*"/>
-    <PackageReference Include="LunaBSMod.Tasks" Version="1.0.0"/>
+    <PackageReference Include="LunaBSMod.Tasks" Version="1.1.0"/>
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.354"/>
   </ItemGroup>
 </Project>

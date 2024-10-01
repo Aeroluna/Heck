@@ -15,7 +15,7 @@ namespace Chroma.HarmonyPatches;
 
 internal class SavedEnvironmentLoading : IAffinity, IDisposable
 {
-#if LATEST
+#if !PRE_V1_37_1
     private readonly CodeInstruction _changeFilterPresetV2;
 #endif
 
@@ -31,7 +31,7 @@ internal class SavedEnvironmentLoading : IAffinity, IDisposable
         _savedEnvironmentLoader = savedEnvironmentLoader;
         _changeFilterPresetV3 =
             InstanceTranspilers.EmitInstanceDelegate<Func<bool, BeatmapSaveData, bool>>(ChangeFilterPresetV3);
-#if LATEST
+#if !PRE_V1_37_1
         _changeFilterPresetV2 =
             InstanceTranspilers
                 .EmitInstanceDelegate<Func<bool, BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData, bool>>(
@@ -42,7 +42,7 @@ internal class SavedEnvironmentLoading : IAffinity, IDisposable
     public void Dispose()
     {
         InstanceTranspilers.DisposeDelegate(_changeFilterPresetV3);
-#if LATEST
+#if !PRE_V1_37_1
         InstanceTranspilers.DisposeDelegate(_changeFilterPresetV2);
 #endif
     }
@@ -63,7 +63,7 @@ internal class SavedEnvironmentLoading : IAffinity, IDisposable
         if (!_config.CustomEnvironmentEnabled ||
             (saveData is Version3CustomBeatmapSaveData customSaveData &&
              !_config.EnvironmentEnhancementsDisabled &&
-#if LATEST
+#if !PRE_V1_37_1
              (
 #else
              (Any(customSaveData.beatmapCustomData, V2_ENVIRONMENT_REMOVAL) ||
@@ -84,7 +84,7 @@ internal class SavedEnvironmentLoading : IAffinity, IDisposable
     }
 
     [AffinityTranspiler]
-#if LATEST
+#if !PRE_V1_37_1
     [AffinityPatch(
         typeof(BeatmapDataLoaderVersion3.BeatmapDataLoader),
         nameof(BeatmapDataLoaderVersion3.BeatmapDataLoader.GetBeatmapDataFromSaveData))]
@@ -106,7 +106,7 @@ internal class SavedEnvironmentLoading : IAffinity, IDisposable
     }
 
     [AffinityPrefix]
-#if LATEST
+#if !PRE_V1_37_1
     [AffinityPatch(
         typeof(DefaultEnvironmentEventsFactory),
         nameof(DefaultEnvironmentEventsFactory.InsertDefaultEvents))]
@@ -120,7 +120,7 @@ internal class SavedEnvironmentLoading : IAffinity, IDisposable
         if (!_config.CustomEnvironmentEnabled ||
             (beatmapData is CustomBeatmapData customBeatmapData &&
              !_config.EnvironmentEnhancementsDisabled &&
-#if LATEST
+#if !PRE_V1_37_1
              (
 #else
              (Any(customBeatmapData.beatmapCustomData, V2_ENVIRONMENT_REMOVAL) ||
@@ -151,7 +151,7 @@ internal class SavedEnvironmentLoading : IAffinity, IDisposable
         return false;
     }
 
-#if LATEST
+#if !PRE_V1_37_1
     [AffinityTranspiler]
     [AffinityPatch(
         typeof(BeatmapDataLoaderVersion3.BeatmapDataLoader),

@@ -5,17 +5,19 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using Chroma.EnvironmentEnhancement.Saved;
 using JetBrains.Annotations;
+using Zenject;
 
 namespace Chroma.Settings;
 
-internal class ChromaSettingsUI : IDisposable
+internal class ChromaSettingsUI : IInitializable, IDisposable
 {
     private const string NO_ENVIRONMENT = "None";
 
     private readonly Config _config;
+    private readonly GameplaySetup _gameplaySetup;
     private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 
-#if LATEST
+#if !PRE_V1_37_1
     private readonly BeatmapDataLoader _beatmapDataLoader;
 #else
     private readonly BeatmapDataCache _beatmapDataCache;
@@ -25,36 +27,48 @@ internal class ChromaSettingsUI : IDisposable
     [UIValue("environmentoptions")]
     private List<object?> _environmentOptions;
 
+    // i wish nico backported the bsml updates :(
     private ChromaSettingsUI(
         Config config,
+#if !V1_29_1
+        GameplaySetup gameplaySetup,
+#endif
         SavedEnvironmentLoader savedEnvironmentLoader,
-#if LATEST
+#if !PRE_V1_37_1
         BeatmapDataLoader beatmapDataLoader)
 #else
         BeatmapDataCache beatmapDataCache)
 #endif
     {
         _config = config;
+#if !V1_29_1
+        _gameplaySetup = gameplaySetup;
+#else
+        _gameplaySetup = GameplaySetup.instance;
+#endif
         _savedEnvironmentLoader = savedEnvironmentLoader;
-#if LATEST
+#if !PRE_V1_37_1
         _beatmapDataLoader = beatmapDataLoader;
 #else
         _beatmapDataCache = beatmapDataCache;
 #endif
         _environmentOptions = _savedEnvironmentLoader.Environments.Keys.Cast<object?>().Prepend(null).ToList();
+    }
 
-        GameplaySetup.instance.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", this);
+    public void Initialize()
+    {
+        _gameplaySetup.AddTab("Chroma", "Chroma.Settings.modifiers.bsml", this);
     }
 
     public void Dispose()
     {
-        GameplaySetup.instance.RemoveTab("Chroma");
+        _gameplaySetup.RemoveTab("Chroma");
     }
 
     // TODO: do a comparison instead of just always wiping the cache
     private void ClearCache()
     {
-#if LATEST
+#if !PRE_V1_37_1
         _beatmapDataLoader._lastUsedBeatmapDataCache = default;
 #else
         _beatmapDataCache.difficultyBeatmap = null;

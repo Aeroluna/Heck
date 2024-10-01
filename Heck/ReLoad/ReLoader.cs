@@ -11,7 +11,7 @@ using JetBrains.Annotations;
 using SiraUtil.Logging;
 using UnityEngine;
 using Zenject;
-#if !LATEST
+#if PRE_V1_37_1
 using System.Threading.Tasks;
 #endif
 
@@ -57,7 +57,7 @@ public class ReLoader : ITickable
     private readonly SiraLog _log;
     private readonly AudioTimeSyncController _audioTimeSyncController;
     private readonly ReLoaderLoader _reLoaderLoader;
-#if LATEST
+#if !PRE_V1_37_1
     private readonly PauseMenuManager.InitData _pauseInitData;
 #else
     private readonly IDifficultyBeatmap _difficultyBeatmap;
@@ -83,7 +83,7 @@ public class ReLoader : ITickable
         SiraLog log,
         AudioTimeSyncController audioTimeSyncController,
         AudioTimeSyncController.InitData audioTimeSyncControllerInitData,
-#if LATEST
+#if !PRE_V1_37_1
         PauseMenuManager.InitData pauseInitData,
 #else
         IDifficultyBeatmap difficultyBeatmap,
@@ -120,7 +120,7 @@ public class ReLoader : ITickable
         _beatmapTracks = beatmapTracks;
         _container = container;
         _config = config;
-#if LATEST
+#if !PRE_V1_37_1
         _pauseInitData = pauseInitData;
         if (beatmapData is CustomBeatmapData)
 #else
@@ -201,7 +201,7 @@ public class ReLoader : ITickable
             _gamePause.Pause();
         }
 
-#if LATEST
+#if !PRE_V1_37_1
         _reLoaderLoader.Reload();
         _gameplayCoreSceneSetupData.LoadTransformedBeatmapData();
         IReadonlyBeatmapData beatmapData = _gameplayCoreSceneSetupData.transformedBeatmapData;
@@ -216,7 +216,7 @@ public class ReLoader : ITickable
 
         HeckGameplayCoreSceneSetupData heckGameplayCoreSceneSetupData =
             (HeckGameplayCoreSceneSetupData)_gameplayCoreSceneSetupData;
-#if LATEST
+#if !PRE_V1_37_1
         _deserializerManager.DeserializeBeatmapData(
             _pauseInitData.beatmapLevel,
 #else

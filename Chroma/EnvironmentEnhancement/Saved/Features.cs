@@ -1,4 +1,4 @@
-﻿#if LATEST
+﻿#if !PRE_V1_37_1
 using _BasicEventData = BeatmapSaveDataVersion3.BasicEventData;
 #else
 using _BasicEventData = BeatmapSaveDataVersion3.BeatmapSaveData.BasicEventData;

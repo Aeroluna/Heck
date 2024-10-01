@@ -8,7 +8,7 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
     [UsedImplicitly]
     public StartMultiplayerLevelParameters(
         string gameMode,
-#if LATEST
+#if !PRE_V1_37_1
         in BeatmapKey beatmapKey,
         BeatmapLevel beatmapLevel,
         IBeatmapLevelData beatmapLevelData,
@@ -29,7 +29,7 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
         Action<DisconnectedReason> didDisconnectCallback)
         : base(
             gameMode,
-#if LATEST
+#if !PRE_V1_37_1
             in beatmapKey,
             beatmapLevel,
 #else
@@ -44,14 +44,14 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
             gameplayModifiers,
             playerSpecificSettings,
             practiceSettings,
-#if LATEST
+#if !PRE_V1_37_1
             null,
 #endif
             backButtonText,
             useTestNoteCutSoundEffects,
             false,
             beforeSceneSwitchCallback,
-#if LATEST
+#if !PRE_V1_37_1
             null,
 #endif
             null,
@@ -60,7 +60,7 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
 #endif
             null)
     {
-#if LATEST
+#if !PRE_V1_37_1
         BeatmapLevelData = beatmapLevelData;
 #else
         BeatmapDifficulty = beatmapDifficulty;
@@ -73,7 +73,7 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
     public StartMultiplayerLevelParameters(StartMultiplayerLevelParameters original)
         : base(original)
     {
-#if LATEST
+#if !PRE_V1_37_1
         BeatmapLevelData = original.BeatmapLevelData;
 #else
         BeatmapDifficulty = original.BeatmapDifficulty;
@@ -83,7 +83,7 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
         DidDisconnectCallback = original.DidDisconnectCallback;
     }
 
-#if LATEST
+#if !PRE_V1_37_1
     public IBeatmapLevelData BeatmapLevelData { get; }
 #else
     public BeatmapDifficulty BeatmapDifficulty { get; }

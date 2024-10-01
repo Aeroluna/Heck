@@ -109,7 +109,7 @@ internal class ChromaPlayerInstaller : Installer
         if (_environmentModule.Active)
         {
             // EnvironmentComponent
-#if !LATEST
+#if PRE_V1_37_1
             Container.BindInterfacesAndSelfTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();
 #endif
             Container.BindInterfacesAndSelfTo<ParametricBoxControllerTransformOverride>().AsSingle();

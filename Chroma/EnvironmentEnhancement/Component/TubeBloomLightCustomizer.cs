@@ -19,7 +19,7 @@ internal static class TubeBloomLightCustomizer
 
     internal static void SetColorAlphaMultiplier(TubeBloomPrePassLight tubeBloomPrePassLight, float value)
     {
-#if LATEST
+#if !PRE_V1_37_1
         tubeBloomPrePassLight._parametricBoxControllerOnceParInitialized = false;
         tubeBloomPrePassLight._bakedGlowOnceParInitialized = false;
 #endif

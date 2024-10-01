@@ -150,7 +150,7 @@ public sealed class PlayViewManager : IDisposable
 
         _menuTransitionsHelper.StartMultiplayerLevel(
             multiplayerStartParameters.GameMode,
-#if LATEST
+#if !PRE_V1_37_1
             multiplayerStartParameters.BeatmapKey,
             multiplayerStartParameters.BeatmapLevel,
             multiplayerStartParameters.BeatmapLevelData,
@@ -251,7 +251,7 @@ public sealed class PlayViewManager : IDisposable
 
         _menuTransitionsHelper.StartStandardLevel(
             _currentParameters.GameMode,
-#if LATEST
+#if !PRE_V1_37_1
             _currentParameters.BeatmapKey,
             _currentParameters.BeatmapLevel,
 #else
@@ -266,7 +266,7 @@ public sealed class PlayViewManager : IDisposable
             _currentParameters.GameplayModifiers,
             _currentParameters.PlayerSpecificSettings,
             _currentParameters.PracticeSettings,
-#if LATEST
+#if !PRE_V1_37_1
             _currentParameters.EnvironmentsListModel,
 #endif
             _currentParameters.BackButtonText,

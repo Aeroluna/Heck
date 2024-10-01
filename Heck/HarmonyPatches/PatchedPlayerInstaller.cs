@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
@@ -63,7 +61,7 @@ internal class PatchedPlayerInstaller : IAffinity
                 untransformedBeatmapData = customBeatmapData;
             }
 
-#if LATEST
+#if !PRE_V1_37_1
             _deserializerManager.DeserializeBeatmapData(
                 sceneSetupData.beatmapLevel,
 #else

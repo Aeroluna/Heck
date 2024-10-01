@@ -32,7 +32,7 @@ internal class ReLoadRestart : IAffinity
         if (_config.ReloadOnRestart &&
             ____standardLevelScenesTransitionSetupData.practiceSettings != null)
         {
-#if LATEST
+#if !PRE_V1_37_1
             _reLoaderLoader.Reload();
 #else
             _reLoaderLoader.Reload(____standardLevelScenesTransitionSetupData.difficultyBeatmap);

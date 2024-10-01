@@ -16,7 +16,7 @@ using SiraUtil.Logging;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
-#if LATEST
+#if V1_37_1
 using BeatSaber.GameSettings;
 using BeatSaber.PerformancePresets;
 using Heck.HarmonyPatches;
@@ -43,7 +43,10 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
     private readonly VerticalLayoutGroup _topVertical = null!;
 
     private SiraLog _log = null!;
+    private BSMLParser _bsmlParser = null!;
 #if LATEST
+    private SettingsManager _settingsManager = null!;
+#elif V1_37_1
     private GraphicSettingsHandler _graphicSettingsHandler = null!;
     private PerformancePresetOverride _performancePresetOverride = null!;
 #else
@@ -56,7 +59,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
     private StartStandardLevelParameters? _defaultParameters;
     private StartStandardLevelParameters? _modifiedParameters;
 
-#if !LATEST
+#if !V1_37_1
     private SettableMainSettings? _cachedMainSettings;
 #endif
     private SettableMainSettings? _modifiedMainSettings;
@@ -101,7 +104,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         // When in doubt, wrap everything in one big try catch statement!
         try
         {
-#if LATEST
+#if !PRE_V1_37_1
             CustomData beatmapCustomData =
                 startParameters.BeatmapLevel.GetBeatmapCustomData(startParameters.BeatmapKey);
 #else
@@ -281,7 +284,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                 }
 
                 _modifiedMainSettings = null;
-#if !LATEST
+#if !V1_37_1
                 _cachedMainSettings = null;
 #endif
                 CustomData? jsonGraphics = settings.Get<CustomData>("_graphics");
@@ -291,6 +294,17 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                         SettingSetterSettableSettingsManager.SettingsTable["_graphics"];
 
 #if LATEST
+                    BeatSaber.Settings.QualitySettings qualitySettings = _settingsManager.settings.quality;
+                    _cachedMainSettings = new SettableMainSettings(
+                        (int)qualitySettings.mirror,
+                        (int)qualitySettings.mainEffect,
+                        qualitySettings.smokeGraphics,
+                        qualitySettings.burnMarkTrails,
+                        qualitySettings.screenDisplacementEffects,
+                        qualitySettings.maxShockwaveParticles);
+
+                    _modifiedMainSettings = _cachedMainSettings with { };
+#elif V1_37_1
                     if (!_graphicSettingsHandler.TryGetCurrentPerformancePreset(out PerformancePreset? preset))
                     {
                         throw new Exception("Could not get current performance preset.");
@@ -394,7 +408,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                     ParametersModified?.Invoke(_modifiedParameters);
                     _declined = false;
                     _defaultParameters = startParameters;
-                    BSMLParser.instance.Parse(ContentBSML, gameObject, this);
+                    _bsmlParser.Parse(ContentBSML, gameObject, this);
                     return true;
                 }
             }
@@ -418,7 +432,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         }
 
         RectTransform rect = (RectTransform)_topVertical.transform;
-#if LATEST
+#if !PRE_V1_37_1
         rect.anchorMax = new Vector2(rect.anchorMax.x, 1.55f);
 #else
         rect.anchorMax = new Vector2(rect.anchorMax.x, 1.25f);
@@ -438,6 +452,15 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             _log.Trace("Main settings modified");
 
 #if LATEST
+            _settingsManager.settings.quality.mirror =
+                (BeatSaber.Settings.QualitySettings.MirrorQuality)_modifiedMainSettings.MirrorGraphicsSettings;
+            _settingsManager.settings.quality.mainEffect =
+                (BeatSaber.Settings.QualitySettings.MainEffectOption)_modifiedMainSettings.MainEffectGraphicsSettings;
+            _settingsManager.settings.quality.smokeGraphics = _modifiedMainSettings.SmokeGraphicsSettings;
+            _settingsManager.settings.quality.burnMarkTrails = _modifiedMainSettings.BurnMarkTrailsEnabled;
+            _settingsManager.settings.quality.screenDisplacementEffects = _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
+            _settingsManager.settings.quality.maxShockwaveParticles = _modifiedMainSettings.MaxShockwaveParticles;
+#elif V1_37_1
             _performancePresetOverride.SettingsOverride = _modifiedMainSettings;
 #else
             _mainSettings.mirrorGraphicsSettings.value = _modifiedMainSettings.MirrorGraphicsSettings;
@@ -488,13 +511,24 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             _cachedOverrideEnvironmentSettings = null;
         }
 
-#if !LATEST
+#if !V1_37_1
         if (_cachedMainSettings == null)
         {
             return;
         }
 
         _log.Trace("Main settings restored");
+
+#if LATEST
+        _settingsManager.settings.quality.mirror =
+            (BeatSaber.Settings.QualitySettings.MirrorQuality)_cachedMainSettings.MirrorGraphicsSettings;
+        _settingsManager.settings.quality.mainEffect =
+            (BeatSaber.Settings.QualitySettings.MainEffectOption)_cachedMainSettings.MainEffectGraphicsSettings;
+        _settingsManager.settings.quality.smokeGraphics = _cachedMainSettings.SmokeGraphicsSettings;
+        _settingsManager.settings.quality.burnMarkTrails = _cachedMainSettings.BurnMarkTrailsEnabled;
+        _settingsManager.settings.quality.screenDisplacementEffects = _cachedMainSettings.ScreenDisplacementEffectsEnabled;
+        _settingsManager.settings.quality.maxShockwaveParticles = _cachedMainSettings.MaxShockwaveParticles;
+#else
         _mainSettings.mirrorGraphicsSettings.value = _cachedMainSettings.MirrorGraphicsSettings;
         _mainSettings.mainEffectGraphicsSettings.value = _cachedMainSettings.MainEffectGraphicsSettings;
         _mainSettings.smokeGraphicsSettings.value = _cachedMainSettings.SmokeGraphicsSettings;
@@ -503,6 +537,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         _mainSettings.maxShockwaveParticles.value = _cachedMainSettings.MaxShockwaveParticles;
         _mainSettings.depthTextureEnabled.value = _mainSettings.smokeGraphicsSettings;
         _mainSystemInit.Init();
+#endif
 
         _cachedMainSettings = null;
 #endif
@@ -513,7 +548,12 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
     private void Construct(
         SiraLog log,
         GameplaySetupViewController gameplaySetupViewController,
+#if !V1_29_1
+        BSMLParser bsmlParser,
+#endif
 #if LATEST
+        SettingsManager settingsManager,
+#elif V1_37_1
         GraphicSettingsHandler graphicSettingsHandler,
         PerformancePresetOverride performancePresetOverride,
 #endif
@@ -522,7 +562,14 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         _log = log;
         _colorSchemesSettings = gameplaySetupViewController.colorSchemesSettings;
         _playerDataModel = playerDataModel;
+#if !V1_29_1
+        _bsmlParser = bsmlParser;
+#else
+        _bsmlParser = BSMLParser.instance;
+#endif
 #if LATEST
+        _settingsManager = settingsManager;
+#elif V1_37_1
         _graphicSettingsHandler = graphicSettingsHandler;
         _performancePresetOverride = performancePresetOverride;
 #else
@@ -540,7 +587,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             throw new InvalidOperationException($"[{nameof(_defaultParameters)}] was null.");
         }
 
-#if !LATEST
+#if !V1_37_1
         _cachedMainSettings = null;
 #endif
         _modifiedMainSettings = null;

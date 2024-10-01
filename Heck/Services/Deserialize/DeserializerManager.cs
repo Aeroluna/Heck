@@ -23,7 +23,7 @@ internal class DeserializerManager
     }
 
     internal void DeserializeBeatmapData(
-#if LATEST
+#if !PRE_V1_37_1
         BeatmapLevel beatmapLevel,
 #else
         IDifficultyBeatmap difficultyBeatmap,
@@ -141,7 +141,7 @@ internal class DeserializerManager
         // Currently used by Chroma.GameObjectTrackController
         beatmapTracks = trackManager.Tracks;
 
-#if LATEST
+#if !PRE_V1_37_1
         float bpm = beatmapLevel.beatsPerMinute;
 #else
         float bpm = difficultyBeatmap.level.beatsPerMinute;

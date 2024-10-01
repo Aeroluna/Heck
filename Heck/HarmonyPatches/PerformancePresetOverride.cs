@@ -1,4 +1,4 @@
-#if LATEST
+#if V1_37_1
 using BeatSaber.PerformancePresets;
 using BGLib.JsonExtension;
 using Heck.SettingsSetter;

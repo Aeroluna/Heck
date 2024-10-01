@@ -4,7 +4,7 @@ using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
 using static NoodleExtensions.NoodleController;
-#if LATEST
+#if !PRE_V1_37_1
 using BeatmapSaveDataVersion2_6_0AndEarlier;
 #else
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ namespace NoodleExtensions.HarmonyPatches.FakeNotes;
 [HeckPatch]
 internal static class BeatmapDataFakeCount
 {
-#if LATEST
+#if !PRE_V1_37_1
     // We only need to patch v2 maps for fake note counting,
     // v3 maps have fake objects in a separate array that doesn't get counted by vanilla!
     [HarmonyPrefix]
@@ -39,7 +39,14 @@ internal static class BeatmapDataFakeCount
         int count = totalNotes.Count(n => n.type != NoteType.Bomb);
         int count2 = beatmapSaveData.obstacles.Count(n => n.FakeConditionV2(V2_FAKE_NOTE));
         int count3 = totalNotes.Length - count;
-        __result = new BeatmapDataBasicInfo(4, count, count2, count3);
+        __result = new BeatmapDataBasicInfo(
+            4,
+            count,
+#if LATEST
+            count,
+#endif
+            count2,
+            count3);
         return false;
     }
 

@@ -2,7 +2,7 @@
 using CustomJSONData.CustomBeatmap;
 using Newtonsoft.Json;
 using static NoodleExtensions.NoodleController;
-#if LATEST
+#if !PRE_V1_37_1
 using _BombNoteData = BeatmapSaveDataVersion3.BombNoteData;
 using _BurstSliderData = BeatmapSaveDataVersion3.BurstSliderData;
 using _ColorNoteData = BeatmapSaveDataVersion3.ColorNoteData;
@@ -20,13 +20,13 @@ internal class FakeNotesJson
 {
     [CustomJSONDataDeserializer.JSONDeserializer("fakeBombNotes")]
     private static bool HandleFakeBombs(
-#if !LATEST
+#if PRE_V1_37_1
         Version3CustomBeatmapSaveData.SaveDataCustomDatas customData,
 #endif
         List<_BombNoteData> bombNotes,
         JsonTextReader reader)
     {
-#if !LATEST
+#if PRE_V1_37_1
         if (CheckRequirement(customData))
         {
             return true;
@@ -43,13 +43,13 @@ internal class FakeNotesJson
 
     [CustomJSONDataDeserializer.JSONDeserializer("fakeBurstSliders")]
     private static bool HandleFakeBurstSliders(
-#if !LATEST
+#if PRE_V1_37_1
         Version3CustomBeatmapSaveData.SaveDataCustomDatas customData,
 #endif
         List<_BurstSliderData> burstSliders,
         JsonTextReader reader)
     {
-#if !LATEST
+#if PRE_V1_37_1
         if (CheckRequirement(customData))
         {
             return true;
@@ -66,13 +66,13 @@ internal class FakeNotesJson
 
     [CustomJSONDataDeserializer.JSONDeserializer("fakeColorNotes")]
     private static bool HandleFakeNotes(
-#if !LATEST
+#if PRE_V1_37_1
         Version3CustomBeatmapSaveData.SaveDataCustomDatas customData,
 #endif
         List<_ColorNoteData> colorNotes,
         JsonTextReader reader)
     {
-#if !LATEST
+#if PRE_V1_37_1
         if (CheckRequirement(customData))
         {
             return true;
@@ -89,13 +89,13 @@ internal class FakeNotesJson
 
     [CustomJSONDataDeserializer.JSONDeserializer("fakeObstacles")]
     private static bool HandleFakeObstacles(
-#if !LATEST
+#if PRE_V1_37_1
         Version3CustomBeatmapSaveData.SaveDataCustomDatas customData,
 #endif
         List<_ObstacleData> obstacles,
         JsonTextReader reader)
     {
-#if !LATEST
+#if PRE_V1_37_1
         if (CheckRequirement(customData))
         {
             return true;
@@ -110,7 +110,7 @@ internal class FakeNotesJson
         return false;
     }
 
-#if !LATEST
+#if PRE_V1_37_1
     private static bool CheckRequirement(Version3CustomBeatmapSaveData.SaveDataCustomDatas customData)
     {
         return !(customData.beatmapCustomData.Get<List<object>>("_requirements")?.Contains(CAPABILITY) ?? false);

@@ -113,7 +113,7 @@ public class ModuleManager : IDisposable
     }
 
     internal void Activate(
-#if LATEST
+#if !PRE_V1_37_1
         in BeatmapKey beatmapKey,
         BeatmapLevel? beatmapLevel,
 #else
@@ -125,7 +125,7 @@ public class ModuleManager : IDisposable
         bool disableAll = false;
         string[]? requirements = null;
         string[]? suggestions = null;
-#if LATEST
+#if !PRE_V1_37_1
         CustomData? beatmapCustomData = beatmapLevel?.GetBeatmapCustomData(beatmapKey);
         if (beatmapCustomData != null)
         {
@@ -152,7 +152,7 @@ public class ModuleManager : IDisposable
         object[] inputs =
         {
             new Capabilities(requirements, suggestions),
-#if LATEST
+#if !PRE_V1_37_1
             beatmapKey,
             beatmapLevel ??
             new BeatmapLevel(

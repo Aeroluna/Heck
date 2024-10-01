@@ -5,7 +5,7 @@ using Heck;
 using Heck.Module;
 using SiraUtil.Logging;
 using static Chroma.ChromaController;
-#if !LATEST
+#if PRE_V1_37_1
 using Chroma.Lighting;
 using CustomJSONData.CustomBeatmap;
 #endif
@@ -37,7 +37,7 @@ internal class FeaturesModule : IModule
 
     [ModuleCondition]
     private bool Condition(
-#if !LATEST
+#if PRE_V1_37_1
         IDifficultyBeatmap difficultyBeatmap,
 #endif
         Capabilities capabilities)
@@ -52,7 +52,7 @@ internal class FeaturesModule : IModule
         // unfortunately that would be after environment info is loaded so it wouldnt be possible to override the OverrideEnvironmentSettings for the environment module
         // for now we will listen to for the legacy capability, but this will miss maps who dont set requirements unfortunately
         // please let me remove this shit
-#if LATEST
+#if !PRE_V1_37_1
         bool legacyOverride = capabilities.Requirements.Contains(LEGACY_CAPABILITY) ||
                               capabilities.Suggestions.Contains(LEGACY_CAPABILITY);
 #else

@@ -1,4 +1,4 @@
-﻿#if !LATEST
+﻿#if PRE_V1_37_1
 using System.Collections.Generic;
 using Heck.Animation.Transform;
 using SiraUtil.Affinity;

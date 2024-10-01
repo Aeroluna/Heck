@@ -30,7 +30,7 @@ public class Capability
 
         MethodInfo register = AccessTools.Method(collections, "RegisterCapability");
         _register = (Action<string>)Delegate.CreateDelegate(typeof(Action<string>), register);
-#if LATEST
+#if !PRE_V1_37_1
         // random rename in 1.37.0 songcore
         MethodInfo deregister = AccessTools.Method(collections, "DeregisterCapability");
 #else

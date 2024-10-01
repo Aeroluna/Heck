@@ -1,5 +1,5 @@
 ﻿using JetBrains.Annotations;
-#if !LATEST
+#if PRE_V1_37_1
 using System;
 using System.Linq;
 using BeatmapSaveDataVersion3;
@@ -11,7 +11,7 @@ namespace Heck.ReLoad;
 
 public class ReLoaderLoader
 {
-#if LATEST
+#if !PRE_V1_37_1
     private readonly BeatmapDataLoader _beatmapDataLoader;
 
     [UsedImplicitly]

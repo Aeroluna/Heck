@@ -1,6 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
-#if LATEST
+#if !PRE_V1_37_1
 using Zenject;
 #endif
 
@@ -11,7 +11,7 @@ public class StartStandardLevelParameters
     [UsedImplicitly]
     public StartStandardLevelParameters(
         string gameMode,
-#if LATEST
+#if !PRE_V1_37_1
         in BeatmapKey beatmapKey,
         BeatmapLevel beatmapLevel,
 #else
@@ -26,14 +26,14 @@ public class StartStandardLevelParameters
         GameplayModifiers gameplayModifiers,
         PlayerSpecificSettings playerSpecificSettings,
         PracticeSettings? practiceSettings,
-#if LATEST
+#if !PRE_V1_37_1
         EnvironmentsListModel? environmentsListModel,
 #endif
         string backButtonText,
         bool useTestNoteCutSoundEffects,
         bool startPaused,
         Action? beforeSceneSwitchCallback,
-#if LATEST
+#if !PRE_V1_37_1
         Action<DiContainer>? afterSceneSwitchCallback,
 #endif
         Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>? levelFinishedCallback,
@@ -45,7 +45,7 @@ public class StartStandardLevelParameters
 #endif
     {
         GameMode = gameMode;
-#if LATEST
+#if !PRE_V1_37_1
         BeatmapKey = beatmapKey;
         BeatmapLevel = beatmapLevel;
 #else
@@ -60,7 +60,7 @@ public class StartStandardLevelParameters
         GameplayModifiers = gameplayModifiers;
         PlayerSpecificSettings = playerSpecificSettings;
         PracticeSettings = practiceSettings;
-#if LATEST
+#if !PRE_V1_37_1
         EnvironmentsListModel = environmentsListModel;
 #endif
         BackButtonText = backButtonText;
@@ -77,7 +77,7 @@ public class StartStandardLevelParameters
     public StartStandardLevelParameters(StartStandardLevelParameters original)
     {
         GameMode = original.GameMode;
-#if LATEST
+#if !PRE_V1_37_1
         BeatmapKey = original.BeatmapKey;
         BeatmapLevel = original.BeatmapLevel;
 #else
@@ -92,7 +92,7 @@ public class StartStandardLevelParameters
         GameplayModifiers = original.GameplayModifiers;
         PlayerSpecificSettings = original.PlayerSpecificSettings;
         PracticeSettings = original.PracticeSettings;
-#if LATEST
+#if !PRE_V1_37_1
         EnvironmentsListModel = original.EnvironmentsListModel;
 #endif
         BackButtonText = original.BackButtonText;
@@ -108,7 +108,7 @@ public class StartStandardLevelParameters
 
     public string GameMode { get; }
 
-#if LATEST
+#if !PRE_V1_37_1
     public BeatmapKey BeatmapKey { get; }
 
     public BeatmapLevel BeatmapLevel { get; }
@@ -132,7 +132,7 @@ public class StartStandardLevelParameters
 
     public PracticeSettings? PracticeSettings { get; }
 
-#if LATEST
+#if !PRE_V1_37_1
     public EnvironmentsListModel? EnvironmentsListModel { get; }
 #endif
 

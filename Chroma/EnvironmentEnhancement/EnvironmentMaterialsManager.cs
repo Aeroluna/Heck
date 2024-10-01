@@ -7,7 +7,7 @@ using SiraUtil.Logging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
-#if LATEST
+#if !PRE_V1_37_1
 using UnityEngine.AddressableAssets;
 using _AsyncOperation =
     UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<
@@ -23,7 +23,7 @@ internal class EnvironmentMaterialsManager : MonoBehaviour
     private Dictionary<ShaderType, Material>? _environmentMaterials;
     private SiraLog _log = null!;
 
-#if LATEST
+#if !PRE_V1_37_1
     private Shader? _waterLit;
 #endif
 
@@ -40,7 +40,7 @@ internal class EnvironmentMaterialsManager : MonoBehaviour
         }
     }
 
-#if LATEST
+#if !PRE_V1_37_1
     internal Shader WaterLit
     {
         get
@@ -77,7 +77,7 @@ internal class EnvironmentMaterialsManager : MonoBehaviour
         Save(ShaderType.WaterfallMirror, "WaterfallMirror");
         Save(ShaderType.InterscopeConcrete, "Concrete2");
         Save(ShaderType.InterscopeCar, "Car");
-#if LATEST
+#if !PRE_V1_37_1
         _waterLit = Resources.FindObjectsOfTypeAll<Shader>().First(n => n.name == "Custom/WaterLit");
 #endif
 
@@ -93,7 +93,7 @@ internal class EnvironmentMaterialsManager : MonoBehaviour
             Material? material = environmentMaterials.FirstOrDefault(e => e.name == matName);
             if (material != null)
             {
-#if LATEST
+#if !PRE_V1_37_1
                 // must be copied because the original gets unloaded.
                 material = new Material(material);
 #endif
@@ -109,7 +109,7 @@ internal class EnvironmentMaterialsManager : MonoBehaviour
         _AsyncOperation Load(string environmentName)
         {
             _log.Trace($"Loading environment [{environmentName}]");
-#if LATEST
+#if !PRE_V1_37_1
             return Addressables.LoadSceneAsync(environmentName, LoadSceneMode.Additive, true, int.MaxValue);
 #else
             return SceneManager.LoadSceneAsync(environmentName, LoadSceneMode.Additive) ??

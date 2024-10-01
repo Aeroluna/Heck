@@ -8,7 +8,7 @@ internal class ReloadListener : ITickable
 {
     private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 
-#if LATEST
+#if !PRE_V1_37_1
     private readonly BeatmapDataLoader _beatmapDataLoader;
 #else
     private readonly BeatmapDataCache _beatmapDataCache;
@@ -17,14 +17,14 @@ internal class ReloadListener : ITickable
     [UsedImplicitly]
     private ReloadListener(
         SavedEnvironmentLoader savedEnvironmentLoader,
-#if LATEST
+#if !PRE_V1_37_1
         BeatmapDataLoader beatmapDataLoader)
 #else
         BeatmapDataCache beatmapDataCache)
 #endif
     {
         _savedEnvironmentLoader = savedEnvironmentLoader;
-#if LATEST
+#if !PRE_V1_37_1
         _beatmapDataLoader = beatmapDataLoader;
 #else
         _beatmapDataCache = beatmapDataCache;
@@ -38,7 +38,7 @@ internal class ReloadListener : ITickable
             return;
         }
 
-#if LATEST
+#if !PRE_V1_37_1
         _beatmapDataLoader._lastUsedBeatmapDataCache = default;
 #else
         _beatmapDataCache.difficultyBeatmap = null;

@@ -22,7 +22,6 @@ internal class ChromaAppInstaller : Installer
     public override void InstallBindings()
     {
         Container.BindInstance(_config);
-        Container.BindInterfacesTo<ChromaSettingsUI>().AsSingle().NonLazy();
 
         Container.Bind<SavedEnvironmentLoader>().AsSingle();
         Container.Bind<EnvironmentMaterialsManager>().FromNewComponentOnNewGameObject().AsSingle();

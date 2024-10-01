@@ -178,7 +178,7 @@ internal static class ProcessNotesNoodleDataInTimeRow
                 }
                 else
                 {
-#if LATEST
+#if !PRE_V1_37_1
                     noteData.MarkAsSliderHead();
 #else
                     noteData.ChangeToSliderHead();
@@ -209,7 +209,7 @@ internal static class ProcessNotesNoodleDataInTimeRow
                 sliderData.customData[INTERNAL_TAILSTARTNOTELINELAYER] =
                     noteData.customData[INTERNAL_STARTNOTELINELAYER];
                 sliderData.SetTailBeforeJumpLineLayer(noteData.beforeJumpNoteLineLayer);
-#if LATEST
+#if !PRE_V1_37_1
                 noteData.MarkAsSliderTail();
 #else
                 noteData.ChangeToSliderTail();
