@@ -468,7 +468,7 @@ public sealed class ChromaLightSwitchEventEffect : IDisposable
                     selectLights = propID switch
                     {
                         List<object> propIdObjects => Colorizer.GetPropagationLightWithIds(propIdObjects),
-                        long => Colorizer.GetPropagationLightWithId((int)propID),
+                        long longId => Colorizer.GetPropagationLightWithId((int)longId),
                         _ => selectLights
                     };
                 }
