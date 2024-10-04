@@ -14,6 +14,7 @@ internal class ChromaGradientController : ITickable
     private readonly IBpmController _bpmController;
     private readonly LightColorizerManager _manager;
     private readonly IAudioTimeSource _timeSource;
+    private readonly List<BasicBeatmapEventType> _reusableEventTypes = [];
 
     private ChromaGradientController(
         IAudioTimeSource timeSource,
@@ -31,9 +32,20 @@ internal class ChromaGradientController : ITickable
     {
         foreach ((BasicBeatmapEventType eventType, ChromaGradientEvent value) in Gradients)
         {
-            Color color = value.Interpolate();
+            Color color = value.Interpolate(out bool onLast);
             _manager.Colorize(eventType, true, color, color, color, color);
+            if (onLast)
+            {
+                _reusableEventTypes.Add(eventType);
+            }
         }
+
+        foreach (BasicBeatmapEventType basicBeatmapEventType in _reusableEventTypes)
+        {
+            Gradients.Remove(basicBeatmapEventType);
+        }
+
+        _reusableEventTypes.Clear();
     }
 
     internal Color AddGradient(ChromaEventData.GradientObjectData gradientObject, BasicBeatmapEventType id, float time)
@@ -41,21 +53,24 @@ internal class ChromaGradientController : ITickable
         CancelGradient(id);
 
         float duration = gradientObject.Duration;
-        Color initcolor = gradientObject.StartColor;
-        Color endcolor = gradientObject.EndColor;
+        Color initColor = gradientObject.StartColor;
+        Color endColor = gradientObject.EndColor;
         Functions easing = gradientObject.Easing;
 
         ChromaGradientEvent gradientEvent = new(
             _timeSource,
-            this,
-            initcolor,
-            endcolor,
+            initColor,
+            endColor,
             time,
             (60 * duration) / _bpmController.currentBpm,
-            id,
             easing);
-        Gradients[id] = gradientEvent;
-        return gradientEvent.Interpolate();
+        Color color = gradientEvent.Interpolate(out bool onLast);
+        if (!onLast)
+        {
+            Gradients[id] = gradientEvent;
+        }
+
+        return color;
     }
 
     internal void CancelGradient(BasicBeatmapEventType eventType)
@@ -69,51 +84,47 @@ internal class ChromaGradientController : ITickable
     }
 
     [UsedImplicitly]
-    internal class ChromaGradientEvent
+    internal readonly struct ChromaGradientEvent
     {
         private readonly float _duration;
         private readonly Functions _easing;
         private readonly Color _endcolor;
-        private readonly BasicBeatmapEventType _event;
-        private readonly ChromaGradientController _gradientController;
         private readonly Color _initcolor;
         private readonly float _start;
         private readonly IAudioTimeSource _timeSource;
 
         internal ChromaGradientEvent(
             IAudioTimeSource timeSource,
-            ChromaGradientController gradientController,
             Color initcolor,
             Color endcolor,
             float start,
             float duration,
-            BasicBeatmapEventType eventType,
             Functions easing = Functions.easeLinear)
         {
             _timeSource = timeSource;
-            _gradientController = gradientController;
             _initcolor = initcolor;
             _endcolor = endcolor;
             _start = start;
             _duration = duration;
-            _event = eventType;
             _easing = easing;
         }
 
-        internal Color Interpolate()
+        internal Color Interpolate(out bool onLast)
         {
             float normalTime = _timeSource.songTime - _start;
             if (normalTime < 0)
             {
+                onLast = false;
                 return _initcolor;
             }
 
             if (normalTime <= _duration)
             {
+                onLast = false;
                 return Color.LerpUnclamped(_initcolor, _endcolor, Easings.Interpolate(normalTime / _duration, _easing));
             }
 
-            _gradientController.Gradients.Remove(_event);
+            onLast = true;
             return _endcolor;
         }
     }
