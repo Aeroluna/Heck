@@ -1,11 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Chroma.EnvironmentEnhancement.Saved;
-using Chroma.Lighting;
 using Chroma.Settings;
 using Heck;
 using Heck.Module;
-using SiraUtil.Logging;
 using static Chroma.ChromaController;
 #if !PRE_V1_37_1
 using _EnvironmentType = EnvironmentType;
@@ -51,7 +48,6 @@ internal class EnvironmentModule : IModule
         "GagaEnvironment"
     ];
 
-    private readonly SiraLog _log;
     private readonly Config _config;
     private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 #if !PRE_V1_37_1
@@ -61,7 +57,6 @@ internal class EnvironmentModule : IModule
 #endif
 
     private EnvironmentModule(
-        SiraLog log,
         Config config,
         SavedEnvironmentLoader savedEnvironmentLoader,
 #if !PRE_V1_37_1
@@ -70,7 +65,6 @@ internal class EnvironmentModule : IModule
         CustomLevelLoader customLevelLoader)
 #endif
     {
-        _log = log;
         _config = config;
         _savedEnvironmentLoader = savedEnvironmentLoader;
 #if !PRE_V1_37_1
@@ -80,7 +74,16 @@ internal class EnvironmentModule : IModule
 #endif
     }
 
+    internal enum EnvironmentOverrideType
+    {
+        None,
+        MapOverride,
+        SavedOverride
+    }
+
     internal bool Active { get; private set; }
+
+    internal EnvironmentOverrideType OverrideType { get; private set; }
 
     [ModuleCallback]
     private void Callback(bool value)
@@ -129,20 +132,11 @@ internal class EnvironmentModule : IModule
               (customBeatmapSaveData.customData.Get<List<object>>(ENVIRONMENT)?.Count ?? 0) > 0)))
 #endif
         {
-            // TODO: this logic should probably not be in the condition
             if (settingForce || dependency)
             {
-                try
-                {
-                    LightIDTableManager.SetEnvironment(environmentInfo.serializedName);
-                    moduleArgs.OverrideEnvironmentSettings = null;
-
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    _log.Error(e);
-                }
+                moduleArgs.OverrideEnvironmentSettings = null;
+                OverrideType = EnvironmentOverrideType.MapOverride;
+                return true;
             }
         }
         else if (moduleArgs.OverrideEnvironmentSettings != null)
@@ -157,23 +151,18 @@ internal class EnvironmentModule : IModule
                 EnvironmentInfoSO overrideEnv =
                     _customLevelLoader.LoadEnvironmentInfo(savedEnvironment.EnvironmentName, type);
 #endif
-                LightIDTableManager.SetEnvironment(overrideEnv.serializedName);
                 OverrideEnvironmentSettings newSettings = new()
                 {
                     overrideEnvironments = true
                 };
                 newSettings.SetEnvironmentInfoForType(type, overrideEnv);
                 moduleArgs.OverrideEnvironmentSettings = newSettings;
+                OverrideType = EnvironmentOverrideType.SavedOverride;
                 return true;
             }
         }
 
-        OverrideEnvironmentSettings? environmentSettings = moduleArgs.OverrideEnvironmentSettings;
-        LightIDTableManager.SetEnvironment(
-            environmentSettings is { overrideEnvironments: true }
-                ? environmentSettings.GetOverrideEnvironmentInfoForType(type).serializedName
-                : environmentInfo.serializedName);
-
+        OverrideType = EnvironmentOverrideType.None;
         return dependency;
     }
 }

@@ -31,8 +31,8 @@ internal class LightIDTableManager : IInitializable
 
     private static readonly Dictionary<string, Dictionary<int, Dictionary<int, int>>> _lightIDTable = new();
 
-    private static Dictionary<int, Dictionary<int, int>>? _loadedTable;
     private readonly Config _config;
+    private readonly EnvironmentSceneSetupData _environmentSceneSetupData;
 
     private readonly HashSet<Tuple<int, int>> _failureLog = [];
 
@@ -40,22 +40,34 @@ internal class LightIDTableManager : IInitializable
 
     private Dictionary<int, Dictionary<int, int>>? _activeTable;
 
-    private LightIDTableManager(SiraLog log, Config config)
+    private LightIDTableManager(SiraLog log, Config config, EnvironmentSceneSetupData environmentSceneSetupData)
     {
         _log = log;
         _config = config;
+        _environmentSceneSetupData = environmentSceneSetupData;
     }
 
     public void Initialize()
     {
-        _activeTable = _loadedTable?.ToDictionary(n => n.Key, n => n.Value.ToDictionary(m => m.Key, m => m.Value));
+        string environmentName = _environmentSceneSetupData.environmentInfo.serializedName;
+        Dictionary<int, Dictionary<int, int>> loadedTable;
+        if (_lightIDTable.TryGetValue(environmentName, out Dictionary<int, Dictionary<int, int>> selectedTable))
+        {
+            loadedTable = selectedTable;
+        }
+        else
+        {
+            loadedTable = _defaultTable;
+            Plugin.Log.Warn($"Table not found for [{environmentName}]");
+        }
+
+        _activeTable = loadedTable.ToDictionary(n => n.Key, n => n.Value.ToDictionary(m => m.Key, m => m.Value));
     }
 
-    // TODO: do a ??=
     internal static void InitTable()
     {
         const string tableNamespace = "Chroma.LightIDTables.";
-        Assembly assembly = Assembly.GetExecutingAssembly();
+        Assembly assembly = typeof(LightIDTableManager).Assembly;
         IEnumerable<string> tableNames = assembly.GetManifestResourceNames().Where(n => n.StartsWith(tableNamespace));
         foreach (string tableName in tableNames)
         {
@@ -80,22 +92,6 @@ internal class LightIDTableManager : IInitializable
                     tableName.IndexOf(tableNamespace, StringComparison.Ordinal),
                     tableNamespace.Length));
             _lightIDTable.Add(tableNameWithoutExtension, typeTable);
-        }
-    }
-
-    internal static void SetEnvironment(string environmentName)
-    {
-        if (_lightIDTable.TryGetValue(environmentName, out Dictionary<int, Dictionary<int, int>> selectedTable))
-        {
-            ////_activeTable = activeTable.ToDictionary(n => n.Key, n => n.Value.ToDictionary(m => m.Key, m => m.Value));
-            _loadedTable = selectedTable;
-        }
-        else
-        {
-            ////_activeTable = new Dictionary<int, Dictionary<int, int>>();
-            ////Enumerable.Range(0, 10).Do(n => _activeTable[n] = new Dictionary<int, int>());
-            _loadedTable = _defaultTable;
-            Plugin.Log.Warn($"Table not found for: {environmentName}");
         }
     }
 

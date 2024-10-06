@@ -5,6 +5,7 @@ using System.Linq;
 using Chroma.EnvironmentEnhancement.Component;
 using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.HarmonyPatches.EnvironmentComponent;
+using Chroma.Modules;
 using Chroma.Settings;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
@@ -36,6 +37,7 @@ internal class EnvironmentEnhancementManager : IAffinity
     private readonly CustomBeatmapData _beatmapData;
 #if PRE_V1_37_1
     private readonly BeatmapObjectsAvoidanceTransformOverride _beatmapObjectsAvoidanceTransformOverride;
+    private readonly CustomLevelLoader _customLevelLoader;
 #endif
     private readonly ComponentCustomizer _componentCustomizer;
     private readonly Config _config;
@@ -46,9 +48,11 @@ internal class EnvironmentEnhancementManager : IAffinity
     private readonly SiraLog _log;
     private readonly ParametricBoxControllerTransformOverride _parametricBoxControllerTransformOverride;
     private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
+    private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData;
+    private readonly GameScenesManager _gameScenesManager;
+    private readonly EnvironmentModule _environmentModule;
     private readonly TrackLaneRingOffset _trackLaneRingOffset;
     private readonly Dictionary<string, Track> _tracks;
-    private readonly bool _usingOverrideEnvironment;
 
     private EnvironmentEnhancementManager(
         SiraLog log,
@@ -60,13 +64,16 @@ internal class EnvironmentEnhancementManager : IAffinity
         ParametricBoxControllerTransformOverride parametricBoxControllerTransformOverride,
 #if PRE_V1_37_1
         BeatmapObjectsAvoidanceTransformOverride beatmapObjectsAvoidanceTransformOverride,
+        CustomLevelLoader customLevelLoader,
 #endif
         DuplicateInitializer duplicateInitializer,
         ComponentCustomizer componentCustomizer,
         TransformControllerFactory controllerFactory,
         Config config,
         SavedEnvironmentLoader savedEnvironmentLoader,
-        EnvironmentSceneSetupData sceneSetupData)
+        GameplayCoreSceneSetupData gameplayCoreSceneSetupData,
+        GameScenesManager gameScenesManager,
+        EnvironmentModule environmentModule)
     {
         _beatmapData = (CustomBeatmapData)beatmapData;
         _log = log;
@@ -77,13 +84,16 @@ internal class EnvironmentEnhancementManager : IAffinity
         _parametricBoxControllerTransformOverride = parametricBoxControllerTransformOverride;
 #if PRE_V1_37_1
         _beatmapObjectsAvoidanceTransformOverride = beatmapObjectsAvoidanceTransformOverride;
+        _customLevelLoader = customLevelLoader;
 #endif
         _duplicateInitializer = duplicateInitializer;
         _componentCustomizer = componentCustomizer;
         _controllerFactory = controllerFactory;
         _config = config;
         _savedEnvironmentLoader = savedEnvironmentLoader;
-        _usingOverrideEnvironment = sceneSetupData.hideBranding;
+        _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
+        _gameScenesManager = gameScenesManager;
+        _environmentModule = environmentModule;
     }
 
     private static void GetChildRecursive(Transform gameObject, ref List<Transform> children)
@@ -95,57 +105,79 @@ internal class EnvironmentEnhancementManager : IAffinity
         }
     }
 
-    // TODO: add a null check on OverrideEnvironmentSettings
+    private bool IsEnvLoaded(EnvironmentInfoSO? environmentInfo)
+    {
+        return environmentInfo != null && _gameScenesManager.IsSceneInStack(environmentInfo.sceneInfo.sceneName);
+    }
+
     private IEnumerator DelayedStart()
     {
         yield return new WaitForEndOfFrame();
 
+        // seriously what the fuck beat games
+        // GradientBackground permanently yeeted because it looks awful and can ruin multi-colored chroma maps
+        GameObject? gradientBackground = GameObject.Find("/Environment/GradientBackground");
+        if (gradientBackground != null)
+        {
+            gradientBackground.SetActive(false);
+        }
+
+#if PRE_V1_37_1
+        EnvironmentInfoSO? mapEnv =
+            _gameplayCoreSceneSetupData.difficultyBeatmap.GetEnvironmentInfo();
+        EnvironmentInfoSO? overrideEnv =
+            _customLevelLoader.LoadEnvironmentInfo(
+                _savedEnvironmentLoader.SavedEnvironment?.EnvironmentName,
+                mapEnv?.environmentType ?? false);
+#else
+        BeatmapKey beatmapKey = _gameplayCoreSceneSetupData.beatmapKey;
+        EnvironmentName environmentName = _gameplayCoreSceneSetupData.beatmapLevel.GetEnvironmentName(
+            beatmapKey.beatmapCharacteristic,
+            beatmapKey.difficulty);
+        EnvironmentInfoSO? mapEnv =
+            _gameplayCoreSceneSetupData.environmentsListModel.GetEnvironmentInfoBySerializedName(environmentName);
+        EnvironmentInfoSO? overrideEnv =
+            _gameplayCoreSceneSetupData.environmentsListModel.GetEnvironmentInfoBySerializedName(
+                _savedEnvironmentLoader.SavedEnvironment?.EnvironmentName!);
+#endif
+
         bool v2 = _beatmapData.version.IsVersion2();
         IEnumerable<CustomData>? environmentData = null;
 
-        bool useMapEnvironment = !_config.EnvironmentEnhancementsDisabled;
-        bool useUserEnvironment = _config.CustomEnvironmentEnabled;
-
-        if (useMapEnvironment || useUserEnvironment)
+        switch (_environmentModule.OverrideType)
         {
-            // seriously what the fuck beat games
-            // GradientBackground permanently yeeted because it looks awful and can ruin multi-colored chroma maps
-            GameObject? gradientBackground = GameObject.Find("/Environment/GradientBackground");
-            if (gradientBackground != null)
-            {
-                gradientBackground.SetActive(false);
-            }
-        }
+            case EnvironmentModule.EnvironmentOverrideType.MapOverride when IsEnvLoaded(mapEnv):
+                environmentData = _beatmapData
+                    .customData.Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)
+                    ?.Cast<CustomData>();
 
-        if (useMapEnvironment)
-        {
-            environmentData = _beatmapData
-                .customData.Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)
-                ?.Cast<CustomData>();
-
-            if (v2)
-            {
-                try
+                if (v2)
                 {
-                    if (LegacyEnvironmentRemoval.Init(_beatmapData))
+                    try
                     {
-                        yield break;
+                        if (LegacyEnvironmentRemoval.Init(_beatmapData))
+                        {
+                            yield break;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        _log.Error("Could not run Legacy Environment Removal");
+                        _log.Error(e);
                     }
                 }
-                catch (Exception e)
-                {
-                    _log.Error("Could not run Legacy Environment Removal");
-                    _log.Error(e);
-                }
-            }
-        }
 
-        // _usingOverrideEnvironment kinda a jank way to allow forcing map environment
-        if (environmentData == null && useUserEnvironment && (_usingOverrideEnvironment || !useMapEnvironment))
-        {
-            // custom environment
-            v2 = false;
-            environmentData = _savedEnvironmentLoader.SavedEnvironment?.Environment;
+                break;
+
+            case EnvironmentModule.EnvironmentOverrideType.SavedOverride when IsEnvLoaded(overrideEnv):
+                // custom environment
+                v2 = false;
+                environmentData = _savedEnvironmentLoader.SavedEnvironment?.Environment;
+
+                break;
+
+            default:
+                yield break;
         }
 
         if (environmentData == null)

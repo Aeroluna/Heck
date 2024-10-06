@@ -1,4 +1,5 @@
-﻿using Chroma.Installers;
+﻿using System.Threading.Tasks;
+using Chroma.Installers;
 using Chroma.Lighting;
 using Chroma.Settings;
 using Heck.Animation;
@@ -26,7 +27,7 @@ internal class Plugin
         Log = pluginLogger;
 
         ChromaSettableSettings.SetupSettableSettings();
-        LightIDTableManager.InitTable();
+        Task.Run(LightIDTableManager.InitTable);
         _config = conf.Generated<Config>();
         zenjector.Install<ChromaPlayerInstaller>(Location.Player);
         zenjector.Install<ChromaAppInstaller>(Location.App, _config);
