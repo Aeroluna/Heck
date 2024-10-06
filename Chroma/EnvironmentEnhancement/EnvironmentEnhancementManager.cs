@@ -5,7 +5,6 @@ using System.Linq;
 using Chroma.EnvironmentEnhancement.Component;
 using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.HarmonyPatches.EnvironmentComponent;
-using Chroma.Modules;
 using Chroma.Settings;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
@@ -37,7 +36,6 @@ internal class EnvironmentEnhancementManager : IAffinity
     private readonly CustomBeatmapData _beatmapData;
 #if PRE_V1_37_1
     private readonly BeatmapObjectsAvoidanceTransformOverride _beatmapObjectsAvoidanceTransformOverride;
-    private readonly CustomLevelLoader _customLevelLoader;
 #endif
     private readonly ComponentCustomizer _componentCustomizer;
     private readonly Config _config;
@@ -48,9 +46,7 @@ internal class EnvironmentEnhancementManager : IAffinity
     private readonly SiraLog _log;
     private readonly ParametricBoxControllerTransformOverride _parametricBoxControllerTransformOverride;
     private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
-    private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData;
-    private readonly GameScenesManager _gameScenesManager;
-    private readonly EnvironmentModule _environmentModule;
+    private readonly EnvironmentOverrideChecker _environmentOverrideChecker;
     private readonly TrackLaneRingOffset _trackLaneRingOffset;
     private readonly Dictionary<string, Track> _tracks;
 
@@ -64,16 +60,13 @@ internal class EnvironmentEnhancementManager : IAffinity
         ParametricBoxControllerTransformOverride parametricBoxControllerTransformOverride,
 #if PRE_V1_37_1
         BeatmapObjectsAvoidanceTransformOverride beatmapObjectsAvoidanceTransformOverride,
-        CustomLevelLoader customLevelLoader,
 #endif
         DuplicateInitializer duplicateInitializer,
         ComponentCustomizer componentCustomizer,
         TransformControllerFactory controllerFactory,
         Config config,
         SavedEnvironmentLoader savedEnvironmentLoader,
-        GameplayCoreSceneSetupData gameplayCoreSceneSetupData,
-        GameScenesManager gameScenesManager,
-        EnvironmentModule environmentModule)
+        EnvironmentOverrideChecker environmentOverrideChecker)
     {
         _beatmapData = (CustomBeatmapData)beatmapData;
         _log = log;
@@ -84,16 +77,13 @@ internal class EnvironmentEnhancementManager : IAffinity
         _parametricBoxControllerTransformOverride = parametricBoxControllerTransformOverride;
 #if PRE_V1_37_1
         _beatmapObjectsAvoidanceTransformOverride = beatmapObjectsAvoidanceTransformOverride;
-        _customLevelLoader = customLevelLoader;
 #endif
         _duplicateInitializer = duplicateInitializer;
         _componentCustomizer = componentCustomizer;
         _controllerFactory = controllerFactory;
         _config = config;
         _savedEnvironmentLoader = savedEnvironmentLoader;
-        _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
-        _gameScenesManager = gameScenesManager;
-        _environmentModule = environmentModule;
+        _environmentOverrideChecker = environmentOverrideChecker;
     }
 
     private static void GetChildRecursive(Transform gameObject, ref List<Transform> children)
@@ -103,11 +93,6 @@ internal class EnvironmentEnhancementManager : IAffinity
             children.Add(child);
             GetChildRecursive(child, ref children);
         }
-    }
-
-    private bool IsEnvLoaded(EnvironmentInfoSO? environmentInfo)
-    {
-        return environmentInfo != null && _gameScenesManager.IsSceneInStack(environmentInfo.sceneInfo.sceneName);
     }
 
     private IEnumerator DelayedStart()
@@ -122,31 +107,12 @@ internal class EnvironmentEnhancementManager : IAffinity
             gradientBackground.SetActive(false);
         }
 
-#if PRE_V1_37_1
-        EnvironmentInfoSO? mapEnv =
-            _gameplayCoreSceneSetupData.difficultyBeatmap.GetEnvironmentInfo();
-        EnvironmentInfoSO? overrideEnv =
-            _customLevelLoader.LoadEnvironmentInfo(
-                _savedEnvironmentLoader.SavedEnvironment?.EnvironmentName,
-                mapEnv?.environmentType ?? false);
-#else
-        BeatmapKey beatmapKey = _gameplayCoreSceneSetupData.beatmapKey;
-        EnvironmentName environmentName = _gameplayCoreSceneSetupData.beatmapLevel.GetEnvironmentName(
-            beatmapKey.beatmapCharacteristic,
-            beatmapKey.difficulty);
-        EnvironmentInfoSO? mapEnv =
-            _gameplayCoreSceneSetupData.environmentsListModel.GetEnvironmentInfoBySerializedName(environmentName);
-        EnvironmentInfoSO? overrideEnv =
-            _gameplayCoreSceneSetupData.environmentsListModel.GetEnvironmentInfoBySerializedName(
-                _savedEnvironmentLoader.SavedEnvironment?.EnvironmentName!);
-#endif
-
         bool v2 = _beatmapData.version.IsVersion2();
         IEnumerable<CustomData>? environmentData = null;
 
-        switch (_environmentModule.OverrideType)
+        switch (_environmentOverrideChecker.LoadedEnvironment)
         {
-            case EnvironmentModule.EnvironmentOverrideType.MapOverride when IsEnvLoaded(mapEnv):
+            case LoadedEnvironmentType.MapOverride:
                 environmentData = _beatmapData
                     .customData.Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)
                     ?.Cast<CustomData>();
@@ -169,7 +135,7 @@ internal class EnvironmentEnhancementManager : IAffinity
 
                 break;
 
-            case EnvironmentModule.EnvironmentOverrideType.SavedOverride when IsEnvLoaded(overrideEnv):
+            case LoadedEnvironmentType.SavedOverride:
                 // custom environment
                 v2 = false;
                 environmentData = _savedEnvironmentLoader.SavedEnvironment?.Environment;

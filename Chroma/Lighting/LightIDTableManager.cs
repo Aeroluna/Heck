@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Chroma.EnvironmentEnhancement;
 using Chroma.Settings;
 using IPA.Utilities;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using SiraUtil.Logging;
-using Zenject;
 
 namespace Chroma.Lighting;
 
-[UsedImplicitly]
-internal class LightIDTableManager : IInitializable
+internal class LightIDTableManager
 {
     private static readonly Dictionary<int, Dictionary<int, int>> _defaultTable = new()
     {
@@ -31,25 +29,19 @@ internal class LightIDTableManager : IInitializable
 
     private static readonly Dictionary<string, Dictionary<int, Dictionary<int, int>>> _lightIDTable = new();
 
-    private readonly Config _config;
-    private readonly EnvironmentSceneSetupData _environmentSceneSetupData;
-
-    private readonly HashSet<Tuple<int, int>> _failureLog = [];
+    private readonly HashSet<(int, int)> _failureLog = [];
 
     private readonly SiraLog _log;
+    private readonly Config _config;
+    private readonly EnvironmentOverrideChecker _environmentOverrideChecker;
+    private readonly Dictionary<int, Dictionary<int, int>> _activeTable;
 
-    private Dictionary<int, Dictionary<int, int>>? _activeTable;
-
-    private LightIDTableManager(SiraLog log, Config config, EnvironmentSceneSetupData environmentSceneSetupData)
+    private LightIDTableManager(SiraLog log, Config config, EnvironmentSceneSetupData environmentSceneSetupData, EnvironmentOverrideChecker environmentOverrideChecker)
     {
         _log = log;
         _config = config;
-        _environmentSceneSetupData = environmentSceneSetupData;
-    }
-
-    public void Initialize()
-    {
-        string environmentName = _environmentSceneSetupData.environmentInfo.serializedName;
+        _environmentOverrideChecker = environmentOverrideChecker;
+        string environmentName = environmentSceneSetupData.environmentInfo.serializedName;
         Dictionary<int, Dictionary<int, int>> loadedTable;
         if (_lightIDTable.TryGetValue(environmentName, out Dictionary<int, Dictionary<int, int>> selectedTable))
         {
@@ -97,134 +89,112 @@ internal class LightIDTableManager : IInitializable
 
     internal int? GetActiveTableValue(int lightID, int id)
     {
-        if (_activeTable != null)
+        if (_activeTable.TryGetValue(lightID, out Dictionary<int, int> dictioanry) &&
+            dictioanry.TryGetValue(id, out int newId))
         {
-            if (_activeTable.TryGetValue(lightID, out Dictionary<int, int> dictioanry) &&
-                dictioanry.TryGetValue(id, out int newId))
-            {
-                return newId;
-            }
+            return newId;
+        }
 
-            Tuple<int, int> failure = new(lightID, id);
-            if (_failureLog.Contains(failure))
-            {
-                return null;
-            }
-
-            _log.Error($"Unable to find value for light ID [{lightID}] and id [{id}], omitting future messages...");
-            _failureLog.Add(failure);
-
+        // suppress error logs when no environment override is loaded
+        if (_environmentOverrideChecker.LoadedEnvironment == LoadedEnvironmentType.None)
+        {
             return null;
         }
 
-        _log.Error("No active table loaded");
+        (int, int) failure = new(lightID, id);
+        if (_failureLog.Contains(failure))
+        {
+            return null;
+        }
+
+        _log.Error($"Unable to find value for light ID [{lightID}] and id [{id}], omitting future errors of same id...");
+        _failureLog.Add(failure);
 
         return null;
     }
 
     internal int? GetActiveTableValueReverse(int lightID, int id)
     {
-        if (_activeTable != null)
+        if (!_activeTable.TryGetValue(lightID, out Dictionary<int, int> dictioanry))
         {
-            if (!_activeTable.TryGetValue(lightID, out Dictionary<int, int> dictioanry))
-            {
-                return null;
-            }
-
-            foreach ((int key, int value) in dictioanry)
-            {
-                if (value == id)
-                {
-                    return key;
-                }
-            }
-
-            ////Plugin.Logger.Log($"Unable to find value for type [{type}] and id [{id}].", IPA.Logging.Logger.Level.Error);
             return null;
         }
 
-        _log.Error("No active table loaded");
+        foreach ((int key, int value) in dictioanry)
+        {
+            if (value == id)
+            {
+                return key;
+            }
+        }
 
+        ////Plugin.Logger.Log($"Unable to find value for type [{type}] and id [{id}].", IPA.Logging.Logger.Level.Error);
         return null;
     }
 
     internal void RegisterIndex(int lightID, int index, int? requestedKey)
     {
-        if (_activeTable != null)
+        if (_activeTable.TryGetValue(lightID, out Dictionary<int, int> dictioanry))
         {
-            if (_activeTable.TryGetValue(lightID, out Dictionary<int, int> dictioanry))
+            int key;
+
+            if (requestedKey.HasValue)
             {
-                int key;
-
-                if (requestedKey.HasValue)
+                key = requestedKey.Value;
+                while (dictioanry.ContainsKey(key))
                 {
-                    key = requestedKey.Value;
-                    while (dictioanry.ContainsKey(key))
-                    {
-                        key++;
-                    }
-                }
-                else
-                {
-                    if (dictioanry.Count != 0)
-                    {
-                        key = dictioanry.Keys.Max() + 1;
-                    }
-                    else
-                    {
-                        key = 0;
-                    }
-                }
-
-                dictioanry.Add(key, index);
-                if (_config.PrintEnvironmentEnhancementDebug)
-                {
-                    _log.Debug($"Registered key [{key}] to light ID [{lightID}]");
+                    key++;
                 }
             }
             else
             {
-                _log.Warn($"Table does not contain light ID [{lightID}]");
+                if (dictioanry.Count != 0)
+                {
+                    key = dictioanry.Keys.Max() + 1;
+                }
+                else
+                {
+                    key = 0;
+                }
+            }
+
+            dictioanry.Add(key, index);
+            if (_config.PrintEnvironmentEnhancementDebug)
+            {
+                _log.Debug($"Registered key [{key}] to light ID [{lightID}]");
             }
         }
         else
         {
-            _log.Warn("No active table, could not register index");
+            _log.Warn($"Table does not contain light ID [{lightID}]");
         }
     }
 
     internal void UnregisterIndex(int lightID, int index)
     {
-        if (_activeTable != null)
+        if (_activeTable.TryGetValue(lightID, out Dictionary<int, int> dictioanry))
         {
-            if (_activeTable.TryGetValue(lightID, out Dictionary<int, int> dictioanry))
+            foreach ((int key, int value) in dictioanry)
             {
-                foreach ((int key, int value) in dictioanry)
+                if (value != index)
                 {
-                    if (value != index)
-                    {
-                        continue;
-                    }
-
-                    dictioanry.Remove(key);
-                    if (_config.PrintEnvironmentEnhancementDebug)
-                    {
-                        _log.Debug($"Unregistered key [{key}] from light ID [{lightID}]");
-                    }
-
-                    return;
+                    continue;
                 }
 
-                _log.Warn("Could not find key to unregister");
+                dictioanry.Remove(key);
+                if (_config.PrintEnvironmentEnhancementDebug)
+                {
+                    _log.Debug($"Unregistered key [{key}] from light ID [{lightID}]");
+                }
+
+                return;
             }
-            else
-            {
-                _log.Warn($"Table does not contain light ID [{lightID}]");
-            }
+
+            _log.Warn("Could not find key to unregister");
         }
         else
         {
-            _log.Warn("No active table, could not unregister index");
+            _log.Warn($"Table does not contain light ID [{lightID}]");
         }
     }
 }

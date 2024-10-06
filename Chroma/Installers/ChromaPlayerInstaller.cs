@@ -63,7 +63,7 @@ internal class ChromaPlayerInstaller : Installer
             Container.BindInterfacesTo<ObjectInitializer>().AsSingle();
 
             // Colorizer Initialize
-            Container.BindInterfacesAndSelfTo<LightIDTableManager>().AsSingle();
+            Container.Bind<LightIDTableManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<LightWithIdRegisterer>().AsSingle();
             Container.BindInterfacesTo<LightColorizerInitialize>().AsSingle();
             Container.BindInterfacesTo<ParticleColorizerInitialize>().AsSingle();
@@ -117,6 +117,7 @@ internal class ChromaPlayerInstaller : Installer
 
             // EnvironmentEnhancement
             ////Container.BindInterfacesTo<CustomEnvironmentLoading>().AsSingle();
+            Container.Bind<EnvironmentOverrideChecker>().AsSingle();
             Container.Bind<DuplicateInitializer>().AsSingle();
             Container.BindInterfacesAndSelfTo<EnvironmentEnhancementManager>().AsSingle();
             Container.Bind<ComponentCustomizer>().AsSingle();
