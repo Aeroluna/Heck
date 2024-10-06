@@ -8,6 +8,7 @@ using Chroma.Settings;
 using IPA.Utilities;
 using Newtonsoft.Json;
 using SiraUtil.Logging;
+using Zenject;
 
 namespace Chroma.Lighting;
 
@@ -33,10 +34,14 @@ internal class LightIDTableManager
 
     private readonly SiraLog _log;
     private readonly Config _config;
-    private readonly EnvironmentOverrideChecker _environmentOverrideChecker;
+    private readonly EnvironmentOverrideChecker? _environmentOverrideChecker;
     private readonly Dictionary<int, Dictionary<int, int>> _activeTable;
 
-    private LightIDTableManager(SiraLog log, Config config, EnvironmentSceneSetupData environmentSceneSetupData, EnvironmentOverrideChecker environmentOverrideChecker)
+    private LightIDTableManager(
+        SiraLog log,
+        Config config,
+        EnvironmentSceneSetupData environmentSceneSetupData,
+        [InjectOptional] EnvironmentOverrideChecker? environmentOverrideChecker)
     {
         _log = log;
         _config = config;
@@ -96,7 +101,8 @@ internal class LightIDTableManager
         }
 
         // suppress error logs when no environment override is loaded
-        if (_environmentOverrideChecker.LoadedEnvironment == LoadedEnvironmentType.None)
+        if (_environmentOverrideChecker == null ||
+            _environmentOverrideChecker.LoadedEnvironment == LoadedEnvironmentType.None)
         {
             return null;
         }
