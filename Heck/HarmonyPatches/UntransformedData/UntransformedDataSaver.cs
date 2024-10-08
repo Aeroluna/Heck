@@ -30,7 +30,12 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
             original.playerSpecificSettings,
             original.practiceSettings,
             original.useTestNoteCutSoundEffects,
+#if LATEST
+            original.targetEnvironmentInfo,
+            original.originalEnvironmentInfo,
+#else
             original.environmentInfo,
+#endif
             original.colorScheme,
 #if LATEST
             original._settingsManager,
