@@ -196,7 +196,7 @@ internal class LightIDTableManager
                 return;
             }
 
-            _log.Warn("Could not find key to unregister");
+            _log.Warn($"Could not find key to unregister for light ID [{lightID}] and index [{index}]");
         }
         else
         {
