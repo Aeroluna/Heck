@@ -15,8 +15,8 @@ public class LightColorizerManager
 {
     private const int COLOR_FIELDS = LightColorizer.COLOR_FIELDS;
 
-    private readonly List<Tuple<BasicBeatmapEventType, Action<LightColorizer>>> _contracts = [];
-    private readonly List<Tuple<int, Action<LightColorizer>>> _contractsByLightID = [];
+    private readonly List<(BasicBeatmapEventType, Action<LightColorizer>)> _contracts = [];
+    private readonly List<(int, Action<LightColorizer>)> _contractsByLightID = [];
 
     private readonly LightColorizer.Factory _factory;
 
@@ -82,34 +82,6 @@ public class LightColorizerManager
         }
     }
 
-    internal void CompleteContracts(ChromaLightSwitchEventEffect chromaLightSwitchEventEffect)
-    {
-        // complete open contracts
-        Tuple<BasicBeatmapEventType, Action<LightColorizer>>[] contracts = _contracts.ToArray();
-        foreach (Tuple<BasicBeatmapEventType, Action<LightColorizer>> contract in contracts)
-        {
-            if (chromaLightSwitchEventEffect.EventType != contract.Item1)
-            {
-                continue;
-            }
-
-            contract.Item2(chromaLightSwitchEventEffect.Colorizer);
-            _contracts.Remove(contract);
-        }
-
-        Tuple<int, Action<LightColorizer>>[] contractsByLightID = _contractsByLightID.ToArray();
-        foreach (Tuple<int, Action<LightColorizer>> contract in contractsByLightID)
-        {
-            if (chromaLightSwitchEventEffect.LightsID != contract.Item1)
-            {
-                continue;
-            }
-
-            contract.Item2(chromaLightSwitchEventEffect.Colorizer);
-            _contractsByLightID.Remove(contract);
-        }
-    }
-
     internal LightColorizer Create(ChromaLightSwitchEventEffect chromaLightSwitchEventEffect)
     {
         // customplatforms can create an extra lightswitcheventeffect, so just return the existing colorizer
@@ -122,6 +94,32 @@ public class LightColorizerManager
         LightColorizer colorizer = _factory.Create(chromaLightSwitchEventEffect);
         Colorizers.Add(chromaLightSwitchEventEffect.EventType, colorizer);
         ColorizersByLightID.Add(chromaLightSwitchEventEffect.LightsID, colorizer);
+
+        // complete open contracts
+        (BasicBeatmapEventType, Action<LightColorizer>)[] contracts = _contracts.ToArray();
+        foreach ((BasicBeatmapEventType EventType, Action<LightColorizer> Callback) contract in contracts)
+        {
+            if (chromaLightSwitchEventEffect.EventType != contract.EventType)
+            {
+                continue;
+            }
+
+            contract.Callback(chromaLightSwitchEventEffect.Colorizer);
+            _contracts.Remove(contract);
+        }
+
+        (int, Action<LightColorizer>)[] contractsByLightID = _contractsByLightID.ToArray();
+        foreach ((int LightID, Action<LightColorizer> Callback) contract in contractsByLightID)
+        {
+            if (chromaLightSwitchEventEffect.LightsID != contract.LightID)
+            {
+                continue;
+            }
+
+            contract.Callback(chromaLightSwitchEventEffect.Colorizer);
+            _contractsByLightID.Remove(contract);
+        }
+
         return colorizer;
     }
 
@@ -133,7 +131,7 @@ public class LightColorizerManager
         }
         else
         {
-            _contracts.Add(type, callback);
+            _contracts.Add((type, callback));
         }
     }
 
@@ -145,7 +143,7 @@ public class LightColorizerManager
         }
         else
         {
-            _contractsByLightID.Add(lightId, callback);
+            _contractsByLightID.Add((lightId, callback));
         }
     }
 }

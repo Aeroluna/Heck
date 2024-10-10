@@ -69,7 +69,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
 
     private OverrideEnvironmentSettings? _cachedOverrideEnvironmentSettings;
 
-    private List<Tuple<ISettableSetting, object>>? _settableSettingsToSet;
+    private List<(ISettableSetting, object)>? _settableSettingsToSet;
 
     public event Action? Finished;
 
@@ -371,7 +371,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                         continue;
                     }
 
-                    _settableSettingsToSet = new List<Tuple<ISettableSetting, object>>();
+                    _settableSettingsToSet = new List<(ISettableSetting, object)>();
 
                     foreach ((string key, ISettableSetting settableSetting) in value)
                     {
@@ -386,7 +386,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                             new ListObject(
                                 $"[{settableSetting.GroupName}] {settableSetting.FieldName}",
                                 $"{activeValue} -> {json}"));
-                        _settableSettingsToSet.Add(new Tuple<ISettableSetting, object>(settableSetting, json));
+                        _settableSettingsToSet.Add((settableSetting, json));
                     }
                 }
 
@@ -479,11 +479,11 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         // ReSharper disable once InvertIf
         if (_settableSettingsToSet != null)
         {
-            foreach ((ISettableSetting settableSetting, object item2) in _settableSettingsToSet)
+            foreach ((ISettableSetting settableSetting, object value) in _settableSettingsToSet)
             {
                 _log.Trace(
-                    $"Set settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}] to [{item2}]");
-                settableSetting.SetTemporary(item2);
+                    $"Set settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}] to [{value}]");
+                settableSetting.SetTemporary(value);
             }
         }
     }
@@ -493,9 +493,8 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
     {
         if (_settableSettingsToSet != null)
         {
-            foreach (Tuple<ISettableSetting, object> tuple in _settableSettingsToSet)
+            foreach ((ISettableSetting settableSetting, object _) in _settableSettingsToSet)
             {
-                ISettableSetting settableSetting = tuple.Item1;
                 _log.Trace($"Restored settable setting [{settableSetting.FieldName}] in [{settableSetting.GroupName}]");
                 settableSetting.SetTemporary(null);
             }

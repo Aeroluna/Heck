@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -19,28 +18,28 @@ internal class LegacyLightHelper
                 continue;
             }
 
-            if (!LegacyColorEvents.TryGetValue(d.basicBeatmapEventType, out List<Tuple<float, Color>> dictionaryID))
+            if (!LegacyColorEvents.TryGetValue(d.basicBeatmapEventType, out List<(float, Color)> dictionaryID))
             {
                 dictionaryID = [];
                 LegacyColorEvents.Add(d.basicBeatmapEventType, dictionaryID);
             }
 
-            dictionaryID.Add(new Tuple<float, Color>(d.time, ColorFromInt(d.value)));
+            dictionaryID.Add((d.time, ColorFromInt(d.value)));
         }
     }
 
-    internal Dictionary<BasicBeatmapEventType, List<Tuple<float, Color>>> LegacyColorEvents { get; } = new();
+    internal Dictionary<BasicBeatmapEventType, List<(float Time, Color Color)>> LegacyColorEvents { get; } = new();
 
     internal Color? GetLegacyColor(BasicBeatmapEventData beatmapEventData)
     {
         if (!LegacyColorEvents.TryGetValue(
                 beatmapEventData.basicBeatmapEventType,
-                out List<Tuple<float, Color>> dictionaryID))
+                out List<(float, Color)> dictionaryID))
         {
             return null;
         }
 
-        List<Tuple<float, Color>> colors = dictionaryID.Where(n => n.Item1 <= beatmapEventData.time).ToList();
+        List<(float, Color)> colors = dictionaryID.Where(n => n.Item1 <= beatmapEventData.time).ToList();
         if (colors.Count > 0)
         {
             return colors.Last().Item2;
