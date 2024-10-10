@@ -112,6 +112,13 @@ public class LightColorizerManager
 
     internal LightColorizer Create(ChromaLightSwitchEventEffect chromaLightSwitchEventEffect)
     {
+        // customplatforms can create an extra lightswitcheventeffect, so just return the existing colorizer
+        if (Colorizers.TryGetValue(chromaLightSwitchEventEffect.EventType, out LightColorizer existing) ||
+            ColorizersByLightID.TryGetValue(chromaLightSwitchEventEffect.LightsID, out existing))
+        {
+            return existing;
+        }
+
         LightColorizer colorizer = _factory.Create(chromaLightSwitchEventEffect);
         Colorizers.Add(chromaLightSwitchEventEffect.EventType, colorizer);
         ColorizersByLightID.Add(chromaLightSwitchEventEffect.LightsID, colorizer);
