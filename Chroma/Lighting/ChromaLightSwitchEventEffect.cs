@@ -89,6 +89,7 @@ public sealed class ChromaLightSwitchEventEffect : IDisposable
         Initialize(lightSwitchEventEffect._highlightColor1Boost, ref _highlightColor1BoostMult);
 
         Colorizer = lightColorizerManager.Create(this);
+        lightColorizerManager.CompleteContracts(this);
 
         _basicCallbackWrapper = callbacksController.AddBeatmapCallback<BasicBeatmapEventData>(
             BasicCallback,

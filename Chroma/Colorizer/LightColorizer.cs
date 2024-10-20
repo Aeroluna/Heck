@@ -94,33 +94,36 @@ public class LightColorizerManager
         LightColorizer colorizer = _factory.Create(chromaLightSwitchEventEffect);
         Colorizers.Add(chromaLightSwitchEventEffect.EventType, colorizer);
         ColorizersByLightID.Add(chromaLightSwitchEventEffect.LightsID, colorizer);
+        return colorizer;
+    }
 
+    // OOPS: this hneeds to be called after Colorizer is set
+    internal void CompleteContracts(ChromaLightSwitchEventEffect chromaLightSwitchEventEffect)
+    {
         // complete open contracts
         (BasicBeatmapEventType, Action<LightColorizer>)[] contracts = _contracts.ToArray();
-        foreach ((BasicBeatmapEventType EventType, Action<LightColorizer> Callback) contract in contracts)
+        foreach ((BasicBeatmapEventType, Action<LightColorizer>) contract in contracts)
         {
-            if (chromaLightSwitchEventEffect.EventType != contract.EventType)
+            if (chromaLightSwitchEventEffect.EventType != contract.Item1)
             {
                 continue;
             }
 
-            contract.Callback(chromaLightSwitchEventEffect.Colorizer);
+            contract.Item2(chromaLightSwitchEventEffect.Colorizer);
             _contracts.Remove(contract);
         }
 
         (int, Action<LightColorizer>)[] contractsByLightID = _contractsByLightID.ToArray();
-        foreach ((int LightID, Action<LightColorizer> Callback) contract in contractsByLightID)
+        foreach ((int, Action<LightColorizer>) contract in contractsByLightID)
         {
-            if (chromaLightSwitchEventEffect.LightsID != contract.LightID)
+            if (chromaLightSwitchEventEffect.LightsID != contract.Item1)
             {
                 continue;
             }
 
-            contract.Callback(chromaLightSwitchEventEffect.Colorizer);
+            contract.Item2(chromaLightSwitchEventEffect.Colorizer);
             _contractsByLightID.Remove(contract);
         }
-
-        return colorizer;
     }
 
     internal void CreateLightColorizerContract(BasicBeatmapEventType type, Action<LightColorizer> callback)
