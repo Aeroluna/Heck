@@ -13,20 +13,25 @@ namespace Chroma.HarmonyPatches;
 
 internal class DebrisSpawnerSkip : IAffinity, IDisposable
 {
-    private static readonly MethodInfo _spawnDebris =
+    private static readonly MethodInfo _noteSpawnDebris =
         AccessTools.Method(typeof(NoteDebrisSpawner), nameof(NoteDebrisSpawner.SpawnDebris));
 
-    private readonly CodeInstruction _debrisCheck;
+    private static readonly MethodInfo _bombSpawnDebris =
+        AccessTools.Method(typeof(BombExplosionEffect), nameof(BombExplosionEffect.SpawnExplosion));
+
+    private readonly CodeInstruction _noteDebrisCheck;
+    private readonly CodeInstruction _bombDebrisCheck;
 
     private readonly DeserializedData _deserializedData;
 
     private DebrisSpawnerSkip([Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
     {
         _deserializedData = deserializedData;
-        _debrisCheck = InstanceTranspilers.EmitInstanceDelegate<DebrisCheckDelegate>(DebrisCheck);
+        _noteDebrisCheck = InstanceTranspilers.EmitInstanceDelegate<NoteDebrisCheckDelegate>(NoteDebrisCheck);
+        _bombDebrisCheck = InstanceTranspilers.EmitInstanceDelegate<BombDebrisCheckDelegate>(BombDebrisCheck);
     }
 
-    private delegate void DebrisCheckDelegate(
+    private delegate void NoteDebrisCheckDelegate(
         NoteDebrisSpawner noteDebrisSpawner,
         NoteData.GameplayType noteGameplayType,
         Vector3 cutPoint,
@@ -41,13 +46,18 @@ internal class DebrisSpawnerSkip : IAffinity, IDisposable
         Vector3 moveVec,
         NoteController noteController);
 
+    private delegate void BombDebrisCheckDelegate(
+        BombExplosionEffect bombExplosionEffect,
+        Vector3 cutPoint,
+        NoteController noteController);
+
     public void Dispose()
     {
-        InstanceTranspilers.DisposeDelegate(_debrisCheck);
+        InstanceTranspilers.DisposeDelegate(_noteDebrisCheck);
     }
 
     // they couldve just passed NoteCutInfo and NoteController to SpawnDebris but i guess that would be too easy
-    private void DebrisCheck(
+    private void NoteDebrisCheck(
         NoteDebrisSpawner noteDebrisSpawner,
         NoteData.GameplayType noteGameplayType,
         Vector3 cutPoint,
@@ -83,20 +93,49 @@ internal class DebrisSpawnerSkip : IAffinity, IDisposable
             moveVec);
     }
 
+    private void BombDebrisCheck(BombExplosionEffect instance, Vector3 cutPoint, NoteController noteController)
+    {
+        if (_deserializedData.Resolve(noteController.noteData, out ChromaNoteData? chromaData) &&
+            chromaData.DisableDebris.HasValue &&
+            chromaData.DisableDebris.Value)
+        {
+            return;
+        }
+
+        instance.SpawnExplosion(cutPoint);
+    }
+
     [AffinityTranspiler]
     [AffinityPatch(typeof(NoteCutCoreEffectsSpawner), nameof(NoteCutCoreEffectsSpawner.SpawnNoteCutEffect))]
-    private IEnumerable<CodeInstruction> ReplaceConditionTranspiler(IEnumerable<CodeInstruction> instructions)
+    private IEnumerable<CodeInstruction> ReplaceNoteConditionTranspiler(IEnumerable<CodeInstruction> instructions)
     {
         return new CodeMatcher(instructions)
             /*
              * -- this._noteDebrisSpawner.SpawnDebris(noteData.gameplayType, noteCutInfo.cutPoint, noteCutInfo.cutNormal, noteCutInfo.saberSpeed, noteCutInfo.saberDir,
-             * ++ DebrisCheck(_noteDebrisSpawner, noteData.gameplayType, noteCutInfo.cutPoint, noteCutInfo.cutNormal, noteCutInfo.saberSpeed, noteCutInfo.saberDir,
+             * ++ NoteDebrisCheck(_noteDebrisSpawner, noteData.gameplayType, noteCutInfo.cutPoint, noteCutInfo.cutNormal, noteCutInfo.saberSpeed, noteCutInfo.saberDir,
              */
-            .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _spawnDebris))
+            .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _noteSpawnDebris))
             .RemoveInstruction()
             .Insert(
                 new CodeInstruction(OpCodes.Ldarg_2),
-                _debrisCheck)
+                _noteDebrisCheck)
+            .InstructionEnumeration();
+    }
+
+    [AffinityTranspiler]
+    [AffinityPatch(typeof(NoteCutCoreEffectsSpawner), nameof(NoteCutCoreEffectsSpawner.SpawnBombCutEffect))]
+    private IEnumerable<CodeInstruction> ReplaceBombConditionTranspiler(IEnumerable<CodeInstruction> instructions)
+    {
+        return new CodeMatcher(instructions)
+            /*
+             * -- this._bombExplosionEffect.SpawnExplosion(cutPoint);
+             * ++ BombDebrisCheck(cutPoint, noteController);
+             */
+            .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _bombSpawnDebris))
+            .RemoveInstruction()
+            .Insert(
+                new CodeInstruction(OpCodes.Ldarg_2),
+                _bombDebrisCheck)
             .InstructionEnumeration();
     }
 }
