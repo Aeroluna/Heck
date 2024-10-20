@@ -177,7 +177,7 @@ internal class SaberPlayerMovementFix : IAffinity, IDisposable
         if (_local)
         {
             _log.Debug("Parented saber trail to local space");
-            ____trailRenderer.transform.SetParent(__instance.transform.parent.parent.parent, false);
+            ____trailRenderer.transform.SetParent(_origin.parent, false);
             return;
         }
 

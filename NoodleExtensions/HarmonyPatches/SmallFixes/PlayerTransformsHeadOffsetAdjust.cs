@@ -8,22 +8,9 @@ namespace NoodleExtensions.HarmonyPatches.SmallFixes;
 [HarmonyPatch(typeof(PlayerTransforms))]
 internal static class PlayerTransformsUseParent
 {
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(PlayerTransforms.Awake))]
-    private static void Postfix(
-        ref bool ____useOriginParentTransformForPseudoLocalCalculations)
-    {
-        ____useOriginParentTransformForPseudoLocalCalculations = false;
-    }
-}
-
-[HeckPatch(PatchType.Features)]
-[HarmonyPatch(typeof(PlayerTransforms))]
-internal static class PlayerTransformsHeadOffsetAdjust
-{
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlayerTransforms.HeadOffsetZ))]
-    private static bool Prefix(
+    private static bool PrefixHeadOffset(
         Quaternion noteInverseWorldRotation,
         Vector3 ____headPseudoLocalPos,
         Transform ____originParentTransform,
