@@ -274,6 +274,11 @@ internal class NoodleObjectData : IObjectCustomData
             StartX = position?.ElementAtOrDefault(0);
             StartY = position?.ElementAtOrDefault(1);
 
+            IEnumerable<float?>? scale = customData.GetNullableFloats(v2 ? V2_SCALE : SCALE)?.ToList();
+            ScaleX = scale?.ElementAtOrDefault(0);
+            ScaleY = scale?.ElementAtOrDefault(1);
+            ScaleZ = scale?.ElementAtOrDefault(2);
+
             Njs = customData.Get<float?>(v2 ? V2_NOTE_JUMP_SPEED : NOTE_JUMP_SPEED);
             SpawnOffset = customData.Get<float?>(v2 ? V2_NOTE_SPAWN_OFFSET : NOTE_SPAWN_OFFSET);
         }
@@ -300,6 +305,12 @@ internal class NoodleObjectData : IObjectCustomData
     internal bool? Uninteractable { get; }
 
     internal Quaternion? WorldRotationQuaternion { get; }
+
+    internal float? ScaleX { get; }
+
+    internal float? ScaleY { get; }
+
+    internal float? ScaleZ { get; }
 
     internal float? InternalAheadTime { get; set; }
 
@@ -340,43 +351,31 @@ internal class NoodleObjectData : IObjectCustomData
         return null;
     }
 
-    internal class AnimationObjectData
+    internal class AnimationObjectData(
+        PointDefinition<Vector3>? localPosition,
+        PointDefinition<Quaternion>? localRotation,
+        PointDefinition<Vector3>? localScale,
+        PointDefinition<Quaternion>? localLocalRotation,
+        PointDefinition<float>? localDissolve,
+        PointDefinition<float>? localDissolveArrow,
+        PointDefinition<float>? localCuttable,
+        PointDefinition<Vector3>? localDefinitePosition)
     {
-        public AnimationObjectData(
-            PointDefinition<Vector3>? localPosition,
-            PointDefinition<Quaternion>? localRotation,
-            PointDefinition<Vector3>? localScale,
-            PointDefinition<Quaternion>? localLocalRotation,
-            PointDefinition<float>? localDissolve,
-            PointDefinition<float>? localDissolveArrow,
-            PointDefinition<float>? localCuttable,
-            PointDefinition<Vector3>? localDefinitePosition)
-        {
-            LocalPosition = localPosition;
-            LocalRotation = localRotation;
-            LocalScale = localScale;
-            LocalLocalRotation = localLocalRotation;
-            LocalDissolve = localDissolve;
-            LocalDissolveArrow = localDissolveArrow;
-            LocalCuttable = localCuttable;
-            LocalDefinitePosition = localDefinitePosition;
-        }
+        internal PointDefinition<float>? LocalCuttable { get; } = localCuttable;
 
-        internal PointDefinition<float>? LocalCuttable { get; }
+        internal PointDefinition<Vector3>? LocalDefinitePosition { get; } = localDefinitePosition;
 
-        internal PointDefinition<Vector3>? LocalDefinitePosition { get; }
+        internal PointDefinition<float>? LocalDissolve { get; } = localDissolve;
 
-        internal PointDefinition<float>? LocalDissolve { get; }
+        internal PointDefinition<float>? LocalDissolveArrow { get; } = localDissolveArrow;
 
-        internal PointDefinition<float>? LocalDissolveArrow { get; }
+        internal PointDefinition<Quaternion>? LocalLocalRotation { get; } = localLocalRotation;
 
-        internal PointDefinition<Quaternion>? LocalLocalRotation { get; }
+        internal PointDefinition<Vector3>? LocalPosition { get; } = localPosition;
 
-        internal PointDefinition<Vector3>? LocalPosition { get; }
+        internal PointDefinition<Quaternion>? LocalRotation { get; } = localRotation;
 
-        internal PointDefinition<Quaternion>? LocalRotation { get; }
-
-        internal PointDefinition<Vector3>? LocalScale { get; }
+        internal PointDefinition<Vector3>? LocalScale { get; } = localScale;
     }
 }
 

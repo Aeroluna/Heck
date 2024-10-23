@@ -99,7 +99,10 @@ internal class NoteInitNoodlifier : IAffinity, IDisposable
             }
         }
 
-        transform.localScale = Vector3.one; // This is a fix for animation due to notes being recycled
+        Vector3 scale = (noodleData.ScaleX != null || noodleData.ScaleY != null || noodleData.ScaleZ != null)
+            ? new Vector3(noodleData.ScaleX ?? 1, noodleData.ScaleY ?? 1, noodleData.ScaleZ ?? 1)
+            : Vector3.one;
+        transform.localScale = scale;
 
         noodleData.InternalEndRotation = endRotation;
         noodleData.InternalStartPos = moveStartPos;

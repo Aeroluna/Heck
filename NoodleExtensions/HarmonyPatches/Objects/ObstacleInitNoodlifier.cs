@@ -117,7 +117,10 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
             transform.localRotation = ____worldRotation * localRotation;
         }
 
-        transform.localScale = Vector3.one; // This is a fix for animation due to obstacles being recycled
+        Vector3 scale = (noodleData.ScaleX != null || noodleData.ScaleY != null || noodleData.ScaleZ != null)
+            ? new Vector3(noodleData.ScaleX ?? 1, noodleData.ScaleY ?? 1, noodleData.ScaleZ ?? 1)
+            : Vector3.one;
+        transform.localScale = scale;
 
         if (noodleData is { Uninteractable: true })
         {
