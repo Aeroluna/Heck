@@ -6,7 +6,7 @@ using Heck;
 using Heck.Animation;
 using Heck.Animation.Transform;
 using Heck.Deserialize;
-using NoodleExtensions.Animation;
+using NoodleExtensions.Managers;
 using UnityEngine;
 using static Heck.HeckController;
 using static NoodleExtensions.NoodleController;
@@ -391,12 +391,12 @@ internal class NoodlePlayerTrackEventData : ICustomEventCustomData
         Track = track;
 
         // DEFAULT TO PLAYER IF NOT SPECIFIED
-        PlayerTrackObject =
-            customData.GetStringToEnum<PlayerTrackObject?>(v2 ? V2_PLAYER_TRACK_OBJECT : PLAYER_TRACK_OBJECT) ??
-            PlayerTrackObject.Root;
+        PlayerObject =
+            customData.GetStringToEnum<PlayerObject?>(v2 ? V2_PLAYER_TRACK_OBJECT : PLAYER_TRACK_OBJECT) ??
+            PlayerObject.Root;
     }
 
-    internal PlayerTrackObject PlayerTrackObject { get; }
+    internal PlayerObject PlayerObject { get; }
 
     internal Track Track { get; }
 }

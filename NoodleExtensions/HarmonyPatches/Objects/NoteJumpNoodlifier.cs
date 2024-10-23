@@ -6,6 +6,7 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
 using NoodleExtensions.Animation;
+using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
 using UnityEngine;
 
@@ -68,20 +69,26 @@ internal class NoteJumpNoodlifier : IAffinity, IDisposable
         typeof(NoteJumpNoodlifier),
         nameof(NoteMissedTimeAdjust));
 
+    private readonly NoteUpdateNoodlifier _noteUpdateNoodlifier;
     private readonly AnimationHelper _animationHelper;
-    private readonly CodeInstruction _definiteNoteJump;
+    private readonly NoodlePlayerTransformManager _noodlePlayerTransformManager;
 
+    private readonly CodeInstruction _definiteNoteJump;
     private readonly CodeInstruction _doNoteLook;
     private readonly CodeInstruction _getDefinitePosition;
     private readonly CodeInstruction _noteJumpTimeAdjust;
-    private readonly NoteUpdateNoodlifier _noteUpdateNoodlifier;
 
     private bool _definitePosition;
+    private Transform? _noodleHeadTransform;
 
-    private NoteJumpNoodlifier(NoteUpdateNoodlifier noteUpdateNoodlifier, AnimationHelper animationHelper)
+    private NoteJumpNoodlifier(
+        NoteUpdateNoodlifier noteUpdateNoodlifier,
+        AnimationHelper animationHelper,
+        NoodlePlayerTransformManager noodlePlayerTransformManager)
     {
         _noteUpdateNoodlifier = noteUpdateNoodlifier;
         _animationHelper = animationHelper;
+        _noodlePlayerTransformManager = noodlePlayerTransformManager;
         _doNoteLook =
             InstanceTranspilers
                 .EmitInstanceDelegate<
@@ -167,7 +174,7 @@ internal class NoteJumpNoodlifier : IAffinity, IDisposable
             // This line but super complicated so that "y" = "originTransform.up"
             // vector.y = Mathf.Lerp(vector.y, this._localPosition.y, 0.8f);
             ////Transform parentTransform = playerTransforms._originTransform;
-            Vector3 vector = playerTransforms._headPseudoLocalPos;
+            Vector3 vector = playerTransforms.headPseudoLocalPos;
             Quaternion inverse = Quaternion.Inverse(worldRot);
             Vector3 upVector = inverse * Vector3.up;
             Vector3 position = baseTransform.position;

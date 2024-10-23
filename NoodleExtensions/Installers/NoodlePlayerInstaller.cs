@@ -31,6 +31,7 @@ internal class NoodlePlayerInstaller : Installer
         Container.Bind<CutoutManager>().AsSingle();
         Container.Bind<AnimationHelper>().AsSingle();
         Container.BindInterfacesAndSelfTo<NoodleObjectsCallbacksManager>().AsSingle();
+        Container.BindInterfacesAndSelfTo<NoodlePlayerTransformManager>().AsSingle();
 
         // Base Provider
         Container.BindInterfacesTo<PlayerTransformGetter>().AsSingle();
@@ -71,6 +72,7 @@ internal class NoodlePlayerInstaller : Installer
         // SmallFixes
         Container.BindInterfacesTo<PreventObstacleFlickerOnSpawn>().AsSingle();
         Container.Bind<InitializedSpawnMovementData>().AsSingle().NonLazy();
+        Container.BindInterfacesTo<PlayerTransformsNoodlePatch>().AsSingle();
         Container.BindInterfacesTo<SaberPlayerMovementFix>().AsSingle();
     }
 }

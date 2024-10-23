@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
@@ -8,20 +7,13 @@ using Heck.Animation.Transform;
 using Heck.Deserialize;
 using Heck.Event;
 using JetBrains.Annotations;
+using NoodleExtensions.Managers;
 using UnityEngine;
 using Zenject;
 using static Heck.HeckController;
 using static NoodleExtensions.NoodleController;
 
 namespace NoodleExtensions.Animation;
-
-internal enum PlayerTrackObject
-{
-    Root,
-    Head,
-    LeftHand,
-    RightHand
-}
 
 internal class PlayerTrack : MonoBehaviour
 {
@@ -40,7 +32,7 @@ internal class PlayerTrack : MonoBehaviour
 
     private Vector3 _startPos = Vector3.zero;
 
-    private PlayerTrackObject _target;
+    private PlayerObject _target;
 
     private Track? _track;
 
@@ -79,7 +71,7 @@ internal class PlayerTrack : MonoBehaviour
         [InjectOptional] MultiplayerLocalActivePlayerInGameMenuController? multiMenuController,
         [InjectOptional] MultiplayerPlayersManager? multiPlayersManager,
         [InjectOptional] MultiplayerOutroAnimationController? multiOutroController,
-        PlayerTrackObject target)
+        PlayerObject target)
     {
         if (pauseController != null)
         {
@@ -94,7 +86,7 @@ internal class PlayerTrack : MonoBehaviour
         _transformFactory = transformControllerFactory;
         _target = target;
 
-        if (target == PlayerTrackObject.Root)
+        if (target == PlayerObject.Root)
         {
             _pauseController = pauseController;
             _multiPlayersManager = multiPlayersManager;
@@ -120,7 +112,7 @@ internal class PlayerTrack : MonoBehaviour
 
         // cam2 is cringe cam2 is cringe cam2 is cringe
         // ReSharper disable once InvertIf
-        if (target == PlayerTrackObject.Head)
+        if (target == PlayerObject.Head)
         {
             _instance = this;
             _transform = origin;
@@ -142,7 +134,7 @@ internal class PlayerTrack : MonoBehaviour
 
     private void OnDidPauseEvent()
     {
-        if (_target != PlayerTrackObject.Root)
+        if (_target != PlayerObject.Root)
         {
             Transform transform1 = transform;
             transform1.localPosition = _startPos;
@@ -248,34 +240,25 @@ internal class PlayerTrack : MonoBehaviour
 [CustomEvent(ASSIGN_PLAYER_TO_TRACK)]
 internal class AssignPlayerToTrack : ICustomEvent
 {
-    private readonly IInstantiator _container;
-    private readonly PlayerTransforms _playerTransforms;
-    private readonly PlayerVRControllersManager _playerVRControllersManager;
-#if !PRE_V1_37_1
     private readonly IInstantiator _instantiator;
-#else
+    private readonly NoodlePlayerTransformManager _noodlePlayerTransformManager;
+#if PRE_V1_37_1
     private readonly VRCenterAdjust _vrCenterAdjust;
 #endif
     private readonly DeserializedData _deserializedData;
-    private readonly Dictionary<PlayerTrackObject, PlayerTrack> _playerTracks = new();
+    private readonly Dictionary<PlayerObject, PlayerTrack> _playerTracks = new();
 
     private AssignPlayerToTrack(
-        IInstantiator container,
-        PlayerTransforms playerTransforms,
-        PlayerVRControllersManager playerVRControllersManager,
-#if !PRE_V1_37_1
         IInstantiator instantiator,
-#else
+        NoodlePlayerTransformManager noodlePlayerTransformManager,
+#if PRE_V1_37_1
         VRCenterAdjust vrCenterAdjust,
 #endif
         [Inject(Id = ID)] DeserializedData deserializedData)
     {
-        _container = container;
-        _playerTransforms = playerTransforms;
-        _playerVRControllersManager = playerVRControllersManager;
-#if !PRE_V1_37_1
         _instantiator = instantiator;
-#else
+        _noodlePlayerTransformManager = noodlePlayerTransformManager;
+#if PRE_V1_37_1
         _vrCenterAdjust = vrCenterAdjust;
 #endif
         _deserializedData = deserializedData;
@@ -288,56 +271,14 @@ internal class AssignPlayerToTrack : ICustomEvent
             return;
         }
 
-        PlayerTrackObject playerTrackObject = noodlePlayerData.PlayerTrackObject;
+        PlayerObject playerTrackObject = noodlePlayerData.PlayerObject;
         if (!_playerTracks.TryGetValue(playerTrackObject, out PlayerTrack? playerTrack))
         {
-            _playerTracks[playerTrackObject] = playerTrack = Create(playerTrackObject);
-
-            // unparent non-root objects so our script can set their position and afterward apply the room offset
-            if (playerTrackObject != PlayerTrackObject.Root)
-            {
-                Transform playerTrackTransform = playerTrack.transform;
-                playerTrackTransform.SetParent(_playerTransforms._originParentTransform.transform, false);
-
-                GameObject roomOffset = new("NoodleRoomOffset");
-                roomOffset.SetActive(false);
-                Transform roomOffsetTransform = roomOffset.transform;
-#if !PRE_V1_37_1
-                _instantiator.InstantiateComponent<VRCenterAdjust>(roomOffset);
-#else
-                VRCenterAdjust vrCenterAdjust = roomOffset.AddComponent<VRCenterAdjust>();
-                vrCenterAdjust._roomCenter = _vrCenterAdjust._roomCenter;
-                vrCenterAdjust._roomRotation = _vrCenterAdjust._roomRotation;
-                vrCenterAdjust._mainSettingsModel = _vrCenterAdjust._mainSettingsModel;
-#endif
-                Transform target = playerTrackTransform.GetChild(0);
-                roomOffsetTransform.SetParent(playerTrackTransform);
-                roomOffset.SetActive(true);
-                target.SetParent(roomOffsetTransform, true);
-            }
+            _playerTracks[playerTrackObject] = playerTrack = _instantiator.InstantiateComponent<PlayerTrack>(
+                _noodlePlayerTransformManager.GetByPlayerObject(playerTrackObject),
+                new object[] { playerTrackObject });
         }
 
         playerTrack.AssignTrack(noodlePlayerData.Track);
-    }
-
-    private PlayerTrack Create(PlayerTrackObject playerTrackObject)
-    {
-        GameObject noodleObject = new($"NoodlePlayerTrack{playerTrackObject}");
-        Transform origin = noodleObject.transform;
-
-        // _playerTransforms._leftHandTransform points to the saber instead of the hand in 1.34+
-        Transform target = playerTrackObject switch
-        {
-            PlayerTrackObject.Root => _playerTransforms._originTransform.parent,
-            PlayerTrackObject.Head => _playerTransforms._headTransform,
-            PlayerTrackObject.LeftHand => _playerVRControllersManager.leftHandVRController.transform,
-            PlayerTrackObject.RightHand => _playerVRControllersManager.rightHandVRController.transform,
-            _ => throw new ArgumentOutOfRangeException(nameof(playerTrackObject), playerTrackObject, null)
-        };
-
-        origin.SetParent(target.parent, false);
-        target.SetParent(origin, true);
-
-        return _container.InstantiateComponent<PlayerTrack>(noodleObject, new object[] { playerTrackObject });
     }
 }

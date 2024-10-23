@@ -6,6 +6,7 @@ using System.Reflection.Emit;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck;
+using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using UnityEngine;
@@ -33,7 +34,8 @@ internal class SaberPlayerMovementFix : IAffinity, IDisposable
     private SaberPlayerMovementFix(
         SiraLog log,
         PlayerTransforms playerTransforms,
-        IReadonlyBeatmapData beatmapData)
+        IReadonlyBeatmapData beatmapData,
+        NoodlePlayerTransformManager noodlePlayerTransformManager)
     {
         _log = log;
         _origin = playerTransforms._originTransform;
@@ -41,7 +43,7 @@ internal class SaberPlayerMovementFix : IAffinity, IDisposable
 
         CustomBeatmapData customBeatmapData = (CustomBeatmapData)beatmapData;
         _local = customBeatmapData.beatmapCustomData.Get<bool?>(NoodleController.TRAIL_LOCAL_SPACE) ?? false;
-        _active = customBeatmapData.customEventDatas.Any(n => n.eventType == NoodleController.ASSIGN_PLAYER_TO_TRACK);
+        _active = noodlePlayerTransformManager.Active;
     }
 
     public void Dispose()
