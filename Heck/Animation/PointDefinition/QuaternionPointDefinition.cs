@@ -131,8 +131,8 @@ public class QuaternionPointDefinition : PointDefinition<Quaternion>
                         Vector3 modVec = modifier.VectorPoint;
                         Vector3 resVec = modifier.Operation switch
                         {
-                            Operation.opAdd => current + current,
-                            Operation.opSub => modVec - modVec,
+                            Operation.opAdd => current + modVec,
+                            Operation.opSub => current - modVec,
                             Operation.opMul => Vector3.Scale(current, modVec),
                             Operation.opDiv => Vector3PointDefinition.DivideByComponent(current, modVec),
                             _ => throw new InvalidOperationException(
