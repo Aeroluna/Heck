@@ -6,7 +6,6 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using Heck;
 using NoodleExtensions.Animation;
-using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
 using UnityEngine;
 
@@ -71,7 +70,6 @@ internal class NoteJumpNoodlifier : IAffinity, IDisposable
 
     private readonly NoteUpdateNoodlifier _noteUpdateNoodlifier;
     private readonly AnimationHelper _animationHelper;
-    private readonly NoodlePlayerTransformManager _noodlePlayerTransformManager;
 
     private readonly CodeInstruction _definiteNoteJump;
     private readonly CodeInstruction _doNoteLook;
@@ -79,16 +77,13 @@ internal class NoteJumpNoodlifier : IAffinity, IDisposable
     private readonly CodeInstruction _noteJumpTimeAdjust;
 
     private bool _definitePosition;
-    private Transform? _noodleHeadTransform;
 
     private NoteJumpNoodlifier(
         NoteUpdateNoodlifier noteUpdateNoodlifier,
-        AnimationHelper animationHelper,
-        NoodlePlayerTransformManager noodlePlayerTransformManager)
+        AnimationHelper animationHelper)
     {
         _noteUpdateNoodlifier = noteUpdateNoodlifier;
         _animationHelper = animationHelper;
-        _noodlePlayerTransformManager = noodlePlayerTransformManager;
         _doNoteLook =
             InstanceTranspilers
                 .EmitInstanceDelegate<
