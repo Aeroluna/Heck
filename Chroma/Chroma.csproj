@@ -12,11 +12,11 @@
     <PluginId>Chroma</PluginId>
     <PluginName>Chroma</PluginName>
     <Author>Aeroluna</Author>
-    <Version>2.9.8</Version>
+    <Version>2.9.9</Version>
     <Description>Chroma™ boasts the most power in color customization you've ever seen, allowing mappers to customize blocks, lights, sabers, and barriers into not just one but multiple colors!</Description>
   </PropertyGroup>
   <ItemGroup>
-    <DependsOn Include="_Heck" Version="^1.6.4"/>
+    <DependsOn Include="Heck" Version="^1.6.7"/>
     <DependsOn Include="BeatSaberMarkupLanguage" Version="^1.6.3"/>
     <DependsOn Include="BSIPA" Version="^4.2.2"/>
     <DependsOn Include="CustomJSONData" Version="^2.6.3"/>
