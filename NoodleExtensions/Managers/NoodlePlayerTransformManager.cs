@@ -21,6 +21,8 @@ public class NoodlePlayerTransformManager : IInitializable
     private readonly PlayerVRControllersManager _playerVRControllersManager;
 #if PRE_V1_37_1
     private readonly VRCenterAdjust _vrCenterAdjust;
+#else
+    private readonly IInstantiator _instantiator;
 #endif
     private GameObject? _root;
     private GameObject? _head;
@@ -37,6 +39,8 @@ public class NoodlePlayerTransformManager : IInitializable
         PlayerVRControllersManager playerVRControllersManager,
 #if PRE_V1_37_1
         VRCenterAdjust vrCenterAdjust,
+#else
+        IInstantiator instantiator,
 #endif
         IReadonlyBeatmapData beatmapData)
     {
@@ -44,6 +48,8 @@ public class NoodlePlayerTransformManager : IInitializable
         _playerVRControllersManager = playerVRControllersManager;
 #if PRE_V1_37_1
         _vrCenterAdjust = vrCenterAdjust;
+#else
+        _instantiator = instantiator;
 #endif
         Active = ((CustomBeatmapData)beatmapData).customEventDatas.Any(n => n.eventType == NoodleController.ASSIGN_PLAYER_TO_TRACK);
     }
@@ -115,13 +121,13 @@ public class NoodlePlayerTransformManager : IInitializable
             GameObject roomOffset = new("NoodleRoomOffset");
             roomOffset.SetActive(false);
             Transform roomOffsetTransform = roomOffset.transform;
-#if !PRE_V1_37_1
-            _instantiator.InstantiateComponent<VRCenterAdjust>(roomOffset);
-#else
+#if PRE_V1_37_1
             VRCenterAdjust vrCenterAdjust = roomOffset.AddComponent<VRCenterAdjust>();
             vrCenterAdjust._roomCenter = _vrCenterAdjust._roomCenter;
             vrCenterAdjust._roomRotation = _vrCenterAdjust._roomRotation;
             vrCenterAdjust._mainSettingsModel = _vrCenterAdjust._mainSettingsModel;
+#else
+            _instantiator.InstantiateComponent<VRCenterAdjust>(roomOffset);
 #endif
             roomOffsetTransform.SetParent(origin);
             roomOffset.SetActive(true);
