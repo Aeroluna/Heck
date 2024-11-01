@@ -21,8 +21,8 @@ jobs:
     with:
       project-path: ${{ matrix.project-path }}
       game-version: ${{ matrix.game-version }}
-      additional-project-paths: Heck/Heck.csproj
-      additional-sources: Aeroluna/CustomJSONData
+      additional-project-paths: '["Heck/Heck.csproj"]'
+      additional-sources: '{"CustomJSONData": "Aeroluna/CustomJSONData"}'
     secrets: inherit
 
   create_release:
