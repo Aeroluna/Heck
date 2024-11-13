@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -46,7 +47,7 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
         _obstacleTracker = obstacleTracker;
 
         _getWorldRotation =
-            InstanceTranspilers.EmitInstanceDelegate<Func<ObstacleData, float, Quaternion>>(GetWorldRotation);
+            InstanceTranspilers.EmitInstanceDelegate<Func<Quaternion, ObstacleData, Quaternion>>(GetWorldRotation);
         _getCustomWidth = InstanceTranspilers.EmitInstanceDelegate<Func<float, ObstacleData, float>>(GetCustomWidth);
         _getCustomLength = InstanceTranspilers.EmitInstanceDelegate<Func<float, ObstacleData, float>>(GetCustomLength);
     }
@@ -70,10 +71,10 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
         return noodleData?.Width ?? @default;
     }
 
-    private Quaternion GetWorldRotation(ObstacleData obstacleData, float @default)
+    private Quaternion GetWorldRotation(
+        Quaternion worldRotation,
+        ObstacleData obstacleData)
     {
-        Quaternion worldRotation = Quaternion.Euler(0, @default, 0);
-
         if (!_deserializedData.Resolve(obstacleData, out NoodleObstacleData? noodleData))
         {
             return worldRotation;
@@ -151,14 +152,12 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
             // world rotation
             /*
              * -- this._worldRotation = Quaternion.Euler(0f, worldRotation, 0f);
-             * ++ this._worldRotation = GetWorldRotation(obstacleData, worldRotation);
+             * ++ this._worldRotation = GetWorldRotation(Quaternion.Euler(0f, worldRotation, 0f), obstacleData);
              */
             .MatchForward(false, new CodeMatch(OpCodes.Stfld, _worldRotationField))
             .Insert(
                 new CodeInstruction(OpCodes.Ldarg_1),
-                new CodeInstruction(OpCodes.Ldarg_2),
                 _getWorldRotation)
-            .RemoveInstructionsWithOffsets(-4, -1)
 
             // inverse world rotation
             /*
@@ -170,7 +169,11 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldfld, _worldRotationField),
                 new CodeInstruction(OpCodes.Call, _invertQuaternion))
+#if LATEST
+            .RemoveInstructionsWithOffsets(-7, -1)
+#else
             .RemoveInstructionsWithOffsets(-5, -1)
+#endif
 
             // width
             /*
