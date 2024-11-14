@@ -34,8 +34,8 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
         ColorScheme colorScheme,
         MainSettingsModelSO mainSettingsModel,
 #if !V1_29_1
-            BeatmapDataCache? beatmapDataCache = null,
-            RecordingToolManager.SetupData? recordingToolData = null)
+        BeatmapDataCache? beatmapDataCache = null,
+        RecordingToolManager.SetupData? recordingToolData = null)
 #else
         BeatmapDataCache? beatmapDataCache = null)
 #endif
@@ -50,8 +50,8 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
             colorScheme,
             mainSettingsModel,
 #if !V1_29_1
-                beatmapDataCache,
-                recordingToolData)
+            beatmapDataCache,
+            recordingToolData)
 #else
             beatmapDataCache)
 #endif
