@@ -33,9 +33,6 @@ internal class NoodlePlayerInstaller : Installer
         Container.BindInterfacesAndSelfTo<NoodleObjectsCallbacksManager>().AsSingle();
         Container.BindInterfacesAndSelfTo<NoodlePlayerTransformManager>().AsSingle();
 
-        // Base Provider
-        Container.BindInterfacesTo<PlayerTransformGetter>().AsSingle();
-
         // Custom Events
         Container.BindInterfacesTo<AssignTrackParent>().AsSingle();
         Container.BindInterfacesTo<AssignPlayerToTrack>().AsSingle();

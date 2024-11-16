@@ -75,9 +75,6 @@ internal class ChromaPlayerInstaller : Installer
             // Mirror
             Container.BindInterfacesTo<MirroredNoteChromaTracker>().AsSingle();
             Container.BindInterfacesTo<MirroredObstacleChromaTracker>().AsSingle();
-
-            // Base Provider
-            Container.BindInterfacesTo<ColorSchemeGetter>().AsSingle();
         }
 
         if (_featuresModule.Active)

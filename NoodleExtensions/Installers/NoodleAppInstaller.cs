@@ -8,7 +8,6 @@ internal class NoodleAppInstaller : Installer
 {
     public override void InstallBindings()
     {
-        Container.BindInterfacesAndSelfTo<NoodleBaseProvider>().AsSingle();
         Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
     }
 }

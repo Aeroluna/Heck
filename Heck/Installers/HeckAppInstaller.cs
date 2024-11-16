@@ -1,4 +1,5 @@
 ﻿using Heck.BaseProvider;
+using Heck.BaseProviders;
 using Heck.Deserialize;
 using Heck.HarmonyPatches;
 using Heck.HarmonyPatches.ModuleActivator;
@@ -39,6 +40,10 @@ internal class HeckAppInstaller : Installer
 #if V1_37_1
         Container.BindInterfacesAndSelfTo<PerformancePresetOverride>().AsSingle();
 #endif
+
+        Container.BindInterfacesAndSelfTo<PlayerTransformBaseProvider>().AsSingle();
+        Container.BindInterfacesAndSelfTo<ColorBaseProvider>().AsSingle();
+        Container.BindInterfacesAndSelfTo<ScoreBaseProvider>().AsSingle();
 
         if (!HeckController.DebugMode)
         {

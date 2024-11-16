@@ -1,6 +1,7 @@
 ﻿using Heck.Animation;
 using Heck.Animation.Events;
 using Heck.Animation.Transform;
+using Heck.BaseProviders;
 using Heck.Event;
 using Heck.HarmonyPatches;
 using Heck.ObjectInitialize;
@@ -49,5 +50,10 @@ internal class HeckPlayerInstaller : Installer
 
         // BurstSliders
         Container.BindInterfacesTo<BurstSliderDataRegisterer>().AsSingle();
+
+        // Base Provider
+        Container.BindInterfacesTo<PlayerTransformGetter>().AsSingle();
+        Container.BindInterfacesTo<ColorSchemeGetter>().AsSingle();
+        Container.BindInterfacesTo<ScoreGetter>().AsSingle();
     }
 }

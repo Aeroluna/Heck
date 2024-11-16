@@ -1,10 +1,9 @@
-﻿using Heck;
-using Heck.BaseProvider;
+﻿using Heck.BaseProvider;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 
-namespace Chroma;
+namespace Heck.BaseProviders;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 internal class ColorBaseProvider : IBaseProvider

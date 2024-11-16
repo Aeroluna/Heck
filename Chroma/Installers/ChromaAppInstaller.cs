@@ -27,8 +27,6 @@ internal class ChromaAppInstaller : Installer
         Container.Bind<EnvironmentMaterialsManager>().FromNewComponentOnNewGameObject().AsSingle();
         Container.BindInterfacesTo<SavedEnvironmentLoading>().AsSingle();
 
-        Container.BindInterfacesAndSelfTo<ColorBaseProvider>().AsSingle();
-
         Container.BindInterfacesTo<ForceZenModeObstacleBeatmapData>().AsSingle();
 
         Container.BindInterfacesAndSelfTo<ColorizerModule>().AsSingle();

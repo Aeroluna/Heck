@@ -42,14 +42,9 @@ internal class BaseProviderManager
     }
 }
 
-internal class BaseProviderData<T> : IBaseProviderData
+internal class BaseProviderData<T>(IBaseProvider baseProvider, MethodInfo getter) : IBaseProviderData
 {
-    private readonly Func<T> _getter;
-
-    public BaseProviderData(IBaseProvider baseProvider, MethodInfo getter)
-    {
-        _getter = (Func<T>)Delegate.CreateDelegate(typeof(Func<T>), baseProvider, getter);
-    }
+    private readonly Func<T> _getter = (Func<T>)Delegate.CreateDelegate(typeof(Func<T>), baseProvider, getter);
 
     internal T GetValue()
     {
