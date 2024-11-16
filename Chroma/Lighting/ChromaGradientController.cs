@@ -12,16 +12,16 @@ namespace Chroma.Lighting;
 internal class ChromaGradientController : ITickable
 {
     private readonly IBpmController _bpmController;
+    private readonly BeatmapCallbacksController _beatmapCallbacksController;
     private readonly LightColorizerManager _manager;
-    private readonly IAudioTimeSource _timeSource;
     private readonly List<BasicBeatmapEventType> _reusableEventTypes = [];
 
     private ChromaGradientController(
-        IAudioTimeSource timeSource,
+        BeatmapCallbacksController beatmapCallbacksController,
         LightColorizerManager manager,
         IBpmController bpmController)
     {
-        _timeSource = timeSource;
+        _beatmapCallbacksController = beatmapCallbacksController;
         _manager = manager;
         _bpmController = bpmController;
     }
@@ -58,7 +58,7 @@ internal class ChromaGradientController : ITickable
         Functions easing = gradientObject.Easing;
 
         ChromaGradientEvent gradientEvent = new(
-            _timeSource,
+            _beatmapCallbacksController,
             initColor,
             endColor,
             time,
@@ -91,10 +91,10 @@ internal class ChromaGradientController : ITickable
         private readonly Color _endcolor;
         private readonly Color _initcolor;
         private readonly float _start;
-        private readonly IAudioTimeSource _timeSource;
+        private readonly BeatmapCallbacksController _timeSource;
 
         internal ChromaGradientEvent(
-            IAudioTimeSource timeSource,
+            BeatmapCallbacksController timeSource,
             Color initcolor,
             Color endcolor,
             float start,

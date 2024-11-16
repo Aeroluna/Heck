@@ -21,20 +21,20 @@ namespace Chroma.Animation;
 internal class AnimateComponent : ICustomEvent
 {
     private readonly Dictionary<string, Dictionary<Track, Coroutine>> _allCoroutines = new();
-    private readonly IAudioTimeSource _audioTimeSource;
     private readonly IBpmController _bpmController;
+    private readonly BeatmapCallbacksController _beatmapCallbacksController;
     private readonly CoroutineDummy _coroutineDummy;
     private readonly DeserializedData _deserializedData;
 
     [UsedImplicitly]
     private AnimateComponent(
         IBpmController bpmController,
-        IAudioTimeSource audioTimeSource,
+        BeatmapCallbacksController beatmapCallbacksController,
         CoroutineDummy coroutineDummy,
         [Inject(Id = ID)] DeserializedData deserializedData)
     {
         _bpmController = bpmController;
-        _audioTimeSource = audioTimeSource;
+        _beatmapCallbacksController = beatmapCallbacksController;
         _coroutineDummy = coroutineDummy;
         _deserializedData = deserializedData;
     }
@@ -146,7 +146,7 @@ internal class AnimateComponent : ICustomEvent
     {
         while (true)
         {
-            float elapsedTime = _audioTimeSource.songTime - startTime;
+            float elapsedTime = _beatmapCallbacksController.songTime - startTime;
             float time = Easings.Interpolate(Mathf.Min(elapsedTime / duration, 1f), easing);
             action(component, points.Interpolate(time));
 

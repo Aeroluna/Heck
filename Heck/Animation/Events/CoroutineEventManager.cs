@@ -20,21 +20,21 @@ internal enum EventType
 internal class CoroutineEvent : ICustomEvent
 {
     private static readonly WaitForEndOfFrame _waitForEndOfFrame = new();
-    private readonly IAudioTimeSource _audioTimeSource;
 
     private readonly IBpmController _bpmController;
+    private readonly BeatmapCallbacksController _beatmapCallbacksController;
     private readonly CoroutineDummy _coroutineDummy;
     private readonly DeserializedData _deserializedData;
 
     [UsedImplicitly]
     private CoroutineEvent(
         IBpmController bpmController,
-        IAudioTimeSource audioTimeSource,
+        BeatmapCallbacksController beatmapCallbacksController,
         CoroutineDummy coroutineDummy,
         [Inject(Id = ID)] DeserializedData deserializedData)
     {
         _bpmController = bpmController;
-        _audioTimeSource = audioTimeSource;
+        _beatmapCallbacksController = beatmapCallbacksController;
         _coroutineDummy = coroutineDummy;
         _deserializedData = deserializedData;
     }
@@ -71,7 +71,7 @@ internal class CoroutineEvent : ICustomEvent
         float duration = (60f * heckData.Duration) / _bpmController.currentBpm; // Convert to real time;
         Functions easing = heckData.Easing;
         int repeat = heckData.Repeat;
-        bool noDuration = duration == 0 || customEventData.time + (duration * (repeat + 1)) < _audioTimeSource.songTime;
+        bool noDuration = duration == 0 || customEventData.time + (duration * (repeat + 1)) < _beatmapCallbacksController.songTime;
         foreach (HeckCoroutineEventData.CoroutineInfo coroutineInfo in heckData.CoroutineInfos)
         {
             BaseProperty property = coroutineInfo.Property;
@@ -256,7 +256,7 @@ internal class CoroutineEvent : ICustomEvent
         bool skip = false;
         while (repeat >= 0)
         {
-            float elapsedTime = _audioTimeSource.songTime - startTime;
+            float elapsedTime = _beatmapCallbacksController.songTime - startTime;
             if (!skip)
             {
                 float normalizedTime = Mathf.Min(elapsedTime / duration, 1);
@@ -292,7 +292,7 @@ internal class CoroutineEvent : ICustomEvent
         float elapsedTime;
         do
         {
-            elapsedTime = _audioTimeSource.songTime - startTime;
+            elapsedTime = _beatmapCallbacksController.songTime - startTime;
             float normalizedTime = Mathf.Min(elapsedTime / duration, 1);
             interpolation.Time = Easings.Interpolate(normalizedTime, easing);
             yield return null;
