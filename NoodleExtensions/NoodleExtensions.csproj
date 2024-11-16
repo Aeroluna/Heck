@@ -39,7 +39,6 @@
     <Reference Include="HMLib" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll"/>
     <Reference Include="HMRendering" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll"/>
     <Reference Include="IPA.Loader" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll"/>
-    <Reference Include="MathUtils" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\MathUtils.dll" Condition="$(DefineConstants.Contains('LATEST'))"/>
     <Reference Include="Main" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll" Publicize="true"/>
     <Reference Include="Newtonsoft.Json" HintPath="$(BeatSaberDir)\Libs\Newtonsoft.Json.dll"/>
     <Reference Include="SaberTrail" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\SaberTrail.dll" Publicize="true"/>
