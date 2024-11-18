@@ -274,10 +274,13 @@ internal class NoodleObjectData : IObjectCustomData
             StartX = position?.ElementAtOrDefault(0);
             StartY = position?.ElementAtOrDefault(1);
 
-            IEnumerable<float?>? scale = customData.GetNullableFloats(v2 ? V2_SCALE : SCALE)?.ToList();
-            ScaleX = scale?.ElementAtOrDefault(0);
-            ScaleY = scale?.ElementAtOrDefault(1);
-            ScaleZ = scale?.ElementAtOrDefault(2);
+            if (!v2)
+            {
+                IEnumerable<float?>? scale = customData.GetNullableFloats(SCALE)?.ToList();
+                ScaleX = scale?.ElementAtOrDefault(0);
+                ScaleY = scale?.ElementAtOrDefault(1);
+                ScaleZ = scale?.ElementAtOrDefault(2);
+            }
 
             Njs = customData.Get<float?>(v2 ? V2_NOTE_JUMP_SPEED : NOTE_JUMP_SPEED);
             SpawnOffset = customData.Get<float?>(v2 ? V2_NOTE_SPAWN_OFFSET : NOTE_SPAWN_OFFSET);
