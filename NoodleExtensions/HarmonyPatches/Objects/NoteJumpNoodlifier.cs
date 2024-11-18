@@ -168,8 +168,8 @@ internal class NoteJumpNoodlifier : IAffinity, IDisposable
         {
             // This line but super complicated so that "y" = "originTransform.up"
             // vector.y = Mathf.Lerp(vector.y, this._localPosition.y, 0.8f);
-            ////Transform parentTransform = playerTransforms._originTransform;
-            Vector3 vector = playerTransforms.headPseudoLocalPos;
+            Transform parentTransform = playerTransforms._originParentTransform;
+            Vector3 vector = parentTransform.TransformPoint(playerTransforms.headPseudoLocalPos);
             Quaternion inverse = Quaternion.Inverse(worldRot);
             Vector3 upVector = inverse * Vector3.up;
             Vector3 position = baseTransform.position;
