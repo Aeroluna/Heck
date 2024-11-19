@@ -12,11 +12,11 @@
     <PluginId>NoodleExtensions</PluginId>
     <PluginName>NoodleExtensions</PluginName>
     <Author>Aeroluna</Author>
-    <Version>1.7.6</Version>
+    <Version>1.7.7</Version>
     <Description>This mod lets you see cool things that mappers have put in their maps. Report all issues to Reaxt.</Description>
   </PropertyGroup>
   <ItemGroup>
-    <DependsOn Include="Heck" Version="^1.6.7"/>
+    <DependsOn Include="Heck" Version="^1.7.0"/>
     <DependsOn Include="BSIPA" Version="^4.2.2"/>
     <DependsOn Include="CustomJSONData" Version="^2.6.0"/>
     <DependsOn Include="SiraUtil" Version="^3.0.5"/>
