@@ -36,9 +36,6 @@ internal class PlayerTrack : MonoBehaviour
 
     private Track? _track;
 
-    [UsedImplicitly]
-    private Transform _transform = null!;
-
     private TransformController? _transformController;
     private TransformControllerFactory _transformFactory = null!;
     private bool _v2;
@@ -112,10 +109,23 @@ internal class PlayerTrack : MonoBehaviour
 
         // cam2 is cringe cam2 is cringe cam2 is cringe
         // ReSharper disable once InvertIf
-        if (target == PlayerObject.Head)
+        switch (target)
         {
-            _instance = this;
-            _transform = origin;
+            case PlayerObject.Head:
+                _instance = this;
+                break;
+            case PlayerObject.Root:
+                _instance ??= this;
+
+                // cam2 is insanely cringe and will not track properly when both a "NoodlePlayerTrackHead"
+                // and a "NoodlePlayerTrackRoot" exist, as it only looks for localPosition of head,
+                // so it will never track root properly
+                // my stupid solution: create a dummy object named "NoodlePlayerTrackRoot"
+                // whose localposition mirrors when i set
+                GameObject rootCam2Dummy = new("NoodlePlayerTrackRoot");
+                rootCam2Dummy.transform.SetParent(transform);
+                rootCam2Dummy.AddComponent<MirrorParentTransform>();
+                break;
         }
     }
 
@@ -130,6 +140,9 @@ internal class PlayerTrack : MonoBehaviour
         {
             Destroy(_transformController);
         }
+
+        // cam2 is cringe cam2 is cringe cam2 is cringe
+        _instance = null;
     }
 
     private void OnDidPauseEvent()
@@ -242,25 +255,16 @@ internal class AssignPlayerToTrack : ICustomEvent
 {
     private readonly IInstantiator _instantiator;
     private readonly NoodlePlayerTransformManager _noodlePlayerTransformManager;
-#if PRE_V1_37_1
-    private readonly VRCenterAdjust _vrCenterAdjust;
-#endif
     private readonly DeserializedData _deserializedData;
     private readonly Dictionary<PlayerObject, PlayerTrack> _playerTracks = new();
 
     private AssignPlayerToTrack(
         IInstantiator instantiator,
         NoodlePlayerTransformManager noodlePlayerTransformManager,
-#if PRE_V1_37_1
-        VRCenterAdjust vrCenterAdjust,
-#endif
         [Inject(Id = ID)] DeserializedData deserializedData)
     {
         _instantiator = instantiator;
         _noodlePlayerTransformManager = noodlePlayerTransformManager;
-#if PRE_V1_37_1
-        _vrCenterAdjust = vrCenterAdjust;
-#endif
         _deserializedData = deserializedData;
     }
 
