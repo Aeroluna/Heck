@@ -19,6 +19,8 @@ internal class ScoreBaseProvider : IBaseProvider
 
     internal float ImmediateMaxPossibleModifiedScore { get; set; }
 
+    internal float RelativeScore { get; set; }
+
     internal float Multiplier { get; set; }
 
     internal float Energy { get; set; }
@@ -33,6 +35,7 @@ internal class ScoreGetter : ITickable, IDisposable
     private readonly ScoreBaseProvider _scoreBaseProvider;
     private readonly IScoreController _scoreController;
     private readonly ComboController _comboController;
+    private readonly RelativeScoreAndImmediateRankCounter _relativeScoreAndImmediateRankCounter;
     private readonly IGameEnergyCounter _gameEnergyCounter;
     private readonly SongController _songController;
     private readonly BeatmapCallbacksController _beatmapCallbacksController;
@@ -43,6 +46,7 @@ internal class ScoreGetter : ITickable, IDisposable
         ScoreBaseProvider scoreBaseProvider,
         IScoreController scoreController,
         ComboController comboController,
+        RelativeScoreAndImmediateRankCounter relativeScoreAndImmediateRankCounter,
         IGameEnergyCounter gameEnergyCounter,
         SongController songController,
         BeatmapCallbacksController beatmapCallbacksController,
@@ -54,12 +58,16 @@ internal class ScoreGetter : ITickable, IDisposable
         scoreController.multiplierDidChangeEvent += HandleMultiplierDidChange;
         _comboController = comboController;
         comboController.comboDidChangeEvent += HandleComboDidChange;
+        _relativeScoreAndImmediateRankCounter = relativeScoreAndImmediateRankCounter;
+        relativeScoreAndImmediateRankCounter.relativeScoreOrImmediateRankDidChangeEvent +=
+            HandleRelativeScoreAndImmediateRankCounterRelativeScoreOrImmediateRankDidChange;
         _gameEnergyCounter = gameEnergyCounter;
         gameEnergyCounter.gameEnergyDidChangeEvent += HandleGameEnergyDidChange;
         _songController = songController;
         songController.songDidFinishEvent += HandleSongDidFinish;
         _beatmapCallbacksController = beatmapCallbacksController;
         scoreBaseProvider.SongLength = audioTimeSource.songLength;
+        _scoreBaseProvider.Multiplier = 1;
     }
 
     public void Tick()
@@ -84,6 +92,12 @@ internal class ScoreGetter : ITickable, IDisposable
         if (_comboController != null)
         {
             _comboController.comboDidChangeEvent -= HandleComboDidChange;
+        }
+
+        if (_relativeScoreAndImmediateRankCounter != null)
+        {
+            _relativeScoreAndImmediateRankCounter.relativeScoreOrImmediateRankDidChangeEvent -=
+                HandleRelativeScoreAndImmediateRankCounterRelativeScoreOrImmediateRankDidChange;
         }
 
         if (_songController != null)
@@ -113,6 +127,12 @@ internal class ScoreGetter : ITickable, IDisposable
     private void HandleComboDidChange(int combo)
     {
         _scoreBaseProvider.Combo = combo;
+    }
+
+    // wtf is this method name
+    private void HandleRelativeScoreAndImmediateRankCounterRelativeScoreOrImmediateRankDidChange()
+    {
+        _scoreBaseProvider.RelativeScore = _relativeScoreAndImmediateRankCounter.relativeScore;
     }
 
     private void HandleGameEnergyDidChange(float energy)
