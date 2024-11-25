@@ -62,7 +62,7 @@ internal class GameObjectTracker : IAffinity, IDisposable
         AddObject(sliderController.sliderData, __instance);
     }
 
-    [AffinityPostfix]
+    [AffinityPrefix]
     [AffinityPatch(typeof(NoteDebris), nameof(NoteDebris.Init))]
     private void AddNoteDebris(NoteDebris __instance)
     {

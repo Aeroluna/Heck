@@ -9,7 +9,7 @@ using static Heck.HeckController;
 
 namespace Heck;
 
-internal class HeckObjectData : IObjectCustomData
+internal class HeckObjectData : IObjectCustomData, ICopyable<IObjectCustomData>
 {
     internal HeckObjectData(
         BeatmapObjectData beatmapObjectData,
@@ -28,7 +28,17 @@ internal class HeckObjectData : IObjectCustomData
         }
     }
 
+    private HeckObjectData(HeckObjectData original)
+    {
+        Track = original.Track;
+    }
+
     internal IReadOnlyList<Track>? Track { get; }
+
+    public IObjectCustomData Copy()
+    {
+        return new HeckObjectData(this);
+    }
 }
 
 internal class HeckCoroutineEventData : ICustomEventCustomData
