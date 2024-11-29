@@ -17,7 +17,6 @@ using UnityEngine.SceneManagement;
 using Zenject;
 using static Chroma.ChromaController;
 using static Heck.HeckController;
-using Object = UnityEngine.Object;
 
 namespace Chroma.EnvironmentEnhancement;
 
@@ -44,6 +43,7 @@ internal class EnvironmentEnhancementManager : IAffinity
     private readonly GeometryFactory _geometryFactory;
     private readonly bool _leftHanded;
     private readonly SiraLog _log;
+    private readonly IInstantiator _instantiator;
     private readonly ParametricBoxControllerTransformOverride _parametricBoxControllerTransformOverride;
     private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
     private readonly EnvironmentOverrideChecker _environmentOverrideChecker;
@@ -52,6 +52,7 @@ internal class EnvironmentEnhancementManager : IAffinity
 
     private EnvironmentEnhancementManager(
         SiraLog log,
+        IInstantiator instantiator,
         IReadonlyBeatmapData beatmapData,
         Dictionary<string, Track> tracks,
         [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
@@ -70,6 +71,7 @@ internal class EnvironmentEnhancementManager : IAffinity
     {
         _beatmapData = (CustomBeatmapData)beatmapData;
         _log = log;
+        _instantiator = instantiator;
         _tracks = tracks;
         _leftHanded = leftHanded;
         _geometryFactory = geometryFactory;
@@ -259,7 +261,7 @@ internal class EnvironmentEnhancementManager : IAffinity
                         {
                             List<IComponentData> componentDatas = [];
                             DuplicateInitializer.PrefillComponentsData(gameObject.transform, componentDatas);
-                            GameObject newGameObject = Object.Instantiate(gameObject);
+                            GameObject newGameObject = _instantiator.InstantiatePrefab(gameObject);
                             _duplicateInitializer.PostfillComponentsData(
                                 newGameObject.transform,
                                 gameObject.transform,

@@ -18,7 +18,6 @@ namespace Heck.Animation.Transform;
 public class TransformController : MonoBehaviour
 {
     private bool _leftHanded;
-    private List<Track>? _track;
     private bool _v2;
 
     public event Action? PositionUpdated;
@@ -27,20 +26,19 @@ public class TransformController : MonoBehaviour
 
     public event Action? ScaleUpdated;
 
+    public List<Track> Tracks { get; set; } = [];
+
     [Inject]
     [UsedImplicitly]
     private void Construct(
         [Inject(Id = LEFT_HANDED_ID)] bool leftHanded,
-        IReadonlyBeatmapData beatmapData,
-        List<Track> track)
+        IReadonlyBeatmapData beatmapData)
     {
         _leftHanded = leftHanded;
         if (beatmapData is IVersionable versionable)
         {
             _v2 = versionable.version.IsVersion2();
         }
-
-        _track = track;
     }
 
     private void OnEnable()
@@ -56,16 +54,11 @@ public class TransformController : MonoBehaviour
     // This method runs on each frame in the game scene, so avoid allocations (do NOT use Linq).
     private void Update()
     {
-        if (_track == null)
-        {
-            return;
-        }
-
         // ReSharper disable once ForCanBeConvertedToForeach
         // ReSharper disable once LoopCanBeConvertedToQuery
-        for (int i = 0; i < _track.Count; i++)
+        for (int i = 0; i < Tracks.Count; i++)
         {
-            if (!_track[i].UpdatedThisFrame)
+            if (!Tracks[i].UpdatedThisFrame)
             {
                 continue;
             }
@@ -78,7 +71,8 @@ public class TransformController : MonoBehaviour
     // This method runs on each frame in the game scene, so avoid allocations (do NOT use Linq).
     private void UpdatePos()
     {
-        if (_track == null)
+        int count = Tracks.Count;
+        if (count == 0)
         {
             return;
         }
@@ -89,7 +83,7 @@ public class TransformController : MonoBehaviour
         Vector3? position;
         Vector3? localPosition;
 
-        if (_track.Count > 1)
+        if (count > 1)
         {
             Vector3? multScale = null;
             Quaternion? multRotation = null;
@@ -97,7 +91,7 @@ public class TransformController : MonoBehaviour
             Vector3? sumPosition = null;
             Vector3? sumLocalPosition = null;
 
-            foreach (Track track in _track)
+            foreach (Track track in Tracks)
             {
                 multScale = MultVectorNullables(multScale, track.GetProperty<Vector3>(SCALE));
                 multRotation = MultQuaternionNullables(multRotation, track.GetProperty<Quaternion>(ROTATION));
@@ -116,7 +110,7 @@ public class TransformController : MonoBehaviour
         }
         else
         {
-            Track track = _track.First();
+            Track track = Tracks.First();
             scale = track.GetProperty<Vector3>(SCALE);
             rotation = track.GetProperty<Quaternion>(ROTATION);
             localRotation = track.GetProperty<Quaternion>(LOCAL_ROTATION);
@@ -202,17 +196,19 @@ public sealed class TransformControllerFactory : IDisposable
             if (overwrite)
             {
                 _log.Error($"Overwriting existing [{nameof(TransformController)}] on [{gameObject.name}]...");
-                Object.Destroy(existing);
+                existing.Tracks = track;
             }
             else
             {
                 _log.Error($"Could not create [{nameof(TransformController)}], [{gameObject.name}] already has one");
-                return existing;
             }
+
+            return existing;
         }
 
         TransformController controller =
-            _instantiator.InstantiateComponent<TransformController>(gameObject, new object[] { track });
+            _instantiator.InstantiateComponent<TransformController>(gameObject);
+        controller.Tracks = track;
         _transformControllers.Add(controller);
         return controller;
     }

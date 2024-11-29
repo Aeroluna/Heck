@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
 using Chroma.HarmonyPatches.EnvironmentComponent;
 using Chroma.Settings;
 using HarmonyLib;
 using Heck.Animation.Transform;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using SiraUtil.Logging;
 using UnityEngine;
@@ -16,40 +16,12 @@ namespace Chroma.EnvironmentEnhancement.Component;
 
 internal class DuplicateInitializer
 {
-    private static readonly FieldAccessor<LightPairRotationEventEffect, IAudioTimeSource>.Accessor
-        _audioTimeSourceAccessor =
-            FieldAccessor<LightPairRotationEventEffect, IAudioTimeSource>.GetAccessor(
-                nameof(LightPairRotationEventEffect._audioTimeSource));
-
-    private static readonly FieldAccessor<LightRotationEventEffect, BeatmapCallbacksController>.Accessor
-        _lightCallbackControllerAccessor =
-            FieldAccessor<LightRotationEventEffect, BeatmapCallbacksController>.GetAccessor(
-                nameof(LightRotationEventEffect._beatmapCallbacksController));
-
-    private static readonly FieldAccessor<LightPairRotationEventEffect, BeatmapCallbacksController>.Accessor
-        _lightPairCallbackControllerAccessor =
-            FieldAccessor<LightPairRotationEventEffect, BeatmapCallbacksController>.GetAccessor(
-                nameof(LightPairRotationEventEffect._beatmapCallbacksController));
-
-    private static readonly FieldAccessor<ParticleSystemEventEffect, BeatmapCallbacksController>.Accessor
-        _particleCallbackControllerAccessor =
-            FieldAccessor<ParticleSystemEventEffect, BeatmapCallbacksController>.GetAccessor(
-                nameof(ParticleSystemEventEffect._beatmapCallbacksController));
-
-    private static readonly FieldAccessor<TrackLaneRingsRotationEffectSpawner, BeatmapCallbacksController>.Accessor
-        _rotationEffectSpawnerCallbackControllerAccessor =
-            FieldAccessor<TrackLaneRingsRotationEffectSpawner, BeatmapCallbacksController>.GetAccessor(
-                nameof(TrackLaneRingsRotationEffectSpawner._beatmapCallbacksController));
-
-    private static readonly FieldAccessor<Spectrogram, BasicSpectrogramData>.Accessor _spectrogramDataAccessor =
-        FieldAccessor<Spectrogram, BasicSpectrogramData>.GetAccessor(nameof(Spectrogram._spectrogramData));
-
-    private readonly Config _config;
-    private readonly LightWithIdRegisterer _lightWithIdRegisterer;
+    private static readonly Dictionary<Type, FieldInfo[]> _serializedFieldLookup = new();
 
     private readonly SiraLog _log;
     private readonly TrackLaneRingOffset _trackLaneRingOffset;
-
+    private readonly LightWithIdRegisterer _lightWithIdRegisterer;
+    private readonly Config _config;
     private readonly HashSet<TrackLaneRingsManager> _trackLaneRingsManagers;
 
     [UsedImplicitly]
@@ -90,156 +62,138 @@ internal class DuplicateInitializer
         List<GameObjectInfo> gameObjectInfos,
         List<IComponentData> componentDatas)
     {
-        TransformController transformController = root.GetComponent<TransformController>();
-        if (transformController != null)
+        foreach (MonoBehaviour monoBehaviour in root.GetComponents<MonoBehaviour>())
         {
-            Object.DestroyImmediate(transformController);
-        }
-
-        GetComponentAndOriginal<LightWithIdMonoBehaviour>(
-            (rootComponent, originalComponent) =>
+            Type type = monoBehaviour.GetType();
+            MonoBehaviour other = (MonoBehaviour)original.GetComponent(type);
+            if (!_serializedFieldLookup.TryGetValue(type, out FieldInfo[] fieldInfos))
             {
-                rootComponent._lightManager = originalComponent._lightManager;
-                _lightWithIdRegisterer.MarkForTableRegister(rootComponent);
-            });
+                fieldInfos = type
+                    .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Where(n => Attribute.IsDefined(n, typeof(SerializeField)))
+                    .ToArray();
+                _serializedFieldLookup[type] = fieldInfos;
+            }
 
-        GetComponentAndOriginal<LightWithIds>(
-            (rootComponent, originalComponent) =>
+            foreach (FieldInfo field in fieldInfos)
             {
-                rootComponent._lightManager = originalComponent._lightManager;
-                IEnumerable<ILightWithId> lightsWithId = rootComponent._lightWithIds;
-                foreach (ILightWithId light in lightsWithId)
-                {
-                    _lightWithIdRegisterer.MarkForTableRegister(light);
-                }
-            });
+                field.SetValue(monoBehaviour, field.GetValue(other));
+            }
 
-        GetComponentAndOriginal<TrackLaneRing>(
-            (rootComponent, originalComponent) =>
+            switch (monoBehaviour)
             {
-                _trackLaneRingOffset.CopyRing(originalComponent, rootComponent);
+                case TransformController transformController:
+                    Object.DestroyImmediate(transformController);
+                    break;
 
-                rootComponent._transform = root;
-                rootComponent._positionOffset = originalComponent._positionOffset;
-                rootComponent._posZ = originalComponent._posZ;
+                case LightWithIdMonoBehaviour lightWithIdMonoBehaviour:
+                    _lightWithIdRegisterer.MarkForTableRegister(lightWithIdMonoBehaviour);
+                    break;
 
-                TrackLaneRingsManager? managerToAdd = null;
-                foreach (TrackLaneRingsManager manager in _trackLaneRingsManagers)
-                {
-                    TrackLaneRingsManagerComponentData? componentData = componentDatas
-                        .OfType<TrackLaneRingsManagerComponentData>()
-                        .FirstOrDefault(n => n.OldTrackLaneRingsManager == manager);
-                    if (componentData != null)
+                case LightWithIds lightsWithIds:
+                    foreach (LightWithIds.LightWithId light in lightsWithIds._lightWithIds)
                     {
-                        managerToAdd = componentData.NewTrackLaneRingsManager;
+                        _lightWithIdRegisterer.MarkForTableRegister(light);
                     }
-                    else
+
+                    break;
+
+                case TrackLaneRing trackLaneRing:
+                    TrackLaneRing originalTrackLaneRing = (TrackLaneRing)other;
+                    _trackLaneRingOffset.CopyRing(originalTrackLaneRing, trackLaneRing);
+
+                    trackLaneRing._transform = root;
+                    trackLaneRing._positionOffset = originalTrackLaneRing._positionOffset;
+                    trackLaneRing._posZ = originalTrackLaneRing._posZ;
+
+                    TrackLaneRingsManager? managerToAdd = null;
+                    foreach (TrackLaneRingsManager manager in _trackLaneRingsManagers)
                     {
-                        TrackLaneRing[] rings = manager._rings;
-                        if (rings.Contains(originalComponent))
+                        TrackLaneRingsManagerComponentData? componentData = componentDatas
+                            .OfType<TrackLaneRingsManagerComponentData>()
+                            .FirstOrDefault(n => n.OldTrackLaneRingsManager == manager);
+                        if (componentData != null)
                         {
-                            managerToAdd = manager;
+                            managerToAdd = componentData.NewTrackLaneRingsManager;
+                        }
+                        else
+                        {
+                            TrackLaneRing[] rings = manager._rings;
+                            if (rings.Contains(originalTrackLaneRing))
+                            {
+                                managerToAdd = manager;
+                            }
+                        }
+
+                        // ReSharper disable once InvertIf
+                        if (managerToAdd != null)
+                        {
+                            managerToAdd._rings = managerToAdd._rings.AddToArray(trackLaneRing);
+
+                            break;
                         }
                     }
 
-                    // ReSharper disable once InvertIf
-                    if (managerToAdd != null)
+                    break;
+
+                case TrackLaneRingsPositionStepEffectSpawner trackLaneRingsPositionStepEffectSpawner:
+                    foreach (TrackLaneRingsManager manager in _trackLaneRingsManagers)
                     {
-                        managerToAdd._rings = managerToAdd._rings.AddToArray(rootComponent);
+                        TrackLaneRingsManagerComponentData? componentData = componentDatas
+                            .OfType<TrackLaneRingsManagerComponentData>()
+                            .FirstOrDefault(n => n.OldTrackLaneRingsManager == manager);
+                        if (componentData == null)
+                        {
+                            continue;
+                        }
+
+                        trackLaneRingsPositionStepEffectSpawner._trackLaneRingsManager = componentData.NewTrackLaneRingsManager!;
 
                         break;
                     }
-                }
-            });
-
-        GetComponentAndOriginal<TrackLaneRingsPositionStepEffectSpawner>(
-            (rootComponent, _) =>
-            {
-                foreach (TrackLaneRingsManager manager in _trackLaneRingsManagers)
-                {
-                    TrackLaneRingsManagerComponentData? componentData = componentDatas
-                        .OfType<TrackLaneRingsManagerComponentData>()
-                        .FirstOrDefault(n => n.OldTrackLaneRingsManager == manager);
-                    if (componentData == null)
-                    {
-                        continue;
-                    }
-
-                    rootComponent._trackLaneRingsManager = componentData.NewTrackLaneRingsManager!;
 
                     break;
-                }
-            });
 
-        GetComponentAndOriginal<TrackLaneRingsRotationEffectSpawner>(
-            (rootComponent, originalComponent) =>
-            {
-                _rotationEffectSpawnerCallbackControllerAccessor(ref rootComponent) =
-                    originalComponent._beatmapCallbacksController;
-                rootComponent._trackLaneRingsRotationEffect =
-                    rootComponent.GetComponent<TrackLaneRingsRotationEffect>();
-            });
+                case TrackLaneRingsRotationEffectSpawner trackLaneRingsRotationEffectSpawner:
+                    trackLaneRingsRotationEffectSpawner._trackLaneRingsRotationEffect =
+                        root.GetComponent<TrackLaneRingsRotationEffect>();
 
-        GetComponentAndOriginal<Spectrogram>(
-            (rootComponent, originalComponent) =>
-                _spectrogramDataAccessor(ref rootComponent) = originalComponent._spectrogramData);
+                    break;
 
-        GetComponentAndOriginal<LightRotationEventEffect>(
-            (rootComponent, originalComponent) => _lightCallbackControllerAccessor(ref rootComponent) =
-                originalComponent._beatmapCallbacksController);
+                case Spectrogram spectrogram:
+                    spectrogram._meshRenderers = root.GetComponentsInChildren<MeshRenderer>();
 
-        GetComponentAndOriginal<LightPairRotationEventEffect>(
-            (rootComponent, originalComponent) =>
-            {
-                _lightPairCallbackControllerAccessor(ref rootComponent) = originalComponent._beatmapCallbacksController;
-                _audioTimeSourceAccessor(ref rootComponent) = originalComponent._audioTimeSource;
+                    break;
 
-                Transform transformL = originalComponent._transformL;
-                Transform transformR = originalComponent._transformR;
+                case LightPairRotationEventEffect lightPairRotationEventEffect:
+                    LightPairRotationEventEffect originalLightPairRotationEventEffect = (LightPairRotationEventEffect)other;
+                    Transform transformL = originalLightPairRotationEventEffect._transformL;
+                    Transform transformR = originalLightPairRotationEventEffect._transformR;
 
-                rootComponent._transformL = root.GetChild(transformL.GetSiblingIndex());
-                rootComponent._transformR = root.GetChild(transformR.GetSiblingIndex());
+                    lightPairRotationEventEffect._transformL = root.GetChild(transformL.GetSiblingIndex());
+                    lightPairRotationEventEffect._transformR = root.GetChild(transformR.GetSiblingIndex());
 
-                // We have to enable the object to tell unity to run Start
-                rootComponent.enabled = true;
-            });
+                    // We have to enable the object to tell unity to run Start
+                    lightPairRotationEventEffect.enabled = true;
 
-        GetComponentAndOriginal<ParticleSystemEventEffect>(
-            (rootComponent, originalComponent) =>
-            {
-                _particleCallbackControllerAccessor(ref rootComponent) = originalComponent._beatmapCallbacksController;
-                rootComponent._particleSystem = root.GetComponent<ParticleSystem>();
+                    break;
 
-                rootComponent.enabled = true;
-            });
+                case ParticleSystemEventEffect particleSystemEventEffect:
+                    particleSystemEventEffect._particleSystem = root.GetComponent<ParticleSystem>();
+                    particleSystemEventEffect.enabled = true;
 
-        GetComponentAndOriginal<Mirror>(
-            (rootComponent, originalComponent) =>
-            {
-                rootComponent._mirrorRenderer = originalComponent._mirrorRenderer;
-                rootComponent._mirrorMaterial = originalComponent._mirrorMaterial;
-            });
+                    break;
 
-        SaberBurnMarkArea? saberBurnMarkArea = root.GetComponent<SaberBurnMarkArea>();
-        if (saberBurnMarkArea != null)
-        {
-            if (_config.PrintEnvironmentEnhancementDebug)
-            {
-                _log.Debug("SaberBurnMarkArea yeeted, complain to me if you would rather it not");
+                case Mirror mirror:
+                    mirror._renderer = root.GetComponent<MeshRenderer>();
+
+                    break;
             }
 
-            Object.DestroyImmediate(saberBurnMarkArea);
-        }
-
-        SaberBurnMarkSparkles? saberBurnMarkSparkles = root.GetComponent<SaberBurnMarkSparkles>();
-        if (saberBurnMarkSparkles != null)
-        {
             if (_config.PrintEnvironmentEnhancementDebug)
             {
-                _log.Debug("SaberBurnMarkSparkles yeeted, complain to me if you would rather it not");
+                _log.Debug($"Initialized {type.Name}");
             }
-
-            Object.DestroyImmediate(saberBurnMarkSparkles);
         }
 
         GameObjectInfo newGameObjectInfo = new(root.gameObject);
@@ -249,25 +203,6 @@ internal class DuplicateInitializer
         {
             int index = transform.GetSiblingIndex();
             InitializeComponents(transform, original.GetChild(index), gameObjectInfos, componentDatas);
-        }
-
-        return;
-
-        void GetComponentAndOriginal<T>(Action<T, T> initializeDelegate)
-            where T : UnityEngine.Component
-        {
-            T[] rootComponents = root.GetComponents<T>();
-            T[] originalComponents = original.GetComponents<T>();
-
-            for (int i = 0; i < rootComponents.Length; i++)
-            {
-                initializeDelegate(rootComponents[i], originalComponents[i]);
-
-                if (_config.PrintEnvironmentEnhancementDebug)
-                {
-                    _log.Debug($"Initialized {typeof(T).Name}");
-                }
-            }
         }
     }
 
