@@ -203,8 +203,30 @@ public class ReLoader : ITickable
 
 #if !PRE_V1_37_1
         _reLoaderLoader.Reload();
-        _gameplayCoreSceneSetupData.LoadTransformedBeatmapData();
-        IReadonlyBeatmapData beatmapData = _gameplayCoreSceneSetupData.transformedBeatmapData;
+        ////_gameplayCoreSceneSetupData.LoadTransformedBeatmapData(); // you wish it was that simple
+        ////IReadonlyBeatmapData beatmapData = _gameplayCoreSceneSetupData.transformedBeatmapData;
+        BeatmapLevel beatmapLevel = _gameplayCoreSceneSetupData.beatmapLevel;
+        BeatmapKey beatmapKey = _gameplayCoreSceneSetupData.beatmapKey;
+        float beatsPerMinute = beatmapLevel.beatsPerMinute;
+        EnvironmentName environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
+#if LATEST
+        EnvironmentInfoSO targetEnvironmentInfo = _gameplayCoreSceneSetupData.targetEnvironmentInfo;
+#else
+        EnvironmentInfoSO targetEnvironmentInfo = _gameplayCoreSceneSetupData.environmentInfo;
+#endif
+        IReadonlyBeatmapData beatmapData = _gameplayCoreSceneSetupData.TransformBeatmapData(
+            _gameplayCoreSceneSetupData._beatmapDataLoader.LoadBeatmapData(
+                _gameplayCoreSceneSetupData.beatmapLevelData,
+                beatmapKey,
+                beatsPerMinute,
+                environmentName == targetEnvironmentInfo.serializedName,
+                targetEnvironmentInfo,
+#if LATEST
+                _gameplayCoreSceneSetupData.originalEnvironmentInfo,
+#endif
+                BeatmapLevelDataVersion.Original,
+                _gameplayCoreSceneSetupData.gameplayModifiers,
+                _gameplayCoreSceneSetupData.playerSpecificSettings));
 #else
         _reLoaderLoader.Reload(_difficultyBeatmap);
         IReadonlyBeatmapData beatmapData =
