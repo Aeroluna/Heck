@@ -108,7 +108,7 @@ public class ChromaRingsRotationEffect : IFixedTickable
         internal ChromaRingsRotationEffect Create(TrackLaneRingsRotationEffect trackLaneRingsRotationEffect)
         {
             ChromaRingsRotationEffect chromaRing =
-                _container.Instantiate<ChromaRingsRotationEffect>(new[] { trackLaneRingsRotationEffect });
+                _container.Instantiate<ChromaRingsRotationEffect>([trackLaneRingsRotationEffect]);
             _tickableManager.AddFixed(chromaRing);
             return chromaRing;
         }

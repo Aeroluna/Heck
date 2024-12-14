@@ -64,7 +64,7 @@ internal class DeserializerManager
             }
             else
             {
-                trackNames = new[] { (string)trackNameRaw };
+                trackNames = [(string)trackNameRaw];
             }
 
             foreach (string trackName in trackNames)

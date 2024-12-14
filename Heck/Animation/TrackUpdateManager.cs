@@ -11,7 +11,7 @@ internal class TrackUpdateManager : ILateTickable
     [UsedImplicitly]
     private TrackUpdateManager(Dictionary<string, Track> beatmapTracks)
     {
-        _tracks = new HashSet<Track>(beatmapTracks.Values);
+        _tracks = [..beatmapTracks.Values];
     }
 
     public void LateTick()

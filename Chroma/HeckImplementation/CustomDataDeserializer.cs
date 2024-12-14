@@ -240,11 +240,6 @@ internal class CustomDataDeserializer : IEarlyDeserializer, ICustomEventsDeseria
                 switch (beatmapObjectData)
                 {
                     case CustomNoteData:
-                        dictionary.Add(
-                            beatmapObjectData,
-                            new ChromaNoteData(customData, _tracks, _pointDefinitions, v2));
-                        break;
-
                     case CustomSliderData:
                         dictionary.Add(
                             beatmapObjectData,

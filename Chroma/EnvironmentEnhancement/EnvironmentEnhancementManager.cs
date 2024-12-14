@@ -222,16 +222,14 @@ internal class EnvironmentEnhancementManager : IAffinity
                 else if (lightID != null)
                 {
                     componentData = new CustomData(
-                        new[]
-                        {
-                            new KeyValuePair<string, object?>(
+                    [
+                        new KeyValuePair<string, object?>(
                                 ComponentConstants.LIGHT_WITH_ID,
                                 new CustomData(
-                                    new[]
-                                    {
-                                        new KeyValuePair<string, object?>(LIGHT_ID, lightID.Value)
-                                    }))
-                        });
+                                [
+                                    new KeyValuePair<string, object?>(LIGHT_ID, lightID.Value)
+                                ]))
+                    ]);
                 }
 
                 List<GameObject> gameObjects;

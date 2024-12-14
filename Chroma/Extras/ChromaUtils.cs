@@ -18,16 +18,16 @@ internal static class ChromaUtils
 
         Vector3[] vertices =
         [
-            new Vector3(-0.5f, -0.5f, 0),
-            new Vector3(0.5f, -0.5f, 0),
-            new Vector3(0f, 0.5f, 0)
+            new(-0.5f, -0.5f, 0),
+            new(0.5f, -0.5f, 0),
+            new(0f, 0.5f, 0)
         ];
 
         Vector2[] uv =
         [
-            new Vector2(0, 0),
-            new Vector2(1, 0),
-            new Vector2(0.5f, 1)
+            new(0, 0),
+            new(1, 0),
+            new(0.5f, 1)
         ];
 
         int[] triangles = [0, 1, 2];
