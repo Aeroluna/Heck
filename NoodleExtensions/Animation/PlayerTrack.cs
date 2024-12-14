@@ -121,7 +121,7 @@ internal class PlayerTrack : MonoBehaviour
                 // and a "NoodlePlayerTrackRoot" exist, as it only looks for localPosition of head,
                 // so it will never track root properly
                 // my stupid solution: create a dummy object named "NoodlePlayerTrackRoot"
-                // whose localposition mirrors when i set
+                // whose local position mirrors when I set
                 GameObject rootCam2Dummy = new("NoodlePlayerTrackRoot");
                 rootCam2Dummy.transform.SetParent(transform);
                 rootCam2Dummy.AddComponent<MirrorParentTransform>();
@@ -199,26 +199,26 @@ internal class PlayerTrack : MonoBehaviour
         Quaternion? rotation = _track.GetProperty<Quaternion>(OFFSET_ROTATION)?.Mirror(_leftHanded);
         Vector3? position = _track.GetProperty<Vector3>(OFFSET_POSITION)?.Mirror(_leftHanded);
 
-        Quaternion worldRotationQuatnerion = Quaternion.identity;
+        Quaternion worldRotationQuaternion = Quaternion.identity;
         Vector3 positionVector = _startPos;
         if (rotation.HasValue || position.HasValue)
         {
             Quaternion finalRot = rotation ?? Quaternion.identity;
-            worldRotationQuatnerion *= finalRot;
+            worldRotationQuaternion *= finalRot;
             Vector3 finalPos = position ?? Vector3.zero;
-            positionVector = worldRotationQuatnerion *
+            positionVector = worldRotationQuaternion *
                              ((finalPos * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance) + _startPos);
         }
 
-        worldRotationQuatnerion *= _startLocalRot;
+        worldRotationQuaternion *= _startLocalRot;
         Quaternion? localRotation = _track.GetProperty<Quaternion>(LOCAL_ROTATION)?.Mirror(_leftHanded);
         if (localRotation.HasValue)
         {
-            worldRotationQuatnerion *= localRotation.Value;
+            worldRotationQuaternion *= localRotation.Value;
         }
 
         Transform transform1 = transform;
-        transform1.localRotation = worldRotationQuatnerion;
+        transform1.localRotation = worldRotationQuaternion;
         transform1.localPosition = positionVector;
 
         if (_multiPlayersManager != null)
@@ -280,7 +280,7 @@ internal class AssignPlayerToTrack : ICustomEvent
         {
             _playerTracks[playerTrackObject] = playerTrack = _instantiator.InstantiateComponent<PlayerTrack>(
                 _noodlePlayerTransformManager.GetByPlayerObject(playerTrackObject),
-                new object[] { playerTrackObject });
+                [playerTrackObject]);
         }
 
         playerTrack.AssignTrack(noodlePlayerData.Track);
