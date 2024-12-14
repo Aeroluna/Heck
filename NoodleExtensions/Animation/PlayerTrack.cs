@@ -113,7 +113,12 @@ internal class PlayerTrack : MonoBehaviour
         {
             case PlayerObject.Head:
                 _instance = this;
+
+                GameObject headCam2Dummy = new("NoodlePlayerTrackHead");
+                headCam2Dummy.transform.SetParent(transform);
+                headCam2Dummy.AddComponent<MirrorParentTransform>();
                 break;
+
             case PlayerObject.Root:
                 _instance ??= this;
 
