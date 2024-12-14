@@ -9,25 +9,25 @@ namespace Heck.BaseProviders;
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 internal class ScoreBaseProvider : IBaseProvider
 {
-    internal float Combo { get; set; }
+    internal float[] Combo { get; set; } = new float[1];
 
-    internal float MultipliedScore { get; set; }
+    internal float[] MultipliedScore { get; set; } = new float[1];
 
-    internal float ImmediateMaxPossibleMultipliedScore { get; set; }
+    internal float[] ImmediateMaxPossibleMultipliedScore { get; set; } = new float[1];
 
-    internal float ModifiedScore { get; set; }
+    internal float[] ModifiedScore { get; set; } = new float[1];
 
-    internal float ImmediateMaxPossibleModifiedScore { get; set; }
+    internal float[] ImmediateMaxPossibleModifiedScore { get; set; } = new float[1];
 
-    internal float RelativeScore { get; set; }
+    internal float[] RelativeScore { get; set; } = new float[1];
 
-    internal float Multiplier { get; set; }
+    internal float[] Multiplier { get; set; } = new float[1];
 
-    internal float Energy { get; set; }
+    internal float[] Energy { get; set; } = new float[1];
 
-    internal float SongTime { get; set; }
+    internal float[] SongTime { get; set; } = new float[1];
 
-    internal float SongLength { get; set; }
+    internal float[] SongLength { get; set; } = new float[1];
 }
 
 internal class ScoreGetter : ITickable, IDisposable
@@ -66,8 +66,8 @@ internal class ScoreGetter : ITickable, IDisposable
         _songController = songController;
         songController.songDidFinishEvent += HandleSongDidFinish;
         _beatmapCallbacksController = beatmapCallbacksController;
-        scoreBaseProvider.SongLength = audioTimeSource.songLength;
-        _scoreBaseProvider.Multiplier = 1;
+        scoreBaseProvider.SongLength = [audioTimeSource.songLength];
+        _scoreBaseProvider.Multiplier[0] = 1;
     }
 
     public void Tick()
@@ -78,7 +78,7 @@ internal class ScoreGetter : ITickable, IDisposable
         }
 
         // IAudioTimeSource.songTime should not be trusted!
-        _scoreBaseProvider.SongTime = _beatmapCallbacksController.songTime;
+        _scoreBaseProvider.SongTime[0] = _beatmapCallbacksController.songTime;
     }
 
     public void Dispose()
@@ -113,31 +113,31 @@ internal class ScoreGetter : ITickable, IDisposable
 
     private void HandleScoreDidChange(int multipliedScore, int modifiedScore)
     {
-        _scoreBaseProvider.MultipliedScore = multipliedScore;
-        _scoreBaseProvider.ModifiedScore = modifiedScore;
-        _scoreBaseProvider.ImmediateMaxPossibleMultipliedScore = _scoreController.immediateMaxPossibleMultipliedScore;
-        _scoreBaseProvider.ImmediateMaxPossibleModifiedScore = _scoreController.immediateMaxPossibleModifiedScore;
+        _scoreBaseProvider.MultipliedScore[0] = multipliedScore;
+        _scoreBaseProvider.ModifiedScore[0] = modifiedScore;
+        _scoreBaseProvider.ImmediateMaxPossibleMultipliedScore[0] = _scoreController.immediateMaxPossibleMultipliedScore;
+        _scoreBaseProvider.ImmediateMaxPossibleModifiedScore[0] = _scoreController.immediateMaxPossibleModifiedScore;
     }
 
     private void HandleMultiplierDidChange(int multiplier, float normalizedProgress)
     {
-        _scoreBaseProvider.Multiplier = multiplier;
+        _scoreBaseProvider.Multiplier[0] = multiplier;
     }
 
     private void HandleComboDidChange(int combo)
     {
-        _scoreBaseProvider.Combo = combo;
+        _scoreBaseProvider.Combo[0] = combo;
     }
 
     // wtf is this method name
     private void HandleRelativeScoreAndImmediateRankCounterRelativeScoreOrImmediateRankDidChange()
     {
-        _scoreBaseProvider.RelativeScore = _relativeScoreAndImmediateRankCounter.relativeScore;
+        _scoreBaseProvider.RelativeScore[0] = _relativeScoreAndImmediateRankCounter.relativeScore;
     }
 
     private void HandleGameEnergyDidChange(float energy)
     {
-        _scoreBaseProvider.Energy = energy;
+        _scoreBaseProvider.Energy[0] = energy;
     }
 
     private void HandleSongDidFinish()

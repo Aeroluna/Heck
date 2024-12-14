@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Heck.BaseProvider;
+using ModestTree;
 
 namespace Heck.Animation;
 
@@ -29,19 +29,14 @@ public abstract class PointDefinition<T> : IPointDefinition
             Functions easing = Functions.easeLinear;
             Modifier<T>[]? modifiers = null;
             string[]? flags = null;
-            float[]? floatList = null;
-            BaseProviderData<T>? baseProvider = null;
+            IValues[]? values = null;
             foreach (IGrouping<GroupType, object> grouping in Group(rawPoint))
             {
-                List<object> groupList = grouping.ToList();
+                object[] groupList = grouping.ToArray();
                 switch (grouping.Key)
                 {
                     case GroupType.Value:
-                        floatList = groupList.Select(Convert.ToSingle).ToArray();
-                        break;
-
-                    case GroupType.BaseValue:
-                        baseProvider = BaseProviderManager.Instance.GetProviderData<T>((string)groupList.First());
+                        values = groupList.DeserializeValues();
                         break;
 
                     case GroupType.Flag:
@@ -60,12 +55,12 @@ public abstract class PointDefinition<T> : IPointDefinition
                 }
             }
 
-            if (floatList == null)
+            if (values == null)
             {
                 throw new InvalidOperationException("No points found.");
             }
 
-            _points.Add(CreatePointData(floatList, baseProvider, flags ?? [], modifiers ?? [], easing));
+            _points.Add(CreatePointData(values, flags ?? [], modifiers ?? [], easing));
         }
 
         HasBaseProvider = _points.Any(n => n.HasBaseProvider);
@@ -74,7 +69,6 @@ public abstract class PointDefinition<T> : IPointDefinition
     private enum GroupType
     {
         Value,
-        BaseValue,
         Flag,
         Modifier
     }
@@ -159,14 +153,12 @@ public abstract class PointDefinition<T> : IPointDefinition
     protected abstract T InterpolatePoints(List<IPointData> points, int l, int r, float time);
 
     private protected abstract Modifier<T> CreateModifier(
-        float[]? floats,
-        BaseProviderData<T>? baseProvider,
+        IValues[] values,
         Modifier<T>[] modifiers,
         Operation operation);
 
     private protected abstract IPointData CreatePointData(
-        float[] floats,
-        BaseProviderData<T>? baseProvider,
+        IValues[] values,
         string[] flags,
         Modifier<T>[] modifiers,
         Functions easing);
@@ -178,7 +170,7 @@ public abstract class PointDefinition<T> : IPointDefinition
             {
                 return n switch
                 {
-                    string s => s.StartsWith("base") ? GroupType.BaseValue : GroupType.Flag,
+                    string s when !s.StartsWith("base") => GroupType.Flag,
                     List<object> => GroupType.Modifier,
                     _ => GroupType.Value
                 };
@@ -189,22 +181,18 @@ public abstract class PointDefinition<T> : IPointDefinition
     {
         Modifier<T>[]? modifiers = null;
         Operation? operation = null;
-        float[]? floatList = null;
-        BaseProviderData<T>? baseProvider = null;
+        IValues[]? values = null;
         foreach (IGrouping<GroupType, object> grouping in Group(list))
         {
-            List<object> groupList = grouping.ToList();
+            object[] groupList = grouping.ToArray();
             switch (grouping.Key)
             {
                 case GroupType.Value:
-                    floatList = groupList.Select(Convert.ToSingle).ToArray();
-                    break;
-
-                case GroupType.BaseValue:
-                    baseProvider = BaseProviderManager.Instance.GetProviderData<T>((string)groupList.First());
+                    values = groupList.DeserializeValues();
                     break;
 
                 case GroupType.Flag:
+                    Assert.IsEqual(1, groupList.Length, "Modifier must have one operation");
                     operation = (Operation)Enum.Parse(typeof(Operation), (string)groupList.First());
                     break;
 
@@ -214,7 +202,7 @@ public abstract class PointDefinition<T> : IPointDefinition
             }
         }
 
-        if (floatList == null && baseProvider == null)
+        if (values == null)
         {
             throw new InvalidOperationException("No points found.");
         }
@@ -224,7 +212,7 @@ public abstract class PointDefinition<T> : IPointDefinition
             throw new InvalidOperationException("No operation found.");
         }
 
-        return CreateModifier(floatList, baseProvider, modifiers ?? [], operation.Value);
+        return CreateModifier(values, modifiers ?? [], operation.Value);
     }
 
     // Use binary search instead of linear search.

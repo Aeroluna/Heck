@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Heck.BaseProvider;
 
 namespace Heck.Animation;
 
@@ -24,16 +23,18 @@ public enum Operation
 internal abstract class Modifier<T>
     where T : struct
 {
-    private readonly BaseProviderData<T>? _baseProvider;
+    private readonly IValues[]? _values;
     private readonly T? _rawPoint;
+    private readonly float[] _reusableArray;
 
-    internal Modifier(T? point, BaseProviderData<T>? baseProvider, Modifier<T>[] modifiers, Operation operation)
+    internal Modifier(T? point, IValues[]? values, Modifier<T>[] modifiers, Operation operation, int arraySize)
     {
         _rawPoint = point;
-        _baseProvider = baseProvider;
+        _values = values;
         Modifiers = modifiers;
         Operation = operation;
-        HasBaseProvider = baseProvider != null || modifiers.Any(n => n.HasBaseProvider);
+        HasBaseProvider = values != null || modifiers.Any(n => n.HasBaseProvider);
+        _reusableArray = new float[arraySize];
     }
 
     public bool HasBaseProvider { get; }
@@ -46,7 +47,8 @@ internal abstract class Modifier<T>
 
     protected Modifier<T>[] Modifiers { get; }
 
-    protected T OriginalPoint => _rawPoint ?? _baseProvider?.GetValue() ?? throw new InvalidOperationException();
+    protected T OriginalPoint =>
+        _rawPoint ?? (_values != null ? Convert(_values) : throw new InvalidOperationException());
 
     public override string ToString()
     {
@@ -64,5 +66,32 @@ internal abstract class Modifier<T>
 
         stringBuilder.Append(']');
         return stringBuilder.ToString();
+    }
+
+    internal void FillValues(IValues[] values)
+    {
+        float[] array = _reusableArray;
+        int i = 0;
+        foreach (IValues value in values)
+        {
+            foreach (float valueValue in value.Values)
+            {
+                array[i++] = valueValue;
+                if (i >= array.Length)
+                {
+                    return;
+                }
+            }
+        }
+
+        throw new InvalidOperationException("Not enough values to fill the modifier.");
+    }
+
+    protected abstract T Translate(float[] values);
+
+    private T Convert(IValues[] values)
+    {
+        FillValues(values);
+        return Translate(_reusableArray);
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Heck.BaseProvider;
 using ModestTree;
 using UnityEngine;
 
@@ -9,7 +8,7 @@ namespace Heck.Animation;
 
 public class Vector4PointDefinition : PointDefinition<Vector4>
 {
-    private const int ARRAY_COUNT = 4;
+    private const int ARRAY_SIZE = 4;
 
     internal Vector4PointDefinition(IReadOnlyCollection<object> points)
         : base(points)
@@ -41,62 +40,66 @@ public class Vector4PointDefinition : PointDefinition<Vector4>
     }
 
     private protected override Modifier<Vector4> CreateModifier(
-        float[]? floats,
-        BaseProviderData<Vector4>? baseProvider,
+        IValues[] values,
         Modifier<Vector4>[] modifiers,
         Operation operation)
     {
         Vector4? value;
-        if (baseProvider != null)
+        IValues[]? result;
+        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE } staticValues)
         {
-            Assert.IsNull(floats, "Modifier cannot have both base and a point");
-            value = null;
+            float[] valueValues = staticValues.Values;
+            value = new Vector4(valueValues[0], valueValues[1], valueValues[2], valueValues[3]);
+            result = null;
         }
         else
         {
-            Assert.IsNotNull(floats, "Modifier without base must have a point");
-            Assert.IsEqual(ARRAY_COUNT, floats!.Length, $"Vector4 modifier point must have {ARRAY_COUNT} numbers");
-            value = new Vector4(floats[0], floats[1], floats[2], floats[3]);
+            value = null;
+            result = values;
+            Assert.IsEqual(ARRAY_SIZE, result.Sum(n => n.Values.Length), $"Vector4 modifier point must have {ARRAY_SIZE} numbers");
         }
 
-        return new Modifier(value, baseProvider, modifiers, operation);
+        return new Modifier(value, result, modifiers, operation);
     }
 
     private protected override IPointData CreatePointData(
-        float[] floats,
-        BaseProviderData<Vector4>? baseProvider,
+        IValues[] values,
         string[] flags,
         Modifier<Vector4>[] modifiers,
         Functions easing)
     {
         Vector4? value;
         float time;
-        if (baseProvider != null)
+        IValues[]? result;
+        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE } staticValues)
         {
-            Assert.IsEqual(1, floats.Length, "Point with base must have only time");
-            value = null;
-            time = floats[0];
+            float[] valueValues = staticValues.Values;
+            value = new Vector4(valueValues[0], valueValues[1], valueValues[2], valueValues[3]);
+            result = null;
+            time = valueValues[ARRAY_SIZE];
         }
         else
         {
-            Assert.IsEqual(ARRAY_COUNT + 1, floats.Length, $"Vector4 point must have {ARRAY_COUNT + 1} numbers");
-            value = new Vector4(floats[0], floats[1], floats[2], floats[3]);
-            time = floats[ARRAY_COUNT];
+            value = null;
+            result = values;
+            Assert.IsEqual(ARRAY_SIZE + 1, result.Sum(n => n.Values.Length), $"Vector4 modifier point must have {ARRAY_SIZE + 1} numbers");
+            float[] last = result[result.Length - 1].Values;
+            time = last[last.Length - 1];
         }
 
-        return new PointData(value, baseProvider, flags.Any(n => n == "lerpHSV"), time, modifiers, easing);
+        return new PointData(value, result, flags.Any(n => n == "lerpHSV"), time, modifiers, easing);
     }
 
     private class PointData : Modifier, IPointData
     {
         internal PointData(
             Vector4? point,
-            BaseProviderData<Vector4>? baseProvider,
+            IValues[]? values,
             bool hsvLerp,
             float time,
             Modifier<Vector4>[] modifiers,
             Functions easing)
-            : base(point, baseProvider, modifiers, default)
+            : base(point, values, modifiers, default)
         {
             HsvLerp = hsvLerp;
             Time = time;
@@ -114,10 +117,10 @@ public class Vector4PointDefinition : PointDefinition<Vector4>
     {
         internal Modifier(
             Vector4? point,
-            BaseProviderData<Vector4>? baseProvider,
+            IValues[]? values,
             Modifier<Vector4>[] modifiers,
             Operation operation)
-            : base(point, baseProvider, modifiers, operation)
+            : base(point, values, modifiers, operation, ARRAY_SIZE)
         {
         }
 
@@ -141,5 +144,10 @@ public class Vector4PointDefinition : PointDefinition<Vector4>
 
         protected override string FormattedValue =>
             $"{OriginalPoint.x}, {OriginalPoint.y}, {OriginalPoint.z}, {OriginalPoint.w}";
+
+        protected override Vector4 Translate(float[] array)
+        {
+            return new Vector4(array[0], array[1], array[2], array[3]);
+        }
     }
 }

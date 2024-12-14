@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Heck.BaseProvider;
 using ModestTree;
 using UnityEngine;
 
@@ -9,7 +8,7 @@ namespace Heck.Animation;
 
 public class Vector3PointDefinition : PointDefinition<Vector3>
 {
-    private const int ARRAY_COUNT = 3;
+    private const int ARRAY_SIZE = 3;
 
     internal Vector3PointDefinition(IReadOnlyCollection<object> points)
         : base(points)
@@ -35,52 +34,56 @@ public class Vector3PointDefinition : PointDefinition<Vector3>
     }
 
     private protected override Modifier<Vector3> CreateModifier(
-        float[]? floats,
-        BaseProviderData<Vector3>? baseProvider,
+        IValues[] values,
         Modifier<Vector3>[] modifiers,
         Operation operation)
     {
         Vector3? value;
-        if (baseProvider != null)
+        IValues[]? result;
+        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE } staticValues)
         {
-            Assert.IsNull(floats, "Modifier cannot have both base and a point");
-            value = null;
+            float[] valueValues = staticValues.Values;
+            value = new Vector3(valueValues[0], valueValues[1], valueValues[2]);
+            result = null;
         }
         else
         {
-            Assert.IsNotNull(floats, "Modifier without base must have a point");
-            Assert.IsEqual(ARRAY_COUNT, floats!.Length, $"Vector3 modifier point must have {ARRAY_COUNT} numbers");
-            value = new Vector3(floats[0], floats[1], floats[2]);
+            value = null;
+            result = values;
+            Assert.IsEqual(ARRAY_SIZE, result.Sum(n => n.Values.Length), $"Vector3 modifier point must have {ARRAY_SIZE} numbers");
         }
 
-        return new Modifier(value, baseProvider, modifiers, operation);
+        return new Modifier(value, result, modifiers, operation);
     }
 
     private protected override IPointData CreatePointData(
-        float[] floats,
-        BaseProviderData<Vector3>? baseProvider,
+        IValues[] values,
         string[] flags,
         Modifier<Vector3>[] modifiers,
         Functions easing)
     {
         Vector3? value;
         float time;
-        if (baseProvider != null)
+        IValues[]? result;
+        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE } staticValues)
         {
-            Assert.IsEqual(1, floats.Length, "Point with base must have only time");
-            value = null;
-            time = floats[0];
+            float[] valueValues = staticValues.Values;
+            value = new Vector3(valueValues[0], valueValues[1], valueValues[2]);
+            result = null;
+            time = valueValues[ARRAY_SIZE];
         }
         else
         {
-            Assert.IsEqual(ARRAY_COUNT + 1, floats.Length, $"Vector3 point must have {ARRAY_COUNT + 1} numbers");
-            value = new Vector3(floats[0], floats[1], floats[2]);
-            time = floats[ARRAY_COUNT];
+            value = null;
+            result = values;
+            Assert.IsEqual(ARRAY_SIZE + 1, result.Sum(n => n.Values.Length), $"Vector3 modifier point must have {ARRAY_SIZE + 1} numbers");
+            float[] last = result[result.Length - 1].Values;
+            time = last[last.Length - 1];
         }
 
         return new PointData(
             value,
-            baseProvider,
+            result,
             flags.Any(n => n == "splineCatmullRom"),
             time,
             modifiers,
@@ -115,12 +118,12 @@ public class Vector3PointDefinition : PointDefinition<Vector3>
     {
         internal PointData(
             Vector3? point,
-            BaseProviderData<Vector3>? baseProvider,
+            IValues[]? values,
             bool smooth,
             float time,
             Modifier<Vector3>[] modifiers,
             Functions easing)
-            : base(point, baseProvider, modifiers, default)
+            : base(point, values, modifiers, default)
         {
             Smooth = smooth;
             Time = time;
@@ -138,10 +141,10 @@ public class Vector3PointDefinition : PointDefinition<Vector3>
     {
         internal Modifier(
             Vector3? point,
-            BaseProviderData<Vector3>? baseProvider,
+            IValues[]? values,
             Modifier<Vector3>[] modifiers,
             Operation operation)
-            : base(point, baseProvider, modifiers, operation)
+            : base(point, values, modifiers, operation, ARRAY_SIZE)
         {
         }
 
@@ -164,5 +167,10 @@ public class Vector3PointDefinition : PointDefinition<Vector3>
         }
 
         protected override string FormattedValue => Format(OriginalPoint);
+
+        protected override Vector3 Translate(float[] array)
+        {
+            return new Vector3(array[0], array[1], array[2]);
+        }
     }
 }

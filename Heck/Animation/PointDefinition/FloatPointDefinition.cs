@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Heck.BaseProvider;
 using ModestTree;
 using UnityEngine;
 
@@ -10,7 +9,7 @@ namespace Heck.Animation;
 
 public class FloatPointDefinition : PointDefinition<float>
 {
-    private const int ARRAY_COUNT = 1;
+    private const int ARRAY_SIZE = 1;
 
     internal FloatPointDefinition(IReadOnlyCollection<object> list)
         : base(list)
@@ -23,58 +22,63 @@ public class FloatPointDefinition : PointDefinition<float>
     }
 
     private protected override Modifier<float> CreateModifier(
-        float[]? floats,
-        BaseProviderData<float>? baseProvider,
+        IValues[] values,
         Modifier<float>[] modifiers,
         Operation operation)
     {
-        if (baseProvider != null)
+        float? value;
+        IValues[]? result;
+        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE } staticValues)
         {
-            Assert.IsNull(floats, "Modifier cannot have both base and a point");
+            value = staticValues.Values[0];
+            result = null;
         }
         else
         {
-            Assert.IsNotNull(floats, "Modifier without base must have a point");
-            Assert.IsEqual(ARRAY_COUNT, floats!.Length, $"Float modifier point must have {ARRAY_COUNT} numbers");
+            value = null;
+            result = values;
+            Assert.IsEqual(ARRAY_SIZE, result.Sum(n => n.Values.Length), $"Float modifier point must have {ARRAY_SIZE} numbers");
         }
 
-        return new Modifier(floats?[0], baseProvider, modifiers, operation);
+        return new Modifier(value, result, modifiers, operation);
     }
 
     private protected override IPointData CreatePointData(
-        float[] floats,
-        BaseProviderData<float>? baseProvider,
+        IValues[] values,
         string[] flags,
         Modifier<float>[] modifiers,
         Functions easing)
     {
         float? value;
         float time;
-        if (baseProvider != null)
+        IValues[]? result;
+        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE + 1 } staticValues)
         {
-            Assert.IsEqual(1, floats.Length, "Point with base must have only time");
-            value = null;
-            time = floats[0];
+            value = staticValues.Values[0];
+            result = null;
+            time = staticValues.Values[ARRAY_SIZE];
         }
         else
         {
-            Assert.IsEqual(ARRAY_COUNT + 1, floats.Length, $"Float point must have {ARRAY_COUNT + 1} numbers");
-            value = floats[0];
-            time = floats[ARRAY_COUNT];
+            value = null;
+            result = values;
+            Assert.IsEqual(ARRAY_SIZE + 1, result.Sum(n => n.Values.Length), $"Float modifier point must have {ARRAY_SIZE + 1} numbers");
+            float[] last = result[result.Length - 1].Values;
+            time = last[last.Length - 1];
         }
 
-        return new PointData(value, baseProvider, time, modifiers, easing);
+        return new PointData(value, result, time, modifiers, easing);
     }
 
     private class PointData : Modifier, IPointData
     {
         internal PointData(
             float? point,
-            BaseProviderData<float>? baseProvider,
+            IValues[]? values,
             float time,
             Modifier<float>[] modifiers,
             Functions easing)
-            : base(point, baseProvider, modifiers, default)
+            : base(point, values, modifiers, default)
         {
             Time = time;
             Easing = easing;
@@ -89,10 +93,10 @@ public class FloatPointDefinition : PointDefinition<float>
     {
         internal Modifier(
             float? point,
-            BaseProviderData<float>? baseProvider,
+            IValues[]? values,
             Modifier<float>[] modifiers,
             Operation operation)
-            : base(point, baseProvider, modifiers, operation)
+            : base(point, values, modifiers, operation, ARRAY_SIZE)
         {
         }
 
@@ -115,5 +119,10 @@ public class FloatPointDefinition : PointDefinition<float>
         }
 
         protected override string FormattedValue => OriginalPoint.ToString(CultureInfo.InvariantCulture);
+
+        protected override float Translate(float[] array)
+        {
+            return array[0];
+        }
     }
 }

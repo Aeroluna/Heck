@@ -8,35 +8,35 @@ namespace Heck.BaseProviders;
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 internal class PlayerTransformBaseProvider : IBaseProvider
 {
-    internal Vector3 HeadLocalPosition { get; set; }
+    internal float[] HeadLocalPosition { get; set; } = new float[3];
 
-    internal Quaternion HeadLocalRotation { get; set; }
+    internal float[] HeadLocalRotation { get; set; } = new float[3];
 
-    internal Vector3 HeadLocalScale { get; set; }
+    internal float[] HeadLocalScale { get; set; } = new float[3];
 
-    internal Vector3 HeadPosition { get; set; }
+    internal float[] HeadPosition { get; set; } = new float[3];
 
-    internal Quaternion HeadRotation { get; set; }
+    internal float[] HeadRotation { get; set; } = new float[3];
 
-    internal Vector3 LeftHandLocalPosition { get; set; }
+    internal float[] LeftHandLocalPosition { get; set; } = new float[3];
 
-    internal Quaternion LeftHandLocalRotation { get; set; }
+    internal float[] LeftHandLocalRotation { get; set; } = new float[3];
 
-    internal Vector3 LeftHandLocalScale { get; set; }
+    internal float[] LeftHandLocalScale { get; set; } = new float[3];
 
-    internal Vector3 LeftHandPosition { get; set; }
+    internal float[] LeftHandPosition { get; set; } = new float[3];
 
-    internal Quaternion LeftHandRotation { get; set; }
+    internal float[] LeftHandRotation { get; set; } = new float[3];
 
-    internal Vector3 RightHandLocalPosition { get; set; }
+    internal float[] RightHandLocalPosition { get; set; } = new float[3];
 
-    internal Quaternion RightHandLocalRotation { get; set; }
+    internal float[] RightHandLocalRotation { get; set; } = new float[3];
 
-    internal Vector3 RightHandLocalScale { get; set; }
+    internal float[] RightHandLocalScale { get; set; } = new float[3];
 
-    internal Vector3 RightHandPosition { get; set; }
+    internal float[] RightHandPosition { get; set; } = new float[3];
 
-    internal Quaternion RightHandRotation { get; set; }
+    internal float[] RightHandRotation { get; set; } = new float[3];
 }
 
 internal class PlayerTransformGetter : ITickable
@@ -57,20 +57,35 @@ internal class PlayerTransformGetter : ITickable
 
     public void Tick()
     {
-        _playerTransformBaseProvider.HeadLocalPosition = _head.localPosition;
-        _playerTransformBaseProvider.LeftHandLocalPosition = _leftHand.localPosition;
-        _playerTransformBaseProvider.RightHandLocalPosition = _rightHand.localPosition;
-        _playerTransformBaseProvider.HeadLocalRotation = _head.localRotation;
-        _playerTransformBaseProvider.LeftHandLocalRotation = _leftHand.localRotation;
-        _playerTransformBaseProvider.RightHandLocalRotation = _rightHand.localRotation;
-        _playerTransformBaseProvider.HeadPosition = _head.position;
-        _playerTransformBaseProvider.LeftHandPosition = _leftHand.position;
-        _playerTransformBaseProvider.RightHandPosition = _rightHand.position;
-        _playerTransformBaseProvider.HeadRotation = _head.rotation;
-        _playerTransformBaseProvider.LeftHandRotation = _leftHand.rotation;
-        _playerTransformBaseProvider.RightHandRotation = _rightHand.rotation;
-        _playerTransformBaseProvider.HeadLocalScale = _head.localScale;
-        _playerTransformBaseProvider.LeftHandLocalScale = _leftHand.localScale;
-        _playerTransformBaseProvider.RightHandLocalScale = _rightHand.localScale;
+        Vector3ToValues(_playerTransformBaseProvider.HeadLocalPosition, _head.localPosition);
+        Vector3ToValues(_playerTransformBaseProvider.LeftHandLocalPosition, _leftHand.localPosition);
+        Vector3ToValues(_playerTransformBaseProvider.RightHandLocalPosition, _rightHand.localPosition);
+        QuaternionToValues(_playerTransformBaseProvider.HeadLocalRotation, _head.localRotation);
+        QuaternionToValues(_playerTransformBaseProvider.LeftHandLocalRotation, _leftHand.localRotation);
+        QuaternionToValues(_playerTransformBaseProvider.RightHandLocalRotation, _rightHand.localRotation);
+        Vector3ToValues(_playerTransformBaseProvider.HeadPosition, _head.position);
+        Vector3ToValues(_playerTransformBaseProvider.LeftHandPosition, _leftHand.position);
+        Vector3ToValues(_playerTransformBaseProvider.RightHandPosition, _rightHand.position);
+        QuaternionToValues(_playerTransformBaseProvider.HeadRotation, _head.rotation);
+        QuaternionToValues(_playerTransformBaseProvider.LeftHandRotation, _leftHand.rotation);
+        QuaternionToValues(_playerTransformBaseProvider.RightHandRotation, _rightHand.rotation);
+        Vector3ToValues(_playerTransformBaseProvider.HeadLocalScale, _head.localScale);
+        Vector3ToValues(_playerTransformBaseProvider.LeftHandLocalScale, _leftHand.localScale);
+        Vector3ToValues(_playerTransformBaseProvider.RightHandLocalScale, _rightHand.localScale);
+    }
+
+    private static void QuaternionToValues(float[] array, Quaternion quaternion)
+    {
+        Vector3 euler = quaternion.eulerAngles;
+        array[0] = euler.x;
+        array[1] = euler.y;
+        array[2] = euler.z;
+    }
+
+    private static void Vector3ToValues(float[] array, Vector3 vector)
+    {
+        array[0] = vector.x;
+        array[1] = vector.y;
+        array[2] = vector.z;
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Heck.BaseProvider;
 using ModestTree;
 using UnityEngine;
 
@@ -9,7 +8,7 @@ namespace Heck.Animation;
 
 public class QuaternionPointDefinition : PointDefinition<Quaternion>
 {
-    private const int ARRAY_COUNT = 3;
+    private const int ARRAY_SIZE = 3;
 
     internal QuaternionPointDefinition(IReadOnlyCollection<object> list)
         : base(list)
@@ -22,34 +21,34 @@ public class QuaternionPointDefinition : PointDefinition<Quaternion>
     }
 
     private protected override Modifier<Quaternion> CreateModifier(
-        float[]? floats,
-        BaseProviderData<Quaternion>? baseProvider,
+        IValues[] values,
         Modifier<Quaternion>[] modifiers,
         Operation operation)
     {
         Quaternion? value;
         Vector3? vectorPoint;
-        if (baseProvider != null)
+        IValues[]? result;
+        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE } staticValues)
         {
-            Assert.IsNull(floats, "Modifier cannot have both base and a point");
-            vectorPoint = null;
-            value = null;
+            float[] valueValues = staticValues.Values;
+            Vector3 vector = new(valueValues[0], valueValues[1], valueValues[2]);
+            vectorPoint = vector;
+            value = Quaternion.Euler(vector);
+            result = null;
         }
         else
         {
-            Assert.IsNotNull(floats, "Modifier without base must have a point");
-            Assert.IsEqual(ARRAY_COUNT, floats!.Length, $"Quaternion modifier point must have {ARRAY_COUNT} numbers");
-            Vector3 vector = new(floats[0], floats[1], floats[2]);
-            vectorPoint = vector;
-            value = Quaternion.Euler(vector);
+            vectorPoint = null;
+            value = null;
+            result = values;
+            Assert.IsEqual(ARRAY_SIZE, result.Sum(n => n.Values.Length), $"Quaternion modifier point must have {ARRAY_SIZE} numbers");
         }
 
-        return new Modifier(value, vectorPoint, baseProvider, modifiers, operation);
+        return new Modifier(value, vectorPoint, result, modifiers, operation);
     }
 
     private protected override IPointData CreatePointData(
-        float[] floats,
-        BaseProviderData<Quaternion>? baseProvider,
+        IValues[] values,
         string[] flags,
         Modifier<Quaternion>[] modifiers,
         Functions easing)
@@ -57,23 +56,27 @@ public class QuaternionPointDefinition : PointDefinition<Quaternion>
         Quaternion? value;
         Vector3? vectorPoint;
         float time;
-        if (baseProvider != null)
+        IValues[]? result;
+        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE } staticValues)
         {
-            Assert.IsEqual(1, floats.Length, "Point with base must have only time");
-            vectorPoint = null;
-            value = null;
-            time = floats[0];
+            float[] valueValues = staticValues.Values;
+            Vector3 vector = new(valueValues[0], valueValues[1], valueValues[2]);
+            vectorPoint = vector;
+            value = Quaternion.Euler(vector);
+            result = null;
+            time = valueValues[ARRAY_SIZE];
         }
         else
         {
-            Assert.IsEqual(ARRAY_COUNT + 1, floats.Length, $"Quaternion point must have {ARRAY_COUNT + 1} numbers");
-            Vector3 vector = new(floats[0], floats[1], floats[2]);
-            vectorPoint = vector;
-            value = Quaternion.Euler(vector);
-            time = floats[ARRAY_COUNT];
+            vectorPoint = null;
+            value = null;
+            result = values;
+            Assert.IsEqual(ARRAY_SIZE + 1, result.Sum(n => n.Values.Length), $"Quaternion modifier point must have {ARRAY_SIZE + 1} numbers");
+            float[] last = result[result.Length - 1].Values;
+            time = last[last.Length - 1];
         }
 
-        return new PointData(value, vectorPoint, baseProvider, time, modifiers, easing);
+        return new PointData(value, vectorPoint, result, time, modifiers, easing);
     }
 
     private class PointData : Modifier, IPointData
@@ -81,11 +84,11 @@ public class QuaternionPointDefinition : PointDefinition<Quaternion>
         internal PointData(
             Quaternion? point,
             Vector3? vectorPoint,
-            BaseProviderData<Quaternion>? baseProvider,
+            IValues[]? values,
             float time,
             Modifier<Quaternion>[] modifiers,
             Functions easing)
-            : base(point, vectorPoint, baseProvider, modifiers, default)
+            : base(point, vectorPoint, values, modifiers, default)
         {
             Time = time;
             Easing = easing;
@@ -98,19 +101,21 @@ public class QuaternionPointDefinition : PointDefinition<Quaternion>
 
     private class Modifier : Modifier<Quaternion>
     {
-        private readonly BaseProviderData<Quaternion>? _baseProvider;
+        private readonly float[] _reusableArray = new float[ARRAY_SIZE];
+
+        private readonly IValues[]? _values;
         private readonly Vector3? _vectorPoint;
 
         internal Modifier(
             Quaternion? point,
             Vector3? vectorPoint,
-            BaseProviderData<Quaternion>? baseProvider,
+            IValues[]? values,
             Modifier<Quaternion>[] modifiers,
             Operation operation)
-            : base(point, baseProvider, modifiers, operation)
+            : base(point, values, modifiers, operation, ARRAY_SIZE)
         {
             _vectorPoint = vectorPoint;
-            _baseProvider = baseProvider;
+            _values = values;
         }
 
         public override Quaternion Point => Modifiers.Length == 0 ? OriginalPoint : Quaternion.Euler(VectorPoint);
@@ -122,7 +127,7 @@ public class QuaternionPointDefinition : PointDefinition<Quaternion>
             get
             {
                 Vector3 original = _vectorPoint ??
-                                   _baseProvider?.GetValue().eulerAngles ?? throw new InvalidOperationException();
+                                   TranslateEuler(_values ?? throw new InvalidOperationException());
                 return Modifiers.Aggregate(
                     original,
                     (current, genericModifier) =>
@@ -142,6 +147,29 @@ public class QuaternionPointDefinition : PointDefinition<Quaternion>
                         return resVec;
                     });
             }
+        }
+
+        protected override Quaternion Translate(float[] array)
+        {
+            return Quaternion.Euler(array[0], array[1], array[2]);
+        }
+
+        private Vector3 TranslateEuler(IValues[] values)
+        {
+            int i = 0;
+            foreach (IValues value in values)
+            {
+                foreach (float valueValue in value.Values)
+                {
+                    _reusableArray[i++] = valueValue;
+                    if (i >= ARRAY_SIZE)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return new Vector3(_reusableArray[0], _reusableArray[1], _reusableArray[2]);
         }
     }
 }

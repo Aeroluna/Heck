@@ -371,7 +371,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                         continue;
                     }
 
-                    _settableSettingsToSet = new List<(ISettableSetting, object)>();
+                    _settableSettingsToSet = [];
 
                     foreach ((string key, ISettableSetting settableSetting) in value)
                     {
