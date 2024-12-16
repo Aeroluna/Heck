@@ -66,7 +66,7 @@ internal class ScoreGetter : ITickable, IDisposable
         _songController = songController;
         songController.songDidFinishEvent += HandleSongDidFinish;
         _beatmapCallbacksController = beatmapCallbacksController;
-        scoreBaseProvider.SongLength = [audioTimeSource.songLength];
+        scoreBaseProvider.SongLength[0] = audioTimeSource.songLength;
         _scoreBaseProvider.Multiplier[0] = 1;
     }
 
