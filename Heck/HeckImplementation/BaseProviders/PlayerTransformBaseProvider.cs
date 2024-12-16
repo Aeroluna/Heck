@@ -1,4 +1,5 @@
 ﻿using Heck.BaseProvider;
+using Heck.HarmonyPatches;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -43,17 +44,22 @@ internal class PlayerTransformGetter : ITickable
 {
     private readonly PlayerTransformBaseProvider _playerTransformBaseProvider;
     private readonly PlayerTransforms _playerTransforms;
+    private readonly SiraUtilHeadFinder _siraUtilHeadFinder;
 
     [UsedImplicitly]
-    private PlayerTransformGetter(PlayerTransformBaseProvider playerTransformBaseProvider, PlayerTransforms playerTransforms)
+    private PlayerTransformGetter(
+        PlayerTransformBaseProvider playerTransformBaseProvider,
+        PlayerTransforms playerTransforms,
+        SiraUtilHeadFinder siraUtilHeadFinder)
     {
         _playerTransformBaseProvider = playerTransformBaseProvider;
         _playerTransforms = playerTransforms;
+        _siraUtilHeadFinder = siraUtilHeadFinder;
     }
 
     public void Tick()
     {
-        Transform head = _playerTransforms._headTransform;
+        Transform head = _siraUtilHeadFinder.FpfcHeadTransform ?? _playerTransforms._headTransform;
         Transform leftHand = _playerTransforms._leftHandTransform;
         Transform rightHand = _playerTransforms._rightHandTransform;
         Vector3ToValues(_playerTransformBaseProvider.HeadLocalPosition, head.localPosition);
