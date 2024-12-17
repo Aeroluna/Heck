@@ -7,49 +7,51 @@ namespace Heck.Deserialize;
 
 public class DeserializedData
 {
-    private Dictionary<CustomEventData, ICustomEventCustomData> _customEventCustomDatas;
-    private Dictionary<BeatmapEventData, IEventCustomData> _eventCustomDatas;
-    private Dictionary<BeatmapObjectData, IObjectCustomData> _objectCustomDatas;
-
     internal DeserializedData(
         Dictionary<CustomEventData, ICustomEventCustomData> customEventCustomDatas,
         Dictionary<BeatmapEventData, IEventCustomData> eventCustomDatas,
         Dictionary<BeatmapObjectData, IObjectCustomData> objectCustomDatas)
     {
-        _customEventCustomDatas = customEventCustomDatas;
-        _eventCustomDatas = eventCustomDatas;
-        _objectCustomDatas = objectCustomDatas;
+        CustomEventCustomDatas = customEventCustomDatas;
+        EventCustomDatas = eventCustomDatas;
+        ObjectCustomDatas = objectCustomDatas;
     }
+
+    public Dictionary<CustomEventData, ICustomEventCustomData> CustomEventCustomDatas { get; private set; }
+
+    public Dictionary<BeatmapEventData, IEventCustomData> EventCustomDatas { get; private set; }
+
+    public Dictionary<BeatmapObjectData, IObjectCustomData> ObjectCustomDatas { get; private set; }
 
     public bool Resolve<T>(CustomEventData customEventData, [NotNullWhen(true)] out T? result)
         where T : ICustomEventCustomData
     {
-        return Resolve(_customEventCustomDatas, customEventData, out result);
+        return Resolve(CustomEventCustomDatas, customEventData, out result);
     }
 
     public bool Resolve<T>(BeatmapEventData beatmapEventData, [NotNullWhen(true)] out T? result)
         where T : IEventCustomData
     {
-        return Resolve(_eventCustomDatas, beatmapEventData, out result);
+        return Resolve(EventCustomDatas, beatmapEventData, out result);
     }
 
     public bool Resolve<T>(BeatmapObjectData beatmapObjectData, [NotNullWhen(true)] out T? result)
         where T : IObjectCustomData
     {
-        return Resolve(_objectCustomDatas, beatmapObjectData, out result);
+        return Resolve(ObjectCustomDatas, beatmapObjectData, out result);
     }
 
     internal void RegisterNewObject(BeatmapObjectData beatmapObjectData, IObjectCustomData objectCustomData)
     {
-        _objectCustomDatas.Add(beatmapObjectData, objectCustomData);
+        ObjectCustomDatas.Add(beatmapObjectData, objectCustomData);
     }
 
     // HIGHLY ILLEGAL!!!!
     internal void Remap(DeserializedData source)
     {
-        _customEventCustomDatas = source._customEventCustomDatas;
-        _eventCustomDatas = source._eventCustomDatas;
-        _objectCustomDatas = source._objectCustomDatas;
+        CustomEventCustomDatas = source.CustomEventCustomDatas;
+        EventCustomDatas = source.EventCustomDatas;
+        ObjectCustomDatas = source.ObjectCustomDatas;
     }
 
     private static bool Resolve<TBaseData, TResultType, TResultData>(
