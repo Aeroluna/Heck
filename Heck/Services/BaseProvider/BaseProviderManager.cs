@@ -5,14 +5,16 @@ using System.Reflection;
 using HarmonyLib;
 using Heck.Animation;
 using JetBrains.Annotations;
+using ModestTree;
 using Zenject;
 
 namespace Heck.BaseProvider;
 
-internal class BaseProviderManager
+internal class BaseProviderManager : ITickable
 {
-    private readonly Dictionary<string, BaseProviderValues> _baseProviders = new();
-    private readonly Dictionary<string, PartialProviderValues> _partialProviders = new();
+    private readonly Dictionary<string, IValues> _baseProviders = new();
+    private readonly HashSet<UpdateableValues> _updateableBaseProviders = [];
+    private readonly Dictionary<string, UpdateableValues> _updateableProviders = new();
 
     [UsedImplicitly]
     private BaseProviderManager(
@@ -25,7 +27,25 @@ internal class BaseProviderManager
             foreach (PropertyInfo propertyInfo in baseProvider.GetType().GetProperties(AccessTools.allDeclared))
             {
                 string name = $"base{propertyInfo.Name}";
-                _baseProviders.Add(name, new BaseProviderValues((float[])propertyInfo.GetValue(baseProvider)));
+                bool rotation = propertyInfo.HasAttribute(typeof(QuaternionBaseAttribute));
+
+                float[] array = (float[])propertyInfo.GetValue(baseProvider);
+
+                IValues values;
+                if (rotation)
+                {
+                    QuaternionProviderValues quaternionProviderValues = new(array);
+                    values = quaternionProviderValues;
+                    _updateableBaseProviders.Add(quaternionProviderValues);
+                }
+                else
+                {
+                    values = new BaseProviderValues(array);
+                }
+
+                _baseProviders.Add(
+                    name,
+                    values);
             }
         }
     }
@@ -33,33 +53,76 @@ internal class BaseProviderManager
     // I couldnt think of a way to di this thing
     internal static BaseProviderManager Instance { get; private set; } = null!;
 
+    public void Tick()
+    {
+        foreach (UpdateableValues updatableProvidersValue in _updateableProviders.Values)
+        {
+            updatableProvidersValue.Update();
+        }
+
+        foreach (UpdateableValues updateableBaseProvider in _updateableBaseProviders)
+        {
+            updateableBaseProvider.Update();
+        }
+    }
+
+    // Clear cache when song ends to not keep updating unneeded values
+    public void Clear()
+    {
+        _updateableProviders.Clear();
+    }
+
     internal IValues GetProviderValues(string key)
     {
-        int index = key.LastIndexOf('.');
-        if (index == -1)
+        string[] splits = key.Split('.');
+        IValues result = _baseProviders[splits[0]];
+
+        if (splits.Length == 1)
         {
-            return _baseProviders[key];
+            return result;
         }
 
-        // ReSharper disable once InvertIf
-        if (!_partialProviders.TryGetValue(key, out PartialProviderValues partialProvider))
+        if (_updateableProviders.TryGetValue(key, out UpdateableValues cachedValues))
         {
-            float[] source = _baseProviders[key.Substring(0, index)].Values;
-            string partString = key.Substring(index + 1);
-            int[] parts = partString.Select(
-                n => n switch
+            return cachedValues;
+        }
+
+        for (int i = 1; i < splits.Length; i++)
+        {
+            string split = splits[i];
+            string subKey = string.Join(".", splits.Take(i));
+            if (!_updateableProviders.TryGetValue(subKey, out UpdateableValues updateableValues))
+            {
+                if (split.StartsWith("s"))
                 {
-                    'x' => 0,
-                    'y' => 1,
-                    'z' => 2,
-                    'w' => 3,
-                    _ => throw new ArgumentOutOfRangeException(nameof(n), n, null)
-                }).ToArray();
+                    float mult = float.Parse(split.Substring(1).Replace('-', '.'));
+                    updateableValues = result is IRotationValues rotationValues
+                        ? new SmoothRotationProvidersValues(rotationValues, mult)
+                        : new SmoothProvidersValues(result.Values, mult);
+                }
+                else
+                {
+                    int[] parts = split
+                        .Select(
+                            n => n switch
+                            {
+                                'x' => 0,
+                                'y' => 1,
+                                'z' => 2,
+                                'w' => 3,
+                                _ => throw new ArgumentOutOfRangeException(nameof(n), n, null)
+                            })
+                        .ToArray();
 
-            partialProvider = new PartialProviderValues(source, parts);
-            _partialProviders[key] = partialProvider;
+                    updateableValues = new PartialProviderValues(result.Values, parts);
+                }
+
+                _updateableProviders[subKey] = updateableValues;
+            }
+
+            result = updateableValues;
         }
 
-        return partialProvider;
+        return result;
     }
 }

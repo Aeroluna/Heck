@@ -23,7 +23,7 @@ internal class HeckAppInstaller : Installer
 
     public override void InstallBindings()
     {
-        Container.Bind<BaseProviderManager>().AsSingle().NonLazy();
+        Container.BindInterfacesAndSelfTo<BaseProviderManager>().AsSingle();
         Container.BindInterfacesAndSelfTo<ModuleManager>().AsSingle();
 #if !PRE_V1_37_1
         Container.BindInterfacesTo<StandardModuleActivator>().AsSingle();

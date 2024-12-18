@@ -11,33 +11,39 @@ internal class PlayerTransformBaseProvider : IBaseProvider
 {
     internal float[] HeadLocalPosition { get; set; } = new float[3];
 
-    internal float[] HeadLocalRotation { get; set; } = new float[3];
+    [QuaternionBase]
+    internal float[] HeadLocalRotation { get; set; } = new float[4];
 
     internal float[] HeadLocalScale { get; set; } = new float[3];
 
     internal float[] HeadPosition { get; set; } = new float[3];
 
-    internal float[] HeadRotation { get; set; } = new float[3];
+    [QuaternionBase]
+    internal float[] HeadRotation { get; set; } = new float[4];
 
     internal float[] LeftHandLocalPosition { get; set; } = new float[3];
 
-    internal float[] LeftHandLocalRotation { get; set; } = new float[3];
+    [QuaternionBase]
+    internal float[] LeftHandLocalRotation { get; set; } = new float[4];
 
     internal float[] LeftHandLocalScale { get; set; } = new float[3];
 
     internal float[] LeftHandPosition { get; set; } = new float[3];
 
-    internal float[] LeftHandRotation { get; set; } = new float[3];
+    [QuaternionBase]
+    internal float[] LeftHandRotation { get; set; } = new float[4];
 
     internal float[] RightHandLocalPosition { get; set; } = new float[3];
 
-    internal float[] RightHandLocalRotation { get; set; } = new float[3];
+    [QuaternionBase]
+    internal float[] RightHandLocalRotation { get; set; } = new float[4];
 
     internal float[] RightHandLocalScale { get; set; } = new float[3];
 
     internal float[] RightHandPosition { get; set; } = new float[3];
 
-    internal float[] RightHandRotation { get; set; } = new float[3];
+    [QuaternionBase]
+    internal float[] RightHandRotation { get; set; } = new float[4];
 }
 
 internal class PlayerTransformGetter : ITickable
@@ -81,10 +87,10 @@ internal class PlayerTransformGetter : ITickable
 
     private static void QuaternionToValues(float[] array, Quaternion quaternion)
     {
-        Vector3 euler = quaternion.eulerAngles;
-        array[0] = euler.x;
-        array[1] = euler.y;
-        array[2] = euler.z;
+        array[0] = quaternion.x;
+        array[1] = quaternion.y;
+        array[2] = quaternion.z;
+        array[3] = quaternion.w;
     }
 
     private static void Vector3ToValues(float[] array, Vector3 vector)

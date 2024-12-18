@@ -1,6 +1,7 @@
 ﻿using Heck.Animation;
 using Heck.Animation.Events;
 using Heck.Animation.Transform;
+using Heck.BaseProvider;
 using Heck.BaseProviders;
 using Heck.Event;
 using Heck.HarmonyPatches;
@@ -58,5 +59,7 @@ internal class HeckPlayerInstaller : Installer
         Container.BindInterfacesTo<PlayerTransformGetter>().AsSingle();
         Container.BindInterfacesTo<ColorSchemeGetter>().AsSingle();
         Container.BindInterfacesTo<ScoreGetter>().AsSingle();
+
+        Container.BindInterfacesTo<GameBaseProviderDisposer>().AsSingle();
     }
 }
