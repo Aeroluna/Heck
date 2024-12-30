@@ -5,13 +5,18 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using Heck.Deserialize;
 using SiraUtil.Affinity;
+#if LATEST
+using _NoteSpawnData = NoteSpawnData;
+#else
+using _NoteSpawnData = BeatmapObjectSpawnMovementData.NoteSpawnData;
+#endif
 
 namespace Heck.HarmonyPatches;
 
 internal class BurstSliderDataRegisterer : IAffinity, IDisposable
 {
     private static readonly ConstructorInfo _noteSpawnDataCtor = AccessTools.FirstConstructor(
-        typeof(BeatmapObjectSpawnMovementData.NoteSpawnData),
+        typeof(_NoteSpawnData),
         _ => true);
 
     private readonly HashSet<(object? Id, DeserializedData DeserializedData)> _deserializedDatas;
@@ -55,7 +60,11 @@ internal class BurstSliderDataRegisterer : IAffinity, IDisposable
             .Advance(1)
             .Insert(
                 new CodeInstruction(OpCodes.Ldarg_0),
+#if LATEST
+                new CodeInstruction(OpCodes.Ldloc_S, 17),
+#else
                 new CodeInstruction(OpCodes.Ldloc_S, 22),
+#endif
                 _registerBurstSliderNoteData)
             .InstructionEnumeration();
     }

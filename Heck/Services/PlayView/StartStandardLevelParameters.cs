@@ -20,6 +20,9 @@ public class StartStandardLevelParameters
 #endif
         OverrideEnvironmentSettings? overrideEnvironmentSettings,
         ColorScheme? overrideColorScheme,
+#if LATEST
+        bool playerOverrideLightshowColors,
+#endif
 #if !V1_29_1
         ColorScheme? beatmapOverrideColorScheme,
 #endif
@@ -54,6 +57,9 @@ public class StartStandardLevelParameters
 #endif
         OverrideEnvironmentSettings = overrideEnvironmentSettings;
         OverrideColorScheme = overrideColorScheme;
+#if LATEST
+        PlayerOverrideLightshowColors = playerOverrideLightshowColors;
+#endif
 #if !V1_29_1
         BeatmapOverrideColorScheme = beatmapOverrideColorScheme;
 #endif
@@ -86,6 +92,9 @@ public class StartStandardLevelParameters
 #endif
         OverrideEnvironmentSettings = original.OverrideEnvironmentSettings;
         OverrideColorScheme = original.OverrideColorScheme;
+#if LATEST
+        PlayerOverrideLightshowColors = original.PlayerOverrideLightshowColors;
+#endif
 #if !V1_29_1
         BeatmapOverrideColorScheme = original.BeatmapOverrideColorScheme;
 #endif
@@ -121,6 +130,10 @@ public class StartStandardLevelParameters
     public OverrideEnvironmentSettings? OverrideEnvironmentSettings { get; set; }
 
     public ColorScheme? OverrideColorScheme { get; set; }
+
+#if LATEST
+    public bool PlayerOverrideLightshowColors { get; }
+#endif
 
 #if !V1_29_1
     public ColorScheme? BeatmapOverrideColorScheme { get; }

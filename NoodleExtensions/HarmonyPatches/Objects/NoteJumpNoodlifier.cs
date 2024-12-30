@@ -13,7 +13,13 @@ namespace NoodleExtensions.HarmonyPatches.Objects;
 
 internal class NoteJumpNoodlifier : IAffinity, IDisposable
 {
-    private static readonly FieldInfo _beatTimeField = AccessTools.Field(typeof(NoteJump), nameof(NoteJump._beatTime));
+    private static readonly FieldInfo _beatTimeField = AccessTools.Field(
+        typeof(NoteJump),
+#if LATEST
+        nameof(NoteJump._noteTime));
+#else
+        nameof(NoteJump._beatTime));
+#endif
 
     private static readonly FieldInfo _endRotationField = AccessTools.Field(
         typeof(NoteJump),

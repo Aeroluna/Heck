@@ -12,20 +12,20 @@ namespace NoodleExtensions.HarmonyPatches.Objects;
 internal class NoteUpdateNoodlifier : IAffinity
 {
     private readonly AnimationHelper _animationHelper;
-    private readonly AudioTimeSyncController _audioTimeSyncController;
     private readonly CutoutManager _cutoutManager;
+    private readonly BeatmapCallbacksController _beatmapCallbacksController;
     private readonly DeserializedData _deserializedData;
 
     private NoteUpdateNoodlifier(
         [Inject(Id = NoodleController.ID)] DeserializedData deserializedData,
         AnimationHelper animationHelper,
         CutoutManager cutoutManager,
-        AudioTimeSyncController audioTimeSyncController)
+        BeatmapCallbacksController beatmapCallbacksController)
     {
         _deserializedData = deserializedData;
         _animationHelper = animationHelper;
         _cutoutManager = cutoutManager;
-        _audioTimeSyncController = audioTimeSyncController;
+        _beatmapCallbacksController = beatmapCallbacksController;
     }
 
     internal NoodleBaseNoteData? NoodleData { get; private set; }
@@ -51,6 +51,9 @@ internal class NoteUpdateNoodlifier : IAffinity
 
         NoteJump noteJump = ____noteMovement._jump;
         NoteFloorMovement floorMovement = ____noteMovement._floorMovement;
+#if LATEST
+        IVariableMovementDataProvider variableMovementDataProvider = ____noteMovement._variableMovementDataProvider;
+#endif
 
         float? time = noodleData.GetTimeProperty();
         float normalTime;
@@ -60,8 +63,12 @@ internal class NoteUpdateNoodlifier : IAffinity
         }
         else
         {
+#if LATEST
+            float jumpDuration = variableMovementDataProvider.jumpDuration;
+#else
             float jumpDuration = noteJump._jumpDuration;
-            float elapsedTime = _audioTimeSyncController.songTime - (____noteData.time - (jumpDuration * 0.5f));
+#endif
+            float elapsedTime = _beatmapCallbacksController.songTime - (____noteData.time - (jumpDuration * 0.5f));
             normalTime = elapsedTime / jumpDuration;
         }
 
@@ -84,10 +91,19 @@ internal class NoteUpdateNoodlifier : IAffinity
             Vector3 jumpEndPos = noodleData.InternalEndPos;
 
             Vector3 offset = positionOffset.Value;
+#if LATEST
+            floorMovement._moveStartOffset = moveStartPos + offset;
+            floorMovement._moveEndOffset = moveEndPos + offset;
+            noteJump._startOffset = moveEndPos + offset;
+            noteJump._endOffset = jumpEndPos + offset;
+            noteJump._startPos = variableMovementDataProvider.moveEndPosition + noteJump._startOffset;
+            noteJump._endPos = variableMovementDataProvider.jumpEndPosition + noteJump._endOffset;
+#else
             floorMovement._startPos = moveStartPos + offset;
             floorMovement._endPos = moveEndPos + offset;
             noteJump._startPos = moveEndPos + offset;
             noteJump._endPos = jumpEndPos + offset;
+#endif
         }
 
         Transform transform = __instance.transform;
@@ -97,25 +113,25 @@ internal class NoteUpdateNoodlifier : IAffinity
             Quaternion worldRotation = noodleData.InternalWorldRotation;
             Quaternion localRotation = noodleData.InternalLocalRotation;
 
-            Quaternion worldRotationQuatnerion = worldRotation;
+            Quaternion worldRotationQuaternion = worldRotation;
             if (rotationOffset.HasValue)
             {
-                worldRotationQuatnerion *= rotationOffset.Value;
-                Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
-                noteJump._worldRotation = worldRotationQuatnerion;
+                worldRotationQuaternion *= rotationOffset.Value;
+                Quaternion inverseWorldRotation = Quaternion.Inverse(worldRotationQuaternion);
+                noteJump._worldRotation = worldRotationQuaternion;
                 noteJump._inverseWorldRotation = inverseWorldRotation;
-                floorMovement._worldRotation = worldRotationQuatnerion;
+                floorMovement._worldRotation = worldRotationQuaternion;
                 floorMovement._inverseWorldRotation = inverseWorldRotation;
             }
 
-            worldRotationQuatnerion *= localRotation;
+            worldRotationQuaternion *= localRotation;
 
             if (localRotationOffset.HasValue)
             {
-                worldRotationQuatnerion *= localRotationOffset.Value;
+                worldRotationQuaternion *= localRotationOffset.Value;
             }
 
-            transform.localRotation = worldRotationQuatnerion;
+            transform.localRotation = worldRotationQuaternion;
         }
 
         if (scaleOffset.HasValue)

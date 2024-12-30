@@ -77,12 +77,15 @@ internal class ObjectCallbackAheadTimeReorder : IAffinity, IDisposable
             .Insert(_addObstacleCallback)
             .Advance(-8)
             .RemoveInstructions(2)
+
+            .Start()
             .MatchForward(false, new CodeMatch(OpCodes.Newobj, _noteDataCtor))
             .Advance(1)
             .RemoveInstruction()
             .Insert(_addNoteCallback)
             .Advance(-8)
             .RemoveInstructions(2)
+
             .MatchForward(false, new CodeMatch(OpCodes.Newobj, _sliderDataCtor))
             .Advance(1)
             .RemoveInstruction()

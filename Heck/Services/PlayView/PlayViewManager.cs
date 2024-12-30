@@ -260,6 +260,9 @@ public sealed class PlayViewManager : IDisposable
 #endif
             _currentParameters.OverrideEnvironmentSettings,
             _currentParameters.OverrideColorScheme,
+#if LATEST
+            _currentParameters.PlayerOverrideLightshowColors,
+#endif
 #if !V1_29_1
             _currentParameters.BeatmapOverrideColorScheme,
 #endif

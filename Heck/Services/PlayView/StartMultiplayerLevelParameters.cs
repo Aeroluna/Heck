@@ -38,6 +38,9 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
 #endif
             null,
             overrideColorScheme,
+#if LATEST
+            false,
+#endif
 #if !V1_29_1
             null,
 #endif

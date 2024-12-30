@@ -45,11 +45,15 @@ internal class NoteInitNoodlifier : IAffinity, IDisposable
         NoteController __instance,
         NoteData noteData,
         NoteMovement ____noteMovement,
+#if LATEST
+        NoteSpawnData noteSpawnData,
+#else
         Vector3 moveStartPos,
         Vector3 moveEndPos,
         Vector3 jumpEndPos,
         float jumpDuration,
         float jumpGravity,
+#endif
         float endRotation,
         bool useRandomRotation)
     {
@@ -57,12 +61,6 @@ internal class NoteInitNoodlifier : IAffinity, IDisposable
         {
             return;
         }
-
-        // how fucking long has _zOffset existed???!??
-        float zOffset = ____noteMovement._zOffset;
-        moveStartPos.z += zOffset;
-        moveEndPos.z += zOffset;
-        jumpEndPos.z += zOffset;
 
         NoteJump noteJump = ____noteMovement._jump;
         NoteFloorMovement floorMovement = ____noteMovement._floorMovement;
@@ -103,6 +101,20 @@ internal class NoteInitNoodlifier : IAffinity, IDisposable
             ? new Vector3(noodleData.ScaleX ?? 1, noodleData.ScaleY ?? 1, noodleData.ScaleZ ?? 1)
             : Vector3.one;
         transform.localScale = scale;
+
+#if LATEST
+        Vector3 moveStartPos = noteSpawnData.moveStartOffset;
+        Vector3 moveEndPos = noteSpawnData.moveEndOffset;
+        Vector3 jumpEndPos = noteSpawnData.jumpEndOffset;
+        float jumpDuration = ____noteMovement._variableMovementDataProvider.jumpDuration;
+        float jumpGravity = noteSpawnData.gravityBase;
+#endif
+
+        // how fucking long has _zOffset existed???!??
+        float zOffset = ____noteMovement._zOffset;
+        moveStartPos.z += zOffset;
+        moveEndPos.z += zOffset;
+        jumpEndPos.z += zOffset;
 
         noodleData.InternalEndRotation = endRotation;
         noodleData.InternalStartPos = moveStartPos;

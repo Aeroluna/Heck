@@ -13,6 +13,14 @@ internal class InitializedSpawnMovementData
     private InitializedSpawnMovementData(
         BeatmapObjectSpawnController.InitData initData,
         IJumpOffsetYProvider jumpOffsetYProvider,
+#if LATEST
+        BeatmapObjectSpawnController spawnController)
+    {
+        spawnController.beatmapObjectSpawnMovementData.Init(
+            initData.noteLinesCount,
+            jumpOffsetYProvider,
+            Vector3.right);
+#else
         IBeatmapObjectSpawnController spawnController)
     {
         spawnController.beatmapObjectSpawnMovementData.Init(
@@ -24,7 +32,7 @@ internal class InitializedSpawnMovementData
             jumpOffsetYProvider,
             Vector3.right,
             Vector3.forward);
-
+#endif
         MovementData = spawnController.beatmapObjectSpawnMovementData;
     }
 
@@ -39,7 +47,11 @@ internal class InitializedSpawnMovementData
              * -- this._beatmapObjectSpawnMovementData.Init(this._initData.noteLinesCount, this._initData.noteJumpMovementSpeed, this._initData.beatsPerMinute, this._initData.noteJumpValueType, this._initData.noteJumpValue, this._jumpOffsetYProvider, Vector3.right, Vector3.forward);
              */
             .Start()
+#if LATEST
+            .RemoveInstructions(9)
+#else
             .RemoveInstructions(22)
+#endif
             .InstructionEnumeration();
     }
 }

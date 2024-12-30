@@ -41,9 +41,13 @@ internal class ObjectColorize : IAffinity
         ObstacleController __instance,
         ObstacleData ____obstacleData,
         float ____startTimeOffset,
+#if LATEST
+        IVariableMovementDataProvider ____variableMovementDataProvider,
+#else
         float ____move1Duration,
         float ____move2Duration,
         float ____obstacleDuration,
+#endif
         float time)
     {
         if (!_deserializedData.Resolve(____obstacleData, out ChromaObjectData? chromaData))
@@ -58,7 +62,17 @@ internal class ObjectColorize : IAffinity
             return;
         }
 
-        float normalTime = (time - ____move1Duration) / (____move2Duration + ____obstacleDuration);
+#if LATEST
+        float moveDuration = ____variableMovementDataProvider.moveDuration;
+        float jumpDuration = ____variableMovementDataProvider.jumpDuration;
+        float obstacleDuration = ____obstacleData.duration;
+#else
+        float moveDuration = ____move1Duration;
+        float jumpDuration = ____move2Duration;
+        float obstacleDuration = ____obstacleDuration;
+#endif
+
+        float normalTime = (time - moveDuration) / (jumpDuration + obstacleDuration);
 
         AnimationHelper.GetColorOffset(pathPointDefinition, tracks, normalTime, out Color? colorOffset);
 
@@ -97,7 +111,11 @@ internal class ObjectColorize : IAffinity
             return;
         }
 
+#if LATEST
+        float jumpDuration = __instance._variableMovementDataProvider.jumpDuration;
+#else
         float jumpDuration = ____sliderMovement.jumpDuration;
+#endif
         float duration = (jumpDuration * 0.75f) + (____sliderData.tailTime - ____sliderData.time);
         float normalTime = ____sliderMovement.timeSinceHeadNoteJump / (jumpDuration + duration);
 

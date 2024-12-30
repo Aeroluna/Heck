@@ -27,6 +27,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ISSUE_TEMPLATE", "ISSUE_TEM
 		.github\ISSUE_TEMPLATE\noodle-extensions.md = .github\ISSUE_TEMPLATE\noodle-extensions.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{50D57D94-5CA1-4CE1-9BB7-D18B551747AA}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug-1.34.2|Any CPU = Debug-1.34.2|Any CPU
@@ -35,8 +40,8 @@ Global
 		Debug-1.29.1|Any CPU = Debug-1.29.1|Any CPU
 		Release-1.37.1|Any CPU = Release-1.37.1|Any CPU
 		Debug-1.37.1|Any CPU = Debug-1.37.1|Any CPU
-		Release-1.39.0|Any CPU = Release-1.39.0|Any CPU
-		Debug-1.39.0|Any CPU = Debug-1.39.0|Any CPU
+		Release-1.40.0|Any CPU = Release-1.40.0|Any CPU
+		Debug-1.40.0|Any CPU = Debug-1.40.0|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B2DC580C-A4D3-4A86-967E-5010786FF140}.Debug-1.34.2|Any CPU.ActiveCfg = Debug-1.34.2|Any CPU
@@ -51,10 +56,10 @@ Global
 		{B2DC580C-A4D3-4A86-967E-5010786FF140}.Release-1.37.1|Any CPU.Build.0 = Release-1.37.1|Any CPU
 		{B2DC580C-A4D3-4A86-967E-5010786FF140}.Debug-1.37.1|Any CPU.ActiveCfg = Debug-1.37.1|Any CPU
 		{B2DC580C-A4D3-4A86-967E-5010786FF140}.Debug-1.37.1|Any CPU.Build.0 = Debug-1.37.1|Any CPU
-		{B2DC580C-A4D3-4A86-967E-5010786FF140}.Release-1.39.0|Any CPU.ActiveCfg = Release-1.39.0|Any CPU
-		{B2DC580C-A4D3-4A86-967E-5010786FF140}.Release-1.39.0|Any CPU.Build.0 = Release-1.39.0|Any CPU
-		{B2DC580C-A4D3-4A86-967E-5010786FF140}.Debug-1.39.0|Any CPU.ActiveCfg = Debug-1.39.0|Any CPU
-		{B2DC580C-A4D3-4A86-967E-5010786FF140}.Debug-1.39.0|Any CPU.Build.0 = Debug-1.39.0|Any CPU
+		{B2DC580C-A4D3-4A86-967E-5010786FF140}.Release-1.40.0|Any CPU.ActiveCfg = Release-1.40.0|Any CPU
+		{B2DC580C-A4D3-4A86-967E-5010786FF140}.Release-1.40.0|Any CPU.Build.0 = Release-1.40.0|Any CPU
+		{B2DC580C-A4D3-4A86-967E-5010786FF140}.Debug-1.40.0|Any CPU.ActiveCfg = Debug-1.40.0|Any CPU
+		{B2DC580C-A4D3-4A86-967E-5010786FF140}.Debug-1.40.0|Any CPU.Build.0 = Debug-1.40.0|Any CPU
 		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Debug-1.34.2|Any CPU.ActiveCfg = Debug-1.34.2|Any CPU
 		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Debug-1.34.2|Any CPU.Build.0 = Debug-1.34.2|Any CPU
 		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Release-1.29.1|Any CPU.ActiveCfg = Release-1.29.1|Any CPU
@@ -67,10 +72,10 @@ Global
 		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Release-1.37.1|Any CPU.Build.0 = Release-1.37.1|Any CPU
 		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Debug-1.37.1|Any CPU.ActiveCfg = Debug-1.37.1|Any CPU
 		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Debug-1.37.1|Any CPU.Build.0 = Debug-1.37.1|Any CPU
-		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Release-1.39.0|Any CPU.ActiveCfg = Release-1.39.0|Any CPU
-		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Release-1.39.0|Any CPU.Build.0 = Release-1.39.0|Any CPU
-		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Debug-1.39.0|Any CPU.ActiveCfg = Debug-1.39.0|Any CPU
-		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Debug-1.39.0|Any CPU.Build.0 = Debug-1.39.0|Any CPU
+		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Release-1.40.0|Any CPU.ActiveCfg = Release-1.40.0|Any CPU
+		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Release-1.40.0|Any CPU.Build.0 = Release-1.40.0|Any CPU
+		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Debug-1.40.0|Any CPU.ActiveCfg = Debug-1.40.0|Any CPU
+		{E0A27B85-DE29-4557-B43F-F8808E1A4A50}.Debug-1.40.0|Any CPU.Build.0 = Debug-1.40.0|Any CPU
 		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Debug-1.34.2|Any CPU.ActiveCfg = Debug-1.34.2|Any CPU
 		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Debug-1.34.2|Any CPU.Build.0 = Debug-1.34.2|Any CPU
 		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Release-1.29.1|Any CPU.ActiveCfg = Release-1.29.1|Any CPU
@@ -83,10 +88,10 @@ Global
 		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Release-1.37.1|Any CPU.Build.0 = Release-1.37.1|Any CPU
 		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Debug-1.37.1|Any CPU.ActiveCfg = Debug-1.37.1|Any CPU
 		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Debug-1.37.1|Any CPU.Build.0 = Debug-1.37.1|Any CPU
-		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Release-1.39.0|Any CPU.ActiveCfg = Release-1.39.0|Any CPU
-		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Release-1.39.0|Any CPU.Build.0 = Release-1.39.0|Any CPU
-		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Debug-1.39.0|Any CPU.ActiveCfg = Debug-1.39.0|Any CPU
-		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Debug-1.39.0|Any CPU.Build.0 = Debug-1.39.0|Any CPU
+		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Release-1.40.0|Any CPU.ActiveCfg = Release-1.40.0|Any CPU
+		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Release-1.40.0|Any CPU.Build.0 = Release-1.40.0|Any CPU
+		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Debug-1.40.0|Any CPU.ActiveCfg = Debug-1.40.0|Any CPU
+		{DF8E29C6-1A6E-4648-B59A-5EFA954B73B7}.Debug-1.40.0|Any CPU.Build.0 = Debug-1.40.0|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -94,6 +99,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3F326F36-A51D-482B-BBE3-C1D1CCA99AFD} = {A06F606D-BE9B-4DE4-BD76-C7D00CE1ECFE}
 		{FC9DF625-D953-465F-A2CD-20DC7D6CF239} = {3F326F36-A51D-482B-BBE3-C1D1CCA99AFD}
+		{50D57D94-5CA1-4CE1-9BB7-D18B551747AA} = {3F326F36-A51D-482B-BBE3-C1D1CCA99AFD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {46C6F72C-6F26-4DCA-9819-D4AB393ADF37}

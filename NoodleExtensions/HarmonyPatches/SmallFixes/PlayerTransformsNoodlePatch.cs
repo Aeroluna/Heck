@@ -8,6 +8,8 @@ internal class PlayerTransformsNoodlePatch : IAffinity
 {
     private readonly NoodlePlayerTransformManager _noodlePlayerTransformManager;
 
+    private Transform? _parentTransform;
+
     private PlayerTransformsNoodlePatch(NoodlePlayerTransformManager noodlePlayerTransformManager)
     {
         _noodlePlayerTransformManager = noodlePlayerTransformManager;
@@ -16,6 +18,11 @@ internal class PlayerTransformsNoodlePatch : IAffinity
     [AffinityPrefix]
     [AffinityPatch(typeof(PlayerTransforms), nameof(PlayerTransforms.Update))]
     private bool UpdateWithNoodle(
+#if LATEST
+        BeatmapKey? ____beatmapKey,
+        Transform ____originParentTransform,
+        ref Vector3 ____headPseudLocalZOnlyPos,
+#endif
         bool ____overrideHeadPos,
         Transform ____headTransform,
         Transform ____rightHandTransform,
@@ -44,6 +51,39 @@ internal class PlayerTransformsNoodlePatch : IAffinity
         ____leftHandPseudoLocalPos = _noodlePlayerTransformManager.LeftHand.InverseTransformPoint(____leftHandTransform.position);
         ____leftHandPseudoLocalRot = _noodlePlayerTransformManager.LeftHand.InverseTransformRotation(____leftHandTransform.rotation);
 
+        #if LATEST
+        if (____beatmapKey != null && ____beatmapKey.Value.beatmapCharacteristic.containsRotationEvents)
+        {
+            return false;
+        }
+
+        ____headPseudLocalZOnlyPos = HeadOffsetZ(____headPseudoLocalPos, ____originParentTransform) * _parentTransform!.forward;
+
+        #endif
+
         return false;
+    }
+
+#if !LATEST
+    [AffinityPrefix]
+    [AffinityPatch(typeof(PlayerTransforms), nameof(PlayerTransforms.HeadOffsetZ))]
+    private bool PrefixHeadOffset(
+        Quaternion noteInverseWorldRotation,
+        Vector3 ____headPseudoLocalPos,
+        Transform ____originParentTransform,
+        ref float __result)
+    {
+        __result = HeadOffsetZ(noteInverseWorldRotation * ____headPseudoLocalPos, ____originParentTransform);
+        return false;
+    }
+#endif
+
+    private float HeadOffsetZ(Vector3 headPsuedoLocalPos, Transform originParentTransform)
+    {
+        // get magnitude in direction we care about rather than just z
+        _parentTransform ??= _noodlePlayerTransformManager.Active
+            ? _noodlePlayerTransformManager.Head
+            : originParentTransform;
+        return Vector3.Dot(headPsuedoLocalPos, _parentTransform.forward);
     }
 }

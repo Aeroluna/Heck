@@ -1,5 +1,14 @@
 ﻿using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
+#if LATEST
+using _NoteSpawnData = NoteSpawnData;
+using _ObstacleSpawnData = ObstacleSpawnData;
+using _SliderSpawnData = SliderSpawnData;
+#else
+using _NoteSpawnData = BeatmapObjectSpawnMovementData.NoteSpawnData;
+using _ObstacleSpawnData = BeatmapObjectSpawnMovementData.ObstacleSpawnData;
+using _SliderSpawnData = BeatmapObjectSpawnMovementData.SliderSpawnData;
+#endif
 
 namespace NoodleExtensions.HarmonyPatches.ObjectProcessing;
 
@@ -19,7 +28,7 @@ internal class NoodledSpawnMovementData : IAffinity
     private bool NoteNoodlePatch(
         BeatmapObjectSpawnMovementData __instance,
         NoteData noteData,
-        ref BeatmapObjectSpawnMovementData.NoteSpawnData __result)
+        ref _NoteSpawnData __result)
     {
         return _spawnDataManager.GetJumpingNoteSpawnData(noteData, ref __result);
     }
@@ -28,7 +37,7 @@ internal class NoodledSpawnMovementData : IAffinity
     [AffinityPatch(typeof(BeatmapObjectSpawnMovementData), nameof(BeatmapObjectSpawnMovementData.GetObstacleSpawnData))]
     private bool ObstacleNoodlePatch(
         ObstacleData obstacleData,
-        ref BeatmapObjectSpawnMovementData.ObstacleSpawnData __result)
+        ref _ObstacleSpawnData __result)
     {
         return _spawnDataManager.GetObstacleSpawnData(obstacleData, ref __result);
     }
@@ -38,7 +47,7 @@ internal class NoodledSpawnMovementData : IAffinity
     private bool SliderNoodlePatch(
         BeatmapObjectSpawnMovementData __instance,
         SliderData sliderData,
-        ref BeatmapObjectSpawnMovementData.SliderSpawnData __result)
+        ref _SliderSpawnData __result)
     {
         return _spawnDataManager.GetSliderSpawnData(sliderData, ref __result);
     }

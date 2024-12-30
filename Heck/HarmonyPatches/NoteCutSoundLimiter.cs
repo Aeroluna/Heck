@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using HarmonyLib;
+using ModestTree;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using UnityEngine;
@@ -11,36 +12,37 @@ namespace Heck.HarmonyPatches;
 internal class NoteCutSoundLimiter : ITickable, IAffinity
 {
     private const int MAX_SOUNDS_PER_FRAME = 30;
-    private readonly AudioTimeSyncController _audioTimeSyncController;
 
-    private readonly List<NoteController> _hitsoundQueue = [];
+    private readonly List<NoteController> _hitSoundQueue = [];
+    private readonly List<NoteController> _reusableHitSoundQueue = [];
 
     private readonly SiraLog _log;
     private readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
+    private readonly BeatmapCallbacksController _beatmapCallbacksController;
     private int _cutCount = -1;
     private int _lastFrame = -1;
 
     internal NoteCutSoundLimiter(
         SiraLog log,
         NoteCutSoundEffectManager noteCutSoundEffectManager,
-        AudioTimeSyncController audioTimeSyncController)
+        BeatmapCallbacksController beatmapCallbacksController)
     {
         _log = log;
         _noteCutSoundEffectManager = noteCutSoundEffectManager;
-        _audioTimeSyncController = audioTimeSyncController;
+        _beatmapCallbacksController = beatmapCallbacksController;
     }
 
     public void Tick()
     {
-        if (_hitsoundQueue.Count <= 0)
+        if (_hitSoundQueue.Count <= 0)
         {
             return;
         }
 
-        List<NoteController> noteControllers = [.._hitsoundQueue];
-        _hitsoundQueue.Clear();
-        noteControllers.ForEach(_noteCutSoundEffectManager.HandleNoteWasSpawned);
-        _log.Warn($"[{noteControllers.Count}] cut sounds moved to next frame!");
+        _reusableHitSoundQueue.AllocFreeAddRange(_hitSoundQueue);
+        _hitSoundQueue.Clear();
+        _reusableHitSoundQueue.ForEach(_noteCutSoundEffectManager.HandleNoteWasSpawned);
+        _log.Warn($"[{_reusableHitSoundQueue.Count}] cut sounds moved to next frame!");
     }
 
     [AffinityPriority(Priority.Low)]
@@ -49,7 +51,7 @@ internal class NoteCutSoundLimiter : ITickable, IAffinity
     private void ProcessHitSound(NoteController noteController, ref bool __runOriginal)
     {
         // skip notes already passed, useful for reLoader
-        if (noteController.noteData.time < _audioTimeSyncController.songTime)
+        if (noteController.noteData.time < _beatmapCallbacksController.songTime)
         {
             __runOriginal = false;
             return;
@@ -77,7 +79,7 @@ internal class NoteCutSoundLimiter : ITickable, IAffinity
         }
 
         // too many, queue for next frame
-        _hitsoundQueue.Add(noteController);
+        _hitSoundQueue.Add(noteController);
         __runOriginal = false;
     }
 }

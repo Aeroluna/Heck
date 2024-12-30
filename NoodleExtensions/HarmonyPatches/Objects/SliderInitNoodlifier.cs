@@ -14,10 +14,12 @@ namespace NoodleExtensions.HarmonyPatches.Objects;
 
 internal class SliderInitNoodlifier : IAffinity, IDisposable
 {
+#if !LATEST
     private static readonly MethodInfo _noteJumpMovementSpeedGetter =
         AccessTools.PropertyGetter(
             typeof(IBeatmapObjectSpawnController),
             nameof(IBeatmapObjectSpawnController.noteJumpMovementSpeed));
+#endif
 
     private readonly DeserializedData _deserializedData;
 
@@ -78,11 +80,13 @@ internal class SliderInitNoodlifier : IAffinity, IDisposable
         SliderController __instance,
         SliderMovement ____sliderMovement,
         MaterialPropertyBlockController ____materialPropertyBlockController,
-        SliderData sliderData,
+#if !LATEST
         Vector3 headNoteJumpStartPos,
         Vector3 tailNoteJumpStartPos,
         Vector3 headNoteJumpEndPos,
-        Vector3 tailNoteJumpEndPos)
+        Vector3 tailNoteJumpEndPos,
+#endif
+        SliderData sliderData)
     {
         if (!_deserializedData.Resolve(sliderData, out NoodleSliderData? noodleData))
         {
@@ -105,9 +109,11 @@ internal class SliderInitNoodlifier : IAffinity, IDisposable
             if (worldRotationQuaternion.HasValue)
             {
                 Quaternion quatVal = worldRotationQuaternion.Value;
-                Quaternion inverseWorldRotation = Quaternion.Inverse(quatVal);
                 ____sliderMovement._worldRotation = quatVal;
+#if !LATEST
+                Quaternion inverseWorldRotation = Quaternion.Inverse(quatVal);
                 ____sliderMovement._inverseWorldRotation = inverseWorldRotation;
+#endif
 
                 quatVal *= localRotation;
 
@@ -121,12 +127,15 @@ internal class SliderInitNoodlifier : IAffinity, IDisposable
 
         transform.localScale = Vector3.one;
 
+#if !LATEST
         noodleData.InternalStartPos = headNoteJumpStartPos;
         noodleData.InternalEndPos = headNoteJumpEndPos;
+#endif
         noodleData.InternalWorldRotation = ____sliderMovement._worldRotation;
         noodleData.InternalLocalRotation = localRotation;
     }
 
+#if !LATEST
     [AffinityTranspiler]
     [AffinityPatch(typeof(SliderController), nameof(SliderController.Init))]
     private IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -145,4 +154,5 @@ internal class SliderInitNoodlifier : IAffinity, IDisposable
                         _getNjs))
             .InstructionEnumeration();
     }
+#endif
 }

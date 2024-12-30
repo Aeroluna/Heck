@@ -52,7 +52,15 @@ internal class NoodlePlayerInstaller : Installer
         // ObjectProcessing
         Container.BindInterfacesAndSelfTo<ManagedActiveObstacleTracker>().AsSingle();
         Container.BindInterfacesTo<NoodledSpawnMovementData>().AsSingle();
-        Container.BindInterfacesTo<ObjectCallbackAheadTimeReorder>().AsSingle();
+        //Container.BindInterfacesTo<ObjectCallbackAheadTimeReorder>().AsSingle();
+
+#if LATEST
+        // VariableMovementProvider
+        Container
+            .BindMemoryPool<NoodleMovementDataProvider, NoodleMovementDataProvider.Pool>()
+            .WithInitialSize(40);
+        Container.BindInterfacesTo<ReplaceMovementDataProvider>().AsSingle();
+#endif
 
         // Objects
         Container.BindInterfacesTo<GameNoteCutNoodlifier>().AsSingle();
