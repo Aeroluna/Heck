@@ -22,11 +22,6 @@ public static class HeckPatchManager
         }
 
         patchers.Add(patcher);
-
-        if (id == null)
-        {
-            patcher.Enabled = true;
-        }
     }
 
     internal static void Disable()
