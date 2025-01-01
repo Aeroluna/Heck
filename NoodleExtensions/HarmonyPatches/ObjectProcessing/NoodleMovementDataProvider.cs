@@ -143,9 +143,11 @@ internal class NoodleMovementDataProvider : IVariableMovementDataProvider
         Vector3 center = _movementData.centerPos;
         Vector3 forward = Vector3.forward;
 
-        // kInitMoveDistance is double previous versions, might revert
+        // kInitMoveDistance is no longer multiplied by moveDuration in 1.40,
+        // but that breaks a bunch of maps so let's do it anyway
+        float moveDistance = VariableMovementDataProvider.kInitMoveDistance * moveDuration;
         _moveStartPositionOverride =
-            center + (forward * (VariableMovementDataProvider.kInitMoveDistance + halfJumpDistance));
+            center + (forward * (moveDistance + halfJumpDistance));
         _moveEndPositionOverride = center + (forward * halfJumpDistance);
         _jumpEndPositionOverride = center - (forward * halfJumpDistance);
     }
