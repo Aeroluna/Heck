@@ -19,7 +19,7 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
         typeof(ObstacleController),
         nameof(ObstacleController._width));
 #else
-    private static readonly MethodInfo _widthSetter = AccessTools.PropertyGetter(
+    private static readonly MethodInfo _widthGetter = AccessTools.PropertyGetter(
         typeof(ObstacleData),
         nameof(ObstacleData.width));
 
