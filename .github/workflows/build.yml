@@ -17,12 +17,12 @@ jobs:
       matrix:
         project-path: [ Heck/Heck.csproj, NoodleExtensions/NoodleExtensions.csproj, Chroma/Chroma.csproj ]
         game-version: [ 1.29.1, 1.34.2, 1.37.1, 1.40.0 ]
-    uses: Aeroluna/beat-saber-workflows/.github/workflows/build-version-release.yml@master
+    uses: Aeroluna/workflows/.github/workflows/bs-build-version-release.yml@master
     with:
       project-path: ${{ matrix.project-path }}
       game-version: ${{ matrix.game-version }}
       additional-project-paths: '["Heck/Heck.csproj"]'
-      additional-sources: '{"CustomJSONData": "Aeroluna/CustomJSONData"}'
+      additional-sources: '["Aeroluna/CustomJSONData"]'
     secrets: inherit
 
   create_release:
@@ -30,5 +30,5 @@ jobs:
     needs: build
     permissions:
       contents: write
-    uses: Aeroluna/beat-saber-workflows/.github/workflows/create-release-from-date.yml@master
+    uses: Aeroluna/workflows/.github/workflows/bs-create-release-from-date.yml@master
     secrets: inherit
