@@ -92,9 +92,12 @@ internal class SpawnDataManager
             noteOffset,
             gravity);
 #else
+        float? njs = noodleData.Njs;
+        float? spawnOffset = noodleData.SpawnOffset;
+
         GetNoteJumpValues(
             njs,
-            spawnoffset,
+            spawnOffset,
             out float jumpDuration,
             out float jumpDistance,
             out Vector3 moveStartPos,
@@ -103,7 +106,7 @@ internal class SpawnDataManager
 
         NoteJumpGravityForLineLayer(
             lineLayer,
-            startlinelayer,
+            startLineLayer,
             jumpDistance,
             njs,
             out float jumpGravity,
@@ -111,7 +114,7 @@ internal class SpawnDataManager
 
         Vector3 noteOffset2 = GetNoteOffset(
             flipLineIndex ?? lineIndex,
-            gravityOverride ? lineLayer : startlinelayer);
+            gravityOverride ? lineLayer : startLineLayer);
 
         result = new BeatmapObjectSpawnMovementData.NoteSpawnData(
             moveStartPos + noteOffset2,

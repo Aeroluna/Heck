@@ -18,9 +18,10 @@ internal class NoodleMovementDataProvider : IVariableMovementDataProvider
     private readonly BeatmapObjectSpawnMovementData.NoteJumpValueType _noteJumpValueType;
 
     private float? _jumpDistanceOverride;
-    private float? _noteJumpSpeedOverride;
     private float? _jumpDurationOverride;
     private float? _halfJumpDurationOverride;
+    private float? _spawnAheadTimeOverride;
+    private float? _noteJumpSpeedOverride;
     private Vector3? _moveStartPositionOverride;
     private Vector3? _moveEndPositionOverride;
     private Vector3? _jumpEndPositionOverride;
@@ -50,9 +51,9 @@ internal class NoodleMovementDataProvider : IVariableMovementDataProvider
 
     public float moveDuration => _original.moveDuration;
 
-    public float spawnAheadTime => 0; // shouldnt be used
+    public float spawnAheadTime => _spawnAheadTimeOverride ?? _original.spawnAheadTime;
 
-    public float waitingDuration => 0; // shouldnt be used
+    public float waitingDuration => 0;
 
     public float noteJumpSpeed => _noteJumpSpeedOverride ?? _original.noteJumpSpeed;
 
@@ -93,9 +94,10 @@ internal class NoodleMovementDataProvider : IVariableMovementDataProvider
     internal void InitObject(BeatmapObjectData beatmapObjectData)
     {
         _jumpDistanceOverride = null;
-        _noteJumpSpeedOverride = null;
         _jumpDurationOverride = null;
         _halfJumpDurationOverride = null;
+        _spawnAheadTimeOverride = null;
+        _noteJumpSpeedOverride = null;
         _moveStartPositionOverride = null;
         _moveEndPositionOverride = null;
         _jumpEndPositionOverride = null;
@@ -118,24 +120,30 @@ internal class NoodleMovementDataProvider : IVariableMovementDataProvider
 
         float njs = _noteJumpSpeedOverride ?? _original.noteJumpSpeed;
         float spawnOffset = noodleData.SpawnOffset ?? _noteJumpStartBeatOffset;
-        if (_noteJumpValueType == BeatmapObjectSpawnMovementData.NoteJumpValueType.JumpDuration)
+        switch (_noteJumpValueType)
         {
-            _jumpDurationOverride = spawnOffset * 2f;
-            _halfJumpDurationOverride = spawnOffset;
-        }
-        else if (_noteJumpValueType == BeatmapObjectSpawnMovementData.NoteJumpValueType.JumpDuration)
-        {
-            float halfJumpDurationInBeats = CoreMathUtils.CalculateHalfJumpDurationInBeats(
-                _movementData._startHalfJumpDurationInBeats,
-                _movementData._maxHalfJumpDistance,
-                njs,
-                _oneBeatDuration,
-                spawnOffset);
+            case BeatmapObjectSpawnMovementData.NoteJumpValueType.JumpDuration:
+                _jumpDurationOverride = spawnOffset * 2f;
+                _halfJumpDurationOverride = spawnOffset;
+                break;
 
-            float halfJump = _oneBeatDuration * halfJumpDurationInBeats;
-            _halfJumpDurationOverride = halfJump;
-            _jumpDurationOverride = halfJump * 2;
+            case BeatmapObjectSpawnMovementData.NoteJumpValueType.BeatOffset:
+            {
+                float halfJumpDurationInBeats = CoreMathUtils.CalculateHalfJumpDurationInBeats(
+                    _movementData._startHalfJumpDurationInBeats,
+                    _movementData._maxHalfJumpDistance,
+                    njs,
+                    _oneBeatDuration,
+                    spawnOffset);
+
+                float halfJump = _oneBeatDuration * halfJumpDurationInBeats;
+                _halfJumpDurationOverride = halfJump;
+                _jumpDurationOverride = halfJump * 2;
+                break;
+            }
         }
+
+        _spawnAheadTimeOverride = VariableMovementDataProvider.kMoveDuration + halfJumpDuration;
 
         float jumpDist = njs * jumpDuration;
         _jumpDistanceOverride = jumpDist;

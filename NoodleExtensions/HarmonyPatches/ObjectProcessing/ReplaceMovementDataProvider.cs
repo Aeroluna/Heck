@@ -26,6 +26,11 @@ internal class ReplaceMovementDataProvider : IAffinity
             FieldAccessor<NoteJump, IVariableMovementDataProvider>.GetAccessor(
                 nameof(NoteJump._variableMovementDataProvider));
 
+    private static readonly FieldAccessor<NoteWaiting, IVariableMovementDataProvider>.Accessor
+        _noteWaitingMovementDataProvider =
+            FieldAccessor<NoteWaiting, IVariableMovementDataProvider>.GetAccessor(
+                nameof(NoteWaiting._variableMovementDataProvider));
+
     private static readonly FieldAccessor<SliderController, IVariableMovementDataProvider>.Accessor
         _sliderControllerMovementDataProvider =
             FieldAccessor<SliderController, IVariableMovementDataProvider>.GetAccessor(
@@ -58,10 +63,12 @@ internal class ReplaceMovementDataProvider : IAffinity
         NoteMovement noteMovement = __instance._noteMovement;
         NoteFloorMovement noteFloorMovement = noteMovement._floorMovement;
         NoteJump noteJump = noteMovement._jump;
+        NoteWaiting noteWaiting = noteMovement._waiting;
         NoodleMovementDataProvider newProvider = _noodleProviderPool.Spawn(noteData);
         _noteMovementMovementDataProvider(ref noteMovement) = newProvider;
         _noteFloorMovementMovementDataProvider(ref noteFloorMovement) = newProvider;
         _noteJumpMovementDataProvider(ref noteJump) = newProvider;
+        _noteWaitingMovementDataProvider(ref noteWaiting) = newProvider;
     }
 
     [AffinityPrefix]
