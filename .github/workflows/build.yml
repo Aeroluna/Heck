@@ -17,7 +17,7 @@ jobs:
       matrix:
         project-path: [ Heck/Heck.csproj, NoodleExtensions/NoodleExtensions.csproj, Chroma/Chroma.csproj ]
         game-version: [ 1.29.1, 1.34.2, 1.37.1, 1.40.0 ]
-    uses: Aeroluna/workflows/.github/workflows/bs-build-version-release.yml@master
+    uses: Aeroluna/workflows/.github/workflows/bs-build-version-release.yml@main
     with:
       project-path: ${{ matrix.project-path }}
       game-version: ${{ matrix.game-version }}
@@ -30,5 +30,5 @@ jobs:
     needs: build
     permissions:
       contents: write
-    uses: Aeroluna/workflows/.github/workflows/bs-create-release-from-date.yml@master
+    uses: Aeroluna/workflows/.github/workflows/bs-create-release-from-date.yml@main
     secrets: inherit
