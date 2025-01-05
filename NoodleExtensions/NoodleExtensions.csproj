@@ -12,7 +12,7 @@
     <PluginId>NoodleExtensions</PluginId>
     <PluginName>NoodleExtensions</PluginName>
     <Author>Aeroluna</Author>
-    <Version>1.7.8</Version>
+    <Version>1.7.9</Version>
     <Description>This mod lets you see cool things that mappers have put in their maps. Report all issues to Reaxt.</Description>
   </PropertyGroup>
   <ItemGroup>
