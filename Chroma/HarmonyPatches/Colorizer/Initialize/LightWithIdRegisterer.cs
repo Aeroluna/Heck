@@ -55,7 +55,7 @@ internal class LightWithIdRegisterer : IAffinity
         Color color,
         List<ILightWithId?>?[] ____lights,
         Color?[] ____colors,
-        bool ____didChangeSomeColorsThisFrame)
+        ref bool ____didChangeSomeColorsThisFrame)
     {
         ____colors[lightId] = color;
         ____didChangeSomeColorsThisFrame = true;
@@ -81,43 +81,46 @@ internal class LightWithIdRegisterer : IAffinity
 
     [AffinityPrefix]
     [AffinityPatch(typeof(LightWithIdManager), nameof(LightWithIdManager.RegisterLight))]
-    private bool Prefix(
+    private void Prefix(
+        ref bool __runOriginal,
         LightWithIdManager __instance,
         ILightWithId lightWithId,
         List<ILightWithId>?[] ____lights,
-        List<ILightWithId> ____lightsToUnregister)
+        List<ILightWithId> ____lightsToUnregister,
+        Color?[] ____colors)
     {
         // TODO: figure this shit out
         // for some reason, despite being an affinity patch bound to player, this still runs in the menu scene
         // so quick and dirty fix
         if (__instance.gameObject.scene.name.Contains("Menu"))
         {
-            return true;
+            return;
         }
+
+        __runOriginal = false;
 
         if (lightWithId.isRegistered)
         {
-            return false;
+            return;
         }
 
         int lightId = lightWithId.lightId;
         if (lightId == -1)
         {
-            return false;
+            return;
         }
 
         List<ILightWithId>? lights = ____lights[lightId];
         if (lights == null)
         {
-            lights = new List<ILightWithId>(10);
-            ____lights[lightId] = lights;
+            ____lights[lightId] = lights = new List<ILightWithId>(10);
         }
 
         lightWithId.__SetIsRegistered();
 
         if (lights.Contains(lightWithId))
         {
-            return false;
+            return;
         }
 
         // TODO: find a better way to register "new" lights to table
@@ -134,7 +137,8 @@ internal class LightWithIdRegisterer : IAffinity
             n => n.ChromaLightSwitchEventEffect.RegisterLight(lightWithId, index));
 
         lights.Add(lightWithId);
-
-        return false;
+        ____lightsToUnregister.Remove(lightWithId);
+        Color? color = ____colors[lightId];
+        lightWithId.ColorWasSet(color ?? Color.clear);
     }
 }
