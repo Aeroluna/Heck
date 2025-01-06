@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
 using Chroma.HarmonyPatches.EnvironmentComponent;
 using Chroma.Settings;
@@ -10,15 +8,15 @@ using Heck.Animation.Transform;
 using JetBrains.Annotations;
 using SiraUtil.Logging;
 using UnityEngine;
+using Zenject;
 using Object = UnityEngine.Object;
 
 namespace Chroma.EnvironmentEnhancement.Component;
 
 internal class DuplicateInitializer
 {
-    private static readonly Dictionary<Type, FieldInfo[]> _serializedFieldLookup = new();
-
     private readonly SiraLog _log;
+    private readonly DiContainer _container;
     private readonly TrackLaneRingOffset _trackLaneRingOffset;
     private readonly LightWithIdRegisterer _lightWithIdRegisterer;
     private readonly Config _config;
@@ -27,11 +25,13 @@ internal class DuplicateInitializer
     [UsedImplicitly]
     private DuplicateInitializer(
         SiraLog log,
+        DiContainer container,
         TrackLaneRingOffset trackLaneRingOffset,
         LightWithIdRegisterer lightWithIdRegisterer,
         Config config)
     {
         _log = log;
+        _container = container;
         _trackLaneRingOffset = trackLaneRingOffset;
         _lightWithIdRegisterer = lightWithIdRegisterer;
         _config = config;
@@ -62,23 +62,14 @@ internal class DuplicateInitializer
         List<GameObjectInfo> gameObjectInfos,
         List<IComponentData> componentDatas)
     {
-        foreach (MonoBehaviour monoBehaviour in root.GetComponents<MonoBehaviour>())
+        MonoBehaviour[] rootComponents = root.GetComponents<MonoBehaviour>();
+        MonoBehaviour[] otherComponents = original.GetComponents<MonoBehaviour>();
+        for (int i = 0; i < rootComponents.Length; i++)
         {
-            Type type = monoBehaviour.GetType();
-            MonoBehaviour other = (MonoBehaviour)original.GetComponent(type);
-            if (!_serializedFieldLookup.TryGetValue(type, out FieldInfo[] fieldInfos))
-            {
-                fieldInfos = type
-                    .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-                    .Where(n => Attribute.IsDefined(n, typeof(SerializeField)))
-                    .ToArray();
-                _serializedFieldLookup[type] = fieldInfos;
-            }
+            MonoBehaviour monoBehaviour = rootComponents[i];
+            MonoBehaviour other = otherComponents[i];
 
-            foreach (FieldInfo field in fieldInfos)
-            {
-                field.SetValue(monoBehaviour, field.GetValue(other));
-            }
+            _container.Inject(monoBehaviour);
 
             switch (monoBehaviour)
             {
@@ -192,7 +183,7 @@ internal class DuplicateInitializer
 
             if (_config.PrintEnvironmentEnhancementDebug)
             {
-                _log.Debug($"Initialized {type.Name}");
+                _log.Debug($"Initialized {monoBehaviour.GetType().Name}");
             }
         }
 
