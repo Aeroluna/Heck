@@ -99,18 +99,15 @@ internal class SpawnDataManager
             njs,
             spawnOffset,
             out float jumpDuration,
-            out float jumpDistance,
             out Vector3 moveStartPos,
             out Vector3 moveEndPos,
             out Vector3 jumpEndPos);
 
-        NoteJumpGravityForLineLayer(
+        float gravity = NoteJumpGravityForLineLayer(
             lineLayer,
             startLineLayer,
-            jumpDistance,
-            njs,
-            out float jumpGravity,
-            out float noGravity);
+            jumpDuration * 0.5f,
+            gravityOverride);
 
         Vector3 noteOffset2 = GetNoteOffset(
             flipLineIndex ?? lineIndex,
@@ -120,7 +117,7 @@ internal class SpawnDataManager
             moveStartPos + noteOffset2,
             moveEndPos + noteOffset2,
             jumpEndPos + noteOffset,
-            gravityOverride ? noGravity : jumpGravity,
+            gravity,
             _movementData.moveDuration,
             jumpDuration);
 #endif
@@ -167,13 +164,12 @@ internal class SpawnDataManager
             obstacleHeight);
 #else
         float? njs = noodleData.Njs;
-        float? spawnoffset = noodleData.SpawnOffset;
+        float? spawnOffset = noodleData.SpawnOffset;
 
         GetNoteJumpValues(
             njs,
-            spawnoffset,
+            spawnOffset,
             out float jumpDuration,
-            out _,
             out Vector3 moveStartPos,
             out Vector3 moveEndPos,
             out Vector3 jumpEndPos);
@@ -222,42 +218,39 @@ internal class SpawnDataManager
             tailGravity);
 #else
         float? njs = noodleData.Njs;
-        float? spawnoffset = noodleData.SpawnOffset;
+        float? spawnOffset = noodleData.SpawnOffset;
 
         GetNoteJumpValues(
             njs,
-            spawnoffset,
+            spawnOffset,
             out float jumpDuration,
-            out float jumpDistance,
             out Vector3 moveStartPos,
             out Vector3 moveEndPos,
             out Vector3 jumpEndPos);
 
-        NoteJumpGravityForLineLayer(
+        float halfJumpDuration = jumpDuration * 0.5f;
+
+        float headGravity = NoteJumpGravityForLineLayer(
             headLineLayer,
             headStartLineLayer,
-            jumpDistance,
-            njs,
-            out float headJumpGravity,
-            out float headNoGravity);
+            halfJumpDuration,
+            gravityOverride);
 
-        NoteJumpGravityForLineLayer(
+        float tailGravity = NoteJumpGravityForLineLayer(
             tailLineLayer,
             tailStartLineLayer,
-            jumpDistance,
-            njs,
-            out float tailJumpGravity,
-            out float tailNoGravity);
+            halfJumpDuration,
+            gravityOverride);
 
         result = new BeatmapObjectSpawnMovementData.SliderSpawnData(
             moveStartPos + headOffset,
             moveEndPos + headOffset,
             jumpEndPos + headOffset,
-            gravityOverride ? headNoGravity : headJumpGravity,
+            headGravity,
             moveStartPos + tailOffset,
             moveEndPos + tailOffset,
             jumpEndPos + tailOffset,
-            gravityOverride ? tailNoGravity : tailJumpGravity,
+            tailGravity,
             _movementData.moveDuration,
             jumpDuration);
 #endif
@@ -287,7 +280,7 @@ internal class SpawnDataManager
     private float HighestJumpPosYForLineLayer(float lineLayer)
     {
         // Magic numbers below found with linear regression y=mx+b using existing HighestJumpPosYForLineLayer values
-        return (0.875f * lineLayer) + 0.639583f + _movementData._jumpOffsetYProvider.jumpOffsetY;
+        return (0.525f * lineLayer) + 0.858333f + _movementData._jumpOffsetYProvider.jumpOffsetY;
     }
 
     private float GetJumpDuration(
@@ -347,7 +340,7 @@ internal class SpawnDataManager
         float? inputNjs,
         float? inputOffset,
         out float jumpDuration,
-        out float jumpDistance,
+        ////out float jumpDistance,
         out Vector3 moveStartPos,
         out Vector3 moveEndPos,
         out Vector3 jumpEndPos)
@@ -357,36 +350,22 @@ internal class SpawnDataManager
         Vector3 centerPos = _movementData.centerPos;
         Vector3 forwardVec = _movementData._forwardVec;
 
-        jumpDistance = (inputNjs ?? _movementData.noteJumpMovementSpeed) * jumpDuration;
+        float jumpDistance = (inputNjs ?? _movementData.noteJumpMovementSpeed) * jumpDuration;
         moveEndPos = centerPos + (forwardVec * (jumpDistance * 0.5f));
         jumpEndPos = centerPos - (forwardVec * (jumpDistance * 0.5f));
         moveStartPos = centerPos + (forwardVec * (_movementData._moveDistance + (jumpDistance * 0.5f)));
     }
 
-    private void NoteJumpGravityForLineLayer(
+    private float NoteJumpGravityForLineLayer(
         float lineLayer,
         float startLineLayer,
-        float jumpDistance,
-        float? njs,
-        out float gravity,
-        out float noGravity)
+        float halfJumpDuration,
+        bool gravityOverride)
     {
-        float lineYPos = LineYPosForLineLayer(lineLayer);
-        float startLayerLineYPos = LineYPosForLineLayer(startLineLayer);
-
-        float highestJump = HighestJumpPosYForLineLayer(lineYPos);
-
         // NoteJumpGravityForLineLayer
-        float num = (jumpDistance / (njs ?? _movementData.noteJumpMovementSpeed)) * 0.5f;
-        num = 2 / (num * num);
-        gravity = GetJumpGravity(startLayerLineYPos);
-        noGravity = GetJumpGravity(lineYPos);
-        return;
-
-        float GetJumpGravity(float gravityLineYPos)
-        {
-            return (highestJump - gravityLineYPos) * num;
-        }
+        float gravityBase = HighestJumpPosYForLineLayer(lineLayer) -
+                            (gravityOverride ? LineYPosForLineLayer(lineLayer) : LineYPosForLineLayer(startLineLayer));
+        return 2f * gravityBase / (halfJumpDuration * halfJumpDuration);
     }
 #endif
 }
