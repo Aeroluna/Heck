@@ -106,8 +106,11 @@ internal class NoteInitNoodlifier : IAffinity, IDisposable
         Vector3 moveStartPos = noteSpawnData.moveStartOffset;
         Vector3 moveEndPos = noteSpawnData.moveEndOffset;
         Vector3 jumpEndPos = noteSpawnData.jumpEndOffset;
-        float jumpDuration = ____noteMovement._variableMovementDataProvider.jumpDuration;
-        float jumpGravity = noteSpawnData.gravityBase;
+        float jumpGravity =
+            ____noteMovement._variableMovementDataProvider.CalculateCurrentNoteJumpGravity(noteSpawnData.gravityBase);
+        float halfJumpDuration = ____noteMovement._variableMovementDataProvider.halfJumpDuration;
+#else
+        float halfJumpDuration = jumpDuration * 0.5f;
 #endif
 
         // how fucking long has _zOffset existed???!??
@@ -123,9 +126,8 @@ internal class NoteInitNoodlifier : IAffinity, IDisposable
         noodleData.InternalWorldRotation = __instance.worldRotation;
         noodleData.InternalLocalRotation = localRotation;
 
-        float num2 = jumpDuration * 0.5f;
-        float startVerticalVelocity = jumpGravity * num2;
-        float yOffset = (startVerticalVelocity * num2) - (jumpGravity * num2 * num2 * 0.5f);
+        float startVerticalVelocity = jumpGravity * halfJumpDuration;
+        float yOffset = (startVerticalVelocity * halfJumpDuration) - (jumpGravity * halfJumpDuration * halfJumpDuration * 0.5f);
         noodleData.InternalNoteOffset = new Vector3(jumpEndPos.x, moveEndPos.y + yOffset, 0);
     }
 
