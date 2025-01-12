@@ -1,4 +1,5 @@
 #if V1_37_1
+using BeatSaber.GameSettings;
 using BeatSaber.PerformancePresets;
 using BGLib.JsonExtension;
 using Heck.SettingsSetter;
@@ -9,6 +10,13 @@ namespace Heck.HarmonyPatches;
 
 internal class PerformancePresetOverride : IAffinity
 {
+    private readonly GraphicSettingsHandler _graphicSettingsHandler;
+
+    private PerformancePresetOverride(GraphicSettingsHandler graphicSettingsHandler)
+    {
+        _graphicSettingsHandler = graphicSettingsHandler;
+    }
+
     internal SettingsSetterViewController.SettableMainSettings? SettingsOverride { get; set; }
 
     [AffinityPrefix]
@@ -32,6 +40,7 @@ internal class PerformancePresetOverride : IAffinity
             SettingsOverride.ScreenDisplacementEffectsEnabled;
         customPerformancePreset.maxShockwaveParticles = SettingsOverride.MaxShockwaveParticles;
         preset = customPerformancePreset;
+        _graphicSettingsHandler._currentPreset = customPerformancePreset;
         SettingsOverride = null;
     }
 }

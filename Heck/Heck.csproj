@@ -29,7 +29,7 @@
     <Reference Include="0Harmony" HintPath="$(BeatSaberDir)\Libs\0Harmony.dll"/>
     <Reference Include="AdditionalContentModel.Interfaces" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\AdditionalContentModel.Interfaces.dll"/>
     <Reference Include="BeatmapCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll"/>
-    <Reference Include="BeatSaber.GameSettings" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.GameSettings.dll"/>
+    <Reference Include="BeatSaber.GameSettings" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.GameSettings.dll" Publicize="true"/>
     <Reference Include="BeatSaber.PerformancePresets" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.PerformancePresets.dll"/>
     <Reference Include="BeatSaber.Settings" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.Settings.dll"/>
     <Reference Include="BeatSaber.ViewSystem" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll" Publicize="true"/>
