@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 using Heck;
 using UnityEngine;
@@ -14,12 +15,29 @@ internal class InitializedSpawnMovementData
         BeatmapObjectSpawnController.InitData initData,
         IJumpOffsetYProvider jumpOffsetYProvider,
 #if LATEST
-        BeatmapObjectSpawnController spawnController)
+        BeatmapObjectSpawnController spawnController,
+        IReadonlyBeatmapData beatmapData,
+        IVariableMovementDataProvider variableMovementDataProvider)
     {
-        spawnController.beatmapObjectSpawnMovementData.Init(
+        BeatmapObjectSpawnMovementData beatmapObjectSpawnMovementData = spawnController.beatmapObjectSpawnMovementData;
+        beatmapObjectSpawnMovementData.Init(
             initData.noteLinesCount,
             jumpOffsetYProvider,
             Vector3.right);
+
+        float minRelativeNoteJumpSpeed = beatmapData
+            .GetBeatmapDataItems<NoteJumpSpeedEventData>(0)
+            .Aggregate(0.0f, (current, beatmapDataItem) => Mathf.Min(current, beatmapDataItem.relativeNoteJumpSpeed));
+        variableMovementDataProvider.Init(
+            beatmapObjectSpawnMovementData.startHalfJumpDurationInBeats,
+            beatmapObjectSpawnMovementData.maxHalfJumpDistance,
+            initData.noteJumpMovementSpeed,
+            minRelativeNoteJumpSpeed,
+            initData.beatsPerMinute,
+            initData.noteJumpValueType,
+            initData.noteJumpValue,
+            beatmapObjectSpawnMovementData.centerPos,
+            Vector3.forward);
 #else
         IBeatmapObjectSpawnController spawnController)
     {
@@ -48,7 +66,16 @@ internal class InitializedSpawnMovementData
              */
             .Start()
 #if LATEST
-            .RemoveInstructions(9)
+            /*
+             *
+             * -- float num = 0f;
+             * -- foreach (NoteJumpSpeedEventData noteJumpSpeedEventData in this._beatmapData.GetBeatmapDataItems<NoteJumpSpeedEventData>(0))
+             * -- {
+             * --     num = Mathf.Min(num, noteJumpSpeedEventData.relativeNoteJumpSpeed);
+             * -- }
+             * -- this._variableMovementDataProvider.Init(this._beatmapObjectSpawnMovementData.startHalfJumpDurationInBeats, this._beatmapObjectSpawnMovementData.maxHalfJumpDistance, this._initData.noteJumpMovementSpeed, num, this._initData.beatsPerMinute, this._initData.noteJumpValueType, this._initData.noteJumpValue, this._beatmapObjectSpawnMovementData.centerPos, Vector3.forward);
+             */
+            .RemoveInstructions(61)
 #else
             .RemoveInstructions(22)
 #endif
