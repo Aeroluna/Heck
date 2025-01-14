@@ -196,7 +196,11 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldfld, _worldRotationField),
                 new CodeInstruction(OpCodes.Call, _invertQuaternion))
+#if V1_39_1
+            .RemoveInstructionsWithOffsets(-7, -1)
+#else
             .RemoveInstructionsWithOffsets(-5, -1)
+#endif
 #endif
 
             // width
