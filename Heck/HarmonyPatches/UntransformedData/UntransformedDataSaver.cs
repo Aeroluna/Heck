@@ -30,14 +30,14 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
             original.playerSpecificSettings,
             original.practiceSettings,
             original.useTestNoteCutSoundEffects,
-#if LATEST
+#if !PRE_V1_39_1
             original.targetEnvironmentInfo,
             original.originalEnvironmentInfo,
 #else
             original.environmentInfo,
 #endif
             original.colorScheme,
-#if LATEST
+#if !PRE_V1_39_1
             original._settingsManager,
 #elif V1_37_1
             original._performancePreset,
@@ -47,7 +47,7 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
             original._beatmapLevelsEntitlementModel,
             original._enableBeatmapDataCaching,
             original._allowNullBeatmapLevelData,
-#if LATEST
+#if !PRE_V1_39_1
             original.environmentsListModel,
 #endif
             original.recordingToolData)

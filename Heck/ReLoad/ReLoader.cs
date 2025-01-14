@@ -209,7 +209,7 @@ public class ReLoader : ITickable
         BeatmapKey beatmapKey = _gameplayCoreSceneSetupData.beatmapKey;
         float beatsPerMinute = beatmapLevel.beatsPerMinute;
         EnvironmentName environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
-#if LATEST
+#if !PRE_V1_39_1
         EnvironmentInfoSO targetEnvironmentInfo = _gameplayCoreSceneSetupData.targetEnvironmentInfo;
 #else
         EnvironmentInfoSO targetEnvironmentInfo = _gameplayCoreSceneSetupData.environmentInfo;
@@ -221,7 +221,7 @@ public class ReLoader : ITickable
                 beatsPerMinute,
                 environmentName == targetEnvironmentInfo.serializedName,
                 targetEnvironmentInfo,
-#if LATEST
+#if !PRE_V1_39_1
                 _gameplayCoreSceneSetupData.originalEnvironmentInfo,
 #endif
                 BeatmapLevelDataVersion.Original,

@@ -19,7 +19,7 @@ internal class MaterialsManager : IDisposable
 {
     private static readonly int _metallicPropertyID = Shader.PropertyToID("_Metallic");
 
-#if LATEST
+#if !PRE_V1_39_1
     private static readonly string[] _extraStandardKeywords =
         ["MULTIPLY_REFLECTIONS", "FOG", "DIFFUSE", "REFLECTION_PROBE_BOX_PROJECTION"];
 #endif
@@ -143,7 +143,7 @@ internal class MaterialsManager : IDisposable
 
         if (shaderKeywords != null)
         {
-#if LATEST
+#if !PRE_V1_39_1
             // stupid janky fix to the fact that they changed simplelit shader in 1.38
             material.shaderKeywords = shaderType == ShaderType.Standard
                 ? shaderKeywords

@@ -51,7 +51,7 @@ internal class PlayerTransformsNoodlePatch : IAffinity
         ____leftHandPseudoLocalPos = _noodlePlayerTransformManager.LeftHand.InverseTransformPoint(____leftHandTransform.position);
         ____leftHandPseudoLocalRot = _noodlePlayerTransformManager.LeftHand.InverseTransformRotation(____leftHandTransform.rotation);
 
-        #if LATEST
+#if LATEST
         if (____beatmapKey != null && ____beatmapKey.Value.beatmapCharacteristic.containsRotationEvents)
         {
             return false;
@@ -59,7 +59,7 @@ internal class PlayerTransformsNoodlePatch : IAffinity
 
         ____headPseudLocalZOnlyPos = HeadOffsetZ(____headPseudoLocalPos, ____originParentTransform) * _parentTransform!.forward;
 
-        #endif
+#endif
 
         return false;
     }

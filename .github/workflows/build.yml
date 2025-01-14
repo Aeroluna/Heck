@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         project-path: [ Heck/Heck.csproj, NoodleExtensions/NoodleExtensions.csproj, Chroma/Chroma.csproj ]
-        game-version: [ 1.29.1, 1.34.2, 1.37.1, 1.40.0 ]
+        game-version: [ 1.29.1, 1.34.2, 1.37.1, 1.39.1, 1.40.0 ]
     uses: Aeroluna/workflows/.github/workflows/bs-build-version-release.yml@main
     with:
       project-path: ${{ matrix.project-path }}

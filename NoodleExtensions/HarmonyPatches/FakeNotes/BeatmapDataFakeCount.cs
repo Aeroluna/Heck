@@ -42,7 +42,7 @@ internal static class BeatmapDataFakeCount
         __result = new BeatmapDataBasicInfo(
             4,
             count,
-#if LATEST
+#if !PRE_V1_39_1
             count,
 #endif
             count2,
