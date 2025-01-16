@@ -222,7 +222,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                 CustomData? jsonEnvironments = settings.Get<CustomData>("_environments");
                 if (jsonEnvironments != null)
                 {
-                    OverrideEnvironmentSettings environmentOverrideSettings;
+                    OverrideEnvironmentSettings? environmentOverrideSettings;
                     if (_isMultiplayer)
                     {
                         _cachedOverrideEnvironmentSettings = _playerDataModel.playerData.overrideEnvironmentSettings;
@@ -230,36 +230,39 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                     }
                     else
                     {
-                        environmentOverrideSettings = startParameters.OverrideEnvironmentSettings!;
+                        environmentOverrideSettings = startParameters.OverrideEnvironmentSettings;
                     }
 
-                    Dictionary<string, object> settableEnvironmentSetting =
-                        SettingSetterSettableSettingsManager.SettingsTable["_environments"].First();
-                    string settingName = (string)settableEnvironmentSetting["_name"];
-                    string fieldName = (string)settableEnvironmentSetting["_fieldName"];
-                    bool activeValue = environmentOverrideSettings.overrideEnvironments;
-                    bool? json = jsonEnvironments.Get<bool>(fieldName);
-
-                    if (json != activeValue)
+                    if (environmentOverrideSettings != null)
                     {
-                        _contents.Add(new ListObject($"[Environments] {settingName}", $"{activeValue} -> {json}"));
+                        Dictionary<string, object> settableEnvironmentSetting =
+                            SettingSetterSettableSettingsManager.SettingsTable["_environments"].First();
+                        string settingName = (string)settableEnvironmentSetting["_name"];
+                        string fieldName = (string)settableEnvironmentSetting["_fieldName"];
+                        bool activeValue = environmentOverrideSettings.overrideEnvironments;
+                        bool? json = jsonEnvironments.Get<bool>(fieldName);
 
-                        // copy fields from original overrideenvironmentsettings to our new copy
-                        OverrideEnvironmentSettings modifiedOverrideEnvironmentSettings = new();
-                        modifiedOverrideEnvironmentSettings.SetField("_data", environmentOverrideSettings._data);
-
-                        modifiedOverrideEnvironmentSettings.overrideEnvironments = json.Value;
-
-                        if (_isMultiplayer)
+                        if (json != activeValue)
                         {
-                            // must be set directly for multiplayer
-                            _playerDataModel.playerData.SetProperty(
-                                "overrideEnvironmentSettings",
-                                modifiedOverrideEnvironmentSettings);
-                        }
-                        else
-                        {
-                            _modifiedParameters.OverrideEnvironmentSettings = modifiedOverrideEnvironmentSettings;
+                            _contents.Add(new ListObject($"[Environments] {settingName}", $"{activeValue} -> {json}"));
+
+                            // copy fields from original overrideenvironmentsettings to our new copy
+                            OverrideEnvironmentSettings modifiedOverrideEnvironmentSettings = new();
+                            modifiedOverrideEnvironmentSettings.SetField("_data", environmentOverrideSettings._data);
+
+                            modifiedOverrideEnvironmentSettings.overrideEnvironments = json.Value;
+
+                            if (_isMultiplayer)
+                            {
+                                // must be set directly for multiplayer
+                                _playerDataModel.playerData.SetProperty(
+                                    "overrideEnvironmentSettings",
+                                    modifiedOverrideEnvironmentSettings);
+                            }
+                            else
+                            {
+                                _modifiedParameters.OverrideEnvironmentSettings = modifiedOverrideEnvironmentSettings;
+                            }
                         }
                     }
                 }
