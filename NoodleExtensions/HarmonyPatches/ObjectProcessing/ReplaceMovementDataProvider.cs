@@ -1,5 +1,6 @@
 #if LATEST
 using IPA.Utilities;
+using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
 
 namespace NoodleExtensions.HarmonyPatches.ObjectProcessing;
@@ -30,6 +31,11 @@ internal class ReplaceMovementDataProvider : IAffinity
         _noteWaitingMovementDataProvider =
             FieldAccessor<NoteWaiting, IVariableMovementDataProvider>.GetAccessor(
                 nameof(NoteWaiting._variableMovementDataProvider));
+
+    private static readonly FieldAccessor<BurstSliderGameNoteController, IVariableMovementDataProvider>.Accessor
+        _burstSliderMovementDataProvider =
+            FieldAccessor<BurstSliderGameNoteController, IVariableMovementDataProvider>.GetAccessor(
+                nameof(BurstSliderGameNoteController._variableMovementDataProvider));
 
     private static readonly FieldAccessor<SliderController, IVariableMovementDataProvider>.Accessor
         _sliderControllerMovementDataProvider =
@@ -69,6 +75,11 @@ internal class ReplaceMovementDataProvider : IAffinity
         _noteFloorMovementMovementDataProvider(ref noteFloorMovement) = newProvider;
         _noteJumpMovementDataProvider(ref noteJump) = newProvider;
         _noteWaitingMovementDataProvider(ref noteWaiting) = newProvider;
+
+        if (__instance is BurstSliderGameNoteController burstSliderGameNoteController)
+        {
+            _burstSliderMovementDataProvider(ref burstSliderGameNoteController) = newProvider;
+        }
     }
 
     [AffinityPrefix]

@@ -5,7 +5,7 @@ using NoodleExtensions.HarmonyPatches.SmallFixes;
 using UnityEngine;
 using Zenject;
 
-namespace NoodleExtensions.HarmonyPatches.ObjectProcessing;
+namespace NoodleExtensions.Managers;
 
 // doesnt actually properly support the njs changing event but idc
 internal class NoodleMovementDataProvider : IVariableMovementDataProvider

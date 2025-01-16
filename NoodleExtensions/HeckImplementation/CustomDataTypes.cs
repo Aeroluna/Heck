@@ -218,6 +218,8 @@ internal class NoodleObjectData : IObjectCustomData
         AnimationObject = original.AnimationObject;
         Uninteractable = original.Uninteractable;
         Fake = original.Fake;
+        Njs = original.Njs;
+        SpawnOffset = original.SpawnOffset;
     }
 
     internal NoodleObjectData(
