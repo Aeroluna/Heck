@@ -460,6 +460,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             _settingsManager.settings.quality.mainEffect =
                 (BeatSaber.Settings.QualitySettings.MainEffectOption)_modifiedMainSettings.MainEffectGraphicsSettings;
             _settingsManager.settings.quality.smokeGraphics = _modifiedMainSettings.SmokeGraphicsSettings;
+            _settingsManager.settings.quality.depthTexture = _modifiedMainSettings.SmokeGraphicsSettings;
             _settingsManager.settings.quality.burnMarkTrails = _modifiedMainSettings.BurnMarkTrailsEnabled;
             _settingsManager.settings.quality.screenDisplacementEffects = _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
             _settingsManager.settings.quality.maxShockwaveParticles = _modifiedMainSettings.MaxShockwaveParticles;

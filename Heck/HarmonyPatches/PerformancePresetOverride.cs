@@ -35,6 +35,7 @@ internal class PerformancePresetOverride : IAffinity
         customPerformancePreset.mainEffectGraphics =
             (MainEffectPreset)SettingsOverride.MainEffectGraphicsSettings;
         customPerformancePreset.smokeGraphics = SettingsOverride.SmokeGraphicsSettings;
+        customPerformancePreset.depthTexture = SettingsOverride.SmokeGraphicsSettings;
         customPerformancePreset.burnMarkTrails = SettingsOverride.BurnMarkTrailsEnabled;
         customPerformancePreset.screenDisplacementEffects =
             SettingsOverride.ScreenDisplacementEffectsEnabled;
