@@ -183,6 +183,11 @@ internal class SaberPlayerMovementFix : IAffinity, IDisposable
             return;
         }
 
+        if (_worldMovementData.ContainsKey(movementData))
+        {
+            return;
+        }
+
         // use world movement data for saber trail
         SaberMovementData world = new();
         _worldMovementData.Add(movementData, world);
