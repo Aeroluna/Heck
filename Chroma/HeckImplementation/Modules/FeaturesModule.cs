@@ -42,8 +42,8 @@ internal class FeaturesModule : IModule
 #endif
         Capabilities capabilities)
     {
-        bool chromaRequirement = capabilities.Requirements.Contains(CAPABILITY) ||
-                                 capabilities.Suggestions.Contains(CAPABILITY);
+        bool suggestion = capabilities.Suggestions.Contains(CAPABILITY);
+        bool requirement = capabilities.Requirements.Contains(CAPABILITY);
         bool customEnvironment = _config.CustomEnvironmentEnabled &&
                                  (_savedEnvironmentLoader.SavedEnvironment?.Features.UseChromaEvents ?? false);
 
@@ -69,7 +69,12 @@ internal class FeaturesModule : IModule
                 "Please do not use Legacy Chroma Lights for new maps as it is deprecated and its functionality in future versions of Chroma cannot be guaranteed");
         }
 
-        return (chromaRequirement ||
+        if (requirement)
+        {
+            return true;
+        }
+
+        return (suggestion ||
                 legacyOverride ||
                 customEnvironment) &&
                !_config.ChromaEventsDisabled;
