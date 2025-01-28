@@ -56,8 +56,8 @@ internal class MaterialsManager : IDisposable
         SavedEnvironmentLoader savedEnvironmentLoader,
         Config config)
     {
-        CustomBeatmapData beatmapData = (CustomBeatmapData)readonlyBeatmap;
-        _v2 = beatmapData.version.IsVersion2();
+        CustomBeatmapData? beatmapData = readonlyBeatmap as CustomBeatmapData;
+        _v2 = beatmapData?.version.IsVersion2() ?? false;
         _environmentMaterialsManager = environmentMaterialsManager;
         _beatmapTracks = beatmapTracks;
         _materialColorAnimator = materialColorAnimator;
@@ -65,7 +65,7 @@ internal class MaterialsManager : IDisposable
         CustomData? materialsData = null;
         if (!config.EnvironmentEnhancementsDisabled)
         {
-            materialsData = beatmapData.customData.Get<CustomData>(_v2 ? V2_MATERIALS : MATERIALS);
+            materialsData = beatmapData?.customData.Get<CustomData>(_v2 ? V2_MATERIALS : MATERIALS);
         }
 
         if (materialsData == null && config.CustomEnvironmentEnabled)

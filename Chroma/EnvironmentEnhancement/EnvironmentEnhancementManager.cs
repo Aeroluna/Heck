@@ -33,7 +33,7 @@ internal enum LookupMethod
 
 internal class EnvironmentEnhancementManager : IAffinity
 {
-    private readonly CustomBeatmapData _beatmapData;
+    private readonly CustomBeatmapData? _beatmapData;
 #if PRE_V1_37_1
     private readonly BeatmapObjectsAvoidanceTransformOverride _beatmapObjectsAvoidanceTransformOverride;
 #endif
@@ -68,7 +68,7 @@ internal class EnvironmentEnhancementManager : IAffinity
         SavedEnvironmentLoader savedEnvironmentLoader,
         EnvironmentOverrideChecker environmentOverrideChecker)
     {
-        _beatmapData = (CustomBeatmapData)beatmapData;
+        _beatmapData = beatmapData as CustomBeatmapData;
         _log = log;
         _tracks = tracks;
         _leftHanded = leftHanded;
@@ -107,12 +107,17 @@ internal class EnvironmentEnhancementManager : IAffinity
             gradientBackground.SetActive(false);
         }
 
-        bool v2 = _beatmapData.version.IsVersion2();
+        bool v2 = _beatmapData?.version.IsVersion2() ?? false;
         IEnumerable<CustomData>? environmentData = null;
 
         switch (_environmentOverrideChecker.LoadedEnvironment)
         {
             case LoadedEnvironmentType.MapOverride:
+                if (_beatmapData == null)
+                {
+                    break;
+                }
+
                 environmentData = _beatmapData
                     .customData.Get<List<object>>(v2 ? V2_ENVIRONMENT : ENVIRONMENT)
                     ?.Cast<CustomData>();
@@ -141,9 +146,6 @@ internal class EnvironmentEnhancementManager : IAffinity
                 environmentData = _savedEnvironmentLoader.SavedEnvironment?.Environment;
 
                 break;
-
-            default:
-                yield break;
         }
 
         if (environmentData == null)
