@@ -21,5 +21,6 @@ internal class HeckMenuInstaller : Installer
         Container.BindInterfacesAndSelfTo<PlayViewManager>().AsSingle();
         Container.BindInterfacesTo<SettingsSetterViewController>().FromNewComponentAsViewController().AsSingle();
         Container.BindInterfacesTo<PlayViewInterrupter>().AsSingle();
+        Container.BindInterfacesAndSelfTo<FlowCoordinatorTransitionListener>().AsSingle();
     }
 }

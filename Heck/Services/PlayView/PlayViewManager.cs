@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
+using Heck.HarmonyPatches;
 using HMUI;
 using JetBrains.Annotations;
 using ModestTree;
@@ -26,6 +27,8 @@ public sealed class PlayViewManager : IDisposable
     private FlowCoordinator _flowCoordinator;
     private bool _modifiedParameters;
 
+    private Queue<Action> _transitionFinished = new();
+
     [UsedImplicitly]
     private PlayViewManager(
         [Inject(Optional = true, Source = InjectSources.Local)]
@@ -33,6 +36,7 @@ public sealed class PlayViewManager : IDisposable
         SoloFreePlayFlowCoordinator soloFreePlayFlowCoordinator,
         PartyFreePlayFlowCoordinator partyFreePlayFlowCoordinator,
         GameServerLobbyFlowCoordinator gameServerLobbyFlowCoordinator,
+        FlowCoordinatorTransitionListener flowCoordinatorTransitionListener,
         ILobbyGameStateController lobbyGameStateController,
         MenuTransitionsHelper menuTransitionsHelper)
     {
@@ -53,8 +57,25 @@ public sealed class PlayViewManager : IDisposable
         _soloFreePlayFlowCoordinator = soloFreePlayFlowCoordinator;
         _partyFreePlayFlowCoordinator = partyFreePlayFlowCoordinator;
         _gameServerLobbyFlowCoordinator = gameServerLobbyFlowCoordinator;
+        flowCoordinatorTransitionListener.TransitionFinished += OnTransitionFinished;
         _lobbyGameStateController = (LobbyGameStateController)lobbyGameStateController;
         _menuTransitionsHelper = menuTransitionsHelper;
+    }
+
+    private event Action TransitionFinished
+    {
+        add
+        {
+            if (!_flowCoordinator._isInTransition)
+            {
+                value();
+                return;
+            }
+
+            _transitionFinished.Enqueue(value);
+        }
+
+        remove => _transitionFinished = new Queue<Action>(_transitionFinished.Where(n => n != value));
     }
 
     internal PlayViewControllerData? ActiveView { get; private set; }
@@ -132,7 +153,7 @@ public sealed class PlayViewManager : IDisposable
 
     internal bool StartMultiplayer()
     {
-        Dismiss();
+        TransitionFinished += Dismiss;
 
         foreach (PlayViewControllerData playViewControllerData in _viewControllers)
         {
@@ -179,41 +200,44 @@ public sealed class PlayViewManager : IDisposable
             throw new InvalidOperationException();
         }
 
-        while (_currentIndex < _viewControllers.Length)
+        TransitionFinished += () =>
         {
-            int index = _currentIndex++;
-            PlayViewControllerData viewControllerData = _viewControllers[index];
-            IPlayViewController viewController = viewControllerData.ViewController;
-            if (!_doPresent[index])
+            while (_currentIndex < _viewControllers.Length)
             {
-                continue;
+                int index = _currentIndex++;
+                PlayViewControllerData viewControllerData = _viewControllers[index];
+                IPlayViewController viewController = viewControllerData.ViewController;
+                if (!_doPresent[index])
+                {
+                    continue;
+                }
+
+                bool newView = ActiveView == null;
+                ActiveView = viewControllerData;
+
+                if (newView)
+                {
+                    _flowCoordinator.PresentViewController((ViewController)viewController);
+                }
+                else
+                {
+                    _flowCoordinator.ReplaceTopViewController((ViewController)viewController);
+                }
+
+                _flowCoordinator.SetTitle(viewControllerData.Title);
+
+                viewControllerData.InvokeOnShow();
+
+                return;
             }
 
-            bool newView = ActiveView == null;
-            ActiveView = viewControllerData;
+            Dismiss();
 
-            if (newView)
+            if (_currentParameters is not StartMultiplayerLevelParameters)
             {
-                _flowCoordinator.PresentViewController((ViewController)viewController);
+                StartStandard();
             }
-            else
-            {
-                _flowCoordinator.ReplaceTopViewController((ViewController)viewController);
-            }
-
-            _flowCoordinator.SetTitle(viewControllerData.Title);
-
-            viewControllerData.InvokeOnShow();
-
-            return;
-        }
-
-        Dismiss();
-
-        if (_currentParameters is not StartMultiplayerLevelParameters)
-        {
-            StartStandard();
-        }
+        };
     }
 
     private void Dismiss()
@@ -284,6 +308,19 @@ public sealed class PlayViewManager : IDisposable
 #else
             _currentParameters.LevelRestartedCallback);
 #endif
+    }
+
+    private void OnTransitionFinished(FlowCoordinator flowCoordinator)
+    {
+        if (flowCoordinator != _flowCoordinator)
+        {
+            return;
+        }
+
+        while (!_flowCoordinator._isInTransition && _transitionFinished.Count > 0)
+        {
+            _transitionFinished.Dequeue().Invoke();
+        }
     }
 
     internal class PlayViewControllerData
