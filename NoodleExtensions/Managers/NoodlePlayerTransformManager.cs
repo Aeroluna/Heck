@@ -116,6 +116,12 @@ public class NoodlePlayerTransformManager : IInitializable
         // unparent non-root objects so our script can set their position and afterward apply the room offset
         if (playerTrackObject != PlayerObject.Root)
         {
+            // can be null for inactive players in multiplayer
+            if (_playerTransforms._originParentTransform == null)
+            {
+                _playerTransforms._originParentTransform = _playerTransforms._originTransform.parent;
+            }
+
             origin.SetParent(_playerTransforms._originParentTransform.transform, false);
 
             GameObject roomOffset = new("NoodleRoomOffset");
