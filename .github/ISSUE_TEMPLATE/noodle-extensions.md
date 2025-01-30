@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+A clear and concise description of what the bug is. Be sure to include which game version you are using.
 
 **To Reproduce**
 Steps to reproduce the behavior:
@@ -22,5 +22,5 @@ Steps to reproduce the behavior:
 A clear and concise description of what you expected to happen.
 
 **Additional context**
-Add any other context about the problem here. PLEASE ATTACH YOUR LOG FILE (Beat Saber\Logs\_latest.log) OR YOUR ISSUE
+Add any other context about the problem here. PLEASE ATTACH YOUR LOG FILE (`Beat Saber\Logs\_latest.log`) OR YOUR ISSUE
 MAY NOT BE LOOKED AT.
