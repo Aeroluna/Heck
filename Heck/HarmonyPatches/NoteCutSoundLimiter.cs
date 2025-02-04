@@ -39,6 +39,7 @@ internal class NoteCutSoundLimiter : ITickable, IAffinity
             return;
         }
 
+        _reusableHitSoundQueue.Clear();
         _reusableHitSoundQueue.AllocFreeAddRange(_hitSoundQueue);
         _hitSoundQueue.Clear();
         _reusableHitSoundQueue.ForEach(_noteCutSoundEffectManager.HandleNoteWasSpawned);
