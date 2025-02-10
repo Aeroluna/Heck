@@ -164,8 +164,13 @@ internal static class ValuesExtensions
 
         void Close(int open, int end)
         {
+            if (end <= open)
+            {
+                return;
+            }
+
             result.Add(
-                new StaticValues(rawValues.Skip(open).Take(end).Select(Convert.ToSingle).ToArray()));
+                new StaticValues(rawValues.Skip(open).Take(end - open).Select(Convert.ToSingle).ToArray()));
         }
     }
 }
