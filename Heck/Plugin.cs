@@ -19,6 +19,9 @@ namespace Heck;
 [Plugin(RuntimeOptions.DynamicInit)]
 internal class Plugin
 {
+    // i should really change this at some point
+    private const string LAUNCH_ARGUMENT = "-aerolunaisthebestmodder";
+
     [UsedImplicitly]
     [Init]
     public Plugin(Logger pluginLogger, IPA.Config.Config conf, Zenjector zenjector)
@@ -26,10 +29,10 @@ internal class Plugin
         Log = pluginLogger;
 
         string[] arguments = Environment.GetCommandLineArgs();
-        if (arguments.Any(arg => arg.Equals("-aerolunaisthebestmodder", StringComparison.CurrentCultureIgnoreCase)))
+        if (arguments.Any(arg => arg.Equals(LAUNCH_ARGUMENT, StringComparison.CurrentCultureIgnoreCase)))
         {
             DebugMode = true;
-            pluginLogger.Debug("[-aerolunaisthebestmodder] launch argument detected, running in Debug mode");
+            pluginLogger.Debug($"[{LAUNCH_ARGUMENT}] launch argument detected, running in Debug mode");
         }
 
         SettingSetterSettableSettingsManager.SetupSettingsTable();
