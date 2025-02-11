@@ -136,7 +136,7 @@ internal class NoteUpdateNoodlifier : IAffinity
 
         if (scaleOffset.HasValue)
         {
-            transform.localScale = scaleOffset.Value;
+            transform.localScale = Vector3.Scale(noodleData.InternalScale, scaleOffset.Value);
         }
 
         if (dissolve.HasValue)

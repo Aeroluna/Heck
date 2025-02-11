@@ -323,6 +323,8 @@ internal class NoodleObjectData : IObjectCustomData
 
     internal Quaternion InternalLocalRotation { get; set; }
 
+    internal Vector3 InternalScale { get; set; }
+
     internal Vector3 InternalMidPos { get; set; }
 
     internal Vector3 InternalNoteOffset { get; set; }

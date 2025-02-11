@@ -125,7 +125,11 @@ internal class SliderInitNoodlifier : IAffinity, IDisposable
             }
         }
 
-        transform.localScale = Vector3.one;
+        Vector3 scale = (noodleData.ScaleX != null || noodleData.ScaleY != null || noodleData.ScaleZ != null)
+            ? new Vector3(noodleData.ScaleX ?? 1, noodleData.ScaleY ?? 1, noodleData.ScaleZ ?? 1)
+            : Vector3.one;
+        transform.localScale = scale;
+        noodleData.InternalScale = scale;
 
 #if !LATEST
         noodleData.InternalStartPos = headNoteJumpStartPos;

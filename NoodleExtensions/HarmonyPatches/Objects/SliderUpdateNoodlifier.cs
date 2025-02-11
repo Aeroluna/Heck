@@ -168,8 +168,8 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
 
         if (_noodleData != null)
         {
-            IReadOnlyList<Track>? tracks = _noodleData?.Track;
-            NoodleObjectData.AnimationObjectData? animationObject = _noodleData?.AnimationObject;
+            IReadOnlyList<Track>? tracks = _noodleData.Track;
+            NoodleObjectData.AnimationObjectData? animationObject = _noodleData.AnimationObject;
             if (tracks != null || animationObject != null)
             {
                 normalizedTime = Math.Max(normalizedTime, 0);
@@ -187,7 +187,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
 
                 if (rotationOffset.HasValue || localRotationOffset.HasValue)
                 {
-                    Quaternion noodleWorldRotation = _noodleData!.InternalWorldRotation;
+                    Quaternion noodleWorldRotation = _noodleData.InternalWorldRotation;
                     Quaternion localRotation = _noodleData.InternalLocalRotation;
 
                     Quaternion worldRotationQuatnerion = noodleWorldRotation;
@@ -212,7 +212,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
 
                 if (scaleOffset.HasValue)
                 {
-                    transform.localScale = scaleOffset.Value;
+                    transform.localScale = Vector3.Scale(_noodleData.InternalScale, scaleOffset.Value);
                 }
 
                 if (dissolve.HasValue)

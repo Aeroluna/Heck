@@ -141,6 +141,7 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
             ? new Vector3(noodleData.ScaleX ?? 1, noodleData.ScaleY ?? 1, noodleData.ScaleZ ?? 1)
             : Vector3.one;
         transform.localScale = scale;
+        noodleData.InternalScale = scale;
 
         if (noodleData is { Uninteractable: true })
         {
