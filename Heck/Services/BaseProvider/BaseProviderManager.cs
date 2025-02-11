@@ -95,7 +95,7 @@ internal class BaseProviderManager : ITickable
             {
                 if (split.StartsWith("s"))
                 {
-                    float mult = float.Parse(split.Substring(1).Replace('-', '.'));
+                    float mult = float.Parse(split.Substring(1).Replace('_', '.'));
                     updateableValues = result is IRotationValues rotationValues
                         ? new SmoothRotationProvidersValues(rotationValues, mult)
                         : new SmoothProvidersValues(result.Values, mult);
