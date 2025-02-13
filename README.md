@@ -9,13 +9,13 @@ around mid-flight, creating fake notes, and even coloring bombs, all on a pre-pr
 be installed by a user and will activate on a map that requires these mods. Combining these mods in one map culminates
 into something called a [modhcart](https://youtu.be/5xA3iR5v-Rk) (C18H27NO3 - Mapped by Mawntee).
 
-Join the Discord here: https://discord.gg/rrZf3kapeh
+Join the Discord here: [https://discord.gg/rrZf3kapeh](https://discord.gg/rrZf3kapeh)
 
 ## Documentation
 
-For any mappers interested in using any of these mods, please visit the wiki at https://github.com/Aeroluna/Heck/wiki
+For any mappers interested in using any of these mods, please visit the wiki at [https://heck.aeroluna.dev/](https://heck.aeroluna.dev/)
 
-The wiki is NOT a tutorial for mapping, json editting, or scripting. Instead, it lists all the features within all of
+The wiki is NOT a tutorial for mapping, json editing, or scripting. Instead, it lists all the features within all of
 the mods and their respective syntax.
 
 ## Capabilities
@@ -52,13 +52,13 @@ can only fix bugs that I know about.
 
 Reporting a bug? Please Do not DM me on discord! Open an issue in the issue tracker. This makes it far easier to keep
 track of your bug and if you DM me, I'll probably forget (opening an issue pings me on discord anyways). Need to contact
-me for any other reason? Reach me at Aeroluna#0001
+me for any other reason? Reach me at `aeroluna`
 
-https://github.com/Aeroluna/Heck/issues
+[https://github.com/Aeroluna/Heck/issues](https://github.com/Aeroluna/Heck/issues)
 
 Be sure to include a log file when applicable!
 
 ## Supporting
 
 I (Aeroluna) am the sole maintainer of all these mods. If you enjoy any of them, please support me over
-at https://ko-fi.com/aeroluna as it is all very much appreciated!
+at my [Ko-Fi](https://ko-fi.com/aeroluna) as it is all very much appreciated!
