@@ -28,7 +28,7 @@ public class QuaternionPointDefinition : PointDefinition<Quaternion>
         Quaternion? value;
         Vector3? vectorPoint;
         IValues[]? result;
-        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE } staticValues)
+        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE + 1 } staticValues)
         {
             float[] valueValues = staticValues.Values;
             Vector3 vector = new(valueValues[0], valueValues[1], valueValues[2]);
