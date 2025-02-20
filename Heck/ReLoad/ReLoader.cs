@@ -261,7 +261,7 @@ public class ReLoader : ITickable
 
         Reloaded?.Invoke();
 
-        GarbageCollector.GCMode = GarbageCollector.Mode.Manual;
+        GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
         GC.Collect();
 
         if (_pauseMenuManager.enabled)
