@@ -66,8 +66,8 @@ internal class PlayerTransformGetter : ITickable
     public void Tick()
     {
         Transform head = _siraUtilHeadFinder.FpfcHeadTransform ?? _playerTransforms._headTransform;
-        Transform leftHand = _playerTransforms._leftHandTransform;
-        Transform rightHand = _playerTransforms._rightHandTransform;
+        Transform leftHand = _playerTransforms._leftHandTransform.parent;
+        Transform rightHand = _playerTransforms._rightHandTransform.parent;
         Vector3ToValues(_playerTransformBaseProvider.HeadLocalPosition, head.localPosition);
         Vector3ToValues(_playerTransformBaseProvider.LeftHandLocalPosition, leftHand.localPosition);
         Vector3ToValues(_playerTransformBaseProvider.RightHandLocalPosition, rightHand.localPosition);
