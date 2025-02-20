@@ -19,11 +19,6 @@ internal class MaterialsManager : IDisposable
 {
     private static readonly int _metallicPropertyID = Shader.PropertyToID("_Metallic");
 
-#if !PRE_V1_39_1
-    private static readonly string[] _extraStandardKeywords =
-        ["MULTIPLY_REFLECTIONS", "FOG", "DIFFUSE", "REFLECTION_PROBE_BOX_PROJECTION"];
-#endif
-
 #if !PRE_V1_37_1
     private static readonly Shader[] _allShaders = Resources.FindObjectsOfTypeAll<Shader>();
 #endif
@@ -34,6 +29,7 @@ internal class MaterialsManager : IDisposable
 #if PRE_V1_37_1
     private static readonly Material _baseWaterMaterial = InstantiateSharedMaterial(ShaderType.BaseWater);
 #endif
+    private static readonly Material _glowingMaterial = InstantiateSharedMaterial(ShaderType.Glowing);
 
     private readonly HashSet<Material> _createdMaterials = [];
     private readonly Dictionary<string, MaterialInfo> _materialInfos = new();
@@ -130,10 +126,24 @@ internal class MaterialsManager : IDisposable
 #else
             ShaderType.BaseWater => _baseWaterMaterial,
 #endif
+            ShaderType.Glowing => _glowingMaterial,
             _ => _environmentMaterialsManager.EnvironmentMaterials.TryGetValue(shaderType, out Material foundMat)
                 ? foundMat
                 : throw new InvalidOperationException()
         };
+
+#if !PRE_V1_39_1
+        // credit to @Provini for the idea of using Custom/Glowing
+        // https://github.com/Aeroluna/Heck/issues/125#issuecomment-2661311783
+        // stupid janky fix to the fact that they changed simplelit shader in 1.38
+        if (shaderType is ShaderType.Standard or ShaderType.BTSPillar && shaderKeywords is { Length: 0 })
+        {
+            shaderKeywords = null;
+            color = color?.ColorWithAlpha(0);
+            originalMaterial = _glowingMaterial;
+        }
+#endif
+
         Material material = Object.Instantiate(originalMaterial);
         _createdMaterials.Add(material);
         if (color != null)
@@ -143,16 +153,7 @@ internal class MaterialsManager : IDisposable
 
         if (shaderKeywords != null)
         {
-#if !PRE_V1_39_1
-            // stupid janky fix to the fact that they changed simplelit shader in 1.38
-            material.shaderKeywords = shaderType == ShaderType.Standard
-                ? shaderKeywords
-                    .Concat(_extraStandardKeywords)
-                    .ToArray()
-                : shaderKeywords;
-#else
             material.shaderKeywords = shaderKeywords;
-#endif
         }
 
         MaterialInfo materialInfo = new(shaderType, material, track);
@@ -173,6 +174,7 @@ internal class MaterialsManager : IDisposable
 #if PRE_V1_37_1
             ShaderType.BaseWater => "Custom/WaterLit",
 #endif
+            ShaderType.Glowing => "Custom/Glowing",
             _ => "Custom/SimpleLit"
         };
 #if !PRE_V1_37_1
@@ -187,7 +189,7 @@ internal class MaterialsManager : IDisposable
     {
         Material material = new(shader)
         {
-            globalIlluminationFlags = GeometryFactory.IsLightType(shaderType)
+            globalIlluminationFlags = shaderType.IsLightType()
                 ? MaterialGlobalIlluminationFlags.EmissiveIsBlack
                 : MaterialGlobalIlluminationFlags.RealtimeEmissive,
             enableInstancing = true,
@@ -238,24 +240,5 @@ internal class MaterialsManager : IDisposable
         }
 
         return material;
-    }
-
-    internal readonly struct MaterialInfo
-    {
-        internal MaterialInfo(
-            ShaderType shaderType,
-            Material material,
-            List<Track>? track)
-        {
-            ShaderType = shaderType;
-            Material = material;
-            Track = track;
-        }
-
-        internal ShaderType ShaderType { get; }
-
-        internal Material Material { get; }
-
-        internal List<Track>? Track { get; }
     }
 }

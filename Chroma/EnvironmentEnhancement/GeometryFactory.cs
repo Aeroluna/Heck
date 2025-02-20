@@ -14,33 +14,6 @@ using Object = UnityEngine.Object;
 
 namespace Chroma.EnvironmentEnhancement;
 
-// ReSharper disable UnusedMember.Global
-internal enum GeometryType
-{
-    Sphere,
-    Capsule,
-    Cylinder,
-    Cube,
-    Plane,
-    Quad,
-    Triangle
-}
-
-// ReSharper disable once InconsistentNaming
-internal enum ShaderType
-{
-    Standard,
-    OpaqueLight,
-    TransparentLight,
-    BaseWater,
-    BillieWater,
-    BTSPillar,
-    InterscopeConcrete,
-    InterscopeCar,
-    Obstacle,
-    WaterfallMirror
-}
-
 internal class GeometryFactory
 {
     private readonly IInstantiator _instantiator;
@@ -65,11 +38,6 @@ internal class GeometryFactory
         _parametricBoxControllerTransformOverride = parametricBoxControllerTransformOverride;
     }
 
-    internal static bool IsLightType(ShaderType shaderType)
-    {
-        return shaderType is ShaderType.OpaqueLight or ShaderType.TransparentLight or ShaderType.BillieWater;
-    }
-
     internal GameObject Create(CustomData customData, bool v2)
     {
         GeometryType geometryType =
@@ -77,7 +45,7 @@ internal class GeometryFactory
         bool collision = customData.Get<bool?>(v2 ? V2_COLLISION : COLLISION) ?? false;
 
         object materialData = customData.GetRequired<object>(v2 ? V2_MATERIAL : MATERIAL);
-        MaterialsManager.MaterialInfo materialInfo = materialData switch
+        MaterialInfo materialInfo = materialData switch
         {
             string name => _materialsManager.GetMaterialInfo(name),
             CustomData data => _materialsManager.CreateMaterialInfo(data),
@@ -132,7 +100,7 @@ internal class GeometryFactory
         }
 
         // Handle light preset
-        if (!IsLightType(shaderType))
+        if (!shaderType.IsLightType())
         {
             return gameObject;
         }

@@ -3,7 +3,6 @@ using Chroma.Animation;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
-using static Chroma.EnvironmentEnhancement.MaterialsManager;
 
 namespace Chroma.EnvironmentEnhancement;
 
@@ -17,10 +16,18 @@ internal class MaterialColorAnimator : ITickable
         foreach (MaterialInfo materialInfo in _activeMaterials)
         {
             AnimationHelper.GetColorOffset(null, materialInfo.Track, 0, out Color? color);
-            if (color.HasValue)
+            if (!color.HasValue)
             {
-                materialInfo.Material.color = color.Value;
+                continue;
             }
+
+#if !PRE_V1_39_1
+            if (materialInfo.ShaderType is ShaderType.Standard or ShaderType.BTSPillar)
+            {
+                color = color.Value.ColorWithAlpha(0);
+            }
+#endif
+            materialInfo.Material.color = color.Value;
         }
     }
 
