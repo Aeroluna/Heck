@@ -57,7 +57,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
 
     private readonly AnimationHelper _animationHelper;
     private readonly CutoutManager _cutoutManager;
-    private readonly BeatmapCallbacksController _beatmapCallbacksController;
+    private readonly IAudioTimeSource _audioTimeSource;
     private readonly DeserializedData _deserializedData;
 
 #if !LATEST
@@ -75,12 +75,12 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
 #if !LATEST
         PlayerTransforms playerTransforms,
 #endif
-        BeatmapCallbacksController beatmapCallbacksController)
+        IAudioTimeSource audioTimeSource)
     {
         _deserializedData = deserializedData;
         _animationHelper = animationHelper;
         _cutoutManager = cutoutManager;
-        _beatmapCallbacksController = beatmapCallbacksController;
+        _audioTimeSource = audioTimeSource;
 #if !LATEST
         _playerTransforms = playerTransforms;
 #endif
@@ -154,7 +154,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
         }
         else
         {
-            float songTime = _beatmapCallbacksController.songTime;
+            float songTime = _audioTimeSource.songTime;
             timeSinceHeadNoteJump = songTime - (headNoteTime - halfJumpDuration);
             normalizedTime = timeSinceHeadNoteJump / duration;
             timeSinceTailNoteJump = songTime - (tailNoteTime - halfJumpDuration);

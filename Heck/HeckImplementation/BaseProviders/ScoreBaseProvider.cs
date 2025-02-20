@@ -38,7 +38,7 @@ internal class ScoreGetter : ITickable, IDisposable
     private readonly RelativeScoreAndImmediateRankCounter _relativeScoreAndImmediateRankCounter;
     private readonly IGameEnergyCounter _gameEnergyCounter;
     private readonly SongController _songController;
-    private readonly BeatmapCallbacksController _beatmapCallbacksController;
+    private readonly IAudioTimeSource _audioTimeSource;
     private bool _songDidFinish;
 
     [UsedImplicitly]
@@ -49,7 +49,6 @@ internal class ScoreGetter : ITickable, IDisposable
         RelativeScoreAndImmediateRankCounter relativeScoreAndImmediateRankCounter,
         IGameEnergyCounter gameEnergyCounter,
         SongController songController,
-        BeatmapCallbacksController beatmapCallbacksController,
         IAudioTimeSource audioTimeSource)
     {
         _scoreBaseProvider = scoreBaseProvider;
@@ -64,8 +63,8 @@ internal class ScoreGetter : ITickable, IDisposable
         _gameEnergyCounter = gameEnergyCounter;
         gameEnergyCounter.gameEnergyDidChangeEvent += HandleGameEnergyDidChange;
         _songController = songController;
+        _audioTimeSource = audioTimeSource;
         songController.songDidFinishEvent += HandleSongDidFinish;
-        _beatmapCallbacksController = beatmapCallbacksController;
         scoreBaseProvider.SongLength[0] = audioTimeSource.songLength;
         _scoreBaseProvider.Multiplier[0] = 1;
     }
@@ -77,8 +76,7 @@ internal class ScoreGetter : ITickable, IDisposable
             return;
         }
 
-        // IAudioTimeSource.songTime should not be trusted!
-        _scoreBaseProvider.SongTime[0] = _beatmapCallbacksController.songTime;
+        _scoreBaseProvider.SongTime[0] = _audioTimeSource.songTime;
     }
 
     public void Dispose()

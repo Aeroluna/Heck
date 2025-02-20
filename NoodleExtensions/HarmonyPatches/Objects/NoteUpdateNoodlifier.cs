@@ -13,19 +13,19 @@ internal class NoteUpdateNoodlifier : IAffinity
 {
     private readonly AnimationHelper _animationHelper;
     private readonly CutoutManager _cutoutManager;
-    private readonly BeatmapCallbacksController _beatmapCallbacksController;
+    private readonly IAudioTimeSource _audioTimeSource;
     private readonly DeserializedData _deserializedData;
 
     private NoteUpdateNoodlifier(
         [Inject(Id = NoodleController.ID)] DeserializedData deserializedData,
         AnimationHelper animationHelper,
         CutoutManager cutoutManager,
-        BeatmapCallbacksController beatmapCallbacksController)
+        IAudioTimeSource audioTimeSource)
     {
         _deserializedData = deserializedData;
         _animationHelper = animationHelper;
         _cutoutManager = cutoutManager;
-        _beatmapCallbacksController = beatmapCallbacksController;
+        _audioTimeSource = audioTimeSource;
     }
 
     internal NoodleBaseNoteData? NoodleData { get; private set; }
@@ -68,7 +68,7 @@ internal class NoteUpdateNoodlifier : IAffinity
 #else
             float jumpDuration = noteJump._jumpDuration;
 #endif
-            float elapsedTime = _beatmapCallbacksController.songTime - (____noteData.time - (jumpDuration * 0.5f));
+            float elapsedTime = _audioTimeSource.songTime - (____noteData.time - (jumpDuration * 0.5f));
             normalTime = elapsedTime / jumpDuration;
         }
 
