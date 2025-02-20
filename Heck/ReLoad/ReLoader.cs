@@ -10,6 +10,7 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 using SiraUtil.Logging;
 using UnityEngine;
+using UnityEngine.Scripting;
 using Zenject;
 #if PRE_V1_37_1
 using System.Threading.Tasks;
@@ -259,6 +260,10 @@ public class ReLoader : ITickable
         deserializedDatas.Do(n => _container.ResolveId<DeserializedData>(n.Id).Remap(n.DeserializedData));
 
         Reloaded?.Invoke();
+
+        GarbageCollector.GCMode = GarbageCollector.Mode.Manual;
+        GC.Collect();
+
         if (_pauseMenuManager.enabled)
         {
             _pauseMenuManager.ContinueButtonPressed();
