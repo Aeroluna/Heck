@@ -65,7 +65,7 @@ public class Vector3PointDefinition : PointDefinition<Vector3>
         Vector3? value;
         float time;
         IValues[]? result;
-        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE } staticValues)
+        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE + 1 } staticValues)
         {
             float[] valueValues = staticValues.Values;
             value = new Vector3(valueValues[0], valueValues[1], valueValues[2]);

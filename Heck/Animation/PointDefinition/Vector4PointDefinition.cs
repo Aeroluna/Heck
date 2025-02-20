@@ -71,7 +71,7 @@ public class Vector4PointDefinition : PointDefinition<Vector4>
         Vector4? value;
         float time;
         IValues[]? result;
-        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE } staticValues)
+        if (values.Length == 1 && values[0] is StaticValues { Values.Length: ARRAY_SIZE + 1 } staticValues)
         {
             float[] valueValues = staticValues.Values;
             value = new Vector4(valueValues[0], valueValues[1], valueValues[2], valueValues[3]);
