@@ -1,35 +1,42 @@
 #if V1_37_1
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using BeatSaber.GameSettings;
 using BeatSaber.PerformancePresets;
 using BGLib.JsonExtension;
+using HarmonyLib;
 using Heck.SettingsSetter;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
-using SiraUtil.Affinity;
 
 namespace Heck.HarmonyPatches;
 
-internal class PerformancePresetOverride : IAffinity
+[HeckPatch]
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
+internal static class PerformancePresetOverride
 {
-    private readonly GraphicSettingsHandler _graphicSettingsHandler;
+    internal static SettingsSetterViewController.SettableMainSettings? SettingsOverride { get; set; }
 
-    private PerformancePresetOverride(GraphicSettingsHandler graphicSettingsHandler)
+    [HarmonyTargetMethods]
+    private static IEnumerable<MethodBase> TargetMethods()
     {
-        _graphicSettingsHandler = graphicSettingsHandler;
+        return typeof(GraphicSettingsHandler)
+            .GetMethods(AccessTools.all)
+            .Where(n => n.Name == nameof(GraphicSettingsHandler.TryGetCurrentPerformancePreset));
     }
 
-    internal SettingsSetterViewController.SettableMainSettings? SettingsOverride { get; set; }
-
-    [AffinityPrefix]
-    [AffinityPatch(typeof(SettingsApplicatorSO), nameof(SettingsApplicatorSO.ApplyPerformancePreset))]
-    private void Prefix(ref PerformancePreset preset)
+    [HarmonyPrefix]
+    private static void Prefix(ref PerformancePreset? __state, ref PerformancePreset ____currentPreset)
     {
         if (SettingsOverride == null)
         {
             return;
         }
 
+        __state = ____currentPreset;
         CustomPerformancePreset customPerformancePreset = JsonConvert.DeserializeObject<CustomPerformancePreset>(
-            JsonConvert.SerializeObject(preset, JsonSettings.compactWithDefault))!;
+            JsonConvert.SerializeObject(____currentPreset, JsonSettings.compactWithDefault))!;
         customPerformancePreset.presetName = "HeckPresetOverride";
         customPerformancePreset.mirrorGraphics = (MirrorQualityPreset)SettingsOverride.MirrorGraphicsSettings;
         customPerformancePreset.mainEffectGraphics =
@@ -40,9 +47,16 @@ internal class PerformancePresetOverride : IAffinity
         customPerformancePreset.screenDisplacementEffects =
             SettingsOverride.ScreenDisplacementEffectsEnabled;
         customPerformancePreset.maxShockwaveParticles = SettingsOverride.MaxShockwaveParticles;
-        preset = customPerformancePreset;
-        _graphicSettingsHandler._currentPreset = customPerformancePreset;
-        SettingsOverride = null;
+        ____currentPreset = customPerformancePreset;
+    }
+
+    [HarmonyPostfix]
+    private static void Postfix(ref PerformancePreset? __state, ref PerformancePreset ____currentPreset)
+    {
+        if (__state != null)
+        {
+            ____currentPreset = __state;
+        }
     }
 }
 #endif

@@ -37,10 +37,6 @@ internal class HeckAppInstaller : Installer
 
         Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
 
-#if V1_37_1
-        Container.BindInterfacesAndSelfTo<PerformancePresetOverride>().AsSingle();
-#endif
-
         Container.BindInterfacesAndSelfTo<PlayerTransformBaseProvider>().AsSingle();
         Container.BindInterfacesAndSelfTo<ColorBaseProvider>().AsSingle();
         Container.BindInterfacesAndSelfTo<ScoreBaseProvider>().AsSingle();

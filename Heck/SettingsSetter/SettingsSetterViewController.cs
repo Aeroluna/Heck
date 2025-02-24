@@ -48,7 +48,6 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
     private SettingsManager _settingsManager = null!;
 #elif V1_37_1
     private GraphicSettingsHandler _graphicSettingsHandler = null!;
-    private PerformancePresetOverride _performancePresetOverride = null!;
 #else
     private MainSystemInit _mainSystemInit = null!;
     private MainSettingsModelSO _mainSettings = null!;
@@ -465,7 +464,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             _settingsManager.settings.quality.screenDisplacementEffects = _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
             _settingsManager.settings.quality.maxShockwaveParticles = _modifiedMainSettings.MaxShockwaveParticles;
 #elif V1_37_1
-            _performancePresetOverride.SettingsOverride = _modifiedMainSettings;
+            PerformancePresetOverride.SettingsOverride = _modifiedMainSettings;
 #else
             _mainSettings.mirrorGraphicsSettings.value = _modifiedMainSettings.MirrorGraphicsSettings;
             _mainSettings.mainEffectGraphicsSettings.value = _modifiedMainSettings.MainEffectGraphicsSettings;
@@ -514,7 +513,9 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             _cachedOverrideEnvironmentSettings = null;
         }
 
-#if !V1_37_1
+#if V1_37_1
+        PerformancePresetOverride.SettingsOverride = null;
+#else
         if (_cachedMainSettings == null)
         {
             return;
@@ -558,7 +559,6 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         SettingsManager settingsManager,
 #elif V1_37_1
         GraphicSettingsHandler graphicSettingsHandler,
-        PerformancePresetOverride performancePresetOverride,
 #endif
         PlayerDataModel playerDataModel)
     {
@@ -574,7 +574,6 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         _settingsManager = settingsManager;
 #elif V1_37_1
         _graphicSettingsHandler = graphicSettingsHandler;
-        _performancePresetOverride = performancePresetOverride;
 #else
         _mainSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().First();
         _mainSystemInit = Resources.FindObjectsOfTypeAll<MainSystemInit>().First();
