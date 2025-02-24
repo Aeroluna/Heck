@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
@@ -49,8 +50,12 @@ public class TrackBuilder
                     AddTrack(trackNameStr);
                     break;
 
-                case List<string> names:
-                    names.ForEach(AddTrack);
+                case List<object> names:
+                    foreach (string trackNameStr in names.Cast<string>())
+                    {
+                        AddTrack(trackNameStr);
+                    }
+
                     break;
             }
         }
