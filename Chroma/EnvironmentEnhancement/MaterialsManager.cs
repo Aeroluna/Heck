@@ -18,6 +18,7 @@ namespace Chroma.EnvironmentEnhancement;
 internal class MaterialsManager : IDisposable
 {
     private static readonly int _metallicPropertyID = Shader.PropertyToID("_Metallic");
+    private static readonly int _fogStartOffsetPropertyID = Shader.PropertyToID("_FogStartOffset");
 
 #if !PRE_V1_37_1
     private static readonly Shader[] _allShaders = Resources.FindObjectsOfTypeAll<Shader>();
@@ -237,6 +238,12 @@ internal class MaterialsManager : IDisposable
         if (shaderType == ShaderType.Standard)
         {
             material.SetFloat(_metallicPropertyID, 0);
+        }
+
+        // Small fix to allow for infinite distance so it doesn't darken
+        if (shaderType == ShaderType.Glowing)
+        {
+            material.SetFloat(_fogStartOffsetPropertyID, float.PositiveInfinity);
         }
 
         return material;
