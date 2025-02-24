@@ -22,7 +22,8 @@ internal class MaterialColorAnimator : ITickable
             }
 
 #if !PRE_V1_39_1
-            if (materialInfo.ShaderType is ShaderType.Standard or ShaderType.BTSPillar && materialInfo.Material.shaderKeywords is { Length: 0 })
+            if (materialInfo.ShaderType is ShaderType.Standard or ShaderType.BTSPillar &&
+                materialInfo.Material.shaderKeywords is { Length: 0 })
             {
                 color = color.Value.ColorWithAlpha(0);
             }

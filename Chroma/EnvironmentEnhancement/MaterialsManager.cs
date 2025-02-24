@@ -235,15 +235,16 @@ internal class MaterialsManager : IDisposable
             },
             color = new Color(0, 0, 0, 0)
         };
-        if (shaderType == ShaderType.Standard)
+        switch (shaderType)
         {
-            material.SetFloat(_metallicPropertyID, 0);
-        }
+            case ShaderType.Standard:
+                material.SetFloat(_metallicPropertyID, 0);
+                break;
 
-        // Small fix to allow for infinite distance so it doesn't darken
-        if (shaderType == ShaderType.Glowing)
-        {
-            material.SetFloat(_fogStartOffsetPropertyID, float.PositiveInfinity);
+            // Small fix to allow for infinite distance so it doesn't darken
+            case ShaderType.Glowing:
+                material.SetFloat(_fogStartOffsetPropertyID, float.PositiveInfinity);
+                break;
         }
 
         return material;
