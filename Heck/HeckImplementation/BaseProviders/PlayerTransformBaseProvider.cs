@@ -50,34 +50,29 @@ internal class PlayerTransformGetter : ITickable
 {
     private readonly PlayerTransformBaseProvider _playerTransformBaseProvider;
     private readonly PlayerTransforms _playerTransforms;
+    private readonly PlayerVRControllersManager _playerVRControllersManager;
     private readonly SiraUtilHeadFinder _siraUtilHeadFinder;
 
     [UsedImplicitly]
     private PlayerTransformGetter(
         PlayerTransformBaseProvider playerTransformBaseProvider,
         PlayerTransforms playerTransforms,
+        PlayerVRControllersManager playerVRControllersManager,
         SiraUtilHeadFinder siraUtilHeadFinder)
     {
         _playerTransformBaseProvider = playerTransformBaseProvider;
         _playerTransforms = playerTransforms;
+        _playerVRControllersManager = playerVRControllersManager;
         _siraUtilHeadFinder = siraUtilHeadFinder;
     }
 
     public void Tick()
     {
         Transform head = _siraUtilHeadFinder.FpfcHeadTransform ?? _playerTransforms._headTransform;
-        Transform leftHand = _playerTransforms._leftHandTransform;
-        Transform rightHand = _playerTransforms._rightHandTransform;
 
-        if (leftHand.parent != null)
-        {
-            leftHand = leftHand.parent;
-        }
-
-        if (rightHand.parent != null)
-        {
-            rightHand = rightHand.parent;
-        }
+        // _playerTransforms._leftHandTransform points to the saber instead of the hand in 1.34+
+        Transform leftHand = _playerVRControllersManager.leftHandVRController.transform;
+        Transform rightHand = _playerVRControllersManager.rightHandVRController.transform;
 
         Vector3ToValues(_playerTransformBaseProvider.HeadLocalPosition, head.localPosition);
         Vector3ToValues(_playerTransformBaseProvider.LeftHandLocalPosition, leftHand.localPosition);
