@@ -21,7 +21,7 @@ internal class PlayerTransformsNoodlePatch : IAffinity
 #if LATEST
         BeatmapKey? ____beatmapKey,
         Transform ____originParentTransform,
-        ref Vector3 ____headPseudLocalZOnlyPos,
+        ref Vector3 ____headPseudoLocalZOnlyPos,
 #endif
         bool ____overrideHeadPos,
         Transform ____headTransform,
@@ -57,8 +57,7 @@ internal class PlayerTransformsNoodlePatch : IAffinity
             return false;
         }
 
-        ____headPseudLocalZOnlyPos = HeadOffsetZ(____headPseudoLocalPos, ____originParentTransform) * _parentTransform!.forward;
-
+        ____headPseudoLocalZOnlyPos = HeadOffsetZ(____headPseudoLocalPos, ____originParentTransform) * _parentTransform!.forward;
 #endif
 
         return false;
