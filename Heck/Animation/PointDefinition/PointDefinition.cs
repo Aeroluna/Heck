@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Heck.BaseProvider;
 using ModestTree;
 
 namespace Heck.Animation;
@@ -170,7 +171,7 @@ public abstract class PointDefinition<T> : IPointDefinition
             {
                 return n switch
                 {
-                    string s when !s.StartsWith("base") => GroupType.Flag,
+                    string s when !BaseProviderManager.Instance.IsProviderString(s) => GroupType.Flag,
                     List<object> => GroupType.Modifier,
                     _ => GroupType.Value
                 };
