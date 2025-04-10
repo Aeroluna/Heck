@@ -32,3 +32,11 @@ jobs:
       contents: write
     uses: Aeroluna/workflows/.github/workflows/bs-create-release-from-date.yml@main
     secrets: inherit
+
+  upload:
+    name: Upload
+    needs: build
+    uses: Aeroluna/workflows/.github/workflows/bs-upload-to-beatmods.yml@main
+    with:
+      mods: '{"Chroma": 132, "Heck": 338, "NoodleExtensions": 193}'
+      token: ${{ secrets.PAT }}
