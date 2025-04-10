@@ -38,5 +38,6 @@ jobs:
     needs: build
     uses: Aeroluna/workflows/.github/workflows/bs-upload-to-beatmods.yml@main
     with:
-      mods: '{"Chroma": 132, "Heck": 338, "NoodleExtensions": 193}'
+      mods: '{"CustomJSONData": 129, "Chroma": 132, "Heck": 338, "NoodleExtensions": 193}'
+    secrets:
       token: ${{ secrets.PAT }}
