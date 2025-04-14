@@ -6,12 +6,12 @@ using UnityEngine;
 
 namespace Heck.Animation;
 
-internal interface IValues
+public interface IValues
 {
     public float[] Values { get; }
 }
 
-internal interface IRotationValues
+public interface IRotationValues
 {
     public Quaternion Rotation { get; }
 }
@@ -36,7 +36,7 @@ internal struct BaseProviderValues : IValues
     public float[] Values { get; }
 }
 
-internal abstract record UpdateableValues : IValues
+public abstract record UpdateableValues : IValues
 {
     public abstract float[] Values { get; }
 
