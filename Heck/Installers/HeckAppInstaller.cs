@@ -40,7 +40,7 @@ internal class HeckAppInstaller : Installer
         Container.BindInterfacesAndSelfTo<PlayerTransformBaseProvider>().AsSingle();
         Container.BindInterfacesAndSelfTo<ColorBaseProvider>().AsSingle();
         Container.BindInterfacesAndSelfTo<ScoreBaseProvider>().AsSingle();
-        Container.BindInterfacesAndSelfTo<SettingsBaseProvider>().AsSingle();
+        Container.BindInterfacesAndSelfTo<MovementDataBaseProvider>().AsSingle();
 
         if (!HeckController.DebugMode)
         {
