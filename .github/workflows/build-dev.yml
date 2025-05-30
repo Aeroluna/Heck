@@ -1,0 +1,26 @@
+name: Build Dev
+
+on:
+  push:
+    branches: [ "dev" ]
+    paths:
+    - .github/workflows/build-dev.yml
+    - Heck/**
+    - Chroma/**
+    - NoodleExtensions/**
+    - Heck.sln
+
+jobs:
+  build:
+    name: Build Dev
+    strategy:
+      matrix:
+        project-path: [ Heck/Heck.csproj, NoodleExtensions/NoodleExtensions.csproj, Chroma/Chroma.csproj ]
+        game-version: [ 1.29.1, 1.34.2, 1.37.1, 1.39.1, 1.40.3 ]
+    uses: Aeroluna/workflows/.github/workflows/bs-build-version-release.yml@main
+    with:
+      project-path: ${{ matrix.project-path }}
+      game-version: ${{ matrix.game-version }}
+      additional-project-paths: '["Heck/Heck.csproj"]'
+      additional-sources: '["Aeroluna/CustomJSONData"]'
+    secrets: inherit
