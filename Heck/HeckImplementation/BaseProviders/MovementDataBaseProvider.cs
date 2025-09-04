@@ -33,7 +33,7 @@ internal class MovementDataGetter : IInitializable, ITickable
     [UsedImplicitly]
     private MovementDataGetter(
         MovementDataBaseProvider movementDataBaseProvider,
-        PlayerSpecificSettings playerSpecificSettings,
+        GameplayCoreSceneSetupData gameplayCoreSceneSetupData,
         [InjectOptional] PlayerHeightDetector? playerHeightDetector,
 #if LATEST
         IVariableMovementDataProvider variableMovementDataProvider,
@@ -43,9 +43,9 @@ internal class MovementDataGetter : IInitializable, ITickable
 #endif
     {
         _movementDataBaseProvider = movementDataBaseProvider;
-        _playerSpecificSettings = playerSpecificSettings;
+        _playerSpecificSettings = gameplayCoreSceneSetupData.playerSpecificSettings;
         _playerHeightDetector = playerHeightDetector;
-        _automaticPlayerHeight = playerSpecificSettings.automaticPlayerHeight;
+        _automaticPlayerHeight = _playerSpecificSettings.automaticPlayerHeight;
 #if LATEST
         _variableMovementDataProvider = variableMovementDataProvider;
         _initData = initData;
