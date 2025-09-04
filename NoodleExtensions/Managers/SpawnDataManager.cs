@@ -82,7 +82,7 @@ internal class SpawnDataManager
             ? GetNoteOffset(
                 flipLineIndex ?? lineIndex,
                 gravityOverride ? lineLayer : startLineLayer)
-            : noteOffset;
+            : (gravityOverride ? GetNoteOffset(lineIndex, lineLayer) : noteOffset);
 
         float gravity = GetGravityBase(lineLayer, gravityOverride ? lineLayer : startLineLayer);
 
