@@ -1,10 +1,10 @@
-name: Build
+name: Build Dev
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "dev" ]
     paths:
-    - .github/workflows/build.yml
+    - .github/workflows/build-dev.yml
     - Heck/**
     - Chroma/**
     - NoodleExtensions/**
@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Build Dev
     strategy:
       matrix:
         project-path: [ Heck/Heck.csproj, NoodleExtensions/NoodleExtensions.csproj, Chroma/Chroma.csproj ]
@@ -23,12 +23,4 @@ jobs:
       game-version: ${{ matrix.game-version }}
       additional-project-paths: '["Heck/Heck.csproj"]'
       additional-sources: '["Aeroluna/CustomJSONData"]'
-    secrets: inherit
-
-  create_release:
-    name: Create Release
-    needs: build
-    permissions:
-      contents: write
-    uses: Aeroluna/workflows/.github/workflows/bs-create-release-from-date.yml@main
     secrets: inherit

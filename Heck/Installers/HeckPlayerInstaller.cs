@@ -59,6 +59,7 @@ internal class HeckPlayerInstaller : Installer
         Container.BindInterfacesTo<PlayerTransformGetter>().AsSingle();
         Container.BindInterfacesTo<ColorSchemeGetter>().AsSingle();
         Container.BindInterfacesTo<ScoreGetter>().AsSingle();
+        Container.BindInterfacesTo<MovementDataGetter>().AsSingle();
 
         Container.BindInterfacesTo<GameBaseProviderDisposer>().AsSingle();
     }

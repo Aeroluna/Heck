@@ -18,7 +18,7 @@ internal class PlayerTransformsNoodlePatch : IAffinity
     [AffinityPrefix]
     [AffinityPatch(typeof(PlayerTransforms), nameof(PlayerTransforms.Update))]
     private bool UpdateWithNoodle(
-#if LATEST
+#if !PRE_V1_40_8
         BeatmapKey? ____beatmapKey,
         Transform ____originParentTransform,
         ref Vector3 ____headPseudoLocalZOnlyPos,
@@ -51,7 +51,7 @@ internal class PlayerTransformsNoodlePatch : IAffinity
         ____leftHandPseudoLocalPos = _noodlePlayerTransformManager.LeftHand.InverseTransformPoint(____leftHandTransform.position);
         ____leftHandPseudoLocalRot = _noodlePlayerTransformManager.LeftHand.InverseTransformRotation(____leftHandTransform.rotation);
 
-#if LATEST
+#if !PRE_V1_40_8
         if (____beatmapKey != null && ____beatmapKey.Value.beatmapCharacteristic.containsRotationEvents)
         {
             return false;
@@ -63,7 +63,7 @@ internal class PlayerTransformsNoodlePatch : IAffinity
         return false;
     }
 
-#if !LATEST
+#if PRE_V1_40_8
     [AffinityPrefix]
     [AffinityPatch(typeof(PlayerTransforms), nameof(PlayerTransforms.HeadOffsetZ))]
     private bool PrefixHeadOffset(

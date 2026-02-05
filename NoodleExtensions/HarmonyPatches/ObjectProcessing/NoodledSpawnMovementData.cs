@@ -1,6 +1,6 @@
 ﻿using NoodleExtensions.Managers;
 using SiraUtil.Affinity;
-#if LATEST
+#if !PRE_V1_40_8
 using _NoteSpawnData = NoteSpawnData;
 using _ObstacleSpawnData = ObstacleSpawnData;
 using _SliderSpawnData = SliderSpawnData;

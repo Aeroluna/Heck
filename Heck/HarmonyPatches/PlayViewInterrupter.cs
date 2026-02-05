@@ -87,6 +87,9 @@ internal class PlayViewInterrupter : IAffinity
             instance._playerDataModel.playerData.colorSchemesSettings.GetOverrideColorScheme(),
             gameplaySetupData.gameplayModifiers,
             instance._playerDataModel.playerData.playerSpecificSettings,
+#if LATEST
+            instance._environmentsListModel,
+#endif
             null,
             string.Empty,
             false,

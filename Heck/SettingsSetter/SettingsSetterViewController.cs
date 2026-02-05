@@ -44,7 +44,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
 
     private SiraLog _log = null!;
     private BSMLParser _bsmlParser = null!;
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
     private SettingsManager _settingsManager = null!;
 #elif V1_37_1
     private GraphicSettingsHandler _graphicSettingsHandler = null!;
@@ -295,7 +295,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                     List<Dictionary<string, object>> settableGraphicsSettings =
                         SettingSetterSettableSettingsManager.SettingsTable["_graphics"];
 
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
                     BeatSaber.Settings.QualitySettings qualitySettings = _settingsManager.settings.quality;
                     _cachedMainSettings = new SettableMainSettings(
                         (int)qualitySettings.mirror,
@@ -453,13 +453,15 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         {
             _log.Trace("Main settings modified");
 
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
             _settingsManager.settings.quality.mirror =
                 (BeatSaber.Settings.QualitySettings.MirrorQuality)_modifiedMainSettings.MirrorGraphicsSettings;
             _settingsManager.settings.quality.mainEffect =
                 (BeatSaber.Settings.QualitySettings.MainEffectOption)_modifiedMainSettings.MainEffectGraphicsSettings;
             _settingsManager.settings.quality.smokeGraphics = _modifiedMainSettings.SmokeGraphicsSettings;
+    #if !LATEST
             _settingsManager.settings.quality.depthTexture = _modifiedMainSettings.SmokeGraphicsSettings;
+    #endif
             _settingsManager.settings.quality.burnMarkTrails = _modifiedMainSettings.BurnMarkTrailsEnabled;
             _settingsManager.settings.quality.screenDisplacementEffects = _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
             _settingsManager.settings.quality.maxShockwaveParticles = _modifiedMainSettings.MaxShockwaveParticles;
@@ -523,7 +525,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
 
         _log.Trace("Main settings restored");
 
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
         _settingsManager.settings.quality.mirror =
             (BeatSaber.Settings.QualitySettings.MirrorQuality)_cachedMainSettings.MirrorGraphicsSettings;
         _settingsManager.settings.quality.mainEffect =
@@ -555,7 +557,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
 #if !V1_29_1
         BSMLParser bsmlParser,
 #endif
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
         SettingsManager settingsManager,
 #elif V1_37_1
         GraphicSettingsHandler graphicSettingsHandler,
@@ -570,7 +572,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
 #else
         _bsmlParser = BSMLParser.instance;
 #endif
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
         _settingsManager = settingsManager;
 #elif V1_37_1
         _graphicSettingsHandler = graphicSettingsHandler;

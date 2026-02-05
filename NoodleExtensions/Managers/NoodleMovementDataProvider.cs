@@ -1,4 +1,4 @@
-#if LATEST
+#if !PRE_V1_40_8
 using Heck.Deserialize;
 using JetBrains.Annotations;
 using NoodleExtensions.HarmonyPatches.SmallFixes;

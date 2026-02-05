@@ -174,7 +174,11 @@ internal static class ProcessNotesNoodleDataInTimeRow
                     }
 
                     noteData.SetCutDirectionAngleOffset(num);
+#if LATEST
+                    sliderData.SetHeadCutDirectionAngleOffset(noteData.GetCutDirectionAngleOffsetForSlider());
+#else
                     sliderData.SetCutDirectionAngleOffset(num, num);
+#endif
                 }
                 else
                 {
@@ -187,12 +191,62 @@ internal static class ProcessNotesNoodleDataInTimeRow
             }
         }
 
-        foreach (object sliderTailData in _getSliderTailDatas(containerItems))
+        CustomSliderData[] sliderTailDatasInTimeRow = (from object sliderTailData in _getSliderTailDatas(containerItems)
+            select (CustomSliderData)_sliderField.GetValue(sliderTailData)).ToArray();
+
+#if LATEST
+        foreach (CustomSliderData sliderData in slidersInTimeRow)
         {
-            CustomSliderData sliderData = (CustomSliderData)_sliderField.GetValue(sliderTailData);
-            IEnumerable<float?>? tailPosition = sliderData.customData.GetNullableFloats(TAIL_NOTE_OFFSET)?.ToList();
-            float tailX = tailPosition?.ElementAtOrDefault(0) + offset ?? sliderData.tailLineIndex;
-            float tailY = tailPosition?.ElementAtOrDefault(1) ?? (float)sliderData.tailLineLayer;
+            IEnumerable<float?>? headPosition =
+                sliderData.customData.GetNullableFloats(v2 ? V2_POSITION : NOTE_OFFSET)?.ToList();
+            float headX = headPosition?.ElementAtOrDefault(0) + offset ?? sliderData.headLineIndex;
+            float headY = headPosition?.ElementAtOrDefault(1) ?? (float)sliderData.headLineLayer;
+
+            foreach (CustomSliderData sliderTail in slidersInTimeRow)
+            {
+                IEnumerable<float?>? tailPosition = sliderTail.customData.GetNullableFloats(TAIL_NOTE_OFFSET)?.ToList();
+                float tailX = tailPosition?.ElementAtOrDefault(0) + offset ?? sliderTail.tailLineIndex;
+                float tailY = tailPosition?.ElementAtOrDefault(1) ?? (float)sliderTail.tailLineLayer;
+                int tailBeforeJumpLineLayer = sliderTail.customData.Get<int>(INTERNAL_TAILSTARTNOTELINELAYER);
+                if (sliderData == sliderTail ||
+                    sliderData.sliderType != SliderData.Type.Normal ||
+                    sliderTail.sliderType != SliderData.Type.Burst ||
+                    !Mathf.Approximately(headX, tailX) ||
+                    !Mathf.Approximately(headY, tailY))
+                {
+                    continue;
+                }
+
+                sliderData.SetHasHeadNote(true);
+                sliderData.SetHeadBeforeJumpLineLayer((NoteLineLayer)tailBeforeJumpLineLayer);
+            }
+
+            foreach (CustomSliderData sliderTail in sliderTailDatasInTimeRow)
+            {
+                IEnumerable<float?>? tailPosition = sliderTail.customData.GetNullableFloats(TAIL_NOTE_OFFSET)?.ToList();
+                float tailX = tailPosition?.ElementAtOrDefault(0) + offset ?? sliderTail.tailLineIndex;
+                float tailY = tailPosition?.ElementAtOrDefault(1) ?? (float)sliderTail.tailLineLayer;
+                int tailBeforeJumpLineLayer = sliderTail.customData.Get<int>(INTERNAL_TAILSTARTNOTELINELAYER);
+                if (sliderData == sliderTail ||
+                    sliderData.sliderType != SliderData.Type.Normal ||
+                    sliderTail.sliderType != SliderData.Type.Burst ||
+                    !Mathf.Approximately(headX, tailX) ||
+                    !Mathf.Approximately(headY, tailY))
+                {
+                    continue;
+                }
+
+                sliderData.SetHasHeadNote(true);
+                sliderData.SetHeadBeforeJumpLineLayer((NoteLineLayer)tailBeforeJumpLineLayer);
+            }
+        }
+#endif
+
+        foreach (CustomSliderData sliderTailData in sliderTailDatasInTimeRow)
+        {
+            IEnumerable<float?>? tailPosition = sliderTailData.customData.GetNullableFloats(TAIL_NOTE_OFFSET)?.ToList();
+            float tailX = tailPosition?.ElementAtOrDefault(0) + offset ?? sliderTailData.tailLineIndex;
+            float tailY = tailPosition?.ElementAtOrDefault(1) ?? (float)sliderTailData.tailLineLayer;
             foreach (CustomNoteData noteData in notesInTimeRow)
             {
                 IEnumerable<float?>? notePosition =
@@ -205,10 +259,13 @@ internal static class ProcessNotesNoodleDataInTimeRow
                     continue;
                 }
 
-                sliderData.SetHasTailNote(true);
-                sliderData.customData[INTERNAL_TAILSTARTNOTELINELAYER] =
+                sliderTailData.SetHasTailNote(true);
+                sliderTailData.customData[INTERNAL_TAILSTARTNOTELINELAYER] =
                     noteData.customData[INTERNAL_STARTNOTELINELAYER];
-                sliderData.SetTailBeforeJumpLineLayer(noteData.beforeJumpNoteLineLayer);
+                sliderTailData.SetTailBeforeJumpLineLayer(noteData.beforeJumpNoteLineLayer);
+#if LATEST
+                sliderTailData.SetTailCutDirectionAngleOffset(noteData.GetCutDirectionAngleOffsetForSlider());
+#endif
 #if !PRE_V1_37_1
                 noteData.MarkAsSliderTail();
 #else

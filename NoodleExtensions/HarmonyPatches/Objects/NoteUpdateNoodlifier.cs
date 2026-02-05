@@ -51,7 +51,7 @@ internal class NoteUpdateNoodlifier : IAffinity
 
         NoteJump noteJump = ____noteMovement._jump;
         NoteFloorMovement floorMovement = ____noteMovement._floorMovement;
-#if LATEST
+#if !PRE_V1_40_8
         IVariableMovementDataProvider variableMovementDataProvider = ____noteMovement._variableMovementDataProvider;
 #endif
 
@@ -63,7 +63,7 @@ internal class NoteUpdateNoodlifier : IAffinity
         }
         else
         {
-#if LATEST
+#if !PRE_V1_40_8
             float jumpDuration = variableMovementDataProvider.jumpDuration;
 #else
             float jumpDuration = noteJump._jumpDuration;
@@ -91,7 +91,7 @@ internal class NoteUpdateNoodlifier : IAffinity
             Vector3 jumpEndPos = noodleData.InternalEndPos;
 
             Vector3 offset = positionOffset.Value;
-#if LATEST
+#if !PRE_V1_40_8
             floorMovement._moveStartOffset = moveStartPos + offset;
             floorMovement._moveEndOffset = moveEndPos + offset;
             noteJump._startOffset = moveEndPos + offset;

@@ -63,8 +63,8 @@ internal class EnvironmentOverrideChecker
                         _savedEnvironmentLoader.SavedEnvironment?.EnvironmentName,
                         mapEnv?.environmentType ?? false);
 #else
-    #if LATEST
-                EnvironmentInfoSO? mapEnv = _gameplayCoreSceneSetupData.originalEnvironmentInfo;
+    #if !PRE_V1_40_8
+                EnvironmentInfoSO mapEnv = _gameplayCoreSceneSetupData.originalEnvironmentInfo;
     #else
                 BeatmapKey beatmapKey = _gameplayCoreSceneSetupData.beatmapKey;
                 EnvironmentName environmentName = _gameplayCoreSceneSetupData.beatmapLevel.GetEnvironmentName(
@@ -94,6 +94,16 @@ internal class EnvironmentOverrideChecker
 
     private bool IsEnvLoaded(EnvironmentInfoSO? environmentInfo)
     {
-        return environmentInfo != null && _gameScenesManager.IsSceneInStack(environmentInfo.sceneInfo.sceneName);
+        if (environmentInfo == null)
+        {
+            return false;
+        }
+
+#if LATEST
+        string sceneName = environmentInfo.environmentSceneName;
+#else
+        string sceneName = environmentInfo.sceneInfo.sceneName;
+#endif
+        return _gameScenesManager.IsSceneInStack(sceneName);
     }
 }

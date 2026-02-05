@@ -45,7 +45,7 @@ internal class NoteInitNoodlifier : IAffinity, IDisposable
         NoteController __instance,
         NoteData noteData,
         NoteMovement ____noteMovement,
-#if LATEST
+#if !PRE_V1_40_8
         NoteSpawnData noteSpawnData,
 #else
         Vector3 moveStartPos,
@@ -103,7 +103,7 @@ internal class NoteInitNoodlifier : IAffinity, IDisposable
         transform.localScale = scale;
         noodleData.InternalScale = scale;
 
-#if LATEST
+#if !PRE_V1_40_8
         Vector3 moveStartPos = noteSpawnData.moveStartOffset;
         Vector3 moveEndPos = noteSpawnData.moveEndOffset;
         Vector3 jumpEndPos = noteSpawnData.jumpEndOffset;

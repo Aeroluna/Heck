@@ -41,7 +41,7 @@ internal class ObjectColorize : IAffinity
         ObstacleController __instance,
         ObstacleData ____obstacleData,
         float ____startTimeOffset,
-#if LATEST
+#if !PRE_V1_40_8
         IVariableMovementDataProvider ____variableMovementDataProvider,
 #else
         float ____move1Duration,
@@ -62,7 +62,7 @@ internal class ObjectColorize : IAffinity
             return;
         }
 
-#if LATEST
+#if !PRE_V1_40_8
         float moveDuration = ____variableMovementDataProvider.moveDuration;
         float jumpDuration = ____variableMovementDataProvider.jumpDuration;
         float obstacleDuration = ____obstacleData.duration;
@@ -111,7 +111,7 @@ internal class ObjectColorize : IAffinity
             return;
         }
 
-#if LATEST
+#if !PRE_V1_40_8
         float jumpDuration = __instance._variableMovementDataProvider.jumpDuration;
 #else
         float jumpDuration = ____sliderMovement.jumpDuration;

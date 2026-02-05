@@ -21,7 +21,7 @@ internal class MaterialColorAnimator : ITickable
                 continue;
             }
 
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
             if (materialInfo.ShaderType is ShaderType.Standard or ShaderType.BTSPillar &&
                 materialInfo.Material.shaderKeywords is { Length: 0 })
             {

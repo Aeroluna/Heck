@@ -10,6 +10,14 @@ namespace Heck;
 public static class LoggerExtensions
 {
     [PublicAPI]
+    public static CodeMatcher PrintInstructions(this CodeMatcher codeMatcher, Logger logger, string seperator = "\t")
+    {
+        logger.Info("Printing instructions:");
+        codeMatcher.Instructions().ForEach(n => logger.Log(Logger.Level.Info, seperator + n));
+        return codeMatcher;
+    }
+
+    [PublicAPI]
     public static void PrintHarmonyInfo(Logger logger, MethodBase method)
     {
         Patches patches = Harmony.GetPatchInfo(method);

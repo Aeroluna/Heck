@@ -133,7 +133,7 @@ internal class MaterialsManager : IDisposable
                 : throw new InvalidOperationException()
         };
 
-#if !PRE_V1_39_1
+#if !PRE_V1_40_8
         // credit to @Provini for the idea of using Custom/Glowing
         // https://github.com/Aeroluna/Heck/issues/125#issuecomment-2661311783
         // stupid janky fix to the fact that they changed simplelit shader in 1.38
