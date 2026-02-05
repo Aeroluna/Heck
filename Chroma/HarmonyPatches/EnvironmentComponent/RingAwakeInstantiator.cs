@@ -22,6 +22,12 @@ internal static class RingAwakeInstantiator
         typeof(RingAwakeInstantiator),
         nameof(QueueInject));
 
+#if LATEST
+    private static readonly MethodInfo _queueInjectParent = AccessTools.Method(
+        typeof(RingAwakeInstantiator),
+        nameof(QueueInjectParent));
+#endif
+
     private static readonly FieldAccessor<TrackLaneRingsManager, DiContainer>.Accessor _containerAccessor =
         FieldAccessor<TrackLaneRingsManager, DiContainer>.GetAccessor(nameof(TrackLaneRingsManager._container));
 
@@ -66,9 +72,12 @@ internal static class RingAwakeInstantiator
         return ____rings == null;
     }
 
-    private static TrackLaneRing QueueInject(DiContainer container, TrackLaneRing prefab)
+    private static TrackLaneRing QueueInject(DiContainer container, TrackLaneRing prefab) =>
+        QueueInjectParent(container, prefab, null);
+
+    private static TrackLaneRing QueueInjectParent(DiContainer container, TrackLaneRing prefab, Transform? parent)
     {
-        TrackLaneRing trackLaneRing = Object.Instantiate(prefab);
+        TrackLaneRing trackLaneRing = Object.Instantiate(prefab, parent);
         List<MonoBehaviour> injectables = [];
         ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(trackLaneRing.gameObject, injectables);
         injectables.ForEach(container.QueueForInject);
@@ -79,16 +88,33 @@ internal static class RingAwakeInstantiator
     [HarmonyPatch(typeof(TrackLaneRingsManager), nameof(TrackLaneRingsManager.Start))]
     private static IEnumerable<CodeInstruction> QueueInjectTranspiler(IEnumerable<CodeInstruction> instructions)
     {
+        return new CodeMatcher(instructions)
+#if LATEST
+        /*
+         * -- this._rings[i] = this._container.InstantiatePrefabForComponent<TrackLaneRing>(this._trackLaneRingPrefab, base.transform);
+         * ++ this._rings[i] = QueueInjectParent(this._container, this._trackLaneRingPrefab);
+         */
+            .MatchForward(false, new CodeMatch(OpCodes.Ldfld, _trackLaneRingPrefab))
+            .Advance(3)
+            .Set(OpCodes.Call, _queueInjectParent)
+        /*
+         * -- this._rings[j] = this._container.InstantiatePrefabForComponent<TrackLaneRing>(this._trackLaneRingPrefab);
+         * ++ this._rings[j] = QueueInject(this._container, this._trackLaneRingPrefab);
+         */
+            .MatchForward(false, new CodeMatch(OpCodes.Ldfld, _trackLaneRingPrefab))
+            .Advance(1)
+            .Set(OpCodes.Call, _queueInject)
+#else
         /*
          * -- this._rings[i] = this._container.InstantiatePrefabForComponent<TrackLaneRing>(this._trackLaneRingPrefab);
          * ++ this._rings[i] = QueueInject(this._container, this._trackLaneRingPrefab);
          */
-        return new CodeMatcher(instructions)
             .MatchForward(false, new CodeMatch(OpCodes.Ldfld, _trackLaneRingPrefab))
             .Repeat(
                 n => n
                     .Advance(1)
                     .Set(OpCodes.Call, _queueInject))
+#endif
             .InstructionEnumeration();
     }
 }

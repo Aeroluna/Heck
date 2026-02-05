@@ -14,7 +14,7 @@ internal class InitializedSpawnMovementData
     private InitializedSpawnMovementData(
         BeatmapObjectSpawnController.InitData initData,
         IJumpOffsetYProvider jumpOffsetYProvider,
-#if LATEST
+#if !PRE_V1_40_8
         BeatmapObjectSpawnController spawnController,
         IReadonlyBeatmapData beatmapData,
         IVariableMovementDataProvider variableMovementDataProvider)
@@ -65,7 +65,7 @@ internal class InitializedSpawnMovementData
              * -- this._beatmapObjectSpawnMovementData.Init(this._initData.noteLinesCount, this._initData.noteJumpMovementSpeed, this._initData.beatsPerMinute, this._initData.noteJumpValueType, this._initData.noteJumpValue, this._jumpOffsetYProvider, Vector3.right, Vector3.forward);
              */
             .Start()
-#if LATEST
+#if !PRE_V1_40_8
             /*
              *
              * -- float num = 0f;

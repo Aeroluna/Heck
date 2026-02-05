@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using NoodleExtensions.HarmonyPatches.SmallFixes;
 using UnityEngine;
 using Zenject;
-#if LATEST
+#if !PRE_V1_40_8
 using _NoteSpawnData = NoteSpawnData;
 using _ObstacleSpawnData = ObstacleSpawnData;
 using _SliderSpawnData = SliderSpawnData;
@@ -21,7 +21,7 @@ internal class SpawnDataManager
     private readonly BeatmapObjectSpawnController.InitData _initData;
     private readonly BeatmapObjectSpawnMovementData _movementData;
 
-#if LATEST
+#if !PRE_V1_40_8
     private readonly VariableMovementDataProvider _variableMovementDataProvider;
 #endif
 
@@ -29,7 +29,7 @@ internal class SpawnDataManager
     private SpawnDataManager(
         InitializedSpawnMovementData initializedSpawnMovementData,
         BeatmapObjectSpawnController.InitData initData,
-#if LATEST
+#if !PRE_V1_40_8
         VariableMovementDataProvider variableMovementDataProvider,
 #endif
         [Inject(Id = NoodleController.ID)] DeserializedData deserializedData)
@@ -38,7 +38,7 @@ internal class SpawnDataManager
         _initData = initData;
         _deserializedData = deserializedData;
 
-#if LATEST
+#if !PRE_V1_40_8
         _variableMovementDataProvider = variableMovementDataProvider;
 #endif
     }
@@ -53,7 +53,7 @@ internal class SpawnDataManager
 
     internal float GetSpawnAheadTime(float? inputNjs, float? inputOffset)
     {
-#if LATEST
+#if !PRE_V1_40_8
         const float moveDuration = VariableMovementDataProvider.kMoveDuration;
 #else
         float moveDuration = _movementData.moveDuration;
@@ -77,7 +77,7 @@ internal class SpawnDataManager
         float startLineLayer = noodleData.InternalStartNoteLineLayer;
 
         Vector3 noteOffset = GetNoteOffset(lineIndex, startLineLayer);
-#if LATEST
+#if !PRE_V1_40_8
         Vector3 noteOffset2 = (noteData.colorType != ColorType.None)
             ? GetNoteOffset(
                 flipLineIndex ?? lineIndex,
@@ -142,19 +142,24 @@ internal class SpawnDataManager
 
         float? height = noodleData.Height;
         float obstacleHeight;
+#if LATEST
+        const float layerHeight = StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
+#else
+        const float layerHeight = StaticBeatmapObjectSpawnMovementData.layerHeight;
+#endif
         if (height.HasValue)
         {
-            obstacleHeight = height.Value * StaticBeatmapObjectSpawnMovementData.layerHeight;
+            obstacleHeight = height.Value * layerHeight;
         }
         else
         {
             // _topObstaclePosY =/= _obstacleTopPosY
             obstacleHeight = Mathf.Min(
-                obstacleData.height * StaticBeatmapObjectSpawnMovementData.layerHeight,
+                obstacleData.height * layerHeight,
                 _movementData._obstacleTopPosY - obstacleOffset.y);
         }
 
-#if LATEST
+#if !PRE_V1_40_8
         float width = noodleData.Width ?? obstacleData.width;
         width *= StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
         obstacleOffset.x += (width - StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance) * 0.5f;
@@ -207,7 +212,7 @@ internal class SpawnDataManager
         Vector3 headOffset = GetNoteOffset(headLineIndex, gravityOverride ? headLineLayer : headStartLineLayer);
         Vector3 tailOffset = GetNoteOffset(tailLineIndex, gravityOverride ? tailLineLayer : tailStartLineLayer);
 
-#if LATEST
+#if !PRE_V1_40_8
         float headGravity = GetGravityBase(headLineLayer, gravityOverride ? headLineLayer : headStartLineLayer);
         float tailGravity = GetGravityBase(tailLineLayer, gravityOverride ? tailLineLayer : tailStartLineLayer);
 
@@ -287,7 +292,7 @@ internal class SpawnDataManager
         float? inputNjs,
         float? inputOffset)
     {
-#if LATEST
+#if !PRE_V1_40_8
         if (!inputNjs.HasValue &&
             !inputOffset.HasValue)
         {
@@ -330,7 +335,7 @@ internal class SpawnDataManager
 #endif
     }
 
-#if LATEST
+#if !PRE_V1_40_8
     private float GetGravityBase(float noteLineLayer, float beforeJumpLineLayer)
     {
         return HighestJumpPosYForLineLayer(noteLineLayer) - LineYPosForLineLayer(beforeJumpLineLayer);

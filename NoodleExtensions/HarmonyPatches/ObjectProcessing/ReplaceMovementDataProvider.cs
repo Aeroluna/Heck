@@ -1,4 +1,4 @@
-#if LATEST
+#if !PRE_V1_40_8
 using IPA.Utilities;
 using NoodleExtensions.Managers;
 using SiraUtil.Affinity;

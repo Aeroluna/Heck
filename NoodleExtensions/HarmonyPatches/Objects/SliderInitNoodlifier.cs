@@ -14,7 +14,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects;
 
 internal class SliderInitNoodlifier : IAffinity, IDisposable
 {
-#if !LATEST
+#if PRE_V1_40_8
     private static readonly MethodInfo _noteJumpMovementSpeedGetter =
         AccessTools.PropertyGetter(
             typeof(IBeatmapObjectSpawnController),
@@ -80,7 +80,7 @@ internal class SliderInitNoodlifier : IAffinity, IDisposable
         SliderController __instance,
         SliderMovement ____sliderMovement,
         MaterialPropertyBlockController ____materialPropertyBlockController,
-#if !LATEST
+#if PRE_V1_40_8
         Vector3 headNoteJumpStartPos,
         Vector3 tailNoteJumpStartPos,
         Vector3 headNoteJumpEndPos,
@@ -110,7 +110,7 @@ internal class SliderInitNoodlifier : IAffinity, IDisposable
             {
                 Quaternion quatVal = worldRotationQuaternion.Value;
                 ____sliderMovement._worldRotation = quatVal;
-#if !LATEST
+#if PRE_V1_40_8
                 Quaternion inverseWorldRotation = Quaternion.Inverse(quatVal);
                 ____sliderMovement._inverseWorldRotation = inverseWorldRotation;
 #endif
@@ -131,7 +131,7 @@ internal class SliderInitNoodlifier : IAffinity, IDisposable
         transform.localScale = scale;
         noodleData.InternalScale = scale;
 
-#if !LATEST
+#if PRE_V1_40_8
         noodleData.InternalStartPos = headNoteJumpStartPos;
         noodleData.InternalEndPos = headNoteJumpEndPos;
 #endif
@@ -139,7 +139,7 @@ internal class SliderInitNoodlifier : IAffinity, IDisposable
         noodleData.InternalLocalRotation = localRotation;
     }
 
-#if !LATEST
+#if PRE_V1_40_8
     [AffinityTranspiler]
     [AffinityPatch(typeof(SliderController), nameof(SliderController.Init))]
     private IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)

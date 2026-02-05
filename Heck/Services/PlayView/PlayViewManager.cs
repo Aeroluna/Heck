@@ -181,15 +181,23 @@ public sealed class PlayViewManager : IDisposable
             multiplayerStartParameters.BeatmapCharacteristic,
             multiplayerStartParameters.DifficultyBeatmap,
 #endif
-            multiplayerStartParameters.OverrideColorScheme,
+            multiplayerStartParameters.OverrideColorScheme!,
             multiplayerStartParameters.GameplayModifiers,
             multiplayerStartParameters.PlayerSpecificSettings,
-            multiplayerStartParameters.PracticeSettings,
+#if LATEST
+            multiplayerStartParameters.EnvironmentsListModel!,
+#endif
+            multiplayerStartParameters.PracticeSettings!,
+#if LATEST
+            string.Empty,
+            false,
+#else
             multiplayerStartParameters.BackButtonText,
             multiplayerStartParameters.UseTestNoteCutSoundEffects,
-            multiplayerStartParameters.BeforeSceneSwitchCallback,
-            multiplayerStartParameters.MultiplayerLevelFinishedCallback,
-            multiplayerStartParameters.DidDisconnectCallback);
+#endif
+            multiplayerStartParameters.BeforeSceneSwitchCallback!,
+            multiplayerStartParameters.MultiplayerLevelFinishedCallback!,
+            multiplayerStartParameters.DidDisconnectCallback!);
         return false;
     }
 
@@ -284,10 +292,10 @@ public sealed class PlayViewManager : IDisposable
 #endif
             _currentParameters.OverrideEnvironmentSettings,
             _currentParameters.OverrideColorScheme,
-#if LATEST
+#if !PRE_V1_40_8
             _currentParameters.PlayerOverrideLightshowColors,
 #endif
-#if !V1_29_1
+#if !V1_29_1 && !LATEST
             _currentParameters.BeatmapOverrideColorScheme,
 #endif
             _currentParameters.GameplayModifiers,
@@ -296,14 +304,25 @@ public sealed class PlayViewManager : IDisposable
 #if !PRE_V1_37_1
             _currentParameters.EnvironmentsListModel,
 #endif
+#if LATEST
+            _currentParameters.GameplayAdditionalInformation!,
+#else
             _currentParameters.BackButtonText,
             _currentParameters.UseTestNoteCutSoundEffects,
             _currentParameters.StartPaused,
+#endif
             _currentParameters.BeforeSceneSwitchCallback,
+#if LATEST
+            _currentParameters.AfterSceneSwitchCallback,
+#else
             null,
+#endif
             _currentParameters.LevelFinishedCallback,
 #if !V1_29_1
             _currentParameters.LevelRestartedCallback,
+        #if LATEST
+            _currentParameters.BeatmapLevelData,
+        #endif
             _currentParameters.RecordingToolData);
 #else
             _currentParameters.LevelRestartedCallback);

@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using Heck.Deserialize;
 using SiraUtil.Affinity;
-#if LATEST
+#if !PRE_V1_40_8
 using _NoteSpawnData = NoteSpawnData;
 #else
 using _NoteSpawnData = BeatmapObjectSpawnMovementData.NoteSpawnData;
@@ -60,7 +60,7 @@ internal class BurstSliderDataRegisterer : IAffinity, IDisposable
             .Advance(1)
             .Insert(
                 new CodeInstruction(OpCodes.Ldarg_0),
-#if LATEST
+#if !PRE_V1_40_8
                 new CodeInstruction(OpCodes.Ldloc_S, 17),
 #else
                 new CodeInstruction(OpCodes.Ldloc_S, 22),

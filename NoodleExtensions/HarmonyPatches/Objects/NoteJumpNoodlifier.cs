@@ -15,7 +15,7 @@ internal class NoteJumpNoodlifier : IAffinity, IDisposable
 {
     private static readonly FieldInfo _beatTimeField = AccessTools.Field(
         typeof(NoteJump),
-#if LATEST
+#if !PRE_V1_40_8
         nameof(NoteJump._noteTime));
 #else
         nameof(NoteJump._beatTime));

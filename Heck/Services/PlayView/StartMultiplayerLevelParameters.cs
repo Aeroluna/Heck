@@ -21,6 +21,9 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
         ColorScheme overrideColorScheme,
         GameplayModifiers gameplayModifiers,
         PlayerSpecificSettings playerSpecificSettings,
+#if LATEST
+        EnvironmentsListModel environmentsListModel,
+#endif
         PracticeSettings? practiceSettings,
         string backButtonText,
         bool useTestNoteCutSoundEffects,
@@ -38,22 +41,30 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
 #endif
             null,
             overrideColorScheme,
-#if LATEST
+#if !PRE_V1_40_8
             false,
 #endif
-#if !V1_29_1
+#if !V1_29_1 && !LATEST
             null,
 #endif
             gameplayModifiers,
             playerSpecificSettings,
             practiceSettings,
+#if LATEST
+            environmentsListModel,
+#endif
 #if !PRE_V1_37_1
             null,
 #endif
+#if LATEST
+            beforeSceneSwitchCallback,
+            null,
+#else
             backButtonText,
             useTestNoteCutSoundEffects,
             false,
             beforeSceneSwitchCallback,
+#endif
 #if !PRE_V1_37_1
             null,
 #endif

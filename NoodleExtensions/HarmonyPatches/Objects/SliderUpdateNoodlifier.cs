@@ -17,7 +17,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects;
 
 internal class SliderUpdateNoodlifier : IAffinity, IDisposable
 {
-#if !LATEST
+#if PRE_V1_40_8
     private static readonly FieldInfo _headNoteJumpEndPos = AccessTools.Field(
         typeof(SliderMovement),
         nameof(SliderMovement._headNoteJumpEndPos));
@@ -60,7 +60,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
     private readonly IAudioTimeSource _audioTimeSource;
     private readonly DeserializedData _deserializedData;
 
-#if !LATEST
+#if PRE_V1_40_8
     private readonly PlayerTransforms _playerTransforms;
 #endif
 
@@ -72,7 +72,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
         [Inject(Id = ID)] DeserializedData deserializedData,
         AnimationHelper animationHelper,
         CutoutManager cutoutManager,
-#if !LATEST
+#if PRE_V1_40_8
         PlayerTransforms playerTransforms,
 #endif
         IAudioTimeSource audioTimeSource)
@@ -81,7 +81,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
         _animationHelper = animationHelper;
         _cutoutManager = cutoutManager;
         _audioTimeSource = audioTimeSource;
-#if !LATEST
+#if PRE_V1_40_8
         _playerTransforms = playerTransforms;
 #endif
         _sliderTimeAdjust = InstanceTranspilers.EmitInstanceDelegate<SliderTimeAdjustDelegate>(SliderUpdate);
@@ -89,7 +89,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
 
     private delegate void SliderTimeAdjustDelegate(
         SliderMovement instance,
-#if !LATEST
+#if PRE_V1_40_8
         float headNoteTime,
         float tailNoteTime,
         float jumpDuration,
@@ -117,7 +117,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
 
     private void SliderUpdate(
         SliderMovement instance,
-#if !LATEST
+#if PRE_V1_40_8
         float headNoteTime,
         float tailNoteTime,
         float jumpDuration,
@@ -131,7 +131,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
         ref Quaternion worldRotation,
         ref Vector3 localPosition)
     {
-#if LATEST
+#if !PRE_V1_40_8
         IVariableMovementDataProvider variableMovementDataProvider = instance._variableMovementDataProvider;
         SliderData sliderData = instance._sliderData;
         float headNoteTime = sliderData.time;
@@ -195,7 +195,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
                     {
                         worldRotationQuatnerion *= rotationOffset.Value;
                         worldRotation = worldRotationQuatnerion;
-#if !LATEST
+#if PRE_V1_40_8
                         inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
 #endif
                     }
@@ -234,7 +234,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
                 if (positionOffset.HasValue)
                 {
                     Vector3 offset = positionOffset.Value;
-#if !LATEST
+#if PRE_V1_40_8
                     Vector3 startPos = _noodleData!.InternalStartPos;
                     Vector3 endPos = _noodleData.InternalEndPos;
                     headNoteJumpStartPos = startPos + offset;
@@ -245,7 +245,7 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
             }
         }
 
-#if LATEST
+#if !PRE_V1_40_8
         float headOffsetZ = instance._sliderSpawnData.headNoteOffset.z;
         float a = variableMovementDataProvider.moveEndPosition.z + headOffsetZ;
         float b = variableMovementDataProvider.jumpEndPosition.z + headOffsetZ;
@@ -277,14 +277,14 @@ internal class SliderUpdateNoodlifier : IAffinity, IDisposable
              * ++ SliderUpdate(this, this._headNoteTime, this._tailNoteTime, this._jumpDuration, ref this._timeSinceHeadNoteJump, ref num2, ref num3, ref this._headNoteJumpStartPos, ref this._headNoteJumpEndPos, ref this._worldRotation, ref this._inverseWorldRotation);
              */
             .Start()
-#if LATEST
+#if !PRE_V1_40_8
             .RemoveInstructions(73)
 #else
             .RemoveInstructions(34)
 #endif
             .Insert(
                 new CodeInstruction(OpCodes.Ldarg_0),
-#if !LATEST
+#if PRE_V1_40_8
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldfld, _headNoteTime),
                 new CodeInstruction(OpCodes.Ldarg_0),

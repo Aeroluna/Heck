@@ -21,7 +21,7 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
         typeof(ObstacleController),
         nameof(ObstacleController._finishMovementTime));
 
-#if LATEST
+#if !PRE_V1_40_8
     private static readonly FieldInfo _variableMovementDataProviderField = AccessTools.Field(
         typeof(ObstacleControllerBase),
         nameof(ObstacleControllerBase._variableMovementDataProvider));
@@ -60,7 +60,7 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
     private delegate float ObstacleTimeAdjustDelegate(
         float original,
         ObstacleData obstacleData,
-#if LATEST
+#if !PRE_V1_40_8
         IVariableMovementDataProvider variableMovementDataProvider,
 #else
         float move1Duration,
@@ -79,7 +79,7 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
         ObstacleData ____obstacleData,
         Vector3 ____startPos,
         Vector3 ____midPos,
-#if LATEST
+#if !PRE_V1_40_8
         IVariableMovementDataProvider ____variableMovementDataProvider,
 #else
         float ____move1Duration,
@@ -93,7 +93,7 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
             return true;
         }
 
-#if LATEST
+#if !PRE_V1_40_8
         float moveDuration = ____variableMovementDataProvider.moveDuration;
         float jumpDuration = ____variableMovementDataProvider.jumpDuration;
         float obstacleDuration = ____obstacleData.duration;
@@ -133,14 +133,14 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
     private float ObstacleTimeAdjust(
         float original,
         ObstacleData obstacleData,
-#if LATEST
+#if !PRE_V1_40_8
         IVariableMovementDataProvider variableMovementDataProvider,
 #else
         float move1Duration,
 #endif
         float finishMovementTime)
     {
-#if LATEST
+#if !PRE_V1_40_8
         float move1Duration = variableMovementDataProvider.moveDuration;
 #endif
 
@@ -158,7 +158,7 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
         return original;
     }
 
-#if LATEST
+#if !PRE_V1_40_8
     [AffinityPostfix]
     [AffinityPatch(typeof(ObstacleController), nameof(ObstacleController.GetObstacleLength))]
     private void UseCustomLength(ObstacleData ____obstacleData, ref float __result)
@@ -177,7 +177,7 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
         ObstacleController __instance,
         ObstacleData ____obstacleData,
         float ____startTimeOffset,
-#if LATEST
+#if !PRE_V1_40_8
         IVariableMovementDataProvider ____variableMovementDataProvider,
         ref ObstacleSpawnData ____obstacleSpawnData,
 #else
@@ -209,7 +209,7 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
             return;
         }
 
-#if LATEST
+#if !PRE_V1_40_8
         float moveDuration = ____variableMovementDataProvider.moveDuration;
         float jumpDuration = ____variableMovementDataProvider.jumpDuration;
         float obstacleDuration = ____obstacleData.duration;
@@ -247,7 +247,7 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
         {
             Vector3 offset = positionOffset.Value;
 
-#if LATEST
+#if !PRE_V1_40_8
             Vector3 moveOffset = noodleData.InternalStartPos;
             ____obstacleSpawnData = new ObstacleSpawnData(
                 moveOffset + offset,
@@ -275,7 +275,7 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
             {
                 worldRotationQuatnerion *= rotationOffset.Value;
                 ____worldRotation = worldRotationQuatnerion;
-#if !LATEST
+#if PRE_V1_40_8
                 ____inverseWorldRotation = Quaternion.Inverse(worldRotationQuatnerion);
 #endif
             }
@@ -328,7 +328,7 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldfld, _obstacleDataField),
                 new CodeInstruction(OpCodes.Ldarg_0),
-#if LATEST
+#if !PRE_V1_40_8
                 new CodeInstruction(OpCodes.Ldfld, _variableMovementDataProviderField),
 #else
                 new CodeInstruction(OpCodes.Ldfld, _move1DurationField),

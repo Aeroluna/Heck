@@ -14,7 +14,7 @@ namespace NoodleExtensions.HarmonyPatches.Objects;
 
 internal class ObstacleInitNoodlifier : IAffinity, IDisposable
 {
-#if LATEST
+#if !PRE_V1_40_8
     private static readonly FieldInfo _widthField = AccessTools.Field(
         typeof(ObstacleController),
         nameof(ObstacleController._width));
@@ -77,7 +77,7 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
     private float GetCustomWidth(float @default, ObstacleData obstacleData)
     {
         _deserializedData.Resolve(obstacleData, out NoodleObstacleData? noodleData);
-#if LATEST
+#if !PRE_V1_40_8
         float? width = noodleData?.Width * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
 #else
         float? width = noodleData?.Width;
@@ -111,7 +111,7 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
         ObstacleController __instance,
         Quaternion ____worldRotation,
         ObstacleData obstacleData,
-#if LATEST
+#if !PRE_V1_40_8
         IVariableMovementDataProvider ____variableMovementDataProvider,
         ObstacleSpawnData obstacleSpawnData,
 #else
@@ -155,7 +155,7 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
         noodleData.InternalLocalRotation = localRotation;
         noodleData.InternalBoundsSize = ____bounds.size;
 
-#if LATEST
+#if !PRE_V1_40_8
         noodleData.InternalStartPos = obstacleSpawnData.moveOffset;
         Vector3 noteOffset = ____variableMovementDataProvider.jumpEndPosition + obstacleSpawnData.moveOffset;
         noteOffset.z = 0;
@@ -186,7 +186,7 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
                 new CodeInstruction(OpCodes.Ldarg_1),
                 _getWorldRotation)
 
-#if !LATEST
+#if PRE_V1_40_8
             // inverse world rotation
             /*
              * -- this._inverseWorldRotation = Quaternion.Euler(0f, -worldRotation, 0f);
@@ -197,11 +197,7 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldfld, _worldRotationField),
                 new CodeInstruction(OpCodes.Call, _invertQuaternion))
-#if V1_39_1
-            .RemoveInstructionsWithOffsets(-7, -1)
-#else
             .RemoveInstructionsWithOffsets(-5, -1)
-#endif
 #endif
 
             // width
@@ -209,7 +205,7 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
              * -- this._width = (float)obstacleData.width * singleLineWidth;
              * ++ this._width = GetCustomWidth((float)obstacleData.width * singleLineWidth, obstacleData);
              */
-#if LATEST
+#if !PRE_V1_40_8
             .MatchForward(false, new CodeMatch(OpCodes.Stfld, _widthField))
 #else
             .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _widthGetter))

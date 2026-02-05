@@ -54,7 +54,7 @@ internal class NoodlePlayerInstaller : Installer
         Container.BindInterfacesTo<NoodledSpawnMovementData>().AsSingle();
         Container.BindInterfacesTo<ObjectCallbackAheadTimeReorder>().AsSingle();
 
-#if LATEST
+#if !PRE_V1_40_8
         // VariableMovementProvider
         Container
             .BindMemoryPool<NoodleMovementDataProvider, NoodleMovementDataProvider.Pool>()
