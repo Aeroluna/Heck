@@ -74,11 +74,13 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
 #endif
             null)
     {
-#if !PRE_V1_37_1
+#if !LATEST
+    #if !PRE_V1_37_1
         BeatmapLevelData = beatmapLevelData;
-#else
+    #else
         BeatmapDifficulty = beatmapDifficulty;
         BeatmapCharacteristic = beatmapCharacteristic;
+    #endif
 #endif
         MultiplayerLevelFinishedCallback = levelFinishedCallback;
         DidDisconnectCallback = didDisconnectCallback;
@@ -87,22 +89,26 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
     public StartMultiplayerLevelParameters(StartMultiplayerLevelParameters original)
         : base(original)
     {
-#if !PRE_V1_37_1
+#if !LATEST
+    #if !PRE_V1_37_1
         BeatmapLevelData = original.BeatmapLevelData;
-#else
+    #else
         BeatmapDifficulty = original.BeatmapDifficulty;
         BeatmapCharacteristic = original.BeatmapCharacteristic;
+    #endif
 #endif
         MultiplayerLevelFinishedCallback = original.MultiplayerLevelFinishedCallback;
         DidDisconnectCallback = original.DidDisconnectCallback;
     }
 
-#if !PRE_V1_37_1
+#if !LATEST
+    #if !PRE_V1_37_1
     public IBeatmapLevelData BeatmapLevelData { get; }
-#else
+    #else
     public BeatmapDifficulty BeatmapDifficulty { get; }
 
     public BeatmapCharacteristicSO BeatmapCharacteristic { get; }
+    #endif
 #endif
 
     public Action<MultiplayerLevelScenesTransitionSetupDataSO, MultiplayerResultsData>? MultiplayerLevelFinishedCallback

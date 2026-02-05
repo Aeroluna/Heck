@@ -174,7 +174,7 @@ public sealed class PlayViewManager : IDisposable
 #if !PRE_V1_37_1
             multiplayerStartParameters.BeatmapKey,
             multiplayerStartParameters.BeatmapLevel,
-            multiplayerStartParameters.BeatmapLevelData,
+            multiplayerStartParameters.BeatmapLevelData!,
 #else
             multiplayerStartParameters.PreviewBeatmapLevel,
             multiplayerStartParameters.BeatmapDifficulty,

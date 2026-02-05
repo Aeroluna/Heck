@@ -217,7 +217,7 @@ public class ReLoader : ITickable
 #endif
         IReadonlyBeatmapData beatmapData = _gameplayCoreSceneSetupData.TransformBeatmapData(
             _gameplayCoreSceneSetupData._beatmapDataLoader.LoadBeatmapData(
-                _gameplayCoreSceneSetupData.beatmapLevelData,
+                _gameplayCoreSceneSetupData.beatmapLevelData!,
                 beatmapKey,
                 beatsPerMinute,
                 environmentName == targetEnvironmentInfo.serializedName,
@@ -227,7 +227,7 @@ public class ReLoader : ITickable
 #endif
                 BeatmapLevelDataVersion.Original,
                 _gameplayCoreSceneSetupData.gameplayModifiers,
-                _gameplayCoreSceneSetupData.playerSpecificSettings));
+                _gameplayCoreSceneSetupData.playerSpecificSettings)!);
 #else
         _reLoaderLoader.Reload(_difficultyBeatmap);
         IReadonlyBeatmapData beatmapData =
