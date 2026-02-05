@@ -145,7 +145,7 @@ internal class SpawnDataManager
 #if LATEST
         const float layerHeight = StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
 #else
-        const float layerHeight = StaticBeatmapObjectSpawnMovementData.layerHeight;
+        float layerHeight = StaticBeatmapObjectSpawnMovementData.layerHeight;
 #endif
         if (height.HasValue)
         {
