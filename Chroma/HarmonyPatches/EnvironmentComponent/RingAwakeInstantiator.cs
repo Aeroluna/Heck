@@ -78,6 +78,7 @@ internal static class RingAwakeInstantiator
     private static TrackLaneRing QueueInjectParent(DiContainer container, TrackLaneRing prefab, Transform? parent)
     {
         TrackLaneRing trackLaneRing = Object.Instantiate(prefab, parent);
+        trackLaneRing.gameObject.name = trackLaneRing.gameObject.name + " (Chroma)";
         List<MonoBehaviour> injectables = [];
         ZenUtilInternal.GetInjectableMonoBehavioursUnderGameObject(trackLaneRing.gameObject, injectables);
         injectables.ForEach(container.QueueForInject);
