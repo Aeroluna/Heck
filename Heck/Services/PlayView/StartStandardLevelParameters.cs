@@ -30,7 +30,7 @@ public class StartStandardLevelParameters
         PlayerSpecificSettings playerSpecificSettings,
         PracticeSettings? practiceSettings,
 #if !PRE_V1_37_1
-        EnvironmentsListModel environmentsListModel,
+        EnvironmentsListModel? environmentsListModel,
 #endif
 #if LATEST
         GameplayAdditionalInformation? gameplayAdditionalInformation,
@@ -172,7 +172,7 @@ public class StartStandardLevelParameters
     public PracticeSettings? PracticeSettings { get; }
 
 #if !PRE_V1_37_1
-    public EnvironmentsListModel EnvironmentsListModel { get; }
+    public EnvironmentsListModel? EnvironmentsListModel { get; }
 #endif
 
 #if LATEST

@@ -302,7 +302,7 @@ public sealed class PlayViewManager : IDisposable
             _currentParameters.PlayerSpecificSettings,
             _currentParameters.PracticeSettings,
 #if !PRE_V1_37_1
-            _currentParameters.EnvironmentsListModel,
+            _currentParameters.EnvironmentsListModel!,
 #endif
 #if LATEST
             _currentParameters.GameplayAdditionalInformation!,

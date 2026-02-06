@@ -103,7 +103,7 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
 
 #if !LATEST
     #if !PRE_V1_37_1
-    public IBeatmapLevelData BeatmapLevelData { get; }
+    public IBeatmapLevelData? BeatmapLevelData { get; }
     #else
     public BeatmapDifficulty BeatmapDifficulty { get; }
 
