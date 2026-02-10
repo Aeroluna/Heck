@@ -60,7 +60,7 @@ internal class FakePatchesManager : IDisposable
             .Start()
             .MatchForward(false, new CodeMatch(OpCodes.Call, _currentGetter))
             .Advance(2)
-#if  LATEST
+#if !PRE_V1_40_8
             .Insert(
                 new CodeInstruction(OpCodes.Ldloc_2),
 #else
