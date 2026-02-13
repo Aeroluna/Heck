@@ -68,6 +68,11 @@ public static class AnimationExtensions
         string[] trackNames;
         if (trackNameRaw is List<object> listTrack)
         {
+            if (listTrack.Count == 0)
+            {
+                throw new InvalidOperationException("Track array was empty.");
+            }
+
             trackNames = listTrack.Cast<string>().ToArray();
         }
         else
