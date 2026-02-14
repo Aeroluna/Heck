@@ -18,7 +18,7 @@ public static class LoggerExtensions
     }
 
     [PublicAPI]
-    public static void PrintHarmonyInfo(Logger logger, MethodBase method)
+    public static void PrintHarmonyInfo(this Logger logger, MethodBase method)
     {
         Patches patches = Harmony.GetPatchInfo(method);
         if (patches == null)

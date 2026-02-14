@@ -78,7 +78,7 @@ public static class Easings
     /// </summary>
     public static float EaseInCirc(float p)
     {
-        return 1f - Math.Sqrt(Math.Max(Math.Epsilon, 1f - p * p));
+        return 1f - Math.Sqrt(Math.Max(Math.Epsilon, 1f - (p * p)));
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ public static class Easings
     public static float EaseInExpo(float p)
     {
         const float S = 1f / 1023f;
-        return p <= 0.0f ? p : (Math.Pow(2f, 10f * p) * S - S);
+        return p <= 0.0f ? p : ((Math.Pow(2f, 10f * p) * S) - S);
     }
 
     /// <summary>
@@ -141,13 +141,13 @@ public static class Easings
     /// </summary>
     public static float EaseInOutCirc(float p)
     {
-        if(p < 0.5f)
+        if (p < 0.5f)
         {
-            return 0.5f - Math.Sqrt(Math.Max(Math.Epsilon, 0.25f - p*p));
+            return 0.5f - Math.Sqrt(Math.Max(Math.Epsilon, 0.25f - (p * p)));
         }
 
         p -= 1f;
-        return 0.5f + Math.Sqrt(Math.Max(Math.Epsilon, 0.25f - p*p));
+        return 0.5f + Math.Sqrt(Math.Max(Math.Epsilon, 0.25f - (p * p)));
     }
 
     /// <summary>
@@ -159,7 +159,7 @@ public static class Easings
     {
         float f = p - 0.5f;
         float x = Math.Abs(f);
-        return ((4f * x - 6f) * x + 3f) * f + 0.5f;
+        return (((((4f * x) - 6f) * x) + 3f) * f) + 0.5f;
     }
 
     /// <summary>
@@ -184,23 +184,23 @@ public static class Easings
     /// </summary>
     public static float EaseInOutExpo(float p)
     {
-        //p = Math.Clamp01(p);
-        if(p > 1f)
+        // p = Math.Clamp01(p);
+        if (p > 1f)
         {
             return p;
         }
 
-        p = p * 20f - 10f;
+        p = (p * 20f) - 10f;
         const float S = 512f / 1023f;
 
         // Left half
-        if(p < 0f)
+        if (p < 0f)
         {
-            return 0.5f - (S - S * Math.Pow(2f, p));
+            return 0.5f - (S - (S * Math.Pow(2f, p)));
         }
 
         // Right half
-        return 0.5f + (S - S * Math.Pow(2f, -p));
+        return 0.5f + (S - (S * Math.Pow(2f, -p)));
     }
 
     /// <summary>
@@ -209,7 +209,7 @@ public static class Easings
     public static float EaseInOutQuad(float p)
     {
         float x = p - 0.5f;
-        return (x - x * Math.Abs(x)) * 2f + 0.5f;
+        return ((x - (x * Math.Abs(x))) * 2f) + 0.5f;
     }
 
     /// <summary>
@@ -220,10 +220,10 @@ public static class Easings
         float t = 0f;
         float f = p - 0.5f;
         float x = Math.Abs(f);
-        t = x * -8f + 16f;
-        t = t * x - 12f;
-        t = t * x + 4f;
-        return t * f + 0.5f;
+        t = (x * -8f) + 16f;
+        t = (t * x) - 12f;
+        t = (t * x) + 4f;
+        return (t * f) + 0.5f;
     }
 
     /// <summary>
@@ -236,11 +236,11 @@ public static class Easings
         float t = 0f;
         float f = p - 0.5f;
         float x = Math.Abs(f);
-        t = x * 16f - 40f;
-        t = t * x + 40f;
-        t = t * x - 20f;
-        t = t * x + 5f;
-        return t * f + 0.5f;
+        t = (x * 16f) - 40f;
+        t = (t * x) + 40f;
+        t = (t * x) - 20f;
+        t = (t * x) + 5f;
+        return (t * f) + 0.5f;
     }
 
     /// <summary>
@@ -312,18 +312,18 @@ public static class Easings
         float x = a;
 
         // Second wave
-        float q1 = p - (6f/11f);
-        float b = (363f / 40f) * q1 * q1 + (7f / 10f);
+        float q1 = p - (6f / 11f);
+        float b = ((363f / 40f) * q1 * q1) + (7f / 10f);
         x = (b < x) ? b : x;
 
         // Third wave
-        float q2 = p - (179f/220f);
-        float c = (4356f / 361f) * q2 * q2 + (91f / 100f);
+        float q2 = p - (179f / 220f);
+        float c = ((4356f / 361f) * q2 * q2) + (91f / 100f);
         x = (c < x) ? c : x;
 
         // Fourth wave
-        float q3 = p - (19f/20f);
-        float d = (54f / 5f) * q3 * q3 + (973f / 1000f);
+        float q3 = p - (19f / 20f);
+        float d = ((54f / 5f) * q3 * q3) + (973f / 1000f);
         x = (d < x) ? d : x;
 
         return x;
@@ -360,7 +360,7 @@ public static class Easings
     public static float EaseOutExpo(float p)
     {
         const float S = 1024f / 1023f;
-        return p > 1.0f ? p : (S - S * Math.Pow(2f, -10f * p));
+        return p > 1.0f ? p : (S - (S * Math.Pow(2f, -10f * p)));
     }
 
     /// <summary>
