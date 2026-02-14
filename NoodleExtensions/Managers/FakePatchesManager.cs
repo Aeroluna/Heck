@@ -60,13 +60,8 @@ internal class FakePatchesManager : IDisposable
             .Start()
             .MatchForward(false, new CodeMatch(OpCodes.Call, _currentGetter))
             .Advance(2)
-#if !PRE_V1_40_8
             .Insert(
                 new CodeInstruction(OpCodes.Ldloc_2),
-#else
-            .Insert(
-                new CodeInstruction(OpCodes.Ldloc_1),
-#endif
                 _obstacleFakeCheck,
                 new CodeInstruction(OpCodes.Brtrue_S, label))
             .InstructionEnumeration();
