@@ -34,7 +34,7 @@ internal class HeckPlayerInstaller : Installer
         Container.BindInterfacesAndSelfTo<SiraUtilHeadFinder>().AsSingle();
 
         // Note Cut Sound Fix
-        Container.BindInterfacesTo<NoteCutSoundLimiter>().AsSingle();
+        Container.BindInterfacesTo<NoteCutSoundDelayer>().AsSingle();
 
         // Events
         Container.Bind<CoroutineDummy>().FromNewComponentOnRoot().AsSingle();
