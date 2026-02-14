@@ -39,7 +39,7 @@ internal class MovementDataGetter : IInitializable, ITickable
         IVariableMovementDataProvider variableMovementDataProvider,
         BeatmapObjectSpawnController.InitData initData)
 #else
-        BeatmapObjectSpawnMovementData beatmapObjectSpawnMovementData)
+        IBeatmapObjectSpawnController beatmapObjectSpawnController)
 #endif
     {
         _movementDataBaseProvider = movementDataBaseProvider;
@@ -50,7 +50,7 @@ internal class MovementDataGetter : IInitializable, ITickable
         _variableMovementDataProvider = variableMovementDataProvider;
         _initData = initData;
 #else
-        _beatmapObjectSpawnMovementData = beatmapObjectSpawnMovementData;
+        _beatmapObjectSpawnMovementData = beatmapObjectSpawnController.beatmapObjectSpawnMovementData;
 #endif
     }
 
