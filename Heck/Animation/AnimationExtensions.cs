@@ -80,20 +80,20 @@ public static class AnimationExtensions
             trackNames = [(string)trackNameRaw];
         }
 
-        Track[] result = new Track[trackNames.Length];
-        for (int i = 0; i < trackNames.Length; i++)
+        List<Track> result = new(trackNames.Length);
+        foreach (string trackName in trackNames)
         {
-            if (beatmapTracks.TryGetValue(trackNames[i], out Track track))
+            if (beatmapTracks.TryGetValue(trackName, out Track track))
             {
-                result[i] = track;
+                result.Add(track);
             }
             else
             {
-                throw new InvalidOperationException($"Could not find track [{trackNames[i]}].");
+                Plugin.Log.Error($"Could not find track [{trackName}].");
             }
         }
 
-        return result;
+        return result.ToArray();
     }
 
     [Pure]
