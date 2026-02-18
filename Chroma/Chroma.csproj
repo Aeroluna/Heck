@@ -13,7 +13,7 @@
     <PluginId>Chroma</PluginId>
     <PluginName>Chroma</PluginName>
     <Author>Aeroluna</Author>
-    <Version>2.9.20</Version>
+    <Version>2.9.21</Version>
     <Description>Chroma™ boasts the most power in color customization you've ever seen, allowing mappers to customize blocks, lights, sabers, and barriers into not just one but multiple colors!</Description>
   </PropertyGroup>
   <ItemGroup>
