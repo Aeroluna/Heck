@@ -192,7 +192,7 @@ internal static class ProcessNotesNoodleDataInTimeRow
         }
 
         CustomSliderData[] sliderTailDatasInTimeRow = (from object sliderTailData in _getSliderTailDatas(containerItems)
-            select (CustomSliderData)_sliderField.GetValue(sliderTailData)).ToArray();
+            select _sliderField.GetValue(sliderTailData)).OfType<CustomSliderData>().ToArray();
 
 #if LATEST
         foreach (CustomSliderData sliderData in slidersInTimeRow)
