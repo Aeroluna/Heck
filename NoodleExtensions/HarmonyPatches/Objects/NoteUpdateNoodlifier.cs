@@ -96,8 +96,6 @@ internal class NoteUpdateNoodlifier : IAffinity
             floorMovement._moveEndOffset = moveEndPos + offset;
             noteJump._startOffset = moveEndPos + offset;
             noteJump._endOffset = jumpEndPos + offset;
-            noteJump._startPos = variableMovementDataProvider.moveEndPosition + noteJump._startOffset;
-            noteJump._endPos = variableMovementDataProvider.jumpEndPosition + noteJump._endOffset;
 #else
             floorMovement._startPos = moveStartPos + offset;
             floorMovement._endPos = moveEndPos + offset;
