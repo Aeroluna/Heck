@@ -11,9 +11,6 @@ namespace Heck.HarmonyPatches;
  */
 internal class NoteCutSoundDelayer : ITickable, IAffinity
 {
-    private const int MAX_SOUNDS_AT_ONCE = 32;
-
-    private readonly List<NoteController> _activeCutSounds = new(MAX_SOUNDS_AT_ONCE);
     private readonly List<NoteController> _queuedCutSounds = [];
 
     private readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
@@ -39,7 +36,8 @@ internal class NoteCutSoundDelayer : ITickable, IAffinity
 
         for (int i = _queuedCutSounds.Count - 1; i >= 0; i--)
         {
-            if (_activeCutSounds.Count >= MAX_SOUNDS_AT_ONCE)
+            if (_noteCutSoundEffectManager._noteCutSoundEffectPoolContainer.activeItems.Count >=
+                NoteCutSoundEffectManager.kMaxNumberOfEffects)
             {
                 return;
             }
@@ -52,7 +50,6 @@ internal class NoteCutSoundDelayer : ITickable, IAffinity
                     _queuedCutSounds.Remove(noteController);
                     break;
                 case < 1:
-                    _activeCutSounds.Add(noteController);
                     _queuedCutSounds.Remove(noteController);
                     _noteCutSoundEffectManager.HandleNoteWasSpawned(noteController);
                     break;
@@ -83,13 +80,6 @@ internal class NoteCutSoundDelayer : ITickable, IAffinity
     private void RemoveSubscribe(NoteCutSoundEffectManager __instance)
     {
         _beatmapObjectManager.noteWasSpawnedEvent -= QueuedCreate;
-    }
-
-    [AffinityPostfix]
-    [AffinityPatch(typeof(NoteCutSoundEffectManager), nameof(NoteCutSoundEffectManager.HandleNoteCutSoundEffectDidFinish))]
-    private void RemoveActive(NoteCutSoundEffect noteCutSoundEffect)
-    {
-        _activeCutSounds.Remove(noteCutSoundEffect._noteController);
     }
 
     /*[AffinityTranspiler]
