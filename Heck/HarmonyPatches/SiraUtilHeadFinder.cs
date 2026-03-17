@@ -7,20 +7,24 @@ namespace Heck.HarmonyPatches;
 [HeckPatch(PatchType.Features)]
 internal class SiraUtilHeadFinder : IAffinity
 {
+    private const string _noodleRoomOffset = "NoodleRoomOffset";
+
     internal Transform? FpfcHeadTransform { get; private set; }
 
     // cant get GameTransformFPFCListener injected for some reason
-    [AffinityPostfix]
+    [AffinityPrefix]
     [AffinityPatch(typeof(GameTransformFPFCListener), nameof(GameTransformFPFCListener.Enabled))]
-    private void Enabled(Transform ____originalHeadTransform)
+    private bool Enabled(GameTransformFPFCListener __instance)
     {
-        FpfcHeadTransform = ____originalHeadTransform;
+        FpfcHeadTransform = __instance._originalHeadTransform;
+        return __instance._originalHeadTransform?.parent?.name != _noodleRoomOffset;
     }
 
-    [AffinityPostfix]
+    [AffinityPrefix]
     [AffinityPatch(typeof(GameTransformFPFCListener), nameof(GameTransformFPFCListener.Disabled))]
-    private void Disabled()
+    private bool Disabled(GameTransformFPFCListener __instance)
     {
         FpfcHeadTransform = null;
+        return __instance._originalHeadTransform?.parent?.name != _noodleRoomOffset;
     }
 }
