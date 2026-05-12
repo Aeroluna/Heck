@@ -12,17 +12,19 @@ using static Heck.HeckController;
 namespace Heck.Deserialize;
 
 [UsedImplicitly]
-internal class DeserializerManager
+public class DeserializerManager
 {
     private readonly HashSet<DataDeserializer> _customDataDeserializers = [];
     private readonly SiraLog _log;
+    private TrackBuilder _trackManager = new();
+    private Dictionary<string, List<object>> _pointDefinitions = new();
 
     private DeserializerManager(SiraLog log)
     {
         _log = log;
     }
 
-    internal void DeserializeBeatmapData(
+    public void DeserializeBeatmapData(
 #if !PRE_V1_37_1
         BeatmapLevel beatmapLevel,
 #else
@@ -32,7 +34,8 @@ internal class DeserializerManager
         IReadonlyBeatmapData untransformedBeatmapData,
         bool leftHanded,
         out Dictionary<string, Track> beatmapTracks,
-        out HashSet<(object? Id, DeserializedData DeserializedData)> deserializedDatas)
+        out HashSet<(object? Id, DeserializedData DeserializedData)> deserializedDatas,
+        bool reusable = false)
     {
         _log.Trace("Deserializing BeatmapData");
 
@@ -44,7 +47,11 @@ internal class DeserializerManager
         }
 
         // tracks are built based off the untransformed beatmapdata so modifiers like "no walls" do not prevent track creation
-        TrackBuilder trackManager = new();
+        if (!reusable)
+        {
+            _trackManager = new();
+        }
+
         foreach (BeatmapObjectData beatmapObjectData in
                  ((CustomBeatmapData)untransformedBeatmapData).beatmapObjectDatas)
         {
@@ -69,12 +76,15 @@ internal class DeserializerManager
 
             foreach (string trackName in trackNames)
             {
-                trackManager.AddTrack(trackName);
+                _trackManager.AddTrack(trackName);
             }
         }
 
         // Point definitions
-        Dictionary<string, List<object>> pointDefinitions = new();
+        if (!reusable)
+        {
+            _pointDefinitions = new();
+        }
 
         if (v2)
         {
@@ -139,7 +149,7 @@ internal class DeserializerManager
         ////customBeatmapData.customData["eventDefinitions"] = eventDefinitions;
 
         // Currently used by Chroma.GameObjectTrackController
-        beatmapTracks = trackManager.Tracks;
+        beatmapTracks = _trackManager.Tracks;
 
 #if !PRE_V1_37_1
         float bpm = beatmapLevel.beatsPerMinute;
@@ -150,9 +160,9 @@ internal class DeserializerManager
         object[] inputs =
         [
             customBeatmapData,
-            trackManager,
-            pointDefinitions, // TODO: use a readonly implementation
-            trackManager.Tracks,
+            _trackManager,
+            _pointDefinitions, // TODO: use a readonly implementation
+            _trackManager.Tracks,
             leftHanded,
             bpm
         ];
@@ -176,9 +186,9 @@ internal class DeserializerManager
 
         void AddPoint(string pointDataName, List<object> pointData)
         {
-            if (!pointDefinitions.ContainsKey(pointDataName))
+            if (!_pointDefinitions.ContainsKey(pointDataName))
             {
-                pointDefinitions.Add(pointDataName, pointData);
+                _pointDefinitions.Add(pointDataName, pointData);
             }
             else
             {

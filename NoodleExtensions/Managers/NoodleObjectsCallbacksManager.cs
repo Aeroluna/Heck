@@ -77,7 +77,11 @@ internal class NoodleObjectsCallbacksManager : IDisposable
              linkedListNode != null;
              linkedListNode = linkedListNode.Next)
         {
-            BeatmapObjectData value2 = (BeatmapObjectData)linkedListNode.Value;
+            if (linkedListNode.Value is not BeatmapObjectData value2)
+            {
+                continue;
+            }
+
             if (!_deserializedData.Resolve(value2, out NoodleObjectData? noodleData))
             {
                 throw new InvalidOperationException(
