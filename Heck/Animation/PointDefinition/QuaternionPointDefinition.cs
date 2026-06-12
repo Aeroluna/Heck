@@ -161,11 +161,12 @@ public class QuaternionPointDefinition : PointDefinition<Quaternion>
             {
                 foreach (float valueValue in value.Values)
                 {
-                    _reusableArray[i++] = valueValue;
                     if (i >= ARRAY_SIZE)
                     {
                         break;
                     }
+
+                    _reusableArray[i++] = valueValue;
                 }
             }
 
