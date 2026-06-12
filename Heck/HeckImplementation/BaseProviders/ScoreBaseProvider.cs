@@ -30,7 +30,7 @@ internal class ScoreBaseProvider : IBaseProvider
     internal float[] SongLength { get; set; } = new float[1];
 }
 
-internal class ScoreGetter : ITickable, IDisposable
+internal class ScoreGetter : IInitializable, ITickable, IDisposable
 {
     private readonly ScoreBaseProvider _scoreBaseProvider;
     private readonly IScoreController _scoreController;
@@ -65,8 +65,20 @@ internal class ScoreGetter : ITickable, IDisposable
         _songController = songController;
         _audioTimeSource = audioTimeSource;
         songController.songDidFinishEvent += HandleSongDidFinish;
-        scoreBaseProvider.SongLength[0] = audioTimeSource.songLength;
+    }
+
+    public void Initialize()
+    {
+        _scoreBaseProvider.SongTime[0] = _audioTimeSource.songTime;
+        _scoreBaseProvider.MultipliedScore[0] = _scoreController.multipliedScore;
+        _scoreBaseProvider.ModifiedScore[0] = _scoreController.modifiedScore;
+        _scoreBaseProvider.ImmediateMaxPossibleMultipliedScore[0] = _scoreController.immediateMaxPossibleMultipliedScore;
+        _scoreBaseProvider.ImmediateMaxPossibleModifiedScore[0] = _scoreController.immediateMaxPossibleModifiedScore;
         _scoreBaseProvider.Multiplier[0] = 1;
+        _scoreBaseProvider.Combo[0] = _comboController._combo;
+        _scoreBaseProvider.RelativeScore[0] = _relativeScoreAndImmediateRankCounter.relativeScore;
+        _scoreBaseProvider.Energy[0] = _gameEnergyCounter.energy;
+        _scoreBaseProvider.SongLength[0] = _audioTimeSource.songLength;
     }
 
     public void Tick()
