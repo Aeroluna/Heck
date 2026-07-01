@@ -43,6 +43,8 @@ internal class GlsColorChromafier : IAffinity, IInitializable
     private static readonly MethodInfo SetColorMethod =
         typeof(LightColorGroupEffect).GetMethod("SetColor", BindingFlags.Instance | BindingFlags.NonPublic);
 
+    private static readonly object[] NO_TWEEN_INDICATOR = [0f];
+
     /// <inheritdoc/>
     public void Initialize()
     {
@@ -84,7 +86,7 @@ internal class GlsColorChromafier : IAffinity, IInitializable
             {
                 // Without this we would deviate from the out of the box behavior and change to the next color immediately instead of waiting for its node.
                 // This is because the default implementation sets the color to 0f when there is no tween. It looks dumb AF, though.
-                SetColorMethod.Invoke(__instance, new object[] { 0f });
+                SetColorMethod.Invoke(__instance, NO_TWEEN_INDICATOR);
                 return;
             }
         }
