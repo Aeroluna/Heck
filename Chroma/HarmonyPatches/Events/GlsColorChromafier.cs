@@ -13,12 +13,6 @@ namespace Chroma.HarmonyPatches.Events;
 /// <summary>
 /// Applies Chroma custom colors to GLS (LightColorGroupEffect) events.
 ///
-/// V3 maps: CustomJSONData injects <see cref="ICustomData"/> into <c>CustomLightColorBeatmapEventData</c>
-/// via its <c>LightColorBaseDataConvertV3</c> transpiler. Colors are read directly from the event's
-/// <c>customData["color"]</c> at playback time — no file I/O or lookup table required.
-///
-/// V4 maps: not yet supported. Will be handled by V4→V3 deserialization when implemented.
-///
 /// Patch strategy:
 ///   POSTFIX HandleColorChangeBeatmapEvent — after SetData has run, patch _fromColor/_toColor directly.
 ///     SetColor(t) does Color.LerpUnclamped(_fromColor, _toColor, t) every frame, so these two fields
