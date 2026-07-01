@@ -28,19 +28,19 @@ namespace Chroma.HarmonyPatches.Events;
 /// </summary>
 internal class GlsColorChromafier : IAffinity, IInitializable
 {
-    private static readonly FieldInfo? FromColorField =
+    private static readonly FieldInfo FromColorField =
         typeof(LightColorGroupEffect).GetField("_fromColor", BindingFlags.Instance | BindingFlags.NonPublic);
 
-    private static readonly FieldInfo? ToColorField =
+    private static readonly FieldInfo ToColorField =
         typeof(LightColorGroupEffect).GetField("_toColor", BindingFlags.Instance | BindingFlags.NonPublic);
 
-    private static readonly FieldInfo? AltFromColorField =
+    private static readonly FieldInfo AltFromColorField =
         typeof(LightColorGroupEffect).GetField("_alternativeFromColor", BindingFlags.Instance | BindingFlags.NonPublic);
 
-    private static readonly FieldInfo? AltToColorField =
+    private static readonly FieldInfo AltToColorField =
         typeof(LightColorGroupEffect).GetField("_alternativeToColor", BindingFlags.Instance | BindingFlags.NonPublic);
 
-    private static readonly MethodInfo? SetColorMethod =
+    private static readonly MethodInfo SetColorMethod =
         typeof(LightColorGroupEffect).GetMethod("SetColor", BindingFlags.Instance | BindingFlags.NonPublic);
 
     /// <inheritdoc/>
@@ -48,13 +48,8 @@ internal class GlsColorChromafier : IAffinity, IInitializable
     {
     }
 
-    private static void ApplyColorWithAlpha(FieldInfo? field, LightColorGroupEffect instance, Color customColor)
+    private static void ApplyColorWithAlpha(FieldInfo field, LightColorGroupEffect instance, Color customColor)
     {
-        if (field == null)
-        {
-            return;
-        }
-
         Color existing = (Color)field.GetValue(instance);
         field.SetValue(instance, customColor.ColorWithAlpha(existing.a));
     }
@@ -89,7 +84,7 @@ internal class GlsColorChromafier : IAffinity, IInitializable
             {
                 // Without this we would deviate from the out of the box behavior and change to the next color immediately instead of waiting for its node.
                 // This is because the default implementation sets the color to 0f when there is no tween. It looks dumb AF, though.
-                SetColorMethod?.Invoke(__instance, new object[] { 0f });
+                SetColorMethod.Invoke(__instance, new object[] { 0f });
                 return;
             }
         }
