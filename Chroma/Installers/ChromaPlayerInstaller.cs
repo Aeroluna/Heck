@@ -124,6 +124,9 @@ internal class ChromaPlayerInstaller : Installer
             Container.Bind<LightWithIdCustomizer>().AsSingle();
         }
 
+        // GLS color discovery — runs unconditionally (no Chroma map requirement needed)
+        Container.BindInterfacesTo<GlsColorChromafier>().AsSingle();
+
         // Zen mode
         Container.BindInterfacesTo<ObstacleHeadCollisionDisable>().AsSingle();
         Container.BindInterfacesTo<ZenModeBinder>().AsSingle();
