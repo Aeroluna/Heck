@@ -344,28 +344,49 @@ internal static class ProcessNotesNoodleDataInTimeRow
     private static IEnumerable<CodeInstruction> ProcessColorNotesInTimeRowTranspiler(
         IEnumerable<CodeInstruction> instructions)
     {
-        return new CodeMatcher(instructions)
+        CodeMatcher codeMatcher = new(instructions);
 
-            // clamp
-            /*
-             * -- List<NoteData> list = this._notesInColumnsReusableProcessingListOfLists[noteData.lineIndex];
-             * ++ List<NoteData> list = this._notesInColumnsReusableProcessingListOfLists[Mathf.Clamp(noteData.lineIndex, 0, 3)];
-             */
+        // clamp
+        /*
+         * -- List<NoteData> list = this._notesInColumnsReusableProcessingListOfLists[noteData.lineIndex];
+         * ++ List<NoteData> list = this._notesInColumnsReusableProcessingListOfLists[Mathf.Clamp(noteData.lineIndex, 0, 3)];
+         */
+        codeMatcher
             .MatchForward(
                 true,
                 new CodeMatch(OpCodes.Ldloc_S),
                 new CodeMatch(OpCodes.Callvirt),
-                new CodeMatch(OpCodes.Ldelem_Ref))
-            .Insert(
+                new CodeMatch(OpCodes.Ldelem_Ref));
+
+        if (codeMatcher.IsValid)
+        {
+            codeMatcher.Insert(
                 new CodeInstruction(OpCodes.Ldc_I4_0),
                 new CodeInstruction(OpCodes.Ldc_I4_3),
-                new CodeInstruction(OpCodes.Call, _clampMethod))
+                new CodeInstruction(OpCodes.Call, _clampMethod));
+        }
+        else
+        {
+            // check if someone else has already patched a Clamp in
+            codeMatcher
+                .Start()
+                .MatchForward(
+                    true,
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Callvirt),
+                    new CodeMatch(OpCodes.Ldc_I4_0),
+                    new CodeMatch(OpCodes.Ldc_I4_3),
+                    new CodeMatch(i => (i.opcode == OpCodes.Call || i.opcode == OpCodes.Callvirt) && i.operand is MethodBase method && method.DeclaringType.FullName is "System.Math" or "UnityEngine.Mathf" && method.Name == nameof(Mathf.Clamp)),
+                    new CodeMatch(OpCodes.Ldelem_Ref))
+                .ThrowIfInvalid("Failed to apply Clamp patch");
+        }
 
-            // yeet slider processing
-            /*
-             * ++ return;
-             * foreach (SliderData sliderData in enumerable2)
-             */
+        // yeet slider processing
+        /*
+         * ++ return;
+         * foreach (SliderData sliderData in enumerable2)
+         */
+        return codeMatcher
             .MatchForward(
                 false,
                 new CodeMatch(OpCodes.Ldloc_1),
