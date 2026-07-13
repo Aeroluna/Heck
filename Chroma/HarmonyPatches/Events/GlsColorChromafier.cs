@@ -23,19 +23,19 @@ namespace Chroma.HarmonyPatches.Events;
 internal class GlsColorChromafier : IAffinity, IInitializable
 {
     private static readonly FieldInfo FromColorField =
-        typeof(LightColorGroupEffect).GetField("_fromColor", BindingFlags.Instance | BindingFlags.NonPublic);
+        typeof(LightColorGroupEffect).GetField("_fromColor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
     private static readonly FieldInfo ToColorField =
-        typeof(LightColorGroupEffect).GetField("_toColor", BindingFlags.Instance | BindingFlags.NonPublic);
+        typeof(LightColorGroupEffect).GetField("_toColor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
     private static readonly FieldInfo AltFromColorField =
-        typeof(LightColorGroupEffect).GetField("_alternativeFromColor", BindingFlags.Instance | BindingFlags.NonPublic);
+        typeof(LightColorGroupEffect).GetField("_alternativeFromColor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
     private static readonly FieldInfo AltToColorField =
-        typeof(LightColorGroupEffect).GetField("_alternativeToColor", BindingFlags.Instance | BindingFlags.NonPublic);
+        typeof(LightColorGroupEffect).GetField("_alternativeToColor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
     private static readonly MethodInfo SetColorMethod =
-        typeof(LightColorGroupEffect).GetMethod("SetColor", BindingFlags.Instance | BindingFlags.NonPublic);
+        typeof(LightColorGroupEffect).GetMethod("SetColor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
     private static readonly object[] NO_TWEEN_INDICATOR = [0f];
 
@@ -54,7 +54,17 @@ internal class GlsColorChromafier : IAffinity, IInitializable
     {
         if (eventData is ICustomData customDataEvent)
         {
-            return customDataEvent.customData.GetColor("color");
+            List<object>? color = customDataEvent.customData.Get<List<object>>("color");
+            if (color == null || color.Count < 3)
+            {
+                return null;
+            }
+
+            return new Color(
+                Convert.ToSingle(color[0]),
+                Convert.ToSingle(color[1]),
+                Convert.ToSingle(color[2]),
+                color.Count > 3 ? Convert.ToSingle(color[3]) : 1f);
         }
 
         return null;
@@ -68,7 +78,11 @@ internal class GlsColorChromafier : IAffinity, IInitializable
     {
         Color? fromColor = ResolveCustomColor(currentEventData);
         var nextEventData = currentEventData.nextSameTypeEventData as LightColorBeatmapEventData;
+#if PRE_V1_37_1
+        bool hasTween = nextEventData != null && nextEventData.transitionType != BeatmapEventTransitionType.Instant;
+#else
         bool hasTween = nextEventData != null && nextEventData.easeType != EaseType.None;
+#endif
         Color? toColor = hasTween ? ResolveCustomColor(nextEventData!) : fromColor;
 
         if (fromColor.HasValue)
