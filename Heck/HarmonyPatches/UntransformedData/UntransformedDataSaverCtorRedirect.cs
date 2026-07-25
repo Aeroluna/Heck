@@ -41,9 +41,15 @@ public class UntransformedDataSaveCtorRedirect
     [HarmonyTargetMethod]
     private static IEnumerable<MethodBase> TargetMethods()
     {
+#if LATEST
+        MethodInfo[] standard = typeof(StandardLevelScenesTransitionSetupData).GetMethods();
+        MethodInfo[] multiplayer = typeof(MultiplayerLevelScenesTransitionSetupData).GetMethods();
+        MethodInfo[] mission = typeof(MissionLevelScenesTransitionSetupData).GetMethods();
+#else
         MethodInfo[] standard = typeof(StandardLevelScenesTransitionSetupDataSO).GetMethods();
         MethodInfo[] multiplayer = typeof(MultiplayerLevelScenesTransitionSetupDataSO).GetMethods();
         MethodInfo[] mission = typeof(MissionLevelScenesTransitionSetupDataSO).GetMethods();
+#endif
         return standard.Concat(multiplayer).Concat(mission).Where(n => n.Name == "Init");
     }
 }

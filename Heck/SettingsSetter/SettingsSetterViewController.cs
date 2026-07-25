@@ -459,7 +459,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             _settingsManager.settings.quality.mainEffect =
                 (BeatSaber.Settings.QualitySettings.MainEffectOption)_modifiedMainSettings.MainEffectGraphicsSettings;
             _settingsManager.settings.quality.smokeGraphics = _modifiedMainSettings.SmokeGraphicsSettings;
-    #if !LATEST
+    #if PRE_V1_44_1
             _settingsManager.settings.quality.depthTexture = _modifiedMainSettings.SmokeGraphicsSettings;
     #endif
             _settingsManager.settings.quality.burnMarkTrails = _modifiedMainSettings.BurnMarkTrailsEnabled;

@@ -184,11 +184,11 @@ public sealed class PlayViewManager : IDisposable
             multiplayerStartParameters.OverrideColorScheme!,
             multiplayerStartParameters.GameplayModifiers,
             multiplayerStartParameters.PlayerSpecificSettings,
-#if LATEST
+#if !PRE_V1_44_1
             multiplayerStartParameters.EnvironmentsListModel!,
 #endif
             multiplayerStartParameters.PracticeSettings!,
-#if LATEST
+#if !PRE_V1_44_1
             string.Empty,
             false,
 #else
@@ -295,7 +295,7 @@ public sealed class PlayViewManager : IDisposable
 #if !PRE_V1_40_8
             _currentParameters.PlayerOverrideLightshowColors,
 #endif
-#if !V1_29_1 && !LATEST
+#if !V1_29_1 && PRE_V1_44_1
             _currentParameters.BeatmapOverrideColorScheme,
 #endif
             _currentParameters.GameplayModifiers,
@@ -304,7 +304,7 @@ public sealed class PlayViewManager : IDisposable
 #if !PRE_V1_37_1
             _currentParameters.EnvironmentsListModel!,
 #endif
-#if LATEST
+#if !PRE_V1_44_1
             _currentParameters.GameplayAdditionalInformation!,
 #else
             _currentParameters.BackButtonText,
@@ -312,7 +312,7 @@ public sealed class PlayViewManager : IDisposable
             _currentParameters.StartPaused,
 #endif
             _currentParameters.BeforeSceneSwitchCallback,
-#if LATEST
+#if !PRE_V1_44_1
             _currentParameters.AfterSceneSwitchCallback,
 #else
             null,
@@ -320,10 +320,14 @@ public sealed class PlayViewManager : IDisposable
             _currentParameters.LevelFinishedCallback,
 #if !V1_29_1
             _currentParameters.LevelRestartedCallback,
-        #if LATEST
+    #if LATEST
+            _currentParameters.BeatmapLevelData);
+    #else
+        #if !PRE_V1_44_1
             _currentParameters.BeatmapLevelData,
         #endif
             _currentParameters.RecordingToolData);
+    #endif
 #else
             _currentParameters.LevelRestartedCallback);
 #endif

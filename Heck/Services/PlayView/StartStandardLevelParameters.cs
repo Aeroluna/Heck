@@ -6,6 +6,7 @@ using Zenject;
 
 namespace Heck.PlayView;
 
+// this is my monster
 public class StartStandardLevelParameters
 {
     [UsedImplicitly]
@@ -23,7 +24,7 @@ public class StartStandardLevelParameters
 #if !PRE_V1_40_8
         bool playerOverrideLightshowColors,
 #endif
-#if !V1_29_1 && !LATEST
+#if !V1_29_1 && PRE_V1_44_1
         ColorScheme? beatmapOverrideColorScheme,
 #endif
         GameplayModifiers gameplayModifiers,
@@ -32,7 +33,7 @@ public class StartStandardLevelParameters
 #if !PRE_V1_37_1
         EnvironmentsListModel? environmentsListModel,
 #endif
-#if LATEST
+#if !PRE_V1_44_1
         GameplayAdditionalInformation? gameplayAdditionalInformation,
         Action? beforeSceneSwitchToGameplayCallback,
         Action<DiContainer>? afterSceneSwitchToGameplayCallback,
@@ -42,16 +43,25 @@ public class StartStandardLevelParameters
         bool startPaused,
         Action? beforeSceneSwitchCallback,
 #endif
-#if !PRE_V1_37_1 && !LATEST
+#if !PRE_V1_37_1 && PRE_V1_44_1
         Action<DiContainer>? afterSceneSwitchCallback,
 #endif
+#if LATEST
+        Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>? levelFinishedCallback,
+#else
         Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>? levelFinishedCallback,
+#endif
 #if !V1_29_1
-        Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>? levelRestartedCallback,
     #if LATEST
+        Action<LevelScenesTransitionSetupData, LevelCompletionResults>? levelRestartedCallback,
+        IBeatmapLevelData? beatmapLevelData)
+    #else
+        Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>? levelRestartedCallback,
+        #if !PRE_V1_44_1
         IBeatmapLevelData? beatmapLevelData,
-    #endif
+        #endif
         RecordingToolManager.SetupData? recordingToolData)
+    #endif
 #else
         Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>? levelRestartedCallback)
 #endif
@@ -69,7 +79,7 @@ public class StartStandardLevelParameters
 #if !PRE_V1_40_8
         PlayerOverrideLightshowColors = playerOverrideLightshowColors;
 #endif
-#if !V1_29_1 && !LATEST
+#if !V1_29_1 && PRE_V1_44_1
         BeatmapOverrideColorScheme = beatmapOverrideColorScheme;
 #endif
         GameplayModifiers = gameplayModifiers;
@@ -78,7 +88,7 @@ public class StartStandardLevelParameters
 #if !PRE_V1_37_1
         EnvironmentsListModel = environmentsListModel;
 #endif
-#if LATEST
+#if !PRE_V1_44_1
         GameplayAdditionalInformation = gameplayAdditionalInformation;
         BeforeSceneSwitchCallback = beforeSceneSwitchToGameplayCallback;
         AfterSceneSwitchCallback = afterSceneSwitchToGameplayCallback;
@@ -90,10 +100,10 @@ public class StartStandardLevelParameters
 #endif
         LevelFinishedCallback = levelFinishedCallback;
         LevelRestartedCallback = levelRestartedCallback;
-#if !V1_29_1
+#if !V1_29_1 && !LATEST
         RecordingToolData = recordingToolData;
 #endif
-#if LATEST
+#if !PRE_V1_44_1
         BeatmapLevelData = beatmapLevelData;
 #endif
     }
@@ -113,7 +123,7 @@ public class StartStandardLevelParameters
 #if !PRE_V1_40_8
         PlayerOverrideLightshowColors = original.PlayerOverrideLightshowColors;
 #endif
-#if !V1_29_1 && !LATEST
+#if !V1_29_1 && PRE_V1_44_1
         BeatmapOverrideColorScheme = original.BeatmapOverrideColorScheme;
 #endif
         GameplayModifiers = original.GameplayModifiers;
@@ -122,7 +132,7 @@ public class StartStandardLevelParameters
 #if !PRE_V1_37_1
         EnvironmentsListModel = original.EnvironmentsListModel;
 #endif
-#if LATEST
+#if !PRE_V1_44_1
         GameplayAdditionalInformation = original.GameplayAdditionalInformation;
         AfterSceneSwitchCallback = original.AfterSceneSwitchCallback;
 #else
@@ -133,10 +143,10 @@ public class StartStandardLevelParameters
         BeforeSceneSwitchCallback = original.BeforeSceneSwitchCallback;
         LevelFinishedCallback = original.LevelFinishedCallback;
         LevelRestartedCallback = original.LevelRestartedCallback;
-#if !V1_29_1
+#if !V1_29_1 && !LATEST
         RecordingToolData = original.RecordingToolData;
 #endif
-#if LATEST
+#if !PRE_V1_44_1
         BeatmapLevelData = original.BeatmapLevelData;
 #endif
     }
@@ -161,7 +171,7 @@ public class StartStandardLevelParameters
     public bool PlayerOverrideLightshowColors { get; }
 #endif
 
-#if !V1_29_1 && !LATEST
+#if !V1_29_1 && PRE_V1_44_1
     public ColorScheme? BeatmapOverrideColorScheme { get; }
 #endif
 
@@ -175,7 +185,7 @@ public class StartStandardLevelParameters
     public EnvironmentsListModel? EnvironmentsListModel { get; }
 #endif
 
-#if LATEST
+#if !PRE_V1_44_1
     public GameplayAdditionalInformation? GameplayAdditionalInformation { get; }
 #else
     public string BackButtonText { get; }
@@ -187,19 +197,25 @@ public class StartStandardLevelParameters
 
     public Action? BeforeSceneSwitchCallback { get; }
 
-#if LATEST
+#if !PRE_V1_44_1
     public Action<DiContainer>? AfterSceneSwitchCallback { get; }
 #endif
 
+#if LATEST
+    public Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>? LevelFinishedCallback { get; }
+
+    public Action<LevelScenesTransitionSetupData, LevelCompletionResults>? LevelRestartedCallback { get; }
+#else
     public Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>? LevelFinishedCallback { get; }
 
     public Action<LevelScenesTransitionSetupDataSO, LevelCompletionResults>? LevelRestartedCallback { get; }
+#endif
 
-#if !V1_29_1
+#if !V1_29_1 && !LATEST
     public RecordingToolManager.SetupData? RecordingToolData { get; }
 #endif
 
-#if LATEST
+#if !PRE_V1_44_1
     public IBeatmapLevelData? BeatmapLevelData { get; }
 #endif
 

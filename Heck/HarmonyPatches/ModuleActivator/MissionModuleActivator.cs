@@ -39,9 +39,15 @@ internal class MissionModuleActivator : IInitializable
     [HarmonyTargetMethods]
     private static IEnumerable<MethodBase> TargetMethods()
     {
+#if LATEST
+        return typeof(MissionLevelScenesTransitionSetupData)
+            .GetMethods()
+            .Where(n => n.Name == nameof(MissionLevelScenesTransitionSetupData.Init));
+#else
         return typeof(MissionLevelScenesTransitionSetupDataSO)
             .GetMethods()
             .Where(n => n.Name == nameof(MissionLevelScenesTransitionSetupDataSO.Init));
+#endif
     }
 }
 #endif

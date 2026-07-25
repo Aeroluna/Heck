@@ -22,7 +22,7 @@ internal static class RingAwakeInstantiator
         typeof(RingAwakeInstantiator),
         nameof(QueueInject));
 
-#if LATEST
+#if !PRE_V1_44_1
     private static readonly MethodInfo _queueInjectParent = AccessTools.Method(
         typeof(RingAwakeInstantiator),
         nameof(QueueInjectParent));
@@ -89,7 +89,7 @@ internal static class RingAwakeInstantiator
     private static IEnumerable<CodeInstruction> QueueInjectTranspiler(IEnumerable<CodeInstruction> instructions)
     {
         return new CodeMatcher(instructions)
-#if LATEST
+#if !PRE_V1_44_1
         /*
          * -- this._rings[i] = this._container.InstantiatePrefabForComponent<TrackLaneRing>(this._trackLaneRingPrefab, base.transform);
          * ++ this._rings[i] = QueueInjectParent(this._container, this._trackLaneRingPrefab);

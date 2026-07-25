@@ -22,7 +22,11 @@ internal class ReLoadRestart : IAffinity
     [AffinityPatch(typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.HandleMainGameSceneDidFinish))]
     private void Prefix(
         LevelCompletionResults levelCompletionResults,
+#if LATEST
+        StandardLevelScenesTransitionSetupData ____standardLevelScenesTransitionSetupData)
+#else
         StandardLevelScenesTransitionSetupDataSO ____standardLevelScenesTransitionSetupData)
+#endif
     {
         if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.Restart)
         {

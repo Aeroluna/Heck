@@ -29,7 +29,7 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
             original.gameplayModifiers,
             original.playerSpecificSettings,
             original.practiceSettings,
-#if !LATEST
+#if PRE_V1_44_1
             original.useTestNoteCutSoundEffects,
 #endif
 #if !PRE_V1_40_8
@@ -48,18 +48,23 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
             original._beatmapDataLoader,
             original._beatmapLevelsEntitlementModel,
             original._enableBeatmapDataCaching,
-#if LATEST
+#if !PRE_V1_44_1
             original.environmentsListModel,
             original._allowNullBeatmapLevelData,
             original._beatmapLevelsModel,
+    #if LATEST
+            original.beatmapLevelData)
+    #else
             original.beatmapLevelData,
+            original.recordingToolData)
+    #endif
 #else
             original._allowNullBeatmapLevelData,
     #if !PRE_V1_40_8
             original.environmentsListModel,
     #endif
-#endif
             original.recordingToolData)
+#endif
     {
         GameplayCoreSceneSetupData @this = this;
         _beatmapLevelsModelAccessor(ref @this) = original._beatmapLevelsModel;
@@ -77,7 +82,11 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
 
     // i hate gettype i hate gettype i hate gettype
     [HarmonyTranspiler]
+#if LATEST
+    [HarmonyPatch(typeof(ScenesTransitionSetupData), nameof(ScenesTransitionSetupData.InstallBindings))]
+#else
     [HarmonyPatch(typeof(ScenesTransitionSetupDataSO), nameof(ScenesTransitionSetupDataSO.InstallBindings))]
+#endif
     private static IEnumerable<CodeInstruction> HeckOff(IEnumerable<CodeInstruction> instructions)
     {
         return new CodeMatcher(instructions)

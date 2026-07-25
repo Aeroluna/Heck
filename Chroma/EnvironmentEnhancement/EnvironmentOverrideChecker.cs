@@ -99,7 +99,7 @@ internal class EnvironmentOverrideChecker
             return false;
         }
 
-#if LATEST
+#if !PRE_V1_44_1
         string sceneName = environmentInfo.environmentSceneName;
 #else
         string sceneName = environmentInfo.sceneInfo.sceneName;
