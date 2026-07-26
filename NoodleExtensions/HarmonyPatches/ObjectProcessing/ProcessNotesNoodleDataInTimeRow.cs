@@ -38,6 +38,8 @@ internal static class ProcessNotesNoodleDataInTimeRow
 
     private static readonly FieldInfo _sliderField = AccessTools.Field(_sliderTailDataType, "slider");
 
+    private static readonly MethodInfo _lineIndexGetter = AccessTools.PropertyGetter(typeof(NoteData), nameof(NoteData.lineIndex));
+
     private static IReadOnlyList<T> AccessContainerItems<T>(object timeSliceContainer)
     {
         // ReSharper disable once InvertIf
@@ -354,8 +356,8 @@ internal static class ProcessNotesNoodleDataInTimeRow
             .MatchForward(
                 true,
                 new CodeMatch(OpCodes.Ldloc_S),
-                new CodeMatch(OpCodes.Callvirt),
-                new CodeMatch(OpCodes.Ldelem_Ref))
+                new CodeMatch(OpCodes.Callvirt, _lineIndexGetter))
+            .Advance(1)
             .Insert(
                 new CodeInstruction(OpCodes.Ldc_I4_0),
                 new CodeInstruction(OpCodes.Ldc_I4_3),
