@@ -19,7 +19,8 @@
     <DependsOn Include="BeatSaberMarkupLanguage" Version="^1.5.9"/>
     <DependsOn Include="BSIPA" Version="^4.2.2"/>
     <DependsOn Include="CustomJSONData" Version="^2.6.1"/>
-    <DependsOn Include="SiraUtil" Version="^3.0.5"/>
+    <DependsOn Include="SiraUtil" Version="^3.0.5" Condition="$(PRE_V1_40_8) != ''"/>
+    <DependsOn Include="SiraUtil" Version="^3.2.0" Condition="$(PRE_V1_40_8) == ''"/>
   </ItemGroup>
 
   <ItemDefinitionGroup>

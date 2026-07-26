@@ -1,4 +1,5 @@
-﻿using SiraUtil.Affinity;
+﻿#if PRE_V1_40_8
+using SiraUtil.Affinity;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
 
@@ -24,3 +25,4 @@ internal class SiraUtilHeadFinder : IAffinity
         FpfcHeadTransform = null;
     }
 }
+#endif

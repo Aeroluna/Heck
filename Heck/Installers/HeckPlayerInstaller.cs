@@ -30,8 +30,10 @@ internal class HeckPlayerInstaller : Installer
 
         Container.Bind<ObjectInitializerManager>().AsSingle();
 
+#if PRE_V1_40_8
         // Get fpfc head
         Container.BindInterfacesAndSelfTo<SiraUtilHeadFinder>().AsSingle();
+#endif
 
         // Note Cut Sound Fix
         Container.BindInterfacesTo<NoteCutSoundDelayer>().AsSingle();
