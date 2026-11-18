@@ -46,6 +46,7 @@
     <Reference Include="Colors" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll"/>
     <Reference Include="CustomJSONData" HintPath="$(BeatSaberDir)\Plugins\CustomJSONData.dll"/>
     <Reference Include="GameplayCore" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll"/>
+    <Reference Include="Hive.Versioning" HintPath="$(BeatSaberDir)\Libs\Hive.Versioning.dll"/>
     <Reference Include="HMLib" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll"/>
     <Reference Include="HMUI" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll" Publicize="true"/>
     <Reference Include="IPA.Loader" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll"/>
@@ -54,6 +55,7 @@
     <Reference Include="MonoMod.Utils" HintPath="$(BeatSaberDir)\Libs\MonoMod.Utils.dll"/>
     <Reference Include="Newtonsoft.Json" HintPath="$(BeatSaberDir)\Libs\Newtonsoft.Json.dll"/>
     <Reference Include="SiraUtil" HintPath="$(BeatSaberDir)\Plugins\SiraUtil.dll" Publicize="true"/>
+    <Reference Include="Unity.TextMeshPro" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll"/>
     <Reference Include="UnityEngine.AudioModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.AudioModule.dll"/>
     <Reference Include="UnityEngine.CoreModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll"/>
     <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.InputLegacyModule.dll"/>
@@ -66,6 +68,8 @@
     <EmbeddedResource Include="SettingsSetter\SettableSettingsContent.bsml"/>
     <EmbeddedResource Include="SettingsSetter\SettingsSetter.bsml"/>
     <EmbeddedResource Include="SettingsSetter\SettingsSetterSettableSettings.json"/>
+    <EmbeddedResource Include="VersionCheck\VersionCheck.bsml" />
+    <EmbeddedResource Include="VersionCheck\VersionCheckContent.bsml" />
   </ItemGroup>
 
   <ItemGroup>

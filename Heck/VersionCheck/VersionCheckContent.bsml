@@ -1,0 +1,12 @@
+<bg id='contentObject'>
+  <vertical bg='round-rect-panel' horizontal-fit='PreferredSize' vertical-fit='PreferredSize'>
+    <scroll-view preferred-height='52' preferred-width='96'>
+      <macro.for-each hosts='contents'>
+        <horizontal preferred-width='80'>
+          <text text='~lefttext' align='Left' font-size='4'/>
+          <text text='~righttext' align='Right' font-size='4'/>
+        </horizontal>
+      </macro.for-each>
+    </scroll-view>
+  </vertical>
+</bg>

@@ -2,6 +2,7 @@
 using Heck.PlayView;
 using Heck.ReLoad;
 using Heck.SettingsSetter;
+using Heck.VersionCheck;
 using JetBrains.Annotations;
 using Zenject;
 
@@ -22,5 +23,8 @@ internal class HeckMenuInstaller : Installer
         Container.BindInterfacesTo<SettingsSetterViewController>().FromNewComponentAsViewController().AsSingle();
         Container.BindInterfacesTo<PlayViewInterrupter>().AsSingle();
         Container.BindInterfacesAndSelfTo<FlowCoordinatorTransitionListener>().AsSingle();
+
+        // Mod Version Check
+        Container.BindInterfacesTo<VersionCheckViewController>().FromNewComponentAsViewController().AsSingle();
     }
 }

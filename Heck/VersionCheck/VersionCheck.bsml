@@ -1,0 +1,9 @@
+<bg>
+  <vertical vertical-fit='PreferredSize' preferred-height='110'>
+    <vertical>
+      <text id='header' text='' align='Center' font-size='4'/>
+    </vertical>
+    <vertical/>
+    <vertical/>
+  </vertical>
+</bg>
