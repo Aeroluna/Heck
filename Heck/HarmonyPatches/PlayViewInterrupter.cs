@@ -80,7 +80,13 @@ internal class PlayViewInterrupter : IAffinity
         Action beforeSceneSwitchCallback)
     {
         return new StartMultiplayerLevelParameters(
+#if LATEST
+#pragma warning disable SA1114
+            GameMode.Multiplayer,
+#pragma warning restore SA1114
+#else
             "Multiplayer",
+#endif
             gameplaySetupData.beatmapKey,
             instance._beatmapLevelsModel.GetBeatmapLevel(gameplaySetupData.beatmapKey.levelId)!,
             beatmapLevelData,

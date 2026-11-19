@@ -193,6 +193,21 @@ public class LightColorizer
         Initialize(lightSwitchEventEffect._lightColor0Boost, 2);
         Initialize(lightSwitchEventEffect._lightColor1Boost, 3);
 
+#if LATEST
+        LightWithIdManager.LightMapData? lightMapData = lightManager._oldMapping[lightSwitchEventEffect.lightsId];
+        if (lightMapData == null)
+        {
+            lightMapData = new LightWithIdManager.LightMapData
+            {
+                lightInstances = [],
+                color = UnityEngine.Color.clear,
+                hasColor = false
+            };
+            lightManager._oldMapping[lightSwitchEventEffect.lightsId] = lightMapData;
+        }
+
+        LightMapData = lightMapData;
+#else
         List<ILightWithId>? lights = lightManager._lights[lightSwitchEventEffect.lightsId];
 
         // possible uninitialized
@@ -203,6 +218,8 @@ public class LightColorizer
         }
 
         Lights = lights;
+#endif
+
         return;
 
         void Initialize(ColorSO colorSO, int index)
@@ -231,7 +248,11 @@ public class LightColorizer
         }
     }
 
+#if LATEST
+    public LightWithIdManager.LightMapData LightMapData { get; }
+#else
     public IReadOnlyList<ILightWithId> Lights { get; }
+#endif
 
     public ILightWithId[][] LightsPropagationGrouped
     {
@@ -245,7 +266,11 @@ public class LightColorizer
             // AAAAAA PROPAGATION STUFFF
             Dictionary<int, List<ILightWithId>> lightsPreGroup = new();
             TrackLaneRingsManager[] managers = Object.FindObjectsOfType<TrackLaneRingsManager>();
+#if LATEST
+            foreach (ILightWithId light in LightMapData.lightInstances)
+#else
             foreach (ILightWithId light in Lights)
+#endif
             {
                 if (light is not MonoBehaviour monoBehaviour)
                 {
@@ -324,7 +349,11 @@ public class LightColorizer
         foreach (int id in ids)
         {
             int newId = _tableManager.GetActiveTableValue(_lightId, id) ?? id;
+#if LATEST
+            ILightWithId? lightWithId = LightMapData.lightInstances.ElementAtOrDefault(newId);
+#else
             ILightWithId? lightWithId = Lights.ElementAtOrDefault(newId);
+#endif
             if (lightWithId != null)
             {
                 _reusableLightsList.Add(lightWithId);

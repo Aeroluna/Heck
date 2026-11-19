@@ -7,7 +7,11 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
 {
     [UsedImplicitly]
     public StartMultiplayerLevelParameters(
+#if LATEST
+        GameMode gameMode,
+#else
         string gameMode,
+#endif
 #if !PRE_V1_37_1
         in BeatmapKey beatmapKey,
         BeatmapLevel beatmapLevel,

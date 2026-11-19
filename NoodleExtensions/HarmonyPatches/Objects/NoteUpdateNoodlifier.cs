@@ -52,7 +52,7 @@ internal class NoteUpdateNoodlifier : IAffinity
         NoteJump noteJump = ____noteMovement._jump;
         NoteFloorMovement floorMovement = ____noteMovement._floorMovement;
 #if !PRE_V1_40_8
-        IVariableMovementDataProvider variableMovementDataProvider = ____noteMovement._variableMovementDataProvider;
+        IVariableMovementDataProvider variableMovementDataProvider = noteJump._variableMovementDataProvider;
 #endif
 
         float? time = noodleData.GetTimeProperty();

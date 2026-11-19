@@ -22,7 +22,7 @@ public class ReLoaderLoader
 
     public void Reload()
     {
-        _beatmapDataLoader._lastUsedBeatmapDataCache = default;
+        _beatmapDataLoader._lastUsedBeatmapDataCache = null;
     }
 #else
     private static readonly FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.Accessor _beatmapSaveDataAccessor

@@ -25,9 +25,14 @@ internal class InitializedSpawnMovementData
             jumpOffsetYProvider,
             Vector3.right);
 
+#if LATEST
+        float minRelativeNoteJumpSpeed =
+            BeatmapObjectSpawnControllerHelpers.GetMinRelativeNoteJumpSpeedUntilLastBeatmapObject(beatmapData);
+#else
         float minRelativeNoteJumpSpeed = beatmapData
             .GetBeatmapDataItems<NoteJumpSpeedEventData>(0)
             .Aggregate(0.0f, (current, beatmapDataItem) => Mathf.Min(current, beatmapDataItem.relativeNoteJumpSpeed));
+#endif
         variableMovementDataProvider.Init(
             beatmapObjectSpawnMovementData.startHalfJumpDurationInBeats,
             beatmapObjectSpawnMovementData.maxHalfJumpDistance,
@@ -66,8 +71,14 @@ internal class InitializedSpawnMovementData
              */
             .Start()
 #if !PRE_V1_40_8
+#if LATEST
             /*
-             *
+             * -- this._beatmapObjectSpawnMovementData.Init(this._initData.noteLinesCount, this._jumpOffsetYProvider, Vector3.right);
+             * -- this._variableMovementDataProvider.Init(this._beatmapObjectSpawnMovementData.startHalfJumpDurationInBeats, this._beatmapObjectSpawnMovementData.maxHalfJumpDistance, this._initData.noteJumpMovementSpeed, BeatmapObjectSpawnControllerHelpers.GetMinRelativeNoteJumpSpeedUntilLastBeatmapObject(this._beatmapData), this._initData.beatsPerMinute, this._initData.noteJumpValueType, this._initData.noteJumpValue, this._beatmapObjectSpawnMovementData.centerPos, Vector3.forward);
+             */
+            .RemoveInstructions(37)
+#else
+            /*
              * -- float num = 0f;
              * -- foreach (NoteJumpSpeedEventData noteJumpSpeedEventData in this._beatmapData.GetBeatmapDataItems<NoteJumpSpeedEventData>(0))
              * -- {
@@ -76,6 +87,7 @@ internal class InitializedSpawnMovementData
              * -- this._variableMovementDataProvider.Init(this._beatmapObjectSpawnMovementData.startHalfJumpDurationInBeats, this._beatmapObjectSpawnMovementData.maxHalfJumpDistance, this._initData.noteJumpMovementSpeed, num, this._initData.beatsPerMinute, this._initData.noteJumpValueType, this._initData.noteJumpValue, this._beatmapObjectSpawnMovementData.centerPos, Vector3.forward);
              */
             .RemoveInstructions(61)
+#endif
 #else
             .RemoveInstructions(22)
 #endif

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using IPA.Utilities;
 
@@ -52,12 +53,12 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
             original.environmentsListModel,
             original._allowNullBeatmapLevelData,
             original._beatmapLevelsModel,
-    #if LATEST
+#if LATEST
             original.beatmapLevelData)
-    #else
+#else
             original.beatmapLevelData,
             original.recordingToolData)
-    #endif
+#endif
 #else
             original._allowNullBeatmapLevelData,
     #if !PRE_V1_40_8
@@ -71,9 +72,16 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
         beatmapLevelData = original.beatmapLevelData;
     }
 
+#if LATEST
+    public IReadonlyBeatmapData UntransformedBeatmapData =>
+        _untransformedBeatmapData ??=
+            (IReadonlyBeatmapData?)((ICustomData?)transformedBeatmapData)?.customData["HECK_untransformedBeatmapData"] ??
+            throw new InvalidOperationException("Failed to get untransformed beatmap data.");
+#else
     public IReadonlyBeatmapData UntransformedBeatmapData =>
         _untransformedBeatmapData ??
         throw new InvalidOperationException($"[{nameof(_untransformedBeatmapData)}] was null.");
+#endif
 
     private static Type HeckGetType(Type original)
     {
@@ -99,6 +107,22 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
             .InstructionEnumeration();
     }
 
+#if LATEST
+    // the untransformed beatmapdata is buried underneath like 3 async methods that would be hell to traverse
+    // but what if we just kept a reference to the untransformed beatmapdata on the final beatmapdata itself?
+    // if its stupid but it works, is it really that stupid?
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(BeatmapDataTransformHelper), nameof(BeatmapDataTransformHelper.CreateTransformedBeatmapData))]
+    private static void OverrideGetTransformedBeatmapDataAsync(
+        IReadonlyBeatmapData beatmapData,
+        IReadonlyBeatmapData __result)
+    {
+        if (__result is ICustomData customDataHolder)
+        {
+            customDataHolder.customData["HECK_untransformedBeatmapData"] = beatmapData;
+        }
+    }
+#else
     [HarmonyPrefix]
     [HarmonyPatch(typeof(GameplayCoreSceneSetupData), nameof(TransformBeatmapData))]
     private static void OverrideGetTransformedBeatmapDataAsync(
@@ -110,5 +134,6 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
             hecked._untransformedBeatmapData = beatmapData;
         }
     }
+#endif
 }
 #endif

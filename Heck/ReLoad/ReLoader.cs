@@ -212,17 +212,26 @@ public class ReLoader : ITickable
         ////IReadonlyBeatmapData beatmapData = _gameplayCoreSceneSetupData.transformedBeatmapData;
         BeatmapLevel beatmapLevel = _gameplayCoreSceneSetupData.beatmapLevel;
         BeatmapKey beatmapKey = _gameplayCoreSceneSetupData.beatmapKey;
-        float beatsPerMinute = beatmapLevel.beatsPerMinute;
 #if LATEST
-        EnvironmentName environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.characteristic, beatmapKey.difficulty);
+        IReadonlyBeatmapData beatmapData = _gameplayCoreSceneSetupData._beatmapDataLoader.LoadAndTransformAsync(
+            beatmapKey,
+            beatmapLevel,
+            _gameplayCoreSceneSetupData.gameplayModifiers,
+            _gameplayCoreSceneSetupData.playerSpecificSettings,
+            _gameplayCoreSceneSetupData.targetEnvironmentInfo,
+            _gameplayCoreSceneSetupData.originalEnvironmentInfo,
+            _gameplayCoreSceneSetupData.beatmapLevelData,
+            BeatmapLevelDataVersion.Original, // this isnt technically correct buts its probably fine
+            _gameplayCoreSceneSetupData._settingsManager.settings.quality.screenDisplacementEffects).Result
+                                           ?? throw new InvalidOperationException("LoadAndTransformAsync returned null.");
 #else
         EnvironmentName environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
-#endif
 #if !PRE_V1_40_8
         EnvironmentInfoSO targetEnvironmentInfo = _gameplayCoreSceneSetupData.targetEnvironmentInfo;
 #else
         EnvironmentInfoSO targetEnvironmentInfo = _gameplayCoreSceneSetupData.environmentInfo;
 #endif
+        float beatsPerMinute = beatmapLevel.beatsPerMinute;
         IReadonlyBeatmapData beatmapData = _gameplayCoreSceneSetupData.TransformBeatmapData(
             _gameplayCoreSceneSetupData._beatmapDataLoader.LoadBeatmapData(
                 _gameplayCoreSceneSetupData.beatmapLevelData!,
@@ -236,12 +245,10 @@ public class ReLoader : ITickable
                 BeatmapLevelDataVersion.Original,
                 _gameplayCoreSceneSetupData.gameplayModifiers,
                 _gameplayCoreSceneSetupData.playerSpecificSettings)!);
+#endif
 #else
         _reLoaderLoader.Reload(_difficultyBeatmap);
-        IReadonlyBeatmapData beatmapData =
-            Task.Run<IReadonlyBeatmapData>(
-                    async () => await _gameplayCoreSceneSetupData.GetTransformedBeatmapDataAsync())
-                .Result;
+        IReadonlyBeatmapData beatmapData = _gameplayCoreSceneSetupData.GetTransformedBeatmapDataAsync().Result;
 #endif
         FillBeatmapData(beatmapData, _beatmapData);
 

@@ -11,7 +11,11 @@ public class StartStandardLevelParameters
 {
     [UsedImplicitly]
     public StartStandardLevelParameters(
+#if LATEST
+        GameMode gameMode,
+#else
         string gameMode,
+#endif
 #if !PRE_V1_37_1
         in BeatmapKey beatmapKey,
         BeatmapLevel beatmapLevel,
@@ -151,7 +155,11 @@ public class StartStandardLevelParameters
 #endif
     }
 
+#if LATEST
+    public GameMode GameMode { get; }
+#else
     public string GameMode { get; }
+#endif
 
 #if !PRE_V1_37_1
     public BeatmapKey BeatmapKey { get; }
