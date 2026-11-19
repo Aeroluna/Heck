@@ -1,16 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Chroma.EnvironmentEnhancement;
 
 internal static class LookupID
 {
     private const string LOOKUPDLL = "LookupID.dll";
+    private const string LOOKUPDLL_RESOURCE = $"Chroma.{LOOKUPDLL}";
 
-    private static bool _useFallback;
+    private static bool _useFallback = true;
+
+    internal static async Task ExtractDLL()
+    {
+        FileInfo library = new(Path.Combine(IPA.Utilities.UnityGame.NativeLibraryPath, LOOKUPDLL));
+        if (library.Exists)
+        {
+            Plugin.Log.Trace($"[{LOOKUPDLL}] already extracted");
+            _useFallback = false;
+            return;
+        }
+
+        if (library.Directory == null)
+        {
+            Plugin.Log.Warn($"[{library.Directory}] was null, could not extract [{LOOKUPDLL}]");
+            return;
+        }
+
+        library.Directory.Create();
+        using Stream resourceStream = typeof(LookupID).Assembly.GetManifestResourceStream(LOOKUPDLL_RESOURCE) ??
+                                       throw new InvalidOperationException(
+                                           $"Could not find embedded resource [{LOOKUPDLL_RESOURCE}].");
+        using FileStream writeStream = library.OpenWrite();
+        await resourceStream.CopyToAsync(writeStream);
+        Plugin.Log.Trace($"Successfully extracted [{LOOKUPDLL}] to [{library.FullName}]");
+        _useFallback = false;
+    }
 
     // this is where i pretend to know what any of this is doing.
     internal static List<GameObjectInfo> Get(

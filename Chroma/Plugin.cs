@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Chroma.EnvironmentEnhancement;
 using Chroma.Installers;
 using Chroma.Lighting;
 using Chroma.Settings;
@@ -44,6 +45,8 @@ internal class Plugin
         Track.RegisterProperty<float>(V2_OFFSET, V2_OFFSET);
         Track.RegisterProperty<float>(V2_HEIGHT_FOG_STARTY, V2_HEIGHT_FOG_STARTY);
         Track.RegisterProperty<float>(V2_HEIGHT_FOG_HEIGHT, V2_HEIGHT_FOG_HEIGHT);
+
+        _ = LookupID.ExtractDLL();
     }
 
     internal static Logger Log { get; private set; } = null!;
