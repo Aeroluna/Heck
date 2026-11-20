@@ -146,6 +146,10 @@ internal class MaterialsManager : IDisposable
 #endif
 
         Material material = Object.Instantiate(originalMaterial);
+
+        // materials copied from the game's environments (e.g. InterscopeConcrete) have instancing disabled,
+        // which costs one draw call per geometry object
+        material.enableInstancing = true;
         _createdMaterials.Add(material);
         if (color != null)
         {
