@@ -26,5 +26,14 @@ internal class HeckMenuInstaller : Installer
 
         // Mod Version Check
         Container.BindInterfacesTo<VersionCheckViewController>().FromNewComponentAsViewController().AsSingle();
+
+#if !PRE_V1_37_1
+        if (!HeckController.DebugMode)
+        {
+            return;
+        }
+
+        Container.BindInterfacesAndSelfTo<SongCoreCacheReLoader>().AsSingle();
+#endif
     }
 }

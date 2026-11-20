@@ -14,8 +14,12 @@ public class ReLoaderLoader
 #if !PRE_V1_37_1
     private readonly BeatmapDataLoader _beatmapDataLoader;
 
+#if !PRE_V1_44_1
+    private SongCoreCacheReLoader? _songCoreCacheReLoader;
+#endif
+
     [UsedImplicitly]
-    public ReLoaderLoader(BeatmapDataLoader beatmapDataLoader)
+    private ReLoaderLoader(BeatmapDataLoader beatmapDataLoader)
     {
         _beatmapDataLoader = beatmapDataLoader;
     }
@@ -26,8 +30,17 @@ public class ReLoaderLoader
         _beatmapDataLoader._lastUsedBeatmapDataCache = default;
 #else
         _beatmapDataLoader.ClearLastUsedBeatmapCache();
+        _songCoreCacheReLoader?.InvalidateSongCoreCache();
 #endif
     }
+
+#if !PRE_V1_44_1
+    // why is the songcore cache installed on the menu!?!
+    internal void RegisterSongCoreCacheReLoader(SongCoreCacheReLoader songCoreCacheReLoader)
+    {
+        _songCoreCacheReLoader = songCoreCacheReLoader;
+    }
+#endif
 #else
     private static readonly FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.Accessor _beatmapSaveDataAccessor
         = FieldAccessor<CustomDifficultyBeatmap, BeatmapSaveData>.GetAccessor("<beatmapSaveData>k__BackingField");
