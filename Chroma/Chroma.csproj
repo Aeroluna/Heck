@@ -60,10 +60,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Heck\Heck.csproj"/>
-    <ProjectReference Include="..\LookupID\LookupID.vcxproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <OutputItemType>Content</OutputItemType>
-    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -71,16 +67,22 @@
     <EmbeddedResource Include="Settings\modifiers.bsml"/>
   </ItemGroup>
 
+  <Target Name="RestoreLookupID" BeforeTargets="EmbedLookupID">
+    <MSBuild
+            Projects="..\LookupID\LookupID.vcxproj"
+            Targets="Restore">
+    </MSBuild>
+  </Target>
+
   <Target Name="EmbedLookupID" AfterTargets="ResolveAssemblyReferences">
     <MSBuild
-            Projects="@(ProjectReference)"
-            Targets="GetTargetPath"
-            Condition="'%(OutputItemType)'=='Content'"
+            Projects="..\LookupID\LookupID.vcxproj"
+            Targets="Build;GetTargetPath"
             Properties="Configuration=Release;Platform=x64">
-      <Output TaskParameter="TargetOutputs" ItemName="LookupIDAssembly"/>
+      <Output TaskParameter="TargetOutputs" PropertyName="LookupIDAssembly"/>
     </MSBuild>
     <ItemGroup>
-      <EmbeddedResource Include="@(LookupIDAssembly)">
+      <EmbeddedResource Include="$(LookupIDAssembly)">
         <LogicalName>Chroma.LookupID.dll</LogicalName>
       </EmbeddedResource>
     </ItemGroup>
