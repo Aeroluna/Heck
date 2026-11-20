@@ -69,7 +69,4 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <PropertyGroup>
-    <UserProfile>$([System.Environment]::GetFolderPath(SpecialFolder.UserProfile))</UserProfile>
-  </PropertyGroup>
 </Project>
