@@ -6,7 +6,7 @@ on:
 jobs:
   upload:
     name: Upload
-    uses: Aeroluna/workflows/.github/workflows/bs-upload-release-to-beatmods.yml@lunarrepo
+    uses: Aeroluna/workflows/.github/workflows/bs-upload-release-to-lunarrepo.yml@main
     with:
       mods: '{"CustomJSONData": "customjsondata", "Chroma": "chroma", "Heck": "heck", "NoodleExtensions": "noodleextensions"}'
     secrets:
