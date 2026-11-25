@@ -6,8 +6,8 @@ on:
 jobs:
   upload:
     name: Upload
-    uses: Aeroluna/workflows/.github/workflows/bs-upload-release-to-beatmods.yml@main
+    uses: Aeroluna/workflows/.github/workflows/bs-upload-release-to-beatmods.yml@lunarrepo
     with:
-      mods: '{"CustomJSONData": 129, "Chroma": 132, "Heck": 338, "NoodleExtensions": 193}'
+      mods: '{"CustomJSONData": "customjsondata", "Chroma": "chroma", "Heck": "heck", "NoodleExtensions": "noodleextensions"}'
     secrets:
       token: ${{ secrets.PAT }}
