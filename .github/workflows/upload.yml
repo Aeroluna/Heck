@@ -9,5 +9,6 @@ jobs:
     uses: Aeroluna/workflows/.github/workflows/bs-upload-release-to-lunarrepo.yml@main
     with:
       mods: '{"CustomJSONData": "customjsondata", "Chroma": "chroma", "Heck": "heck", "NoodleExtensions": "noodleextensions"}'
+      extend-game-versions: 'none'
     secrets:
       token: ${{ secrets.PAT }}
